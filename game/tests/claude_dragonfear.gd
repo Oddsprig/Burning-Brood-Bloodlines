@@ -38,13 +38,9 @@ func run(tree: SceneTree) -> int:
 	main = (load("res://main.tscn") as PackedScene).instantiate()
 	tree.root.add_child.call_deferred(main)
 	await frames(tree, 8)
-	WorldGen.gen_size = "normal"; CampaignWorld.presim_span_days = 1
-	var generation := Game.new_game_begin(4242)
-	while not Game.new_game_slice(generation, 8000): await tree.process_frame
-	var history := {}
-	while CampaignWorld.presim_left(Game) > 0:
-		CampaignWorld.presim_slice(Game, history, 8000); await tree.process_frame
-	CampaignWorld.presim_finish(Game, 0); Dynasty.prepare_world(Game); Game.new_game_finalize()
+	if not await DevTools.start_world(tree, "user://claude_dragonfear-test.json"):
+		printerr("FAIL: the start world did not load")
+		return 1
 	# Choose a ruling house that owns an adult dragon at home (as claude_campaign).
 	var tid := ""
 	for dragon: Dictionary in Dragons.records(Game):
@@ -60,10 +56,10 @@ func run(tree: SceneTree) -> int:
 	Game.location = tid
 	var purse0 := float(Feudal._payer(Game).get("purse", 0.0))
 	var fund := Mobilization.fund(Game, int(floor(purse0 * 0.6)))
-	var quote := Mobilization.quote(Game, tid, 200)
+	var quote := Mobilization.quote(Game, tid, 40)   # small: the siege stays a one-clash battle
 	check(fund.get("ok", false) and quote.get("ok", false), "army funded from the real house purse")
-	Mobilization.muster(Game, tid, 200, quote.get("review", {}))
-	check(Game.company.size() > 50, "raised %d real residents" % Game.company.size())
+	Mobilization.muster(Game, tid, 40, quote.get("review", {}))
+	check(Game.company.size() >= 20, "raised %d real residents" % Game.company.size())
 	var marched := 0
 	for dragon: Dictionary in Dragons.records(Game):
 		var uid := str(dragon["id"])

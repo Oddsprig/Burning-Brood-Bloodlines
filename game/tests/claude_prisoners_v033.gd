@@ -55,16 +55,9 @@ func run(tree: SceneTree) -> int:
 	await tree.process_frame
 	Game.wait_save()
 	previous_save_path = Game.SAVE_PATH
-	Game.SAVE_PATH = "user://prisoners033-test.json"
-	WorldGen.gen_size = "normal"; CampaignWorld.presim_span_days = 1
-	var generation := Game.new_game_begin(4242)
-	while not Game.new_game_slice(generation, 8000): await tree.process_frame
-	var history := {}
-	while CampaignWorld.presim_left(Game) > 0:
-		CampaignWorld.presim_slice(Game, history, 8000)
-		await tree.process_frame
-	CampaignWorld.presim_finish(Game, 0)
-	Dynasty.prepare_world(Game); Game.new_game_finalize()
+	if not await DevTools.start_world(tree, "user://prisoners033-test.json"):
+		check(false, "the shared test world loads")
+		return _finish()
 	var seat := ""
 	var by_pop: Array = Dynasty.choices(Game)
 	by_pop.sort_custom(func(a, b): return int(Game.world["towns"][a["town_id"]]["econ"]["pop"]) > int(Game.world["towns"][b["town_id"]]["econ"]["pop"]))

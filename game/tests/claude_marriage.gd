@@ -9,12 +9,9 @@ func check(ok: bool, m: String) -> void:
 	print(("ok   " if ok else "FAIL ") + m)
 func run(tree: SceneTree) -> int:
 	await tree.process_frame
-	WorldGen.gen_size = "normal"; CampaignWorld.presim_span_days = 1
-	var g := Game.new_game_begin(777)
-	while not Game.new_game_slice(g, 0): pass
-	var h := {}
-	while CampaignWorld.presim_left(Game) > 0: CampaignWorld.presim_slice(Game, h, 0)
-	CampaignWorld.presim_finish(Game, 0); Dynasty.prepare_world(Game); Game.new_game_finalize()
+	if not await DevTools.start_world(tree, "user://claude_marriage-test.json"):
+		printerr("FAIL: the start world did not load")
+		return 1
 	var pick: Dictionary = {}
 	for c: Dictionary in Dynasty.choices(Game):
 		var home: Dictionary = Dynasty._household(Game, str(c["household_uid"]))
@@ -64,9 +61,10 @@ func run(tree: SceneTree) -> int:
 	# Children over time (the native childbearing rules).
 	var kids0 := Marriage.children_of(Game, str(member["person_uid"])).size()
 	var wife_uid := str(member["person_uid"]) if int(member["sex"]) == 1 else str(best["person_uid"])
-	for d in 400:
-		Game.advance_time(1.0, false, 0, 0)
-		while not Game.world.get("work", []).is_empty(): CampaignWorld.work_slice(Game, 50000)
+	var husband_uid := str(best["person_uid"]) if int(member["sex"]) == 1 else str(member["person_uid"])
+	check(DevTools.due_birth(Game, wife_uid, husband_uid, 1.0), "a child is due (developer tool)")
+	for d in 8:   # born at the family's next weekly turn
+		DevTools.run_days(Game, 1)
 		if Marriage.children_of(Game, str(member["person_uid"])).size() > kids0: break
 	var kids := Marriage.children_of(Game, str(member["person_uid"]))
 	check(kids.size() > kids0, "the couple had a child of your house within %d days (%d)" % [int(Game.day), kids.size()])

@@ -35,10 +35,6 @@ The full local history before v0.032 stays on the user's PC.
 2. v0.036 dragon portrait fangs.
 
 ## Running and testing
-- **TEST TIME RULE (user, 2026-10-17, unless the user asks otherwise): each test under 1 minute, 3 minutes is the cap.**
-  Start tests from the shared saved world (`tests/fixture.gd`, `TestFixture.start`), set later-game states up directly
-  instead of simulating weeks, fight the smallest battle that proves the point, prefer headless logic tests, and run
-  only the tests a change touches plus the main checks once. No long diagnostics or benchmarks.
 - **Every test uses the smallest world (Normal) with a one-day world history** (user direction 2026-10-17). These are
   also the game's defaults: `WorldGen.WORLD_SIZE = "normal"`, `CampaignWorld.PRESIM_DEFAULT_DAYS = 1`. Don't spend time
   on bigger worlds or longer histories unless asked.
@@ -47,7 +43,9 @@ The full local history before v0.032 stays on the user's PC.
 - **Test time budget (user rule): every test run aims for under 1 minute and must finish within 3 minutes**, unless the user asks
   otherwise. Design tests to fit: load saved-game fixtures for later-game states, use small worlds and the fewest days and battles
   that prove the change, and run only the tests the change touches. Never run long multi-test passes. The runner's default
-  watchdog is 180 s; do not raise it to make a slow test pass, cut the test down.
+  watchdog is 180 s; do not raise it to make a slow test pass, cut the test down. Start tests with
+  `DevTools.start_world` (campaign/dev_tools.gd: the saved small world, made once and loaded in seconds) and set
+  later-game states up with DevTools instead of simulating days or fighting big battles.
 - Run a test: `godot --path game --rendering-method gl_compatibility res://tests/runner.tscn -- --test=res://tests/<file>.gd`
   (add `--headless` where no display is available; screenshot tests need a display).
 - Main checks: `claude_campaign.gd`, `claude_rounds.gd`, `claude_marriage.gd`, `claude_diplomacy_v030.gd`, `claude_markers_v031.gd`, `claude_intrigue_v032.gd`, `claude_prisoners_v033.gd`, `claude_prisoners_ui_v033.gd`, `claude_population_v034.gd`, `claude_population_ui_v034.gd`, `claude_refit.gd`, `claude_dragonfear.gd`.

@@ -32,17 +32,9 @@ func _act(fid: String, action: String) -> Dictionary:
 
 func run(tree: SceneTree) -> int:
 	await tree.process_frame
-	WorldGen.gen_size = "normal"
-	CampaignWorld.presim_span_days = 1
-	var generation := Game.new_game_begin(4242)
-	while not Game.new_game_slice(generation, 8000): await tree.process_frame
-	var history := {}
-	while CampaignWorld.presim_left(Game) > 0:
-		CampaignWorld.presim_slice(Game, history, 8000)
-		await tree.process_frame
-	CampaignWorld.presim_finish(Game, 0)
-	Dynasty.prepare_world(Game)
-	Game.new_game_finalize()
+	if not await DevTools.start_world(tree, "user://claude_diplomacy_v030-test.json"):
+		printerr("FAIL: the start world did not load")
+		return 1
 	var chosen := false
 	for c: Dictionary in Dynasty.choices(Game):
 		var town: Dictionary = Game.world["towns"][c["town_id"]]

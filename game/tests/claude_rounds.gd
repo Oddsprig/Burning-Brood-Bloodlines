@@ -1,5 +1,5 @@
 extends RefCounted
-## Round-based battles through main.tscn: a raised army of up to 300 against a real enemy band padded to 250.
+## Round-based battles through main.tscn: a raised army of just over 100 against a real enemy band padded to 110, one round.
 ## Each round must field at most 100 a side; wounded sit out; prisoners change hands; the loser goes home.
 ## -- --test=res://tests/claude_rounds.gd [--out=<dir>] [--size=WxH]
 var fails := 0
@@ -35,13 +35,9 @@ func run(tree: SceneTree) -> int:
 	var main: Node = (load("res://main.tscn") as PackedScene).instantiate()
 	tree.root.add_child.call_deferred(main)
 	await frames(tree, 6)
-	WorldGen.gen_size = "normal"; CampaignWorld.presim_span_days = 1
-	var generation := Game.new_game_begin(4242)
-	while not Game.new_game_slice(generation, 8000): await tree.process_frame
-	var history := {}
-	while CampaignWorld.presim_left(Game) > 0:
-		CampaignWorld.presim_slice(Game, history, 8000); await tree.process_frame
-	CampaignWorld.presim_finish(Game, 0); Dynasty.prepare_world(Game); Game.new_game_finalize()
+	if not await DevTools.start_world(tree, "user://claude_rounds-test.json"):
+		printerr("FAIL: the start world did not load")
+		return 1
 	# The most populous ruling house.
 	var best := ""; var best_pop := 0
 	for tid in Game.world["towns"]:
@@ -63,13 +59,13 @@ func run(tree: SceneTree) -> int:
 		print("rounds: enlist ", row.get("name", ""), " ", er.get("ok", false), " ", er.get("reason", ""))
 		if er.get("ok", false): riders += 1
 	check(riders > 0, "family members can ride with the army")
-	var quote := Mobilization.quote(Game, best, 300)
+	var quote := Mobilization.quote(Game, best, 110)   # just over one round's 100: the battle goes in rounds
 	print("rounds: quote ", quote.get("ok", false), " ", quote.get("reason", ""), " planned ", quote.get("planned", 0))
-	if quote.get("ok", false): Mobilization.muster(Game, best, 300, quote["review"])
+	if quote.get("ok", false): Mobilization.muster(Game, best, 110, quote["review"])
 	var raised := Game.company.size()
 	var made := 0
 	for u in Game.company:
-		if made >= 15: break
+		if made >= 3: break
 		if Mobilization.set_medic(Game, u, true).get("ok", false): made += 1
 	print("rounds: medics ", made)
 	check(made > 0 and Game.deployed_units().size() == raised - made, "medics stay out of the fighting")
@@ -85,7 +81,7 @@ func run(tree: SceneTree) -> int:
 	if enemy_id == "": return 1
 	var wb: Dictionary = Game.world["warbands"][enemy_id]
 	var rng := RandomNumberGenerator.new(); rng.seed = 77
-	var extra: Array = Factory.make_warband(rng, str(wb["faction"]), maxi(0, 250 - (wb["units"] as Array).size()))
+	var extra: Array = Factory.make_warband(rng, str(wb["faction"]), maxi(0, 110 - (wb["units"] as Array).size()))
 	for u in extra: u.home_town = str(wb.get("home", ""))
 	(wb["units"] as Array).append_array(extra)
 	var enemy_total := (wb["units"] as Array).size()
@@ -93,6 +89,8 @@ func run(tree: SceneTree) -> int:
 	Game.start_battle({"enemy": (wb["units"] as Array).duplicate(), "allies": [], "warband_id": enemy_id, "seed": 31, "terrain": "grassland", "map": "large"})
 	await frames(tree, 10)
 	check(BattleRounds.active(Game), "a large battle is fought in rounds")
+	if BattleRounds.active(Game):   # one round proves the rounds: both armies start just above breaking, so the round's loser breaks
+		Game.pending_battle["rounds"]["morale"] = [BattleRounds.BREAK_MORALE + 1.0, BattleRounds.BREAK_MORALE + 1.0]
 	var rounds_seen := 0
 	var max_side := [0, 0]
 	var guard := 0
