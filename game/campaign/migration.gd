@@ -225,6 +225,7 @@ static func move_households(game, from: Dictionary, f: Dictionary, to: Dictionar
 		var got := 0
 		var q := Families.store_quantities(e["hh"], goods, float(stores[k]))
 		for g in q:
+			if int(q[g]) <= 0: continue
 			e["hh"][g] = int(e["hh"][g]) - int(q[g])
 			e2["hh"][g] = int(e2["hh"].get(g, 0)) + int(q[g])
 			got += int(q[g])

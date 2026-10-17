@@ -853,9 +853,10 @@ static func town_day(game, t: Dictionary, d: int, part: int = 0) -> void:
 	if part == 0:
 		_roll_town(game, t, e, b, d, rng, span)
 		if prof_on: t0 = _pf("roll", t0)
-		_pool_day(game, t, e, b, d, rng, span)   # v0.034: the common folk (cohort rows), as counts
-		if prof_on: t0 = _pf("pools", t0)
-		_outbreak_news(game, t, b, d)
+	# v0.034: the common folk (cohort rows), as counts, once per run (in play: job part 1, with the queue)
+	_pool_day(game, t, e, b, d, rng, span)
+	if prof_on: t0 = _pf("pools", t0)
+	_outbreak_news(game, t, b, d)
 	# counters for the screen: 60 days of open cases, 8 days per disease, the week's new cases (one entry per day
 	# covered)
 	var act: Dictionary = b["act"]
