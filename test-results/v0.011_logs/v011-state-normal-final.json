@@ -1,0 +1,17 @@
+{
+  "Run": "v011-state-normal-final",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v011-candidate\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/diag_campaign_state_v011.gd",
+    "--watchdog=85",
+    "--report-dir=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v011-state-normal-final",
+    "--compare-dir=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v011-baseline-state-01"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 39.913
+}

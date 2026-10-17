@@ -1,0 +1,8 @@
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+FAIL model import contract: complete original and current native exports
+SCRIPT ERROR: Invalid access to property or key 'battle_weapons/dirk.png' on a base object of type 'Dictionary'.
+   at: run (res://tests/compare_import_models.gd:25)
+   GDScript backtrace (most recent call first):
+       [0] run (res://tests/compare_import_models.gd:25)
+       [1] _ready (res://tests/runner.gd:41)

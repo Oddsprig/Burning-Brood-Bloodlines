@@ -1,0 +1,21 @@
+{
+  "Run": "v014-battle-render-final",
+  "Arguments": [
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v014-candidate\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=tests/diag_battle_render_v014.gd",
+    "--count=200",
+    "--enemies=200",
+    "--seconds=12",
+    "--contact",
+    "--no-world",
+    "--enforce-gate",
+    "--report=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v014-battle-render-final.json",
+    "--watchdog=55"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 18.559
+}

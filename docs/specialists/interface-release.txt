@@ -1,0 +1,81 @@
+STABLE SPECIALIST - INTERFACE / RELEASE
+Role: interface_release | GPT-6.1 Sol high | retain across versions.
+Current22 after delivered21:NEW native DragonView GPU draw/posed bounds, reviewed
+home defence and focused desktop checks. Keep source assembly/art bytes exact.
+Dragon growth scales host from fixedhumanppu2; no viewport auto-fit or moving
+anchor on headloss. Cache boundedmodels/currentwounds, never CPUraster per frame.
+Only sourcehead/neck detaches, tiny gemchips; mangled limbs stay bloody/attached.
+Mounted actualcharacter display/targeting stays23. Luna/low runs serial QA.
+22 measuredlesson:legacy draw_canvas_model calls per-pixel overlay_layers on
+everylive draw; exact blood changes defeat48decal cache and cause2s stalls.
+Use bounded source-owned GPU injury masks/scalars and retain pose geometry across
+blood/wound changes. Never hide damage or reduce physics/actors to pass a gate.
+Timingfull402Unit JSONfingerprints inside frame samples adds observer work;
+measure these separately, but preserve actual UI/menu stalls and render gates.
+Current22 view121/UI142 pass;402nativeactor render37.16FPS/p9538.641/worst51.622ms.
+Seven actual paused-log actions max91.514ms through two drawn frames; whole-state
+fingerprints separately reported, not hidden in UI cost. Keep exact changing
+blood scalars and64pose cache; headloss/sourcecuts do not refit/move anchor.
+Read DEV_NOTES.txt/ROADMAP.txt/FOLDER_PLAN.txt. Prior role history is archived at
+history/specialists_before_v011_2026-10-11/interface-release.txt.
+Own only explicit file scopes. Root owns integration, serial engines and delivery.
+Nontechnical player flows, green/purple identity, readable real data. No images in
+chat. Support both orientations; routine phone QA waits for export, much later.
+Verified v011 lessons: preserve native terrain triangle order, float32 geometry,
+polyline joins and alpha. Batch only supported operations; exact fallbacks remain.
+Pixel-check day/dusk/night/zoom/pan and same-mode cache reuse. Renderer RID cache
+owns its lifetime and frees on world/mode changes and shutdown. No art replacement.
+Publish the complete account label once iff changed: prefix/suffix rewrites shaped
+unchanged text and generated repeated minimum-size layouts. HUD work may defer
+onto a lighter frame with bounded fallback; never omit simulation operations.
+v012 ownership lessons: explicit bounded scans retain plain counters only; label
+partial counts and payload estimates. Never rescan native world on every panel
+refresh. Keep engine/OS private/working-set and renderer payload measures separate.
+During consistent save capture, render camera/status/Perf while mutation buttons
+and travel wait. Preserve prior pause state. Use current manifest-derived counts
+for every release proof; cold-copy source bytes before any cache exists.
+PowerShell variables ignore case: parameter paths and loop records need distinct
+names. Sum OrderedDictionary keys explicitly; property aggregation can return0.
+Use actual Windows frame_post_draw evidence at native resolution with visible panel;
+headless FPS/control-fit alone is insufficient. Keep failed attempts explicit.
+Release: source/UID/art/runtime hashes, cold bundled launcher in spaced path, ZIP
+stream readback and actual Desktop payload/shortcut/Shell icon. Preserve prior
+versions. Version folder plus branded shortcut is mandatory, ZIP alone incomplete.
+Delivered v013+v014 together: both-side summary, all four closed toggles visible
+at1280 desktop, one lazy18-row page, fixed Continue outside scrolling detail.
+Read settled receipts; show permanent damage despite healed open wounds. No unseen
+lesson text formatting or repeated native growth. Check screenshots, not fit flags
+alone; root inspects actual PNGs privately. Initial summary cost remains measured.
+Upcoming v015 paged complete log; v018 readable records/fonts/Laws;
+v019 settlement location/map -> actual local house -> customize; v020 buyer receipts.
+Do not advance those UI passes in a performance repair. No helper engines, commits,
+Desktop changes or foreground/input without explicit root coordination.
+
+Verified v015+v016: fit bounds alone missed unreadably narrow log rows. Set
+ScrollContainer child width expansion, retain natural Details button height, and
+check story width plus actual pixels. Native typed-input signals differ from
+programmatic text assignment. Name search keeps current history explicitly labelled.
+Five closed tabs fit1280; one18-row page. Actual log overlays hold/restore pause.
+PowerShell comma/add precedence requires parentheses around constructed pair names;
+count regexes must handle CRLF/suffixes. Source hashes freeze before cold/ZIP/Desktop.
+
+Verified17 lesson: private focus insertion must match each display-section newline,
+not assume a file has uniform CRLF. Assert insertion. Full titles must fit actual
+resolved-font string width; a pre-parent minimum clipped Army to Ar. Actual Army
+views preserve private wallet/real partial muster and stand-down context. Keep
+all3desktop widths, strong story/title widths and actual pixels in UI checks.
+
+Verified18: normalize actual normal/hover/pressed row text contrast, including
+legacy custom colours. Fonts must cover default, Row/RowOn, custom TextLine and
+RichTextLabel; preserve source/license bytes. Four groups retain native tab IDs.
+Use56px data rows and bounded15-row pages; primaryactions stay>=48. Do not call
+Persons.sync or set native named flags merely to show family/person details;
+local econ copies still require whole-world genealogy/RNG/UID read-purity checks.
+Current27records/detail and12Laws desktop fits pass; actual pixels remain required.
+
+Verified19:cached true-coordinate geography/roads/markers,8-row lists,4stages and
+explicit reviewed identity Begin. Saved pure heraldry is shared with House/map.
+12actual desktop fits plus real Akbulak15house paging/House/Laws pass. Rights text
+appears once in review;ordinary command stays with the lord. Re-read the final
+function before integration:duplicate local declarations broke a preparatory UI.
+Import success registers metadata;only the focused runner proves typed UI compiles.

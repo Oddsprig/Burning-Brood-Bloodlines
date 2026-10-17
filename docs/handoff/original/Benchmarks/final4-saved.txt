@@ -1,0 +1,43 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: final4-saved
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 6.203s | exit 0
+FAIL | tests/test_farm_work_save.gd | 26.843s | exit 27
+  27 occurrence(s): FAIL: old assignment has no fabricated new-rule marker before ordinary matching
+PASS | tests/test_casual_occupancy_save.gd | 14.406s | exit 0
+FAIL | tests/diag_land_food_v046.gd | 120.750s | exit 32
+  1 occurrence(s): FAIL: global coin ledger {"expected":55421741.32034364,"gap":-79.99999924749136,"held":55421661.320344396}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55382123.27393171,"gap":-159.99999929219484,"held":55381963.27393242}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55350322.12838222,"gap":-239.99999932199717,"held":55350082.1283829}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55317527.94553268,"gap":-319.99999929219484,"held":55317207.94553339}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55279446.79197032,"gap":-399.9999992772937,"held":55279046.79197104}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55254953.35742486,"gap":-479.99999928474426,"held":55254473.35742558}
+  2 occurrence(s): FAIL: global coin ledger {"expected":55273737.802448496,"gap":-479.9999992251396,"held":55273257.80244927}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55297215.70033102,"gap":-479.9999992623925,"held":55296735.700331755}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55261903.39703822,"gap":-479.999999307096,"held":55261423.397038914}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55226418.28393322,"gap":-479.9999992325902,"held":55225938.28393399}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55191243.33618988,"gap":-479.9999992623925,"held":55190763.33619062}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55150532.92075688,"gap":-479.9999992325902,"held":55150052.920757644}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55111912.13384432,"gap":-479.99999925494194,"held":55111432.13384507}
+  2 occurrence(s): FAIL: global coin ledger {"expected":55068920.41864131,"gap":-479.9999992698431,"held":55068440.41864204}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55035175.97721532,"gap":-479.9999992027879,"held":55034695.97721612}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55007849.78730506,"gap":-479.9999991506338,"held":55007369.78730591}
+  1 occurrence(s): FAIL: global coin ledger {"expected":54978362.864509046,"gap":-479.9999991878867,"held":54977882.86450986}
+  1 occurrence(s): FAIL: global coin ledger {"expected":54955130.66464007,"gap":-479.9999991953373,"held":54954650.66464087}
+  1 occurrence(s): FAIL: global coin ledger {"expected":54927349.86604508,"gap":-479.9999992027879,"held":54926869.86604588}
+  1 occurrence(s): FAIL: global coin ledger {"expected":54899673.195427954,"gap":-479.99999921023846,"held":54899193.195428744}
+  2 occurrence(s): FAIL: global coin ledger {"expected":54912638.88373144,"gap":-479.9999991878867,"held":54912158.88373225}
+  1 occurrence(s): FAIL: global coin ledger {"expected":54916183.67927672,"gap":-479.9999992027879,"held":54915703.67927752}
+  1 occurrence(s): FAIL: global coin ledger {"expected":54874314.56513741,"gap":-479.99999921768904,"held":54873834.56513819}
+  1 occurrence(s): FAIL: global coin ledger {"expected":54834347.81476565,"gap":-479.99999921768904,"held":54833867.81476643}
+  1 occurrence(s): FAIL: global coin ledger {"expected":54794578.42844488,"gap":-479.9999992251396,"held":54794098.42844565}
+  1 occurrence(s): FAIL: global coin ledger {"expected":54753911.92073302,"gap":-479.999999165535,"held":54753431.920733854}
+  1 occurrence(s): FAIL: global coin ledger {"expected":54716103.35707019,"gap":-479.9999991878867,"held":54715623.357071005}
+  2 occurrence(s): FAIL: global coin ledger {"expected":54674952.33177274,"gap":-479.9999991580844,"held":54674472.33177358}
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-final4-saved
+Source receipt SHA256: 93156baaaf0ab27c3354cde8bd8a249ea4660decd641276094f06277aae9a9a5
+
+Notes (you can write here):

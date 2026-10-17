@@ -1,0 +1,66 @@
+BURNING BROOD: BLOODLINES - DRAGON CARE / GROWTH v0.008
+Date: 2026-10-10 | Authored fictional-game calibration, not real animal biology.
+
+ONE OUTCOME
+Existing individual dragons/eggs receive real feed, shelter upkeep, condition
+and bounded growth. No new people/units/accounts/markets/combat resolver.
+Wyvern bodies, portraits, all v053 humanoid art and current gear remain retained.
+No hatching, breeding, rider bonds, flight, breath or deployment this pass.
+
+AUTHORITY / GOODS / COIN
+Actual live owner person -> exact tracked current household after reconciliation.
+Reject gone/cohort/estate/unclaimed/missing owners and unmatched household/house.
+Keeper is an actual living person present at the saved location, outside away
+military/company/travel service. Missing keeper interrupts automatic purchases.
+Remote ownership is permitted: owner home purse -> saved location market till.
+Fresh/preserved meat goods are native0.4kg portions, at actual posted retail
+price x native TownEcon.markup. Feed demand=ceil(structural mass*.008/.4) units
+per day, rounded whole portions. No grain/fruit substitution for carnivore feed.
+One ration across both meat goods; substitute shortage demand is allocated once.
+Wood shelter/warmth:1+floor(growth_points) bundles/day, egg1, maximum5.
+Existing stock scarcity sharing limits a large request to quarter stock, except
+small stock<=8 or sufficient stock>=4*request. No invented supplies/takers.
+Exact TownEcon.pay_market transfer, stock decrement, used and native demand books.
+No household-pool/store credit (would feed humans and dragons twice). No barn,
+granary, private harvest claims, direct herd slaughter, treasury or company debit.
+
+HUMAN RESERVES
+Owner reserves cost of native seven-day essential-food gap, aging stored food
+days since family.last without changing those stores. At least one coin remains.
+Location market reserves three days' native household meal need after its
+already-owned household pool; only remaining market food headroom can be bought.
+Purse and supply limits apply sequentially to each dragon in stable ID order.
+The pass does not promise balanced carrying capacity for every large dragon.
+
+TIME / PERSISTENCE
+World queues dragon_care after economy/families/army/sickness/herds and feudal.
+Before charge, Feudal.finish reconciles lawful owner and present keeper.
+Job day controls care guard, receipt and one-day growth, even if Game.day is a
+later fractional/multi-day target. Never use elapsed final time to catch up
+every prior day using today's prices, stocks or owner.
+New records anchor last_day to current registration day after history finish.
+Missing old care fields anchor to current day, with no retrospective billing;
+cross-version migration remains unverified. Current load only normalizes fields.
+Quotes, UI refresh, generic reconciliation, save/load and repeat/older jobs never
+buy again. Only a newer explicit daily job buys at most one day's supplies.
+Actual receipt stores payer, day, quantities/costs, feed/care ratios, condition
+before/after, growth before/after, reason and per-good usage. One bounded latest
+receipt per dragon; <=32 history entries only on shortage/recovery/maturity/death.
+
+CONDITION / GROWTH
+Health0..1. Daily change=.005*min(feed,care)-.018*(1-feed)-.005*(1-care).
+Feed=actual portions/need; egg feed=1 with no food purchase. Shelter care=actual
+wood/need, or0 when unavailable. Full care recovers .005/day; shortages lower
+condition. At0 the existing record dies once, retains identity/bloodline/history,
+and never pays again. No death creates a population or tactical-body casualty.
+Growth points0..4 interpolate authored small/medium/large/huge/colossal physical
+bases. Start at the original class exactly; no age/name/gem-derived rewrite.
+Growth rate=feed*care*min(health_before,health_after)/(20*People.year_days()).
+Requires feed>=.8,care>=.8,health>=.5. Native year120days; full band2400days.
+Daily growth is bounded, no backdated age acceleration; maximumColossal4.
+Juveniles become adult at native calendar age18; eggs never hatch this pass.
+Linear interpolation changes structural mass/strength/linear tooth/claw size.
+Original morph and independent seed multipliers apply once. Condition multiplies
+strength by(.4+.6*health); size/force/bite/geometry remain separate from hardness.
+Gem hardness and native tooth/claw material yields/strain/fracture stay unchanged.
+Native body/battle binding remains the later v0.010 milestone.

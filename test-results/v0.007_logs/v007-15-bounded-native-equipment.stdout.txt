@@ -1,0 +1,34 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ok: officer has 3 troops
+ok: best quality goes first
+ok: second troop gets the lesser shirt
+ok: third troop has none
+ok: missing report: ["1 x mail shirt missing"]
+ok: stash emptied
+ok: tin shirt refused under copper rule
+ok: material in report: ["1 x copper mail shirt missing"]
+ok: linen tunics pass a copper rule
+ok: better piece upgrades
+ok: replaced piece returned to stash or reused
+ok: override picks the coif
+ok: override '' strips the slot
+ok: two-handed uniform wants no shield
+ok: dane axe equipped
+ok: shield returned to stash
+ok: cannot equip a shield with a two-hander: a two-handed dane axe leaves no hand for a shield
+ok: officer equips from stash
+ok: two-hander unequips officer's shield
+ok: unequip returns to stash
+ok: shortfall is a dry run
+shortfall: [{ "tid": "dane_axe", "material": "copper", "count": 2 }]
+ok: closed helm is available in native outfit menu
+ok: released closed helm equips the actual native slot
+ok: released Moon glaive equips from actual stash
+ok: one-handed Moon glaive retains actual shield
+ok: released one/two hand rules remain distinct
+ok: new helmet material/quality/maker persists natively
+ok: actual released glaive/closed-helm strike uses native persistent bodies and armor/tissue calculation
+ok: native physical resolver uses released crescent dimensions
+humanoid native equipment: 29 checks, 0 failures; bounded four-unit fixture
+== res://tests/test_humanoid_equipment.gd: PASS ==

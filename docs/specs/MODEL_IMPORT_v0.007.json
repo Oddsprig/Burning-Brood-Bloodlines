@@ -1,0 +1,206 @@
+{
+  "version": "0.007",
+  "date": "2026-10-10",
+  "source_game": "Copper Oath v0.053",
+  "source_root": "C:\\Users\\bligh\\Desktop\\Copper_Oath_v0.053",
+  "source_commit": "fd43a0b34a33ba86fb2496011a129ee642750e9c",
+  "source_archive": "Desktop/ASSET/Copper_Oath/Art_redesign/Helmet_variety_v0.053_2026-10-10/source-sha256.json",
+  "archive_before_replacement": {
+    "archive": "C:\\Users\\bligh\\Desktop\\Burning_Brood_Asset_Archive\\v0.007\\v0.006_before_Copper_v0.053",
+    "manifest_sha256": "4645ea93e37f1c00f70417b4833dbc4c7532734049c74fef93ceab1600b01986",
+    "files": 1040,
+    "all_destination_sha256_verified": true,
+    "prior_art_not_replaced_yet": true
+  },
+  "humanoid_races": [
+    "human",
+    "high_elf",
+    "moon_elf",
+    "dark_elf",
+    "dwarf",
+    "orc",
+    "goblin",
+    "troll"
+  ],
+  "exact_released_files": [
+    {
+      "path": "game/art/figure_painter.gd",
+      "sha256": "6b70b11a61b14296db18d71db9935ce0f8639c1682d296044a06d92d41944dc9",
+      "bytes": 73313,
+      "action": "imported_source_exact",
+      "before_sha256": "7032d27f5926cbb949f1a818d1dd73cb1964bee582322d35f38f19e38a3504d0",
+      "resource_uid_preserved": true
+    },
+    {
+      "path": "game/art/human_art.gd",
+      "sha256": "8d6f1e5fd8d568c908e4410d2adcc0692e2d36c737278a253457a6e70b963259",
+      "bytes": 53304,
+      "action": "imported_source_exact",
+      "before_sha256": "678f6e4a45fd35d1e47648afacc5aaa6d68b4346301a297ce39c713dd4227c6e",
+      "resource_uid_preserved": true
+    },
+    {
+      "path": "game/art/elf_art.gd",
+      "sha256": "43ab47cf9998aa28a0a9a5b1dbee31e282951fd7aa63f5a14eb40a998468dd65",
+      "bytes": 52183,
+      "action": "imported_source_exact",
+      "before_sha256": "b0f3b8cf6b6fd49a8a14c4645d5c6faa73c2796c4a5ce8dd66d103daba4e481d",
+      "resource_uid_preserved": true
+    },
+    {
+      "path": "game/art/dwarf_art.gd",
+      "sha256": "7f6b7a33371c881877777f7717f6f186c8278255b2d7c600fe45fa4eb1cde1dd",
+      "bytes": 40283,
+      "action": "imported_source_exact",
+      "before_sha256": "3f262f356b0802030e01946bde803c01e0775952d029267f669268bda5846877",
+      "resource_uid_preserved": true
+    },
+    {
+      "path": "game/art/orc_art.gd",
+      "sha256": "fbc4cac3dfa4a4be07b7d722e176e5cfd847a6f7e1ac74d20f69e7defeb864f9",
+      "bytes": 82197,
+      "action": "imported_source_exact",
+      "before_sha256": "ae6e727aa7039a1db761ef545cdd21bea209117ee72a83f9bb21ec417d201de9",
+      "resource_uid_preserved": true
+    },
+    {
+      "path": "game/art/goblin_art.gd",
+      "sha256": "d8a466e6873311eaf5bd82c27f5a4b4b8ce07fb10fb173716f9b03507d4c42f3",
+      "bytes": 55782,
+      "action": "imported_source_exact",
+      "before_sha256": "b5e4d2e69f5b281a7ffefbf30191a04299be876c04e8c8db656e80cacae45e44",
+      "resource_uid_preserved": true
+    },
+    {
+      "path": "game/art/troll_art.gd",
+      "sha256": "a6780bc48fe04ad0ad8874b9e6657597cdf5385ab95981d7a0a9fc4a63fadd46",
+      "bytes": 33923,
+      "action": "imported_source_exact",
+      "before_sha256": "e4dae3dea0f2e02c522aa295827e1958ada2ebf9be7a5f698e163fd8cd74b65f",
+      "resource_uid_preserved": true
+    },
+    {
+      "path": "game/art/weapon_art.gd",
+      "sha256": "7ee1374ce8f14f63da3bbc5a8ebe624341bf6d2c56d84e8c449d96b038118fa7",
+      "bytes": 16737,
+      "action": "retained_source_exact",
+      "before_sha256": "7ee1374ce8f14f63da3bbc5a8ebe624341bf6d2c56d84e8c449d96b038118fa7",
+      "resource_uid_preserved": true
+    },
+    {
+      "path": "game/art/pixel_canvas.gd",
+      "sha256": "51cf6dc37dda5849ab1a541fe8dd37b90af8dbc7991e952f9edcc4b0b526eefa",
+      "bytes": 6986,
+      "action": "retained_source_exact",
+      "before_sha256": "51cf6dc37dda5849ab1a541fe8dd37b90af8dbc7991e952f9edcc4b0b526eefa",
+      "resource_uid_preserved": true
+    },
+    {
+      "path": "game/art/item_icon_art.gd",
+      "sha256": "39513b22ca77e66b2bc249b2c13cd05bd28980f1dfdd3fdce21cafc269e09340",
+      "bytes": 44299,
+      "action": "imported_source_exact",
+      "before_sha256": "3e10537d2bc2d39217f313566a58ad86489b599aeeaed1a228424cfeeb1cf1d1",
+      "resource_uid_preserved": true
+    },
+    {
+      "path": "game/art/item_icon.gd",
+      "sha256": "8f359340a8a73b0a26dafb6622508c7d0d28c3335bede4ac5cf3941b3aa01849",
+      "bytes": 23002,
+      "action": "imported_source_exact",
+      "before_sha256": "5e764c1ae458a6881e65af289d75c3bb38a5c1d0b5d27da80e2739c16706a519",
+      "resource_uid_preserved": true
+    },
+    {
+      "path": "game/art/paperdoll.gd",
+      "sha256": "6846b52dcdb53f52837d690765ddc423c66c9d9f1b82177d0a1067c51aafc6c6",
+      "bytes": 5009,
+      "action": "retained_source_exact",
+      "before_sha256": "6846b52dcdb53f52837d690765ddc423c66c9d9f1b82177d0a1067c51aafc6c6",
+      "resource_uid_preserved": true
+    },
+    {
+      "path": "game/art/portrait.gd",
+      "sha256": "e31f90dcedd01dcbd3d308252823421a50dde492c04e6a08870bd83f66439e37",
+      "bytes": 1902,
+      "action": "retained_source_exact",
+      "before_sha256": "e31f90dcedd01dcbd3d308252823421a50dde492c04e6a08870bd83f66439e37",
+      "resource_uid_preserved": true
+    },
+    {
+      "path": "game/art/party_icon.gd",
+      "sha256": "86b7e6e1cb70114f024fea7d57437804f0be82e4218ef5e97120912837982371",
+      "bytes": 5537,
+      "action": "retained_source_exact",
+      "before_sha256": "86b7e6e1cb70114f024fea7d57437804f0be82e4218ef5e97120912837982371",
+      "resource_uid_preserved": true
+    },
+    {
+      "path": "game/ui/outfit.gd",
+      "sha256": "78bf23b92313037331574625b1ea537226e6bf1a890f860f85bee42a64793723",
+      "bytes": 8521,
+      "action": "retained_source_exact",
+      "before_sha256": "78bf23b92313037331574625b1ea537226e6bf1a890f860f85bee42a64793723",
+      "resource_uid_preserved": true
+    },
+    {
+      "path": "game/data/armor.json",
+      "sha256": "9299fc78ce6a6762d439631724ca9b431f8eff66b08564a8d9bddb948e92ec1e",
+      "bytes": 9570,
+      "action": "imported_source_exact",
+      "before_sha256": "c20cfe431c815615f30773d484f3676c900f72457aeb06173d65a242707d5f0f",
+      "resource_uid_preserved": false
+    },
+    {
+      "path": "game/data/weapons.json",
+      "sha256": "93d2c7732a499b4b575e5d4d860e366d60010aaed41aa6fbd5ee7074bd05b975",
+      "bytes": 9940,
+      "action": "imported_source_exact",
+      "before_sha256": "88c184ff6dd905a0fb6d0d68c8b07d71e77599d520dbf9d44f67f39d66f10fd5",
+      "resource_uid_preserved": false
+    },
+    {
+      "path": "game/data/factions.json",
+      "sha256": "d44abd1173a5fc5be2f750613c0c4dd763cc4d02f0945b503b75d91b9a00566f",
+      "bytes": 20042,
+      "action": "imported_source_exact",
+      "before_sha256": "f632277aabeabe7c7acae0348eb769a62ac51f6cc2f49ecb7cc6478b5603755f",
+      "resource_uid_preserved": false
+    },
+    {
+      "path": "game/data/bows.json",
+      "sha256": "3c7d5133c641c7503c7acbb03d90ceeb16bf385779ee2c354bdbcf39da4b6713",
+      "bytes": 5556,
+      "action": "replaced_already_source_exact",
+      "before_sha256": "3c7d5133c641c7503c7acbb03d90ceeb16bf385779ee2c354bdbcf39da4b6713",
+      "resource_uid_preserved": false
+    },
+    {
+      "path": "game/data/bodies.json",
+      "sha256": "80bd49f4cf8d4b3089d3182840daf39542f9beaf0b18844c9d2ad07f05e56ca0",
+      "bytes": 50029,
+      "action": "replaced_already_source_exact",
+      "before_sha256": "80bd49f4cf8d4b3089d3182840daf39542f9beaf0b18844c9d2ad07f05e56ca0",
+      "resource_uid_preserved": false
+    },
+    {
+      "path": "game/data/materials.json",
+      "sha256": "617d44cefd627c3bbb625483d5dd5d5ccb2d3c3bb6cb7f1bcf6be07f85d5e20a",
+      "bytes": 8013,
+      "action": "replaced_already_source_exact",
+      "before_sha256": "617d44cefd627c3bbb625483d5dd5d5ccb2d3c3bb6cb7f1bcf6be07f85d5e20a",
+      "resource_uid_preserved": false
+    }
+  ],
+  "source_game_modified": false,
+  "source_game_launched": false,
+  "existing_gear_stats_changed": true,
+  "new_native_template": "closed_helm",
+  "adapters": [
+    "Native common metal armor pool includes closed_helm once",
+    "Ruler portrait reads bound actual Unit look/equipment, civilian fallback uses stable person seed"
+  ],
+  "existing_gear_change_scope": "Only the Moon glaive native template changes from old two-handed polearm to released one-handed crescent blade, with source-matched mass, reach, balance and attacks. Every other pre-existing weapon/armor template remains byte-equivalent.",
+  "all_race_data_source_exact": true,
+  "additional_data_scope": "Import expanded Orc skin/hair palettes and glaive-dancer axe skill alongside the requested one-handed weapon. All 8 race definitions, faction loadouts, weapon/bow/armor/body/material data now match released v53; no parallel equipment system or general balance changes."
+}

@@ -1,0 +1,14 @@
+{
+  "Run": "v010-01-baseline-import",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v010-baseline\\game",
+    "--editor",
+    "--import",
+    "--quit"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 7.19
+}

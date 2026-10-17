@@ -1,0 +1,69 @@
+STABLE SPECIALIST - DYNASTY / ECONOMY
+Role: dynasty_economy | GPT-6.1 Sol high | retain across versions.
+Read DEV_NOTES.txt and ROADMAP.txt; detailed prior role history is archived at
+history/specialists_before_v011_2026-10-11/dynasty-economy.txt.
+Own only explicitly assigned native dynasty/economy files. Root owns integration,
+serial engines, source freeze, documentation and Desktop delivery.
+Native people, households, offices, title rights, wealth and tribute stay authoritative.
+Human/dwarf male-preference primo, elf eldest-child and orc contests remain exact.
+No speculative court/marriage expansion or duplicate ledgers.
+Verified20:exact harvested Item refs remain owned until a real buyer pays.
+Only paid metal enters whole-kg stock plus fractional residue; actual shop Items
+and unpaid stash/armory/hoard gear retain identity. AI internal recipient credit
+must cancel external Goods.gold_out correction before native share_spoils.
+Avoid per-piece linear existing-inventory scans; temporary instance-ID
+multiplicity sets preserve first erase/order/aliases and never own Objects.
+Current98checks include independent512-item linear delivery comparison.
+Verified v011 lessons: query-local children/live-address indexes preserve original
+sex/birth/UID and first-address order. Native index still reconciles full kin; retain
+memory-first/current-living rules. Reserved cohort house UID is not a person.
+Arms selector metadata is template-local; actual live stock/tie order stays native.
+Cost-note values can reuse exact make/material/quality/vr/legend-gem inputs only
+within an unchanged-town read; preserve floating addition order. Do not reuse
+prices during purchases: stock scarcity changes. Dragon care's final ownership
+then explicit-day pay continuation runs before every later native job; one queued
+final ownership_finish replaces the old atomic finish. Queue-age diagnostics must
+include care-pay. Complete frozen fresh-world snapshots/RNG/UIDs verify outcomes.
+v012 ownership lessons: to_dict may share nested native data; duplicate records and
+all packed arrays before worker transfer. Memoize by instance ID, never saved UID.
+Keep native field/iteration order and verify complete fresh-world JSON/RNG/UIDs.
+Fence mutation during cooperative capture; drain jobs/memo before detached worker
+encode/write/release. Read worker receipts only after join. Explicit wait_save may
+block; startup readiness must follow history and dynasty completion. One writer
+and one dirty request; write failures preserve the old complete file.
+Upcoming relevant passes: v017 real army funding; v018 Laws;
+v014 summary lesson: count distinct native instances once by actual side roster;
+health partitions total, retreats overlap surviving health totals. Use native
+status/severity/permanence and fighter unconscious/dead metadata without writing
+Unit flags or normalizing sparse bodies. UI names/recovery reads stay pure.
+v019 actual local-house rights; v020 accountable salvage; v021 bonds later.
+No engine, broad test, commit, source-copy or Desktop action without root coordination.
+
+Verified v015+v016: transient CombatJournal owns plain frozen outcomes, never
+Unit/sim refs. Native deep copy once plus explicit packed-array detachment and
+Object validation preserves exact data. Buffer tiny fixed-width index writes;
+flush/check before selected read or disposal. Record-count bounds are not byte
+limits. RefCounted PREDELETE cannot call its instance dispose at refcount zero;
+known-file fallback cleanup runs inline. Actual result ownership survives battle
+scene removal, then releases temporary files on Continue/world replacement.
+
+Verified17: home private reserves retain actual Unit/body/kin/item ownership and
+restore native workers once. Exact live-away survivors block native household
+extinction and carry-share liquidation. Native forget/packing also calls false
+person memory: never retire an exact proven live holder. Natural death settles
+loans/private estate before sole census death removes enlistment bookkeeping.
+
+Verified18: House Laws reads real native law/office/heir/regent only. Rightful
+minors and daughter fallback stay native; orcs do not invent hereditary heirs.
+Re-resolve stable person UID at click time before opening current town/family/PID;
+records Close returns Laws/back context without moving the company.12desktop fits,
+four-policy/absence/stale/current-world read-purity checks pass. No law edits.
+
+Verified19:local tracked household selection references existing person/house/
+household IDs;previews/appearance remain pure. Presentation metadata stays in
+player_house;native fiscal names/owners unchanged. Exact current office person+
+household and living-body checks gate command;shared dynasty UID cannot grant it.
+appoint sync follows office mode or exact genuinely appointed selected person;
+unrelated cadet leader/purse never redirects. Private lineage successors remain
+native human/dwarf/elf rules;orc civilian heads do not invent military contests.
+58focused checks and actual one-day ordinary leader/minor-heir/disk save pass.

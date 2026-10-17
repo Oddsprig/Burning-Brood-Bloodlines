@@ -1,0 +1,11 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+dynasty read performance: 32 checks, 0 failures
+Forge procurement v011: 590 checks; 0 failures
+Arms performance conservation: 106 checks; 0 failures
+Dynasty card gear case unavailable: no existing equipped human Unit supplied
+Dynasty card performance: 23 checks, 0 failures
+dragon care: 44 checks, 0 failures
+dragon growth: 69 checks, 0 failures
+Militia tick v011: 28 checks; 0 failures
+== res://tests/test_campaign_focus_v011.gd: PASS ==

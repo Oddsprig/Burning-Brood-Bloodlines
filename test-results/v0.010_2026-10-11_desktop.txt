@@ -1,0 +1,40 @@
+BURNING BROOD: BLOODLINES v0.010 - ACTUAL DESKTOP DELIVERY
+2026-10-11 | PASS
+Source checkpoint: f3ed5c19c11d02a128118a8db51bd2ff19b7e5d5
+Desktop folder: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.010
+Desktop shortcut: C:\Users\bligh\Desktop\Burning Brood Bloodlines v0.010.lnk
+Target: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+Arguments: -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.010\Launch_Bloodlines.ps1"
+Working directory: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.010
+Icon: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.010\Bloodlines.ico,0
+ICO SHA256: d1ef199206f031d650bb086846c3ceab34b9217ce09e5a8b07022a6553e42438
+Actual Windows shell icon SHA256: 7de91d3f81c8808019a029b26e30c0a30f4db727d84dca5c6b64e4ed44da6467
+Shell icon matches the previously reviewed green dragon/crown brand exactly.
+
+All 1982 installed payload files passed length/SHA256 readback.
+932 game files match the final tested source; 426 prior UIDs retained; 430 unique UIDs.
+100 prior art/data files unchanged; 20 released native model files exact.
+The Paperdoll render adapter changed; native painter/model definitions did not.
+Installed release manifest matches the source; shortcut fields and shell icon pass.
+ZIP: 105660008 bytes; 1983 entries; SHA256: af44248e7106e9fe18c9508e4d698e4e43ea1e8a22afb46fa7c977ab82567e6e
+Existing Desktop releases preserved: v0.008, v0.009.
+All 3579 captured prior payload/manifest/shortcut paths remain unchanged.
+Prior v0.008 and v0.009 source ZIP hashes remain unchanged.
+
+Measured battle recovery:100/100 approach60.12FPS;200/200 approach59.27FPS;
+200/200 dense contact33.19FPS, p9541.38ms, worst63.18ms. Each12s rendered
+Windows probe checks native tick delivery. The first two use fresh Normal worlds
+with exactly one history day; dense contact is an additional deployment fixture.
+651 focused assertions/seven desktop layouts pass. See the gameplay results TXT
+for source/run receipts, complete timings, cold frames and limitations.
+Native combat/RNG/wound/death/severing and sprite pixel checks pass. Rendering
+uses bounded cache/workers; brief last-completed-frame retention is intentional.
+Heavy melee still has room to improve. Campaign performance and long-session
+memory/autosave work remain v011/v012; combat log remains v014.
+
+Bundled cold-launch PrepareOnly/main checks passed against identical game bytes
+in a fresh path with spaces before packaging. No interactive launch, phone QA or
+old-save compatibility tests. No player input/foreground or Copper Oath changed.
+Actual Desktop write access was granted after the verified package was ready.
+Package/delivery reports are supplemental receipts created after the immutable
+ZIP. All five listed supplemental files are copied and hash/length read back.

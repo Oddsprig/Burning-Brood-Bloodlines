@@ -1,0 +1,18 @@
+{
+  "Run": "v016-gore-render-final",
+  "Arguments": [
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v016-candidate\\game",
+    "--resolution",
+    "1280x720",
+    "--position",
+    "-20000,-20000",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=tests/test_gore_render_v016.gd",
+    "--watchdog=40"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 5.559
+}

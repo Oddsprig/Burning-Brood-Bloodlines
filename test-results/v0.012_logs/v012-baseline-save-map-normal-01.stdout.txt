@@ -1,0 +1,5 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.88 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 5090 Laptop GPU
+
+autosave {"camera_during_capture":false,"capture_ms":[1369.334,1200.217,1409.227],"capture_rendered_frames":0,"checks":10,"disk_sha256":"64f852da9a4e4ef4ab22c67aaeeb2de5e1151a2479be67d9531bdad594529a54","engine_peak_bytes":1589162509,"engine_tracked_bytes":1540797591,"failures":0,"frame_p95_ms":16.683,"frame_worst_ms":1069.057,"generation_ms":36460.837,"history_days":1,"next_item_uid":125228,"next_unit_uid":8885,"ordered_sha256":"917002afc3288d3429f51b7b43d89ae042ed67019819a4f9825c524814b29038","request_ms":1065.342,"rng_state":"8596571655571440229","seed":777,"size":"normal","snapshot_utf8_bytes":48485408,"writer_window_frames":105}
+== res://tests/diag_autosave_v012.gd: PASS ==

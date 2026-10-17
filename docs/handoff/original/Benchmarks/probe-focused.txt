@@ -1,0 +1,15 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: probe-focused
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 5.703s | exit 0
+PASS | tests/test_household_food_v046.gd | 2.047s | exit 0
+FAIL | tests/test_land_capacity_v046.gd | 30.671s | exit 6
+  3 occurrence(s): FAIL: goblin service none active: repeated native estate sale stays within real available labour
+  3 occurrence(s): FAIL: goblin keeper none active: repeated native estate sale stays within real available labour
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-probe-focused
+Source receipt SHA256: 447ee1a0d7a4017fc7f72737638bcd56fa300f03c4a71b6175bbf86ce3385dce
+
+Notes (you can write here):

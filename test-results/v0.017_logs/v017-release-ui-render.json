@@ -1,0 +1,21 @@
+{
+  "Run": "v017-release-ui-render",
+  "Arguments": [
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v017-candidate-final02\\game",
+    "--resolution",
+    "2560x1440",
+    "--position",
+    "-20000,-20000",
+    "--max-fps",
+    "60",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_muster_ui_v017.gd",
+    "--watchdog=45",
+    "--report-dir=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v017-ui-render/final02"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 21.573
+}

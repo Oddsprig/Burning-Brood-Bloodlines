@@ -1,0 +1,140 @@
+BURNING BROOD: BLOODLINES v0.022
+Updated: 2026-10-12 | native dragon autobattle combat
+
+DEVELOPER HANDOFF: HANDOFF.txt (2026-10-14) gives exact game locations, verified
+delivery status, read order and next passes. Latest delivered game is still22.
+
+START
+Use Burning Brood Bloodlines v0.022 on your actual Desktop (green dragon/crown).
+It opens Desktop/Burning_Brood_Bloodlines_v0.022. For another extracted copy,
+run Install_Desktop.cmd, or Launch_Bloodlines.cmd with game/ and runtime/ beside
+it. Official Windows64 Godot4.7.2 is bundled; first launch prepares quietly.
+Use a fresh Normal world with1 history day. Select a settlement on the shown map,
+choose one of its real local houses, customize, review and press Begin.
+Saves use the separate Bloodlines user-data folder; tests use private paths.
+
+THIS VERSION
+Each living dragon keeps one saved physical body. At its actual home settlement,
+review Defend this settlement to enable a healthy adult with a present, real
+bonded rider. Defence starts OFF. A qualifying local battle adds that same dragon
+alongside your army; it moves and attacks automatically. Withdraw stops future
+participation. Being away never summons or moves it.
+
+Bite/claw combat uses the existing material, tissue, armour, size, strength,
+geometry, wound, blood and death calculations. Gem hardness applies to teeth and
+claws; scales and skin remain organic. Permanent injuries stay on the same body
+after battle/save/load. Native ground sprites retain coherent proportions and
+show blood/mangling; head separation removes the head at the neck.
+
+RETAINED v021 RIDER BONDS
+House -> Dragons: visit an owned living dragon's settlement and review an actual
+local adult before confirming its rider bond. Your current household leader can
+manage dragons owned by living members of that exact household. Each person and
+dragon has at most one rider bond. The rider portrait and record use that actual
+person. Release requires an explicit review; a death ends the bond once, while
+travel alone preserves it. Ownership, custody and location stay distinct.
+No people, equipment or army funds are created by a bond. Mounted-character
+battle display and targeting are23; breath is24; campaign following/AI is25.
+
+RETAINED v020 SALVAGE
+Open Loot on the compact battle results screen to see each actual salvage buyer:
+settlement, market business, owning household, price, paid coins and destination.
+The nearest economy market still buys automatically. Its actual till pays the
+Army purse; only fully paid pieces move into its stock or inventory. Pieces it
+cannot afford remain in your stash with their exact condition and identity.
+Metal transfers preserve whole kilograms and counted fractional residue. Battle
+coin, camp coin, gear sales and retained equipment are shown separately.
+AI field loot and camp hoards use the same accountable native sale path.
+
+RETAINED v019 SELECTION
+The world map stays visible through settlement selection, local-house selection,
+Customize House and review. Click a settlement marker or its list row; the actual
+location is highlighted. Compact8-row pages/search keep the lists manageable.
+Choose the ruling family or another tracked local household. The actual leader,
+portrait, household purse and role are shown. Population cohorts are not houses.
+
+Customize the displayed house name, one of8 emblems, and banner colours. Review
+before Begin; Back and all previews leave the world and its people/funds untouched.
+Begin selects the reviewed real person/household and positions the existing party
+at that settlement. Your name/banner are saved and appear in House and on the map.
+Native household identities, ownership and family names remain unchanged.
+
+Ruling houses retain their actual office/authority. Ordinary households keep
+their own property and purse; they do not receive town lordship, settlement
+taxes, public forces, armory or treasury control. A shared dynasty name does not
+grant those rights. No field army or army money is created on selection.
+House -> Laws shows your actual house leader and real successor, including
+ordinary households; settlement office succession remains its existing system.
+
+RETAINED18 RECORDS / FONTS / LAWS
+City records now group navigation under Overview, People, Economy and Land &
+defence. Select a category, then its relevant tab. Real Overview/Register/
+Businesses/Census/Treasury/Garrison data stays aligned and paged; open rows for
+actual owner/person detail, with native search/sort and return context intact.
+Compact dark rows replace invisible cream-on-cream text. Regular and bold
+Liberation Sans fonts are bundled with the complete SIL OFL license.
+
+House -> Laws shows the current native race-specific rule, ruler, eligible heir
+and recorded regent when applicable. Person links open the actual registry and
+return to Laws. Laws are read-only; this release changes presentation. Inline
+succession information is removed from the current city/house chooser. The new
+settlement/map/local-house/Customize workflow is now available.
+
+RETAINED v017 ARMY FOUNDATION
+A new campaign and house selection leave your private field army UNRAISED.
+There are no free100 people,75000 army coins, invented equipment or provisions.
+Public city guards and militia are separate real forces. Your ruler portrait
+remains near the map's lower left; Army opens the new army management screen.
+
+At your actual home settlement, fund the army from your house's real private
+purse. Review how many ADDITIONAL people can depart, actual available equipment,
+food/signing costs and three days of total field wages. Confirm the review to
+raise those real people. A quote/cancel spends nothing. Capacity is200 TOTAL,
+with up to8 real officers. A shortage gives an honest partial muster and receipt.
+No automatic transfer from house, city or realm treasuries occurs.
+
+Return to the actual home settlement and stand down. The same people, bodies,
+wounds, family identities and private equipment stay recorded at home. Borrowed
+city kit returns to its actual armory; living residents rejoin civilian work
+once and stop drawing field wages. Re-raising retains their physical identity.
+Dismissal follows the same home return. Native aging, sickness and death still
+apply. Private equipment of natural deaths remains in saved household-linked
+estate custody; management of those estates is a later action, not a market sale.
+Remote records cannot move your company home or authorize a remote return.
+
+RETAINED GAMEPLAY
+House/army/city/realm funds have separate owners. Businesses/land/herds belong
+to tracked families; common folk provide most work and their pooled wealth pays
+real local taxes and tribute. Native material/tissue/body/wound/blood battles,
+100-200-person forces, feudal allegiance and defection remain authoritative.
+Automatic battle slow motion defaults OFF (Esc/Settings -> Gameplay to enable).
+Paused/end Combat log records the full fight, with18-row pages, character filters
+and native damage details. Results show compact casualties and expandable detail.
+Standing fighting officers rally assigned fleeing followers on BOTH sides;
+death/incapacity/withdrawal removes support. Reading logs never reruns combat.
+The right performance panel shows frame/FPS, calculation times, jobs and memory.
+Army interface cost and Army management stage are now included.
+
+Copper Oath v0.053 released humanoid races, genders, hair/beards, weapons and
+armour remain exact. Dragons/eggs keep individual gem types, owners, care and
+growth; organic sprites have gem-coloured horns/teeth/claws. Head/jaw movement,
+blood/mangling and saddle handles remain. Real rider bonds are now recorded;
+native dragon battle bodies are active in22, mounted-character presentation in23.
+Background monsters remain suspended. Bronze smiths recycle counted inputs.
+
+READ ONLY WHAT YOU NEED
+docs/DEV_NOTES.txt: current decisions and retained technical lessons.
+docs/ROADMAP.txt: scoped version map;20 buyer receipts,21 bonds,22 dragon autobattle.
+docs/FOLDER_PLAN.txt: folder ownership; docs/specialists/: retained helper briefs.
+test-results/: dated actual TXT results and preserved full diagnostics.
+game/: one editable native source tree. docs/history/: previous active notes.
+releases/: Windows packages, source/release manifests and delivery receipts.
+
+LIMITS / NEXT
+60FPS everywhere and long-session leak freedom remain goals. Generation, save
+capture holds and dense combat still have measured costs; see current results.
+No phone export or cross-version save compatibility work is claimed.
+Current selection/House/Laws/performance evidence is in dated test-results TXT.
+Next:v023 mounted rider presentation and native rider injury targeting.
+Existing Desktop folders/icons and immutable packages remain preserved.
+

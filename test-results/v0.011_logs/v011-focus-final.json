@@ -1,0 +1,15 @@
+{
+  "Run": "v011-focus-final",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v011-candidate\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_campaign_focus_v011.gd",
+    "--watchdog=25"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 4.661
+}

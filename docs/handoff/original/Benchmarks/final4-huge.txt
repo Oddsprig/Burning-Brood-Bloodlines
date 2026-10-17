@@ -1,0 +1,13 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: final4-huge
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 4.953s | exit 0
+FAIL | tests/diag_land_food_v046.gd | 575.875s | exit 1
+  1 occurrence(s): FAIL: strict day120 90% worked/full nominal target {"actual_worked":107084.13635212035,"applicable":true,"evaluated":true,"fraction":0.6501848009819206,"minimum":0.9,"nominal":164698.0,"passed":false}
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-final4-huge
+Source receipt SHA256: 93156baaaf0ab27c3354cde8bd8a249ea4660decd641276094f06277aae9a9a5
+
+Notes (you can write here):

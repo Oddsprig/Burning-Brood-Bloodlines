@@ -1,0 +1,4 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+army scale / creature pause: 33 checks, 0 failures
+== res://tests/test_army_scale_monster_pause.gd: PASS ==

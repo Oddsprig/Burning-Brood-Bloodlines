@@ -1,0 +1,24 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: baseline-inherited-hiring
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 5.094s | exit 0
+FAIL | tests/test_hiring_timing.gd | 18.000s | exit 14
+  2 occurrence(s): FAIL: ordinary family turn sees a job reopened after the hiring list
+  2 occurrence(s): FAIL: the following ordinary turn pays the actual worked week
+  2 occurrence(s): FAIL: wages come from the employer's existing till
+  2 occurrence(s): FAIL: new funding is visible without waiting for the weekly highest-offer cache
+  2 occurrence(s): FAIL: paid relatives see better external offers too
+  2 occurrence(s): FAIL: housed idle adult finds cleanup work through the ordinary family turn
+  2 occurrence(s): FAIL: casual worker sees a better funded ordinary job
+PASS | tests/test_harvest_ownership.gd | 6.563s | exit 0
+PASS | tests/test_farm_retention.gd | 6.547s | exit 0
+FAIL | tests/test_land_plots.gd | 91.141s | exit 1
+  1 occurrence(s): FAIL: plots daily pass worst 215.40 ms < 25 ms
+  plots daily pass: avg 56.02 ms, worst 215.40 ms (68 towns); a whole sim day avg 1804.0 ms
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-baseline-inherited-hiring
+Source receipt SHA256: d4e8fd5d7ba711b24fa3edd567c78124a57512adf1157485e64e64751b957cbf
+
+Notes (you can write here):

@@ -1,0 +1,38 @@
+BURNING BROOD: BLOODLINES v0.020 - ACTUAL DESKTOP DELIVERY
+2026-10-12 | PASS
+Source checkpoint: 39c155a1d597d54de5f332e7e189cf30cc9c582d
+Desktop folder: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.020
+Desktop shortcut: C:\Users\bligh\Desktop\Burning Brood Bloodlines v0.020.lnk
+Target: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+Arguments: -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.020\Launch_Bloodlines.ps1"
+Working directory: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.020
+Icon: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.020\Bloodlines.ico,0
+ICO SHA256: d1ef199206f031d650bb086846c3ceab34b9217ce09e5a8b07022a6553e42438
+Actual native shell icon SHA256: 7de91d3f81c8808019a029b26e30c0a30f4db727d84dca5c6b64e4ed44da6467
+Shell icon matches the unchanged approved green dragon/crown brand.
+
+All 2612 installed payload files passed length/SHA256 readback.
+1032 game files match the tested source manifest.
+473 inherited UIDs; 477 unique current UIDs.
+Current native assertions: 7637.
+Current rendered gate cases: 20.
+Counts and current scoped native gameplay, desktop UI and frame
+evidence come from the current source manifest/results. Scope: Actual nearest-market salvage buyer receipts, counted material destinations and real till-to-army payments; unpaid pieces retain exact stash identity. Native people, gear, coin, battle calculations and released models remain authoritative.
+Exact native identities and owned accounts are preserved.
+Native material/body damage and accounts remain authoritative. The selected map
+probe passes the recovery floor; universal60FPS and long-session leak freedom remain open.
+No art replacement, phone QA or old-save compatibility work in this pass.
+
+ZIP: 107466712 bytes; 2613 entries.
+ZIP SHA256: f731afdcb6b42414cf1f3340dfde484ce3f9d52834780bf88cc9d2a42459f8c4
+Previous Desktop versions preserved: v0.019.
+All 2573 captured prior paths remain unchanged;
+v0.010/v0.011/v0.012/v0.014/v0.016/v0.017/v0.019 payload/manifests/icons/shortcuts are explicitly required.
+Prior v019 ZIP SHA256 remains 2833983c59fbe18df0994690e718c709438e5e42699b6a82a23e3ee27dec0f52.
+Current cold PrepareOnly and native main scene receipts match the source manifest.
+No interactive game launch, foreground/input or Copper Oath changed.
+
+Current source/cold/prior capture receipts included in the archive remain immutable.
+Post-package/post-install receipts live beside the source and installed copy;
+desktop-readback.json identifies archive membership of each receipt explicitly.
+All 10 listed receipt files are copied and exact hash/length read back.

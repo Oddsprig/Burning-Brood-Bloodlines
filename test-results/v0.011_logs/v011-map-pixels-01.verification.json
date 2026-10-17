@@ -1,0 +1,10 @@
+{
+  "run": "v011-map-pixels-01",
+  "errors": [
+    "ERROR: Parent node is busy setting up children, `add_child()` failed. Consider using `add_child.call_deferred(child)` instead.",
+    "ERROR: Condition \"!enabled || !is_inside_tree()\" is true."
+  ],
+  "error_count": 2,
+  "full_log_pass": false,
+  "known_certificate_environment_line_count": 1
+}

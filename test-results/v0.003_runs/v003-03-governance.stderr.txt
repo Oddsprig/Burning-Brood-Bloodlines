@@ -1,0 +1,36 @@
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+SCRIPT ERROR: Invalid access to property or key 'crops' on a base object of type 'Dictionary'.
+   at: ensure (res://campaign/crop_rotation.gd:105)
+   GDScript backtrace (most recent call first):
+       [0] ensure (res://campaign/crop_rotation.gd:105)
+       [1] work_acres (res://campaign/crop_rotation.gd:118)
+       [2] crop_work (res://campaign/families.gd:112)
+       [3] reassign (res://campaign/families.gd:494)
+       [4] cohort (res://tests/test_feudal_governance.gd:32)
+       [5] finances (res://tests/test_feudal_governance.gd:50)
+       [6] run (res://tests/test_feudal_governance.gd:177)
+       [7] _ready (res://tests/runner.gd:41)
+SCRIPT ERROR: Invalid access to property or key 'crops' on a base object of type 'Dictionary'.
+   at: ensure (res://campaign/crop_rotation.gd:105)
+   GDScript backtrace (most recent call first):
+       [0] ensure (res://campaign/crop_rotation.gd:105)
+       [1] work_acres (res://campaign/crop_rotation.gd:118)
+       [2] crop_work (res://campaign/families.gd:112)
+       [3] reassign (res://campaign/families.gd:494)
+       [4] set_muster (res://campaign/town_defence.gd:61)
+       [5] governance (res://campaign/feudal.gd:243)
+       [6] defence (res://tests/test_feudal_governance.gd:110)
+       [7] run (res://tests/test_feudal_governance.gd:177)
+       [8] _ready (res://tests/runner.gd:41)
+SCRIPT ERROR: Invalid access to property or key 'crops' on a base object of type 'Dictionary'.
+   at: ensure (res://campaign/crop_rotation.gd:105)
+   GDScript backtrace (most recent call first):
+       [0] ensure (res://campaign/crop_rotation.gd:105)
+       [1] work_acres (res://campaign/crop_rotation.gd:118)
+       [2] crop_work (res://campaign/families.gd:112)
+       [3] reassign (res://campaign/families.gd:494)
+       [4] cohort (res://tests/test_feudal_governance.gd:32)
+       [5] local_orc (res://tests/test_feudal_governance.gd:155)
+       [6] run (res://tests/test_feudal_governance.gd:177)
+       [7] _ready (res://tests/runner.gd:41)

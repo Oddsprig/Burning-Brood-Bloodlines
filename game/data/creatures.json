@@ -1,0 +1,112 @@
+{
+  "_note": "Monsters wave 1 (docs/specs/monsters-wave1.md). Merged into DB at load (core/db.gd: _merge_creatures): 'materials' -> DB.materials, 'bodies' -> DB.bodies, 'creatures' -> DB.races (with creature:true; each gets its own body plan '<plan>_<id>' = the base plan with the creature's 'coat' layers laid over every part whose outer layer is skin), 'factions' -> DB.factions (wild:true), 'names' -> DB.names. A creature is body plan + tissue layers + natural attacks + tokens + size + rarity; no HP, no special-case combat. Tags: [DF] Dwarf Fortress inspired, [ours] our own (tuned, flagged).",
+  "_format": "creature: {name, plural, body (plan id), coat [layers laid over skin], mass kg, height/width (sprite scale), tiers/attrs (DF attribute tiers), gait [sprint, run, jog] (DF ticks per 100 tiles), skills {skill: [lo, hi]}, personality medians, attacks [{verb, type edge|blunt, contact, penetration, p (base momentum, x sqrt(torque x mass ratio) like punch/kick), v (m/s), prep, rec, w, needs: part id prefix, latch: bite-and-hold via the grab code, charge: momentum = CHARGE_K x mass x run speed, mat: material of tooth/claw/tusk, stagger}], tokens [NOPAIN NOSTUN NOEXERT NOFEAR FAST_HEAL] (NOFEAR -> never routs), rarity common|uncommon|rare|epic|legendary, wave, unlock {day, fights}, group [min, max], lair (lair kind), roam px around the lair (0 = stays put), power (map strength per unit), trophies [{name, gold, part (lost part -> no trophy), coat (value x intact coat)}], art (CreaturePainter shape keys), size_tiles (multi-tile bodies, later waves; 1 now), enabled. Later waves: multi-head / long-neck plans are ordinary part lists (head_1..head_7 each with its own neck parent); 'size_tiles' > 1 and breath attacks ('breath': {shape, dmg}) are hooks only.",
+
+  "materials": {
+    "fur":        {"name": "fur", "kind": "tissue", "density": 300, "impact_yield": 10000, "impact_fracture": 10000, "impact_strain": 50000, "shear_yield": 25000, "shear_fracture": 25000, "shear_strain": 50000, "src": "ours (DF hair is not a combat layer; tuned as a soft padding coat)"},
+    "thick_hide": {"name": "thick hide", "kind": "tissue", "density": 1100, "impact_yield": 30000, "impact_fracture": 30000, "impact_strain": 50000, "shear_yield": 50000, "shear_fracture": 60000, "shear_strain": 50000, "src": "DF-style leather-like hide, values tuned (ours)"},
+    "scale":      {"name": "scale", "kind": "tissue", "density": 1300, "impact_yield": 60000, "impact_fracture": 60000, "impact_strain": 30000, "shear_yield": 90000, "shear_fracture": 100000, "shear_strain": 30000, "src": "hook for later waves (ours)"},
+    "tooth":      {"name": "tooth", "kind": "tissue", "density": 2000, "impact_yield": 200000, "impact_fracture": 200000, "impact_strain": 100, "shear_yield": 115000, "shear_fracture": 130000, "shear_strain": 100, "max_edge": 10000, "src": "DF bone/tooth values (df_wiki); teeth, claws and tusks strike with it"}
+  },
+
+  "bodies": {},
+  "_bodies_note": "v0.013: the quadruped plan moved to data/bodies.json (full DF anatomy, tools/gen_anatomy.js). drop_parts on a creature removes those part ids from its own copy of the plan.",
+
+  "creatures": {
+    "wolf": {"name": "wolf", "plural": "wolves", "body": "quadruped", "drop_parts": ["toe_f5_l", "toe_f5_r", "toe_r5_l", "toe_r5_r"], "coat": [{"tissue": "fur", "t": 6}],
+      "mass": 40, "height": 0.8, "width": 0.9, "src": "DF wolf ~40,000 cm3 [DF]; attacks/skills ours",
+      "tiers": {"STR": "0", "AGI": "+", "TOU": "0", "END": "+", "REC": "0", "WIL": "0", "FOC": "0", "SPA": "+", "KIN": "0"},
+      "attrs": {"STR": 1000, "AGI": 1250, "TOU": 1000, "END": 1250, "REC": 1000, "WIL": 1000, "FOC": 1000, "SPA": 1250, "KIN": 1000},
+      "gait": [150, 300, 450], "learn": 50, "attr_cost": 600,
+      "skills": {"brawler": [3, 6], "dodger": [3, 6], "wrestler": [4, 7], "observer": [3, 6], "fighter": [2, 4]},
+      "personality": {"courage": 45, "nerve": 45, "aggression": 70, "caution": 55, "temper": 45, "protectiveness": 60, "loyalty": 60, "cohesion": 90},
+      "attacks": [
+        {"verb": "bite", "type": "edge", "contact": 15, "penetration": 2500, "p": 9.0, "v": 9.0, "prep": 3, "rec": 3, "w": 5, "needs": "head", "latch": true, "mat": "tooth"},
+        {"verb": "claw", "type": "edge", "contact": 300, "penetration": 700, "p": 6.0, "v": 9.0, "prep": 2, "rec": 3, "w": 2, "needs": "foot_front", "mat": "tooth"}],
+      "tokens": [], "rarity": "common", "wave": 1, "unlock": {"day": 0, "fights": 0}, "group": [3, 7], "lair": "wolf_den",
+      "roam": 260, "power": 0.75, "leader_title": "pack leader",
+      "trophies": [{"name": "wolf pelt", "gold": 14, "coat": true}, {"name": "fangs", "gold": 4, "part": "head"}],
+      "art": {"shape": "wolf", "colors": ["#8a8a8a", "#6e6a64", "#a49c8c", "#4a4644", "#b8b0a0"], "belly": "#d8d0c0"},
+      "titles": ["grey", "gaunt", "scarred", "lean", "rangy", "black", "old", "young"], "size_tiles": 1, "enabled": true},
+    "bear": {"name": "bear", "plural": "bears", "body": "quadruped", "coat": [{"tissue": "fur", "t": 12}, {"tissue": "thick_hide", "t": 5}],
+      "mass": 200, "height": 1.15, "width": 1.5, "src": "DF grizzly bear ~200,000 cm3 [DF]; attacks/skills ours",
+      "tiers": {"STR": "++", "AGI": "-", "TOU": "++", "END": "+", "REC": "+", "WIL": "+", "FOC": "0", "SPA": "0", "KIN": "0"},
+      "attrs": {"STR": 1500, "AGI": 900, "TOU": 1500, "END": 1250, "REC": 1250, "WIL": 1250, "FOC": 1000, "SPA": 1000, "KIN": 1000},
+      "gait": [190, 380, 570], "learn": 40, "attr_cost": 700,
+      "skills": {"brawler": [5, 8], "dodger": [1, 3], "wrestler": [5, 8], "observer": [2, 4], "fighter": [3, 5]},
+      "personality": {"courage": 75, "nerve": 65, "aggression": 75, "caution": 30, "temper": 70, "protectiveness": 20, "loyalty": 10, "cohesion": 0},
+      "attacks": [
+        {"verb": "bite", "type": "edge", "contact": 25, "penetration": 5000, "p": 10.0, "v": 10.0, "prep": 4, "rec": 4, "w": 4, "needs": "head", "latch": true, "mat": "tooth"},
+        {"verb": "claw", "type": "edge", "contact": 600, "penetration": 2500, "p": 10.0, "v": 10.0, "prep": 3, "rec": 4, "w": 4, "needs": "foot_front", "mat": "tooth", "stagger": 1.5}],
+      "tokens": [], "rarity": "uncommon", "wave": 1, "unlock": {"day": 0, "fights": 0}, "group": [1, 1], "lair": "bear_den",
+      "roam": 0, "power": 4.0, "leader_title": "great bear",
+      "trophies": [{"name": "bearskin", "gold": 70, "coat": true}, {"name": "claws", "gold": 16, "part": "foot_front_r"}, {"name": "bear's head", "gold": 40, "part": "head"}],
+      "art": {"shape": "bear", "colors": ["#6a4428", "#5a3a22", "#7a5030", "#3a2a1e"], "belly": "#8a6040"},
+      "titles": ["brown", "shaggy", "scarred", "old", "huge", "grizzled"], "size_tiles": 1, "enabled": true},
+    "boar": {"name": "wild boar", "plural": "wild boars", "body": "quadruped", "drop_parts": ["toe_f1_l", "toe_f1_r", "toe_f2_l", "toe_f2_r", "toe_f3_l", "toe_f3_r", "toe_f4_l", "toe_f4_r", "toe_f5_l", "toe_f5_r", "toe_r1_l", "toe_r1_r", "toe_r2_l", "toe_r2_r", "toe_r3_l", "toe_r3_r", "toe_r4_l", "toe_r4_r", "toe_r5_l", "toe_r5_r", "tooth_eye_l", "tooth_eye_r"], "coat": [{"tissue": "fur", "t": 2}, {"tissue": "thick_hide", "t": 8}],
+      "mass": 65, "height": 0.8, "width": 1.15, "src": "ours (spec: about human-sized or a bit smaller)",
+      "tiers": {"STR": "+", "AGI": "0", "TOU": "+", "END": "+", "REC": "0", "WIL": "+", "FOC": "0", "SPA": "0", "KIN": "0"},
+      "attrs": {"STR": 1250, "AGI": 1000, "TOU": 1250, "END": 1250, "REC": 1000, "WIL": 1250, "FOC": 1000, "SPA": 1000, "KIN": 1000},
+      "gait": [190, 380, 570], "learn": 40, "attr_cost": 600,
+      "skills": {"brawler": [3, 6], "dodger": [1, 3], "wrestler": [2, 4], "observer": [2, 4], "fighter": [2, 4]},
+      "personality": {"courage": 75, "nerve": 60, "aggression": 75, "caution": 30, "temper": 80, "protectiveness": 50, "loyalty": 40, "cohesion": 45},
+      "attacks": [
+        {"verb": "gore", "type": "edge", "contact": 30, "penetration": 4000, "p": 8.0, "v": 9.0, "prep": 3, "rec": 3, "w": 4, "needs": "head", "mat": "tooth"},
+        {"verb": "charge", "type": "blunt", "contact": 1500, "prep": 2, "rec": 5, "w": 6, "needs": "", "charge": true, "stagger": 2.0},
+        {"verb": "bite", "type": "edge", "contact": 15, "penetration": 1200, "p": 5.0, "v": 8.0, "prep": 3, "rec": 3, "w": 1, "needs": "head", "mat": "tooth"}],
+      "tokens": [], "rarity": "common", "wave": 1, "unlock": {"day": 0, "fights": 0}, "group": [2, 4], "lair": "boar_wallow",
+      "roam": 180, "power": 1.3, "leader_title": "great wild boar",
+      "trophies": [{"name": "boar hide", "gold": 12, "coat": true}, {"name": "tusks", "gold": 10, "part": "head"}, {"name": "boar's head", "gold": 12, "part": "head"}],
+      "art": {"shape": "boar", "colors": ["#6e5646", "#5e4a3c", "#7a6250", "#56443a"], "belly": "#8a7060", "tusk": "#efe6cc"},
+      "titles": ["bristly", "black", "scarred", "big", "old", "red"], "size_tiles": 1, "enabled": true}
+  },
+
+  "rarity": {
+    "_note": "[ours] spawn weight per rarity (a share, not a count) and bounty/fee multiplier. Hydra = epic, dragon = legendary (later waves).",
+    "common":    {"weight": 100, "bounty": 1.0},
+    "uncommon":  {"weight": 35,  "bounty": 1.6},
+    "rare":      {"weight": 10,  "bounty": 2.5},
+    "epic":      {"weight": 3,   "bounty": 4.0},
+    "legendary": {"weight": 1,   "bounty": 7.0}
+  },
+
+  "lairs": {
+    "_note": "Lair kinds [ours]. terrain = map terrain chars the lair may sit on (wilds: f forest, s silverwood, h hills, b badlands); 'cave' lairs prefer hills next to mountains. tiles = battle-map style (choke points: rough and impassable tiles).",
+    "wolf_den":    {"name": "wolf den", "creature": "wolf", "terrain": ["f", "s", "h"], "style": "den"},
+    "bear_den":    {"name": "bear den", "creature": "bear", "terrain": ["h", "f"], "style": "cave", "cave": true},
+    "boar_wallow": {"name": "boar wallow", "creature": "boar", "terrain": ["f", "s", "b"], "style": "thicket"},
+    "bandit_camp": {"name": "bandit camp", "faction": "outlaws", "terrain": ["f", "h", "b", "s"], "style": "camp"}
+  },
+
+  "spawning": {
+    "_note": "[ours] tunables, no fixed numbers in code. Density is a share of wild map area: target lairs = wild cells x lair_density (min 1, max max_lairs). Gradual: every type unlocks at its unlock.day / unlock.fights x unlock_pace and starts rare (weight ramps from rare to its own rarity over ramp_days). Lairs keep away from towns (min_town_cells). A cleared lair stays empty for cleared_days. Bandit camps: camp_density per wild cell, a camp re-arms its bands from its stock.",
+    "lair_density": 0.0045, "max_lairs": 18, "min_town_cells": 7, "unlock_pace": 1.0, "ramp_days": 20.0,
+    "cleared_days": 15.0, "respawn_check_days": 2.0, "camp_density": 0.0012, "max_camps": 4,
+    "camp_bands": 1, "camp_garrison": [4, 7], "bandit_band": [3, 6], "deserter_chance": 0.12, "max_deserters": 2,
+    "named_chance": 0.25, "bounty_growth_per_day": 0.04
+  },
+
+  "factions": {
+    "beasts": {"name": "Wild beasts", "race": "wolf", "culture": "", "region": "", "wealth": 1, "wild": true, "monster": true,
+      "colors": {"primary": "#7a5a3a", "secondary": "#c8b090"}, "player_hostile": true,
+      "troops": [{"name": "wolf", "creature": "wolf", "w": 4}, {"name": "wild boar", "creature": "boar", "w": 3}, {"name": "bear", "creature": "bear", "w": 1}]},
+    "outlaws": {"name": "Outlaws", "race": "human", "culture": "outlaw", "region": "", "wealth": 1, "wild": true,
+      "personality": {"courage": 40, "aggression": 60, "loyalty": 30, "cohesion": 40, "greed": 80, "scruples": 15},
+      "colors": {"primary": "#5a4a3a", "secondary": "#a83030"}, "player_hostile": true,
+      "troops": [
+        {"name": "cutthroat", "w": 3, "skills": {"dagger": [1, 4], "sword": [0, 3], "dodger": [1, 3], "fighter": [0, 2]},
+          "loadout": {"main_hand": ["seax", "shiv", "arming_sword"], "off_hand": ["buckler", ""], "helm": ["", "", "skull_cap"], "clothing": ["tunic"], "legs_under": ["trousers"], "feet": ["shoes", ""]}},
+        {"name": "brigand", "w": 3, "skills": {"axe": [1, 4], "spear": [1, 3], "shield_user": [0, 2], "fighter": [1, 3]},
+          "loadout": {"main_hand": ["bearded_axe", "boar_spear", "spiked_club"], "off_hand": ["round_shield", ""], "helm": ["", "spangen_helm"], "body": ["", "", "mail_byrnie"], "clothing": ["tunic", "gambeson"], "legs_under": ["trousers"], "feet": ["shoes"]}},
+        {"name": "bandit chief", "w": 0, "skills": {"sword": [3, 6], "shield_user": [2, 4], "armor_user": [2, 4], "fighter": [3, 5], "leader": [2, 5], "intimidator": [1, 4]},
+          "loadout": {"main_hand": ["arming_sword", "bearded_axe"], "off_hand": ["kite_shield", "round_shield"], "helm": ["nasal_helm"], "body": ["mail_shirt"], "clothing": ["gambeson"], "legs_under": ["trousers"], "feet": ["shoes"]}}
+      ]}
+  },
+
+  "names": {
+    "outlaw_epithets": ["the Knife", "Redcap", "One-Ear", "the Fox", "Crowbait", "the Butcher", "Blackhand", "Half-Hand", "the Weasel", "Gallowsbird"],
+    "beast_names": {"wolf": ["Greymuzzle", "Old Ragged", "Blackfang", "Whitethroat", "the Widowmaker", "Snowpelt"],
+      "bear": ["Old Clawfoot", "the Hill King", "Bonebreaker", "Mossback", "Grandfather Grizzle"],
+      "boar": ["Ironbristle", "the Red Tusker", "Old Gutripper", "Mudking", "Sowfather"]}
+  }
+}

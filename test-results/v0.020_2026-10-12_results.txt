@@ -1,0 +1,63 @@
+BURNING BROOD: BLOODLINES v0.020 - CURRENT SOURCE VERIFICATION
+2026-10-12 | PASS | Package/Desktop delivery have separate receipts.
+Source:work/v020-candidate-final03/game;private no-focus line only.
+Engine:actual bundled Godot4.7.2.stable.official.ed1daf0bf.
+QA:GPT-6 Luna/low;Sol/high specialists implement;root integrates/delivers.
+
+SCOPE
+Actual nearest-economy-market buyer, business/household, till-to-army payment,
+paid stock/inventory and exact retained unpaid Item ownership. Whole kilograms
+plus fractional residue conserve metal mass. Main/camp/AI native transactions;
+compact expandable18-row read-only Loot details; duplicate finish cannot resell.
+Native population/accounts/combat and released models remain authoritative.
+
+CURRENT FINAL03 RUNS - FULL LOGS CLEAN / ZERO FAILURES / NO TIMEOUTS
+import:15.150s,class/resource import;no assertion count.
+salvage:4.607s,98checks;real conservation/ownership and differential inventory test.
+UI:11.559s,7500assertions/18ACTUALdesktopfits across1280/1920/2560.
+fresh-world:37.300s,22checks,actual Normal/seed777/EXACTonehistoryday.
+map:51.844s,17checks,current2560x1440/18s/1x recoveryfloor.
+Total7637assertions/5selectedruns;20actual rendered gates.
+18UI+2freshworld native captures;4actually inspected (Luna3/root1).
+No broad suite, phone or old-save compatibility work.
+
+ACTUAL NATIVE FINANCE BOUNDARY
+Fresh Akbulak/Yeke market bought the original resident's2.88kg copper piece for
+1038coins. Army wallet57624->58662;actual till1783740.24->1782702.24;0retained.
+Native muster enlists ONE real resident and existing kit/food, with real private
+funding. An explicit broken flag is a finance fixture, NOT a simulated full fight.
+Whole-world coin, paid mass/count/residue, native body identity, campaign RNG,
+Item UID counters, repeated finish/world hook and actual disk save agree.
+World generation24.649s;finish30.496ms. Funded, poor/no/malformed buyer, aliases,
+distinct same-UID items, AI owned custody and camp cash/sales verified separately.
+Native UI fully fits buyer headers, paging controls and fixed Continue.
+Minor duplicate wording 'market market till' is cosmetic;buyer IDs are correct.
+
+PERFORMANCE - SHORT CURRENT OBSERVATION
+Actual1052frames/17.991s/twomidnights/pan/recenter/paused Settings/visible panel:
+58.44FPS,p9527.368ms,p9940.623ms,worst111.932ms.6frames>50ms,1>100ms,0>150ms.
+Tracked engine memory+6.63MiB/18s;NOT long-session leak proof or60FPS everywhere.
+Militia threat frame95.192ms includes4.358ms AI harvest/8.581ms sale;legacy
+casualty/service work remains debt. No current dense-battle benchmark claimed.
+Pass-local inventory membership/value reuse removed repeated large scans;
+10checks compare exact reference/order/receipt/coin/mass/RNG/UIDs against frozen
+linear delivery with512existing Items in EACH inventory. No persistent cache.
+
+SOURCE / COLD PROOF
+1032gamefiles/477uniqueUIDs;all473priorUIDs,101priorart/data and20exactv053
+native model files remain unchanged. Bundled runtime unchanged.
+Source manifest SHA256:5ed0acc7c28fbbd9f94600f3957557bd22fe032b351b47fed6469434e18eeecd
+Copied bundled launcher PrepareOnly in fresh spaced private path:13.295s PASS.
+Copied bundled native main headless8frames:8.886s PASS.
+All full logs/receipts/reports/hashes retained. Cold checks are additional2runs.
+
+PREPARATORY / FAILED RUNS - EXCLUDED FROM CURRENT TOTALS
+final01 core/UI assertions passed but native image showed pager focus/clipping.
+Root fresh diagnostic used missing econ.race instead of Persons.race_of;failed
+at selection before finance. Corrected selector and real affordability expectation.
+final02 UI fit/fresh finance passed;map failed worst158.637ms, specifically141ms
+Militia threat/loot. Fixed measured inventory scans;final03 ALLgates pass.
+Old required Desktop10-18 are already absent at task start;initial capture
+correctly stopped. Corrected capture preserves only currently present19:
+2573manifest-listed payload/manifest/shortcut paths. Absent builds not recreated.
+Package/SHA/actual Desktop/icon and preserved19 readbacks are separate receipts.

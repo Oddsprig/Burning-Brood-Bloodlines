@@ -1,0 +1,16 @@
+{
+  "Run": "v0081-03-baseline-advance",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v0081-baseline\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=tests/diag_advance.gd",
+    "--watchdog=48",
+    "--fixture-save=C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v0081-baseline-advance-fixture.json"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 8.798
+}

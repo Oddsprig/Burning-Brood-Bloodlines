@@ -1,0 +1,1211 @@
+{
+	"_note": "Combat log templates (sim/combat_text.gd). Lines are built ONLY from the sim's computed result (tests/test_gore_text.gd checks every claim word against the strike record). Placeholders: {A}/{a} attacker label (capitalised/plain), {D}/{d} defender label, {W} weapon with its metal ('copper arming sword'), {WN} weapon type alone ('arming sword'), {V} verb 3rd person, {v} verb, {VW} 'with his <weapon>' (or 'with the shaft of his <weapon>'), {P} body part, {R} the worst layers ('shattering the skull and pulping the brain'), {ARM} armour piece, {THRU} the piece the blow went through, {BONE} the bone broken under a broken piece, {PIECE} what the attacker's weapon broke or bent on (\"Grushnak's steel gauntlet\"), {SH} shield, {DW} defender weapon, {his} the actor's possessive on hits, {ahis}/{ahe} attacker, {dhis}/{dhim}/{dhe} defender (the register's sex; 'its' for beasts). v0.014 (Douglas 22:51-22:57): DF-style vivid voice: the attacker, a strong verb, the armour, then the body, then the payoff; bigger results get bigger lines. 'mild' holds the Reduced-gore set (Settings > Gore): any group it has replaces the main one.",
+	"strike": {
+		"miss": [
+			"{A} {V} at {d} but misses.",
+			"{A}'s {v} goes wide of {d}.",
+			"{A} {V} at {d} and finds nothing.",
+			"{A} lunges at {d} and cuts only air.",
+			"{A} overreaches, and the {WN} whistles past {d}."
+		],
+		"dodge": [
+			"{D} twists away from {a}'s {v}.",
+			"{D} sidesteps {a}'s {v}.",
+			"{A}'s {v} meets only air as {d} slips aside.",
+			"{D} jumps clear of {a}'s {v}.",
+			"{D} ducks, and {a}'s {v} hisses overhead.",
+			"{D} sways back from {a}'s {v} by a finger's width."
+		],
+		"block": [
+			"{D} catches {a}'s {v} on {his} {SH}.",
+			"{D} takes {a}'s {v} on {his} {SH}.",
+			"{A}'s {v} slams into {d}'s {SH}.",
+			"{D} gets {his} {SH} in the way of {a}'s {v}.",
+			"{A}'s {v} booms off {d}'s {SH}."
+		],
+		"parry": [
+			"{D} turns {a}'s {v} aside with {his} {DW}.",
+			"{D} parries {a}'s {v} with {his} {DW}.",
+			"{D} meets {a}'s {v} with {his} {DW} and knocks it aside.",
+			"Steel rings as {d} beats {a}'s {v} away with {his} {DW}."
+		],
+		"glance": [
+			"{A} {V} {d} in the {P} {VW}, but the blow glances off the {ARM}.",
+			"{A}'s {v} skids off {d}'s {ARM}.",
+			"The {ARM} turns {a}'s {v} away from {d}'s {P}.",
+			"{A}'s {WN} rings off {d}'s {ARM} and slides away."
+		],
+		"absorbed": [
+			"{A} {V} {d} in the {P} {VW}; the {ARM} takes the blow.",
+			"{D}'s {ARM} soaks up {a}'s {v} to the {P}.",
+			"{A} {V} {d}'s {P}, but the {ARM} holds.",
+			"{A} hammers {d}'s {P}, and the {ARM} holds firm."
+		],
+		"harmless": [
+			"{A} {V} {d} in the {P} {VW}, but it does no harm.",
+			"{A}'s {v} to {d}'s {P} does no harm.",
+			"{A}'s {v} barely troubles {d}'s {P}."
+		],
+		"sever": [
+			"{A} {V} clean through {d}'s {P} {VW}, and the {P} spins away in a spray of blood!",
+			"{A}'s {W} shears through {d}'s {P}; it drops to the dirt, still twitching!",
+			"{A} {V} {d}'s {P} clean off with {his} {W}!",
+			"With one blow of {his} {W}, {a} lops off {d}'s {P}!",
+			"{A}'s {W} bites through skin, meat and bone, and {d}'s {P} comes away in a red arc!",
+			"{A} hews {d}'s {P} from {dhis} body, and the stump pumps blood!"
+		],
+		"decap": [
+			"{A} {V} through {d}'s neck {VW}, and the head spins away!",
+			"{A}'s {W} takes {d}'s head clean off!",
+			"{A}, swinging {his} {W}, sends {d}'s head tumbling from {dhis} shoulders!",
+			"{A} {V} {d}'s head from {dhis} body; the corpse stands a heartbeat longer, then folds!",
+			"One stroke of {a}'s {W}, and {d}'s head bounces across the ground!",
+			"{A} beheads {d} with {his} {W}, and blood fountains from the neck!"
+		]
+	},
+	"open": {
+		"edge": [
+			"{A} {V} {d} in the {P} {VW}",
+			"{A}, swinging {his} {W}, {V} {d} across the {P}",
+			"{A}'s {W} bites deep into {d}'s {P}",
+			"{A} lays into {d}'s {P} with {his} {W}",
+			"{A} carves into {d}'s {P} with {his} {W}",
+			"{A}'s {W} catches {d} across the {P}",
+			"With a savage cut of {his} {W}, {a} opens {d}'s {P}",
+			"{A} rips {his} {W} across {d}'s {P}"
+		],
+		"pierce": [
+			"{A} drives {his} {W} into {d}'s {P}",
+			"{A} {V} {d} in the {P} {VW}",
+			"{A}'s {W} punches into {d}'s {P}",
+			"Lunging, {a} buries {his} {W} in {d}'s {P}",
+			"{A} runs {his} {W} into {d}'s {P}",
+			"{A} spears {d} in the {P} with {his} {W}",
+			"{A} rams the point of {his} {W} into {d}'s {P}"
+		],
+		"blunt": [
+			"{A} {V} {d} in the {P} {VW}",
+			"{A}'s {W} crashes into {d}'s {P}",
+			"{A} brings {his} {W} down on {d}'s {P}",
+			"{A} smashes {his} {W} into {d}'s {P}",
+			"{A}, swinging {his} {W}, clubs {d} across the {P}",
+			"{A}'s {W} slams into {d}'s {P} with a wet crunch",
+			"{A} hammers {d}'s {P} with {his} {W}"
+		],
+		"sub": [
+			"{A} {V} {d} in the {P} {VW}",
+			"{A} {V} {d}'s {P} {VW}",
+			"{A} catches {d} in the {P} {VW}"
+		],
+		"thru_edge": [
+			"{A} {V} {d}'s {P} through {dhis} {THRU} {VW}",
+			"{A}'s {W} cuts through {d}'s {THRU} and into the {P}",
+			"{A}, swinging {his} {W}, slices through {d}'s {THRU} into the {P}",
+			"{A} hews through {d}'s {THRU} with {his} {W} and into the {P}",
+			"{A}'s {W} shears through {d}'s {THRU} and bites the {P} beneath"
+		],
+		"thru_pierce": [
+			"{A} drives {his} {W} through {d}'s {THRU} and into the {P}",
+			"{A}'s {W} punches through {d}'s {THRU} into the {P}",
+			"{A} {V} {d}'s {P} through {dhis} {THRU} {VW}",
+			"Lunging, {a} spits {d}'s {P} through {dhis} {THRU} on {his} {W}",
+			"{A} rams {his} {W} through {d}'s {THRU}, deep into the {P}"
+		],
+		"thru_blunt": [
+			"{A}'s {W} smashes through {d}'s {THRU} into the {P}",
+			"{A} {V} {d}'s {P} through {dhis} {THRU} {VW}",
+			"{A} drives {his} {W} through {d}'s {THRU} and into the {P}",
+			"{A}, swinging {his} {W}, batters through {d}'s {THRU} into the {P}"
+		],
+		"natural": [
+			"{A} {V} {d} in the {P}",
+			"{A}'s {W} connects with {d}'s {P}",
+			"{A} {V} {d}'s {P} hard",
+			"{A} lands {his} {W} on {d}'s {P}"
+		],
+		"nat_bite": [
+			"{A} bites {d} in the {P}",
+			"{A}'s teeth sink into {d}'s {P}",
+			"{A} snaps at {d} and catches the {P}",
+			"{A} tears into {d}'s {P} with its jaws",
+			"{A} sinks its fangs into {d}'s {P}"
+		],
+		"nat_claw": [
+			"{A} rakes {d}'s {P} with its claws",
+			"{A}'s claws tear across {d}'s {P}",
+			"{A} swipes at {d} and catches the {P}",
+			"{A} gouges {d}'s {P} with its claws"
+		],
+		"nat_gore": [
+			"{A} gores {d} in the {P}",
+			"{A} hooks a tusk into {d}'s {P}",
+			"{A}'s tusks rip into {d}'s {P}",
+			"{A} rips {d}'s {P} open with its tusks"
+		],
+		"nat_charge": [
+			"{A} charges into {d}, slamming the {P}",
+			"{A} barrels into {d}'s {P} at full tilt",
+			"{A} crashes into {d}, hitting the {P}",
+			"{A} runs {d} down, smashing into the {P}"
+		],
+		"nat_shake": [
+			"{A} shakes {d} by the {P}",
+			"{A} worries at {d}'s {P}",
+			"Jaws locked, {a} wrenches at {d}'s {P}",
+			"{A} thrashes {d} about by the {P}"
+		]
+	},
+	"breach": {
+		"edge": [
+			"{A}, swinging {his} {W}, splits the {ARM} and {BONE} of {d} in half",
+			"{A}'s {W} cleaves through {d}'s {ARM} and the {BONE} beneath",
+			"{A} {V} {d} through {dhis} {ARM}, splitting the {BONE} in two",
+			"{A} hews through {d}'s {ARM} and on through the {BONE}"
+		],
+		"blunt": [
+			"{A}, swinging {his} {W}, caves in {d}'s {ARM} and the {BONE} under it",
+			"{A}'s {W} bursts {d}'s {ARM} and smashes the {BONE} beneath",
+			"{A} brings {his} {W} down, crushing {d}'s {ARM} and the {BONE} inside it",
+			"{A} stoves in {d}'s {ARM}, and the {BONE} gives way with it"
+		],
+		"pierce": [
+			"{A}'s {W} punches through {d}'s {ARM} and splinters the {BONE}",
+			"{A} drives {his} {W} through {d}'s {ARM} and through the {BONE}",
+			"Lunging, {a} bursts {d}'s {ARM} and the {BONE} behind it"
+		]
+	},
+	"kill": {
+		"any": [
+			", slaying {dhim}!",
+			", killing {dhim} outright!",
+			". {D} drops dead!",
+			", and {d} is dead before {dhe} hits the ground!",
+			", slaying {dhim} where {dhe} stands!",
+			". {D} falls and does not move again!"
+		],
+		"brain": [
+			", splattering {dhis} brains and slaying {dhim}!",
+			". {D}'s brains spill out and {dhe} drops dead!",
+			", ending {dhim} in a spray of brains!",
+			", and {d} is dead before {dhe} hits the ground!"
+		],
+		"heart": [
+			", splitting {dhis} heart and slaying {dhim}!",
+			". {D}'s heart is ruined and {dhe} drops dead!",
+			", stopping {dhis} heart for good!",
+			", bursting {dhis} heart!"
+		],
+		"after_sever": [
+			"{D} is dead.",
+			"{D} collapses, dead.",
+			"{D} falls dead in the spreading red."
+		]
+	},
+	"gerund": {
+		"cut": [
+			"cutting",
+			"slicing",
+			"laying open",
+			"opening"
+		],
+		"torn": [
+			"tearing",
+			"ripping"
+		],
+		"sliced through": [
+			"slicing through",
+			"shearing through"
+		],
+		"run through": [
+			"running through",
+			"skewering"
+		],
+		"pierced": [
+			"piercing",
+			"puncturing",
+			"perforating"
+		],
+		"severed": [
+			"severing",
+			"shearing off"
+		],
+		"nicked": [
+			"nicking",
+			"grazing"
+		],
+		"chipped": [
+			"chipping",
+			"notching"
+		],
+		"cut through": [
+			"cutting through",
+			"slicing through",
+			"hewing through"
+		],
+		"torn open": [
+			"tearing open",
+			"ripping open"
+		],
+		"destroyed": [
+			"destroying",
+			"ruining",
+			"mangling"
+		],
+		"bruised": [
+			"bruising",
+			"battering"
+		],
+		"fractured": [
+			"fracturing",
+			"cracking",
+			"breaking"
+		],
+		"shattered": [
+			"shattering",
+			"splintering"
+		],
+		"smashed": [
+			"smashing",
+			"crushing"
+		],
+		"pulped": [
+			"pulping",
+			"mashing"
+		],
+		"obliterated": [
+			"obliterating",
+			"pulverising"
+		]
+	},
+	"layer": [
+		"{L}: {S}{DEPTH}.",
+		"The {l} is {S}{DEPTH}."
+	],
+	"path": {
+		"tl_br": [
+			"The cut runs {THRU} from top left to bottom right.",
+			"The blade travels {THRU} from top left to bottom right."
+		],
+		"br_tl": [
+			"The backhand cut runs {THRU} from bottom right to top left.",
+			"The blade comes back {THRU} from bottom right to top left."
+		],
+		"top_bottom": [
+			"The blow comes down {THRU} from top to bottom.",
+			"The cut falls {THRU} from top to bottom."
+		],
+		"straight": [
+			"The point goes straight in, {DEEP} mm deep.",
+			"The thrust drives straight in, {DEEP} mm deep."
+		]
+	},
+	"pay": {
+		"guts": [
+			"The belly gapes and {d}'s guts slop out onto the ground!",
+			"{D}'s entrails spill from the wound in a steaming heap!",
+			"{D}'s guts spill out, and {dhe} clutches at them!",
+			"Loops of gut slide out of {d}'s opened belly!"
+		],
+		"drown": [
+			"{D} coughs up blood, drowning in it!",
+			"Both lungs fill with blood: {d} is drowning on dry land!",
+			"{D} chokes and gurgles, lungs full of blood!"
+		],
+		"spine": [
+			"The spine is cut, and {d} folds like an empty sack!",
+			"{D}'s spine parts, and everything below it goes limp!",
+			"The blow cuts the spinal cord: {d} crumples!"
+		],
+		"airway": [
+			"Air whistles through {d}'s cut windpipe!",
+			"The windpipe is opened: {d} chokes for breath!",
+			"{D}'s throat gapes, sucking air and blood!"
+		],
+		"lung": [
+			"A lung is punctured: {d} wheezes pink froth!",
+			"The blow punctures a lung; {d} gasps and gurgles!",
+			"{D}'s lung is pierced, and every breath bubbles!"
+		],
+		"eye": [
+			"The eye bursts!",
+			"{D}'s eye is gone, burst in its socket!",
+			"The eye is ruined, and runs down {dhis} cheek!"
+		],
+		"tooth": [
+			"A tooth flies from {d}'s mouth!",
+			"Teeth and blood spray from {d}'s mouth!",
+			"{D} spits out a broken tooth!"
+		]
+	},
+	"func": {
+		"tendon_grip": [
+			"The tendon is severed: {d} loses {dhis} grip.",
+			"With the tendon cut, {d}'s fingers will not close."
+		],
+		"tendon_leg": [
+			"The tendon is severed: the {P} gives way.",
+			"With the tendon cut, {d}'s {P} will not bear weight."
+		],
+		"nerve": [
+			"The motor nerve is severed: the {P} hangs useless.",
+			"The motor nerve is cut and the {P} goes limp."
+		],
+		"airway": [
+			"The airway is cut: {d} struggles to breathe!",
+			"Air whistles through the cut airway; {d} chokes for breath."
+		],
+		"breath": [
+			"The lung is damaged: {d} struggles for breath.",
+			"{D} gasps, the lung torn."
+		],
+		"eye": [
+			"The eye is destroyed.",
+			"The eye is gone."
+		],
+		"numb": [
+			"The sensory nerve is cut: {d} feels nothing in the {P}.",
+			"The {P} goes numb."
+		],
+		"lung": [
+			"A lung is punctured: {d} wheezes for breath.",
+			"The blade punctures a lung; {d} gasps."
+		],
+		"drown": [
+			"Both lungs are filling with blood: {d} is drowning!",
+			"{D} coughs blood, drowning in it!"
+		],
+		"spine": [
+			"The spinal cord is cut: {d} goes limp below it!",
+			"The spine is severed and {d} crumples."
+		],
+		"guts": [
+			"The {P} is cut open and the guts spill out!",
+			"{D}'s guts spill from the wound!"
+		],
+		"tooth": [
+			"A tooth is knocked out.",
+			"A tooth flies out of {d}'s mouth."
+		]
+	},
+	"artery": {
+		"nick": [
+			"A small vessel is nicked.",
+			"Blood seeps from a nicked vessel.",
+			"Blood trickles from a nicked vessel."
+		],
+		"artery": [
+			"An artery is opened, and blood pours!",
+			"Blood pulses from an opened artery!",
+			"Dark blood runs from an opened artery!"
+		],
+		"major": [
+			"The {ART} is cut, and blood spurts in great jets!",
+			"Blood sprays from the severed {ART}!",
+			"A fountain of blood jets from {d}'s {P}!",
+			"The {ART} is opened: blood hoses across the ground!"
+		]
+	},
+	"armor_dmg": {
+		"dented": [
+			"The {ARM} dents under the blow.",
+			"The {ARM} buckles inward.",
+			"The blow leaves a deep dent in {d}'s {ARM}."
+		],
+		"torn": [
+			"The {ARM} tears.",
+			"The blow rips {d}'s {ARM}."
+		],
+		"punctured": [
+			"The point punches a hole in {d}'s {ARM}.",
+			"The {ARM} is holed."
+		],
+		"burst": [
+			"Rings burst from {d}'s {ARM}!",
+			"The {ARM}'s links snap and scatter!"
+		],
+		"split": [
+			"The {ARM} splits open!",
+			"{D}'s {ARM} is split apart!"
+		],
+		"cracked": [
+			"{D}'s {ARM} cracks under the {WN}!",
+			"The {ARM} cracks clean across!"
+		],
+		"shattered": [
+			"{D}'s {ARM} shatters, lames flying!",
+			"The {ARM} bursts apart under the {WN}!"
+		]
+	},
+	"weapon_dmg": {
+		"snap": [
+			"{A} swung {his} {W} with such force it snapped in half on {PIECE}!",
+			"{A}'s {W} snaps clean in two on {PIECE}!",
+			"With a crack, {a}'s {W} breaks apart against {PIECE}!",
+			"{A}'s {W} breaks off short on {PIECE}, leaving {ahim} a useless stump!"
+		],
+		"bend": [
+			"{A}'s {W} bends against {PIECE}!",
+			"The blow bends {a}'s {W} on {PIECE}!",
+			"{A}'s {W} comes away from {PIECE} bent out of true!"
+		],
+		"chip": [
+			"{A}'s {W} chips on {PIECE}.",
+			"The edge of {a}'s {W} notches against {PIECE}.",
+			"{A}'s {W} loses a sliver of edge on {PIECE}."
+		]
+	},
+	"rx": {
+		"cry": [
+			"{D} cries out.",
+			"{D} howls with pain.",
+			"{D} grunts and staggers.",
+			"{D} screams.",
+			"{D} bellows in pain.",
+			"{D} lets out a strangled yell."
+		]
+	},
+	"decisive": {
+		"artery": [
+			"{D} is bleeding from the {P} ({RATE}/tick): the {ART} is cut and blood jets out!",
+			"Blood fountains from {d}'s {P} ({RATE}/tick)!",
+			"{D}'s {ART} is opened: blood pumps from the {P} ({RATE}/tick)!"
+		],
+		"sever": [
+			"{D}'s {P} is hacked off!",
+			"{D}'s {P} drops to the ground!",
+			"{D}'s {P} is lopped off!"
+		],
+		"sever_head": [
+			"{D}'s head is off!",
+			"{D}'s head rolls!",
+			"{D} is beheaded!"
+		],
+		"guts": [
+			"{D}'s guts spill out!",
+			"{D}'s belly opens and the entrails slither out!",
+			"{D} is gutted!"
+		]
+	},
+	"lodged": [
+		"The {W} is lodged firmly in the wound!",
+		"The {W} sticks fast in {d}'s {P}!",
+		"The {WN} is stuck fast in {d}'s {P}!"
+	],
+	"_arrow_note": "bows: an arrow's strike lines (DF form: 'Aldric shoots a copper bodkin arrow! It strikes the goblin in the upper body! The arrow has lodged firmly in the wound!'). {W} = the arrow, {SH} = the shield it met or went through.",
+	"arrow": {
+		"hit": [
+			"The {W} strikes {d} in the {P}, {R}!",
+			"{A}'s {W} hits {d} in the {P}, {R}!",
+			"The {W} takes {d} in the {P}, {R}!",
+			"{A}'s {W} finds {d}'s {P}, {R}!",
+			"{A}'s {W} thuds into {d}'s {P}, {R}!"
+		],
+		"via": [
+			"The {W} punches through {d}'s {SH} and into the {P}, {R}!",
+			"{A}'s {W} goes through {d}'s {SH} and strikes the {P}, {R}!"
+		],
+		"dodge": [
+			"{D} twists aside and {a}'s {W} flies past.",
+			"{D} jumps clear of {a}'s {W}.",
+			"{A}'s {W} hisses past as {d} ducks.",
+			"{D} sees {a}'s {W} coming and sways out of its way."
+		],
+		"shield_stuck": [
+			"{D} catches {a}'s {W} on {his} {SH}; it sticks fast.",
+			"{A}'s {W} thuds into {d}'s {SH} and sticks there.",
+			"The {W} buries its point in {d}'s {SH}."
+		],
+		"shield_glance": [
+			"{A}'s {W} glances off {d}'s {SH}.",
+			"{D} turns {a}'s {W} aside with {his} {SH}.",
+			"The {W} skips off the rim of {d}'s {SH}."
+		],
+		"shield_boss": [
+			"{A}'s {W} strikes the boss of {d}'s {SH} and bounces away.",
+			"{D} takes {a}'s {W} on the boss of {his} {SH}; it shatters.",
+			"The {W} rings off the boss of {d}'s {SH}."
+		],
+		"glance": [
+			"The {W} strikes {d} in the {P}, but glances off the {ARM}.",
+			"{A}'s {W} skips off {d}'s {ARM}.",
+			"The {ARM} turns {a}'s {W} away from {d}'s {P}."
+		],
+		"absorbed": [
+			"The {W} strikes {d} in the {P}; the {ARM} stops it.",
+			"{D}'s {ARM} stops {a}'s {W} at the {P}.",
+			"{A}'s {W} hits {d}'s {P}, but the {ARM} holds."
+		],
+		"harmless": [
+			"The {W} strikes {d} in the {P} but does no harm.",
+			"{A}'s {W} bounces off {d}'s {P} harmlessly."
+		],
+		"lodged": [
+			"The arrow has lodged firmly in the wound!",
+			"The arrow sticks fast in {d}'s {P}!",
+			"The arrow is buried in the wound!"
+		],
+		"exit": [
+			"The arrow passes clean through and flies on!",
+			"The arrow bursts out the other side and flies on!"
+		]
+	},
+	"say": {
+		"cry": {
+			"orc": [
+				"{A} roars, \"BLOOD AND BONES!\"",
+				"{A} bellows, \"Smash 'em! Eat 'em!\"",
+				"{A} howls, \"Your skulls are my cups!\"",
+				"{A} pounds {his} chest and roars, \"Waaagh! Meat for the Horde!\"",
+				"{A} snarls, \"I'll wear your guts as a belt!\""
+			],
+			"goblin": [
+				"{A} shrieks, \"Stab the big ones in the back!\"",
+				"{A} cackles, \"Pretty ones! I want the pretty ones alive!\"",
+				"{A} giggles, \"Ears! Collect the ears!\"",
+				"{A} hisses, \"Hit 'em low, hit 'em from behind!\"",
+				"{A} leers and squeals, \"Mine! That one's mine!\""
+			],
+			"dwarf": [
+				"{A} roars, \"For the Holds and the honoured dead!\"",
+				"{A} bellows, \"Stand fast! Stone does not break!\"",
+				"{A} growls, \"Into the grudge-book with the lot of you!\"",
+				"{A} shouts, \"Axes high! By my father's beard!\"",
+				"{A} bellows, \"Khazad! The ancestors are watching!\""
+			],
+			"elf": [
+				"{A} cries, \"Under the moon, you fall!\"",
+				"{A} sings out a cold, high war-song.",
+				"{A} calls, \"Dance, then, and die gracefully.\"",
+				"{A} says, quite calmly, \"You should not have come here.\"",
+				"{A} cries, \"Silver and shadow! For the Court!\""
+			],
+			"middle": [
+				"{A} shouts, \"For the King and the Kingdom!\"",
+				"{A} roars, \"Hold the line! Shields up!\"",
+				"{A} bellows, \"God and the Crown!\"",
+				"{A} yells, \"Forward! Show them steel!\"",
+				"{A} shouts, \"No quarter! Not one step back!\""
+			],
+			"northern": [
+				"{A} howls, \"The ravens feed tonight!\"",
+				"{A} roars, \"Storm-father, watch me!\"",
+				"{A} bellows, \"For the clans! Blood on the snow!\"",
+				"{A} bangs {his} shield and screams, \"Come and die!\"",
+				"{A} roars, \"Feast in the hall or feed the wolves!\""
+			],
+			"eastern": [
+				"{A} cries, \"For the Khan and the Eternal Sky!\"",
+				"{A} whoops, \"Ride them down! Leave none!\"",
+				"{A} shouts, \"The sky sees all! Fight well!\"",
+				"{A} yells, \"Your herds are ours, your heads too!\"",
+				"{A} howls a high steppe war-cry."
+			]
+		},
+		"kill": {
+			"orc": [
+				"{A} spits on the body. \"Weak meat.\"",
+				"{A} roars, \"Who's next? WHO'S NEXT?\"",
+				"{A} laughs, \"That one squealed like a pig!\"",
+				"{A} licks the blood from {his} {W}. \"Tastes like fear.\"",
+				"{A} stamps on the corpse. \"Get up! GET UP!\""
+			],
+			"goblin": [
+				"{A} cackles over the body. \"Dibs on the boots!\"",
+				"{A} giggles, \"Didn't see me coming, did you?\"",
+				"{A} squeals, \"I'm keeping the ears! And the teeth!\"",
+				"{A} sniggers, \"Bet that one was pretty, once.\"",
+				"{A} dances around the body, crooning, \"Dead, dead, dead!\""
+			],
+			"dwarf": [
+				"{A} grunts, \"Grudge settled.\"",
+				"{A} wipes {his} {W}. \"One more for the book.\"",
+				"{A} growls, \"That's for my grandfather.\"",
+				"{A} says, \"Stone endures. You did not.\""
+			],
+			"elf": [
+				"{A} murmurs, \"Rest. It is over.\"",
+				"{A} flicks the blood from {his} {W}. \"Clumsy.\"",
+				"{A} does not even look down.",
+				"{A} says softly, \"The moon remembers no one.\""
+			],
+			"middle": [
+				"{A} shouts, \"One down! Hold the line!\"",
+				"{A} gasps, \"God forgive me.\"",
+				"{A} roars, \"Who else wants some?\"",
+				"{A} mutters, \"That's for Ashford.\""
+			],
+			"northern": [
+				"{A} roars, \"The ravens thank you!\"",
+				"{A} howls at the sky, {his} {W} dripping.",
+				"{A} laughs, \"A good death! Next!\"",
+				"{A} bellows, \"Tell the gods I sent you!\""
+			],
+			"eastern": [
+				"{A} cries, \"The Sky takes you!\"",
+				"{A} whoops, \"Another for the Khan!\"",
+				"{A} laughs, \"Too slow, farmer!\""
+			]
+		},
+		"maim": {
+			"orc": [
+				"{A} roars with laughter. \"I'll take the rest of you next!\"",
+				"{A} grins, \"Lost something?\"",
+				"{A} bellows, \"Bits! Bits everywhere!\""
+			],
+			"goblin": [
+				"{A} snatches at the severed piece. \"Souvenir!\"",
+				"{A} cackles, \"Now you're even prettier!\"",
+				"{A} giggles, \"Let's see you run now!\""
+			],
+			"dwarf": [
+				"{A} grunts, \"Should've worn a better helm.\"",
+				"{A} growls, \"Yield, or lose the rest.\""
+			],
+			"elf": [
+				"{A} says coldly, \"Yield.\"",
+				"{A} tilts {his} head. \"You were warned.\""
+			],
+			"middle": [
+				"{A} shouts, \"Yield, damn you!\"",
+				"{A} winces at the sight, then raises {his} {W} again."
+			],
+			"northern": [
+				"{A} roars, \"A gift for the ravens!\"",
+				"{A} laughs, \"Still standing? Good!\""
+			],
+			"eastern": [
+				"{A} shouts, \"Kneel to the Khan!\"",
+				"{A} laughs, \"Run now, little rabbit!\""
+			]
+		},
+		"back": {
+			"goblin": [
+				"{A} giggles, \"Never turn your back on a goblin!\"",
+				"{A} whispers, \"Surprise, pretty.\"",
+				"{A} cackles, \"Backs are the best part!\"",
+				"{A} sniggers, \"Should've looked behind you!\""
+			]
+		}
+	},
+	"ev": {
+		"shoot": [
+			"{A} shoots a {W} at {d}!",
+			"{A} looses a {W} at {d}!",
+			"{A} draws and shoots a {W} at {d}!",
+			"{A} sends a {W} at {d}!"
+		],
+		"drop_bow": [
+			"{A} drops {his} {W} and draws {his} {S}!",
+			"{A} throws down {his} {W} and goes for {his} {S}!"
+		],
+		"sling_bow": [
+			"{A} slings {his} {W} and takes up {his} {S}.",
+			"{A} shoulders {his} {W} and draws {his} {S}."
+		],
+		"unsling_bow": [
+			"{A} takes up {his} {W} again.",
+			"{A} unslings {his} {W} and nocks an arrow."
+		],
+		"pickup_bow": [
+			"{A} snatches up {his} {W}.",
+			"{A} picks {his} {W} up off the ground."
+		],
+		"bow_trampled": [
+			"{A} tramples {d}'s {W}; it snaps!",
+			"{D}'s {W} breaks under {a}'s feet!"
+		],
+		"out_of_arrows": [
+			"{A} has shot {his} last arrow!",
+			"{A}'s quiver is empty!"
+		],
+		"pull_arrow": [
+			"The {W} is pulled from {A}'s {part}.",
+			"{A} has the {W} pulled out of {his} {part}."
+		],
+		"stand": [
+			"{A} stands up.",
+			"{A} gets back to {his} feet.",
+			"{A} staggers upright, bloody but standing."
+		],
+		"wake": [
+			"{A} regains consciousness.",
+			"{A} comes to.",
+			"{A} groans and comes back to {his} senses."
+		],
+		"flee": [
+			"{A} flees the battlefield.",
+			"{A} escapes off the field."
+		],
+		"side_routed": [
+			"The {side} side is routed!"
+		],
+		"fall_pain": [
+			"{A} falls down in pain.",
+			"{A} collapses, overcome by pain.",
+			"{A} crumples, screaming.",
+			"{A} drops to the ground, howling in agony."
+		],
+		"fall_knocked": [
+			"{A} is knocked off {his} feet!",
+			"The blow knocks {a} to the ground!",
+			"{A} is bowled over by the blow!"
+		],
+		"fall_thrown": [
+			"{A} is thrown to the ground!",
+			"{A} goes down hard!"
+		],
+		"fall_legs_leg": [
+			"{A} falls over as {his} leg gives way.",
+			"{A}'s leg buckles and {a} falls."
+		],
+		"fall_legs_tendon": [
+			"{A} falls as the cut tendon gives way.",
+			"{A}'s ankle folds on the cut tendon and {a} goes down."
+		],
+		"fall_legs_nerve": [
+			"{A} falls, {his} leg dead beneath {his} weight."
+		],
+		"fall_legs_lost": [
+			"{A} falls, unable to stand on what is left of {his} leg.",
+			"{A} topples onto the bloody stump of {his} leg."
+		],
+		"fall_legs_spine": [
+			"{A} collapses, {his} spine broken.",
+			"{A} drops like a sack, {his} spine cut."
+		],
+		"ko_pain": [
+			"{A} passes out from the pain.",
+			"{A} gives in to pain and goes limp.",
+			"{A}'s eyes roll back, and {a} faints from the agony.",
+			"{A} screams once and blacks out."
+		],
+		"ko_blood": [
+			"{A} faints from blood loss.",
+			"{A} loses consciousness from loss of blood.",
+			"{A}, white as chalk, slumps senseless in {his} own blood."
+		],
+		"ko_head": [
+			"{A} is knocked senseless.",
+			"{A} is knocked unconscious by the blow.",
+			"{A}'s lights go out."
+		],
+		"ko_air": [
+			"{A} passes out, starved of air.",
+			"{A} turns blue and goes limp."
+		],
+		"death": [
+			"{D} has been killed by {killer} ({why}).",
+			"{D} falls dead at {killer}'s hands ({why}).",
+			"{D} is slain by {killer} ({why})."
+		],
+		"death_nokiller": [
+			"{D} dies ({why}).",
+			"{D} is dead ({why})."
+		],
+		"drop": [
+			"{A} drops {his} {W}!",
+			"{A} loses {his} grip on the {W}!"
+		],
+		"let_go": [
+			"{A} lets go of {his} stuck {W}.",
+			"{A} abandons the {W} in {d}'s body."
+		],
+		"disarm_ok": [
+			"{A} wrenches the {W} from {d}'s grip!",
+			"{A} tears the {W} out of {d}'s hand!"
+		],
+		"disarm_fail": [
+			"{A} grabs for {d}'s weapon but cannot wrest it free."
+		],
+		"grab_ok": [
+			"{A} grabs hold of {d}!",
+			"{A} seizes {d}!"
+		],
+		"grab_fail": [
+			"{A} grabs at {d} but {d} slips free.",
+			"{A} lunges to grab {d} and misses."
+		],
+		"takedown_ok": [
+			"{A} throws {d} to the ground!",
+			"{A} takes {d} down!"
+		],
+		"takedown_fail": [
+			"{A} tries to throw {d} but {d} keeps {his} feet."
+		],
+		"latch_ok": [
+			"{A} latches on and does not let go!",
+			"{A}'s jaws lock onto {d}!",
+			"{A} bites down on {d} and holds on!"
+		],
+		"drag_ok": [
+			"{A} drags {d} down!",
+			"{A} hauls {d} off {his} feet!",
+			"{A} pulls {d} to the ground!"
+		],
+		"drag_fail": [
+			"{A} tugs at {d}, but {d} keeps {his} feet.",
+			"{A} pulls at {d} but cannot bring {d} down."
+		],
+		"fall_dragged": [
+			"{A} is dragged to the ground!",
+			"{A} goes down under the weight of the beast!"
+		],
+		"lodged": [
+			"The {W} is lodged firmly in {d}'s {part}!",
+			"{A}'s {W} sticks fast in {d}'s {part}."
+		],
+		"twist": [
+			"{A} twists the embedded {W} around in {d}'s {part}!",
+			"{A} wrenches the {W} in the wound in {d}'s {part}!",
+			"{A} grinds the {W} around inside {d}'s {part}!"
+		],
+		"pull_out": [
+			"{A} pulls the {W} free of {d}'s {part}.",
+			"{A} tears the {W} out of {d}'s {part}.",
+			"{A} rips the {W} out of {d}'s {part} with a wet sucking sound."
+		],
+		"victim_pull": [
+			"{A} wrenches the {W} out of {his} own body; {d} is disarmed!",
+			"{A} tears the {W} free, and {d} is left empty-handed!"
+		],
+		"rip_free": [
+			"The {W} rips free of the wound!"
+		],
+		"retrieve": [
+			"{A} picks up the {W}.",
+			"{A} snatches up the {W}."
+		],
+		"rout": [
+			"{A} breaks and runs!",
+			"{A} turns and flees in panic!",
+			"{A} throws down all courage and bolts!"
+		],
+		"rally": [
+			"{A} rallies and turns back to the fight!"
+		],
+		"rage": [
+			"{A} flies into a rage!",
+			"{A} roars in fury!",
+			"{A} goes berserk, foam on {his} lips!"
+		],
+		"learn": [
+			"{n}: {skill} skill rises to {lvl}."
+		],
+		"growth": [
+			"{n} grows from the battle: {g}."
+		],
+		"notarget": [
+			"{A}'s {v} finds no target."
+		],
+		"stun_pain": [
+			"{A} is stunned by the pain.",
+			"{A} reels from the pain.",
+			"{A} shrieks and staggers, dazed with pain.",
+			"{A} screams in agony."
+		],
+		"stun_vomit": [
+			"{A} vomits from the pain.",
+			"{A} retches, sick with pain.",
+			"{A} doubles over and spews {his} last meal.",
+			"{A} vomits into the mud, shaking."
+		],
+		"stun_head": [
+			"{A} is dazed by the blow to the head.",
+			"{A} staggers, head ringing.",
+			"{A} sees stars and sways on {his} feet."
+		],
+		"breath": [
+			"{A} struggles to breathe!",
+			"{A} chokes for breath!",
+			"{A} gasps and gurgles!"
+		],
+		"food_stumble": [
+			"{A} stumbles over {his} own feet.",
+			"{A} trips on nothing at all and loses a step.",
+			"{A} lurches sideways, legs full of drink.",
+			"{A} staggers and nearly goes down, too drunk to walk straight."
+		],
+		"food_swing": [
+			"{A} swings drunkenly at {d}.",
+			"{A} lurches at {d}, ale-bold and wild.",
+			"{A} comes at {d} with a drunkard's swagger.",
+			"{A} flails at {d}, roaring a tavern song."
+		],
+		"food_pain": [
+			"{A} roars, too drunk to feel it.",
+			"{A} laughs at the wound, numb with drink.",
+			"{A} barely notices the blow through the drink.",
+			"{A} shakes it off, too far gone in drink to care."
+		],
+		"food_gasp_starving": [
+			"{A}, half-starved, gasps for breath.",
+			"{A}'s legs shake; there is nothing in {his} belly to fight on.",
+			"{A} sags, weak from hunger."
+		],
+		"food_gasp_hungry": [
+			"{A}'s empty belly growls as {his} wind gives out.",
+			"{A} is tiring fast on an empty stomach.",
+			"{A} pants, wishing {his} last meal had been bigger."
+		],
+		"food_start_hammered": [
+			"{A} sways in the line, roaring drunk.",
+			"{A} can barely stand, and is spoiling for a fight.",
+			"{A} is hammered and singing."
+		],
+		"food_start_drunk": [
+			"{A} is drunk and bold.",
+			"{A} grins, well into the drink.",
+			"{A} reeks of ale and fears nothing."
+		],
+		"food_start_tipsy": [
+			"{A} is pleasantly warm with drink.",
+			"{A} has a cheerful buzz on.",
+			"{A} is in good spirits after the morning mug."
+		],
+		"food_start_hungover": [
+			"{A} squints, head pounding from last night.",
+			"{A} is green-faced and sorry about last night.",
+			"{A}'s head throbs with last night's drink."
+		],
+		"food_start_starving": [
+			"{A} is gaunt and shaking with hunger.",
+			"{A}, half-starved, can hardly lift {his} weapon.",
+			"{A} has not eaten in days and it shows."
+		],
+		"food_start_hungry": [
+			"{A}'s stomach growls.",
+			"{A} is hungry and short-tempered.",
+			"{A} could do with a meal."
+		],
+		"food_start_stuffed": [
+			"{A} belches, still full from the last meal.",
+			"{A} is stuffed and slow.",
+			"{A} is heavy with food."
+		],
+		"dbreath_draw_fire": [
+			"{A} rears back, chest swelling with a glow of fire.",
+			"Heat shimmers around {a}'s jaws as it draws breath."
+		],
+		"dbreath_draw_frost": [
+			"{A} draws a long hissing breath; frost rimes its teeth.",
+			"Cold mist curls from {a}'s nostrils as it rears up."
+		],
+		"dbreath_draw_venom": [
+			"{A} rears and its throat swells green.",
+			"{A} hisses, venom foaming at its jaws."
+		],
+		"dbreath_draw_storm": [
+			"Sparks crawl over {a}'s horns as it rears up.",
+			"The air crackles around {a}."
+		],
+		"dbreath_fire": [
+			"{A} breathes a roaring gout of flame!",
+			"{A} bathes the line in fire!"
+		],
+		"dbreath_frost": [
+			"{A} exhales a blast of killing frost!",
+			"{A} breathes a howling white gale!"
+		],
+		"dbreath_venom": [
+			"{A} sprays a hissing cloud of venom!",
+			"{A} spits caustic venom across the ranks!"
+		],
+		"dbreath_storm": [
+			"{A} looses a forking bolt of lightning!",
+			"Lightning leaps from {a}'s jaws!"
+		],
+		"dbreath_hit_fire": [
+			"{D}'s {part} is seared by the flames.",
+			"Fire washes over {d}'s {part}."
+		],
+		"dbreath_hit_frost": [
+			"Frost bites deep into {d}'s {part}.",
+			"{D}'s {part} goes white with frostbite."
+		],
+		"dbreath_hit_venom": [
+			"Venom eats into {d}'s {part}.",
+			"{D}'s {part} blisters and weeps under the venom."
+		],
+		"dbreath_hit_storm": [
+			"Lightning scorches {d}'s {part}.",
+			"The bolt burns through {d}'s {part}."
+		],
+		"ko_breath": [
+			"{A} collapses, overwhelmed by the blast."
+		]
+	},
+	"mild": {
+		"_note": "Reduced gore (Settings > Gore: Reduced; for a phone-store build): the same events, milder words.",
+		"strike": {
+			"sever": [
+				"{A} {V} through {d}'s {P} {VW}, and the {P} falls away!",
+				"{A}'s {W} cuts {d}'s {P} off!",
+				"{A} {V} {d}'s {P} off with {his} {W}!"
+			],
+			"decap": [
+				"{A} {V} through {d}'s neck {VW}, killing {dhim}!",
+				"{A}'s {W} beheads {d}!",
+				"{A} strikes off {d}'s head with {his} {W}!"
+			]
+		},
+		"kill": {
+			"any": [
+				", slaying {dhim}!",
+				", killing {dhim}!",
+				". {D} falls dead!"
+			],
+			"brain": [
+				", slaying {dhim}!",
+				". {D} falls dead!"
+			],
+			"heart": [
+				", slaying {dhim}!",
+				", striking {dhim} through the heart and killing {dhim}!"
+			],
+			"after_sever": [
+				"{D} is dead.",
+				"{D} falls dead."
+			]
+		},
+		"gerund": {
+			"cut": [
+				"cutting"
+			],
+			"torn": [
+				"tearing"
+			],
+			"sliced through": [
+				"cutting through"
+			],
+			"run through": [
+				"running through"
+			],
+			"pierced": [
+				"piercing"
+			],
+			"severed": [
+				"severing"
+			],
+			"nicked": [
+				"nicking"
+			],
+			"chipped": [
+				"chipping"
+			],
+			"cut through": [
+				"cutting through"
+			],
+			"torn open": [
+				"tearing"
+			],
+			"destroyed": [
+				"destroying"
+			],
+			"bruised": [
+				"bruising"
+			],
+			"fractured": [
+				"breaking"
+			],
+			"shattered": [
+				"breaking"
+			],
+			"smashed": [
+				"breaking"
+			],
+			"pulped": [
+				"crushing"
+			],
+			"obliterated": [
+				"destroying"
+			]
+		},
+		"pay": {
+			"guts": [
+				"The belly is cut open!",
+				"{D} is badly wounded in the belly!"
+			],
+			"drown": [
+				"{D} cannot breathe!",
+				"{D} is choking!"
+			],
+			"spine": [
+				"The spine is cut, and {d} collapses!"
+			],
+			"airway": [
+				"The windpipe is cut: {d} chokes!"
+			],
+			"lung": [
+				"A lung is punctured: {d} gasps!"
+			],
+			"eye": [
+				"The eye is destroyed!"
+			],
+			"tooth": [
+				"A tooth is knocked out."
+			]
+		},
+		"artery": {
+			"nick": [
+				"A small vessel is nicked."
+			],
+			"artery": [
+				"An artery is opened!"
+			],
+			"major": [
+				"The {ART} is cut, and {d} bleeds badly!",
+				"A major artery is cut!"
+			]
+		},
+		"decisive": {
+			"artery": [
+				"{D} is bleeding badly from the {P} ({RATE}/tick)!"
+			],
+			"sever": [
+				"{D}'s {P} is cut off!"
+			],
+			"sever_head": [
+				"{D} is beheaded!"
+			],
+			"guts": [
+				"{D} is gravely wounded in the belly!"
+			]
+		},
+		"weapon_dmg": {
+			"snap": [
+				"{A}'s {W} snaps on {PIECE}!",
+				"{A} swung {his} {W} so hard it snapped on {PIECE}!"
+			],
+			"bend": [
+				"{A}'s {W} bends against {PIECE}!"
+			],
+			"chip": [
+				"{A}'s {W} chips on {PIECE}."
+			]
+		},
+		"rx": {
+			"cry": [
+				"{D} cries out.",
+				"{D} grunts in pain."
+			]
+		},
+		"ev": {
+			"stun_vomit": [
+				"{A} is sick from the pain.",
+				"{A} doubles over, sick with pain."
+			],
+			"fall_legs_lost": [
+				"{A} falls, unable to stand on {his} wounded leg."
+			],
+			"ko_pain": [
+				"{A} passes out from the pain."
+			],
+			"pull_out": [
+				"{A} pulls the {W} free of {d}'s {part}."
+			],
+			"twist": [
+				"{A} twists the embedded {W} in {d}'s {part}!"
+			]
+		}
+	}
+}

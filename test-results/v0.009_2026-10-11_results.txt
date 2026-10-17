@@ -1,0 +1,80 @@
+BURNING BROOD: BLOODLINES v0.009 - ACTUAL PERFORMANCE RESULTS
+2026-10-11 | Selected final focused checks: PASS
+
+258 counted assertions: panel/layout39, per-call creature classification28,
+ruler refresh23, frozen-old equipment conservation68, autosave coalescing54,
+fresh synchronous native day17, fresh budgeted native comparison27, map scheduling2.
+Seven desktop1280x720 fits. Optional equipped-human ruler fixture was unavailable
+in its focused23-check run; actual fresh-world map/ruler creation is exercised.
+924 game files match tested and fresh bundled copies.
+All 417 prior UID files retained byte-exact; 426 current unique UIDs.
+All 101 prior art/data files and 21 released v053 model files unchanged.
+
+TARGET: FRESH CURRENT-BUILD NORMAL / ONE-DAY WORLD
+Native seed777 generation, exactly one day of history, actual existing ruling
+family selection, actual map and current performance panel; no save imported.
+23 towns,61 native warbands,100-person company.600 fixed60Hz callback samples
+at4x map speed. Mean map CPU15.757ms,95th percentile48.503ms, worst156.898ms.
+Earlier same fresh-world600-callback probe before successful-item index:
+mean22.487ms,95th50.094ms,worst1533.968ms. Town-equipment peak fell from
+1635.633ms to90.724ms. Earlier180-callback instrumentation isolated existing
+gear issue as mean509.176ms/peak1798.580ms; market purchases averaged1.053ms.
+A separate frozen-release fixture had98.420ms mean/2486.610ms worst; it is
+historical diagnosis only, not a fresh-world compatibility acceptance test.
+
+Tracked RAM during fresh play:576.2-579.6MiB at periodic samples; +2.510MiB
+from warmed initial map, object count -540 across four native calendar days.
+This short controlled run shows no rapid sustained allocation growth; it does
+not rule out every long-session or renderer/OS/GPU leak. FPS is visible in-game;
+headless data measures CPU callbacks and does not establish rendered FPS.
+Pending100 jobs at the sample endpoint settled in51 paused callbacks with
+NO calendar advance. A2s delayed callback advanced only0.08 native days at4x.
+Soft4ms job slices cannot preempt one indivisible native job; up to157ms stalls
+remain in this workload. The panel exposes them for later targeted work.
+
+NATIVE CONSERVATION / BOUNDED STORAGE
+Two separate fresh current-build processes run one subsequent native day:
+207 jobs by the same kinds/counts, one care and one succession job; budgeted
+work completes in206 slices. Full sorted native state/RNG/identity counters
+match synchronous control, SHA256:
+104a57ce99dd2abd1c84dbf0fdf3a96c0a56c003199441a7ee51ca2581b425ef
+This preserves population, family/property state, all purses, material items,
+care, injuries and RNG through the existing simulation. No old-save migration.
+Transient original-order equipment buckets retain exact/native Item identities
+and optional reserves; purchases reset the pass. Race flags remain per-call.
+One save worker/snapshot plus dirty flag:20 blocked requests build no extra
+snapshots, newest state flushes on completion/wait. No growing worker chain.
+Diagnostics: fixed48 labels/two rolling buckets per label, fixed panel controls,
+2Hz text/engine samples,1Hz FPS; independent inclusive totals avoid nested sums.
+
+SELECTED RUNS (full stdout/stderr scanned; exit0, no timeout):
+  v009-07-test_creature_check_performance - PASS - 2.577s
+  v009-07-test_dynasty_card_performance - PASS - 2.722s
+  v009-07-test_save_queue_performance - PASS - 2.588s
+  v009-21-final-arms - PASS - 2.403s
+  v009-15-fresh-native-control - PASS - 41.141s
+  v009-16-fresh-budgeted-native - PASS - 40.36s
+  v009-17-fresh-play-final - PASS - 37.327s
+  v009-19b-final-desktop-layout - PASS - 4.672s
+  v009-20-final-import - PASS - 5.679s
+  v009-20-cold-launcher - PASS - 11.858s
+  v009-22-bundled-main - PASS - 5.082s
+
+FAILED / DISCARDED ATTEMPTS AND LIMITS
+v009-01 diagnostic compile/type inference fixed before subsequent runs.
+v009-02 added map during runner root setup; nil HUD errors invalidate ALL its
+timings. Initial frame yield/explicit ready guards corrected it in04/05.
+v009-06 idle text assertion fixed. v009-08/09 reload-based state comparisons
+differed and are not passes; user explicitly selected fresh-world scope.
+They were replaced by separate fresh-process15/16 exact native comparison.
+v009-13 printed its checks but watchdog fired/exit124; entire run rejected.
+The indexed final control15 and matching budgeted16 fully passed.
+v009-18 startup wrapped-label minimum pushed UI down;180px minimum fixed.
+v009-19 expiry used scene delta and failed; monotonic-clock wait fixed19b.
+All attempts/full diagnostics retained in v0.009_logs, not counted twice.
+Only exact Windows root-certificate-store error excluded as known environment
+output. All other ERROR/SCRIPT ERROR/FAIL/parse/compile output rejects a run.
+Bundled cold PrepareOnly and finite actual main scene pass against exact bytes.
+No mouse/keyboard/foreground, interactive player launch, Copper Oath mutation
+or launch, images in chat, art replacement, phone QA or large battle claimed.
+Package and actual Desktop/icon readbacks are recorded in separate TXT receipts.

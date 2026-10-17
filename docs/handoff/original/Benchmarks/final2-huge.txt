@@ -1,0 +1,13 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: final2-huge
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: INTERRUPTED; NOT A PASS
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 5.437s | exit 0
+
+Stopped at user request or superseded. Only completed rows above have outcomes.
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-final2-huge
+Source receipt SHA256: 606f644bd4bda7eb25ef18cef869d260392ab731c2f83771a4e3d8e7c4d9fe29
+
+Notes (you can write here):

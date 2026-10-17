@@ -1,0 +1,49 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: final-checks
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 5.140s | exit 0
+PASS | tests/test_household_food_v046.gd | 2.062s | exit 0
+PASS | tests/test_land_capacity_v046.gd | 30.735s | exit 0
+PASS | tests/test_guard_death_v046.gd | 31.344s | exit 0
+PASS | tests/test_farm_work_rules.gd | 1.954s | exit 0
+PASS | tests/test_farm_worked.gd | 2.062s | exit 0
+PASS | tests/test_farm_capacity_funding.gd | 69.781s | exit 0
+PASS | tests/test_farm_season_turn.gd | 53.641s | exit 0
+PASS | tests/test_private_farm_batch_hiring.gd | 15.844s | exit 0
+PASS | tests/test_weekly_hiring.gd | 7.500s | exit 0
+PASS | tests/test_household_assignment.gd | 52.625s | exit 0
+PASS | tests/test_funded_hiring.gd | 48.469s | exit 0
+FAIL | tests/test_hiring_timing.gd | 15.828s | exit 14
+  2 occurrence(s): FAIL: ordinary family turn sees a job reopened after the hiring list
+  2 occurrence(s): FAIL: the following ordinary turn pays the actual worked week
+  2 occurrence(s): FAIL: wages come from the employer's existing till
+  2 occurrence(s): FAIL: new funding is visible without waiting for the weekly highest-offer cache
+  2 occurrence(s): FAIL: paid relatives see better external offers too
+  2 occurrence(s): FAIL: housed idle adult finds cleanup work through the ordinary family turn
+  2 occurrence(s): FAIL: casual worker sees a better funded ordinary job
+PASS | tests/test_hiring_paired.gd | 19.907s | exit 0
+PASS | tests/test_harvest_labour.gd | 1.938s | exit 0
+PASS | tests/test_harvest_scope.gd | 93.906s | exit 0
+FAIL | tests/test_harvest_ownership.gd | 6.812s | exit 0
+PASS | tests/test_harvest_lifecycle.gd | 66.984s | exit 0
+PASS | tests/test_harvest_nonnegative.gd | 2.047s | exit 0
+PASS | tests/test_harvest_herds.gd | 1.844s | exit 0
+PASS | tests/test_harvest_lookup.gd | 3.422s | exit 0
+FAIL | tests/test_farm_retention.gd | 6.891s | exit 0
+PASS | tests/test_farm_inheritance.gd | 76.687s | exit 0
+PASS | tests/test_wage_claims.gd | 8.985s | exit 0
+PASS | tests/test_wage_books.gd | 2.047s | exit 0
+PASS | tests/test_wage_records.gd | 7.984s | exit 0
+FAIL | tests/test_land_plots.gd | 100.969s | exit 1
+  1 occurrence(s): FAIL: plots daily pass worst 214.27 ms < 25 ms
+  plots daily pass: avg 57.46 ms, worst 214.27 ms (68 towns); a whole sim day avg 2018.2 ms
+PASS | tests/test_campaign_census.gd | 307.610s | exit 0
+PASS | tests/test_campaign_save.gd | 30.343s | exit 0
+PASS | tests/test_barge.gd | 319.859s | exit 0
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-final-checks
+Source receipt SHA256: 605e72c7fcee3789279b30d82b9ff9bebde0cc2eb93ee741620bedbb80fc29a0
+
+Notes (you can write here):

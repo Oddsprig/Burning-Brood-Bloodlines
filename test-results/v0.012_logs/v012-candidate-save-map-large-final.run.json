@@ -1,0 +1,17 @@
+{
+  "Run": "v012-candidate-save-map-large-final",
+  "Arguments": [
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v012-candidate\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=tests/diag_autosave_v012.gd",
+    "--size=large",
+    "--report=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v012-candidate-save-map-large-final.json",
+    "--compare=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v012-baseline-save-map-large.json",
+    "--watchdog=190"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 144.829
+}

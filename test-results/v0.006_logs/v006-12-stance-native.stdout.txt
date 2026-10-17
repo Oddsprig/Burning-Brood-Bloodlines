@@ -1,0 +1,4 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Fresh articulated capture complete: 10890 ms
+== res://tests/capture-v006-articulated-02.gd: PASS ==

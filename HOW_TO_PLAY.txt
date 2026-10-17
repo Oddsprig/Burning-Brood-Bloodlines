@@ -1,0 +1,108 @@
+Burning Brood: Bloodlines - Claude Edition
+Player's Guide
+
+STARTING
+Launch the game and choose New Campaign. Set the world options, then
+pick a settlement on the map. Pick one of its houses, choose Customize
+for your house name, emblem and banner colours, check everything on
+Review, then choose Begin. A short guide opens on your first map visit
+(Help on the map shows it again).
+
+THE MAP
+Tap a destination to travel there. Use Wait to let time pass where you
+are, and speed x1/x2/x4 to control how fast days run. The map buttons
+are Find, House, Army, Dragons, Ambitions, Help, Records, Save and
+Menu. Tap any settlement to see its lord, liege, loyalty and garrison
+before you decide what to do there.
+
+RAISING AN ARMY
+Raise an army only at home. Open Army, fund the army from the house
+purse, then review the muster before you confirm. The muster lists real
+residents by name, with their kit, food and 3 days of wages. Confirm to
+take them into service. Stand down at home to return the same people to
+their work. The army purse pays daily wages while they serve, so keep
+it funded. Soldiers who die are gone for good and lower the population
+of their home settlement. An army can grow to 1000.
+Under "Your house" on the Army screen, adult family members can ride
+with the army as officers. Your ruler, if riding, commands it. They fight
+in the rounds like anyone else: they gain experience and can be wounded,
+taken prisoner or killed (which changes your succession).
+
+DRAGONS
+Open the Dragons screen to manage your brood. Bond an adult dragon to a
+rider who is present at its roost. Set a dragon to Defend this
+settlement to guard its home, or to March with army to travel and fight
+with your force. A marching dragon eats from the army purse daily, so
+budget for its upkeep. Eggs hatch after 40 days of good care.
+Hatchlings become adults after one 120-day year. A healthy female and
+male pair kept at one roost may lay a clutch of new eggs.
+
+COURT AND MARRIAGE
+Open Court (map) or "Court & marriages" (House). It shows your ruler, spouse,
+heir and every living member of your house. For an unmarried adult choose
+Find a match; for a child, Arrange betrothal. Candidates come from the ruling
+houses and landed families of every settlement, and each shows whether they
+would accept and why (rank, realm, standing, your dragons, age gap). Add a
+modest or generous gift from your house purse to sweeten an offer. A match
+brings the spouse into your household with a dowry (and sometimes a dragon
+egg); their children are born into your house and become your heirs. The
+spouse's house becomes an ally: rival realms warm to you, vassals keep faith,
+and if they rule a settlement your house gains a claim there - besiege it
+and the town accepts you as rightful. A refusal costs a little standing.
+
+BATTLE
+Battles are automatic: your fighters act on their own and you watch and
+inspect. Use pause, 1x, 2x, 4x or Skip to control the pace, and read
+the Combat log to follow what happened. Tap a fighter to inspect them.
+The camera follows the fight on its own. Drag or use the mouse wheel to
+take over the camera, and press C to resume following. Dragons bite and
+claw, and breathe their gem element: fire, frost, venom or lightning.
+Dragon breath does not spare friends, so it can burn your own troops
+if they are caught in it.
+
+ROUNDS
+A battle with more than 100 on either side is fought in rounds. Each
+round, one unit of up to 100 from each army meets the other and they
+fight until that clash is finished. Then the next pair goes into the
+fray, fresh men first. Survivors fall back to their army. The wounded
+sit out every later round. Men knocked down on a field the enemy holds
+are taken prisoner. After each round a round summary shows the losses,
+both armies' morale, who is still waiting to fight and what happened to
+your family. Losing a round, losing men and losing officers cost morale,
+and the commander's fall costs most. An army breaks when its morale
+drops too low, it has nobody left to send, or it has lost more than 60%
+of its men. A separate battle summary follows the last round.
+The beaten army does not die where it stands. Everyone not killed or
+captured goes straight back to the seat of whoever owns the army and
+must remuster there. Your own beaten men return home as reserves; raise
+them again on the Army screen. A beaten enemy band stands at its home
+town, regrouping for 5 days before it can march. Armies that meet each
+other off-screen fight by the same round rules.
+
+WAR
+To make war, march your raised army to a foreign settlement and tap it.
+Choose Raid to take coin, burn grain and kill residents, then withdraw.
+Choose Besiege to attack defenders holding the walls: a win brings the
+town into your realm. Both Raid and Besiege anger the settlement's
+realm, which may answer in kind. Conquered towns start resentful, and a
+resentful town may defect from your realm later if loyalty stays low.
+
+AMBITIONS AND VICTORY
+Your house pursues 8 ambitions, listed on the Ambitions screen. Achieve
+6 of them to earn Dynasty Triumphant. Victory does not end the game:
+you can keep playing for as long as you wish. You lose only when your
+founding dynasty has no living members left, so protect your family
+and keep heirs alive (House -> Laws shows your heir).
+
+SAVING
+Choose Save on the map to save at any time. The game also autosaves
+when you arrive at a town. To return to a saved game, choose Continue
+on the title screen.
+
+KEYS
+WASD or the arrow keys pan the map. The mouse wheel zooms in and out.
+Esc opens settings (music and sound volume, gore, slow motion). F3 toggles
+the performance overlay. In battle, C
+resumes camera following after you have dragged or zoomed the view.
+
+Good luck, and may your bloodline endure.

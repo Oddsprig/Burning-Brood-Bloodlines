@@ -1,0 +1,21 @@
+{
+  "Run": "v017-release-world-render",
+  "Arguments": [
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v017-candidate-final02\\game",
+    "--resolution",
+    "2560x1440",
+    "--position",
+    "-20000,-20000",
+    "--max-fps",
+    "60",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/diag_muster_world_v017.gd",
+    "--watchdog=180",
+    "--report-dir=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v017-world-render/final02"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 32.092
+}

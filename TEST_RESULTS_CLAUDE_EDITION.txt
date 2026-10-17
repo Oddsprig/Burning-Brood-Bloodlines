@@ -1,0 +1,111 @@
+BURNING BROOD: BLOODLINES - CLAUDE EDITION - ACTUAL TEST RESULTS
+2026-10-15, this laptop: NVIDIA GeForce RTX 5090 Laptop GPU, Windows 11,
+Godot 4.7.2 GL compatibility, vsync off, engine cap 60 FPS. Evidence files:
+
+VERSION NUMBERING (the project's own; do not invent another scheme)
+The version map is docs/ROADMAP.txt in the original folder: one feature per
+version, steps of 0.001. v0.022 is the last delivered version. This build has
+not been given a version number; the user picks it. Work by roadmap version:
+- v0.023 mounted character: not confirmed in this build.
+- v0.024 breath: built (dragon breath with friendly risk).
+- v0.025 campaign deployment: built (dragon marches with the army; feed is
+  charged from the army purse).
+- v0.026 raid: built.
+- v0.027 siege: built.
+- v0.028 feudal consequences: partly built (conquered towns resent you and
+  can defect; no dragon-specific fear yet).
+Work outside the roadmap: court and marriage, interface pass, battles in
+100 v 100 rounds, armies up to 1000, house officers and noble call-up, house
+arms pool, ennoblement, medics and battle aftermath.
+
+test-results\claude_edition\ (benchmark JSON, campaign log, screenshots).
+
+1. INTEGRATED CAMPAIGN TEST (tests/claude_campaign.gd, through main.tscn)
+   20 checks, 0 failures (final run after all changes). Seed 4242, Normal
+   world, 1 history day. In order:
+   - fresh campaign starts with no raised army ............................ ok
+   - ruling house with a dragon chosen through HouseOnboarding ............. ok
+   - army funded from the real house purse; quote 150 of 200 (manpower,
+     weapons, meals and funds limit it) ................................... ok
+   - 150 real residents raised; 2 bonded dragons ordered to march ........... ok
+   - ambition "Take the Saddle" completed from the real bond ............... ok
+   - SIEGE of Frostvik: 188 defenders vs 150; real battle; aftermath; town
+     now swears to the player's realm ....................................... ok
+   - RAID of Kolvik: 70 defenders vs 56 survivors; battle ran; raid beaten
+     off (no plunder, correctly) ............................................ ok
+   - 50 campaign days advanced; 21 of 23 eggs hatched after incubation ...... ok
+   - save (3.07 s) and reload (2.51 s); towns, company (41), gold, day,
+     conquests (1) and ambitions (4) identical after reload ................. ok
+   Note: 50 days advanced synchronously in the test cost 69 s in total
+   (worst single day 5.2 s); on the map the same work is sliced per frame.
+
+2. BENCHMARK (tests/claude_bench.gd) - same scenario on both builds
+   200 raised residents + 2 bonded dragons vs 200 real enemy troops,
+   real-time 1x speed, 60 s; map travel at x4 with real midnights.
+                                 Claude Edition        v0.022 original*
+   2560x1440 battle avg FPS      51.5 - 57.4 (4 runs)  53.3 (dragons absent)
+             median frame        16.7 - 17.3 ms        17.0 ms
+             95th percentile     25 - 31 ms            27.4 ms
+             worst frame         48 - 66 ms            58.7 ms
+             draw objects/frame  1,900 - 2,000         12,900
+             draw calls/frame    1,460 - 1,650         2,640
+   1920x1080 battle avg FPS      52.4 (p95 29.2 ms)    -
+   Map x4 travel (1440p)         55.7 avg, p99 49 ms,  52.6 avg, p99 67 ms,
+                                 worst 214 ms          worst 209 ms
+   Dragons screen first open     0.58 s                2.96 s
+   House / Army / Politics open  77 / 100 / 114 ms     70 / 96 / 110 ms
+   Save / load                   3.7 s / 3.2 s         3.6 s / 3.0 s
+   World generation (Normal)     25.3 s                (handoff: ~25.6 s)
+   * The original cannot bring dragons to a field battle (home defence only),
+     so its run had 400 fighters instead of 402.
+   Battles are CPU-bound (1080p is no faster than 1440p): a 400-fighter sim
+   tick costs ~5.5 ms of GDScript every third frame. Not a locked 60 FPS.
+
+3. MEMORY
+   Six cycles of House/Dragons/Army/Politics/Population/Map transitions:
+   static memory 878.9 MiB on every cycle (no growth). A 400-fighter battle
+   peaks at 1,034 MiB; returning to the map retains +20 MiB (898 MiB).
+   Not a long-session leak proof.
+
+4. REGRESSION TESTS (existing suite, headless)
+   PASS: test_core, test_mobilization_v017, test_house_onboarding_v019,
+   test_dragon_combat_v022, test_dragon_combat_ui_v022, test_dragon_view_v022,
+   test_dragon_bond_v021, test_dragon_care, test_dragon_care_ui,
+   test_dragon_growth (expectation updated to the new growth pace),
+   test_dragon_identities, test_battle_results_ui_v014.
+   FAIL (pre-existing): test_battle_screen ("log rows built") and
+   test_battle_presentation_state (journal object identity) fail identically
+   on an untouched copy of the v0.022 source.
+
+5. PACKAGED BUILD
+   Burning_Brood_Bloodlines_Claude_Edition_Windows (199.6 MB): first-run
+   preparation 9.6 s, exit 0, no script errors. Launched from
+   Launch_Claude_Edition.cmd: window "Burning Brood: Bloodlines - Claude
+   Edition", responding after 18 s, clean engine log. Desktop shortcut
+   "Burning Brood Bloodlines - Claude Edition.lnk" points to it with
+   BloodlinesClaude.ico.
+
+NOT TESTED
+   Hours-long sessions; phone builds; old v0.022 save compatibility (the
+   Claude Edition uses its own save folder); every possible war outcome.
+
+PASS 2 (2026-10-16) - REAL PLAYED SAVE, MARRIAGE, AUDIO
+Real save: a copy of the player's own v0.022 save (Large world, 68 towns,
+82 dragon holdings, 135 MB) loaded into the Claude Edition, 1920x1080:
+                                   v0.022 (player's panel)   Claude Edition
+  Dragons > All holdings           17 FPS, peaks 1131 ms     59 FPS (pages)
+  Game objects                     381,578                   111,266
+  Engine memory after load         1.9 GB (peak 3.5 GB)      0.96 GB
+  Save file                        135 MB                    60 MB
+  Full save                        (encode peak 4.8 s)       5.9 s; autosave
+                                                             worst frame 17 ms
+  Map idle                         -                         60 FPS
+  Menus open (House/Court/Army/Politics)        127 / 444 / 32 / 174 ms
+  First load of the old save: 15.6 s (one-time cleanup releases 16,817 surplus
+  reservists to their households and melts surplus armory kit).
+Marriage test (tests/claude_marriage.gd): 15 checks, 0 failures - match found,
+  proposal with gift accepted, spouse moved into the household, links both ways,
+  no coin created (gift + dowry conserve world coin), alliance recorded, a child
+  of your house born within 136 days, all of it survives save/reload.
+Integrated campaign test re-run: 20 checks, 0 failures; 50 campaign days now
+  39 s in total (worst day 1.3 s, was 5.2 s); save 1.4 s (was 3.1 s).

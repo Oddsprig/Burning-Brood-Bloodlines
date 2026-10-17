@@ -1,0 +1,16 @@
+{
+  "Run": "v009-10-fresh-one-day-world",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "work\\v009-source-verification\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=tests/diag_fresh_performance.gd",
+    "--watchdog=48",
+    "--frames=600"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 42.798
+}

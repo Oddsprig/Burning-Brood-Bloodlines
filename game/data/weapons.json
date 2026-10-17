@@ -1,0 +1,79 @@
+{
+  "_note": "Per-faction weapon sets. Mass = head_cm3 * material density + haft_kg (wood). Attacks follow DF weapon raw conventions: type edge|blunt, contact = contact area, penetration = max penetration depth for edged attacks, vel = velocity multiplier (x1000 in DF raws; here 1.0 = normal), prep/rec = ATTACK_PREPARE_AND_RECOVER ticks, w = selection weight. drag = air-drag profile coefficient (katana 0.7 < sword 1.0 < axe 1.5). reach in cm (first-strike/initiative only; the sim is range-abstract). All weapons are forged in copper or tin for the first build. Values are DF-inspired and tuned, not DF raws.",
+  "middle": {
+    "arming_sword":   {"name": "arming sword", "skill": "sword", "head_cm3": 300, "haft_kg": 0.0, "two_handed": false, "reach": 90, "drag": 1.0, "parry": 1.0, "sprite": "sword",
+      "attacks": [{"verb": "slash", "type": "edge", "contact": 20000, "penetration": 4000, "vel": 1.25, "prep": 3, "rec": 3, "w": 5},
+                  {"verb": "stab", "type": "edge", "contact": 50, "penetration": 2000, "vel": 1.0, "prep": 3, "rec": 3, "w": 3},
+                  {"verb": "strike with the pommel", "type": "blunt", "contact": 100, "vel": 1.0, "prep": 3, "rec": 3, "w": 1}]},
+    "boar_spear":     {"name": "boar spear", "lodge": 1.0, "skill": "spear", "head_cm3": 120, "haft_kg": 1.6, "two_handed": false, "reach": 200, "drag": 1.1, "parry": 0.7, "sprite": "spear",
+      "attacks": [{"verb": "stab", "type": "edge", "contact": 20, "penetration": 10000, "vel": 1.0, "prep": 3, "rec": 3, "w": 6},
+                  {"verb": "bash with the shaft", "type": "blunt", "contact": 2000, "vel": 1.0, "prep": 3, "rec": 3, "w": 1}]},
+    "flanged_mace":   {"name": "flanged mace", "skill": "mace", "head_cm3": 260, "haft_kg": 0.6, "two_handed": false, "reach": 80, "drag": 1.3, "parry": 0.6, "sprite": "mace",
+      "attacks": [{"verb": "bash", "type": "blunt", "contact": 20, "vel": 2.0, "prep": 3, "rec": 4, "w": 1}]}
+  },
+  "northern": {
+    "bearded_axe":    {"name": "bearded axe", "skill": "axe", "head_cm3": 220, "haft_kg": 0.8, "two_handed": false, "reach": 85, "drag": 1.5, "parry": 0.5, "sprite": "axe",
+      "attacks": [{"verb": "hack", "type": "edge", "contact": 30000, "penetration": 6000, "vel": 1.25, "prep": 3, "rec": 4, "w": 6},
+                  {"verb": "hook with the beard", "type": "edge", "contact": 3000, "penetration": 1500, "vel": 1.0, "prep": 2, "rec": 3, "w": 1}]},
+    "dane_axe":       {"name": "dane axe", "skill": "axe", "head_cm3": 380, "haft_kg": 1.5, "two_handed": true, "reach": 150, "drag": 1.6, "parry": 0.6, "sprite": "greataxe",
+      "attacks": [{"verb": "hack", "type": "edge", "contact": 40000, "penetration": 8000, "vel": 1.5, "prep": 4, "rec": 5, "w": 1}]},
+    "winged_spear":   {"name": "winged spear", "lodge": 0.5, "skill": "spear", "head_cm3": 160, "haft_kg": 1.7, "two_handed": false, "reach": 210, "drag": 1.2, "parry": 0.8, "sprite": "spear",
+      "attacks": [{"verb": "stab", "type": "edge", "contact": 25, "penetration": 9000, "vel": 1.0, "prep": 3, "rec": 3, "w": 6},
+                  {"verb": "bash with the shaft", "type": "blunt", "contact": 2000, "vel": 1.0, "prep": 3, "rec": 3, "w": 1}]},
+    "seax":           {"name": "seax", "skill": "dagger", "head_cm3": 140, "haft_kg": 0.1, "two_handed": false, "reach": 45, "drag": 0.9, "parry": 0.4, "sprite": "knife",
+      "attacks": [{"verb": "stab", "type": "edge", "contact": 30, "penetration": 1800, "vel": 1.0, "prep": 2, "rec": 2, "w": 4},
+                  {"verb": "slash", "type": "edge", "contact": 12000, "penetration": 2500, "vel": 1.25, "prep": 2, "rec": 2, "w": 3}]}
+  },
+  "orc": {
+    "hacking_cleaver":{"name": "hacking cleaver", "lodge": 1.2, "skill": "axe", "head_cm3": 420, "haft_kg": 0.3, "two_handed": false, "reach": 80, "drag": 1.7, "parry": 0.4, "sprite": "cleaver",
+      "attacks": [{"verb": "hack", "type": "edge", "contact": 50000, "penetration": 4000, "vel": 1.25, "prep": 3, "rec": 4, "w": 1}]},
+    "spiked_club":    {"name": "spiked club", "skill": "mace", "head_cm3": 120, "haft_kg": 2.2, "two_handed": false, "reach": 90, "drag": 1.4, "parry": 0.4, "sprite": "club",
+      "attacks": [{"verb": "bash", "type": "blunt", "contact": 30, "vel": 2.0, "prep": 3, "rec": 4, "w": 3},
+                  {"verb": "rake with the spikes", "type": "edge", "contact": 400, "penetration": 800, "vel": 1.5, "prep": 3, "rec": 4, "w": 1}]},
+    "war_maul":       {"name": "war maul", "skill": "hammer", "head_cm3": 650, "haft_kg": 2.0, "two_handed": true, "reach": 130, "drag": 1.4, "parry": 0.4, "sprite": "maul",
+      "attacks": [{"verb": "bash", "type": "blunt", "contact": 15, "vel": 2.0, "prep": 5, "rec": 5, "w": 1}]}
+  },
+  "goblin": {
+    "short_spear":    {"name": "short spear", "skill": "spear", "head_cm3": 70, "haft_kg": 0.8, "two_handed": false, "reach": 150, "drag": 1.0, "parry": 0.6, "sprite": "spear",
+      "attacks": [{"verb": "stab", "type": "edge", "contact": 15, "penetration": 8000, "vel": 1.0, "prep": 2, "rec": 3, "w": 1}]},
+    "shiv":           {"name": "shiv", "skill": "dagger", "head_cm3": 60, "haft_kg": 0.05, "two_handed": false, "reach": 35, "drag": 0.8, "parry": 0.2, "sprite": "knife",
+      "attacks": [{"verb": "stab", "type": "edge", "contact": 10, "penetration": 1500, "vel": 1.0, "prep": 2, "rec": 2, "w": 4},
+                  {"verb": "slash", "type": "edge", "contact": 5000, "penetration": 1000, "vel": 1.25, "prep": 2, "rec": 2, "w": 1}]},
+    "hook_sickle":    {"name": "hook sickle", "skill": "axe", "head_cm3": 140, "haft_kg": 0.4, "two_handed": false, "reach": 70, "drag": 1.2, "parry": 0.3, "sprite": "sickle",
+      "attacks": [{"verb": "hook", "type": "edge", "contact": 8000, "penetration": 2500, "vel": 1.25, "prep": 2, "rec": 3, "w": 3},
+                  {"verb": "slash", "type": "edge", "contact": 10000, "penetration": 1500, "vel": 1.25, "prep": 2, "rec": 3, "w": 1}]}
+  },
+  "moon_elf": {
+    "glaive":         {"name": "glaive", "skill": "axe", "head_cm3": 320, "haft_kg": 0.15, "two_handed": false, "reach": 70, "len": 0.45, "bal": 0.10, "gyr": 0.24, "drag": 1.3, "parry": 0.65, "sprite": "glaive",
+      "attacks": [{"verb": "sweep", "type": "edge", "contact": 28000, "penetration": 4000, "vel": 1.25, "prep": 3, "rec": 3, "w": 5},
+                  {"verb": "draw-cut", "type": "edge", "contact": 10000, "penetration": 2500, "vel": 1.0, "prep": 3, "rec": 2, "w": 3},
+                  {"verb": "thrust with the crescent point", "type": "edge", "contact": 100, "penetration": 1800, "vel": 0.85, "prep": 3, "rec": 3, "w": 1}]},
+    "crescent_sabre": {"name": "crescent sabre", "skill": "sword", "head_cm3": 320, "haft_kg": 0.0, "two_handed": false, "reach": 90, "drag": 0.7, "parry": 1.0, "sprite": "sabre",
+      "attacks": [{"verb": "draw-cut", "type": "edge", "contact": 25000, "penetration": 5000, "vel": 1.25, "prep": 3, "rec": 2, "w": 6},
+                  {"verb": "stab", "type": "edge", "contact": 40, "penetration": 2500, "vel": 1.0, "prep": 3, "rec": 3, "w": 2}]},
+    "leaf_dirk":      {"name": "leaf dirk", "skill": "dagger", "head_cm3": 110, "haft_kg": 0.05, "two_handed": false, "reach": 40, "drag": 0.7, "parry": 0.4, "sprite": "knife",
+      "attacks": [{"verb": "stab", "type": "edge", "contact": 20, "penetration": 2500, "vel": 1.0, "prep": 2, "rec": 2, "w": 1}]}
+  },
+  "dwarf": {
+    "dwarf_war_axe":  {"name": "war axe", "skill": "axe", "head_cm3": 300, "haft_kg": 0.7, "two_handed": false, "reach": 75, "drag": 1.5, "parry": 0.5, "sprite": "axe",
+      "attacks": [{"verb": "hack", "type": "edge", "contact": 30000, "penetration": 6500, "vel": 1.25, "prep": 3, "rec": 4, "w": 6},
+                  {"verb": "hook with the beard", "type": "edge", "contact": 3000, "penetration": 1500, "vel": 1.0, "prep": 2, "rec": 3, "w": 1},
+                  {"verb": "punch with the butt", "type": "blunt", "contact": 300, "vel": 1.0, "prep": 2, "rec": 3, "w": 1}]},
+    "war_hammer":     {"name": "war hammer", "skill": "hammer", "head_cm3": 320, "haft_kg": 0.8, "two_handed": false, "reach": 75, "drag": 1.4, "parry": 0.5, "sprite": "mace",
+      "attacks": [{"verb": "bash", "type": "blunt", "contact": 12, "vel": 2.0, "prep": 3, "rec": 4, "w": 5},
+                  {"verb": "pick with the back spike", "type": "edge", "contact": 6, "penetration": 3000, "vel": 1.5, "prep": 3, "rec": 4, "w": 2}]},
+    "dwarf_mattock":  {"name": "war mattock", "skill": "hammer", "head_cm3": 600, "haft_kg": 1.6, "two_handed": true, "reach": 110, "drag": 1.4, "parry": 0.4, "sprite": "maul",
+      "attacks": [{"verb": "bash", "type": "blunt", "contact": 15, "vel": 2.0, "prep": 5, "rec": 5, "w": 3},
+                  {"verb": "pick", "type": "edge", "contact": 8, "penetration": 4000, "vel": 1.5, "prep": 5, "rec": 5, "w": 2}]}
+  },
+  "eastern": {
+    "steppe_sabre":   {"name": "steppe sabre", "skill": "sword", "head_cm3": 300, "haft_kg": 0.0, "two_handed": false, "reach": 88, "drag": 0.75, "parry": 0.9, "sprite": "sabre",
+      "attacks": [{"verb": "draw-cut", "type": "edge", "contact": 22000, "penetration": 4500, "vel": 1.25, "prep": 3, "rec": 2, "w": 6},
+                  {"verb": "stab", "type": "edge", "contact": 40, "penetration": 2200, "vel": 1.0, "prep": 3, "rec": 3, "w": 1}]},
+    "steppe_mace":    {"name": "flanged steppe mace", "skill": "mace", "head_cm3": 240, "haft_kg": 0.5, "two_handed": false, "reach": 75, "drag": 1.3, "parry": 0.6, "sprite": "mace",
+      "attacks": [{"verb": "bash", "type": "blunt", "contact": 20, "vel": 2.0, "prep": 3, "rec": 4, "w": 1}]},
+    "steppe_lance":   {"name": "lance", "lodge": 1.0, "skill": "spear", "head_cm3": 110, "haft_kg": 1.9, "two_handed": false, "reach": 230, "drag": 1.1, "parry": 0.7, "sprite": "spear",
+      "attacks": [{"verb": "stab", "type": "edge", "contact": 18, "penetration": 10000, "vel": 1.0, "prep": 3, "rec": 3, "w": 6},
+                  {"verb": "bash with the shaft", "type": "blunt", "contact": 2000, "vel": 1.0, "prep": 3, "rec": 3, "w": 1}]}
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "Run": "v009-19b-final-desktop-layout",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "work\\v009-source-verification\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=tests/test_performance_panel.gd",
+    "--watchdog=48"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 4.672
+}

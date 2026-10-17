@@ -1,0 +1,37 @@
+BURNING BROOD: BLOODLINES v0.005 - ACTUAL DESKTOP DELIVERY
+2026-10-10 | Result: PASS | Delivery complete
+Source checkpoint: c409459dcd07bc79d5ae1ab4293d09de4552067d
+Desktop folder: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.005
+Desktop shortcut: C:\Users\bligh\Desktop\Burning Brood Bloodlines v0.005.lnk
+Target: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+Arguments: -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.005\Launch_Bloodlines.ps1"
+Icon: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.005\Bloodlines.ico,0
+Release manifest SHA256: b32eb051b5c1cafed202029ef3584895178f37910600e3b4e507ab116beece9a
+Windows ZIP SHA256: c7d705d76e19eb6bccee1c635feb9f79172c1c4d35ad21944e8bcbf8047c24ce
+
+Installer checked every source/installed payload byte, length and SHA256:
+1218 payload files plus identical release manifest.
+All835 native game files match the tested source manifest.
+Actual WScript shortcut readback checked target/arguments/working directory/icon.
+Windows shell extracted the actual32px shortcut icon; visually inspected:
+green dragon/crown on purple with the normal shortcut arrow, not generic icon.
+Shell icon image SHA256: 7de91d3f81c8808019a029b26e30c0a30f4db727d84dca5c6b64e4ed44da6467
+Earlier Desktop v002/v003/v004 folders remain; shortcut/icon hashes unchanged.
+The v004 Windows ZIP hash also remains unchanged. No old versions overwritten.
+
+v005 includes16 gem Dragon/Egg types and independently named adult wyverns,
+real native owner/kin/parents/keeper/location, lawful private inheritance,
+reviewed gifts and custody orders, original static portraits and pure profiles.
+Gem hardness differs from body mass/strength/bite force/tooth/claw geometry.
+827 selected assertions,15 desktop fit cases,five inspected native renders,
+Normal23-town native save/load (23eggs/14namedadults) and bundled preparation/main
+passed. All389 prior UIDs preserved; current396 UIDs unique.
+Complete run/failure evidence: v0.005_2026-10-10_results.txt and v0.005_logs/.
+
+The installer did not launch the user's game, alter input/foreground, inspect
+player saves or test a phone. First user launch prepares its own cache normally.
+Native tactical dragon bodies,care/growth,bonds and battle integration stay
+in the scoped roadmap. Next:v006 real feed/upkeep and bounded care/growth.
+
+This receipt and the package receipt were added after manifest/ZIP creation.
+They are outside the hashed payload and are independently compared on copy.

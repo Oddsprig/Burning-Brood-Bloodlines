@@ -1,0 +1,10 @@
+{
+  "known_certificate_environment_line_count": 1,
+  "run": "v009-01-baseline-live",
+  "full_log_pass": false,
+  "errors": [
+    "SCRIPT ERROR: Parse Error: Cannot infer the type of \"map\" variable because the value doesn't have a set type.",
+    "ERROR: Failed to load script \"res://tests/diag_live_performance.gd\" with error \"Parse error\"."
+  ],
+  "error_count": 2
+}

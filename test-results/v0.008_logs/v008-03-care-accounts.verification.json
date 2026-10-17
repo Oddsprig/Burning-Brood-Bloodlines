@@ -1,0 +1,10 @@
+{
+  "error_count": 2,
+  "known_certificate_environment_line_count": 1,
+  "errors": [
+    "SCRIPT ERROR: Parse Error: Expected closing \")\" after call arguments.",
+    "ERROR: Failed to load script \"res://tests/test_dragon_care.gd\" with error \"Parse error\"."
+  ],
+  "run": "v008-03-care-accounts",
+  "full_log_pass": false
+}

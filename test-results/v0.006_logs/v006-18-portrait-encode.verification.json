@@ -1,0 +1,9 @@
+{
+  "known_certificate_environment_line_count": 1,
+  "error_count": 1,
+  "full_log_pass": false,
+  "errors": [
+    "ERROR: Portrait exceeds import budget"
+  ],
+  "run": "v006-18-portrait-encode"
+}

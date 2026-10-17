@@ -1,0 +1,15 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: final5-saved
+Source: EXACT CURRENT GAME SOURCE
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 4.953s | exit 0
+FAIL | tests/test_farm_work_save.gd | 25.937s | exit 27
+  27 occurrence(s): FAIL: old assignment has no fabricated new-rule marker before ordinary matching
+PASS | tests/test_casual_occupancy_save.gd | 14.188s | exit 0
+PASS | tests/diag_land_food_v046.gd | 116.921s | exit 0
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-final5-saved
+Source receipt SHA256: 7738fd905ca7c156e098549481e7ea79c682d269d6d3ded8495689db32b65b7c
+
+Notes (you can write here):

@@ -1,0 +1,86 @@
+BURNING BROOD: BLOODLINES v0.001 - ACTUAL VERIFICATION RESULTS
+Date: 2026-10-10 | Godot 4.7.2.stable.official.ed1daf0bf | Windows 64
+Source: independent Copper Oath v0.046-derived game; final game hashes in
+releases/v0.001_SOURCE_MANIFEST.json; all 359 inherited resource UIDs unchanged.
+
+FINAL RESULT
+PASS focused development-build scope. 248 explicit foundation/defeat/persistence
+assertions, plus phone layout/rotation/services/orphan checks and native duel.
+Final native assertions had no script errors, orphan leaks or timeouts.
+No full inherited suite, long campaign, large battle benchmark or mobile export.
+
+METHOD AND SCOPE
+Serial hidden/headless low-priority helper processes in private work/ user paths.
+No keyboard/mouse/foreground control, installed game writes or player save access.
+Each gameplay run had a short native watchdog and an external 20-50s ceiling.
+Foundation: two real small native town economies at 0.15 test scale; exact person
+and household/lineage refs; one-time actual adult ruler/city selection; reader
+purity; native birth/marriage/PID renumbering/whole household migration; coin
+and goods conservation; death memory; real company member beyond economic extinction.
+Defeat: real registered casualty links, same-name/repeat safety, surviving lineage
+after troop wipe, vacant ruler office, actual extinction, original body/wounds,
+native aftermath Continue and isolated asynchronous save deletion/preservation.
+Release: one unscaled normal native map, seed 10461, 23 towns, exactly 1 history day;
+native army/coin preserved by selection and current-build save/load.
+Persistence: exact strings/refs and native values; numeric JSON tolerance <1e-6;
+Barge all-owner total tolerance <0.001. No gameplay save repair was required.
+UI: true 390x844 -> 844x390 -> 390x844 viewports; title, new campaign/history, city
+selection, house/person/four accounts, map, settings, company, records and six
+in-place city tabs; bounded confirmations, selection/account preservation,
+portrait/log/navigation separation, compact header, no growing orphan controls.
+Physics: inherited native 1v1 duel, actual rolls/swing/layer force calculations,
+equipment/body parts/wounds/blood and shared lazily rendered detailed logs.
+Rendering: hidden offscreen OpenGL with Dummy audio; actual generated-world
+map inspected at 390x844, 844x390 and 1280x720; title both phones/desktop, house
+and actual city selection inspected. Final empty landscape header about 90px.
+Launcher: bundled official runtime, fresh folder with spaces, PrepareOnly
+12.943s; real main scene 4.026s. No visible gameplay launch was performed.
+
+RUN HISTORY - PRESERVED FAILURES ARE NOT CURRENT PASSES
+v001_engine_help: exit0; 0.384s; SUPPORT: runtime command reference
+v001_legacy_import: exit0; 5.158s; SUPPORT: imported immutable original; initial private-path diagnostics
+v001_legacy_capture: exit0; 3.732s; INCOMPLETE SUPPORT: first legacy render/user-path attempt; superseded
+v001_legacy_capture_corrected: exit0; 3.82s; SUPPORT PASS: original title/wood rendered; anchor sizing warnings
+v001_source_import_001: exit0; 8.239s; PASS: source import; no script errors
+v001_dynasty_foundation_001: exit2; 3.469s; FAIL: identity slots padded as numeric0; String constructor errors; six assertions invalid
+v001_brand_assets_001: exit0; 2.452s; SUPPORT PASS: new code-native crest and bundled engine notices
+v001_dynasty_foundation_002: exit0; 2.629s; FAIL VERIFICATION:211 assertions passed but native fixture lacked wealth; script errors
+v001_dynasty_defeat_001: exit0; 2.545s; PASS:26 exact identity/defeat/vacancy/extinction/save checks
+v001_dynasty_foundation_003: exit0; 2.247s; PASS:211 native identity/selection/kin/migration/asset checks; clean
+v001_dynasty_ui_001: exit0; 5.55s; PASS: initial phone matrix; narrower coverage than final
+v001_generated_release_001: exit2; 12.532s; FAIL CHECK: raw dictionary number types/exact float comparison after JSON
+v001_native_duel_001: exit0; 2.354s; PASS: native1v1 material/layer/body/wound/blood calculations and logs
+v001_generated_release_002: exit2; 12.429s; FAIL CHECK: diagnostics found unchanged refs and negligible JSON number representation
+v001_dynasty_ui_002: exit0; 6.25s; FAIL CLEANUP: fit assertions passed; empty-recruit orphan/RID warnings
+v001_generated_release_003: exit0; 11.969s; PASS:11 checks;23 real generated towns,1 native history day, current save/load
+v001_hidden_ui_capture_001: exit1; 1.616s; FAIL HARNESS: bare SceneTree compiled before Game autoload symbol; fixed to instance lookup
+v001_hidden_ui_capture_002: exit0; 7.6s; PASS RENDER:8 actual-sized previews; manual-control anchor warnings in harness
+v001_dynasty_ui_003: exit0; 6.54s; PASS: expanded city/title/rotation checks; orphan guard and cleanup clean
+v001_dynasty_ui_004: exit1; 6.534s; FAIL: landscape header height after rotation; fixed deferred natural-height reflow
+v001_dynasty_ui_005: exit0; 8.111s; PASS: final phone matrix/header/owners/city services/orphan guard; clean
+v001_hidden_ui_capture_003: exit0; 6.463s; PASS RENDER:3 final map sizes; clean and visually inspected
+v001_cold_launcher_001: exit0; 12.943s; PASS: fresh bundled-engine PrepareOnly, path with spaces, cache+marker, no gameplay window
+v001_cold_main_001: exit0; 4.026s; PASS: actual main scene boot/quit from freshly prepared source cache
+
+ENVIRONMENT / REMAINING LIMITS
+Godot reports Failed to read the root certificate store in this sandbox.
+This repeatable environment diagnostic remains visible; no network is needed.
+Earlier script errors, failed checks, cleanup warnings and harness warnings
+are recorded above with their repair/superseding run; exit 0 alone was not enough.
+No test_deploy/full inherited suite rerun: its two default Large worlds exceed
+the chosen short scope; changed extinction/deployment handoff covered directly.
+Dragons/riders, succession and common-folk cohorts are unimplemented milestones.
+No old-save compatibility, full economic balance, larger-world performance,
+Academy/metallurgy or native phone-device/export claim.
+Original art Desktop archive: 18 files hash-verified before icon/title replacement.
+Original source import: 785 exact inherited files; historical preflight reports
+remain historical. These are the first current gameplay results.
+
+REPRODUCTION
+Use the native game/tests/runner.tscn in a private user-data environment:
+--headless --path game res://tests/runner.tscn -- --test=res://tests/FILE.gd --watchdog=35
+Final focused files: test_dynasty_foundation.gd, test_dynasty_defeat.gd,
+test_dynasty_ui.gd,test_dynasty_release.gd,test_sim_duel.gd.
+Actual source/PNG/runtime hashes accompany the completed release manifest.
+Raw execution diagnostics and render harnesses stay in chat work/engine-runs;
+this portable TXT preserves all outcomes/durations and meaningful limitations.

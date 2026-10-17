@@ -1,0 +1,11 @@
+{
+  "known_certificate_environment_line_count": 1,
+  "run": "v009-08-work-budget",
+  "errors": [
+    "== res://tests/test_work_budget.gd: FAIL (2) ==",
+    "FAIL work budget: complete native save state matches synchronous job order, population, money, items, care and RNG",
+    "FAIL work budget: empty retry is pure"
+  ],
+  "error_count": 3,
+  "full_log_pass": false
+}

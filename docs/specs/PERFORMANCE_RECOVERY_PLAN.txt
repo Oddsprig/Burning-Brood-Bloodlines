@@ -1,0 +1,116 @@
+BURNING BROOD: BLOODLINES - PERFORMANCE / PLAYABILITY RECOVERY PLAN
+2026-10-11 | Initial evidence plus updated contracts; v010 delivered, further work on hold.
+User priority:performance and a good game; creative freedom within scoped passes.
+ROADMAP.txt owns version numbers. Preserve released v009 files and TXT evidence.
+Current measurements/implementation are in DEV_NOTES.txt and dated test-results;
+the screenshot/code leads below remain the starting evidence, not new passes.
+
+WHAT THE SCREENSHOTS ESTABLISH
+Campaign:16FPS travelling,39FPS settling Day6; ~1480MiB tracked RAM,
+3401.6MiB engine peak, ~373k objects, ~4k draw calls;325 jobs in the Day6 sample.
+Battle:92 vs150 at1x/tick79,2FPS,738.86ms engine process,728.32ms overall
+work-call mean,1.62ms Battle calculations mean;1551.3MiB RAM, queue empty.
+Autosave snapshot session peak3060.97ms is historical, not an active-frame cost.
+Different timing rows have different call counts/windows; do not sum nested costs.
+Samples establish poor actual play, not a specific leak or proven hotspot.
+
+CODE FACTS / FIRST MEASUREMENT LEADS
+game/battle/battle.gd:362 updates ALL actor views each frame; this falls outside
+the detailed step/presentation labels. Measure complete frame, actor/spec work,
+software painting, texture creation/upload, effect/UI work and cache activity.
+game/art/paperdoll.gd:113 clears the entire1500-entry texture cache when full.
+242 unique actors x8 walking frames can exceed it; churn is a strong hypothesis,
+not a measured cause yet. Bounded eviction, unchanged-frame guards and visible
+actor raster work are first candidates; all offscreen simulation must continue.
+Size the cache budget from its measured working set and retain current actor
+frames; a smaller eviction policy alone will not cure an undersized working set.
+game/battle/battle.gd:440 refreshes actors per event; one strike can cause several
+refreshes. Apply final dirty actor state once after native tick events.
+game/campaign/world.gd:1321 drains movement phases synchronously. Its4ms job
+budget does not bound all movement/contact/war work or indivisible daily jobs.
+game/campaign/world_map.gd:152 redraws overlays every frame. Visibility/headcount
+checks and ruler/account readers are candidates for dirty/revision-based reuse.
+game/campaign/world.gd:1343 starts at least one whole job even if it exceeds the
+soft budget. Subdivide measured overruns with identical calendar/job/RNG order.
+game/core/game.gd:410 copies the whole save tree on the main thread. One worker
+prevents parallel snapshot buildup but does not remove copying stalls. Profile
+snapshot phases and owner counts before choosing a consistent incremental design.
+game/campaign/people.gd:263 expands eligible anonymous cohort slots into candidate
+arrays; bounded requested-count selection/cursors can avoid large temporary pools.
+Existing ordinary common-folk turns already operate by age bands; do not turn
+them back into individually simulated bodies.
+
+PLAYABILITY DEFECTS / BOUNDED FIXES
+game/ui/rec_cells.gd:39 uses cream row backgrounds and cream default foregrounds.
+game/ui/rec_kit.gd:124 gives metric cards cream backgrounds with pale text.
+Pair dark surfaces and light text, aligned values and clear selected states.
+Use a bundled legible sans serif for data; restrained serif titles only if useful.
+Desktop type direction:18px body,14-16px secondary,24-28px headings; compact
+48px action rows, expandable details, category rail and concise settlement summary.
+Green actions/purple selected areas stay consistent; reduce sprawling full-width
+cards. Render actual data/hover/selection states rather than testing fit alone.
+
+game/core/game.gd:169 grants company coin/troops/provisions before world generation.
+Replace inherited mercenary onboarding with explicit house funding/mobilization.
+game/ui/roster.gd:63 removes Units on dismissal without restoring resident counters;
+game/campaign/persons.gd:972 can later classify missing company Units as dead.
+Implement conserved survivor return, not a call to the old dismissal action.
+game/campaign/people.gd:390 release alone does not restore company-out counters.
+Preserve PersonUID/household, living population/workforce, kin, lasting injuries,
+kit ownership and account sources on raise/stand-down/re-raise.
+Local-house selection must not grant the incumbent lord's office or tax income.
+Customization initially changes display name/emblem/colours, not IDs or property.
+
+COMBAT LOG CONTRACT
+Open Battle log while paused; Read battle log remains on the finished battle.
+Opening for reading holds simulation; closing does not silently resume it.
+Chronological narrative, filters (unit/side/outcome) and expandable technical
+details explain actual weapon/material, struck body part, armour reaction, tissue
+wound, blood/function loss, broken kit, teeth/limbs lost, deaths and retreats.
+Use recorded results through deterministic CombatText; no invented strikes,
+extra RNG, fresh damage calculations or live history rewritten by later wounds.
+Existing army caps:8192 battle events and512 entries/fighter. Keep storage and
+visible page size bounded. Latest user requires the whole fight and individual
+character filtering. Capture before caps discard events; use chunked per-battle
+storage so bounded memory does not mean incomplete history. Preserve exact
+event order/identity; never call a truncated log complete. Unlimited permanent
+battle archives remain outside scope; record retrieval limits honestly.
+Do not build hundreds of hidden UI rows or reformat the entire log every frame.
+game/battle/battle.gd:675 build_result removes lodged arrows and applies growth;
+reading/filtering must never call it. Tick/RNG/bodies/items stay unchanged.
+
+LATEST v010 GAMEPLAY NOTES / VERSION ORDER
+User reports a recurring freeze about every5seconds; this is v011's first
+reproduction target, not a proven autosave or memory-leak diagnosis. Inspect
+actual periodic work and full rendered frame stalls across repeated intervals.
+v012 owns broader memory/snapshot/lifecycle hardening after the direct repair.
+v013:automatic combat slow motion OFF by default, optional through Gameplay
+settings in Esc/ordinary Settings. Disable ongoing slow effect/camera nudge.
+v014:compact battle outcome, both-side casualty totals and expandable details;
+fallen/injury names, lessons and loot start collapsed; build only visible pages.
+v015:full/individual combat log described above. v016:active officers on both
+sides rally their fleeing men; real morale/command state and bounded work.
+v017:actual funded army raising/stand-down; v018:records/theme/Laws; v019:
+settlement/map/local-house customization; v020:buyer/salvage conservation receipts.
+Dragon bond/body/rider move to v021/v022/v023. ROADMAP.txt owns all numbering.
+Planning only:the user is compiling notes; no new gameplay code/test run authorized.
+
+MEANINGFUL ACCEPTANCE / DELIVERY
+Fresh Normal world with one day of history, no older-save compatibility exercise.
+Same desktop/resolution/renderer:record cold and warm full rendered frame timings,
+p50/p95/p99/worst stalls, FPS, cache hit/miss/eviction and memory/object ownership.
+Record simulation time advanced per real second at1x as well as rendered FPS.
+Normal progression must stay correct while presentation becomes responsive.
+Target60FPS; first recovery floor stable30FPS, p95 frame<=50ms at1x. Budget is
+an intended gate, not a claim that it has passed. Log remaining overruns honestly.
+Campaign:travel/wait/midnight, pan/zoom, HUD/menu changes and actual backlog age.
+Battle:reported92/150 replay plus100/100 and200/200, mixed races/kit, camera,
+pause/resume, wounds/severing, inspector/log opening and battle completion.
+Fixed-tick controls must preserve native RNG, wounds/blood, gear, deaths, learning,
+real population and coin/food/kit accounting. Rendering must be a read-only view.
+Paused repeated map/battle/menu cycles distinguish warm cache from retained
+objects; collect OS working memory separately from engine/GPU counters.
+Focused isolated runs stay serial/low priority and never take player input or
+foreground. No routine phone QA; no source art replacement or images in chat.
+Each implemented pass gets actual dated TXT evidence, verified package, its own
+Desktop folder and branded shortcut. Keep prior versions and their receipts.

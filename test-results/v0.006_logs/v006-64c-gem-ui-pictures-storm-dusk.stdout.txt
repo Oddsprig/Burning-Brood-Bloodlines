@@ -1,0 +1,6 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Dragon UI section: pictures
+Dragon UI picture forms: stormkeel,duskfin
+Dragon UI: 67 assertions, 0 failures; 2 desktop fit cases, 0 fit failures.
+== res://tests/test_dragon_ui.gd: PASS ==

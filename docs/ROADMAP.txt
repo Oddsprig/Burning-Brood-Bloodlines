@@ -1,0 +1,293 @@
+BURNING BROOD: BLOODLINES - ACTIVE VERSION MAP
+Updated: 2026-10-17 | v0.020/v0.021/v0.022 delivered; v0.023-v0.027 DELIVERED (Claude Edition); next planned v0.028.
+
+STATUS AND ORDER
+v0.010/v0.011/v0.012/v0.014/v0.016/v0.017/v0.018/v0.019 were delivered historically.
+Currently present Desktop versions19/20/21/22 each have branded shortcuts.
+v016 complete paused/end histories, character filters and actual officer rally are
+retained, along with exact cheaper blood rendering and v011/v012 performance work.
+User directed17 FIRST, then18; both completed in order with dated delivery receipts.
+19 delivered:settlement/map/local-house/customize/review/Begin;verified.
+Current cold/package/Desktop receipts establish delivery for completed versions.
+User authorized20 ->21 ->22; all three completed with individual deliveries.
+20 buyer/salvage receipts delivered(source39c155a/deliveryb28ffe8).
+21 actual rider bonds delivered(sourcee87e326/deliveryc531565).
+22 native dragon combat delivered(sourcedaed554/delivery4d29328).
+HANDOFF.txt is the current concise entry. This documentation pass starts no23 code.
+No new military rights or art conversion.
+Performance and a good game take priority throughout the next passes.
+Previous roadmap:docs/history/ROADMAP_before_v017_v018_sequence_2026-10-11.txt.
+
+WORKING RULES
+One main outcome per version:scope, deferred work and acceptance before coding.
+Small settings fixes ship with their related feature pass; internal checklist
+stages do not each require a separate release. v013+v014 delivered as v014; user now
+approved v015+v016 together as v016. Current17 and18 are sequential separate versions.
+Split an oversized measured problem instead of bundling unrelated features.
+One source tree; concise TXT dev notes/roadmap/folder plan; dated TXT test results.
+Keep the same specialized GPT-6.1 Sol/high helpers and their small role briefs.
+User directs bounded QA to GPT-6 Luna/low; keep Sol/high for implementation.
+QA receives exact checks/pass criteria and the serial engine slot when needed.
+Every implemented release:its own Desktop folder, branded shortcut and verified
+package/install hashes. Preserve older versions; archive art before replacement.
+Use fresh Normal worlds with one history day. No older-save compatibility work.
+Desktop gameplay/performance checks now; routine phone QA waits until export.
+
+PERFORMANCE CONTRACT
+Target60FPS on this desktop. First recovery floor:30FPS average or better and
+p95 frame<=50ms at1x, plus responsive input and no recurring multi-second freeze.
+Average FPS alone cannot pass:record worst frames, stall counts/cadence, native
+time advancement, job backlog and memory. v011 found native midnight jobs plus
+repeated reads/render commands; no recurring five-second autosave timer was found.
+Include the user's actual gameplay window size, with matching baseline/candidate
+dimensions. A smaller1280x720 probe alone cannot establish the desktop repair.
+The v010 short battle probes passed that first floor, not the whole-game target:
+100/10060.12FPS;200/200 approach59.27FPS;dense200/20033.19FPS/worst63.18ms.
+Heavy melee and long-session behavior remain open. Do not call the game leak-free.
+Campaign and actual battle-to-map cycles must pass before dragon expansion.
+If a measured blocker needs another performance pass, insert it before the next
+dragon feature pass. Completed21/22 evidence and remaining limits follow below.
+
+v0.011 - RECURRING CAMPAIGN FREEZES / RESPONSIVENESS - VERIFIED
+Scope:reproduce the reported freeze about every5seconds; correlate stalls with
+movement, town jobs, ruler/HUD reads, rendering and autosave phases. Fix the
+proven periodic culprit first; remove measured duplicate work and split long
+jobs in native order. If the culprit is autosave, its immediate freeze repair
+belongs here; v012 still owns broader memory/lifecycle hardening.
+Defer:economy/battle balance, UI redesign and speculative storage rewrites.
+Done:fresh Normal/one-day travel/wait/midnight and pan/menu input no longer show
+that recurring freeze across multiple intervals; native calendar/RNG/accounts
+match controls; pending work does not grow without bound. Record remaining spikes.
+Evidence: fresh Normal wait58.70FPS/p9526.57ms, travel58.60/p9526.52 across
+five midnights with pan/recenter; default Large travel37.44/p9549.10ms. Actual
+2560x1440 Windows frames, visible panel and paused native Settings checks.
+Native complete Normal/Large state/RNG/UIDs match independent v010 controls.
+Worst measured frames102.08/100.24/84.15ms; occasional short hitches remain.
+Native calendar holds while jobs settle. Large generation remains about79s;
+long-session leaks/autosave ownership belong to v012. Full evidence in dated TXT.
+
+v0.012 - MEMORY OWNERSHIP AND AUTOSAVE HARDENING - VERIFIED
+Scope:separate live-world memory, warm caches, generation scratch and retained
+snapshots; measure objects by owner/type and OS/engine memory separately. Repair
+proven retention and expensive consistent snapshots; keep saved state complete.
+Defer:mass speculative storage conversion and old-save migration.
+Done:repeated map/battle/aftermath/menu cycles settle after warm-up, worker and
+snapshot ownership drain, caches stay bounded and saves complete correctly.
+No multi-second rendered autosave freeze; disclose simulation holds separately.
+Evidence:exact complete fresh Normal/default Large saves match frozen v011 state,
+disk bytes/RNG/UIDs. At2560x1440, worst save frames1069/2858ms ->19/41ms with
+responsive camera. Capture holds campaign mutation3.8/10.9s; total CPU increased.
+Worker releases the detached tree before main retirement; explicit flush may block.
+Three actual scene cycles with one native100/100 fight release spent references
+and drain workers. Warm caches remain bounded. Owner scans retain plain counters,
+label partial bounds and distinguish engine/OS/cache payloads. No leak-free claim.
+Large generation/memory and capture holds remain performance debt; insert another
+measured repair before dragon expansion if actual gameplay needs it. See dated TXT.
+
+v0.013 - COMBAT PACE OPTION - VERIFIED IN COMBINED v0.014
+Scope:automatic event slow motion OFF by default. Add a persistent Gameplay
+option in Esc -> Settings, also accessible through the ordinary Settings menu.
+Turning it off during a slowdown cancels the slowdown and its camera nudge.
+Defer:morale, damage, army strength and log changes.
+Done:a new/default setup runs at chosen1x/2x/4x without automatic slow events;
+explicit opt-in restores them; pause/skip/speed controls work and settings persist.
+Evidence:39 native pace checks; chosen1x budget delivered during actual200/200
+contact at2560x1440 with zero automatic slow frames/seconds. No separatev013 ZIP.
+
+v0.014 - CLEAN, EXPANDABLE BATTLE RESULTS - VERIFIED WITH v0.013
+Scope:compact outcome and casualty summary for BOTH sides. Count people once:
+slain, seriously wounded, other wounded, unhurt and fled; clarify overlapping
+totals if shown. Summarize loot/supplies and important officer losses up front.
+Fallen names, injury/recovery details, lessons learned and loot details expand
+only when opened. Keep the default screen orderly at100-200-per-side scale.
+Defer:combat-log capture/browser(v015), learning balance and sale-policy changes.
+Done:totals match frozen native results; opening details changes no body/coin/RNG;
+rendered screen is readable and only visible detail pages create rows.
+Evidence:pure100/100 and200/200 categories; native combat/RNG unchanged. Default
+sections closed, one18-row detail page open at most, Continue always reachable.
+Rendered15 state/desktop fit cases across1280/1920/2560; actual screenshots
+reviewed. Native fresh one-day battle/results/menu cleanup passes. Initial400-person
+summary can take~0.24s; subsequent section opens under9ms in the measured fixture.
+
+v0.015 - COMPLETE COMBAT LOG / INDIVIDUAL HISTORY - VERIFIED IN v0.016
+Scope:expandable whole-fight chronological log at battle end and a log while
+paused. Select/filter a character to read their part of that same fight. Include
+actual attacks, weapon/material, armour response, body/tissue wounds, blood,
+broken gear, lost teeth/claws/limbs, deaths, retreats and later rally events.
+Capture immutable native outcomes before existing history truncation. Keep the
+whole fight accessible using chunked storage and bounded memory/pages; no silent
+claim of completeness after dropping events. Avoid formatting unseen rows.
+Defer:new combat rolls and an unlimited permanent archive of every battle.
+Done:first/middle/last events survive a long fight and both viewing contexts;
+unit identity links remain correct after death. Reading/search/paging cannot
+advance ticks, consume RNG, rerun attacks or call mutating result-building code.
+
+v0.016 - OFFICERS RALLY THEIR TROOPS - VERIFIED WITH v0.015
+Scope:on both sides, fighting officers actively rally fleeing troops under
+their command and keep their formations engaged. Returning men rejoin actual
+orders; officer death/incapacitation/withdrawal removes that officer's support.
+Use real officer/squad identities and morale states; bounded scheduled checks.
+Defer:general morale/weapon rebalance and new tactical command systems.
+Done:rally/return and loss-of-officer cases work on both sides without creating
+or healing troops; outcomes appear in the combat log;200/200 costs stay within
+the recovery gate. Rally must not require scanning every pair every frame.
+
+v0.017 - EXPLICIT FUNDED RAISING / STAND-DOWN - VERIFIED
+Scope:start with no automatically raised player field army. Distinguish town
+garrison/available service from mobilized troops. Show manpower, kit, food,
+raising cost and daily pay; fund from actual entitled private accounts.
+Recruit/promote real residents; return living survivors to original households/
+cohorts on stand-down with identities, kin, wounds and equipment ownership intact.
+Defer:new wars/diplomacy, army balance and invented military rights.
+Done:house selection creates no free troops/coin/kit; cancel/partial muster and
+raise/stand-down/re-raise conserve people/workforce/accounts once. Payroll stops
+for stood-down field troops; stale links never classify living survivors as dead.
+Evidence:1722 current selected native assertions;15 rendered desktop Army fits
+and actual Normal/one-day100-person muster with two real return/re-raise cycles.
+Same Unit/body/UID/kin/private kit; stock/coin/population conserved. Private home
+aging/natural-death estates and native live-away family guards are verified.
+Current2560x1440 wait/interactions:58.56FPS/p9526.82ms/worst101.30ms across two
+midnights. Raising100 took222.16ms; generation about25s. Not universal60FPS or
+long-session leak proof. Package/Desktop completion is recorded separately.
+
+v0.018 - READABLE CITY RECORDS / MENU THEME / LAWS - VERIFIED
+Scope:legible bundled fonts, correct surface/text contrast, category navigation,
+useful summaries, compact aligned lists and detail views. Keep green/purple identity.
+Place succession rules and the actual heir under House -> Laws.
+Defer:new settlement simulation and editable inheritance law.
+Done:rendered Overview/Register/Businesses/Census/Treasury/Garrison and Laws
+show readable real data, clear selected states, working search/sort/detail links.
+Evidence:19005 current assertions/10 selected runs;54 actual rendered fit cases
+(27records/details+12racialLaws+15combat-log/results), plus actual one-day world
+and map gate. Four category groups retain all12 native town tabs; compact56px
+dark rows, exact licensed regular/bold fonts and resolved full titles are shown.
+Real Akbulak/Qara human world reads preserve people/kin/coin/gear/RNG/UIDs;
+actual minor heir and business owner links remain. Current map58.72FPS/p9526.20/
+worst105.64ms; tab builds4.51-19.34ms. No universal60FPS/leak-free claim.
+All463 prior UIDs and exact native models/art/data remain. Laws are read-only;
+no law/simulation, phone QA or animation-rig conversion in this pass.
+
+v0.019 - SETTLEMENT -> MAP -> LOCAL HOUSE -> CUSTOMIZE - VERIFIED
+Scope:select a settlement and see its location/highlight on the map, then choose
+among the tracked houses actually living there. Offer Customize House and review
+before Begin. First customization:display name, emblem and banner colours.
+Keep the map ruler portrait lower left; no succession text in this chooser.
+Defer:character designer, invented titles and marriage/court expansion.
+Done:previews do not create/move people, coin or troops; customization persists;
+non-ruling houses retain actual rights and never receive another lord's assets.
+Implementation:bounded local rows and a cached native-coordinate map; saved
+personal display name/emblem/banner colours do not rename native fiscal owners.
+Office authority requires the exact current ruler/household, including cadets
+sharing a dynasty UID. Existing unraised-army behavior and real portraits remain.
+QA:Luna/low runs assigned native purity/rights/action tests, three desktop fits,
+fresh Normal/one-history-day selection and short actual map/frame checks serially.
+Evidence:1556 current assertions/8runs,12actual desktop chooser fits and actual
+fresh-world/map gates.18native captures,5inspected. Actual Akbulak has15local
+houses;private Arslanid selection preserves accounts/IDs and saves River Lantern
+name/wolf/navy-gold banner. Ordinary/cadet command and lord succession guards pass.
+Generation24.514s;Begin1.381ms. Map58.54FPS/p9526.724/worst102.616ms across two
+midnights;6frames>50ms,1>100ms,0>150ms. Memory+6.21MiB/18s is a short observation.
+All467priorUIDs,101priorart/data and20native models remain. Cold bundled launcher
+and shipped main boot pass. No universal60FPS/leak-free or new battle benchmark.
+
+v0.020 - LOOT / SALVAGE DESTINATION AND PAYMENTS - DELIVERED
+Keep automatic nearest economy-town buying and its existing faction-neutral
+distance policy. The actual owned market till funds each whole piece before
+stock changes. Insufficient funds/no valid buyer retains exact unpaid Items in
+the existing owned stash, home armory or camp hoard; no estimates become coin.
+Metal mass uses native whole-kg stock plus persisted fractional residue. Cloth
+and intact hoard gear move as actual Items to buyer inventory when paid.
+Compact expandable Loot receipts identify town/business/owner, actual price,
+mass/quantity, payer/recipient, payment and paid/retained destination. Battle cash
+and camp cash are distinct. AI field and camp sales share the same native trade.
+Defer:transport-before-sale proposal, broad market/crafting/transport expansion.
+Done:every sale has an accountable buyer, actual payment and matching stock;
+insufficient funds never silently confiscate unpaid salvage or mint coin.
+Current final03:98native checks,7500UI assertions/18actual desktop fits,22fresh
+world checks and17map checks all pass (7637total). Actual Akbulak/Yeke market
+pays1038coins for an existing2.88kg copper piece; stock/residue/wallet/till and
+current disk save agree.20actual rendered gates,20captures/4inspected.
+Map58.44FPS/p9527.368/worst111.932ms after temporary inventory lookup repair.
+Preparatory158.637ms map gate failed in militia loot; no failed run counted.
+Source1032files/477UIDs;all473priorUIDs and released models/assets unchanged.
+Cold bundled launcher/main, immutable ZIP,2612installed payload+10receipts,
+actual branded shortcut/shell icon and2573preserved19 paths establish delivery.
+Short observations only; no universal60FPS/leak-free/full-battle claim in20.
+
+DRAGON PASSES - AFTER PERFORMANCE / PLAYABILITY GATES
+User clarification2026-10-12:the existing battlemap is an AUTOBATTLE. An actual
+character sits on the dragon's saddle and fights alongside the other units.
+Existing automatic movement, targeting and attack timing drive combat through
+the same native BattleSim body/material/tissue/force/wound/blood/armour/morale
+calculations. Size, strength, bite/claw geometry and gem hardness supply dragon
+values to those calculations. Keep real rider and dragon identities/injuries.
+No flight milestone, takeoff/landing/altitude simulation, manual tactical controls
+or separate dragon damage resolver. Accepted battle poses/head/jaw movement and
+blood/mangling suffice; a full flight or gait animation conversion is not required.
+v0.021 Rider bond - DELIVERED:actual tracked person, eligibility, one active rider, custody,
+  death/separation; preserve individual IDs. Defer breeding expansion.
+  Scope:eligible living adult present at the actual dragon settlement; actual
+  owning household authority, reviewed explicit binding/release, one-to-one
+  active bonds and persistent history. Custody/ownership/location stay distinct.
+  Done:pure previews; stale/repeated commands do not create or steal a bond;
+  actual person/dragon deaths reconcile once. Current saves retain original IDs.
+v0.022 Dragon autobattle combat - DELIVERED:native BattleSim body/materials/tissues/attacks/
+  wounds, two hind legs with wings as forelimbs, gem hardness plus size/strength/
+  geometry. Automatic movement/attacks alongside units; real casualties return
+  to original identities. Defer mounted rider presentation and breath.
+  Scope:one persistent native Unit/BodyState per real dragon record; original
+  individual gem/size/strength geometry drives native bite/claw attacks and
+  wounds. Actual selected-person bond and owner-home co-location gate player
+  participation at battle entry; distant following/campaign AI remain025.
+  Explicit reviewed home defence defaultsOFF; real rider/person and dragon must
+  be present. One native occupancy cell per actor; no expanded footprint claim.
+  Done:native hits, blood/death/losses return to the same dragon identity/body;
+  no humanoid census/loot/payroll claims. Normal units keep their combat/RNG
+  behavior. Inspect native poses/damage and bound200-unit rendered frame costs.
+  Verified538current checks/8runs;15desktop fits plus view/dense/world/map gates.
+  Actual200humanoids+1dragon per side:37.16FPS/p9538.641/worst51.622ms over18s;
+  actual paused-log actions max91.514ms; no discarded events. Fresh one-day world
+  preserves actual body/UID through native aftermath/map/disk save. Map58.21FPS/
+  p9527.432/worst116.011ms. Short observations; universal60FPS remains open.
+v0.023 mounted character - DELIVERED (Claude Edition): riders fight bonded on their dragons; seated drawing to be confirmed.
+v0.024 breath - DELIVERED (Claude Edition).
+v0.025 campaign deployment - DELIVERED (Claude Edition): dragons march, feed from the army purse.
+v0.026 raid - DELIVERED (Claude Edition).
+v0.027 siege - DELIVERED (Claude Edition).
+v0.028 finish feudal consequences: fear of dragons.
+v0.029 equipment refits and balance: levies get armour.
+v0.030 dynasty alliances and diplomacy.
+v0.031 intrigue: plots, schemes and assassinations.
+v0.032 prisoner ransom and exchange.
+v0.033 population migration, housing and illness.
+v0.034 creature review.
+v0.035 dragon portrait fangs.
+Also delivered outside the numbered list (Claude Edition): court and marriage, interface pass, 100 v 100 battle rounds, armies to 1000, house officers and noble call-up, house arms pool, ennoblement, medics and aftermath.
+
+LOCKED FOUNDATIONS / LATER SMALL PASSES
+Original CK3/AGOT-style feudal dynasty game; native DF-style physical combat.
+Humans/dwarves:male-preference primogeniture with daughter fallback; elves:
+eldest child; orcs:native strength rules. Every town has faction lord/liege/
+sovereign, real loyalty/intrigue/defection and distinct owned accounts.
+Common folk are the majority in race/work/age/sex/wealth pools;10-20 tracked
+families per town own businesses/land/herds. Aggregate common-folk private wealth
+funds tax to the actual local ruling family, then real tribute upward. Preserve
+other native owned accounts and private levies; no duplicate money/population.
+100-200-person armies draw from real population; pay/food/kit/losses count once.
+Bronze unlock recycles copper/tin and replaces new copper/tin gear production.
+Background monster movement/encounters/battles stay suspended.
+Released Copper Oath v0.053 models cover all humanoid races/genders/hair/beards,
+armour/helmets/weapons including Moon glaive; keep them until scoped redesign.
+Dragons:two hind legs, wings as forelimbs; organic scales/skin. Gem names for
+eggs/types, separate personal names; horns/claws/teeth match gem colour. Gem
+hardness is separate from size/strength/bite force/contact geometry/fracture.
+Preserve source-matched proportions/cuts; saddle handles, no head rope. Blood
+on damaged limbs; head separation at neck; small teeth/claw tips may fly off.
+Concept portrait fang placement/colour cleanup remains deferred, per user.
+Later numbered passes:hatching/breeding, concrete intrigue, dynasty alliances,
+population migration/housing/illness, equipment refits and measured balance.
+No vague court/marriage bundle. Creature reactivation needs a separate review.
+Both phone orientations remain foundational; export/touch QA are much later.
+No fixed50-release promise. Each added pass gets its own scope and evidence.
+
+

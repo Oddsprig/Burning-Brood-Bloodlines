@@ -1,0 +1,38 @@
+BURNING BROOD: BLOODLINES v0.012 - ACTUAL DESKTOP DELIVERY
+2026-10-11 | PASS
+Source checkpoint: 5e4890fd6523db543a68e187f41896e810806e84
+Desktop folder: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.012
+Desktop shortcut: C:\Users\bligh\Desktop\Burning Brood Bloodlines v0.012.lnk
+Target: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+Arguments: -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.012\Launch_Bloodlines.ps1"
+Working directory: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.012
+Icon: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.012\Bloodlines.ico,0
+ICO SHA256: d1ef199206f031d650bb086846c3ceab34b9217ce09e5a8b07022a6553e42438
+Actual native shell icon SHA256: 7de91d3f81c8808019a029b26e30c0a30f4db727d84dca5c6b64e4ed44da6467
+Shell icon matches the unchanged approved green dragon/crown brand.
+
+All 2219 installed payload files passed length/SHA256 readback.
+960 game files match the tested source manifest.
+437 inherited UIDs; 444 unique current UIDs.
+Current native assertions: 369.
+Current rendered gate cases: 2.
+Counts and detailed fresh Normal/default Large/lifecycle evidence come from the
+current source manifest/results, not inherited v011 evidence or fixed file counts.
+Scope: consistent sliced autosaves, worker release and cached ownership diagnostics.
+Engine tracked RAM, OS private/working measurements and payload estimates are
+separate evidence; complete RAM accounting or long-session leak freedom is not claimed.
+No art replacement, phone QA or old-save compatibility work in this pass.
+
+ZIP: 106575388 bytes; 2220 entries.
+ZIP SHA256: cd3cc668cf44630e06df64b2dbb11497223dbe22196f9a6a2ad7e883e89da54b
+Previous Desktop versions preserved: v0.010, v0.011.
+All 4124 captured prior paths remain unchanged;
+v0.010 and v0.011 payload/manifests/icons/shortcuts are explicitly required.
+Prior v011 ZIP SHA256 remains deff31dc1e56919b1c1a7c5d65fcc0ebe0d9206ced1062dbddae64994029880e.
+Current cold PrepareOnly and native main scene receipts match the source manifest.
+No interactive game launch, foreground/input or Copper Oath changed.
+
+Current source/cold/prior capture receipts included in the archive remain immutable.
+Post-package/post-install receipts live beside the source and installed copy;
+desktop-readback.json identifies archive membership of each receipt explicitly.
+All 10 listed receipt files are copied and exact hash/length read back.

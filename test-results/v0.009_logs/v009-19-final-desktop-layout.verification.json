@@ -1,0 +1,12 @@
+{
+  "errors": [
+    "== res://tests/test_performance_panel.gd: FAIL (3) ==",
+    "FAIL performance panel: old current timings expire after idle",
+    "FAIL performance panel: overall current work expires separately from peak",
+    "FAIL performance panel: new work starts a fresh recent window"
+  ],
+  "full_log_pass": false,
+  "known_certificate_environment_line_count": 1,
+  "error_count": 4,
+  "run": "v009-19-final-desktop-layout"
+}

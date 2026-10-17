@@ -1,0 +1,11 @@
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+SCRIPT ERROR: Parse Error: Expected closing ")" after call arguments.
+   at: GDScript::reload (res://tests/test_dragon_care.gd:73)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://tests/runner.gd:31)
+ERROR: Failed to load script "res://tests/test_dragon_care.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://tests/runner.gd:31)
+runner: cannot load or compile res://tests/test_dragon_care.gd

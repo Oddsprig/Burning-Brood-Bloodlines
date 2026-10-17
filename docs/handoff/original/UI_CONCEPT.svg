@@ -1,0 +1,83 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="860" viewBox="0 0 1280 860">
+<title>Burning Brood: Bloodlines - proposed UI, illustrative data</title>
+<rect width="1280" height="860" fill="#101117" />
+<text x="24" y="20" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">BURNING BROOD</text>
+<text x="24" y="60" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="600" fill="#D6B9F5" dominant-baseline="text-before-edge">BLOODLINES  /  Bleed or Burn</text>
+<text x="988" y="28" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#BCC3BE" dominant-baseline="text-before-edge">UI CONCEPT - SAMPLE DATA</text>
+<rect x="24" y="100" width="128" height="48" rx="10" fill="#19211E" stroke="#46534B" />
+<text x="40" y="111" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">City</text>
+<rect x="164" y="100" width="128" height="48" rx="10" fill="#5B3D82" stroke="#5B3D82" />
+<text x="180" y="111" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">House</text>
+<rect x="304" y="100" width="128" height="48" rx="10" fill="#19211E" stroke="#46534B" />
+<text x="320" y="111" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">Dragons</text>
+<rect x="444" y="100" width="128" height="48" rx="10" fill="#19211E" stroke="#46534B" />
+<text x="460" y="111" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">Court</text>
+<rect x="584" y="100" width="128" height="48" rx="10" fill="#19211E" stroke="#46534B" />
+<text x="600" y="111" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">Relations</text>
+<rect x="724" y="100" width="128" height="48" rx="10" fill="#19211E" stroke="#46534B" />
+<text x="740" y="111" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">Armies</text>
+<rect x="864" y="100" width="128" height="48" rx="10" fill="#19211E" stroke="#46534B" />
+<text x="880" y="111" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">Records</text>
+<text x="24" y="166" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">House Ashmere  /  Highmere</text>
+<text x="940" y="170" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="400" fill="#BCC3BE" dominant-baseline="text-before-edge">Day 12  |  Spring, year 1</text>
+<rect x="24" y="210" width="294" height="106" rx="12" fill="#19211E" stroke="#46534B" />
+<text x="40" y="225" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#BCC3BE" dominant-baseline="text-before-edge">CITY TREASURY</text>
+<text x="40" y="248" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">12,800 coins</text>
+<text x="40" y="286" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400" fill="#A8E0BD" dominant-baseline="text-before-edge">Public funds</text>
+<rect x="338" y="210" width="294" height="106" rx="12" fill="#252137" stroke="#46534B" />
+<text x="354" y="225" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#BCC3BE" dominant-baseline="text-before-edge">HOUSE FUNDS</text>
+<text x="354" y="248" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">7,400 coins</text>
+<text x="354" y="286" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400" fill="#D6B9F5" dominant-baseline="text-before-edge">Private household purse</text>
+<rect x="652" y="210" width="294" height="106" rx="12" fill="#19211E" stroke="#46534B" />
+<text x="668" y="225" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#BCC3BE" dominant-baseline="text-before-edge">DRAGONS</text>
+<text x="668" y="248" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">2 ready / 3</text>
+<text x="668" y="286" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400" fill="#A8E0BD" dominant-baseline="text-before-edge">One recovering</text>
+<rect x="966" y="210" width="294" height="106" rx="12" fill="#252137" stroke="#46534B" />
+<text x="982" y="225" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#BCC3BE" dominant-baseline="text-before-edge">TROOPS</text>
+<text x="982" y="248" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">240 mustered</text>
+<text x="982" y="286" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400" fill="#D6B9F5" dominant-baseline="text-before-edge">Supply: 16 days</text>
+<rect x="24" y="338" width="728" height="278" rx="12" fill="#19211E" stroke="#46534B" />
+<text x="42" y="353" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">The brood</text>
+<text x="500" y="363" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="600" fill="#D6B9F5" dominant-baseline="text-before-edge">View dragons</text>
+<text x="42" y="405" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#BCC3BE" dominant-baseline="text-before-edge">DRAGON</text>
+<text x="235" y="405" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#BCC3BE" dominant-baseline="text-before-edge">RIDER</text>
+<text x="418" y="405" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#BCC3BE" dominant-baseline="text-before-edge">CONDITION</text>
+<text x="590" y="405" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#BCC3BE" dominant-baseline="text-before-edge">ASSIGNMENT</text>
+<line x1="42" y1="431" x2="734" y2="431" stroke="#46534B" />
+<text x="42" y="454" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">Thornwing</text>
+<text x="235" y="454" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="400" fill="#D6B9F5" dominant-baseline="text-before-edge">Iris Ashmere</text>
+<text x="418" y="454" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="400" fill="#A8E0BD" dominant-baseline="text-before-edge">Ready</text>
+<text x="590" y="454" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="400" fill="#BCC3BE" dominant-baseline="text-before-edge">Home</text>
+<text x="42" y="502" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">Nightglass</text>
+<text x="235" y="502" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="400" fill="#D6B9F5" dominant-baseline="text-before-edge">Rowan Merrow</text>
+<text x="418" y="502" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="400" fill="#A8E0BD" dominant-baseline="text-before-edge">Ready</text>
+<text x="590" y="502" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="400" fill="#BCC3BE" dominant-baseline="text-before-edge">West army</text>
+<text x="42" y="550" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">Emberveil</text>
+<text x="235" y="550" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="400" fill="#D6B9F5" dominant-baseline="text-before-edge">Unbonded</text>
+<text x="418" y="550" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="400" fill="#F0BE73" dominant-baseline="text-before-edge">Recovering</text>
+<text x="590" y="550" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="400" fill="#BCC3BE" dominant-baseline="text-before-edge">Dragon yard</text>
+<rect x="776" y="338" width="480" height="278" rx="12" fill="#252137" stroke="#46534B" />
+<text x="794" y="353" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">Family and succession</text>
+<text x="794" y="408" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#BCC3BE" dominant-baseline="text-before-edge">RULER</text>
+<text x="894" y="407" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">Iris Ashmere</text>
+<text x="894" y="439" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400" fill="#D6B9F5" dominant-baseline="text-before-edge">Lady of Highmere</text>
+<text x="794" y="497" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#BCC3BE" dominant-baseline="text-before-edge">HEIR</text>
+<text x="894" y="496" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">Mira Ashmere</text>
+<text x="894" y="528" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400" fill="#D6B9F5" dominant-baseline="text-before-edge">Daughter / succession candidate</text>
+<rect x="24" y="638" width="728" height="162" rx="12" fill="#19211E" stroke="#46534B" />
+<rect x="42" y="655" width="138" height="32" rx="8" fill="#5B3D82" stroke="#5B3D82" />
+<text x="54" y="661" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">Marriage proposal</text>
+<text x="42" y="706" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">House Merrow seeks an alliance</text>
+<text x="42" y="742" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="400" fill="#BCC3BE" dominant-baseline="text-before-edge">Review people, residence, dowry and obligations.</text>
+<rect x="589" y="724" width="145" height="52" rx="10" fill="#2F6B4F" stroke="#2F6B4F" />
+<text x="608" y="739" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">Review terms</text>
+<rect x="776" y="638" width="480" height="162" rx="12" fill="#19211E" stroke="#46534B" />
+<text x="794" y="657" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="600" fill="#F1EFE8" dominant-baseline="text-before-edge">City pressures</text>
+<text x="794" y="700" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="400" fill="#BCC3BE" dominant-baseline="text-before-edge">Dragon feed reserve</text>
+<text x="1110" y="700" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="600" fill="#F0BE73" dominant-baseline="text-before-edge">6 days</text>
+<rect x="794" y="732" width="438" height="9" rx="4" fill="#101117" stroke="#46534B" />
+<rect x="794" y="732" width="162" height="9" rx="4" fill="#5B3D82" stroke="#5B3D82" />
+<text x="794" y="755" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="600" fill="#A8E0BD" dominant-baseline="text-before-edge">Review care costs and food purchases</text>
+<text x="24" y="820" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="400" fill="#BCC3BE" dominant-baseline="text-before-edge">PLANNING ONLY  |  Fictional people, numbers and states  |  Existing game unchanged</text>
+</svg>

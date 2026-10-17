@@ -1,0 +1,44 @@
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "cycle" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://art/dragon_rig_art.gd:153)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://tests/runner.gd:31)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+   at: GDScript::reload (res://art/dragon_art.gd:0)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://tests/runner.gd:31)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+   at: GDScript::reload (res://tests/capture_sprite.gd:0)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://tests/runner.gd:31)
+ERROR: Failed to load script "res://tests/capture_sprite.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://tests/runner.gd:31)
+SCRIPT ERROR: Invalid call. Nonexistent function 'model' in base 'GDScript'.
+   at: model (res://art/dragon_art.gd:33)
+   GDScript backtrace (most recent call first):
+       [0] model (res://art/dragon_art.gd:33)
+       [1] framing (res://art/dragon_art.gd:129)
+       [2] image_for (res://art/dragon_art.gd:138)
+       [3] run (res://tests/capture_sprite.gd:8)
+       [4] _ready (res://tests/runner.gd:41)
+SCRIPT ERROR: Invalid access to property or key 'valid' on a base object of type 'Dictionary'.
+   at: framing (res://art/dragon_art.gd:130)
+   GDScript backtrace (most recent call first):
+       [0] framing (res://art/dragon_art.gd:130)
+       [1] image_for (res://art/dragon_art.gd:138)
+       [2] run (res://tests/capture_sprite.gd:8)
+       [3] _ready (res://tests/runner.gd:41)
+SCRIPT ERROR: Invalid access to property or key 'valid' on a base object of type 'Dictionary'.
+   at: image_for (res://art/dragon_art.gd:139)
+   GDScript backtrace (most recent call first):
+       [0] image_for (res://art/dragon_art.gd:139)
+       [1] run (res://tests/capture_sprite.gd:8)
+       [2] _ready (res://tests/runner.gd:41)
+SCRIPT ERROR: Cannot call method 'save_png' on a null value.
+   at: run (res://tests/capture_sprite.gd:8)
+   GDScript backtrace (most recent call first):
+       [0] run (res://tests/capture_sprite.gd:8)
+       [1] _ready (res://tests/runner.gd:41)

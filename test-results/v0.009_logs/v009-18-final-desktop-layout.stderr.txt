@@ -1,0 +1,8 @@
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+FAIL: fresh startup controls beside diagnostics at 1280x720: 5 controls push outside the window:
+    342 px  MarginContainer/VBoxContainer/HBoxContainer/Button 'Skip' rect [P: (886.0, 1010.0), S: (120.0, 52.0)]
+    318 px  MarginContainer/VBoxContainer/HBoxContainer/ProgressBar rect [P: (18.0, 1010.0), S: (856.0, 28.0)]
+    280 px  Control/MarginContainer/VBoxContainer/Label 'Preparing the world...' rect [P: (18.0, 976.0), S: (988.0, 24.0)]
+    236 px  BoxContainer/PanelContainer/CenterContainer/Label 'Preparing the world...' rect [P: (317.0, 77.0), S: (1.0, 879.0)]
+    236 px  BoxContainer/PanelContainer/VBoxContainer/ScrollContainer rect [P: (640.0, 122.0), S: (356.0, 834.0)]

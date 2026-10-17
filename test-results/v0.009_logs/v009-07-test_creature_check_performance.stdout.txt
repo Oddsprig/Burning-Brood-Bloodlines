@@ -1,0 +1,5 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Creature scan observation (100 x 2000 references): old=107027us/200000 reads, current=26342us/100 reads; timing is not an assertion
+Creature check performance: 28 checks, 0 failures
+== res://tests/test_creature_check_performance.gd: PASS ==

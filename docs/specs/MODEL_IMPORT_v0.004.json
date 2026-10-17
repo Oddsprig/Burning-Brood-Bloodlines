@@ -1,0 +1,140 @@
+{
+  "title": "Copper Oath current model import",
+  "source_archive": "C:\\Users\\bligh\\Desktop\\ASSET\\Copper_Oath\\Art_redesign\\Refined_draft_2026-10-10_preview05\\Copper_Oath_refined_art_draft_source.zip",
+  "source_zip_sha256": "2677345e0260ca5eb525cdf4bbe2a3a8e94d589a36960d3bd0b64d0800f0005f",
+  "base_commit": "d29f09f14890f25837911aae87243bf0c8edcafb",
+  "source_state": "unreleased refined draft; visual review pending",
+  "files": [
+    {
+      "path": "game/art/human_art.gd",
+      "bytes": 17624,
+      "sha256": "678f6e4a45fd35d1e47648afacc5aaa6d68b4346301a297ce39c713dd4227c6e"
+    },
+    {
+      "path": "game/art/human_art.gd.uid",
+      "bytes": 22,
+      "sha256": "c656ba7efcc2d7038cfeddc6b1d68d092204019c8b0696df13f5e570d56cb44c"
+    },
+    {
+      "path": "game/art/elf_art.gd",
+      "bytes": 18711,
+      "sha256": "b0f3b8cf6b6fd49a8a14c4645d5c6faa73c2796c4a5ce8dd66d103daba4e481d"
+    },
+    {
+      "path": "game/art/elf_art.gd.uid",
+      "bytes": 22,
+      "sha256": "2e8940f4644589c2ae493efbff32c9c30c1c3b6a25c706549542218501368279"
+    },
+    {
+      "path": "game/art/dwarf_art.gd",
+      "bytes": 19156,
+      "sha256": "3f262f356b0802030e01946bde803c01e0775952d029267f669268bda5846877"
+    },
+    {
+      "path": "game/art/dwarf_art.gd.uid",
+      "bytes": 20,
+      "sha256": "66069f52ff23c361c849590ff82293e59033eff6e8c64c1aa4f93f2fb584a71b"
+    },
+    {
+      "path": "game/art/orc_art.gd",
+      "bytes": 19731,
+      "sha256": "ae6e727aa7039a1db761ef545cdd21bea209117ee72a83f9bb21ec417d201de9"
+    },
+    {
+      "path": "game/art/orc_art.gd.uid",
+      "bytes": 21,
+      "sha256": "3df35a15685a31c7121d2012ddc36eebbb44d091dc457dc4d08aa352c45532a4"
+    },
+    {
+      "path": "game/art/goblin_art.gd",
+      "bytes": 11683,
+      "sha256": "b5e4d2e69f5b281a7ffefbf30191a04299be876c04e8c8db656e80cacae45e44"
+    },
+    {
+      "path": "game/art/goblin_art.gd.uid",
+      "bytes": 22,
+      "sha256": "1e81e18748b8c04ca16641b3bd52a7b70ac980e2f6f14ea3379392ba11c26e0e"
+    },
+    {
+      "path": "game/art/troll_art.gd",
+      "bytes": 15342,
+      "sha256": "e4dae3dea0f2e02c522aa295827e1958ada2ebf9be7a5f698e163fd8cd74b65f"
+    },
+    {
+      "path": "game/art/troll_art.gd.uid",
+      "bytes": 21,
+      "sha256": "323fa81ba87a202629b76669464c4063f6f5f761405c33a42dd59f4372a9ab34"
+    },
+    {
+      "path": "game/art/weapon_art.gd",
+      "bytes": 16737,
+      "sha256": "7ee1374ce8f14f63da3bbc5a8ebe624341bf6d2c56d84e8c449d96b038118fa7"
+    },
+    {
+      "path": "game/art/weapon_art.gd.uid",
+      "bytes": 20,
+      "sha256": "59ad0ec4706dd4020a612e99a8908c93dd029c730a487320c62ac082e322fdfc"
+    },
+    {
+      "path": "game/art/item_icon_art.gd",
+      "bytes": 42299,
+      "sha256": "3e10537d2bc2d39217f313566a58ad86489b599aeeaed1a228424cfeeb1cf1d1"
+    },
+    {
+      "path": "game/art/item_icon_art.gd.uid",
+      "bytes": 20,
+      "sha256": "78c403d5bfe61519eef48e000a757d586a07b435cebefcb4a1ef5bae695986ff"
+    },
+    {
+      "path": "game/art/figure_painter.gd",
+      "bytes": 62748,
+      "sha256": "7032d27f5926cbb949f1a818d1dd73cb1964bee582322d35f38f19e38a3504d0"
+    },
+    {
+      "path": "game/art/figure_painter.gd.uid",
+      "bytes": 20,
+      "sha256": "0f64ec7fefb4c12fda089b7aec713a79a4d02625107045cdf24bbd11bdd52158"
+    },
+    {
+      "path": "game/art/paperdoll.gd",
+      "bytes": 5009,
+      "sha256": "6846b52dcdb53f52837d690765ddc423c66c9d9f1b82177d0a1067c51aafc6c6"
+    },
+    {
+      "path": "game/art/paperdoll.gd.uid",
+      "bytes": 20,
+      "sha256": "229067f17466264cdf692eb70b6bb318266ff13e5f53a291a859f0bfed0fd28a"
+    },
+    {
+      "path": "game/art/portrait.gd",
+      "bytes": 1902,
+      "sha256": "e31f90dcedd01dcbd3d308252823421a50dde492c04e6a08870bd83f66439e37"
+    },
+    {
+      "path": "game/art/portrait.gd.uid",
+      "bytes": 20,
+      "sha256": "42399a3089adbf1e81be16753097b6a9735a6f03f8ee2c987805b10af4641d0d"
+    },
+    {
+      "path": "game/art/party_icon.gd",
+      "bytes": 5537,
+      "sha256": "86b7e6e1cb70114f024fea7d57437804f0be82e4218ef5e97120912837982371"
+    },
+    {
+      "path": "game/art/party_icon.gd.uid",
+      "bytes": 20,
+      "sha256": "5cbfc3f17a1ff5c675607d28d7a86a7089ffc0db79d9bfd8e9a9db92a18f1b94"
+    },
+    {
+      "path": "game/art/item_icon.gd",
+      "bytes": 22944,
+      "sha256": "5e764c1ae458a6881e65af289d75c3bb38a5c1d0b5d27da80e2739c16706a519"
+    },
+    {
+      "path": "game/art/item_icon.gd.uid",
+      "bytes": 19,
+      "sha256": "7a61760f87699eae6a2f47e3e5f2043de6eb68f78a9e3eb5083766107af5cd00"
+    }
+  ],
+  "integration": "Ruler portrait supplies actual string sex and age. No gameplay data imported."
+}

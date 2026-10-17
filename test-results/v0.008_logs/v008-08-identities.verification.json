@@ -1,0 +1,11 @@
+{
+  "errors": [
+    "== res://tests/test_dragon_identities.gd: FAIL (2) ==",
+    "FAIL dragon identities: size/strength can dominate force and energy despite softer tooth material",
+    "FAIL dragon identities: size independently changes native contact and penetration geometry"
+  ],
+  "error_count": 3,
+  "run": "v008-08-identities",
+  "full_log_pass": false,
+  "known_certificate_environment_line_count": 1
+}

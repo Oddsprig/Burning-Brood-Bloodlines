@@ -1,0 +1,4 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Memory ownership v012: 53 assertions; failures=0
+== res://tests/test_memory_owners_v012.gd: PASS ==

@@ -1,0 +1,22 @@
+campaign report: {"ambitions":4,"days":{"ms_total":69174.802,"worst_day_ms":5198.177},"load_ms":2511.425,"raid":{"battle_ms":44347.544,"defenders":70,"outcome":"The raid on Kolvik was beaten off.","town":"Kolvik","winner":-1},"save_ms":3066.634,"siege":{"battle_ms":44176.38,"defenders":188,"outcome":"Frostvik has fallen! It now swears to The Holds of the Iron Deep. Its people resent the conquest.","town":"Frostvik","winner":0},"world_ms":0.0}
+  ok   fresh campaign starts with no raised army
+  ok   house with a dragon chosen
+  ok   army funded from the real house purse (Transfer real house coin into the company wallet for native recruiting, food and wages. / Raise 150 of 200 requested; actual manpower, weapons, meals and army funds limit the muster.)
+  ok   raised 150 real residents
+  ok   2 bonded dragon(s) march with the army
+  ok   ambition 'Take the Saddle' completed by a real bond
+  ok   foreign settlements exist
+  ok   siege preview at Frostvik: Storm the walls; a victory brings the settlement into your realm. 188 defenders hold Frostvik against your 150. The Clans Of The Northern Fells is not at war with you: attacking will make them an enemy.
+  ok   siege started
+  ok   siege: battle screen opened
+  ok   siege: aftermath opened (44176 ms)
+  ok   won siege transfers the settlement to your realm
+  ok   raid preview at Kolvik: Plunder its treasury, households and granary. 70 defenders hold Kolvik against your 56. The Clans Of The Northern Fells is not at war with you: attacking will make them an enemy.
+  ok   raid started
+  ok   raid: battle screen opened
+  ok   raid: aftermath opened (44348 ms)
+  ok   50 campaign days advanced (1.0 -> 51.0)
+  ok   21 egg(s) hatched after incubation (23 eggs before)
+  ok   save reloads
+  ok   campaign state identical after reload {"ambitions":4,"company":41,"conquests":1,"day":51.0,"gold":11,"towns":23}
+== res://tests/claude_campaign.gd: PASS ==

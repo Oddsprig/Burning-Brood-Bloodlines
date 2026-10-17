@@ -1,0 +1,15 @@
+{
+  "Run": "v014-ui-render-final-02",
+  "Arguments": [
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v014-candidate\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=tests/test_battle_results_ui_v014.gd",
+    "--report-dir=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v014-ui-render/final02",
+    "--watchdog=45"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 13.034
+}

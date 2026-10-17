@@ -1,0 +1,168 @@
+INTERFACE / RELEASE - STABLE SPECIALIST BRIEF
+2026-10-11 CURRENT PLAN / READ-ONLY FINDINGS
+Recovery order and gates:ROADMAP.txt; details:specs/PERFORMANCE_RECOVERY_PLAN.txt.
+v010 rendering:Paperdoll1500-entry whole-cache purge, per-frame unchanged redraws,
+offscreen view updates and repeated dirty actor refresh need measurement/rework.
+v013 records:rec_cells39/rec_kit124 pair cream surfaces with cream/pale text.
+Fix paired colours, readable bundled type, useful density and category navigation.
+v014 log:lazy pause/end reader from actual events. v016:map/local-house chooser.
+Settlement/map location first, then a local house, with Customize House.
+Succession presentation belongs in Laws. City records/fonts/menu layout rejected:
+oversized sparse rows and unreadable/blank-looking content need rendered visual QA.
+Actual-play screenshots still16/39FPS, ~1480MiB RAM/~3402MiB peak, ~4k draw calls.
+Battle screenshot:2FPS at1x,92 vs150;738.86ms engine process against1.62ms mean
+Battle calculations. Later review must cover full rendered presentation/UI cost.
+Performance follow-up stays open; previous headless fit checks did not verify this.
+v010 verified:Paperdoll keeps8192-entry/256MiB LRU and bounded exact-spec identity;
+four native image workers/two uploads per pump, latest weak requests with fair
+rotation and urgent wounds. Eager APIs remain default; Battle opts in/drains.
+77cache/API checks pass, all-eight worker pixels native-exact. No art replacement.
+Right panel exposes cache/queue/workers and separates worker CPU from main/GPU.
+Fresh battle60/59FPS; dense400fighter melee33FPS. Future60FPS work stays measured.
+
+v0.009 CURRENT LEARNING
+Right performance overlay has fixed controls,48 labels/two rolling buckets,2Hz
+refresh and truthful unavailable counters. Reserve256px in desktop menus/battle/
+startup, panel width240px. Startup centered wrap label needs180px minimum width.
+Use monotonic Time ticks for diagnostic expiry tests. Root39checks/seven fits.
+
+Updated 2026-10-10 | v0.007 released humanoid models | GPT-6.1 Sol, high
+v0.007 CURRENT LEARNING
+Eight humanoid races/all genders/hair/beards/gear use released Copper v053 code
+and exact weapon/bow/armor/body/material/race definitions. Original/Refined
+women, two Orc forms and expanded Orc skin/hair palettes are part of the set.
+Same filename is not equivalence: compare hashes AND native template data.
+Missing Moon glaive metadata kept polearm grip/pose; exact crescent definition
+and glaive-dancer axe skill now imported. Preserve existing UID bytes.
+Portrait/Paperdoll/PartyIcon/Outfit were already exact released adapters. Only
+Dynasty.portrait_spec gains real bound Unit lookup (company/warbands) guarded
+by unit UID/home/family/race, sharing saved appearance and real maker equipment.
+Civilian fallback remains stable person-seeded, pure and allocates no Unit.
+Optional female_set/beard_style already persist in native look; no new selector
+UI was requested. Root's bounded CPU catalog covers bodies/busts, six human men,
+both women sets, eight beards, moon glaive/crescent poses, foreign-maker helmets,
+all unique native weapon/bow/armor icons and bound/civilian ruler read purity.
+Native capture data and current full-log checks live in v007 dated TXT evidence.
+v0.006 CURRENT LEARNING
+DragonSpriteCatalog uses one coherent 1536x1024 source per six forms. Three
+labeled cuts BODY/HEAD/JAW keep original sizes, offsets, pivots and hierarchy.
+Body keeps its original wings/legs/tail; no independent part fitting. One shared
+0.04 units/source pixel x physical size multiplier; human stays native 24 units.
+All original RGBA bytes reconstruct exactly, including alpha-zero RGB. Six
+intentional .png.import controls MUST ship: lossless, no border-RGB repair,
+premultiplication, resize or mipmaps. Other generated import/cache files excluded.
+Identity rest uses the coherent tinted image to avoid filtering seams. Actual
+head/jaw animation uses the original cuts with rigid source-space transforms.
+Latest user correction: HORNS ARE GEM COLOURED, not natural brown/gray keratin.
+Sapphire horns are sapphire blue; every type colours horns/claws/teeth. Eyeballs
+alone preserve source colours. Traced source-global material polygons are cached
+at source pixel centres (max6). Empty legacy rectangles, no hue/rectangle fallback.
+Full horn-edge probes guard coverage, gem coloration and continuous organic scale
+pigmentation. The user rejected both gray head strips and mismasked horn edges;
+inspect the actual native render before reporting a visual finish.
+No claim of articulated leg gait.
+Fresh recoil exposed a neck gap: seat the rigid head minimally down its original
+neck axis using cached alpha-visible cut contacts. Zero rest shift, no filler or
+resizing; shared GPU/software/head wound transforms and head-only cut unchanged.
+DragonCard uses native GPU layers and bounded textures; intact camera bounds
+stay fixed when injury/head separation changes drawable layers. Portrait and
+type portrait are separate modes; type examples appear only for exact gem/form.
+Preview controls: idle, wind-up, bite, recovery, recoil, fallen, blood/mangle,
+head cut/chips and actual-unit saddle fit; no campaign wounds or rider bonds.
+Short model checks use validated --forms batches without dropping assertions.
+Root scans full logs; timeouts are failed attempts, never passes. Original art
+archived on Desktop before replacement. Final source/delivery in v006 TXT files.
+v0.005 CURRENT LEARNING
+New DragonsView/DragonCard files only; existing humanoid/weapon art untouched.
+House/core entry routes real holdings with Back context; no Game.location changes.
+House/realm/all estate filters, exact parent links, owner/household/keeper/location,
+elapsed egg laying time, actual adult age and original by-id morphology profiles.
+Egg cards show gem shell colour, not an adult body/size claim.16 gem eggs,6 forms,
+5 actual display scales; all static/pure. Two hind legs, wing forelimbs only.
+Personal name heading, Gem Dragon type and Body form are distinct;16 types
+discoverable in gem catalog. Adult details show authored hardness/100, mass,
+STR,bite forceN,tooth/claw dimensions/contact/depth. No adult stats on eggs.
+Native gift/keeper chooser searches name/family/city, displays at most40 people;
+local present-state keeper filter, selected-person preview then explicit review.
+Backend rechecks reviewed source/recipient/authority. Success-only changed/save
+boundary here; Cancel/failure is pure. Current ruler alone gives owned orders.
+Primary:93 assertions/eight desktop fits clean,15 including previous control suite;
+five native previews inspected. NO phone matrix, input/foreground or live player run.
+Attempt05 runner printed PASS despite script errors; explicit authority:bool and
+String(owner_status) fixed Variant inference. Root scans full logs before PASS.
+v0.004 MODEL IMPORT
+Root imported immutable Copper preview05: eight race/weapon/icon art modules plus
+five native drawing/display adapters and existing UIDs. Physical feet/grips/timing
+retained; humanoid raster detail doubled with display compensation, busts96px,
+items64px. Bloodlines icon/UI/data/config remain locally owned.
+Dynasty.portrait_spec now passes registered ruler's actual string sex and age.
+Root: all925 sampled joints/timing/physical anchors and1267 source RGBA images
+match; 443 native art +36 ruler +54 desktop controls checks clean, seven fits.
+Archive before replacement verified2044 Desktop files. Source/receipts in v004
+TXT evidence. Art redesign remains later; one outcome per roadmap pass.
+v0.003 SOURCE / CONTRACT
+ui/politics.gd: compact taxes/defence before lineage; Feudal.budget reads real
+house/city/faction/company balances, monthly quote vs last actual levy, private
+tribute, existing militia/guards, realm field people, current pay and food.
+Tax rates 2/5/10%, existing militia muster/stand-down/automatic defence, private
+house transfers to city/realm treasuries use governance_preview -> confirmation
+-> governance. Backend rechecks current authority, funds, rate and weekly decree.
+Confirmation binds the reviewed seat; a changed displayed town cannot redirect it.
+Muster explains lost civilian hands/pay; stand-down explains defence risk; public
+transfers support native spending and are not earmarked. No invented duty quota.
+ui/house.gd and population.gd: true recipient, quote/receipt, existing service
+counts/pay/food; warnings only from real recorded shortages/current wage coverage.
+Native garrison/realm army/business/person links remain available.
+ui/town_econ_tab.gd: Accounts links to real tax/defence controls with return state.
+campaign/world_map.gd: desktop summary retains four purses and troop count,
+adds real company pay/day and unpaid count at widths >=1000; foundation retained.
+New tests/test_governance_ui.gd: only 1280x720; native small EconGen/register,
+real promoted militia; fit, owner labels, changed ruler, pure preview/Cancel,
+stale funds/authority, exact transfers, decree cooldown, no duplicate people/Units,
+reviewed-seat binding, Back context and bounded cleanup/orphan guard.
+Specialist ran no engine/tests. Primary executes focused checks and visual review.
+RETAINED v0.002
+Politics covers every real settlement, actual lord/liege/sovereign/heir/regent,
+loyalty, grievance/history and paid grant/pressure/oath actions with backend gates.
+Population totals/races/wealth/recruits use authoritative reads, counted once.
+House uses actual known kin and real private purse -> company funding.
+Native businesses/owner records, service tables and bronze/recycling stay usable.
+Suspended-creature map sentinel guards preserve native humanoid encounters.
+Remote browsing captures/restores Game.location; Back never moves the party.
+LAYOUT / CORRECTIONS
+Keep >=48px controls, bounded scroll sheets and existing orientation foundation.
+Map portrait/log/nav stay clear; set width first then defer minimum-size reflow.
+Empty recruit branch returns before allocating unused controls; no orphan tree.
+Full civic titles use 24px/no trimming; legacy wide tables scroll natively.
+Phone export ~50 passes away: routine QA desktop/gameplay only; phone QA returns
+on explicit request or near milestone. Retained phone matrix is not run this pass.
+VERIFIED EARLIER / DELIVERY GATE
+Primary v003-12: 54 assertions + 7 desktop fit cases PASS in 4.682s; no phone matrix.
+Five generated-world desktop renders inspected; concise funding text and first-entry
+population totals refined, then final UI/renders reran. Cancel/stale ownership passed.
+v002-23 UI PASS 7.976s clean; v002-21 nine inspected renders 10.711s.
+Fresh launcher 8.156s; bundled main 3.879s. Evidence in versioned TXT results.
+v0.002 installed Desktop folder/.lnk; primary verified 1000 hashes and shell icon.
+Every delivered version needs its own actual Desktop folder and versioned .lnk,
+Bloodlines.ico,0; verify all installed hashes, shortcut target and shell icon.
+ZIP-only delivery is incomplete; preserve earlier versions, never launch player game.
+Primary owns execution/config/main/title/art/installer/package/commits. No engine,
+visible apps, other projects, Desktop writes or commits from this specialist.
+No court/art rewrite or save migration. Archive originals before later art changes.
+v0.008 CURRENT LEARNING - 2026-10-10
+Care view reads pure DragonCare.status; household payer/purse/protected spendable,
+actual present keeper/reason, local feed/wood quote and latest actual charge.
+Growth is percent toward next size, not internal points. Eggs no meat/hatching,
+dead holdings no further quote; existing custodian orders and Back remain native.
+Root56 assertions/six1280x720 fits passed, actual day1 receipts/day2 shortages,
+pure reads/changed refresh/no teleport/orphan cleanup. No phone QA or image output.
+All current art retained. Full economy-day timeout remains explicitly unverified;
+queued-care/current save and fresh bundled checks passed separately. Root delivers.
+
+2026-10-11 ROADMAP REVISION ONLY - GAMEPLAY WORK ON HOLD
+Follow current ROADMAP.txt rather than earlier queued numbers. v013 slow motion
+OFF by default in Esc/Settings Gameplay; v014 compact two-side casualty summary
+with expandable fallen/injured/learning/loot; v015 full/character-filtered log.
+Use visible pages, not hundreds of hidden controls. City records/Laws v018,
+settlement/map/local-house choice v019. Inspect user's actual desktop window
+size during later rendered acceptance. No new tests or UI code in this update.

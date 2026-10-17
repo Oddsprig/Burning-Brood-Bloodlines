@@ -1,0 +1,13 @@
+{
+  "Run": "v006-05-sprite-render-import",
+  "Arguments": [
+    "--headless",
+    "--editor",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v006-verification\\game",
+    "--import"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 5.062
+}

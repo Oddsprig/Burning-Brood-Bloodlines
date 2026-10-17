@@ -1,0 +1,5 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.88 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 5090 Laptop GPU
+
+Dragon rendered v022: 18 checks, 2 failures; 2.49908969328619 FPS p95 2094.255 ms worst 2320.07 ms
+== res://tests/diag_dragon_render_v022.gd: FAIL (2) ==

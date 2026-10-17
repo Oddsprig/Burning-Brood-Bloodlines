@@ -1,0 +1,92 @@
+BURNING BROOD: BLOODLINES v0.022 - CURRENT NATIVE CHECKS
+2026-10-12 | retained Luna/low bounded QA; Sol/high implementation specialists.
+
+SOURCE / ACTUAL SELECTED RUNS
+Private work/v022-candidate-final04, exact current shipped game except no-focus.
+Bundled Godot4.7.2.stable.official.ed1daf0bf; serial hidden/no-focus BelowNormal,
+unique private user paths. All selected complete stdout/stderr clean; no timeout.
+Import final04:17.169s PASS;8new UID sidecars, all481prior UIDs preserved.
+Control final04:5.202s,10checks/0failures. Backend final04:5.659s,189/0.
+View final04:9.529s,121/0. UI final04:14.814s,142/0,15desktop fits/0failures.
+Dense battle final04:35.618s,27/0. Fresh world final05:60.873s,32/0.
+Map final04:53.550s,17/0. Total538current checks;19rendered gates:
+15desktop UI fits,1native view fixture,1dense battle,1world battle/map/save,1map.
+Source1057game files/489unique UIDs; all481priorUIDs,101priorart/data and20
+released Copper Oath v053 humanoid/model files unchanged. No generated artwork.
+
+NATIVE COMBAT / IDENTITY
+One persistent actual native Unit/BodyState per living non-egg real dragon.
+Organic125part wyvern; two hind legs and wing forelimbs, native stance/tendons.
+Individual size/mass/strength and bite/claw geometry/gem material feed existing
+BattleSim armour/tissue/wound/blood/morale/death. Per-actor attacks are detached
+from shared humanoid race definitions; formula scale applies once. Native jaw/
+tooth/claw losses disable corresponding attack support. Growth preserves body,
+permanent wounds and blood fraction; native healing only on an actual care day.
+Reviewed defend-home order defaultsOFF. Actual healthy adult dragon, living adult
+bonded person, household authority and genuine owner-home physical contact gate
+entry. No distant following/summoning or humanoid payroll/census/loot claims.
+Real holder admission and native aftermath apply once; no death resurrection.
+Current ordinary96tick/37strike wounded control matches exact released21 native
+SHA10107054ea86c381cda3380908f596deab158d9522a6f551713fcf60e1efcf95.
+Both control reports are preserved; campaign RNG remains untouched. This is a
+small native differential fixture, not old-save compatibility or broad combat QA.
+
+CURRENT RENDERED EVIDENCE
+Original coherent source proportions/colours and physical scale are retained.
+Three source layers plus at most15 source-owned GPU injury masks per dragon;
+exact changing blood scalars retain a bounded64-pose cache. No live per-pixel
+blood-decal rebuild. Head loss uses the original neck cut and no view refitting;
+limbs remain attached/mangled, small gem tooth/claw chips use source scale.
+UI off/review/ordered/withdraw/away at1280x720,1920x1080,2560x1440 with diagnostics.
+19actual PNG captures;7 privately inspected by Luna:3compact1280UI, actual dense
+autobattle,3fresh-world battle/log/map. No obvious clipping/assembly defects.
+
+DENSE NATIVE AUTOBATTLE
+Actual2560x1440/NVIDIA RTX5090Laptop/OpenGL compatibility, chosen1x. Explicit
+200Factoryhumanoids+1actual registered dragon PER SIDE =402fighters. Fixture is
+private and never reconciles with campaign population, saves or growth.
+Dense window18.004277s/669frames:37.1579FPS,p9538.641ms,worst51.622ms,0>150ms.
+Native contact/1x tick delivery/live combat and rendered recovery gates pass.
+Full journal16695records/0dropped. Seven actual paused-log UI actions have
+separate callback and through-two-drawn-frame timing; maximum91.514ms, all<=150.
+Whole402-unit state fingerprints100.774/97.237/95.164ms are explicitly outside
+dense/action windows and separately reported. Log reading is physically pure.
+Memory field is engine static allocation only; it is not OS/private RAM or proof
+of leak freedom. One-time source preparation remains a measured setup cost.
+
+FRESH CURRENT WORLD / MAP
+Normal/seed777/EXACT1history day:25,578.872ms generation. Actual dragon:777:1,
+rider person:777:t21:1, native Unit8785 at real home t21. Eight actual funded
+residents face whole native band wb1/100enemies. Close contact is staged; battle
+ends after69native ticks,5native dragon attacks,618.4ms. Receipt applied once;
+same actual living dragon body/UID persists through repeat finish, expandable
+log, Continue/map and native private disk save/load. Native writer float precision
+is checked separately from exact loss/flags/identity/plan; no save-format change.
+This bounded contact fixture is not a complete war or performance benchmark.
+Map2560x1440/1x/18.002888s/two midnights, pan/recenter/paused Settings, diagnostics:
+58.2129FPS,p9527.432ms,p9941.812ms,worst116.011ms,+6,456,671engine bytes (~6.16MiB).
+Rendered recovery floor passes. Short observation, not universal60FPS/leak proof.
+
+PREPARATORY FAILURES - EXCLUDED, FULL LOGS PRESERVED SEPARATELY
+Final01 runtime Array[String] type error: misleading171/0 partial summary rejected;
+typed append correction precedes current candidate. Final02 dense2.50FPS failed:
+legacy continuous-blood per-pixel decal rebuild peaked2.028s. GPU masks replace
+that live path while preserving source RGBA and native physics.
+Final03 dense worst463.908ms failed at scripted full402-unit QA fingerprints;
+production next-worst50.91ms. Final04 separates observer from actual render/action
+windows and explicitly gates real paused-log cost, instead of hiding UI stalls.
+World final04 failed a ROOT diagnostic-only type:Map:Control vs nativeNode2D.
+Only that new diagnostic type was corrected in source and private candidate04;
+world05/map04 passed. Earlier six selected04 runs load no world diagnostic and
+all production/other test bytes remained unchanged; no unnecessary broad rerun.
+
+DELIVERY / SCOPE
+Cold bundled launcher/main, ZIP, Desktop folder, branded icon and installed
+readback have separate receipts. Prior installed19/20/21 baseline7842paths is
+preserved. Previously absent10-18 builds are not recreated or claimed tested.
+Exact source manifest8ac1837ac829e62308a93641846593bf0a79473825c14cbc76c660526133acc7.
+Fresh spaced-folder bundled PrepareOnly12.915s/native headless main8.898s PASS;
+all1057game bytes match the manifest, full logs clean, marker/cache ready.
+No phone, player saves, old-save compatibility, long soak or foreground control.
+Mounted actual-character presentation/native rider targeting is23; breath24;
+deployment/AI25. No flight/manual control/separate dragon resolver claim.

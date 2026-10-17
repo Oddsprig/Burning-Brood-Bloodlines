@@ -1,0 +1,66 @@
+BURNING BROOD: BLOODLINES v0.019 - CURRENT SOURCE VERIFICATION
+2026-10-12 | PASS | Package/Desktop delivery have separate dated receipts.
+Tested source:work/v019-candidate-final03/game;private no-focus line only.
+Engine:Godot4.7.2.stable.official.ed1daf0bf;actual bundled Windows runtime.
+Bounded QA:GPT-6 Luna/low;Sol/high specialists implement;root integrates/delivers.
+
+SCOPE
+Settlement/map -> actual local tracked house -> display customization -> review ->
+explicit Begin. Pure previews,stable native identity/persistent saved display,
+correct actual office/private/cadet rights;no new people/coin/kit/army on selection.
+No other lord's purse,estate or public authority gained through shared dynasty UID.
+House and map show saved heraldry;ordinary Laws show actual leader/native heirs.
+
+CURRENT SELECTED RUNS - ALL CLEAN FULL LOGS / NO TIMEOUTS
+import-final03:10.191s,class/resource import PASS;no assertion count.
+onboarding-final03:4.779s,58checks/0failures.
+ui-render-final03:12.320s,299assertions/0failures,12ACTUALdesktopfitcases.
+feudal-final03:5.604s,32checks/0failures,native law/office/coin regression.
+foundation-final03:4.369s,227checks/0failures,native people/identity regression.
+muster-final03:19.104s,890assertions/0failures,15HEADLESSArmyfitcases.
+world-render-final03:57.587s,33checks/0failures,actual Normal/one-day world.
+map-render-final03:53.259s,17checks/0failures,actual2560x1440map/recoverygate.
+Total1556current assertions;8selectedruns including import.14actualrenderedgates:
+12chooser fits plus fresh-world and map. HEADLESSArmyfits are not rendered gates.
+18actual native captures;5actuallyinspected (Luna3/root2). No chat/art replacement.
+
+REAL WORLD / UI
+Fresh Normal,seed777,EXACT1historyday;generation24.514s. Actual Akbulak/t20 has
+15local houses with bounded8-row paging. Ordinary leader Yesugei Arslanid(age47),
+private14909coins;actual successor Sorkhan(age5). Native household remains Arslanid.
+Chosen River Lantern/wolf/navy-gold display persists in real native disk save.
+Begin1.381ms;complete native people/accounts/bodies/items/RNG/UIDs stay unchanged.
+Only Begin positions the existing party. Field army/purse/pay remain0.
+Whole native preview fingerprints and selected House/Laws reads match exactly.
+Actual marker/terrain/roads,portraits,emblem,readable data/footer/Begin inspected.
+
+PERFORMANCE - SHORT CURRENT OBSERVATION
+Actual2560x1440,visible diagnostics,1x,18.001s/1054frames,two midnights plus
+pan/recenter/native paused Settings. Average58.54FPS,p9526.724ms,p9941.769ms,
+worst102.616ms.6frames>50ms,1>100ms,0>150ms;agreed recoveryfloor PASS.
+Tracked engine memory delta+6509133bytes (~6.21MiB)/18s;not long-session leak proof.
+Full-world diagnostic fingerprints intentionally serialize whole native state;
+their extra allocations/multi-second diagnostic stalls are not gameplay FPS.
+No universal60FPS,new dense-battle benchmark,phoneQA or old-save compatibility.
+
+SOURCE / COLD PROOF
+1024gamefiles;473uniqueUIDs,all467priorUIDs preserved.101priorart/data files and
+20exact released Copper Oathv0.053 native model files unchanged;runtime unchanged.
+Source manifest SHA256:318def06d5c613e3c0e68076d92d3040f57e04557da450693d82417ce794856d
+Actual copied bundled launcher PrepareOnly,cold spaced private path:10.783s PASS.
+Actual copied bundled engine native main headless8frames:8.320s PASS.
+Source,full logs,actual PNG/report hashes and cold receipts are retained.
+
+PREPARATORY RUNS / CORRECTIONS - NOT COUNTED ABOVE
+Initial import generated six new native UID sidecars;root copied only those new
+UIDs into source and froze final candidates;old UIDs/models/art were preserved.
+final01 bounded runs passed;Luna pixel review caught duplicated rights in review.
+During root cleanup,an already-present portrait-refresh block was duplicated.
+final02 UI runner failed parsing HouseSelectView (exit3,six full-log errors);
+remaining batch stopped. Import alone had passed metadata registration.
+Root removed duplicate declarations;ALL selected final03 runs passed afterward.
+Preparatory/failed runs are excluded from current counts;private evidence retained.
+
+DELIVERY
+Immutable ZIP,source checkpoint,actual Desktop payload/shortcut/Shell icon and
+preserved older-version readback are established in separate package/Desktop TXT.

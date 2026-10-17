@@ -1,0 +1,686 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: baseline-pasture1
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 6.188s | exit 0
+FAIL | tests/test_pasture_assignment_v046.gd | 13.828s | exit 125
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":3,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":6,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":12,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":13,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":15,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":16,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":19,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":22,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":23,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":24,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":28,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":31,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":32,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":33,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":37,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":40,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":42,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":43,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":46,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":47,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":52,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":53,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":54,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":55,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":57,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":58,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":59,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":60,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":65,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":66,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":68,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":70,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":71,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":72,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":73,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":78,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":81,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":82,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":87,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":88,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":89,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":90,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":92,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":93,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":95,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":96,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":97,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":99,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":100,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":101,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":103,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":106,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":107,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":110,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":112,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":113,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":115,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":116,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":117,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":118,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":119,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":120,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":121,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":123,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":125,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":128,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":131,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":132,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":137,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":138,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":140,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":142,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":148,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":150,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":3,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":6,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":12,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":13,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":15,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":16,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":19,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":22,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":23,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":24,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: civilian assignments equal actual available adults {"assigned":2,"available":1,"civilian_register":1,"family":25,"serve":{"pasture":1}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: every paid adult place belongs to a real civilian {"actual_jobs":{},"family":25,"recorded_jobs":{"45":1}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":28,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":31,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":32,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":33,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":37,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":40,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":42,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":43,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":46,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":47,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":52,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":53,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":54,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":55,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":57,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":58,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":59,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":60,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":65,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":66,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":68,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":70,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":71,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":72,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":73,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":78,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":81,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":82,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":87,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":88,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":89,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":90,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":92,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":93,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":95,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":96,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":97,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":99,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":100,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":101,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":103,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":106,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":107,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":110,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":112,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":113,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":115,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":116,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":117,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":118,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":119,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":120,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":121,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":123,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":125,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":128,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":131,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":132,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":137,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":138,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":140,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":142,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":148,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":150,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":3,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":6,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":12,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":13,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":15,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":16,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":19,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":22,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":23,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":24,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: civilian assignments equal actual available adults {"assigned":2,"available":1,"civilian_register":1,"family":25,"serve":{"pasture":1}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: every paid adult place belongs to a real civilian {"actual_jobs":{},"family":25,"recorded_jobs":{"45":1}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":28,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":31,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":32,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":33,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":37,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":40,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":42,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":43,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":46,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":47,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":52,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":53,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":54,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":55,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":57,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":58,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":59,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":60,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":65,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":66,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":68,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":70,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":71,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":72,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":73,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":78,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":81,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":82,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":87,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":88,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":89,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":90,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":92,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":93,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":95,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":96,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":97,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":99,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":100,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":101,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":103,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":106,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":107,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":110,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":112,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":113,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":115,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":116,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":117,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":118,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":119,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":120,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":121,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":123,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":125,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":128,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":131,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":132,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":137,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":138,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":140,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":142,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":148,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":150,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":3,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":6,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":12,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":13,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":15,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":16,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":19,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":22,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":23,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":24,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":28,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":31,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":32,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":33,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":37,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":40,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":42,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":43,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":46,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":47,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":52,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":53,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":54,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":55,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":57,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":58,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":59,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":60,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":65,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":66,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":68,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":70,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":71,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":72,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":73,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":78,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":81,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":82,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":87,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":88,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":89,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":90,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":92,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":93,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":95,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":96,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":97,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":99,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":100,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":101,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":103,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":106,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":107,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":110,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":112,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":113,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":115,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":116,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":117,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":118,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":119,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":120,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":121,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":123,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":125,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":128,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":131,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":132,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":137,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":138,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":140,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":142,"recorded_services":{"militia":0}}
+  2 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":148,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":150,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":1,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":5,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":14,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":17,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":21,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":27,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":29,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":30,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":39,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":44,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":48,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":50,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":51,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":63,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":74,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":77,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":79,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":80,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":91,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":94,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":102,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":105,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":108,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":109,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":114,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":122,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":126,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":129,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":135,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":136,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":139,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":141,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":143,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":145,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: before pasture muster: service counters name exactly the actual serving people {"actual_services":{},"family":149,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":1,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":5,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":14,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":17,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":21,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: civilian assignments equal actual available adults {"assigned":3,"available":2,"civilian_register":2,"family":27,"serve":{"militia":0,"pasture":1}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: every paid adult place belongs to a real civilian {"actual_jobs":{"15":1},"family":27,"recorded_jobs":{"15":1,"47":1}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{"pasture":1},"family":27,"recorded_services":{"militia":0,"pasture":1}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":29,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":30,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":39,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":44,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":48,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":50,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":51,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":63,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":74,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":77,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":79,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":80,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":91,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":94,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":102,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":105,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":108,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":109,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":114,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":122,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":126,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":129,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":135,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":136,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":139,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":141,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":143,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":145,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: service counters name exactly the actual serving people {"actual_services":{},"family":149,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":1,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":5,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":14,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":17,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":21,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: civilian assignments equal actual available adults {"assigned":3,"available":2,"civilian_register":2,"family":27,"serve":{"militia":0,"pasture":1}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: every paid adult place belongs to a real civilian {"actual_jobs":{"15":1},"family":27,"recorded_jobs":{"15":1,"47":1}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{"pasture":1},"family":27,"recorded_services":{"militia":0,"pasture":1}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":29,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":30,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":39,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":44,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":48,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":50,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":51,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":63,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":74,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":77,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":79,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":80,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":91,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":94,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":102,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":105,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":108,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":109,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":114,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":122,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":126,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":129,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":135,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":136,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":139,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":141,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":143,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":145,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: service counters name exactly the actual serving people {"actual_services":{},"family":149,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":1,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":5,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":14,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":17,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":21,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":27,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":29,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":30,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":39,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":44,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":48,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":50,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":51,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":63,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":74,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":77,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":79,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":80,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":91,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":94,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":102,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":105,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":108,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":109,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":114,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":122,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":126,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":129,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":135,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":136,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":139,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":141,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":143,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":145,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native pasture settlement and return: service counters name exactly the actual serving people {"actual_services":{},"family":149,"recorded_services":{"militia":0}}
+FAIL | tests/test_pasture_sickness_v046.gd | 7.796s | exit 125
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":1,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":3,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":5,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":14,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":17,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":21,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":23,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":24,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":27,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":28,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":29,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":30,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":32,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":33,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":39,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":42,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":44,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":46,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":48,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":50,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":51,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":53,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":54,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":59,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":63,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":65,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":71,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":72,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":73,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":74,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":77,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":78,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":79,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":80,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":81,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":82,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":87,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":90,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":91,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":93,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":94,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":95,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":96,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":97,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":99,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":101,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":102,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":103,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":105,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":107,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":108,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":109,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":113,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":114,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":116,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":117,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":120,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":122,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":125,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":126,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":129,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":131,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":132,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":135,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":136,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":137,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":138,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":139,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":140,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":141,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":142,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":143,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":145,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":148,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: sickness fixture before native muster: service counters name exactly the actual serving people {"actual_services":{},"family":149,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: queued sickness releases exactly the dead defender's pasture service slot {"living_pasture_people":0,"recorded_pasture":1}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":1,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":3,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":5,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":14,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":17,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":21,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":23,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":24,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: civilian assignments equal actual available adults {"assigned":1,"available":1,"civilian_register":2,"family":27,"serve":{"militia":0,"pasture":1}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: own work, keepers and idle each belong to real civilians {"actual":{"casual":{},"idle":1,"jobs":{},"keepers":0,"own":1},"family":27,"hands":1,"idle":0,"keeps":[]}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":27,"recorded_services":{"militia":0,"pasture":1}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":28,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":29,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":30,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":32,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":33,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":39,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":42,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":44,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":46,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":48,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":50,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":51,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":53,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":54,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":59,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":63,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":65,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":71,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":72,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":73,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":74,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":77,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":78,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":79,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":80,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":81,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":82,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":87,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":90,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":91,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":93,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":94,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":95,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":96,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":97,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":99,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":101,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":102,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":103,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":105,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":107,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":108,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":109,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":113,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":114,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":116,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":117,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":120,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":122,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":125,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":126,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":129,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":131,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":132,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":135,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":136,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":137,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":138,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":139,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":140,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":141,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":142,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":143,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":145,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":148,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counters name exactly the actual serving people {"actual_services":{},"family":149,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: native raid cleanup: each actual Census death corresponds to its removed register PID {"row":[14.0,-1,"Jasper Elmstead",-1,-1,"battle","in a fight",27,"",0]}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":1,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":3,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":5,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":14,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":17,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":21,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":23,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":24,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":27,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":28,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":29,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":30,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":32,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":33,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":39,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":42,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":44,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":46,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":48,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":50,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":51,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":53,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":54,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":59,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":63,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":65,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":71,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":72,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":73,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":74,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":77,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":78,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":79,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":80,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":81,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":82,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":87,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":90,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":91,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":93,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":94,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":95,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":96,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":97,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":99,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":101,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":102,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":103,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":105,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":107,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":108,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":109,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":113,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":114,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":116,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":117,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":120,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":122,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":125,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":126,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":129,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":131,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":132,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":135,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":136,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":137,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":138,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":139,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":140,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":141,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":142,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":143,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":145,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":148,"recorded_services":{"militia":0}}
+  1 occurrence(s): FAIL: after native cleanup following sickness: service counters name exactly the actual serving people {"actual_services":{},"family":149,"recorded_services":{"militia":0}}
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-baseline-pasture1
+Source receipt SHA256: 6e981c9f68f1f5322cd07b830f6d117c89d4b7df7f3e1486b30aeabc3b83e43a
+
+Notes (you can write here):

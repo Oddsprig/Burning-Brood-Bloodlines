@@ -1,0 +1,4 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Original dragon archive: 136 native source-exact renders with rows, dimensions and RGBA/PNG hashes.
+== res://tests/capture_old_art.gd: PASS ==

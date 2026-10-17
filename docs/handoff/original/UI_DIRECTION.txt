@@ -1,0 +1,81 @@
+BURNING BROOD: BLOODLINES - UI DIRECTION
+Concept only. Apply to the separate game's copy during implementation.
+UI_CONCEPT.svg illustrates the hierarchy and palette with fictional data.
+
+VISUAL TARGET
+A dark court/dragon-house atmosphere: deep charcoal, forest/emerald greens,
+royal purples, pale readable text, restrained gold and warm danger accents.
+Green expresses city/estate/supplies; purple expresses house/court/dragons.
+Use labelled states as well as colour so players can read their meaning.
+
+PROPOSED TOKENS
+Canvas:       #101117
+Panel:        #19211E
+Raised panel: #252137
+Line/border:  #46534B
+Green action: #2F6B4F
+Green text:   #A8E0BD
+Purple action:#5B3D82
+Purple text:  #D6B9F5
+Main text:    #F1EFE8
+Muted text:   #BCC3BE
+Gold accent:  #E4C47D
+Warning text: #F0BE73
+Danger text:  #FFA0A0
+
+Use pale text on action backgrounds. Avoid dark text on dark panels.
+Keep large numeric values aligned, use separators, and give units once in a
+column heading. Show concise labels plus detail-on-tap; explanatory paragraphs
+belong in expandable details. Risk must use a word/icon, never colour alone.
+
+INFORMATION HIERARCHY
+Persistent summary: date, ruling house, city, city treasury, personal funds and
+urgent problems. Keep private/public accounts visibly separate.
+Desktop primary destinations: City, House, Dragons, Court, Relations, Armies,
+Records. Phone: a small persistent navigation bar and a More destination;
+avoid squeezing seven tabs onto one narrow row.
+City dashboard: a few useful metric cards, supply/treasury bars and local issues.
+House: real portraits, ruler/heir/spouse links, family tree, office/claim badges.
+Dragons: cards with age/stage, actual rider, owner, health, food demand and
+availability. Filter by stage/status. One selected dragon has a clear detail
+page with parentage, care, bond and war assignment.
+Court: compact Person / Office / Interest / Loyalty / Action columns.
+Marriage: a proposal view showing the two actual people/houses and readable
+terms, expected obligations/costs, consequences and accept/decline actions.
+Relations: Settlement / Ruling house / Faction / Agreement / Standing / Action.
+Armies: commander, troops, riders/dragons, supply and readiness, then orders.
+Records: reuse the existing structured tables/search/sort/filter/details,
+including ruling-family and office badges. Do not regress to text walls.
+
+USEFUL ACTIONS, AFTER THE UNDERLYING FEATURE EXISTS
+View heir; Find spouse; Review proposal; Appoint office; Review city budget;
+Feed dragon; View rider; Assign to army; Muster; Equip best; Buy missing kit.
+Preview the real cost/affected people/items and revalidate before executing.
+A brief button must not hide ownership, debt, loyalty or food consequences.
+
+MOBILE DIRECTION
+Keep touch targets at least the existing 48 px standard.
+Phone dashboards stack compact cards; tables collapse into labelled rows with
+the most important columns visible. Long records still have a details page.
+Support tap rather than hover for tooltips, details and selection. Keep Back
+and browsing state. Preserve desktop shortcuts without making them necessary.
+Battle controls need clear pause/speed/deployment and troop/rider selection;
+keep the same simulation underneath a touch-readable presentation.
+Decide portrait/landscape handling with the first playable screen; do not lock
+all future battles to a mockup's orientation.
+No monetization, server or online-play model is specified by the title request.
+
+EXTEND THE EXISTING THEME
+game/ui/theme.gd owns shared theme colours/styles. WoodBg draws the original
+wood pattern; it also needs deliberate treatment in the new game's copy.
+Audit direct colours in Records, relations, charts, arrows, tabs and labels.
+Changing only the theme constants can leave parchment/wood colours elsewhere.
+Keep faction allegiance/map ownership readable independently of the new theme.
+Do not recolour Copper Oath's installed release as part of this handoff.
+
+BRAND
+Working title: Burning Brood: Bloodlines.
+Compact logo: BURNING BROOD, with BLOODLINES below.
+Suggested tagline: Bleed or Burn.
+Icon direction: a readable dragon/egg or dragon/crown silhouette, emerald
+highlights and violet shadow, minimal text. An icon is future asset work.

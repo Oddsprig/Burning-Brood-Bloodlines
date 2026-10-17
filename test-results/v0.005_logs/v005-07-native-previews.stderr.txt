@@ -1,0 +1,43 @@
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+ERROR: Parent node is busy setting up children, `add_child()` failed. Consider using `add_child.call_deferred(child)` instead.
+   at: add_child (scene/main/node.cpp:1721)
+   GDScript backtrace (most recent call first):
+       [0] run (res://tests/capture_v005_dragons.gd:18)
+       [1] _ready (res://tests/runner.gd:41)
+SCRIPT ERROR: Cannot call method 'get_children' on a null value.
+   at: clear (res://ui/kit.gd:63)
+   GDScript backtrace (most recent call first):
+       [0] clear (res://ui/kit.gd:63)
+       [1] _refresh (res://ui/dragons.gd:46)
+       [2] _open_dragon (res://ui/dragons.gd:90)
+       [3] run (res://tests/capture_v005_dragons.gd:27)
+       [4] _save (res://tests/capture_v005_dragons.gd:109)
+SCRIPT ERROR: Cannot call method 'add_child' on a null value.
+   at: DragonsView._detail (res://ui/dragons.gd:129)
+   GDScript backtrace (most recent call first):
+       [0] _detail (res://ui/dragons.gd:129)
+       [1] _refresh (res://ui/dragons.gd:52)
+       [2] _open_dragon (res://ui/dragons.gd:90)
+       [3] run (res://tests/capture_v005_dragons.gd:27)
+       [4] _save (res://tests/capture_v005_dragons.gd:109)
+SCRIPT ERROR: Cannot call method 'get_children' on a null value.
+   at: clear (res://ui/kit.gd:63)
+   GDScript backtrace (most recent call first):
+       [0] clear (res://ui/kit.gd:63)
+       [1] _refresh (res://ui/dragons.gd:46)
+       [2] _open_dragon (res://ui/dragons.gd:90)
+       [3] run (res://tests/capture_v005_dragons.gd:33)
+       [4] _save (res://tests/capture_v005_dragons.gd:109)
+SCRIPT ERROR: Cannot call method 'add_child' on a null value.
+   at: DragonsView._detail (res://ui/dragons.gd:129)
+   GDScript backtrace (most recent call first):
+       [0] _detail (res://ui/dragons.gd:129)
+       [1] _refresh (res://ui/dragons.gd:52)
+       [2] _open_dragon (res://ui/dragons.gd:90)
+       [3] run (res://tests/capture_v005_dragons.gd:33)
+       [4] _save (res://tests/capture_v005_dragons.gd:109)
+WARNING: 2 RIDs of type "CanvasItem" were leaked.
+   at: _free_rids (servers/rendering/renderer_canvas_cull.cpp:2735)
+WARNING: 14 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)

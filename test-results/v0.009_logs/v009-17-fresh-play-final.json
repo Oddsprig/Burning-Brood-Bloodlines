@@ -1,0 +1,16 @@
+{
+  "Run": "v009-17-fresh-play-final",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "work\\v009-source-verification\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=tests/diag_fresh_performance.gd",
+    "--watchdog=58",
+    "--frames=600"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 37.327
+}

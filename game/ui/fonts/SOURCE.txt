@@ -1,0 +1,9 @@
+Liberation Sans - bundled menu and records fonts
+Copied unchanged on 2026-10-11 from the local Codex dependency distribution:
+C:/Users/bligh/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/pdfjs-dist/standard_fonts/
+Files: LiberationSans-Regular.ttf, LiberationSans-Bold.ttf, LICENSE_LIBERATION.
+The original full SIL Open Font License 1.1 is included as LICENSE_LIBERATION.
+Digitized data copyright 2010 Google Corporation; copyright 2012 Red Hat, Inc.
+Reserved font names and redistribution terms remain in the original license.
+No glyph, font name or source font bytes were modified. No external download.
+These files style interface text; native Copper Oath character/item art is unchanged.

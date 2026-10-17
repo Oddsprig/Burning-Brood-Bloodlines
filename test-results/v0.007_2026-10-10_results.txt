@@ -1,0 +1,52 @@
+BURNING BROOD: BLOODLINES v0.007 - ACTUAL RESULTS
+2026-10-10 | Final selected checks: PASS
+
+Complete released Copper Oath v0.053 humanoid art/code and data import.
+21 exact released files verified against immutable source hashes.
+All eight humanoid races/genders/hair/beards, both women sets and Orc forms,
+all weapons/bows/shields/armour/clothing/helmets and portraits share that set.
+Expanded Orc palettes and Moon glaive native definition/skill included.
+No Copper Oath game launch or modification; no dragon art changes.
+
+894 final game files match both isolated tested and fresh bundled copies.
+All 408 previous resource UID files unchanged by exact bytes; 411 current unique UIDs.
+51 dragon-related source/art files remain exact v006 bytes.
+1430 counted focused assertions across six selected suites; no shared rerun totals.
+All546 template/material/quality item icons passed the existing native icon suite.
+Native catalogue:173 body/bust renders, eight reviewed preview boards/busts.
+The two Orc-palette-changed boards were reviewed after the final data copy;
+the other six final previews are byte-exact to the already reviewed native views.
+
+Selected runs (each full stdout/stderr scanned; exit0 and no timeout):
+  v007-09-final-humanoid-art - PASS - 2.691s
+  v007-10-final-catalogue - PASS - 3.726s
+  v007-11-item-icons - PASS - 4.598s
+  v007-15-bounded-native-equipment - PASS - 2.706s
+  v007-17-final-native-art - PASS - 4.026s
+  v007-18-final-civilian-ruler - PASS - 2.699s
+  v007-19-final-mounted-units - PASS - 2.606s
+  v007-13-cold-launcher - PASS - 10.908s
+  v007-16-bundled-main - PASS - 4.558s
+
+Native equipment verification includes actual stash/uniform/slot/quality/
+material/two-hand/shield rules, closed-helm maker roundtrip and a native
+glaive/closed-helmet face strike through real armor/tissue/persistent bodies.
+Fresh bundled PrepareOnly succeeded in a path with spaces and isolated user data;
+actual main scene ran finitely with the same bundled Godot4.7.2 executable.
+
+FAILED ATTEMPT RETAINED
+v007-12-native-outfit timed out50.015s during legacy Game.new_game setup
+before any assertions. Not counted as a pass. No longer campaign retry.
+v007-15 tests the same native outfitting cases with a bounded four-Unit
+fixture plus imported items and physical strike:29 checks,0 failures,2.706s.
+All19 engine attempts and complete diagnostics retained in v0.007_logs/.
+Only the exact Windows root-certificate-store error is excluded as environment
+noise; SCRIPT ERROR/ERROR/FAIL/parse/compile failures otherwise fail each run.
+
+PRESERVATION / SCOPE
+1040 source/render/metadata files SHA256-verified on actual Desktop before
+replacement; archive provenance in docs/specs/MODEL_IMPORT_v0.007.json.
+No phone QA, long campaign/large battle benchmark, old-save migration,
+input/foreground changes or launch of the installed player game.
+Dragon concept teeth remain deferred by the user. Next scoped pass:care/growth.
+Package and actual Desktop/icon gates have separate dated TXT receipts.

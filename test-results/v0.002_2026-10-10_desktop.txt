@@ -1,0 +1,25 @@
+BURNING BROOD: BLOODLINES v0.002 - DESKTOP DELIVERY
+Date: 2026-10-10 | Final result: PASS
+
+Installed folder: C:/Users/bligh/Desktop/Burning_Brood_Bloodlines_v0.002
+Desktop launcher: C:/Users/bligh/Desktop/Burning Brood Bloodlines v0.002.lnk
+Custom icon: installed Bloodlines.ico,0 (green dragon, crown, purple shield).
+Shortcut target: Windows PowerShell, hidden, calling this installed version's
+Launch_Bloodlines.ps1. Working directory points to the installed game folder.
+
+All 1000 payload files matched source manifest size/SHA256 before copying,
+and matched again after installation. Bundled runtime and 793 game files are
+included. Source checkpoint: 47efcc747b00737c2b6161d91181faf585b38b20.
+Shortcut saved and its target/arguments/working directory/icon read back.
+Actual Windows shell-extracted icon was visually inspected: correct dragon/
+crown/purple shield with the normal shortcut arrow. Preview in chat work/.
+Installer completed in 6.078s. No interactive game or player saves opened.
+
+First attempt was blocked creating subfolders with a narrow filesystem grant;
+it was not a successful install. Desktop-folder access was then granted and
+the full install/readback succeeded. Earlier games/shortcuts were preserved.
+Original game/icon.png pixels were embedded unchanged into a Windows ICO;
+this delivery correction changed no game simulation, game source or resource UID.
+Corrected ZIP includes the icon and reusable Install_Desktop.cmd/.ps1.
+Every future delivered version requires its own Desktop folder and branded
+versioned launcher. ZIP-only delivery does not complete the task.

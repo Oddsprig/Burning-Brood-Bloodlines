@@ -1,0 +1,58 @@
+COPPER OATH v0.046 - PHYSICAL LAND, LABOUR AND FOOD
+Cumulative from v0.045; fix/economy-pass; master unchanged.
+
+CHANGES
+Property purchases preview native whole/partial plots, crop rotation, actual
+animal ages and ox transfers against available household work. Serving adults,
+keepers, paid/casual jobs remain committed. Earned proceeds settle first; native
+loan and treasury rules fund only a feasible purchase gap. No rate tuning.
+Food uses real child-age/home/away/broth shares and valid derived caches.
+Fresh meat stays physical edible food. Withdrawals and migration carries use
+one exact bounded quantity; original recipes and named company food remain.
+Native guard/pasture deaths release actual service. Pasture muster reassigns
+civilian work once; cleanup preserves the actual person and first death cause.
+Company wages use existing destination/inheritance rules. The full payment
+must reach a real recipient before player coins debit and paid flags update.
+Unresolved recipients retain payer gold; later roster members can still be paid.
+Keeper-only open yards/mines display as worked. All old tests/data/gates remain.
+
+CURRENT COMPLETED CHECKS
+15/16 executions in completed focus/save/short cases passed.
+The sole failure is the unchanged legacy marker expectation: FAIL27/32535,
+identical on delivered045. Native load legitimately reassigns27 households
+whose37 real service entrants change their work. Independent loader checks
+pass43260 with exact identity, coins, quantities, queued work and days preserved.
+19 additional original farm/harvest/inheritance/wage checks completed
+and passed before the user stopped the long queue. Its census test and later
+checks were not completed; the interrupted suite is never called a pass.
+Short startup, named-food weight and Records snapshot checks passed.
+Native company payroll passes105 checks; exact045 retains7 real failures.
+The authentic day600 checkpoint advanced28 days to628: accounting
+256543 checks, zero failures; ownership
+6527618 checks, zero violations.
+The prior real80-coins-per-day payroll loss is repaired, not waived.
+No game was launched visibly; no mouse, keyboard, foreground or player save used.
+
+LIMITS / BENCHMARK POLICY
+The user requested short checks for breakage. No further long campaigns or
+full sickness/census/UI/performance suites ran after that request.
+Normal/Large/Huge day120 and plot timings were not rerun on this final source.
+Prior candidate full-world results are historical: their90% target failed.
+The strict90% nominal worked-land target and unchanged25ms plot budget remain
+open. Old combat-gasp and full sickness expectations retain recorded failures;
+current native sickness observations reconcile all seven real deaths. They
+are not presented as a passing or executed current full original suite.
+Current saved accounting and targeted controls do not prove every gameplay
+path, annual food balance, universal mass conservation or smoothness.
+Every finished, failed, interrupted and older-source run is identified in the
+Benchmarks TXT files and the full raw evidence archive. Future checks default
+to short smoke/regressions; long benchmarks require an explicit user request.
+
+NEXT VERSION MAP (PROPOSED)
+047 political offices/ruling-family clarity;048 Academy/metallurgy;
+049-052 people/portraits/weapons with the same animations and a Desktop archive
+of each replaced legacy asset;053-058 keeps, company fort, monsters/world.
+Descendants are not forced recruits; kinship notes and memory remain planned.
+Package, runtime and Desktop verification are recorded separately.
+
+Additional notes (you can write here):

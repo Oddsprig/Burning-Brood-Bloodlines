@@ -1,0 +1,85 @@
+BURNING BROOD: BLOODLINES v0.005 - DRAGONS / GEM EGGS RESULTS
+2026-10-10 | Final selected checks PASS; all failed attempts retained below.
+Exact source hashes: releases/v0.005_SOURCE_MANIFEST.json.
+
+827 counted assertions (repeated runs counted once):
+  279 individual identities/parents/16 gem types/six wyvern forms/five sizes,
+      independent personal names, authored tooth/claw hardness vs toughness,
+      body mass/strength/bite force/geometry, native material resistance and purity,
+      true native owners, pure readers/previews, reviewed gifts/keepers, stale
+      source/recipient/ruler rejection, cultural heirs/extinction/departure,
+      bounded history and current JSON identity roundtrip.
+  29 asset-specific legitimate lineage: gifted non-ruler, native marriage
+      move, actual death+Feudal.finish, trimmed dead ancestry/minor branch,
+      wrong-house rejection, existing orc capital/war-leader matching and purity.
+  32 existing native feudal succession regressions after shared lineage refactor.
+  126 dragon desktop images/actions/labels/cancel/stale authority/back/cleanup.
+  54 existing house/map/politics/population controls, real budgets/conservation.
+  307 actual Normal campaign, one history day:23 towns,23 gem eggs,14 adults;
+      actual owners/parents, one-time allocation, true gift, full native save/load,
+      exact name/type/physical-profile/appearance/parent/history references,
+      same native people/coin/counters.
+15 separate desktop fit cases (1280x720 only; no phone matrix).
+Five inspected native images:16 gem eggs,6 wyvern forms,holdings,egg/adult details.
+UI reads create no Units/Items, consume no RNG and debit no coin/population.
+Gift changes owner; keeper/location remain independent. Dead or absent keepers
+clear once; private ownership uses stored legitimate kin, never title usurpation.
+Profiles separate gem hardness from size/mass/strength/bite force/geometry.
+They consume existing native Formulas; no second damage resolver or gem-only
+armour bypass. Native tactical dragon bodies are not enabled in this pass.
+Rider fields remain empty; no growth/care/bonding/battle mechanics claimed.
+
+All835 game source files match tested snapshot AND fresh bundled copy.
+All389 prior UID files unchanged;396 unique UID files now.
+37 previous art/data/display-adapter files unchanged. New portraits/catalog
+are additive; current imported race/weapon art and combat/economy data stay exact.
+Fresh bundled PrepareOnly created cache/version005 marker; bundled actual main
+passed90 headless frames. Windows scripts also parsed without errors.
+Checks were isolated,serial,hidden/headless,BelowNormal. Native visual renders
+used an embedded child of a never-shown private host: no player foreground/input.
+Windows root-certificate diagnostic is unchanged; no final script/game errors.
+
+Actual engine attempt receipts (IDs identify runs; sorted by name):
+v005-01-import                           PASS   7.918s
+v005-02-generated-save                   FAIL   2.255s
+v005-03-generated-save                   PASS  34.674s
+v005-04-identities                       PASS   2.441s
+v005-05-desktop-ui                       FAIL   2.898s
+v005-06-desktop-ui                       PASS   7.703s
+v005-07-native-previews                  FAIL   5.824s
+v005-08-native-previews                  PASS   5.726s
+v005-09-cold-launcher                    PASS  11.967s
+v005-10-native-succession                PASS   2.239s
+v005-11-house-map-controls               PASS   4.366s
+v005-12-final-generated-save             PASS  36.097s
+v005-13-asset-succession                 PASS   2.339s
+v005-14-bundled-main                     PASS   4.169s
+v005-15-final-identities                 FAIL   2.344s
+v005-16-final-desktop-ui                 PASS   7.969s
+v005-17-final-generated-profiles-save    PASS  35.326s
+v005-18-final-native-previews            PASS   4.288s
+v005-19-cold-launcher                    PASS  10.772s
+v005-20-final-bundled-main               PASS   4.283s
+v005-21-final-asset-succession           PASS   2.749s
+v005-22-final-native-succession          PASS   2.332s
+v005-23-final-house-map-controls         PASS   4.967s
+v005-24-final-identities                 PASS   2.521s
+
+FAILED ATTEMPTS - NOT CURRENT PASSES
+02: root release observer inferred Dictionary from a Variant; compile rejected.
+    Explicit Dictionary declaration fixed it;03 and final12 clean.
+05: new UI authority inference included a Variant comparison; compile rejected.
+    Runner misleadingly printed PASS/exit0 after cascade. Explicit bool/string
+    fixed production view;06 complete desktop checks clean.
+07: private render observer attached its viewport while runner root was still
+    entering the tree; orphan/null cascade. Runner printed PASS/exit0 despite
+    errors. Awaited initial frame and asserted ready view;08 native renders clean.
+15: active adult physical overlay used Dictionary.merge without overwrite.
+    The existing inactive flag remained false. Explicit overwrite fixed it;
+    final24 passed all279 identity/physical checks;16 desktop controls passed.
+Any additional failures in the table are retained, never added to passing totals.
+
+Limits: static identity portraits and rest physical profiles; no tactical wyvern bodies. Real
+food/upkeep and care/growth are v006; bonds,bodies,flight,breath later scoped passes.
+No old-save migration,long campaign/balance run,full army benchmark or phone QA.
+Start a new v0.005 campaign. Packaging/Desktop have separate dated TXT receipts.

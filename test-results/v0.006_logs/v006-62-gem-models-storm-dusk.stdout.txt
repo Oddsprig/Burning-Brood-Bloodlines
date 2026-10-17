@@ -1,0 +1,5 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Dragon source model forms: stormkeel,duskfin
+Dragon source models: 239 assertions, 0 failures; artwork requires fresh visual review.
+== res://tests/test_dragon_models.gd: PASS ==

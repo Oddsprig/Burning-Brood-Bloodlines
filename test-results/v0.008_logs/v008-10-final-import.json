@@ -1,0 +1,14 @@
+{
+  "Run": "v008-10-final-import",
+  "Arguments": [
+    "--headless",
+    "--editor",
+    "--path",
+    "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v008-source-verification/game",
+    "--import",
+    "--quit"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 5.432
+}

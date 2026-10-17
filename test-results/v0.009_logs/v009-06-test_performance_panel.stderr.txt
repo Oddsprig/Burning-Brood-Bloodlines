@@ -1,0 +1,3 @@
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+FAIL performance panel: instrumented main-thread work and GPU time are distinguished

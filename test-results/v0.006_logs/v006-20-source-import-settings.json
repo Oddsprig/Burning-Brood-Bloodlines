@@ -1,0 +1,12 @@
+{
+  "Run": "v006-20-source-import-settings",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "work/v006-portrait-encode",
+    "--import"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 2.766
+}

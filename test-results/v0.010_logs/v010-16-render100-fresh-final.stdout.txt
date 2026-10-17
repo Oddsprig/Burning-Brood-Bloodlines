@@ -1,0 +1,6 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.88 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 5090 Laptop GPU
+
+render fixture world ready: 26674.4ms
+render 100/100: 60.12FPS p95 20.98ms worst 25.15ms ticks220 gatetrue
+== res://tests/diag_battle_render_v010.gd: PASS ==

@@ -1,0 +1,51 @@
+{
+  "_note": "bows (docs/specs/bows.md). Bows are the only ranged weapon. Bows are Items (template x material x quality), held in the 'ranged' equip slot; arrows are counted goods (economy goods of the same id) carried in a quiver (Unit.quiver {arrow id: count}, max 50). Bow stats: draw_n = draw weight in newtons at full draw, draw_m = draw length in metres, eff = efficiency (arrow energy / energy drawn) for a reference 60 g arrow, virt_kg = virtual mass of the limbs (a heavier arrow takes more of the bow's energy, src: bow physics, values ours), cm3 = wood volume (mass = cm3 x wood density), min_range = tiles inside which the archer goes to his sidearm (spec ~2, tune), value = base gold. inputs = goods one bow takes (bowyer), rate = bows per bowyer worker-day. Stored energy ~ 0.5 x draw weight x draw length (spec). Anchors (not targets): hunting bow ~50 J, war bow ~100-130 J. All values ours [tuned].",
+  "bows": {
+    "middle": {
+      "self_bow":   {"name": "self bow", "style": "self", "draw_n": 250, "draw_m": 0.70, "eff": 0.70, "virt_kg": 0.025, "cm3": 1300, "min_range": 2, "value": 18, "inputs": {"staves": 1}, "rate": 0.5, "sprite": "bow", "len": 1.5},
+      "march_longbow": {"name": "longbow", "style": "long", "draw_n": 470, "draw_m": 0.74, "eff": 0.70, "virt_kg": 0.035, "cm3": 2000, "min_range": 2, "value": 34, "inputs": {"staves": 1}, "rate": 0.35, "sprite": "longbow", "len": 1.85}
+    },
+    "northern": {
+      "hunting_bow": {"name": "hunting bow", "style": "self", "draw_n": 220, "draw_m": 0.68, "eff": 0.70, "virt_kg": 0.022, "cm3": 1100, "min_range": 2, "value": 15, "inputs": {"staves": 1}, "rate": 0.55, "sprite": "bow", "len": 1.45},
+      "ash_war_bow": {"name": "ash war bow", "style": "long", "draw_n": 420, "draw_m": 0.72, "eff": 0.69, "virt_kg": 0.032, "cm3": 1800, "min_range": 2, "value": 28, "inputs": {"staves": 1}, "rate": 0.4, "sprite": "longbow", "len": 1.75}
+    },
+    "goblin": {
+      "goblin_shortbow": {"name": "goblin shortbow", "style": "self", "draw_n": 190, "draw_m": 0.52, "eff": 0.66, "virt_kg": 0.018, "cm3": 800, "min_range": 2, "value": 9, "inputs": {"staves": 1}, "rate": 0.7, "sprite": "bow", "len": 1.0}
+    },
+    "orc": {
+      "orc_slab_bow": {"name": "slab bow", "style": "self", "draw_n": 520, "draw_m": 0.78, "eff": 0.64, "virt_kg": 0.045, "cm3": 2600, "min_range": 2, "value": 20, "inputs": {"staves": 1}, "rate": 0.4, "sprite": "longbow", "len": 1.7}
+    },
+    "moon_elf": {
+      "moon_recurve": {"name": "moon recurve", "style": "composite", "draw_n": 360, "draw_m": 0.72, "eff": 0.80, "virt_kg": 0.015, "cm3": 1400, "min_range": 2, "value": 60, "inputs": {"wood": 1, "horn": 1, "sinew": 1, "glue": 1}, "rate": 0.12, "sprite": "recurve", "len": 1.25},
+      "moon_longbow": {"name": "moon longbow", "style": "long", "draw_n": 420, "draw_m": 0.76, "eff": 0.72, "virt_kg": 0.030, "cm3": 1700, "min_range": 2, "value": 40, "inputs": {"staves": 1}, "rate": 0.3, "sprite": "longbow", "len": 1.8}
+    },
+    "eastern": {
+      "steppe_bow": {"name": "steppe bow", "style": "composite", "draw_n": 400, "draw_m": 0.72, "eff": 0.80, "virt_kg": 0.016, "cm3": 1300, "min_range": 2, "value": 55, "inputs": {"wood": 1, "horn": 1, "sinew": 1, "glue": 1}, "rate": 0.12, "sprite": "recurve", "len": 1.2}
+    }
+  },
+  "_shapes_note": "Arrowhead shapes (spec 3). contact = DF contact area (a point bites through small), pen = cutting depth in DF penetration units (x0.01 mm) the head and shaft can drive in, tear = exit tear multiplier when the arrow is pulled out on the field (broadheads tear more). Wood points are the sharpened, fire-hardened shaft itself.",
+  "shapes": {
+    "point":     {"name": "point", "contact": 12, "pen": 20000, "tear": 1.0},
+    "bodkin":    {"name": "bodkin", "contact": 5, "pen": 30000, "tear": 1.2},
+    "broadhead": {"name": "broadhead", "contact": 60, "pen": 24000, "tear": 2.5}
+  },
+  "_arrows_note": "Arrow kinds (counted goods; the economy goods table holds their price and weight). Shaft always wood. Mass = shaft_kg + tip_cm3 x tip material density. w_size_cm3 = head volume for the DF blunt-deflection test (wood points use the shaft tip).",
+  "arrows": {
+    "arrow_wood":          {"name": "wooden arrow", "tip": "wood", "shape": "point", "shaft_kg": 0.040, "tip_cm3": 0.0, "w_size_cm3": 0.6},
+    "arrow_copper_broad":  {"name": "copper broadhead arrow", "tip": "copper", "shape": "broadhead", "shaft_kg": 0.042, "tip_cm3": 1.8},
+    "arrow_copper_bodkin": {"name": "copper bodkin arrow", "tip": "copper", "shape": "bodkin", "shaft_kg": 0.042, "tip_cm3": 1.2},
+    "arrow_tin_broad":     {"name": "tin broadhead arrow", "tip": "tin", "shape": "broadhead", "shaft_kg": 0.042, "tip_cm3": 1.8},
+    "arrow_tin_bodkin":    {"name": "tin bodkin arrow", "tip": "tin", "shape": "bodkin", "shaft_kg": 0.042, "tip_cm3": 1.2},
+    "arrow_copper_war":    {"name": "heavy copper bodkin arrow", "tip": "copper", "shape": "bodkin", "shaft_kg": 0.062, "tip_cm3": 2.4}
+  },
+  "_culture_note": "Arrow kinds each culture's armories, militias and forces keep (first = preferred), and the sidearm each culture's archers carry (from its own weapons).",
+  "culture_arrows": {
+    "middle": ["arrow_copper_bodkin", "arrow_copper_broad"],
+    "northern": ["arrow_copper_broad", "arrow_wood"],
+    "goblin": ["arrow_wood", "arrow_tin_broad"],
+    "orc": ["arrow_tin_broad", "arrow_wood"],
+    "moon_elf": ["arrow_copper_bodkin", "arrow_copper_war"],
+    "eastern": ["arrow_copper_broad", "arrow_copper_bodkin"],
+    "dwarf": ["arrow_copper_bodkin", "arrow_tin_bodkin"]
+  }
+}

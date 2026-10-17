@@ -1,0 +1,15 @@
+{
+  "Run": "v006-06-first-sprite-native",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v006-verification\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/capture_sprite.gd",
+    "--watchdog=50"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 3.483
+}

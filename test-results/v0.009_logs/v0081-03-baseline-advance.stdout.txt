@@ -1,0 +1,13 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PERF advance initial_memory_mb=697.734346389771 company=100
+PERF stage=clock+wages
+PERF wages_ms=1.39
+PERF stage=healing
+PERF healing_ms=43.008
+PERF stage=food
+PERF food_ms=1.669
+PERF stage=world
+PERF world_ms=2874.39
+PERF full_advance_ms=2924.923 memory_mb=697.578454971313
+== res://tests/diag_advance.gd: PASS ==

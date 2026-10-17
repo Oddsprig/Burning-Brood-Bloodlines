@@ -1,0 +1,10 @@
+{
+  "run": "v010-09-render100-fresh",
+  "known_certificate_environment_line_count": 1,
+  "errors": [
+    "== res://tests/diag_battle_render_v010.gd: FAIL (1) ==",
+    "FAIL battle render: rendered recovery floor30FPS/p95<=50ms"
+  ],
+  "error_count": 2,
+  "full_log_pass": false
+}

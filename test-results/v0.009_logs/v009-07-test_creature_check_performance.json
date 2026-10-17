@@ -1,0 +1,15 @@
+{
+  "Run": "v009-07-test_creature_check_performance",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "work\\v009-source-verification\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=tests/test_creature_check_performance.gd",
+    "--watchdog=48"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 2.577
+}

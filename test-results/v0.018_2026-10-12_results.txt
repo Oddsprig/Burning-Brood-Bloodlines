@@ -1,0 +1,76 @@
+BURNING BROOD: BLOODLINES v0.018 - CURRENT RECORDS / LAWS CHECKS
+2026-10-12 | PASS for all selected runs below
+Source:releases/v0.018_SOURCE_MANIFEST.json;1012 game files;467 unique UIDs,
+all463 prior UIDs preserved.101 prior art/data and20 exact released Copper Oath
+v0.053 model files unchanged. Official bundled Godot4.7.2 stable was executed.
+
+CURRENT SELECTED RUNS
+Records headless:8640 assertions/27desktopfits,7.956s.
+Records rendered:8698 assertions/27desktopfits,11.421s;27 native PNGs.
+Actual regular/bold FontFiles and exact source/license hashes, resolved title
+glyph width, per-state data contrast, native values, compact rows, four category
+groups/all12 retained tabs, actual typed search/sort/detail/back, visible15-row
+bound, complete native/genealogy/coin/gear/RNG/UID read purity and orphan cleanup.
+Laws headless:93 checks/12desktopfits,6.138s.
+Laws rendered:100 checks/12desktopfits,7.696s;three actual native PNGs.
+Native human/dwarf son-first and actual daughter fallback, elf rightful minor
+eldest child, orc strength/no invented hereditary heir, current/stale person
+links, actual House entry/chooser inline removal, Records return context and
+physical-location/purity guards. No editable law or inheritance changes.
+Battle pace:39 checks,3.347s. Native chosen speed/pause/settings/defaultOFF.
+Battle results:231 assertions/15headlessfits,7.886s; native totals/detail/Continue.
+Combat log rendered:249 assertions/15actualfits,11.521s;15 native PNGs.
+Current18 execution of retained016 complete log:real four-fighter native strikes,
+600 detached indexed stress outcomes, native200/200 result/character filters,
+paused overlays/details/page bounds/purity/orphan cleanup with current fonts.
+Army UI regression:890 assertions/15headlessfits,15.880s; current fonts/global
+frame preserve17 funding/partial/return confirmations, navigation and ownership.
+Fresh world:48 checks,32.829s; eight native PNGs. EXACT Normal/seed777/one history
+day, actual human Akbulak/House Qara. Six real records categories, actual market
+owner/keeper/till/staff detail, current ruler Erden Qara and lawful minor heir
+Temur Qara. No injected people/coin/kit, no army/pay/coin created by browsing.
+Complete town/dynasty/mobilization/Unit/coin/day/RNG/UID read fingerprint preserved.
+Actual world ready24.828s. Tab builds:Overview6.678ms, Register13.380ms,
+Businesses10.179ms, Census4.506ms, Treasury5.948ms, Garrison19.343ms.
+One-time Garrison build exceeds the older16ms goal; recorded rather than hidden.
+Map rendered:17 checks,50.356s total including generation. Measured18s at
+2560x1440, actual native panel, waiting/two midnights/camera/menu interaction.
+58.72FPS; p9526.20ms; worst105.64ms. Recovery floor30FPS/p95<=50ms and
+no frame>150ms PASS. Native jobs settle; this is a short current sample.
+
+TOTAL / ACTUAL REVIEW
+19005 actual assertions across10 selected runs, including repeated headless /
+rendered checks.56 rendered gates:27records+12Laws+15log/resultfits+freshworld+map.
+53 captured PNGs have recorded exact hashes; root actually inspected13:all six
+required record categories across desktop widths, person detail, Laws, retained
+compact result/page/Continue, paused fight stories and three actual-world views.
+The1280 tissue-state screenshot shows the summary/page controls; its opened
+tissue detail is below the visible fold. No claim of inspecting invisible text.
+Fresh-world captures use the native scene with reserved diagnostics width;
+the separate focused records/log fixtures include the actual panel overlay.
+Full logs show no assertion/script/runtime or resource/object leak failures.
+Only the exact known Windows certificate-store environment diagnostic is excluded.
+All engine checks serial, private/no-focus/offscreen/BelowNormal. No player
+input, foreground, saved worlds or Copper Oath were changed.
+
+REPAIRS / LAUNCH / DELIVERY
+Cream-on-cream rows and dark legacy text corrected; compact56px data rows and
+real source-exact regular/bold fonts replace fallback/synthetic-bold UI typography.
+Headers measure the resolved font after parenting. Read-only detail never calls
+Persons.sync or creates missing people; local econ copies protect display defaults.
+Stable person IDs re-resolve before current records; closing returns Laws.
+Current focused source/candidate imports and selected gameplay runs passed.
+Fresh spaced-path bundled PrepareOnly8.834s PASS; actual native main boot5.550s
+PASS. All1012 cold game files match the tested source manifest exactly.
+The private cold helper's console summary used dictionary Select-Object and
+printed nulls; its actual saved receipt/engine logs are complete and independently
+read back as PASS. Current aggregate cold receipt verifies those real fields.
+Package/Desktop receipts are separate dated TXT/JSON; previous versions preserved.
+
+LIMITS / NEXT
+No universal60FPS, long-session leak freedom or dense battle rebenchmark claim.
+Generation and one-time menu build costs remain. Native simulator/body/material/
+animations/art/laws are unchanged; battle HUD receives only the shared font.
+No phone QA/export, old-save compatibility, law editing, new diplomacy, salvage
+policy or bone-rig conversion. v019 settlement/map -> local house -> Customize
+is next; dragon bonds remain21 after performance/playability gates.

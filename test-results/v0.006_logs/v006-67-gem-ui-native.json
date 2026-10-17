@@ -1,0 +1,23 @@
+{
+  "Run": "v006-67-gem-ui-native",
+  "Arguments": [
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v006-source-verification\\game",
+    "--wid",
+    "27136744",
+    "--single-window",
+    "--resolution",
+    "1280x720",
+    "--position",
+    "-32000,-32000",
+    "--rendering-method",
+    "gl_compatibility",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/capture_v006_gem_ui.gd",
+    "--watchdog=50"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 9.83
+}

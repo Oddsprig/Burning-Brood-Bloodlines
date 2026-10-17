@@ -1,0 +1,42 @@
+BURNING BROOD: BLOODLINES - FOLDER PLAN
+Updated: 2026-10-14
+
+ONE ACTIVE GAME TREE
+game/                    Native Godot source, tests, imported models and assets.
+game/campaign/           Native people, cohorts, households, money and forces.
+game/sim/                Native physical combat, materials, bodies and wounds.
+game/art/ and game/data/ Asset source and definitions; preserve resource UIDs.
+runtime/                 Verified bundled Windows Godot executable.
+
+v019 entry stays small:campaign/house_onboarding.gd owns pure native-house reads
+and explicit Begin; ui/house_select.gd owns staged selection; its cached map and
+transparent house banner stay in ui/. No second world/population/account store.
+
+v021/v022 stay in the same native tree:campaign/dragon_bond.gd manages actual
+person relationships; dragon_combat.gd owns saved original dragon Units, reviewed
+home defence and native outcome boundaries. data/dragon_combat.json adds the
+wyvern plan. battle/dragon_view.gd owns coherent source masks/GPU wound display;
+the existing BattleSim remains the sole physical combat resolver.
+
+SMALL ACTIVE NOTES
+HANDOFF.txt              Current root entry: exact paths, released state, next passes.
+START_HERE.txt           Launcher and current playable features/limitations.
+docs/ROADMAP.txt         One main outcome, scope/deferred/done per version.
+docs/DEV_NOTES.txt       Current state, decisions, next pass and this folder plan.
+docs/FOLDER_PLAN.txt     This map; add folders only when there is a clear owner.
+docs/specialists/        Stable specialized helper briefs; update, do not replace.
+                        Sol/high implements; bounded-qa.txt scopes Luna/low checks.
+docs/specs/              Detailed rules/evidence read only for the relevant task.
+docs/history/            Superseded active notes/plans; never enlarge active notes.
+docs/handoff/original/   Immutable original handoff; never edit inherited history.
+
+VERSIONED EVIDENCE / DELIVERY
+test-results/            Concise dated TXT results; state failed/skipped checks.
+test-results/v0.NNN_logs/Selected complete logs and bounded machine receipts.
+releases/                Immutable ZIP, SHA256, manifests and release notes.
+Actual Desktop           Separate version folder and branded version shortcut.
+
+The chat workspace work/ holds private scratch, generated test worlds, snapshots
+and screenshots. Exclude it, .godot caches, .git and player saves from releases.
+Large unused art stays in Desktop/ASSET/Burning_Brood/ under preserved entries.
+Never create a second live people/coin/combat model or scatter source copies.

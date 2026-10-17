@@ -1,0 +1,12 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: baseline-hiring-corrected4
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 5.203s | exit 0
+PASS | tests/test_hiring_timing_v046.gd | 16.406s | exit 0
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-baseline-hiring-corrected4
+Source receipt SHA256: ca776147e74328cf7f57338d6bd28a3dc512fc3d2d089fcf7fea98eca5e7ea08
+
+Notes (you can write here):

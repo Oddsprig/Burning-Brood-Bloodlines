@@ -1,0 +1,1987 @@
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+ERROR: Parent node is busy setting up children, `add_child()` failed. Consider using `add_child.call_deferred(child)` instead.
+   at: add_child (scene/main/node.cpp:1721)
+   GDScript backtrace (most recent call first):
+       [0] run (res://tests/diag_live_performance.gd:16)
+       [1] _ready (res://tests/runner.gd:41)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid assignment of property or key 'visible' with value of type 'bool' on a base object of type 'Nil'.
+   at: _show_encounter (res://campaign/world_map.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] _show_encounter (res://campaign/world_map.gd:650)
+       [1] _process (res://campaign/world_map.gd:135)
+       [2] run (res://tests/diag_live_performance.gd:35)
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _process (res://campaign/world_map.gd:137)
+   GDScript backtrace (most recent call first):
+       [0] _process (res://campaign/world_map.gd:137)
+       [1] run (res://tests/diag_live_performance.gd:35)

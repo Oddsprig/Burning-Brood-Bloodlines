@@ -1,0 +1,13 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: baseline-sickness-original-subset2
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 6.375s | exit 0
+FAIL | tests/trace_sickness_deaths_v046.gd | 16.969s | exit 1
+  1 occurrence(s): FAIL: population 764 -> 757 after 6 deaths
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-baseline-sickness-original-subset2
+Source receipt SHA256: 311a7137e57a3a9896b0b14382b511284d109459386ff6ebd1a0d202e7a969b0
+
+Notes (you can write here):

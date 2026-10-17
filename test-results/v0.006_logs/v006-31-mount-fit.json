@@ -1,0 +1,15 @@
+{
+  "Run": "v006-31-mount-fit",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "work/v006-source-verification/game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_dragon_mount_preview.gd",
+    "--watchdog=40"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 19.164
+}

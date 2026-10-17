@@ -1,0 +1,27 @@
+{
+  "checked": true,
+  "version": "0.016",
+  "reviewed": [
+    {
+      "path": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v016-ui-render\\final03\\combat_log_1280x720_battle_paused_log.png",
+      "sha256": "a58d3f5feb02fe0b62827f44a287b709b615b72ee13f6b333031fc26754356df"
+    },
+    {
+      "path": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v016-ui-render\\final03\\combat_log_1920x1080_results_log_tissue.png",
+      "sha256": "b8aa3f98c221d1bb2139032a67e9723e5bfdb4b286628ed3ece4703182090d10"
+    },
+    {
+      "path": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v016-ui-render\\final03\\combat_log_2560x1440_results_log_first.png",
+      "sha256": "c436119c0e90da75d7559752f9e361c8ae7e6184e1f8a49e4746ef01a943cdbd"
+    },
+    {
+      "path": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v016-ui-render\\final03\\combat_log_1280x720_results_closed.png",
+      "sha256": "dac5bfbf37540d3b20fd98918e37a758deda787e4283adb2093d581d9266e6d3"
+    },
+    {
+      "path": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v016-ui-render\\final03\\combat_log_2560x1440_results_log_fallen.png",
+      "sha256": "1557954b1b4a365b02b902c2502d49e4efa48b0c93d9c0d3f540b6a9953466f0"
+    }
+  ],
+  "note": "Primary inspected five final03 native PNGs after the width correction; earlier renders excluded."
+}

@@ -1,0 +1,15 @@
+{
+  "Run": "v006-24-mounted-rider",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "work/v006-source-verification/game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_mounted_rider_art.gd",
+    "--watchdog=20"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 2.529
+}

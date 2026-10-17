@@ -1,0 +1,23 @@
+{
+  "Run": "v021-bond-final01",
+  "Arguments": [
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v021-candidate-final01\\game",
+    "--headless",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_dragon_bond_v021.gd",
+    "--watchdog=35"
+  ],
+  "Project": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v021-candidate-final01\\game",
+  "Engine": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\outputs\\Burning_Brood_Bloodlines\\runtime\\Godot_v4.7.2-stable_win64.exe",
+  "DataRoot": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\isolated-engine-data\\v021-bond-final01",
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 5.58,
+  "BelowNormal": true,
+  "Headless": true,
+  "NoFocusProjectSetting": true,
+  "HiddenLaunch": true,
+  "Result": "PASS"
+}

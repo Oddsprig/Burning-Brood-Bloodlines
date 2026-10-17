@@ -1,0 +1,73 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+duel over at tick 118 (5.9 s), winner 0, exchanges 5
+--- Bram Kettle log (15 entries) ---
+[t88] The human warrior Osric hacks Bram Kettle in the neck with his copper bearded axe, slicing through the muscle!
+    Skin: sliced through.
+    The fat is sliced through.
+    Muscle: sliced through.
+    The blow comes down through the muscle from top to bottom.
+[roll:attack] 4/7 -> hack
+timing: prepare 11 ticks (10.6 from the swing) + recover 7.4 (raw 4 x 1.5 x tempo 1.24); speed 833 = gait 675 x agi 1.00 x enc 1.24 x wounds 1.00 x fatigue 1.00 (tempo 1.24)
+attacker: axe lvl 4 -> effective 4.7 (attributes +0.0, fighter 3, condition x0.99, from the front)
+defence: block eff 5.7; contest P(through) 0.45 + saturation 0.00 (0 recent) -> 0.45
+[roll:contest:block] 0.20 vs 0.45 -> gets through
+[roll:part] 553/5674 -> neck
+[roll:strike_quality] z -1.30 -> q 0.59 (mean 0.88, sd 0.23)
+SWING: tau 77.6 Nm x theta 2.0 -> E 133 J; I = 5.43 kgm2 (arm 0.65m/3.5kg, weapon 2.76kg); omega 7.6 -> v 11.4 m/s; drag x0.93, vel x1.12 -> v 11.8; m_eff 2.40 -> p 28.3; prepare 0.53 s (STR 1000 eff, grip x1.0)
+x quality 0.59 -> p 16.6, E 78 J; copper bearded axe (copper, q x1.0, Sha 1.00), edge contact 30000, cutting depth 35 mm
+  skin (skin 2mm): EDGE E 78 >= R 11 -> cut 100% deep, dmg +1.00 (TOU x1.00); E 74, p 15.8
+  fat (fat 2mm): EDGE E 74 >= R 5 -> cut 100% deep, dmg +1.00 (TOU x1.00); E 71, p 15.0
+  muscle (muscle 15mm): EDGE E 71 >= R 11 -> cut 100% deep, dmg +1.00 (TOU x1.00); E 67, p 14.2
+[roll:artery:muscle] 0.66 vs 0.25 -> missed
+[roll:inner] 51/100 -> upper spine
+  upper spine (bone 12mm): EDGE E 67 < R 69 -> edge stopped, blunt
+  upper spine (bone 12mm): BLUNT p 14.2 < R 144.8 -> holds; strain 100/50000 -> p 0.03
+nothing left of the blow
+[roll:lodge] 0.94 vs 0.10 -> comes free
+pain +14 (raw 45 x tolerance 0.30) -> 14; bleed +0.036/tick (total 0.036); blood 100/100
+stagger: p 16.6 / stability 41.0 = 0.41
+
+[t105] Bram Kettle slashes the human warrior Osric in the right lower leg with his copper arming sword, slicing through the muscle and notching the bone!
+    Skin: sliced through.
+    The fat is sliced through.
+    Muscle: sliced through.
+    The bone is chipped (82% deep).
+    The motor nerve is severed: the right lower leg hangs useless.
+    The sensory nerve is cut: the human warrior Osric feels nothing in the right lower leg.
+    Linen trousers: split (scrap after the battle).
+    The cut runs through the muscle from top left to bottom right.
+[roll:attack] 4/9 -> slash
+timing: prepare 7 ticks (7.3 from the swing) + recover 5.8 (raw 3 x 1.5 x tempo 1.28); speed 866 = gait 675 x agi 1.00 x enc 1.23 x wounds 1.04 x fatigue 1.00 (tempo 1.28)
+attacker: sword lvl 4 -> effective 4.3 (attributes +0.0, fighter 3, condition x0.90, from the front)
+defence: block eff 5.7; contest P(through) 0.43 + saturation 0.05 (1 recent) -> 0.48
+[roll:contest:block] 0.01 vs 0.48 -> gets through
+[roll:part] 5125/5674 -> right lower leg
+[roll:strike_quality] z 1.54 -> q 1.23 (mean 0.88, sd 0.23)
+SWING: tau 74.0 Nm x theta 2.0 -> E 133 J; I = 2.50 kgm2 (arm 0.65m/3.5kg, weapon 2.68kg); omega 10.9 -> v 16.9 m/s; drag x0.95, vel x1.12 -> v 18.0; m_eff 1.04 -> p 18.6; prepare 0.37 s (STR 1000 eff, grip x1.0)
+x quality 1.23 -> p 22.8, E 164 J; copper arming sword (copper, q x1.0, Sha 1.00), edge contact 20000, cutting depth 49 mm
+[roll:cover:linen trousers] 0.61 vs 1.00 -> covered
+  linen trousers (1mm): EDGE E 164 >= R 15 -> cut through; E 156, p 21.7, depth left 48mm
+  linen trousers split here (spot weakness 1.00); broken: scrap after the battle
+  skin (skin 2mm): EDGE E 156 >= R 10 -> cut 100% deep, dmg +1.00 (TOU x1.00); E 148, p 20.6
+  fat (fat 3mm): EDGE E 148 >= R 5 -> cut 100% deep, dmg +1.00 (TOU x1.00); E 140, p 19.5
+  muscle (muscle 25mm): EDGE E 140 >= R 10 -> cut 100% deep, dmg +1.00 (TOU x1.00); E 133, p 18.6
+[roll:artery:muscle] 0.69 vs 0.25 -> missed
+[roll:organ:tendon] 0.52 vs 0.30 -> missed
+  bone (bone 22mm): EDGE E 133 >= R 65 -> cut 82% deep, dmg +0.82 (TOU x1.00); E 127, p 17.6
+[roll:lodge] 0.19 vs 0.04 -> comes free
+pain +59 (raw 195 x tolerance 0.30) -> 59; bleed +0.046/tick (total 0.046); blood 100/100
+stagger: p 22.8 / stability 41.0 = 0.56
+
+--- story view ---
+[t81] Bram Kettle bellows, "God and the Crown!"
+[t81] Bram Kettle's stab slams into the human warrior Osric's copper kite shield.
+[t88] The human warrior Osric hacks Bram Kettle in the neck with his copper bearded axe, slicing through the muscle!
+[t92] The human warrior Osric gets his copper kite shield in the way of Bram Kettle's stab.
+[t105] Bram Kettle slashes the human warrior Osric in the right lower leg with his copper arming sword, slicing through the muscle and notching the bone!
+[t118] Bram Kettle's copper arming sword bites deep into the human warrior Osric's head, slicing through the skull and tearing open the brain, ending him in a spray of brains!
+[t118] Bram Kettle shouts, "One down! Hold the line!"
+[t118] The human warrior Osric has been killed by Bram Kettle (brain destroyed).
+[t118] Bram Kettle grows from the battle: STR +4, KIN +5, AGI +3, WIL +1.
+states: recovering blood 99 / dead blood 99
+== res://tests/test_sim_duel.gd: PASS ==

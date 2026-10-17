@@ -1,0 +1,14 @@
+{
+  "Run": "v004-13-final-script-registration",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v004-model-import\\candidate\\game",
+    "--editor",
+    "--import",
+    "--quit"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 4.41
+}

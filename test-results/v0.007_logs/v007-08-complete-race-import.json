@@ -1,0 +1,12 @@
+{
+  "Run": "v007-08-complete-race-import",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v007-source-verification/game",
+    "--import"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 4.806
+}

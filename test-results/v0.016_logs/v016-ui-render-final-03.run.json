@@ -1,0 +1,19 @@
+{
+  "Run": "v016-ui-render-final-03",
+  "Arguments": [
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v016-candidate\\game",
+    "--resolution",
+    "2560x1440",
+    "--position",
+    "-20000,-20000",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=tests/test_combat_log_ui_v016.gd",
+    "--report-dir=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v016-ui-render/final03",
+    "--watchdog=40"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 11.221
+}

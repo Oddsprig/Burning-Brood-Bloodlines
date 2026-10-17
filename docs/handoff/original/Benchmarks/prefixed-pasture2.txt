@@ -1,0 +1,26 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: prefixed-pasture2
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 5.406s | exit 0
+FAIL | tests/test_pasture_assignment_v046.gd | 13.359s | exit 8
+  1 occurrence(s): FAIL: immediately after native pasture arrival: civilian assignments equal actual available adults {"assigned":2,"available":1,"civilian_register":1,"family":25,"serve":{"pasture":1}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: every paid adult place belongs to a real civilian {"actual_jobs":{},"family":25,"recorded_jobs":{"45":1}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: civilian assignments equal actual available adults {"assigned":2,"available":1,"civilian_register":1,"family":25,"serve":{"pasture":1}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: every paid adult place belongs to a real civilian {"actual_jobs":{},"family":25,"recorded_jobs":{"45":1}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: civilian assignments equal actual available adults {"assigned":3,"available":2,"civilian_register":2,"family":27,"serve":{"militia":0,"pasture":1}}
+  1 occurrence(s): FAIL: immediately after native pasture arrival: every paid adult place belongs to a real civilian {"actual_jobs":{"15":1},"family":27,"recorded_jobs":{"15":1,"47":1}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: civilian assignments equal actual available adults {"assigned":3,"available":2,"civilian_register":2,"family":27,"serve":{"militia":0,"pasture":1}}
+  1 occurrence(s): FAIL: subsequent asynchronous battle step: every paid adult place belongs to a real civilian {"actual_jobs":{"15":1},"family":27,"recorded_jobs":{"15":1,"47":1}}
+FAIL | tests/test_pasture_sickness_v046.gd | 7.516s | exit 5
+  1 occurrence(s): FAIL: queued sickness releases exactly the dead defender's pasture service slot {"living_pasture_people":0,"recorded_pasture":1}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: civilian assignments equal actual available adults {"assigned":1,"available":1,"civilian_register":2,"family":27,"serve":{"militia":0,"pasture":1}}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: own work, keepers and idle each belong to real civilians {"actual":{"casual":{},"idle":1,"jobs":{},"keepers":0,"own":1},"family":27,"hands":1,"idle":0,"keeps":[]}
+  1 occurrence(s): FAIL: after actual queued pasture sickness death: service counts equal exactly the actual serving people (zero entries allowed) {"actual_services":{},"family":27,"recorded_services":{"pasture":1}}
+  1 occurrence(s): FAIL: native raid cleanup: each actual Census death corresponds to its removed register PID {"row":[14.0,-1,"Jasper Elmstead",-1,-1,"battle","in a fight",27,"",0]}
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-prefixed-pasture2
+Source receipt SHA256: 245366abef0b30f9c0733b82ecc65a396d405695801a01d2e9fd2e3827903d90
+
+Notes (you can write here):

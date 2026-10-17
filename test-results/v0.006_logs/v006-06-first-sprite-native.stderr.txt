@@ -1,0 +1,49 @@
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "near" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://art/mounted_rider_art.gd:30)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://tests/runner.gd:31)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "weapon_hand" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://art/mounted_rider_art.gd:39)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://tests/runner.gd:31)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+   at: GDScript::reload (res://art/dragon_mount_preview_art.gd:0)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://tests/runner.gd:31)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+   at: GDScript::reload (res://tests/capture_sprite.gd:0)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://tests/runner.gd:31)
+ERROR: Failed to load script "res://tests/capture_sprite.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://tests/runner.gd:31)
+WARNING: Loaded resource as image file, this will not work on export: 'res://art/dragons/wyvern_spirewing_ground_v006.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+   at: load_from_file (core/io/image.cpp:2780)
+   GDScript backtrace (most recent call first):
+       [0] _asset (res://art/dragon_art.gd:37)
+       [1] model (res://art/dragon_art.gd:78)
+       [2] framing (res://art/dragon_art.gd:217)
+       [3] image_for (res://art/dragon_art.gd:226)
+       [4] run (res://tests/capture_sprite.gd:8)
+       [5] _ready (res://tests/runner.gd:41)
+SCRIPT ERROR: Invalid call. Nonexistent function 'render_layers' in base 'GDScript'.
+   at: framing (res://art/dragon_mount_preview_art.gd:30)
+   GDScript backtrace (most recent call first):
+       [0] framing (res://art/dragon_mount_preview_art.gd:30)
+       [1] image_for (res://art/dragon_mount_preview_art.gd:91)
+       [2] run (res://tests/capture_sprite.gd:12)
+       [3] _ready (res://tests/runner.gd:41)
+SCRIPT ERROR: Invalid access to property or key 'rider_layers' on a base object of type 'Dictionary'.
+   at: image_for (res://art/dragon_mount_preview_art.gd:93)
+   GDScript backtrace (most recent call first):
+       [0] image_for (res://art/dragon_mount_preview_art.gd:93)
+       [1] run (res://tests/capture_sprite.gd:12)
+       [2] _ready (res://tests/runner.gd:41)
+SCRIPT ERROR: Cannot call method 'save_png' on a null value.
+   at: run (res://tests/capture_sprite.gd:12)
+   GDScript backtrace (most recent call first):
+       [0] run (res://tests/capture_sprite.gd:12)
+       [1] _ready (res://tests/runner.gd:41)

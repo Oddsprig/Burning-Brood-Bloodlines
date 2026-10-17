@@ -1,0 +1,4 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Arms performance conservation: 68 checks; 0 failures
+== res://tests/test_arms_performance.gd: PASS ==

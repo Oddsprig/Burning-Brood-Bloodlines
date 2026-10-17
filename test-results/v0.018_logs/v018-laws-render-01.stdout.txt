@@ -1,0 +1,5 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.88 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 5090 Laptop GPU
+
+house laws v018: 100 checks, 0 failures, 12 desktop fit cases
+== res://tests/test_house_laws_v018.gd: PASS ==

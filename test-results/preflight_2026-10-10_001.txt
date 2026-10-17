@@ -1,0 +1,18 @@
+BURNING BROOD: BLOODLINES - SOURCE IMPORT VERIFICATION
+Date: 2026-10-10 | Scope: setup integrity only
+Source: Copper Oath v0.046, commit 1c676972da7b5778a5a2ee50b423756663395ced
+Archive: docs/handoff/original/BASE_SOURCE_v0.046.zip
+Archive SHA256:
+1f5b436c267c1da5a59c2feecc41960be6bc052c8ad23ea78de82ea59dab2fae
+
+Checks: source archive hash matched original MANIFEST.json; all archive entry
+paths stayed inside the new project; all 785 imported source files matched
+their original manifest hashes. No mismatches or missing files.
+Result: PASS for baseline source import.
+Duration: 2.05 seconds for the import/verification tool command.
+
+Engine runs: 0. Gameplay tests: NOT RUN.
+No player-facing game launch or device control occurred.
+No new ruler, interface or dragon gameplay is claimed by this report.
+Later project identity changes will intentionally differ from the imported
+baseline and must be recorded separately.

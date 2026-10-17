@@ -1,0 +1,20 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: final4-focus
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 5.641s | exit 0
+PASS | tests/test_household_food_v046.gd | 2.250s | exit 0
+PASS | tests/test_land_capacity_v046.gd | 33.172s | exit 0
+PASS | tests/test_guard_death_v046.gd | 33.922s | exit 0
+PASS | tests/test_hiring_timing_v046.gd | 18.343s | exit 0
+PASS | tests/test_harvest_ownership.gd | 7.406s | exit 0
+PASS | tests/test_farm_retention.gd | 7.250s | exit 0
+PASS | tests/test_pasture_assignment_v046.gd | 13.812s | exit 0
+PASS | tests/test_pasture_sickness_v046.gd | 7.985s | exit 0
+PASS | tests/test_pasture_raids.gd | 24.641s | exit 0
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-final4-focus
+Source receipt SHA256: 93156baaaf0ab27c3354cde8bd8a249ea4660decd641276094f06277aae9a9a5
+
+Notes (you can write here):

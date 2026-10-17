@@ -1,0 +1,10 @@
+{
+  "full_log_pass": false,
+  "run": "v011-map-pixels-final",
+  "errors": [
+    "== res://tests/diag_map_batch_v011.gd: FAIL (1) ==",
+    "FAIL map batch: private image evidence"
+  ],
+  "error_count": 2,
+  "known_certificate_environment_line_count": 1
+}

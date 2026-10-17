@@ -1,0 +1,3896 @@
+{
+  "_note": "Town economy (docs/specs/economy-1-town.md; code campaign/town_econ.gd, families.gd, businesses.gd, goods.gd). Every number is a tuned default [ours]. Goods are integer counts held by a town market, a town barn (harvest stores), a granary, a family, a caravan or the company; gold is held by markets, businesses, families, treasuries, caravans and the company. Food units are meals' worth (a person eats 2 a day); beer is mugs, wine is cups (the company's own units). price = base gold; weight = kg per unit; spoils = days a stock lasts on its own (0 = never).",
+  "goods": {
+    "_goods_note": "Prices in coins (coinage: 100 coins = a labourer's day). Barge base prices converted to our units where a good matches (grain 52 a peck of 5 kg -> a meal of 0.35 kg = 3.6; pork 30 a catty -> a 0.4 kg meal = 20; firewood 10; wine 20; clothes 350; hoe 200); the rest are the old gold prices x20 (the coin factor) [ours]. bcat: barge goods category (data barge.categories: target days, elasticity, ceiling, perish days); perish overrides the category's perish days (0 = keeps).",
+    "grain": {
+      "name": "grain",
+      "unit": "meals' worth",
+      "cat": "food",
+      "bcat": "staple",
+      "price": 3.6,
+      "weight": 0.4,
+      "spoils": 0
+    },
+    "fruit": {
+      "name": "fruit",
+      "unit": "meals' worth",
+      "cat": "food",
+      "bcat": "produce",
+      "perish": 30,
+      "price": 5.0,
+      "weight": 0.5,
+      "spoils": 30
+    },
+    "meat": {
+      "name": "meat",
+      "unit": "meals' worth",
+      "cat": "food",
+      "bcat": "meat",
+      "perish": 120,
+      "price": 20.0,
+      "weight": 0.4,
+      "spoils": 120
+    },
+    "beer": {
+      "name": "beer",
+      "unit": "mugs",
+      "cat": "drink",
+      "bcat": "drink",
+      "price": 6.0,
+      "weight": 0.6,
+      "spoils": 0
+    },
+    "wine": {
+      "name": "wine",
+      "unit": "cups",
+      "cat": "drink",
+      "bcat": "drink",
+      "price": 20.0,
+      "weight": 0.3,
+      "spoils": 0
+    },
+    "flax": {
+      "name": "flax",
+      "unit": "bundles",
+      "cat": "raw",
+      "bcat": "material",
+      "price": 20.0,
+      "weight": 1.0,
+      "spoils": 0
+    },
+    "wool": {
+      "name": "wool",
+      "unit": "fleeces",
+      "cat": "raw",
+      "bcat": "material",
+      "price": 40.0,
+      "weight": 1.5,
+      "spoils": 0
+    },
+    "hides": {
+      "name": "hides",
+      "unit": "hides",
+      "cat": "raw",
+      "bcat": "material",
+      "perish": 120,
+      "price": 24.0,
+      "weight": 4.0,
+      "spoils": 120
+    },
+    "wood": {
+      "name": "wood",
+      "unit": "loads",
+      "cat": "raw",
+      "bcat": "fuel",
+      "price": 10.0,
+      "weight": 20.0,
+      "spoils": 0
+    },
+    "stone": {
+      "name": "stone",
+      "unit": "loads",
+      "cat": "raw",
+      "bcat": "material",
+      "price": 20.0,
+      "weight": 40.0,
+      "spoils": 0
+    },
+    "copper_ore": {
+      "name": "copper ore",
+      "unit": "baskets",
+      "cat": "raw",
+      "bcat": "material",
+      "price": 40.0,
+      "weight": 20.0,
+      "spoils": 0
+    },
+    "tin_ore": {
+      "name": "tin ore",
+      "unit": "baskets",
+      "cat": "raw",
+      "bcat": "material",
+      "price": 50.0,
+      "weight": 20.0,
+      "spoils": 0
+    },
+    "linen": {
+      "name": "linen cloth",
+      "unit": "bolts",
+      "cat": "made",
+      "bcat": "cloth",
+      "price": 90.0,
+      "weight": 1.0,
+      "spoils": 0
+    },
+    "wool_cloth": {
+      "name": "wool cloth",
+      "unit": "bolts",
+      "cat": "made",
+      "bcat": "cloth",
+      "price": 130.0,
+      "weight": 1.5,
+      "spoils": 0
+    },
+    "leather": {
+      "name": "leather",
+      "unit": "skins",
+      "cat": "made",
+      "bcat": "material",
+      "price": 50.0,
+      "weight": 2.0,
+      "spoils": 0
+    },
+    "clothing": {
+      "name": "clothing",
+      "unit": "sets",
+      "cat": "made",
+      "bcat": "cloth",
+      "price": 350.0,
+      "weight": 1.5,
+      "spoils": 0
+    },
+    "blankets": {
+      "name": "blankets",
+      "unit": "blankets",
+      "cat": "made",
+      "bcat": "household",
+      "price": 520.0,
+      "weight": 2.0,
+      "spoils": 0
+    },
+    "tools": {
+      "name": "tools",
+      "unit": "sets",
+      "cat": "made",
+      "bcat": "tool",
+      "price": 200.0,
+      "weight": 3.0,
+      "spoils": 0
+    },
+    "furniture": {
+      "name": "household goods",
+      "unit": "pieces",
+      "cat": "made",
+      "bcat": "household",
+      "price": 200.0,
+      "weight": 25.0,
+      "spoils": 0
+    },
+    "copper_bars": {
+      "name": "copper bars",
+      "unit": "bars",
+      "cat": "bars",
+      "bcat": "metal",
+      "price": 140.0,
+      "weight": 1.0,
+      "spoils": 0
+    },
+    "tin_bars": {
+      "name": "tin bars",
+      "unit": "bars",
+      "cat": "bars",
+      "bcat": "metal",
+      "price": 160.0,
+      "weight": 1.0,
+      "spoils": 0
+    },
+    "bronze_bars": {
+      "name": "bronze bars",
+      "unit": "bars",
+      "cat": "bars",
+      "bcat": "metal",
+      "price": 180.0,
+      "weight": 1.0,
+      "spoils": 0
+    },
+    "jewelry": {
+      "name": "jewelry",
+      "unit": "pieces",
+      "cat": "made",
+      "bcat": "household",
+      "price": 600.0,
+      "weight": 0.1,
+      "spoils": 0
+    },
+    "scrap_copper": {
+      "name": "copper scrap",
+      "unit": "kg",
+      "cat": "raw",
+      "bcat": "metal",
+      "price": 80.0,
+      "weight": 1.0,
+      "spoils": 0
+    },
+    "scrap_tin": {
+      "name": "tin scrap",
+      "unit": "kg",
+      "cat": "raw",
+      "bcat": "metal",
+      "price": 80.0,
+      "weight": 1.0,
+      "spoils": 0
+    },
+    "scrap_bronze": {
+      "name": "bronze scrap",
+      "unit": "kg",
+      "cat": "raw",
+      "bcat": "metal",
+      "price": 100.0,
+      "weight": 1.0,
+      "spoils": 0
+    },
+    "_iron_goods_note": "Iron and steel (v0.012, docs/specs/next/02-steel-assay-house.md), made the Dwarf Fortress way: iron ore smelts to iron bars (2 ore + 1 load of fuel a bar, as copper); iron bar + flux stone + fuel -> pig iron; pig iron + iron bar + flux + fuel -> 2 steel bars. A steel bar so burns 2 loads of fuel (iron 1) and 1 basket of flux. Flux stone is limestone mined from its own deposits. Prices [ours]: iron bars a little over copper and tin, pig iron its inputs, steel bars about twice its inputs' cost (few can make it).",
+    "iron_ore": {
+      "name": "iron ore",
+      "unit": "baskets",
+      "cat": "raw",
+      "bcat": "material",
+      "price": 40.0,
+      "weight": 20.0,
+      "spoils": 0
+    },
+    "flux": {
+      "name": "flux stone",
+      "unit": "baskets",
+      "cat": "raw",
+      "bcat": "material",
+      "price": 12.0,
+      "weight": 20.0,
+      "spoils": 0
+    },
+    "iron_bars": {
+      "name": "iron bars",
+      "unit": "bars",
+      "cat": "bars",
+      "bcat": "metal",
+      "price": 160.0,
+      "weight": 1.0,
+      "spoils": 0
+    },
+    "pig_iron": {
+      "name": "pig iron",
+      "unit": "bars",
+      "cat": "bars",
+      "bcat": "metal",
+      "price": 200.0,
+      "weight": 1.0,
+      "spoils": 0
+    },
+    "steel_bars": {
+      "name": "steel bars",
+      "unit": "bars",
+      "cat": "bars",
+      "bcat": "metal",
+      "price": 400.0,
+      "weight": 1.0,
+      "spoils": 0
+    },
+    "scrap_iron": {
+      "name": "iron scrap",
+      "unit": "kg",
+      "cat": "raw",
+      "bcat": "metal",
+      "price": 90.0,
+      "weight": 1.0,
+      "spoils": 0
+    },
+    "scrap_steel": {
+      "name": "steel scrap",
+      "unit": "kg",
+      "cat": "raw",
+      "bcat": "metal",
+      "price": 150.0,
+      "weight": 1.0,
+      "spoils": 0
+    },
+    "_bows_goods_note": "bows (docs/specs/bows.md section 6): staves are bow-grade wood split by the bowyer (green) that season for months; horn and sinew come from butchery and the hunt, glue from the tanner (hides), feathers from the hunt and barnyard fowl (bundles of 100), arrowheads from the smiths (one bar of copper or tin makes 80). Arrows are counted per arrow (ids as data/bows.json). Bows themselves are Items on the arms stalls. Green staves 70 coins [ours, priced against the 6 loads of wood they take].",
+    "staves_green": {
+      "name": "green staves",
+      "unit": "staves",
+      "cat": "raw",
+      "bcat": "material",
+      "price": 70.0,
+      "weight": 2.0,
+      "spoils": 0
+    },
+    "staves": {
+      "name": "seasoned staves",
+      "unit": "staves",
+      "cat": "raw",
+      "bcat": "material",
+      "price": 120.0,
+      "weight": 1.5,
+      "spoils": 0
+    },
+    "horn": {
+      "name": "horn",
+      "unit": "horns",
+      "cat": "raw",
+      "bcat": "material",
+      "price": 20.0,
+      "weight": 0.5,
+      "spoils": 0
+    },
+    "sinew": {
+      "name": "sinew",
+      "unit": "bundles",
+      "cat": "raw",
+      "bcat": "material",
+      "perish": 90,
+      "price": 16.0,
+      "weight": 0.2,
+      "spoils": 90
+    },
+    "glue": {
+      "name": "hide glue",
+      "unit": "pots",
+      "cat": "made",
+      "bcat": "material",
+      "price": 24.0,
+      "weight": 0.5,
+      "spoils": 0
+    },
+    "feathers": {
+      "name": "feathers",
+      "unit": "bundles of 100",
+      "cat": "raw",
+      "bcat": "material",
+      "price": 16.0,
+      "weight": 0.3,
+      "spoils": 0
+    },
+    "heads_copper": {
+      "name": "copper arrowheads",
+      "unit": "heads",
+      "cat": "made",
+      "bcat": "metal",
+      "price": 2.0,
+      "weight": 0.012,
+      "spoils": 0
+    },
+    "heads_tin": {
+      "name": "tin arrowheads",
+      "unit": "heads",
+      "cat": "made",
+      "bcat": "metal",
+      "price": 2.2,
+      "weight": 0.01,
+      "spoils": 0
+    },
+    "arrow_wood": {
+      "name": "wooden arrows",
+      "unit": "arrows",
+      "cat": "arms",
+      "bcat": "weapon",
+      "price": 3.0,
+      "weight": 0.04,
+      "spoils": 0
+    },
+    "arrow_copper_bodkin": {
+      "name": "copper bodkin arrows",
+      "unit": "arrows",
+      "cat": "arms",
+      "bcat": "weapon",
+      "price": 8.0,
+      "weight": 0.055,
+      "spoils": 0
+    },
+    "arrow_copper_broad": {
+      "name": "copper broadhead arrows",
+      "unit": "arrows",
+      "cat": "arms",
+      "bcat": "weapon",
+      "price": 9.0,
+      "weight": 0.06,
+      "spoils": 0
+    },
+    "arrow_tin_bodkin": {
+      "name": "tin bodkin arrows",
+      "unit": "arrows",
+      "cat": "arms",
+      "bcat": "weapon",
+      "price": 7.0,
+      "weight": 0.052,
+      "spoils": 0
+    },
+    "arrow_tin_broad": {
+      "name": "tin broadhead arrows",
+      "unit": "arrows",
+      "cat": "arms",
+      "bcat": "weapon",
+      "price": 8.0,
+      "weight": 0.057,
+      "spoils": 0
+    },
+    "arrow_copper_war": {
+      "name": "heavy copper bodkin arrows",
+      "unit": "arrows",
+      "cat": "arms",
+      "bcat": "weapon",
+      "price": 14.0,
+      "weight": 0.083,
+      "spoils": 0
+    },
+    "remedy": {
+      "name": "remedies",
+      "unit": "doses",
+      "cat": "made",
+      "bcat": "household",
+      "price": 60.0,
+      "weight": 0.2,
+      "spoils": 0,
+      "_sickness": "the herbalist's herbs and simples (campaign/sickness.gd): a sick person given one is sick x0.7 days and dies x0.5 as often [ours]; price in coins (3 gold x 20)"
+    },
+    "home": {
+      "name": "new homes",
+      "unit": "homes",
+      "cat": "home",
+      "bcat": "household",
+      "price": 4000.0,
+      "weight": 0.0,
+      "spoils": 0,
+      "no_trade": true
+    },
+    "_herds_goods_note": "Herds and their trades (addendum 1 part B; campaign/herds.gd). All [ours]: fresh meat from the butcher (meals' worth, 0.4 kg; the meat category's 4 days), salted by the salter into our keeping meat; milk in litres (keeps 2 days) for the dairy; tallow and bones in kg; candles by the dozen (a dozen = 1 kg of tallow); salt in kg (0.1 kg salts a meal); fodder = hay and straw in bales (a bale = a grown cow's day of winter feed, 10 kg; keeps 240 days); wax in kg from the hives.",
+    "fresh_meat": {
+      "name": "fresh meat",
+      "unit": "meals' worth",
+      "cat": "food",
+      "bcat": "meat",
+      "price": 16.0,
+      "weight": 0.4,
+      "spoils": 4
+    },
+    "milk": {
+      "name": "milk",
+      "unit": "litres",
+      "cat": "food",
+      "bcat": "produce",
+      "perish": 2,
+      "price": 2.0,
+      "weight": 1.0,
+      "spoils": 2
+    },
+    "tallow": {
+      "name": "tallow",
+      "unit": "kg",
+      "cat": "raw",
+      "bcat": "material",
+      "price": 12.0,
+      "weight": 1.0,
+      "spoils": 0
+    },
+    "bones": {
+      "name": "bones",
+      "unit": "kg",
+      "cat": "raw",
+      "bcat": "material",
+      "price": 2.0,
+      "weight": 1.0,
+      "spoils": 0
+    },
+    "candles": {
+      "name": "candles",
+      "unit": "dozens",
+      "cat": "made",
+      "bcat": "household",
+      "price": 40.0,
+      "weight": 1.0,
+      "spoils": 0
+    },
+    "salt": {
+      "name": "salt",
+      "unit": "kg",
+      "cat": "raw",
+      "bcat": "condiment",
+      "price": 8.0,
+      "weight": 1.0,
+      "spoils": 0
+    },
+    "fodder": {
+      "name": "hay and straw",
+      "unit": "bales",
+      "cat": "raw",
+      "bcat": "material",
+      "perish": 240,
+      "price": 3.0,
+      "weight": 10.0,
+      "spoils": 240
+    },
+    "wax": {
+      "name": "wax",
+      "unit": "kg",
+      "cat": "raw",
+      "bcat": "material",
+      "price": 30.0,
+      "weight": 1.0,
+      "spoils": 0
+    },
+    "_gems_note": "v0.014 (Douglas 23:00): cut stones, one a unit. No gem mines: any ore mine now and then hits a gem pocket (gem_pockets below). Families keep them as stored wealth and sell them first when they cannot buy food; a smith's legendary piece takes one from the market. Prices [ours]: quartz and amethyst common and cheap, the rarer stones a fortune. Kept in step with Item.GEM_PRICES (core/item.gd).",
+    "quartz": {
+      "name": "rock crystal",
+      "unit": "stones",
+      "cat": "made",
+      "bcat": "household",
+      "price": 150.0,
+      "weight": 0.01,
+      "spoils": 0
+    },
+    "amethyst": {
+      "name": "amethyst",
+      "unit": "stones",
+      "cat": "made",
+      "bcat": "household",
+      "price": 400.0,
+      "weight": 0.01,
+      "spoils": 0
+    },
+    "garnet": {
+      "name": "garnet",
+      "unit": "stones",
+      "cat": "made",
+      "bcat": "household",
+      "price": 600.0,
+      "weight": 0.01,
+      "spoils": 0
+    },
+    "topaz": {
+      "name": "topaz",
+      "unit": "stones",
+      "cat": "made",
+      "bcat": "household",
+      "price": 900.0,
+      "weight": 0.01,
+      "spoils": 0
+    },
+    "sapphire": {
+      "name": "sapphire",
+      "unit": "stones",
+      "cat": "made",
+      "bcat": "household",
+      "price": 3000.0,
+      "weight": 0.01,
+      "spoils": 0
+    },
+    "ruby": {
+      "name": "ruby",
+      "unit": "stones",
+      "cat": "made",
+      "bcat": "household",
+      "price": 3500.0,
+      "weight": 0.01,
+      "spoils": 0
+    },
+    "emerald": {
+      "name": "emerald",
+      "unit": "stones",
+      "cat": "made",
+      "bcat": "household",
+      "price": 3200.0,
+      "weight": 0.01,
+      "spoils": 0
+    }
+  },
+  "_gem_pockets_note": "v0.014 (Douglas 23:00) [ours, tunable]: chance per basket of ore dug that the miners hit a gem pocket (one stone). Which stone follows the rock: base weights, times hilly (6+ hill or mountain cells near the town: metamorphic country) or by the ore (tin: granite, so topaz and emerald; flux: limestone and marble, so ruby). Families buy stones: per_year = stones a year a family of each class wants (poor, middling, rich) out of its 'rest' budget; the rich take the dearest stone on offer, the middling the cheapest.",
+  "gem_pockets": {
+    "chance": 0.002,
+    "weights": {
+      "quartz": 50.0,
+      "amethyst": 25.0,
+      "garnet": 8.0,
+      "topaz": 4.0,
+      "sapphire": 1.5,
+      "ruby": 1.2,
+      "emerald": 1.0
+    },
+    "hilly": {
+      "garnet": 3.0,
+      "sapphire": 2.0,
+      "ruby": 2.0
+    },
+    "ore": {
+      "tin_ore": {
+        "topaz": 4.0,
+        "emerald": 3.0
+      },
+      "flux": {
+        "ruby": 2.0
+      },
+      "iron_ore": {
+        "garnet": 1.5
+      }
+    },
+    "per_year": [
+      0.0,
+      0.5,
+      3.0
+    ],
+    "sell_share": 0.8
+  },
+  "_bars_note": "One bar = 1 kg of metal. A smith spends ceil(metal kg of the item) bars plus one load of wood for a haft or handle.",
+  "metal_bars": {
+    "copper": "copper_bars",
+    "tin": "tin_bars",
+    "bronze": "bronze_bars",
+    "iron": "iron_bars",
+    "steel": "steel_bars"
+  },
+  "_deposits_note": "v0.014 (Douglas 22:26-22:27), all [ours]: the chance a city has each deposit, by the ground near it: [flat, some hills (1-5 hill or mountain cells), hilly (6+), a mining town]. Each kind is rolled on its own (EconGen._deposits), so all four together is a rarity of geology, not a cap. Copper and iron are hill ores (bog iron on the flat too); flux is limestone or chalk, common on low ground as well. Tin only within tin_belt_r (share of the map's width) of one of tin_belts points on hill or mountain cells (granite country); outside a belt tin_out in hills, none on the flat.",
+  "deposits": {
+    "copper_ore": [
+      0.04,
+      0.25,
+      0.4,
+      0.55
+    ],
+    "iron_ore": [
+      0.15,
+      0.25,
+      0.35,
+      0.5
+    ],
+    "flux": [
+      0.2,
+      0.25,
+      0.3,
+      0.3
+    ],
+    "tin_ore": [
+      0.0,
+      0.25,
+      0.4,
+      0.5
+    ],
+    "tin_belts": 3,
+    "tin_belt_r": 0.12,
+    "tin_out": 0.02
+  },
+  "_smith_bars_note": "v0.014 [ours]: the bars a weaponsmith or armourer keeps wanting, per worker-day, placed as market demand every working day (the market's normal stock of the good = that demand x its days of cover, so it is the shop's stockpile target and the price follows it). per: bars a worker-day; knowhow: scaled by the town's usable know-how in it / 100 (Businesses.kh_of: the faction's, and for bronze the town's own practice under it), none at 0. Copper and tin are wanted only when the bins are bare (Businesses._arms).",
+  "smith_bars": {
+    "iron_bars": {
+      "per": 0.5,
+      "knowhow": "iron"
+    },
+    "steel_bars": {
+      "per": 0.5,
+      "knowhow": "steel"
+    },
+    "bronze_bars": {
+      "per": 0.5,
+      "knowhow": "bronze"
+    }
+  },
+  "_needs_note": "Per person per day unless noted. food_mix: the diet shares; a food that runs short is covered by the others at cover_eff (1 unit covers 0.8 of a missing one). firewood per home per day x season x climate. wear: days one unit lasts (clothing per person, blankets/furniture per home, tools per worker).",
+  "needs": {
+    "food": 2.0,
+    "food_mix": {
+      "grain": 0.65,
+      "fruit": 0.15,
+      "meat": 0.2
+    },
+    "cover_eff": 0.8,
+    "drink_adult": 1.0,
+    "firewood_home": 0.5,
+    "firewood_season": [
+      0.8,
+      0.3,
+      1.0,
+      2.0
+    ],
+    "wear_days": {
+      "clothing": 180,
+      "blankets": 365,
+      "tools": 150,
+      "furniture": 500,
+      "jewelry": 240,
+      "candles": 30
+    },
+    "target_days": 14,
+    "family_targets": {
+      "food": 30,
+      "drink": 14,
+      "wood": 14
+    },
+    "granary_days": 12,
+    "family_stock_days": 14
+  },
+  "_season_note": "Season index 0 spring, 1 summer, 2 autumn, 3 winter (campaign/calendar.gd). spoil: stock loss multiplier.",
+  "season_spoil": [
+    1.0,
+    1.3,
+    1.0,
+    0.6
+  ],
+  "climates": {
+    "cold": {
+      "name": "cold",
+      "grain": [
+        "rye",
+        "barley",
+        "oats"
+      ],
+      "fruit": [
+        "apples"
+      ],
+      "herds": [
+        "sheep",
+        "cattle",
+        "goats"
+      ],
+      "firewood": 1.6,
+      "spoil": 0.7,
+      "grain_yield": 0.8,
+      "fruit_yield": 0.7
+    },
+    "temperate": {
+      "name": "temperate",
+      "grain": [
+        "wheat",
+        "barley"
+      ],
+      "fruit": [
+        "apples",
+        "pears"
+      ],
+      "herds": [
+        "sheep",
+        "pigs",
+        "cattle"
+      ],
+      "firewood": 1.0,
+      "spoil": 1.0,
+      "grain_yield": 1.0,
+      "fruit_yield": 1.0
+    },
+    "hot": {
+      "name": "hot",
+      "grain": [
+        "wheat",
+        "millet"
+      ],
+      "fruit": [
+        "grapes",
+        "figs"
+      ],
+      "herds": [
+        "goats",
+        "pigs"
+      ],
+      "firewood": 0.4,
+      "spoil": 1.5,
+      "grain_yield": 0.95,
+      "fruit_yield": 1.25
+    },
+    "dry": {
+      "name": "dry",
+      "grain": [
+        "millet",
+        "barley"
+      ],
+      "fruit": [
+        "grapes",
+        "figs"
+      ],
+      "herds": [
+        "horses",
+        "goats",
+        "sheep"
+      ],
+      "firewood": 0.8,
+      "spoil": 1.1,
+      "grain_yield": 0.75,
+      "fruit_yield": 0.8
+    }
+  },
+  "_climate_note": "latitude (Calendar.latitude) > cold_lat = cold, < hot_lat = hot. v0.012: a town in the dry eastern band (WorldGen.dryness at the town >= dry_min) is 'dry' whatever its latitude: steppe and dry hills, millet and barley, poorer grain (0.75) and fruit (0.8), little grass in summer (animals.grass_climate.dry), hot summers and cold winters (barge.temp.dry) [ours]. herds: no longer read at world gen (the culture's start mix decides the herds since v0.012); kept as the climate's natural stock for the record.",
+  "dry_min": 0.5,
+  "cold_lat": 0.35,
+  "hot_lat": -0.35,
+  "varieties": {
+    "rye": {
+      "food": "rye",
+      "drink": "rye ale"
+    },
+    "barley": {
+      "food": "barley",
+      "drink": "barley ale"
+    },
+    "oats": {
+      "food": "oats",
+      "drink": "oat ale"
+    },
+    "wheat": {
+      "food": "wheat",
+      "drink": "wheat beer"
+    },
+    "millet": {
+      "food": "millet",
+      "drink": "millet beer"
+    },
+    "apples": {
+      "food": "apples",
+      "drink": "cider"
+    },
+    "pears": {
+      "food": "pears",
+      "drink": "perry"
+    },
+    "grapes": {
+      "food": "grapes",
+      "drink": "wine"
+    },
+    "figs": {
+      "food": "figs",
+      "drink": "fig wine"
+    },
+    "sheep": {
+      "food": "mutton"
+    },
+    "pigs": {
+      "food": "pork"
+    },
+    "cattle": {
+      "food": "beef"
+    },
+    "goats": {
+      "food": "goat"
+    },
+    "horses": {
+      "food": "horse meat"
+    },
+    "donkeys": {
+      "food": "donkey meat"
+    },
+    "deer": {
+      "food": "venison"
+    },
+    "boar": {
+      "food": "boar"
+    },
+    "wolf": {
+      "food": "wolf"
+    },
+    "fish": {
+      "food": "fish"
+    }
+  },
+  "_land_note": "Fields: yield per acre per year (two grain cuts: harvest_seasons with their shares; barge part 2 section 4), acres one hand can work with an ox (acres_per_hand) and without (acres_no_ox) (barge part 3 [ours]: 8 and 4). Herds: output per head per day (meat x slaughter[season]), head one hand can keep. Land price per acre, herd price per head (coins: old gold x20).",
+  "land": {
+    "acres_per_hand": 8,
+    "acres_no_ox": 4,
+    "fallow_upkeep_share": 0.25,
+    "_fallow_upkeep_note": "[ours] Fallow needs one-quarter of ordinary cultivation upkeep, no harvest hands; physical nominal acreage and crop yields remain unchanged.",
+    "yield": {
+      "grain": 200,
+      "fruit": 160,
+      "flax": 95,
+      "fodder": 200
+    },
+    "harvest_season": 2,
+    "harvest_seasons": {
+      "grain": [
+        [
+          1,
+          0.5
+        ],
+        [
+          2,
+          0.5
+        ]
+      ],
+      "fruit": [
+        [
+          1,
+          0.5
+        ],
+        [
+          2,
+          0.5
+        ]
+      ],
+      "flax": [
+        [
+          2,
+          1.0
+        ]
+      ],
+      "fodder": [
+        [
+          1,
+          1.0
+        ]
+      ]
+    },
+    "acre_price": 1200,
+    "head_per_hand": 25,
+    "head_price": 500,
+    "slaughter": [
+      0.7,
+      0.6,
+      2.0,
+      0.7
+    ]
+  },
+  "herds": {
+    "sheep": {
+      "meat": 0.1,
+      "wool": 0.08,
+      "hides": 0.013,
+      "horn": 0.003,
+      "sinew": 0.004
+    },
+    "cattle": {
+      "meat": 0.25,
+      "hides": 0.012,
+      "horn": 0.004,
+      "sinew": 0.006
+    },
+    "pigs": {
+      "meat": 0.25,
+      "hides": 0.033,
+      "sinew": 0.004
+    },
+    "goats": {
+      "meat": 0.15,
+      "hides": 0.02,
+      "horn": 0.006,
+      "sinew": 0.004
+    },
+    "horses": {
+      "meat": 0.12,
+      "hides": 0.008,
+      "sinew": 0.004
+    },
+    "donkeys": {
+      "meat": 0.06,
+      "hides": 0.008
+    }
+  },
+  "_animals_note": "Herds as records (addendum 1 part B, DECIDED; campaign/herds.gd). Prices of a grown head in coins: barge pig 1,600; the rest the addendum's [ours] (ox 6,000, cow 4,000, sheep 500, goat 400, hen 30); rats 5 and a hive 300 [ours]. Everything else [ours] unless noted. Years are the game's years (120 days). grow: years young; prime: years grown before old; die: share dying of ailments a year (all ages); old_die: share of the old dying a year; fem: share of grown that are female; bear: share of females giving birth each spring; litter: young each; feed: bales (or acres of pasture at a full season's grass) a grown head eats a day (the land map's grazing per head: cattle 1, sheep and goats 0.3, pigs 0.15); fallow: grazes its family's fallow and stubble, not pasture (the plough oxen); meat: kg a grown carcass (addendum: ox 200, pig 70, sheep 20), hides / tallow / bones / horn / sinew per head (hides come only from slaughter: the economy's old per-day herd rows size the tanners at world gen and make nothing); milk: litres a day a female in milk, milk_days after the birth; wool: fleeces a grown sheep a summer; eggs: a hen a day, honey / wax: kg a hive a day, in the laying and gathering seasons (spring to autumn; daily work is by the day, births and ages by the game year); manure: tonnes a grown head a year; per_hand: head one herdsman keeps; cold: share of the young lost a winter week in cold towns; start_young / start_old: age shares of the herds of pre-history. grass: bales an acre of pasture grows a day by season (spring, summer, autumn, winter); fallow: the oxen's fallow and stubble by season; hay_share: share of spare spring/summer grass cut as hay; hay_cap_days: the most hay a herd keeps (days of its feed); straw_acre: bales of straw an acre of grain gives at its cut; starve_after: days short before the unfed start to starve; starve_k: share of the unfed dying a week then; wear / mend / cond_min: pasture condition lost a week grazed to the full, regained lightly grazed, its floor; keep_share: share of the summer carrying a herd's owners keep (the rest offered); common_cap: acres of the common pasture a family may graze; fee_acre_week: the common pasture's fee in coins an acre a week (x the price level) to the treasury; home_kill_week: grown cattle-equivalents a hand slaughters and dresses at home a week; larder_days: days of the family's food it keeps of its own slaughter as salted or smoked meat (a year: the autumn pig); yield_age: carcass share by age (young, grown, old); young_price / old_price: price shares; kg_per_meal 0.4; eggs_per_meal 8; honey_meals: meals of staple a kg of honey; manure_acre: tonnes that manure an acre a year; manure_yield: field yield gained when every acre is manured; price: weekly step toward base x PL x (wanted / offered)^power, clamped; buy_reserve: coin a buyer keeps; restock_week: head a herd under half its keep buys a week; herder_min: head of the biggest family herd that makes it a herder's business; drover_min: grazing head a town needs for a drover; drove: hands, head a hand walks, px a day, the margin (price there / here), the raid radius, days at market before the drover sells the rest for slaughter; fodder_loan: a family with no coin borrows straw from the barns, at most max_days of its herd's feed owed, repaid x repay in kind from its own straw or in coin (barge part 2 section 7: the grain loan, 1.5x in kind at harvest; applied to fodder [ours]); sack_share: share of each herd raiders drive off when they sack a town; small: the households' small stock by culture, small_share of the families without a grazing herd keep small_n of it; names: the race's own word for a kind; Breeding uses the game year (120 days), the calendar people age and bear by, so a beast's life keeps step with its owners' (a cow lives about as many of their years as in life); real gestation is set against it (gestation: game years, for the record): seasons are the seasons births fall in (pigs farrow twice a year, hens hatch twice, rats three times), bear the share of grown females in season that bear when put to the male, fpm the females one male serves (the town's males serve all its herds). breed_min: the least share of females owners breed; winter_feed_share: share of a young beast's growing days it eats winter fodder (the owners' reckoning of what raising it costs). diseases: herd-level (chance a town a year it breaks out, beta spread in a herd a week, between from the sick share of the common's beasts of its kinds, kill share of the sick a week, weeks sick, immune share of the recovered); disease_seed: share sick when it breaks out; disease_hunger: spread x when hungry; disease_no_sale: past this share sick nobody buys the herd's beasts or meat; immune_fade: share of immunity lost a year. pot_value / pot_week / pot_reserve: a family buys a beast for its larder when it costs under its meat at pot_value x the price of keeping meat (at most pot_week a town a week, keeping pot_reserve coins). land_switch / fodder_days_want: a plot goes from grain to hay meadow when an acre of hay sells for land_switch x an acre of grain and its straw and the herds have under fodder_days_want days of fodder, and back when grain pays that much more. grass_climate: bales an acre of pasture grows a day by season and climate (x the year's harvest factor: drought years grow less); owners keep what the land carries in its best season (summer in cold towns, spring elsewhere) and store feed for the shortfall of the others (about 63 days cold, 51 temperate, 35 hot). stock_reserve: coins an owner keeps when laying in winter feed. Hay meadow (land yield fodder): 200 bales an acre, cut in summer.",
+  "animals": {
+    "kinds": {
+      "cattle": {
+        "name": "cattle",
+        "one": "cow",
+        "price": 4000,
+        "grow": 2.0,
+        "prime": 8.0,
+        "die": 0.02,
+        "old_die": 0.4,
+        "fem": 0.9,
+        "bear": 0.85,
+        "litter": 1.0,
+        "seasons": [
+          0
+        ],
+        "fpm": 25,
+        "gestation": 0.78,
+        "feed": 1.0,
+        "meat": 200,
+        "hides": 1,
+        "tallow": 20,
+        "bones": 30,
+        "horn": 2,
+        "sinew": 2,
+        "milk": 3.0,
+        "milk_days": 60,
+        "manure": 7.0,
+        "per_hand": 25,
+        "cold": 0.03,
+        "start_young": 0.3,
+        "start_old": 0.1,
+        "ail": "murrain"
+      },
+      "oxen": {
+        "name": "oxen",
+        "one": "ox",
+        "price": 6000,
+        "grow": 0.0,
+        "prime": 8.0,
+        "die": 0.015,
+        "old_die": 0.4,
+        "fem": 0.0,
+        "bear": 0.0,
+        "litter": 0.0,
+        "feed": 1.0,
+        "fallow": true,
+        "meat": 200,
+        "hides": 1,
+        "tallow": 25,
+        "bones": 35,
+        "horn": 2,
+        "sinew": 2,
+        "manure": 7.0,
+        "per_hand": 8,
+        "cold": 0.0,
+        "start_young": 0.0,
+        "start_old": 0.15,
+        "ail": "murrain"
+      },
+      "sheep": {
+        "name": "sheep",
+        "one": "sheep",
+        "price": 500,
+        "grow": 1.0,
+        "prime": 5.0,
+        "die": 0.04,
+        "old_die": 0.5,
+        "fem": 0.95,
+        "bear": 0.9,
+        "litter": 1.4,
+        "seasons": [
+          0
+        ],
+        "fpm": 40,
+        "gestation": 0.41,
+        "feed": 0.3,
+        "meat": 20,
+        "hides": 1,
+        "tallow": 3,
+        "bones": 3,
+        "horn": 1,
+        "sinew": 0.5,
+        "milk": 0.3,
+        "milk_days": 40,
+        "wool": 1.0,
+        "manure": 0.6,
+        "per_hand": 60,
+        "cold": 0.04,
+        "start_young": 0.3,
+        "start_old": 0.1,
+        "ail": "foot rot"
+      },
+      "goats": {
+        "name": "goats",
+        "one": "goat",
+        "price": 400,
+        "grow": 1.0,
+        "prime": 6.0,
+        "die": 0.04,
+        "old_die": 0.5,
+        "fem": 0.95,
+        "bear": 0.9,
+        "litter": 1.6,
+        "seasons": [
+          0
+        ],
+        "fpm": 30,
+        "gestation": 0.41,
+        "feed": 0.3,
+        "meat": 18,
+        "hides": 1,
+        "tallow": 2,
+        "bones": 3,
+        "horn": 2,
+        "sinew": 0.5,
+        "milk": 1.0,
+        "milk_days": 60,
+        "manure": 0.5,
+        "per_hand": 50,
+        "cold": 0.04,
+        "start_young": 0.3,
+        "start_old": 0.1,
+        "ail": "goat pox"
+      },
+      "pigs": {
+        "name": "pigs",
+        "one": "pig",
+        "price": 1600,
+        "grow": 1.0,
+        "prime": 3.0,
+        "die": 0.05,
+        "old_die": 0.6,
+        "fem": 0.9,
+        "bear": 0.85,
+        "litter": 7.0,
+        "seasons": [
+          0,
+          2
+        ],
+        "fpm": 10,
+        "gestation": 0.31,
+        "feed": 0.15,
+        "meat": 70,
+        "hides": 1,
+        "tallow": 0,
+        "bones": 7,
+        "horn": 0,
+        "sinew": 0.5,
+        "manure": 1.2,
+        "per_hand": 40,
+        "cold": 0.05,
+        "start_young": 0.4,
+        "start_old": 0.05,
+        "ail": "swine sickness"
+      },
+      "hens": {
+        "name": "poultry",
+        "one": "fowl",
+        "price": 30,
+        "grow": 0.5,
+        "prime": 2.0,
+        "die": 0.1,
+        "old_die": 0.7,
+        "fem": 0.9,
+        "bear": 0.4,
+        "litter": 6.0,
+        "seasons": [
+          0,
+          1
+        ],
+        "fpm": 12,
+        "gestation": 0.06,
+        "feed": 0.12,
+        "meat": 1.2,
+        "eggs": 0.5,
+        "feathers": 0.2,
+        "moult": 0.001,
+        "manure": 0.02,
+        "per_hand": 200,
+        "cold": 0.08,
+        "start_young": 0.2,
+        "start_old": 0.1,
+        "ail": "the pip"
+      },
+      "horses": {
+        "name": "horses",
+        "one": "horse",
+        "price": 8000,
+        "grow": 3.0,
+        "prime": 12.0,
+        "die": 0.02,
+        "old_die": 0.35,
+        "fem": 0.85,
+        "bear": 0.55,
+        "litter": 1.0,
+        "seasons": [
+          0
+        ],
+        "fpm": 20,
+        "gestation": 0.92,
+        "feed": 1.2,
+        "meat": 250,
+        "hides": 1,
+        "tallow": 8,
+        "bones": 35,
+        "horn": 0,
+        "sinew": 2,
+        "manure": 8.0,
+        "per_hand": 15,
+        "cold": 0.02,
+        "start_young": 0.2,
+        "start_old": 0.15,
+        "ail": "colic"
+      },
+      "donkeys": {
+        "name": "donkeys and mules",
+        "one": "donkey",
+        "price": 1800,
+        "grow": 2.0,
+        "prime": 15.0,
+        "die": 0.015,
+        "old_die": 0.3,
+        "fem": 0.8,
+        "bear": 0.45,
+        "litter": 1.0,
+        "seasons": [
+          0
+        ],
+        "fpm": 15,
+        "gestation": 1.0,
+        "feed": 0.6,
+        "meat": 100,
+        "hides": 1,
+        "tallow": 3,
+        "bones": 15,
+        "horn": 0,
+        "sinew": 1,
+        "manure": 4.0,
+        "per_hand": 20,
+        "cold": 0.04,
+        "start_young": 0.2,
+        "start_old": 0.15,
+        "ail": "colic"
+      }
+    },
+    "names": {
+      "orc": {
+        "pigs": "boars"
+      },
+      "goblin": {
+        "goats": "cave goats"
+      }
+    },
+    "small": {
+      "middle": "hens",
+      "northern": "hens",
+      "orc": "hens",
+      "goblin": "hens",
+      "moon_elf": "hens",
+      "eastern": "hens",
+      "dwarf": "hens"
+    },
+    "_start_note": "Each culture's herds at world gen only [ours, from the spec's lists]; after that owners buy, sell and breed by market and land, so the mixes drift. graze: shares of the town's grazing head by kind (the head the town's meat need sizes, as before; each herding family keeps one kind, or two when it has 10+ head, picked by these shares); head_mult: the town's grazing head x this (moon elves: 'few meat beasts, kept long'). valley: kinds kept only by a town with valley land (water nearby): the dwarves' cattle. small: [share of families, fewest, most] keeping each household kind (poultry: chickens and geese; rats; hives) whatever their herds. The orcs' list has no poultry, so orc towns start without hens (they had them before v0.012). A culture with no row uses the middle row.",
+    "start": {
+      "middle": {
+        "graze": {
+          "cattle": 0.3,
+          "pigs": 0.3,
+          "sheep": 0.3,
+          "horses": 0.1
+        },
+        "small": {
+          "hens": [
+            0.6,
+            3,
+            8
+          ]
+        }
+      },
+      "northern": {
+        "graze": {
+          "sheep": 0.45,
+          "cattle": 0.35,
+          "horses": 0.12,
+          "pigs": 0.08
+        },
+        "small": {
+          "hens": [
+            0.5,
+            3,
+            8
+          ]
+        }
+      },
+      "eastern": {
+        "graze": {
+          "horses": 0.35,
+          "goats": 0.3,
+          "sheep": 0.25,
+          "cattle": 0.05,
+          "pigs": 0.05
+        },
+        "small": {
+          "hens": [
+            0.5,
+            3,
+            8
+          ]
+        }
+      },
+      "orc": {
+        "graze": {
+          "pigs": 0.6,
+          "goats": 0.3,
+          "cattle": 0.1
+        },
+        "small": {}
+      },
+      "goblin": {
+        "graze": {
+          "goats": 0.6,
+          "pigs": 0.4
+        },
+        "small": {
+          "hens": [
+            0.3,
+            3,
+            8
+          ]
+        }
+      },
+      "moon_elf": {
+        "graze": {
+          "horses": 0.35,
+          "goats": 0.35,
+          "sheep": 0.3
+        },
+        "head_mult": 0.5,
+        "small": {
+          "hens": [
+            0.5,
+            3,
+            8
+          ]
+        }
+      },
+      "dwarf": {
+        "graze": {
+          "goats": 0.35,
+          "sheep": 0.25,
+          "pigs": 0.25,
+          "donkeys": 0.1,
+          "cattle": 0.05,
+          "horses": 0.01
+        },
+        "valley": [
+          "cattle"
+        ],
+        "small": {
+          "hens": [
+            0.5,
+            3,
+            8
+          ]
+        }
+      }
+    },
+    "fodder_loan": {
+      "max_days": 30,
+      "repay": 1.5
+    },
+    "small_share": 0.6,
+    "small_n": {
+      "hens": [
+        3,
+        8
+      ]
+    },
+    "_predators_note": "Wolves and rustlers take beasts from the pastures. Each herd week, every wolf pack (roaming beasts) within wolf_px of the town kills wolf_week head a wolf a week from the grazing herds (sheep, goats, pigs and the young of the rest first: a beast's kill weight is 1 / its feed); every outlaw band within rustle_px drives off rustle_week head an outlaw a week (into its stores as meat). Pens (poultry, hives) and plough oxen on the fallow are not taken.",
+    "predators": {
+      "wolf_px": 300,
+      "rustle_px": 300
+    },
+    "grass": [
+      1.3,
+      1.1,
+      0.6,
+      0.0
+    ],
+    "grass_climate": {
+      "cold": [
+        0.6,
+        1.1,
+        0.4,
+        0.0
+      ],
+      "temperate": [
+        1.3,
+        1.1,
+        0.6,
+        0.0
+      ],
+      "hot": [
+        1.2,
+        0.7,
+        1.0,
+        0.5
+      ],
+      "dry": [
+        0.9,
+        0.35,
+        0.45,
+        0.15
+      ]
+    },
+    "stock_reserve": 200,
+    "fallow": [
+      1.0,
+      1.0,
+      0.6,
+      0.0
+    ],
+    "hay_share": 0.5,
+    "hay_cap_days": 60,
+    "start_hay_days": 10,
+    "straw_acre": 60,
+    "starve_after": 10,
+    "starve_k": 0.3,
+    "wear": 0.05,
+    "mend": 0.03,
+    "cond_min": 0.3,
+    "keep_share": 1.0,
+    "common_cap": 10,
+    "fee_acre_week": 1.0,
+    "home_kill_week": 3.0,
+    "larder_days": 120,
+    "yield_age": [
+      0.5,
+      1.0,
+      0.8
+    ],
+    "young_price": 0.5,
+    "old_price": 0.6,
+    "kg_per_meal": 0.4,
+    "eggs_per_meal": 8,
+    "honey_meals": 2.5,
+    "manure_acre": 8.0,
+    "manure_yield": 0.1,
+    "price": {
+      "step": 0.3,
+      "power": 0.5,
+      "clamp": [
+        0.25,
+        4.0
+      ]
+    },
+    "buy_reserve": 1000,
+    "restock_week": 10,
+    "herder_min": 40,
+    "drover_min": 60,
+    "drove": {
+      "hands": 2,
+      "head_hand": 15,
+      "px_day": 40,
+      "margin": 1.3,
+      "raid_px": 60,
+      "sell_days": 28
+    },
+    "sack_share": 0.2,
+    "diseases": {
+      "cattle plague": {
+        "kinds": [
+          "cattle",
+          "oxen"
+        ],
+        "chance": 0.05,
+        "beta": 0.6,
+        "between": 0.3,
+        "kill": 0.12,
+        "weeks": 4,
+        "immune": 0.9
+      },
+      "sheep pox": {
+        "kinds": [
+          "sheep",
+          "goats"
+        ],
+        "chance": 0.05,
+        "beta": 0.5,
+        "between": 0.25,
+        "kill": 0.08,
+        "weeks": 4,
+        "immune": 0.9
+      },
+      "swine fever": {
+        "kinds": [
+          "pigs"
+        ],
+        "chance": 0.05,
+        "beta": 0.6,
+        "between": 0.3,
+        "kill": 0.2,
+        "weeks": 3,
+        "immune": 0.7
+      },
+      "fowl pest": {
+        "kinds": [
+          "hens"
+        ],
+        "chance": 0.08,
+        "beta": 0.8,
+        "between": 0.2,
+        "kill": 0.3,
+        "weeks": 2,
+        "immune": 0.5
+      },
+      "foot rot and mouth": {
+        "kinds": [
+          "cattle",
+          "sheep",
+          "goats",
+          "pigs"
+        ],
+        "chance": 0.03,
+        "beta": 0.7,
+        "between": 0.4,
+        "kill": 0.02,
+        "weeks": 3,
+        "immune": 0.8
+      },
+      "strangles": {
+        "kinds": [
+          "horses",
+          "donkeys"
+        ],
+        "chance": 0.05,
+        "beta": 0.6,
+        "between": 0.3,
+        "kill": 0.03,
+        "weeks": 4,
+        "immune": 0.8
+      }
+    },
+    "disease_seed": 0.05,
+    "disease_hunger": 1.5,
+    "disease_no_sale": 0.3,
+    "immune_fade": 0.3,
+    "winter_feed_share": 0.4,
+    "breed_min": 0.05,
+    "pot_value": 0.8,
+    "pot_week": 20,
+    "pot_reserve": 300,
+    "land_switch": 1.15,
+    "fodder_days_want": 60
+  },
+  "_businesses_note": "Family-owned rows (town-owned for collector/estate/works/mint). wage: coins per worker per day at world start from the barge pay table (part 3 section 2: grain shop 95, smith 112, bowyer 120, mine 110, woodcutter 85, fisher and hunter 70, miner/sawyer 80, tailor 60, cobbler 55, clerks 60, minters 90, any other craft 95); trades x PL^0.8 after; farmhands and the town fields pay 1.15 x the town's day wage, builders and public works the day wage (Barge.day_wage). recipes: per worker-day. needs: terrain the town must have nearby (forest, water, hills). arms: smiths/tailors/leatherworkers also turn out gear Items (items per worker-day). knowhow: material the recipe needs know-how in. Every business needs tools: without a set per worker output falls to 50%.",
+  "businesses": {
+    "hunter": {
+      "name": "hunter",
+      "wage": 70.0,
+      "needs": "forest",
+      "recipes": [
+        {
+          "in": {},
+          "out": {
+            "meat": 5.0,
+            "hides": 0.2,
+            "feathers": 0.3,
+            "sinew": 0.1
+          }
+        }
+      ],
+      "meat_label": [
+        "deer",
+        "boar"
+      ]
+    },
+    "fishery": {
+      "name": "fishery",
+      "wage": 70.0,
+      "needs": "water",
+      "recipes": [
+        {
+          "in": {},
+          "out": {
+            "meat": 6.0
+          }
+        }
+      ],
+      "meat_label": [
+        "fish"
+      ]
+    },
+    "woodcutter": {
+      "name": "woodcutter",
+      "wage": 85.0,
+      "recipes": [
+        {
+          "in": {},
+          "out": {
+            "wood": 13.0
+          }
+        }
+      ]
+    },
+    "quarry": {
+      "name": "quarry",
+      "wage": 80.0,
+      "needs": "hills",
+      "recipes": [
+        {
+          "in": {},
+          "out": {
+            "stone": 6.0
+          }
+        }
+      ]
+    },
+    "mine": {
+      "name": "mine",
+      "wage": 110.0,
+      "recipes": []
+    },
+    "smelter": {
+      "name": "smelter",
+      "wage": 95.0,
+      "recipes": [
+        {
+          "in": {
+            "copper_ore": 2.0,
+            "wood": 1.0
+          },
+          "out": {
+            "copper_bars": 1.0
+          },
+          "rate": 3.0
+        },
+        {
+          "in": {
+            "tin_ore": 2.0,
+            "wood": 1.0
+          },
+          "out": {
+            "tin_bars": 1.0
+          },
+          "rate": 3.0
+        },
+        {
+          "in": {
+            "copper_bars": 22.0,
+            "tin_bars": 3.0,
+            "wood": 10.0
+          },
+          "out": {
+            "bronze_bars": 25.0
+          },
+          "rate": 0.24,
+          "knowhow": "bronze"
+        },
+        {
+          "in": {
+            "scrap_copper": 2.0,
+            "wood": 1.0
+          },
+          "out": {
+            "copper_bars": 2.0
+          },
+          "rate": 3.0
+        },
+        {
+          "in": {
+            "scrap_tin": 2.0,
+            "wood": 1.0
+          },
+          "out": {
+            "tin_bars": 2.0
+          },
+          "rate": 3.0
+        },
+        {
+          "in": {
+            "scrap_bronze": 2.0,
+            "wood": 1.0
+          },
+          "out": {
+            "bronze_bars": 2.0
+          },
+          "rate": 3.0,
+          "knowhow": "bronze"
+        },
+        {
+          "in": {
+            "iron_ore": 2.0,
+            "wood": 1.0
+          },
+          "out": {
+            "iron_bars": 1.0
+          },
+          "rate": 3.0,
+          "knowhow": "iron"
+        },
+        {
+          "in": {
+            "iron_bars": 1.0,
+            "flux": 1.0,
+            "wood": 1.0
+          },
+          "out": {
+            "pig_iron": 1.0
+          },
+          "rate": 2.0,
+          "knowhow": "steel"
+        },
+        {
+          "in": {
+            "pig_iron": 1.0,
+            "iron_bars": 1.0,
+            "flux": 1.0,
+            "wood": 1.0
+          },
+          "out": {
+            "steel_bars": 2.0
+          },
+          "rate": 1.0,
+          "knowhow": "steel"
+        },
+        {
+          "in": {
+            "scrap_iron": 1.0,
+            "wood": 1.0
+          },
+          "out": {
+            "iron_bars": 1.0
+          },
+          "rate": 6.0,
+          "knowhow": "iron"
+        },
+        {
+          "in": {
+            "scrap_steel": 1.0,
+            "wood": 1.0
+          },
+          "out": {
+            "steel_bars": 1.0
+          },
+          "rate": 4.0,
+          "knowhow": "steel"
+        },
+        {
+          "in": {
+            "scrap_steel": 1.0,
+            "wood": 1.0
+          },
+          "out": {
+            "iron_bars": 1.0
+          },
+          "rate": 6.0,
+          "knowhow": "iron"
+        }
+      ]
+    },
+    "weaponsmith": {
+      "name": "weaponsmith",
+      "wage": 112.0,
+      "arms": "weapon",
+      "rate": 0.4,
+      "_bows": "arrowheads part-time when the fletchers want them (campaign/bows_econ.gd tip_share)",
+      "recipes": [
+        {
+          "in": {
+            "copper_bars": 1.0
+          },
+          "out": {
+            "heads_copper": 80.0
+          },
+          "rate": 1.0
+        },
+        {
+          "in": {
+            "tin_bars": 1.0
+          },
+          "out": {
+            "heads_tin": 80.0
+          },
+          "rate": 1.0
+        }
+      ]
+    },
+    "armorsmith": {
+      "name": "armorsmith",
+      "wage": 112.0,
+      "arms": "armor",
+      "rate": 0.25,
+      "recipes": []
+    },
+    "carpenter": {
+      "name": "carpenter",
+      "wage": 95.0,
+      "recipes": [
+        {
+          "in": {
+            "wood": 4.0
+          },
+          "out": {
+            "furniture": 1.0
+          },
+          "rate": 0.8
+        },
+        {
+          "in": {
+            "wood": 1.0,
+            "copper_bars": 1.0
+          },
+          "out": {
+            "tools": 1.0
+          },
+          "rate": 1.2
+        },
+        {
+          "in": {
+            "wood": 1.0,
+            "tin_bars": 1.0
+          },
+          "out": {
+            "tools": 1.0
+          },
+          "rate": 1.0
+        },
+        {
+          "in": {
+            "wood": 1.0,
+            "bronze_bars": 1.0
+          },
+          "out": {
+            "tools": 1.0
+          },
+          "rate": 1.3
+        }
+      ]
+    },
+    "weaver": {
+      "name": "weaver",
+      "wage": 95.0,
+      "recipes": [
+        {
+          "in": {
+            "flax": 2.0
+          },
+          "out": {
+            "linen": 1.0
+          },
+          "rate": 3.0
+        },
+        {
+          "in": {
+            "wool": 2.0
+          },
+          "out": {
+            "wool_cloth": 1.0
+          },
+          "rate": 3.0
+        }
+      ]
+    },
+    "tailor": {
+      "name": "tailor",
+      "wage": 60.0,
+      "arms": "cloth",
+      "rate": 0.15,
+      "recipes": [
+        {
+          "in": {
+            "linen": 2.0
+          },
+          "out": {
+            "clothing": 1.0
+          },
+          "rate": 1.0
+        },
+        {
+          "in": {
+            "wool_cloth": 2.0
+          },
+          "out": {
+            "clothing": 1.0
+          },
+          "rate": 1.0
+        },
+        {
+          "in": {
+            "wool_cloth": 3.0
+          },
+          "out": {
+            "blankets": 1.0
+          },
+          "rate": 1.0
+        }
+      ]
+    },
+    "tanner": {
+      "name": "tanner",
+      "wage": 95.0,
+      "recipes": [
+        {
+          "in": {
+            "hides": 1.0
+          },
+          "out": {
+            "leather": 1.0
+          },
+          "rate": 4.0
+        },
+        {
+          "in": {
+            "hides": 1.0
+          },
+          "out": {
+            "glue": 3.0
+          },
+          "rate": 2.0
+        },
+        {
+          "in": {
+            "bones": 3.0
+          },
+          "out": {
+            "glue": 2.0
+          },
+          "rate": 2.0
+        }
+      ]
+    },
+    "_herds_biz_note": "Herds' trades (addendum 1 B3; campaign/herds.gd), family-kept, real staff and wages (the barge pay table's 'any other craft' 95 coins; herdsmen, drovers and salt boilers 85 [ours]). herder: keeps its own herd (a herdsman per the kind's per_hand head). butcher: buys beasts the owners offer at the town's price and turns them into the kinds' yields, kg_day of carcass a hand a day [ours]. salter: 10 meals of fresh meat + 1 kg salt -> 10 meals of keeping meat. dairy: 4 litres of milk -> a meal of cheese and butter (our keeping protein food, meat) [ours fork: households eat grain, fruit and meat]. chandler: tallow or wax -> candles. saltworks: boils brine (water or hills nearby) with firewood. drover: walks herds to a road partner that pays more.",
+    "herder": {
+      "name": "herder",
+      "wage": 85.0,
+      "herds": true,
+      "recipes": []
+    },
+    "butcher": {
+      "name": "butcher",
+      "wage": 95.0,
+      "herds": true,
+      "kg_day": 200.0,
+      "recipes": []
+    },
+    "salter": {
+      "name": "salter",
+      "wage": 95.0,
+      "recipes": [
+        {
+          "in": {
+            "fresh_meat": 10.0,
+            "salt": 1.0
+          },
+          "out": {
+            "meat": 10.0
+          },
+          "rate": 20.0
+        }
+      ]
+    },
+    "dairy": {
+      "name": "dairy",
+      "wage": 95.0,
+      "recipes": [
+        {
+          "in": {
+            "milk": 4.0
+          },
+          "out": {
+            "meat": 1.0
+          },
+          "rate": 25.0
+        }
+      ],
+      "meat_label": [
+        "cheese"
+      ]
+    },
+    "chandler": {
+      "name": "chandler",
+      "wage": 95.0,
+      "recipes": [
+        {
+          "in": {
+            "tallow": 1.0
+          },
+          "out": {
+            "candles": 1.0
+          },
+          "rate": 20.0
+        },
+        {
+          "in": {
+            "wax": 1.0
+          },
+          "out": {
+            "candles": 2.0
+          },
+          "rate": 15.0
+        }
+      ]
+    },
+    "saltworks": {
+      "name": "salt works",
+      "wage": 85.0,
+      "recipes": [
+        {
+          "in": {
+            "wood": 1.0
+          },
+          "out": {
+            "salt": 6.0
+          },
+          "rate": 4.0
+        }
+      ]
+    },
+    "drover": {
+      "name": "drover",
+      "wage": 85.0,
+      "herds": true,
+      "recipes": []
+    },
+    "_bows_biz_note": "bows: the bowyer splits bow-grade staves out of the town wood stock (6 loads of cut wood give one stave: only part of it is bow-grade) and makes bows (Items; data/bows.json inputs: seasoned staves; composites wood + horn + sinew + glue) part-time when the town is short of bows; the fletcher makes arrows (shafts from wood, feathers, the smiths' arrowheads). Both buy from the same wood stock as firewood, builders and carpenters.",
+    "bowyer": {
+      "name": "bowyer",
+      "wage": 120.0,
+      "arms": "bow",
+      "rate": 1.0,
+      "recipes": [
+        {
+          "in": {
+            "wood": 6.0
+          },
+          "out": {
+            "staves_green": 1.0
+          },
+          "rate": 1.5
+        }
+      ]
+    },
+    "fletcher": {
+      "name": "fletcher",
+      "wage": 95.0,
+      "recipes": [
+        {
+          "in": {
+            "wood": 1.0,
+            "feathers": 1.0
+          },
+          "out": {
+            "arrow_wood": 60.0
+          },
+          "rate": 0.6
+        },
+        {
+          "in": {
+            "wood": 1.0,
+            "feathers": 1.0,
+            "heads_copper": 60.0
+          },
+          "out": {
+            "arrow_copper_bodkin": 60.0
+          },
+          "rate": 0.5
+        },
+        {
+          "in": {
+            "wood": 1.0,
+            "feathers": 1.0,
+            "heads_copper": 60.0
+          },
+          "out": {
+            "arrow_copper_broad": 60.0
+          },
+          "rate": 0.5
+        },
+        {
+          "in": {
+            "wood": 1.0,
+            "feathers": 1.0,
+            "heads_tin": 60.0
+          },
+          "out": {
+            "arrow_tin_bodkin": 60.0
+          },
+          "rate": 0.5
+        },
+        {
+          "in": {
+            "wood": 1.0,
+            "feathers": 1.0,
+            "heads_tin": 60.0
+          },
+          "out": {
+            "arrow_tin_broad": 60.0
+          },
+          "rate": 0.5
+        },
+        {
+          "in": {
+            "wood": 2.0,
+            "feathers": 1.0,
+            "heads_copper": 80.0
+          },
+          "out": {
+            "arrow_copper_war": 40.0
+          },
+          "rate": 0.4
+        }
+      ]
+    },
+    "leatherworker": {
+      "name": "leatherworker",
+      "wage": 55.0,
+      "arms": "leather",
+      "rate": 0.3,
+      "recipes": [
+        {
+          "in": {
+            "leather": 3.0
+          },
+          "out": {
+            "clothing": 1.0
+          },
+          "rate": 1.0
+        }
+      ]
+    },
+    "brewer": {
+      "name": "brewer",
+      "wage": 95.0,
+      "recipes": [
+        {
+          "in": {
+            "grain": 1.0
+          },
+          "out": {
+            "beer": 2.0
+          },
+          "rate": 15.0
+        }
+      ]
+    },
+    "vintner": {
+      "name": "vintner",
+      "wage": 95.0,
+      "recipes": [
+        {
+          "in": {
+            "fruit": 1.0
+          },
+          "out": {
+            "wine": 1.0
+          },
+          "rate": 12.0
+        }
+      ]
+    },
+    "jeweler": {
+      "name": "jeweler",
+      "wage": 95.0,
+      "recipes": [
+        {
+          "in": {
+            "copper_bars": 1.0
+          },
+          "out": {
+            "jewelry": 1.0
+          },
+          "rate": 0.5
+        },
+        {
+          "in": {
+            "bronze_bars": 1.0
+          },
+          "out": {
+            "jewelry": 1.0
+          },
+          "rate": 0.5
+        },
+        {
+          "in": {
+            "tin_bars": 1.0
+          },
+          "out": {
+            "jewelry": 1.0
+          },
+          "rate": 0.4
+        }
+      ]
+    },
+    "herbalist": {
+      "name": "herbalist",
+      "wage": 100.0,
+      "field": false,
+      "_sickness": "gathers herbs (tools, no land) and makes remedies (campaign/sickness.gd gen_businesses) [ours]; wage in coins (5 gold x 20)",
+      "recipes": [
+        {
+          "in": {},
+          "out": {
+            "remedy": 1.0
+          },
+          "rate": 1.5
+        }
+      ]
+    },
+    "builder": {
+      "name": "builder",
+      "wage": 100.0,
+      "day": true,
+      "recipes": [
+        {
+          "in": {},
+          "out": {
+            "home": 1.0
+          },
+          "rate": 0.04,
+          "home": true
+        }
+      ]
+    },
+    "market": {
+      "name": "market",
+      "wage": 95.0,
+      "recipes": []
+    },
+    "farm": {
+      "name": "farmhands",
+      "wage": 115.0,
+      "field": true,
+      "recipes": []
+    },
+    "collector": {
+      "name": "tax collectors",
+      "wage": 60.0,
+      "town": true,
+      "recipes": []
+    },
+    "estate": {
+      "name": "town fields",
+      "wage": 115.0,
+      "town": true,
+      "field": true,
+      "recipes": []
+    },
+    "works": {
+      "name": "public works",
+      "wage": 100.0,
+      "town": true,
+      "day": true,
+      "recipes": []
+    },
+    "mint": {
+      "name": "mint",
+      "wage": 98.0,
+      "town": true,
+      "recipes": []
+    },
+    "academy": {
+      "name": "research house",
+      "wage": 110.0,
+      "town": true,
+      "recipes": [],
+      "_research": "the state's research house in each capital (campaign/academy.gd; data research); its name and its lead's title come from the culture row (research_name, research_lead); wage [ours]: a skilled craft's"
+    }
+  },
+  "mine_rate": 3.0,
+  "_market_note": "The market buys from producers at buy_share of the price and from the barns (the farms' surplus) at broker_share (barge part 4: surplus sold to a broker at 0.75 x P); households pay the price x household markup (barge part 2: 1.1). A smith keeps working until the town holds arms_cap_base + arms_cap_size * size pieces. tax: sales tax on shop takings (barge: 3%).",
+  "market": {
+    "buy_share": 0.9,
+    "broker_share": 0.75,
+    "arms_buy_share": 0.7,
+    "reserve_days": 14,
+    "arms_cap_base": 18,
+    "arms_cap_size": 8,
+    "stock_cap_mult": 2.5,
+    "tax": 0.03
+  },
+  "_price_note": "Barge part 2 prices (campaign/barge.gd update_prices). price_min / price_max only bound the stand-in towns without an economy.",
+  "price_min": 0.5,
+  "price_max": 3.0,
+  "_supply_note": "Days of food and drink (market + barns + granary + households): > well days = well supplied, >= short days = short, else starving.",
+  "supply_well": 14,
+  "supply_short": 3,
+  "_tax_note": "grain_share of every harvest goes to the granary in kind (barge part 4: 5%). collectors: one per collector_per families; missing collectors leak that share of the service money (the families keep it). Loans from the head run loan_weeks before the head takes land. faction_share: weekly share of a town treasury above its short line sent to the faction (tribute). The coin taxes (service money, house and land tax, the harvest tribute) are barge part 4 (data barge.treasury).",
+  "tax": {
+    "per_adult": 120.0,
+    "per_acre": 10.0,
+    "per_head": 4.0,
+    "grain_share": 0.05,
+    "collector_per": 30,
+    "leak_max": 0.6,
+    "loan_weeks": 3,
+    "faction_share": 0.1,
+    "faction_return": 0.25,
+    "works_share": 0.2,
+    "treasury_reserve_days": 60
+  },
+  "_family_note": "household sizes and growth come from the culture row. min_purse: below this a family counts as broke (barge coping ladder: savings < 20). rich_purse: the luxury line (coins).",
+  "family": {
+    "rich_purse": 20000,
+    "min_purse": 20,
+    "leave_hungry_weeks": 3,
+    "unpaid_leave_weeks": 2,
+    "recruit_hardship": 0.35
+  },
+  "_loans_note": "The head's loans (campaign/loans.gd). Barge part 4 section 3: the same terms for every race (barge part 1: one economy). A small relief loan runs at 3.5% a 30-day month (rate is per week: 0.035 x 7 / 30); instalment amount / 8 a month plus interest (term_weeks = 8 months). behind_mult: rate x (1 + this x payments missed in a row) [ours]. default_after: missed payments in a row before the court (barge: 3 for families). Credit: per_adult x adults + of_worth x (land, herds and house at their prices) [ours, coins]. prepay_above: purse kept before extra repayment. treasury_reserve: the head keeps this x (1 + pop / 300) back. seed_per_acre: spring seed money for landholders. county_loan: the barge relief loan (1,500) when a member earns and the treasury holds over county_min x pop / 8000 [ours: the barge 150,000 scaled per head].",
+  "_ages_note": "Ages per race in calendar years (a year = 4 seasons, campaign/calendar.gd) [ours, flagged]: adult = age of adulthood, elder = age an adult counts as an elder (stops working), lifespan = the oldest anyone lives (elders past it die), mother_max = the oldest a woman bears a child. Every person's birth day is real (campaign/persons.gd): children are born to a mother of fertile age and her husband; children come of age, adults grow old and elders die by their birth days.",
+  "ages": {
+    "human": {
+      "adult": 16,
+      "elder": 55,
+      "lifespan": 75,
+      "mother_max": 45
+    },
+    "orc": {
+      "adult": 12,
+      "elder": 35,
+      "lifespan": 50,
+      "mother_max": 30
+    },
+    "goblin": {
+      "adult": 8,
+      "elder": 25,
+      "lifespan": 35,
+      "mother_max": 20
+    },
+    "moon_elf": {
+      "adult": 40,
+      "elder": 300,
+      "lifespan": 450,
+      "mother_max": 260
+    },
+    "high_elf": {
+      "adult": 40,
+      "elder": 300,
+      "lifespan": 450,
+      "mother_max": 260
+    },
+    "dark_elf": {
+      "adult": 40,
+      "elder": 300,
+      "lifespan": 450,
+      "mother_max": 260
+    },
+    "troll": {
+      "adult": 20,
+      "elder": 80,
+      "lifespan": 120,
+      "mother_max": 60
+    },
+    "dwarf": {
+      "adult": 25,
+      "elder": 120,
+      "lifespan": 160,
+      "mother_max": 100
+    },
+    "_default": {
+      "adult": 16,
+      "elder": 55,
+      "lifespan": 75,
+      "mother_max": 45
+    }
+  },
+  "_dwarf_ages_note": "v0.012 dwarves [ours]: DF dwarves live about 150-170 years; grown at 25, elders at 120, the oldest 160, bearing to 100 (75 fertile years). No bearing.races row: the one rule for every race (Persons.bearing: the human interval x fertile years / 29, gestation x adult / 16) gives a dwarf woman a child about every 7.1 years while married (human 2.75) and a 14-month carrying: slow births, natural from their long fertile span, not a plugged rate.",
+  "_bearing_note": "Childbearing (campaign/persons.gd Persons.childbearing; Douglas: 'a natural birthrate'), in years of the calendar, for a human woman (adult 16, fertile 29 years to mother_max 45) [ours]: she carries a child 0.75 years; while she nurses it (1.5 years) she does not conceive; then she conceives in 0.5 years on average: a child about every 2.75 years while she is married, her husband at home and the family not hungry (pre-modern wives: every 2-3 years). Every race runs the same rule from its own ages: the interval x its fertile years / 29, gestation x its adult age / 16 (Persons.bearing).",
+  "bearing": {
+    "adult": 16,
+    "span": 29,
+    "gestation": 0.75,
+    "nurse": 1.5,
+    "conceive": 0.5,
+    "maternal": 0.01,
+    "litter": [
+      0.988,
+      0.012
+    ],
+    "races": {
+      "orc": {
+        "gestation": 0.5,
+        "nurse": 0.6,
+        "conceive": 0.4,
+        "litter": [
+          0.8,
+          0.17,
+          0.03
+        ]
+      },
+      "goblin": {
+        "gestation": 0.3,
+        "nurse": 0.25,
+        "conceive": 0.25,
+        "litter": [
+          0.6,
+          0.3,
+          0.1
+        ]
+      }
+    }
+  },
+  "_bearing_races_note": "Each race's own body [ours] (Douglas 2026-10-06: 'orc birth rate should be like 7% - goblins like 14%', '(make it work naturally)'): races listed in bearing.races carry their own years (gestation, nurse, conceive) and litter (the chance of 1, 2, 3 children at a birth); the rest follow the human numbers scaled by their own ages (Persons.bearing) and the human litter (twins 1.2%, the pre-modern European twin rate). Orcs: grown at 12, a 6-month pregnancy, nursing 0.6 years, about 5 months to conceive again (1.5 years a birth), twins 17% and triplets 3% (1.23 children a birth): a breeder bred for war. Goblins: grown at 8, a 3.6-month pregnancy, nursing 3 months, 3 months to conceive (0.8 years a birth), litters of 1 (60%), 2 (30%) or 3 (10%): 1.5 a birth, like small quick-breeding animals. Hunger and sickness hold every race back the same way: no child is conceived while the family goes hungry or the woman lies sick.",
+  "_maternal_note": "maternal: the chance a mother dies in childbirth, per birth, every race [ours]: 1.0%, the pre-modern figure from the English parish registers (about 10 per 1,000 births in the late 17th century, falling to about 5 by 1800: R. Schofield, 'Did the mothers really die?', 1986; Wrigley et al., English Population History from Family Reconstitution, 1997), the best-measured pre-modern series; the 1.5% figures come from worse places and years. Deaths of the newborn are left to sickness (data/sickness.json, the child band), which already kills children of every age.",
+  "_person_names_note": "Given names of the register's people by race and sex (m / f) [ours]. Elves of every kind use 'elf'; a race with no list uses 'human'.",
+  "person_names": {
+    "human": {
+      "m": [
+        "Aldric",
+        "Bram",
+        "Cedric",
+        "Doran",
+        "Falk",
+        "Gerd",
+        "Hale",
+        "Ivo",
+        "Jory",
+        "Kell",
+        "Marek",
+        "Nils",
+        "Osric",
+        "Rowan",
+        "Tomas",
+        "Ulf",
+        "Wulf",
+        "Yorick",
+        "Brannoc",
+        "Odo",
+        "Ansel",
+        "Alder",
+        "Baldwin",
+        "Conrad",
+        "Dunstan",
+        "Edwin",
+        "Garrick",
+        "Hamon",
+        "Jasper",
+        "Leofric",
+        "Merrick",
+        "Orrin",
+        "Piers",
+        "Roderic",
+        "Simon",
+        "Tobin",
+        "Walter",
+        "Aldo",
+        "Godric",
+        "Hugh",
+        "Matthias",
+        "Ewan"
+      ],
+      "f": [
+        "Edda",
+        "Liesel",
+        "Petra",
+        "Sigrun",
+        "Vera",
+        "Hild",
+        "Ragna",
+        "Agnes",
+        "Alys",
+        "Berta",
+        "Cecily",
+        "Dagny",
+        "Elin",
+        "Freya",
+        "Gisela",
+        "Helga",
+        "Ida",
+        "Joan",
+        "Katrin",
+        "Lena",
+        "Maud",
+        "Nell",
+        "Oda",
+        "Rosa",
+        "Sabine",
+        "Tilda",
+        "Ursel",
+        "Wenna",
+        "Ada",
+        "Brita",
+        "Clara",
+        "Elsa",
+        "Greta",
+        "Hanne",
+        "Ingrid",
+        "Marta",
+        "Mina",
+        "Rike",
+        "Sanne",
+        "Thea",
+        "Aveline",
+        "Edith"
+      ]
+    },
+    "orc": {
+      "m": [
+        "Gruk",
+        "Thrak",
+        "Ulg",
+        "Krag",
+        "Snar",
+        "Dush",
+        "Garr",
+        "Ruk",
+        "Morg",
+        "Brug",
+        "Durz",
+        "Grom",
+        "Karg",
+        "Lurk",
+        "Narg",
+        "Rokh",
+        "Shagg",
+        "Torz",
+        "Uzg",
+        "Varg",
+        "Zug",
+        "Bolg",
+        "Gorbag",
+        "Hruk"
+      ],
+      "f": [
+        "Mazga",
+        "Borza",
+        "Yazg",
+        "Agra",
+        "Bula",
+        "Dorga",
+        "Ghazka",
+        "Grisha",
+        "Hurza",
+        "Kesha",
+        "Lugha",
+        "Murza",
+        "Nazra",
+        "Orza",
+        "Rasha",
+        "Shagra",
+        "Uzga",
+        "Vrasha",
+        "Yagga",
+        "Zarga",
+        "Dushka",
+        "Ruzga"
+      ]
+    },
+    "goblin": {
+      "m": [
+        "Snik",
+        "Rikk",
+        "Grib",
+        "Nax",
+        "Zit",
+        "Kribb",
+        "Mog",
+        "Tikk",
+        "Vrex",
+        "Pog",
+        "Skab",
+        "Bix",
+        "Drek",
+        "Gnash",
+        "Gnat",
+        "Jix",
+        "Krit",
+        "Nub",
+        "Rotz",
+        "Spleck",
+        "Wrag",
+        "Yip"
+      ],
+      "f": [
+        "Squee",
+        "Mib",
+        "Nixa",
+        "Tizzle",
+        "Bri",
+        "Ditta",
+        "Fenk",
+        "Gritty",
+        "Ixi",
+        "Kizza",
+        "Lix",
+        "Mox",
+        "Nissa",
+        "Pip",
+        "Rixa",
+        "Snitta",
+        "Tibba",
+        "Vexa",
+        "Yikka",
+        "Zibb"
+      ]
+    },
+    "elf": {
+      "m": [
+        "Caelan",
+        "Lunaer",
+        "Sylvar",
+        "Eluvan",
+        "Faelar",
+        "Ilmar",
+        "Nythen",
+        "Orrel",
+        "Taeron",
+        "Vaelis",
+        "Aerendil",
+        "Halvar",
+        "Miralon",
+        "Ruvan",
+        "Thalion",
+        "Elandor",
+        "Gaeren",
+        "Ithron",
+        "Sorvan",
+        "Aelric"
+      ],
+      "f": [
+        "Ithriel",
+        "Selune",
+        "Vaelith",
+        "Nimrae",
+        "Ysolde",
+        "Aerith",
+        "Thalie",
+        "Myrrin",
+        "Elowen",
+        "Faeryn",
+        "Liraen",
+        "Naerys",
+        "Sariel",
+        "Ilyra",
+        "Maelis",
+        "Oriel",
+        "Quessa",
+        "Rhaena",
+        "Taliesa",
+        "Yllara"
+      ]
+    },
+    "dwarf": {
+      "m": [
+        "Urist",
+        "Kadol",
+        "Bomrek",
+        "Doren",
+        "Ingish",
+        "Mafol",
+        "Solon",
+        "Tobul",
+        "Zasit",
+        "Rigoth",
+        "Asmel",
+        "Kogan",
+        "Ezum",
+        "Olin",
+        "Thikut",
+        "Vucar",
+        "Erith",
+        "Logem",
+        "Datan",
+        "Fikod",
+        "Momuz",
+        "Sibrek",
+        "Unib",
+        "Bembul"
+      ],
+      "f": [
+        "Litast",
+        "Ast",
+        "Domas",
+        "Cog",
+        "Iden",
+        "Kib",
+        "Mistem",
+        "Nish",
+        "Rith",
+        "Sazir",
+        "Tun",
+        "Udib",
+        "Vabok",
+        "Zuglar",
+        "Ber",
+        "Edem",
+        "Fath",
+        "Ilral",
+        "Lolor",
+        "Meng",
+        "Onol",
+        "Rakust",
+        "Shem",
+        "Tosid"
+      ]
+    },
+    "eastern": {
+      "m": [
+        "Batu",
+        "Temur",
+        "Arslan",
+        "Bora",
+        "Altan",
+        "Jochi",
+        "Sorkhan",
+        "Kasim",
+        "Bayar",
+        "Chagan",
+        "Dorji",
+        "Erden",
+        "Ganbold",
+        "Jamuk",
+        "Khasar",
+        "Mongke",
+        "Nogai",
+        "Ogedei",
+        "Qutlug",
+        "Subutai",
+        "Toghrul",
+        "Ulan",
+        "Yesugei",
+        "Ilkhan"
+      ],
+      "f": [
+        "Khulan",
+        "Ayla",
+        "Sarnai",
+        "Yesui",
+        "Borte",
+        "Alaqai",
+        "Checheyigen",
+        "Doquz",
+        "Ebegei",
+        "Gerel",
+        "Hoelun",
+        "Ibaqa",
+        "Jirgal",
+        "Khojin",
+        "Mandukhai",
+        "Nomin",
+        "Oyun",
+        "Qutulun",
+        "Sorghaghtani",
+        "Tegulen",
+        "Tuya",
+        "Unegen",
+        "Yesugen",
+        "Zaya"
+      ]
+    }
+  },
+  "_eastern_names_note": "v0.012: the Eastern humans' given names. A person's name is an index into one human list (person_names.human then person_names.eastern, joined: Persons.names_for), so a person keeps the name he was born with wherever he moves or marries (culture is never a wall). Babies take a name from their family's culture's part of the list (f.cul, else the town's culture). Add new human names at the END of the eastern list (or a new culture's list after it), never in the middle, or the names already given shift.",
+  "loans": {
+    "rate": 0.00817,
+    "behind_mult": 0.5,
+    "term_weeks": 34,
+    "default_after": 3,
+    "per_adult": 500,
+    "of_worth": 0.5,
+    "prepay_above": 2400,
+    "treasury_reserve": 6000,
+    "seed_per_acre": 20.0,
+    "county_loan": 1500,
+    "county_min": 150000
+  },
+  "_knowhow_note": "Know-how 0-100 per town per material. Grows only while smiths work it (gain per worker-day x (1 - kh/100)), nudged by caravans from towns that know it better, decays slowly when unused. Output and quality scale with it. start: towns with both copper and tin deposits start with start_both, trade capitals with start_trade, all others 0. v0.014: this is the town's smiths' own practice; what they may use is the lower of it and the faction's bronze know-how (research line bronze; Businesses.kh_of), so orcs and goblins never smelt or work bronze.",
+  "knowhow": {
+    "bronze": {
+      "start_both": 20,
+      "start_trade": 8,
+      "gain": 0.12,
+      "caravan": 1.5,
+      "decay": 0.01,
+      "min_out": 0.15
+    }
+  },
+  "_research_note": "The research house (v0.012, docs/specs/next/02-steel-assay-house.md with its CHANGE; campaign/academy.gd). One state-owned house in every faction's capital (every race, Douglas 13:23), a town row of real staff (the lead and chemists or apprentices, hired by the normal hiring rules, paid by the house's till) funded each faction turn (weekly) from the realm's treasury (then the capital's chest above its short line). Its research is a LIST of lines: each line names the races that may take it (races) and the faction know-how it raises (knowhow); a line is active for a faction whose race may take it and whose know-how is under 100. Budget and staff split across the active lines by their weight. A house with no active line keeps only its lead (a post, no staff, no materials). All [ours] unless noted. names: the house's name and lead title when the culture row has none (research_name / research_lead). interest: the state's interest in research 0-1 = base + treasury (x the realm's days of army pay over keep_days, clamped -1..1) + war (any war) + met (steel items in its towns' stalls and armories / met_items, at most 1) x met, + the capital ruler's temper; budget a day = interest x the pay of places_full places at the table wage x (1 + mat_share), never more than treasury_share of the realm's treasury a week. Places = the budget a day / (wage x (1 + mat_share)), at most places_max. Research a day per line = (lead skill x lead_k + the staff's skills x staff_k) x the materials share got x the line's share; nothing without a lead. Materials a staff-day: mats (bought at market). Skills 0-15: a new hand starts at new_skill; each worker-day adds learn x (0.5 + lead skill / 10) (the lead learn_lead), up to 15; a successor from the staff takes the staff's skill, from the town new_lead. Study: once a week the house buys one steel piece from the town's stalls (at the market's buy price) and uses it up: study_pts x (quality + 1) research on the steel line. Know-how from research: eff = research x the race factor (race_factor; others 1.0); know-how = 0 below p0, then 100 x ((eff - p0) / (p100 - p0))^curve. Know-how caps the best steel quality its smiths can make: best quality = floor(know-how / (100 / 6)), at most 5 (0 = poor only while know-how > 0). Start know-how: factions.json steel_knowhow (0 when missing; the faction dwarf_holds 100 when missing). p0 is set so steady average funding (interest 0.5: a lead of skill 5 and about 3 staff) takes about 40-50 game years to reach poor steel for humans: a starting value, not measured.",
+  "research": {
+    "lines": [
+      {
+        "id": "steel",
+        "name": "steel",
+        "knowhow": "steel",
+        "races": [
+          "human",
+          "moon_elf",
+          "high_elf",
+          "dark_elf"
+        ],
+        "weight": 1.0,
+        "caps_quality": true
+      },
+      {
+        "id": "bronze",
+        "name": "bronze",
+        "knowhow": "bronze",
+        "races": [
+          "human",
+          "dwarf",
+          "moon_elf",
+          "high_elf",
+          "dark_elf"
+        ],
+        "weight": 1.0,
+        "start": {
+          "human": 100,
+          "dwarf": 100
+        },
+        "race_factor": {
+          "human": 1.0,
+          "dwarf": 1.0,
+          "moon_elf": 0.6,
+          "high_elf": 0.6,
+          "dark_elf": 0.6
+        },
+        "p0": 1500.0,
+        "p100": 15000.0,
+        "curve": 1.0,
+        "teach": 8
+      },
+      {
+        "id": "iron",
+        "name": "iron",
+        "knowhow": "iron",
+        "races": [
+          "human",
+          "dwarf",
+          "moon_elf",
+          "high_elf",
+          "dark_elf",
+          "orc",
+          "goblin"
+        ],
+        "weight": 1.0,
+        "start": {
+          "human": 100,
+          "dwarf": 100,
+          "moon_elf": 100,
+          "high_elf": 100,
+          "dark_elf": 100,
+          "orc": 100,
+          "goblin": 100
+        },
+        "race_factor": {
+          "human": 1.0,
+          "dwarf": 1.0,
+          "moon_elf": 1.0,
+          "high_elf": 1.0,
+          "dark_elf": 1.0,
+          "orc": 1.0,
+          "goblin": 1.0
+        },
+        "p0": 1500.0,
+        "p100": 15000.0,
+        "curve": 1.0
+      }
+    ],
+    "_lines_note": "v0.014 (Douglas 22:19-22:23, his race rules; the numbers [ours]). Per line, all optional: start {race: know-how at world start} (factions.json '<key>_knowhow' overrides it per faction; a race not listed starts at 0), race_factor {race: learning factor} (else the block's race_factor), p0 / p100 / curve (else the block's), caps_quality (steel: know-how caps the best quality its smiths can make), teach (a practice material: once the house has researched the line, the capital's smiths' own practice is kept at least min(know-how, teach)). A race not in races can never learn the line. Bronze: never orcs or goblins (Douglas 22:20); humans and dwarves start knowing it, elves learn it at 0.6 x. Iron: every race, the same rate; every race starts knowing it (the world has had iron smiths in every realm since v0.012). Know-how gates smelting a metal and working it into gear; anyone may buy, loot, wear, use and repair the goods. Bronze coin is not gated: mints cast from copper and tin or bronze bars for every race.",
+    "names": {
+      "_default": [
+        "House of Learning",
+        "Master of Learning"
+      ],
+      "eastern": [
+        "House of Wisdom",
+        "Hakim"
+      ],
+      "dwarf": [
+        "Hall of Makers",
+        "Maker-Lord"
+      ],
+      "_race": {
+        "human": [
+          "Academy",
+          "Master"
+        ],
+        "dwarf": [
+          "Hall of Makers",
+          "Maker-Lord"
+        ],
+        "orc": [
+          "Blood Forge",
+          "Forge-Boss"
+        ],
+        "goblin": [
+          "The Pit",
+          "Pit-Master"
+        ],
+        "moon_elf": [
+          "Athenaeum",
+          "Sage"
+        ]
+      }
+    },
+    "race_factor": {
+      "human": 1.0,
+      "moon_elf": 1.25,
+      "high_elf": 1.25,
+      "dark_elf": 1.25
+    },
+    "start_dwarf_faction": "dwarf_holds",
+    "interest": {
+      "base": 0.35,
+      "treasury": 0.2,
+      "keep_days": 60,
+      "war": 0.1,
+      "met": 0.2,
+      "met_items": 10,
+      "temper": {
+        "greedy": -0.1,
+        "steady": 0.0,
+        "merciful": 0.05
+      }
+    },
+    "places_full": 6,
+    "places_max": 10,
+    "mat_share": 0.15,
+    "treasury_share": 0.25,
+    "lead_pay": 1.0,
+    "lead_k": 1.0,
+    "staff_k": 0.4,
+    "new_skill": 1.0,
+    "new_lead": [
+      2,
+      5
+    ],
+    "learn": 0.003,
+    "learn_lead": 0.002,
+    "mats": {
+      "iron_bars": 0.05,
+      "flux": 0.05,
+      "wood": 0.2
+    },
+    "mats_floor": 0.25,
+    "study_pts": 150.0,
+    "p0": 60000.0,
+    "p100": 900000.0,
+    "curve": 1.0
+  },
+  "_specialty_note": "Specialties (1-2 per town) double that business's rate and give its gear +1 quality tier chance.",
+  "specialties": {
+    "tin": {
+      "text": "tin",
+      "biz": "mine",
+      "ore": "tin_ore"
+    },
+    "copper": {
+      "text": "copper",
+      "biz": "mine",
+      "ore": "copper_ore"
+    },
+    "ale": {
+      "text": "ale",
+      "biz": "brewer"
+    },
+    "wine": {
+      "text": "wine",
+      "biz": "vintner"
+    },
+    "weapons": {
+      "text": "fine weapons",
+      "biz": "weaponsmith"
+    },
+    "armor": {
+      "text": "fine armor",
+      "biz": "armorsmith"
+    },
+    "wool": {
+      "text": "wool",
+      "biz": "weaver"
+    },
+    "leather": {
+      "text": "leather",
+      "biz": "tanner"
+    },
+    "timber": {
+      "text": "timber",
+      "biz": "woodcutter"
+    },
+    "furniture": {
+      "text": "furniture",
+      "biz": "carpenter"
+    },
+    "fish": {
+      "text": "fish",
+      "biz": "fishery"
+    },
+    "game": {
+      "text": "game",
+      "biz": "hunter"
+    },
+    "cloth": {
+      "text": "cloth",
+      "biz": "tailor"
+    }
+  },
+  "_cultures_note": "Culture rows (race culture). household: mean people per family; growth: chance per family turn of a birth when there is room; home: what a home is made of (goods per home), decay per day (condition 1 -> 0), room = people per home; head_title / capital_title: the town's political head; pay_form/pay (wage mix: coin, food, beer, loot share), rank_rule, span and rank tables are read by campaign/army.gd (economy spec 2).",
+  "cultures": {
+    "middle": {
+      "race": "human",
+      "household": 5,
+      "growth": 0.012,
+      "kin": "family",
+      "home": {
+        "type": "timber-and-stone house",
+        "materials": {
+          "wood": 40,
+          "stone": 30
+        },
+        "decay": 0.0006,
+        "room": 6
+      },
+      "head_title": "reeve",
+      "capital_title": "lord",
+      "research_name": "Academy",
+      "research_lead": "Master",
+      "pay_form": "coin",
+      "pay": {
+        "coin": 1.0
+      },
+      "rank_rule": "wealth",
+      "span": 5,
+      "ranks": {
+        "militia": [
+          "levyman",
+          "levy sergeant"
+        ],
+        "guard": [
+          "watchman",
+          "watch sergeant",
+          "watch captain"
+        ],
+        "army": [
+          "spearman",
+          "veteran",
+          "sergeant",
+          "lieutenant",
+          "captain",
+          "marshal",
+          "lord general"
+        ]
+      }
+    },
+    "northern": {
+      "race": "human",
+      "household": 6,
+      "growth": 0.012,
+      "kin": "clan",
+      "home": {
+        "type": "longhouse",
+        "materials": {
+          "wood": 60,
+          "stone": 10
+        },
+        "decay": 0.0008,
+        "room": 8
+      },
+      "head_title": "jarl",
+      "capital_title": "jarl",
+      "research_name": "Lorehall",
+      "research_lead": "Loremaster",
+      "pay_form": "coin",
+      "pay": {
+        "coin": 1.0
+      },
+      "rank_rule": "renown",
+      "span": 5,
+      "ranks": {
+        "militia": [
+          "fyrdman"
+        ],
+        "guard": [
+          "hearthguard",
+          "hearth-thane"
+        ],
+        "army": [
+          "carl",
+          "huskarl",
+          "thane",
+          "hersir",
+          "war-jarl"
+        ]
+      }
+    },
+    "orc": {
+      "race": "orc",
+      "household": 7,
+      "growth": 0.018,
+      "kin": "brood",
+      "home": {
+        "type": "hide-and-bone tent",
+        "materials": {
+          "leather": 12,
+          "wood": 8
+        },
+        "decay": 0.004,
+        "room": 7
+      },
+      "head_title": "warchief",
+      "capital_title": "warlord",
+      "research_name": "Blood Forge",
+      "research_lead": "Forge-Boss",
+      "pay_form": "coin",
+      "pay": {
+        "coin": 1.0
+      },
+      "rank_rule": "strength",
+      "span": 5,
+      "ranks": {
+        "militia": [
+          "scrapper"
+        ],
+        "guard": [
+          "camp-guard"
+        ],
+        "army": [
+          "raider",
+          "blooded",
+          "gore-boss",
+          "war-captain",
+          "warboss",
+          "warlord"
+        ]
+      }
+    },
+    "goblin": {
+      "race": "goblin",
+      "household": 8,
+      "growth": 0.024,
+      "kin": "litter",
+      "home": {
+        "type": "cave burrow",
+        "materials": {
+          "wood": 5
+        },
+        "decay": 0.002,
+        "room": 9
+      },
+      "head_title": "taskmaster",
+      "capital_title": "the Biggest",
+      "research_name": "The Pit",
+      "research_lead": "Pit-Master",
+      "pay_form": "coin",
+      "pay": {
+        "coin": 1.0
+      },
+      "rank_rule": "cunning",
+      "span": 5,
+      "ranks": {
+        "militia": [
+          "warren-rat"
+        ],
+        "guard": [
+          "whip-watch"
+        ],
+        "army": [
+          "sneak",
+          "knifer",
+          "backstabber",
+          "taskmaster",
+          "the Biggest"
+        ]
+      }
+    },
+    "moon_elf": {
+      "race": "moon_elf",
+      "household": 4,
+      "growth": 0.007,
+      "kin": "house",
+      "home": {
+        "type": "living-wood hall",
+        "materials": {
+          "wood": 30,
+          "stone": 20
+        },
+        "decay": 0.0002,
+        "room": 6
+      },
+      "head_title": "council",
+      "capital_title": "high council",
+      "research_name": "Athenaeum",
+      "research_lead": "Sage",
+      "pay_form": "coin",
+      "pay": {
+        "coin": 1.0
+      },
+      "rank_rule": "politics",
+      "span": 5,
+      "ranks": {
+        "militia": [
+          "lantern-bearer"
+        ],
+        "guard": [
+          "grove warden",
+          "elder warden"
+        ],
+        "army": [
+          "blade",
+          "moonblade",
+          "warden-captain",
+          "lord-commander",
+          "high marshal of the Silvered Court"
+        ]
+      }
+    },
+    "eastern": {
+      "race": "human",
+      "names": "eastern",
+      "household": 6,
+      "growth": 0.012,
+      "kin": "clan",
+      "home": {
+        "type": "felt yurt",
+        "materials": {
+          "wool": 12,
+          "wood": 6
+        },
+        "decay": 0.002,
+        "room": 6
+      },
+      "head_title": "bey",
+      "capital_title": "khan",
+      "research_name": "House of Wisdom",
+      "research_lead": "Hakim",
+      "pay_form": "coin",
+      "pay": {
+        "coin": 1.0
+      },
+      "rank_rule": "renown",
+      "span": 10,
+      "ranks": {
+        "militia": [
+          "camp-rider"
+        ],
+        "guard": [
+          "keshig",
+          "keshig captain"
+        ],
+        "army": [
+          "rider",
+          "seasoned rider",
+          "leader of ten",
+          "leader of a hundred",
+          "leader of a thousand",
+          "khan's marshal"
+        ]
+      }
+    },
+    "dwarf": {
+      "race": "dwarf",
+      "names": "dwarf",
+      "household": 5,
+      "growth": 0.006,
+      "kin": "clan",
+      "home": {
+        "type": "stone hall",
+        "materials": {
+          "stone": 50,
+          "wood": 5
+        },
+        "decay": 0.0002,
+        "room": 6
+      },
+      "head_title": "baron",
+      "capital_title": "king under the mountain",
+      "research_name": "Hall of Makers",
+      "research_lead": "Maker-Lord",
+      "pay_form": "coin",
+      "pay": {
+        "coin": 1.0
+      },
+      "rank_rule": "lineage",
+      "span": 5,
+      "ranks": {
+        "militia": [
+          "hold-warden"
+        ],
+        "guard": [
+          "gate-guard",
+          "gate-sergeant",
+          "gate-captain"
+        ],
+        "army": [
+          "shieldbearer",
+          "oathsworn",
+          "squad leader",
+          "captain",
+          "commander",
+          "high marshal of the Holds"
+        ]
+      }
+    }
+  },
+  "_v012_cultures_note": "v0.012 [ours] (economy-2-army.md put Eastern ranks 'later'; written now): the Eastern humans ride a decimal ladder (span 10: leaders of ten, a hundred, a thousand), succession by renown (their leaders vote by deeds), homes are felt yurts (wool felt on a wood lattice: wool and wood), the town's head a bey and the realm's a khan. The dwarves: stone halls (stone, a little wood; decay a third of the elves' living wood), a baron in each hold and a king under the mountain, rank by lineage (seniority then bloodline: among a people living 160 years age counts), clan kin. names: the name list a culture's people take (person_names / DB.names).",
+  "_army_note": "Economy spec 2 (campaign/army.gd) [ours, tuned]. wage: gold-worth per soldier per day by tier (militia part-time levy, guard = militia of a town of size >= guard_size, army = a faction's field bands, bandit = paid by the camp). rank_pay: wage multiplier for the status ranks (0 recruit, 1 veteran/blooded) and for officers by level counted from the lowest officer rank. desert_days: days unpaid before a man walks home (bandit gangs scatter after scatter_days; company men after company_desert_days). promote_battles: battles survived a man needs before he can fill a NEW post at that officer level (from the lowest). kill_worth by the victim's rank index; monster_worth by creature rarity; renown_share of the victim's own renown; renown_weight: renown's term in every weighted rank rule; renown_join: renown that lets an orc join the free-for-all one level up. start_days: a faction's opening purse in days of its army's wage bill (pre-history, world gen and old saves only). commission: gold per officer level a wealth-rule officer's family pays the treasury. sack_take: share of a sacked town's treasury the raiders carry to their realm's loot chest. fight_ticks: a succession duel stops after this many sim ticks and the man hurt worse yields.",
+  "army": {
+    "_pay_note": "Barge part 3 section 3 (Douglas 01:47-01:49), every race, in coins: rank base a day recruit 70, soldier 100, sergeant 150, officer 240, deputy 360, commander 500 (rank_base: status ranks 0-1 then the officer levels from the lowest), plus per_grade a day per grade (0-10) of skill with his weapon (our ladder 0-15 up to Legendary). A militia levyman is a recruit, a guardsman a soldier. Bandit gangs: hired bands 25 a man a day. Unpaid: field braves leave after desert_days (3), militia desert militia_desert a day. Call-up pay (barge part 4 section 8): sign_on 1.5-2.5 days' wage, a day's wage per fight, a day more if won.",
+    "wage": {
+      "militia": 70.0,
+      "guard": 100.0,
+      "army": 70.0,
+      "bandit": 25.0
+    },
+    "guard_size": 3,
+    "rank_base": [
+      70,
+      100,
+      150,
+      240,
+      360,
+      500
+    ],
+    "per_grade": 5,
+    "militia_desert": 0.12,
+    "sign_on": [
+      1.5,
+      2.5
+    ],
+    "desert_days": 3,
+    "scatter_days": 4,
+    "company_desert_days": 10,
+    "promote_battles": [
+      1,
+      2,
+      4,
+      7,
+      11,
+      16
+    ],
+    "kill_worth": [
+      1,
+      2,
+      4,
+      7,
+      12,
+      20,
+      30
+    ],
+    "monster_worth": {
+      "common": 1,
+      "uncommon": 5,
+      "rare": 20,
+      "epic": 100,
+      "legendary": 300
+    },
+    "renown_share": 0.25,
+    "renown_weight": 0.5,
+    "renown_join": 15,
+    "start_days": 45,
+    "commission": 800,
+    "sack_take": 0.2,
+    "backstab_death": 0.2,
+    "fight_ticks": 500,
+    "notable": 5,
+    "_stores_note": "Forces carry real stores (Supplies, campaign/supplies.gd): food (grain, fruit, meat: meals), drink (beer, wine), bought from the home market by the payer up to store_days per man, carried up to carry_kg per man (goods weights). A fight's winner takes the beaten force's stores up to what it can carry; the rest is lost on the field.",
+    "store_days": 6,
+    "carry_kg": 12
+  },
+  "_shelter_note": "Homeless families (the head took the house for debt, or it fell to ruin) live in the town's shelter (poorhouse) while it has room: cap people = base + per_size x size + per_wealth x wealth. The treasury pays cost per sheltered person per day and feeds broth: broth meals per person per day out of the granary (then bought from the market's grain), wood loads per person per day. Broth alone weakens them (weak += weaken per day, to 1); real food they buy themselves (the first call on their purse) heals it (recover per day). Homeless without a place in the shelter eat strain x faster. estate_home: gold a homeless family pays the treasury for an empty house of the town estate (else the market's new homes). casual_jobs: low-wage work homeless families take before anyone else; places = per x k (per: homes, pop, granary grain, caravans out of the town), wage paid by the payer (treasury or market till).",
+  "shelter": {
+    "base": 4,
+    "per_size": 6,
+    "per_wealth": 2,
+    "cost": 14.0,
+    "broth": 1.3,
+    "wood": 0.05,
+    "weaken": 0.01,
+    "recover": 0.03,
+    "estate_home": 1200,
+    "strain": 1.4
+  },
+  "_casual_note": "Casual work (barge day labour): wage in coins at world start (porter 80, runners 45, servant 40; day_labourer pays the town's day wage, Barge.day_wage); trades and posts x PL^0.8 after.",
+  "casual_jobs": {
+    "day_labourer": {
+      "name": "day labourer",
+      "wage": 100.0,
+      "day": true,
+      "payer": "treasury",
+      "per": "homes",
+      "k": 0.03
+    },
+    "porter": {
+      "name": "porter",
+      "wage": 80.0,
+      "payer": "market",
+      "per": "caravans",
+      "k": 2.0
+    },
+    "rat_catcher": {
+      "name": "rat catcher",
+      "wage": 45.0,
+      "payer": "treasury",
+      "per": "granary",
+      "k": 0.002
+    },
+    "kitchen_hand": {
+      "name": "kitchen hand",
+      "wage": 40.0,
+      "payer": "market",
+      "per": "pop",
+      "k": 0.008
+    },
+    "street_sweeper": {
+      "name": "street sweeper",
+      "wage": 100,
+      "payer": "treasury",
+      "per": "pop",
+      "k": 0
+    },
+    "night_soil_man": {
+      "name": "night-soil man",
+      "wage": 100,
+      "payer": "customers",
+      "per": "pop",
+      "k": 0
+    }
+  },
+  "_size_note": "Families per town by size (hamlet .. city), cap 150 (both x EconGen.TOWN_SCALE: the world-gen town size lever, families and acreage together).",
+  "families_by_size": [
+    50,
+    70,
+    95,
+    120,
+    150
+  ],
+  "_barge_note": "The Barge economy model (docs/specs/barge/01-05; campaign/barge.gd). Barge numbers as given; [ours] marks where our world differs. categories: per goods category target (TargetDays), el (elasticity), ceil (ceiling x base), floor (x base, default floor), perish (days; 0 keeps), fresh (fresh-food scarcity formula), step (share of the gap to the target a price closes a day). temp: the town's mean temperature (C) by climate and season [ours]; spoil_rate: [temperature, rate] points (rate / perish days of a stock spoils a day). harvest: the year's harvest factor rolls. household: barge part 2 section 5 (want elasticities, jars and fuel stores by class poor/middling/rich, eating shares, rest wants q per person a day by class [ours]). tastes: staple tastes by race (part 1 section 1; [ours] goblin mushrooms = our fruit, rats = our meat; moon elf fruit and nuts = our fruit; northern humans barley/rye and meat). labour: day wage 100 x (demand / labourers)^0.3 clamped 55-140 x PL^0.8; field hands 1.15 x; helpers: children 10-14 work at 0.2 and elders at 0.15 of a hand (ages scaled by the race's age of adulthood and elder age). famine: stage deaths a day and work output by stage (Fed, Short, Want, Famine, Starvation, Collapse). treasury: barge part 4 section 1 lines (x town people / per), service money a month by class, house and land tax rate a month [ours: a tax day is the first of each 30 days], surcharge, tribute (harvest share in kind or coin by the ruler's roll). granary: part 4 section 2 (prices a peck; 0.07 peck = one of our meals). coin: part 1 section 2 (mint recipe per 1,000 coins: copper 4.6 + tin 0.4 bars + charcoal 0.45 [our wood]; drain a day; melt above 90% of face). cash: starting cash per family by class (part 1 section 1b). movers: flight a day per stage above Short (part 4 section 6).",
+  "barge": {
+    "coin_factor": 20,
+    "categories": {
+      "staple": {
+        "target": 15,
+        "el": 0.85,
+        "ceil": 14,
+        "floor": 0.45,
+        "perish": 0,
+        "step": 0.22
+      },
+      "prepared": {
+        "target": 0.6,
+        "el": 0.35,
+        "ceil": 8,
+        "perish": 2,
+        "fresh": true,
+        "step": 0.4
+      },
+      "produce": {
+        "target": 6,
+        "el": 0.6,
+        "ceil": 8,
+        "perish": 10,
+        "fresh": true,
+        "step": 0.4
+      },
+      "meat": {
+        "target": 2,
+        "el": 0.5,
+        "ceil": 10,
+        "perish": 4,
+        "fresh": true,
+        "step": 0.4
+      },
+      "condiment": {
+        "target": 45,
+        "el": 0.5,
+        "ceil": 5,
+        "perish": 0,
+        "step": 0.22
+      },
+      "drink": {
+        "target": 40,
+        "el": 0.5,
+        "ceil": 5,
+        "perish": 0,
+        "step": 0.22
+      },
+      "fuel": {
+        "target": 20,
+        "el": 0.7,
+        "ceil": 8,
+        "perish": 0,
+        "step": 0.22
+      },
+      "material": {
+        "target": 60,
+        "el": 0.45,
+        "ceil": 4,
+        "perish": 0,
+        "step": 0.22
+      },
+      "metal": {
+        "target": 45,
+        "el": 0.5,
+        "ceil": 5,
+        "perish": 0,
+        "step": 0.22
+      },
+      "tool": {
+        "target": 120,
+        "el": 0.4,
+        "ceil": 4,
+        "perish": 0,
+        "step": 0.22
+      },
+      "weapon": {
+        "target": 90,
+        "el": 0.5,
+        "ceil": 6,
+        "perish": 0,
+        "step": 0.22
+      },
+      "cloth": {
+        "target": 90,
+        "el": 0.45,
+        "ceil": 4,
+        "perish": 0,
+        "step": 0.22
+      },
+      "household": {
+        "target": 90,
+        "el": 0.4,
+        "ceil": 4,
+        "perish": 0,
+        "step": 0.22
+      },
+      "medicine": {
+        "target": 45,
+        "el": 0.6,
+        "ceil": 10,
+        "perish": 0,
+        "step": 0.22
+      }
+    },
+    "floor": 0.35,
+    "noise": 0.006,
+    "demand_ema": 0.12,
+    "supply_ema": 0.2,
+    "unaffordable": 0.2,
+    "made_floor": 1.05,
+    "peck_per_meal": 0.07,
+    "temp": {
+      "cold": [
+        2,
+        10,
+        4,
+        -6
+      ],
+      "temperate": [
+        10,
+        18,
+        12,
+        2
+      ],
+      "hot": [
+        20,
+        30,
+        24,
+        14
+      ],
+      "dry": [
+        12,
+        27,
+        13,
+        -3
+      ]
+    },
+    "spoil_rate": [
+      [
+        -6,
+        0.06
+      ],
+      [
+        2,
+        0.3
+      ],
+      [
+        18,
+        1.0
+      ],
+      [
+        30,
+        1.5
+      ]
+    ],
+    "harvest": {
+      "bad": [
+        0.12,
+        0.55,
+        0.7
+      ],
+      "good": [
+        0.1,
+        1.15,
+        1.25
+      ],
+      "normal": [
+        0.9,
+        1.1
+      ]
+    },
+    "household": {
+      "markup": 1.1,
+      "el": {
+        "condiment": 0.15,
+        "fuel": 0.35,
+        "medicine": 0.4,
+        "prepared": 0.7,
+        "produce": 0.8,
+        "meat": 1.0,
+        "drink": 1.2,
+        "cloth": 0.5,
+        "household": 0.5,
+        "tool": 0.5
+      },
+      "want_clamp": [
+        0.12,
+        1.6
+      ],
+      "jar": [
+        3,
+        20,
+        50
+      ],
+      "ration_jar": 4,
+      "fuel_store": [
+        2,
+        8,
+        25
+      ],
+      "winter_fuel": 1.5,
+      "gather": 0.4,
+      "kid_eat": [
+        0.6,
+        0.8
+      ],
+      "rest_q": {
+        "meat": [
+          0.15,
+          0.4,
+          0.8
+        ],
+        "fruit": [
+          0.2,
+          0.3,
+          0.4
+        ],
+        "drink": [
+          0.6,
+          1.0,
+          1.5
+        ]
+      },
+      "rest_save": [
+        0.015,
+        0.015,
+        0.03
+      ],
+      "essentials_save": 0.35,
+      "hungry_lux": 0.3,
+      "class_line": [
+        1500,
+        20000
+      ]
+    },
+    "_tastes_note": "[ours] mapping of the barge tastes onto our three foods: grain is our keeping staple (wheat, barley, rye, millet; the goblins' dried mushrooms 2.0; the moon elves' nuts 1.6 and honey 1.0), fruit our produce (elves' fruit 1.6), meat (orcs 2.2, goblins' rats 1.0, the northern humans' meat 0.5 [ours]).",
+    "tastes": {
+      "middle": {
+        "grain": 1.0
+      },
+      "northern": {
+        "grain": 1.0,
+        "meat": 0.5
+      },
+      "orc": {
+        "meat": 2.2,
+        "grain": 0.6
+      },
+      "goblin": {
+        "grain": 2.0,
+        "meat": 1.0
+      },
+      "moon_elf": {
+        "fruit": 1.6,
+        "grain": 2.6
+      },
+      "eastern": {
+        "grain": 1.0,
+        "meat": 0.8
+      },
+      "dwarf": {
+        "grain": 1.2,
+        "meat": 0.6
+      }
+    },
+    "taste_peck": 55,
+    "taste_power": 2.6,
+    "labour": {
+      "base": 100,
+      "min": 55,
+      "max": 140,
+      "power": 0.3,
+      "field": 1.15,
+      "harvest_hands": 2.0,
+      "kid_share": 0.2,
+      "elder_share": 0.15,
+      "kid_from": 10,
+      "kid_to": 15,
+      "shortage_cut": 0.3,
+      "pl_power": 0.8,
+      "builder_season": [
+        1.0,
+        1.2,
+        1.0,
+        0.25
+      ]
+    },
+    "_bid_note": "business.scarce / bid_share / bid_step (v0.011, campaign/businesses.gd bid_day): a family trade whose goods sell over scarce x base and that is short of hands raises its pay bid_step a day, at most bid_share x what a hand makes (barge part 3 section 5: the cottage trades' 1.25 x base, 95% of the net, 10% a day) [ours: applied to every family trade].",
+    "business": {
+      "out_share": 0.92,
+      "run_margin": 1.03,
+      "idle_cap": 0.2,
+      "aim_gap": 0.1,
+      "loss_days": 20,
+      "loss_days_broke": 10,
+      "struggling": 12,
+      "thriving": 0.4,
+      "upkeep": [
+        4.0,
+        1.5
+      ],
+      "take_days": 60,
+      "take_share": 0.08,
+      "scarce": 1.25,
+      "bid_share": 0.95,
+      "bid_step": 0.1
+    },
+    "famine": {
+      "deaths": [
+        0,
+        0,
+        0,
+        0.0075,
+        0.03,
+        0.04
+      ],
+      "output": [
+        1.0,
+        0.95,
+        0.8,
+        0.6,
+        0.4,
+        0.25
+      ],
+      "fed_days": 7,
+      "riot": 0.62
+    },
+    "class_off": [
+      0,
+      1,
+      3
+    ],
+    "movers": {
+      "flight": 0.004,
+      "move_in_days": 30,
+      "move_in_max": 3
+    },
+    "treasury": {
+      "start": 420000,
+      "short": 250000,
+      "full": 800000,
+      "per": 8000,
+      "service": [
+        40,
+        150,
+        1200
+      ],
+      "service_scale": [
+        1.0,
+        1.6
+      ],
+      "house_tax": 0.0008,
+      "tax_days": 30,
+      "surcharge": [
+        0.1,
+        0.2
+      ],
+      "surcharge_off": 1.8,
+      "greedy": 1.6,
+      "merciful": 0.75,
+      "tribute_kind": [
+        0.0833,
+        0.125
+      ],
+      "tribute_coin": [
+        0.0333,
+        0.0667
+      ],
+      "salary_cover": 3.0,
+      "forced_loan": 0.15,
+      "debase_step": 0.1,
+      "debase_max": 0.3
+    },
+    "granary": {
+      "sell_index": 1.3,
+      "sell_k": [
+        1.2,
+        0.6,
+        0.05,
+        0.5
+      ],
+      "relief_peck": 55,
+      "buy_index": 0.85,
+      "buy_share": 0.08,
+      "buy_peck": 45,
+      "ration_days": [
+        9,
+        15
+      ],
+      "gruel_index": 1.9,
+      "gruel_hunger": 0.3,
+      "gruel_peck": 0.07,
+      "brew_ban": [
+        1.9,
+        1.4
+      ]
+    },
+    "rent": {
+      "month": 0.008,
+      "own": {
+        "rich": 1.0,
+        "middling": 0.85,
+        "farmer": 0.8,
+        "merchant": 0.7,
+        "craftsman": 0.6,
+        "soldier": 0.35,
+        "labourer": 0.25
+      },
+      "evict_weeks": 9
+    },
+    "coin": {
+      "drain": 0.00072,
+      "pl_step": 0.025,
+      "pl_power": 0.6,
+      "pl_clamp": [
+        0.5,
+        3.0
+      ],
+      "shortage": [
+        0.92,
+        3.0,
+        0.6
+      ],
+      "labour_cut": 0.3,
+      "spend_cut": 0.5,
+      "mint_recipe": {
+        "copper_bars": 4.6,
+        "tin_bars": 0.4,
+        "wood": 0.45
+      },
+      "mint_recipe_bronze": {
+        "bronze_bars": 5.0,
+        "wood": 0.45
+      },
+      "mint_day": 12000,
+      "mint_day_short": 20000,
+      "minters": 9,
+      "melt_above": 0.9,
+      "melt_share": 0.01,
+      "forge_below": 0.34,
+      "trust_debase": 0.7
+    },
+    "cash": {
+      "poor": [
+        250,
+        250
+      ],
+      "middling": [
+        1500,
+        700
+      ],
+      "rich": [
+        25000,
+        8000
+      ],
+      "business": 1500,
+      "k": [
+        0.5,
+        1.5
+      ],
+      "rich_share": 0.03,
+      "middling_share": 0.25
+    },
+    "ox_price": 4000
+  },
+  "sanitation": {
+    "_note": "Simulation assumptions in physical units; no outcome targets. Grain uses existing 0.4 kg/meal. Town rats start at one per five residents, bounded by reachable food. Cleaner throughput includes walking and cart disposal. Urine is tracked separately as litres, not added to dry-solid kg. Two lodging houses have 30 rooms total.",
+    "waste_kg_day": 0.25,
+    "refuse_kg_day": 0.5,
+    "urine_l_day": 1.4,
+    "sweep_kg_day": 350,
+    "night_soil_l_day": 1000,
+    "rats_caught_day": 20,
+    "rat_grain_kg_day": 0.025,
+    "nest_kg_pair": 0.5,
+    "litters_week": [
+      0.16,
+      0.2,
+      0.16,
+      0.04
+    ],
+    "litter_size": 6,
+    "decay_kg_person_day": [
+      0.05,
+      0.1,
+      0.05,
+      0.01
+    ],
+    "trade_waste_per_hand": {
+      "butcher": 2,
+      "tanner": 1.5,
+      "dyer": 1,
+      "brewer": 0.5
+    },
+    "rats_initial_per_person": 0.2
+  }
+}

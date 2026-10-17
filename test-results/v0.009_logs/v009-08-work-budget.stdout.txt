@@ -1,0 +1,4 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+WORK BUDGET checks=12 failures=2 slices=209 synchronous_ms=2685.462 sliced_ms=9119.269
+== res://tests/test_work_budget.gd: FAIL (2) ==

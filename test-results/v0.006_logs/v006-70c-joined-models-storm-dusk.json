@@ -1,0 +1,16 @@
+{
+  "Run": "v006-70c-joined-models-storm-dusk",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v006-source-verification\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_dragon_models.gd",
+    "--forms=stormkeel,duskfin",
+    "--watchdog=50"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 12.151
+}

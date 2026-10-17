@@ -1,0 +1,16 @@
+{
+  "Run": "v009-02-baseline-live",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v0081-baseline\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=tests/diag_live_performance.gd",
+    "--watchdog=48",
+    "--fixture-save=C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v009-baseline-live-fixture.json"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 19.817
+}

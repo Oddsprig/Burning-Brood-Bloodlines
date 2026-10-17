@@ -1,0 +1,23 @@
+{
+  "Run": "v006-72-gem-joined-injury-native",
+  "Arguments": [
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v006-source-verification\\game",
+    "--wid",
+    "5770802",
+    "--single-window",
+    "--resolution",
+    "1280x800",
+    "--position",
+    "-32000,-32000",
+    "--rendering-method",
+    "gl_compatibility",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/capture_v006_gem_joined_final.gd",
+    "--watchdog=45"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 33.015
+}

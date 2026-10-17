@@ -1,0 +1,99 @@
+BURNING BROOD: BLOODLINES v0.014 - COMBINED v013 + v014 RESULTS
+2026-10-11 | Selected final native checks PASS.
+User explicitly requested13 and14 together; one v0.014 package/Desktop launcher.
+
+NATIVE PACE / READ-ONLY SUMMARY
+39 pace checks: defaultOFF, current settings persistence, existing gore/animations,
+live OFF cancels slow/cooldown/nudge immediately, speed/pause/skip retained, both
+Settings routes and Esc running/paused restoration, disconnected signal binding.
+48 fixed native ticks match independent control bodies/wounds/events/RNG, with
+actual hits/wounds. Only additive player_fled/side_names/fighter_states metadata;
+native archery/growth finalizes once. No rule, army, economy or material changes.
+110 summary assertions:100/100 and200/200 exact health partition; retreat overlaps
+living survivors; dead/fled priority, actual unconscious/pain/blood states, native
+permanent injuries and recovery. Distinct instances sharing a UID remain distinct;
+side-roster precedence prevents off-side aliases. Sparse/missing bodies remain
+unchanged; no repair, healing or UID/coin/RNG mutation during reads.
+
+ACTUAL RENDERED PLAYBACK
+Bundled official Godot4.7.2 Windows/OpenGL3.3/NVIDIA610.88, RTX5090 Laptop GPU.
+2560x1440, VSyncOFF/cap60, private offscreen/no-focus, BelowNormal, serial process.
+Native Factory200/200 close-contact fixture; no world/rewards/save in this probe.
+Measured 30.02FPS; p95 41.833ms; worst 82.323ms; 241 native ticks.
+Default/setting event slowmo=False/False; slow frames 0,slow seconds 0; speed 1,native budget ratio 1.000000000000001.
+Actual pan/zoom/inspector/pause exercised.30FPS/p95<=50ms recovery and native
+tick-delivery gates pass;60FPS/heavy melee everywhere is not established. Native
+engine delta budget delivery is measured separately from actual wall-clock FPS.
+
+RESULTS UI / REAL VISUAL CHECKS
+Headless UI231 assertions/15 desktop fits; actual rendered UI 266 assertions/15fits,15 PNG captures.
+1280x720,1920x1080,2560x1440: closed summary and opened wounded/lessons/loot/fallen.
+Both sides/slain/serious/other wounds/unhurt/retreat totals, native allies and
+important officer losses. Settled coins/gear/supplies/trophies/camp/bonus/arrows
+retained; opening details never sells, pays, grows, heals or reruns build_result.
+All four default headings visible without scrolling at1280; Continue always
+outside scrolling details. Dark native green/purple surfaces with legible text.
+One detail section open,18rows/page, correct next/previous/last clamps; closed
+lists have no hidden sources/rows. Control tree stays<100 closed/<240 opened in
+the200/200 fixture. Original complete result/bodies/gear/metas/RNG/UIDs preserved.
+Permanent survivor wording explains healed open wounds vs lasting damage;
+unconscious without an estimate is not described as recovered.
+Primary actually inspected FIVE final native PNGs, covering all three windows
+and all five states; all15 PNG hashes/dimensions and review receipt recorded.
+PNG pixels remain private in work/; not posted as game art or included in ZIP.
+Per-action measured native CPU timings (not steady FPS):
+  build: mean 173.893ms, max 235.175ms.
+  open_fallen: mean 5.392ms, max 5.600ms.
+  open_lessons: mean 3.190ms, max 3.206ms.
+  open_loot: mean 4.186ms, max 5.356ms.
+  open_wounded: mean 8.735ms, max 8.828ms.
+Initial400-person heavily wounded summary can take~0.24s including cold loading;
+later section opens remain<9ms here. No fabricated baseline improvement claim.
+
+FRESH NATIVE LIFECYCLE / REGRESSIONS
+Fresh Normal seed777/ONE history day: 72 checks,3 map/battle/results Continue/company/map cycles.
+One actual100/100 fight: 160 ticks,42 native enemy deaths; independent bodies/events/RNG exact.
+Two paused reopens use detached native records; no fake population/reward/save
+reconciliation. Battle/sim/fighter/casualty/scene WeakRefs release; native workers
+drain, warm sprite caches remain bounded. Complete campaign/RNG/UIDs unchanged.
+40 Performance-panel checks/7 desktop fits;54 native save queue/regression checks.
+v011 campaign/v012 save ownership machinery retained. Short cycles do not prove
+long-session leak freedom; engine memory, OS samples and payloads differ.
+
+SOURCE / BOOT / EVIDENCE
+Selected recorded assertions 829; focused 474;4 rendered gate cases plus native lifecycle.
+All 970 game files match production/candidate/cold copy (candidate only adds private no_focus flag).
+All 444 priorv012 UIDs unchanged; 449 unique current UIDs; 101 art/data files exact; 20 nativev053 model files exact.
+Bundled runtime matches immutable prior release. Fresh spaced-path PrepareOnly
+and native main headless boot pass exact shipped settings/source. Selected full
+stdout/stderr are checked; only exact known Windows root-certificate-store ERROR
+is excluded. No other errors, failed/inherited checks or leak warnings accepted.
+No phone QA, old-save compatibility, art replacement, foreground/input or Copper
+Oath launch/modification. No full combat-log capture/browser in this scope.
+
+DEVELOPMENT ATTEMPTS
+Initial native pace/summary/headless/render checks were clean. First UI screenshot
+review found the1280 closed Loot header below the visible scroll area; layout
+tightened and18 new visibility/permanent-recovery checks added. Final231/266
+UI assertions and exact final02 PNGs establish delivery. Earlier clean renders
+are development evidence only and excluded from selected final counts.
+No native engine test failed during this combined pass.
+
+SELECTED COMPLETE RUNS
+  v014-pace-final - PASS - 3.079s
+  v014-summary-final - PASS - 3.235s
+  v014-ui-headless-final - PASS - 7.773s
+  v014-panel-final - PASS - 4.652s
+  v014-save-queue-final - PASS - 2.764s
+  v014-ui-render-final-02 - PASS - 13.034s
+  v014-battle-render-final - PASS - 18.559s
+  v014-lifecycle-render-final - PASS - 93.694s
+  v014-cold-launcher-01 - PASS - 7.732s
+  v014-cold-main-01 - PASS - 5.191s
+
+DELIVERY / NEXT
+Versioned ZIP and actual Desktop/icon/preserved-old-version readbacks have
+separate supplemental receipts. No standalonev013 release; both scopes in014.
+Next:v015 full paused/end combat log and individual filter, thenv016 officer rally.
+Current log event caps remain native until that log pass. Roadmap preserves all
+army/records/selection/salvage/dragon requirements in their later scoped work.

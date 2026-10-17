@@ -1,0 +1,16 @@
+{
+  "Run": "v008-07-queued-care-save",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v008-source-verification/game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_dragon_care_release.gd",
+    "--fixture-save=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v008-campaign-fixture.json",
+    "--watchdog=30"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 20.061
+}

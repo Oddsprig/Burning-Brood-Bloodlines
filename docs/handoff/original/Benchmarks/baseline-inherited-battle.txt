@@ -1,0 +1,13 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: baseline-inherited-battle
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 6.156s | exit 0
+FAIL | tests/test_food_battle.gd | 45.031s | exit 1
+  1 occurrence(s): FAIL: half-starved men gasp for breath
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-baseline-inherited-battle
+Source receipt SHA256: d4e8fd5d7ba711b24fa3edd567c78124a57512adf1157485e64e64751b957cbf
+
+Notes (you can write here):

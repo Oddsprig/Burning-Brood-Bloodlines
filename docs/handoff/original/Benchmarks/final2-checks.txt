@@ -1,0 +1,33 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: final2-checks
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 5.016s | exit 0
+PASS | tests/test_farm_work_rules.gd | 1.953s | exit 0
+PASS | tests/test_farm_worked.gd | 1.953s | exit 0
+PASS | tests/test_farm_capacity_funding.gd | 69.969s | exit 0
+PASS | tests/test_farm_season_turn.gd | 54.391s | exit 0
+PASS | tests/test_private_farm_batch_hiring.gd | 15.282s | exit 0
+PASS | tests/test_weekly_hiring.gd | 7.719s | exit 0
+PASS | tests/test_household_assignment.gd | 56.110s | exit 0
+PASS | tests/test_funded_hiring.gd | 54.109s | exit 0
+PASS | tests/test_hiring_paired.gd | 22.016s | exit 0
+PASS | tests/test_harvest_labour.gd | 2.141s | exit 0
+PASS | tests/test_harvest_scope.gd | 99.469s | exit 0
+PASS | tests/test_harvest_lifecycle.gd | 64.922s | exit 0
+PASS | tests/test_harvest_nonnegative.gd | 2.156s | exit 0
+PASS | tests/test_harvest_herds.gd | 2.047s | exit 0
+PASS | tests/test_harvest_lookup.gd | 3.828s | exit 0
+PASS | tests/test_farm_inheritance.gd | 72.438s | exit 0
+PASS | tests/test_wage_claims.gd | 9.844s | exit 0
+PASS | tests/test_wage_books.gd | 2.391s | exit 0
+PASS | tests/test_wage_records.gd | 8.062s | exit 0
+PASS | tests/test_campaign_census.gd | 344.391s | exit 0
+PASS | tests/test_campaign_save.gd | 30.281s | exit 0
+PASS | tests/test_barge.gd | 323.656s | exit 0
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-final2-checks
+Source receipt SHA256: 606f644bd4bda7eb25ef18cef869d260392ab731c2f83771a4e3d8e7c4d9fe29
+
+Notes (you can write here):

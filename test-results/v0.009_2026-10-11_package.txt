@@ -1,0 +1,21 @@
+BURNING BROOD: BLOODLINES v0.009 - PACKAGE VERIFICATION
+Date: 2026-10-11 | Result: PASS
+Source code checkpoint: d25244792f60438fe7e8253482361d24c4f9bf34
+ZIP: releases/Burning_Brood_Bloodlines_v0.009_Windows.zip
+ZIP SHA256: 9c1fb94b081c3bf4f50e53c8a4895c9a9432ac1f4328c03ea0940ef0615b2a15
+ZIP bytes: 105529708
+
+All 1862 payload files and the included manifest were
+read back from the final ZIP and compared by exact bytes/length/SHA256.
+All 924 game files matched the final tested source manifest.
+Bundled official runtime SHA256 matched the cold-launch-tested engine.
+No engine cache, Git repository, chat work directory, player save or generated
+test-world save was included. One top-level folder keeps launcher paths intact.
+Original handoff remains immutable reference material; game/ is the active tree.
+Packaging plus complete stream verification: 4.669s.
+
+Fresh PrepareOnly and actual main-scene checks were performed earlier against
+these same game bytes in a fresh path with spaces. No interactive launch or
+campaign or benchmark was performed during packaging.
+This report is written after archive verification and lives beside the source;
+the ZIP includes the gameplay TXT evidence and its complete release manifest.

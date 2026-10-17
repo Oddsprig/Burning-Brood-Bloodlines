@@ -1,0 +1,16 @@
+{
+  "Run": "v002-14-release-save",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v002-verification\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_dynasty_release.gd",
+    "--watchdog=40",
+    "--capture-world"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 34.498
+}

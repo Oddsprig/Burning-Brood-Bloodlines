@@ -1,0 +1,181 @@
+BURNING BROOD: BLOODLINES - CLAUDE EDITION - DEVELOPMENT NOTES
+Built 2026-10-15 from v0.022 (ChatGPT). Godot 4.7.2, GDScript, GL compatibility.
+
+
+VERSION NUMBERING (the project's own; do not invent another scheme)
+The version map is docs/ROADMAP.txt in the original folder: one feature per
+version, steps of 0.001. v0.022 is the last delivered version. This build has
+not been given a version number; the user picks it. Work by roadmap version:
+- v0.023 mounted character: not confirmed in this build.
+- v0.024 breath: built (dragon breath with friendly risk).
+- v0.025 campaign deployment: built (dragon marches with the army; feed is
+  charged from the army purse).
+- v0.026 raid: built.
+- v0.027 siege: built.
+- v0.028 feudal consequences: partly built (conquered towns resent you and
+  can defect; no dragon-specific fear yet).
+Work outside the roadmap: court and marriage, interface pass, battles in
+100 v 100 rounds, armies up to 1000, house officers and noble call-up, house
+arms pool, ennoblement, medics and battle aftermath.
+
+WHERE THINGS ARE
+Editable source:  outputs\Burning_Brood_Bloodlines_Claude\game  (project.godot)
+                  git branch claude-entry (commits on top of dev/burning-brood)
+Windows build:    outputs\Burning_Brood_Bloodlines_Claude_Edition_Windows
+Original v0.022:  outputs\Burning_Brood_Bloodlines (untouched)
+Save/settings:    %APPDATA%\Burning Brood Bloodlines Claude Edition (separate
+                  from the original game's folder)
+
+WHAT CHANGED (by system)
+Battle presentation (battle/battle.gd, map_view.gd, unit_view.gd, breath_fx.gd)
+- Follow camera frames every living, unrouted fighter of both sides and eases
+  in; dragging, wheel or keys take control, C hands it back. Battles open
+  already framed.
+- Ground is painted once into a texture (SubViewport, UPDATE_ONCE) instead of
+  thousands of canvas commands every frame; checkerboard replaced by soft
+  patches. Sieges draw town walls and towers beyond the defenders' edge;
+  raids draw houses.
+- All ground shadows in one canvas item; settled corpses skip per-frame doll
+  work. Battle feed: 4 compact lines (full text stays in the Combat log).
+- Developer performance overlay hidden by default (F3 / Settings).
+Dragons in battle (sim/dragon_breath.gd, battle/dragon_view.gd)
+- Breath: each gem line breathes one element (fire, frost, venom, storm).
+  A 6-tile cone, 2-5 charges per battle by growth, 4.5 s cooldown, visible
+  wind-up. Damage goes into the same BodyState layers as weapons (skin, fat,
+  muscle; pain, bleeding, knock-out, death checks). Armour matters per
+  element (metal resists fire, conducts cold and lightning; venom eats gear).
+  Allies caught in the cone are burned (reduced strength); the dragon will
+  not breathe when more friends than foes are in front of it. Dragon fear
+  shocks enemy morale. Every breath and burn is in the combat journal.
+- The bonded rider is drawn seated on the saddle (MountedRiderArt layers at
+  human scale; far leg behind the dragon, saddle and near side in front),
+  following the seat through every pose.
+Campaign warfare (campaign/warfare.gd, world_map.gd)
+- Tap a foreign settlement with your raised army nearby: Raid or Besiege.
+  Defenders are the town's real guards and militia (capped at 1.25x your
+  army, 12..200). Siege defenders hold the walls.
+- Raid win: 35% of the treasury and 12% of household purses go to the army
+  purse (coin moves, never created), 40% of stored grain burns, ~3% of the
+  common folk die (Population.kill_slots, recorded in the census), unrest
+  rises, the town's loyalty to its own lord falls and grievance rises.
+- Siege win: the settlement swears to your realm (forces split by home town,
+  feudal hierarchy rebuilt, diplomatic grievance, academy sync); it starts at
+  loyalty 30 / grievance 45 and can defect again through the native daily
+  loyalty rules. A realm with no towns left is broken.
+- Either act sours relations (Diplomacy.on_fight, on_town_attacked).
+- Results screen leads with the assault outcome.
+Dragons on campaign (warfare.gd march, dragon_combat.gd battle_units)
+- "March with army": a bonded adult joins every battle the field army fights
+  (not only home defence). It eats from the army purse every day
+  (6 x linear scale^2 coins); unfed dragons lose care health. Recalled when
+  the army stands down or by the button.
+Dragon lifecycle (campaign/dragon_life.gd, dragon_care.gd, dragon_growth.gd)
+- Eggs incubate with good care and hatch after 40 days into a named small
+  hatchling with a combat body; juveniles become adults after one 120-day
+  year; growth is one size band per year when well fed (was 20 years, which
+  no campaign could reach). A healthy female + male of one house at one roost
+  may lay a clutch (one per 150 days, about one per season while eligible).
+  Runs only on days DragonCare actually settles.
+Ambitions and outcome (campaign/ambitions.gd, ui/ambitions_view.gd, victory)
+- Eight ambitions measured from real state; six = "Dynasty Triumphant"
+  victory screen (keep playing allowed). Extinction of the founding dynasty
+  remains the defeat. Toasts on the map when one is achieved.
+Onboarding (ui/guide_view.gd, title "How to play", map "Help")
+- 7-page guide opens once on the first map visit.
+Performance (art/dragon_art.gd, dragon_rig_art.gd, ui/dragon_card.gd)
+- Dragon pigment (a per-pixel pass over large source art) is cached on disk
+  (user://dragon_tints) and pre-painted on worker threads at new game/load.
+  Part extraction uses image blits with cached masks. Cards compute 2 pose
+  models instead of 8. Dragon card: about 1.5 s -> under 0.3 s.
+Marriage, family and alliances (campaign/marriage.gd, ui/court.gd) - pass 2
+- Court screen: ruler, spouse, heir, all living members with marriage status and
+  children; Find a match / Arrange betrothal; alliances, claims, chronicle.
+- Candidates: unmarried people of other ruling houses and tracked landed
+  families (not their heads or heirs). Deterministic acceptance with visible
+  reasons; gift tiers (2% / 6% of the house purse, real coin to their house).
+- Wedding moves the spouse's native person record into your household (new
+  local pid when changing town; identity, birth house and kin UIDs kept), so
+  the native childbearing rules produce children of your house and heirs under
+  your law. Dowry (3% of their purse) is real coin. A dragon house may send an
+  egg. Betrothals wed automatically at coming of age.
+- Alliance: +25 relations / +15 standing with a foreign realm; vassal towns
+  +15 loyalty, -10 grievance and +0.15 loyalty a day. Claims on the spouse's
+  ruling seat make a siege conquest welcome (loyalty 60 instead of 30).
+Large-world performance (pass 2, measured on the player's real 135 MB save)
+- Town reserves capped at 6 + 5 per size step; surplus reservists return home
+  (same people); the armory keeps kit for its reserve plus a levy of 30 + 40 per
+  size step; surplus armory pieces are melted into scrap metal stock by mass
+  (legendary pieces always kept). Dragon roster paged (9 per page) with cached
+  card models.
+Audio (core/sound.gd, audio/CREDITS.txt) - pass 2
+- Recorded CC0 music (title, map, battle) and effects (Kenney, OpenGameArt),
+  loudness-normalised; Music volume and Sound effects in Settings (default
+  Normal-low). The first synthesized set was removed.
+Look (ui/theme.gd, ui/title.gd, battle) - pass 2
+- Warm heraldic palette (walnut, oxblood, gold), Cinzel headings and buttons,
+  Alegreya reading text (both OFL, licences in ui/fonts); ember-sky title with
+  the ruby dragon; earthier battlefield, vignette, battle opening/closing
+  banners, camera shake on dragon attacks and breath.
+Bug fixed: the party camps on the nearest passable ground up to ~1.5 cells
+  from a town; the 28 px "at home" test could make mustering impossible in
+  some worlds (seen with seed 4242). Tolerance is now 48 px.
+Branding: Claude Edition title, window name, icon (BloodlinesClaude.ico),
+  separate user-data folder, launcher scripts.
+
+HOW TO TEST (tests are scenes: game/tests/runner.tscn)
+  runtime\Godot_v4.7.2-stable_win64.exe --path game --rendering-method
+    gl_compatibility res://tests/runner.tscn -- --test=res://tests/<file>.gd
+    --watchdog=<seconds> [extra args]
+  claude_campaign.gd  integrated campaign through main.tscn (--out=dir saves
+                      screenshots)
+  claude_bench.gd     honest benchmark (--size=WxH --secs --map-secs
+                      --battle-only)
+  claude_tour.gd      screenshot tour of every main screen and a battle
+Run --headless --import once after changing class_name scripts.
+
+KNOWN LIMITS (honest)
+- Dense battles (400 people + 2 dragons, 2560x1440) average about 55 FPS:
+  median frames hit the 60 cap, but a simulation tick (about 5-6 ms of
+  GDScript for 400 fighters) lands every third frame and some frames reach
+  25-30 ms. Not a locked 60.
+- Map: midnight work is sliced, but rare militia/creature checks still cost
+  up to ~150 ms (occasional hitch at x4 speed).
+- The rider is visual and flavour on the dragon; the rider is not a separate
+  target in the battle sim and does not die when the dragon dies.
+- The first view of each dragon variety still paints its pigment once (on a
+  worker thread at game start/load; cached on disk afterwards).
+- Ruling lords of conquered towns keep their seats as your vassals; there is
+  no title transfer to your own family yet.
+- Marriage is player-driven for your house; other houses still marry by the
+  native in-town rules. No divorce, concubines or AI cross-realm matchmaking.
+- Older test files test_battle_screen.gd and test_battle_presentation_state.gd
+  already failed on the untouched v0.022 baseline (verified) and still do.
+
+ROUND-BASED BATTLES AND INTERFACE PASS 2 (2026-10-16)
+- campaign/battle_rounds.gd: a battle with more than 100 on a side runs as
+  rounds. State lives in Game.pending_battle["rounds"]; the battle scene
+  reloads for each round with pending_battle["round_side0"] and ["enemy"]
+  set to that round's unit of up to 100 fit men (fresh men first). After
+  each round: dead stay dead, men downed on a field the other side holds
+  become prisoners (world["captives"] for yours, world["prisoners"] for the
+  enemy's), wounded who cannot fight sit out, morale moves with the round
+  result, men lost, officers lost and the commander. Break at morale < 25,
+  no fit men, or > 60% of starting men dead or taken.
+  Game.finish_battle gets one merged result (BattleRounds.final_result).
+- Retreat: World._battle_result now sends a beaten people band to its home
+  town (BattleRounds.retreat_band: rest and regroup for 5 days) instead of
+  deleting it. A beaten player army returns every survivor home as
+  reserves (Mobilization.return_home) and the party stands at the seat.
+- Off-screen army clashes use campaign/clash_rounds.gd (written by Sol 6.1
+  through the bridge, reviewed and formatted here) with the same rules;
+  the loser regroups at home instead of being deleted.
+- Mobilization.enlist_household: an adult of your house joins the army as
+  an officer; the person is the unit, so wounds, capture and death are
+  theirs. Captives show "held captive" in the Court tree.
+- ui/round_summary.gd (written by Muse Wonder Full through the bridge):
+  the round card and the separate battle card. The Muster "Your house"
+  card is also Muse's. Laws screen layout is Sol's; the army tiles Muse's.
+- Caps: Mobilization.LIMIT 1000; AI field armies FIELD_LIMIT 600, growing
+  50 a week. The battle field never holds more than 100 a side.
+- Known gaps: prisoners are recorded but there is no ransom or exchange
+  screen yet; captured enemy nobles are not yet offered for ransom.

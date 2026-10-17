@@ -1,0 +1,5 @@
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+FAIL performance panel: old current timings expire after idle
+FAIL performance panel: overall current work expires separately from peak
+FAIL performance panel: new work starts a fresh recent window

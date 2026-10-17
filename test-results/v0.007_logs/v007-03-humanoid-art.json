@@ -1,0 +1,15 @@
+{
+  "Run": "v007-03-humanoid-art",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v007-source-verification/game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_humanoid_art_import.gd",
+    "--watchdog=45"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 2.698
+}

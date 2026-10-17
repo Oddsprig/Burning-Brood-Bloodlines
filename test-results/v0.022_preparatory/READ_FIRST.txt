@@ -1,0 +1,1 @@
+Preparatory evidence only. Failed, partial and superseded runs are EXCLUDED from current assertion/delivery counts. See ../v0.022_2026-10-12_results.txt for failure causes, corrections and actual selected runs. Preserve full logs even when a partial summary printed PASS.

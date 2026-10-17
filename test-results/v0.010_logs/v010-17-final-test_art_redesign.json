@@ -1,0 +1,15 @@
+{
+  "Run": "v010-17-final-test_art_redesign",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v010-source-verification\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_art_redesign.gd",
+    "--watchdog=40"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 4.726
+}

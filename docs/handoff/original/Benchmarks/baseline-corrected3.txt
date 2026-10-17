@@ -1,0 +1,459 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: baseline-corrected3
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 5.016s | exit 0
+FAIL | tests/test_household_food_v046.gd | 2.047s | exit 125
+  1 occurrence(s): FAIL: missing register, legacy cache: unrecorded children eat 0.6 each got 4.600000000 expected 4.200000000
+  1 occurrence(s): FAIL: missing register, legacy cache: stale cache cannot supply older-child counts
+  1 occurrence(s): FAIL: missing register, current-looking cache: unrecorded children eat 0.6 each got 4.600000000 expected 4.200000000
+  1 occurrence(s): FAIL: missing register, current-looking cache: stale cache cannot supply older-child counts
+  1 occurrence(s): FAIL: empty register, legacy cache: unrecorded children eat 0.6 each got 4.600000000 expected 4.200000000
+  1 occurrence(s): FAIL: empty register, legacy cache: stale cache cannot supply older-child counts
+  1 occurrence(s): FAIL: empty register, current-looking cache: unrecorded children eat 0.6 each got 4.600000000 expected 4.200000000
+  1 occurrence(s): FAIL: empty register, current-looking cache: stale cache cannot supply older-child counts
+  1 occurrence(s): FAIL: middle: five actual daily meals retain fractional carry got 34.000000000 expected 32.000000000
+  1 occurrence(s): FAIL: middle: five actual daily meals retain fractional carry got 34.000000000 expected 36.000000000
+  1 occurrence(s): FAIL: middle: opening food demand uses actual shares grain got 7.600000000 expected 6.688000000
+  1 occurrence(s): FAIL: middle: opening food demand uses actual shares fruit got 1.175000000 expected 1.034000000
+  1 occurrence(s): FAIL: middle: opening food demand uses actual shares meat got 1.225000000 expected 1.078000000
+  1 occurrence(s): FAIL: middle: birthday refreshes warm same-count cache got 2.600000000 expected 2.800000000
+  1 occurrence(s): FAIL: middle: future-dated age cache cannot serve an earlier day got 2.800000000 expected 2.600000000
+  1 occurrence(s): FAIL: middle: same-count older record invalidates age cache got 2.600000000 expected 2.800000000
+  1 occurrence(s): FAIL: middle: existing home/away role army got 12.800000000 expected 10.800000000
+  1 occurrence(s): FAIL: middle: existing home/away role bandit got 12.800000000 expected 10.800000000
+  1 occurrence(s): FAIL: middle: existing home/away role deserter got 12.800000000 expected 10.800000000
+  1 occurrence(s): FAIL: middle: broth and away shares excluded exactly once got 1.400000000 expected 2.000000000
+  1 occurrence(s): FAIL: middle: switch restores exact home shares got 7.400000000 expected 5.200000000
+  1 occurrence(s): FAIL: middle: rehousing refreshes broth exclusion immediately got 7.400000000 expected 5.200000000
+  1 occurrence(s): FAIL: middle: town supply includes actual household fresh food got 0.000000000 expected 0.750000000
+  1 occurrence(s): FAIL: middle: fresh-only short stock is physically eaten
+  1 occurrence(s): FAIL: middle: three fresh meals cover three of four needed meals got 1.000000000 expected 0.250000000
+  1 occurrence(s): FAIL: middle: mixed physical meals retain identity fresh_meat
+  1 occurrence(s): FAIL: middle: purchased food enters actual daily used ledger
+  2 occurrence(s): FAIL: middle: migration moves exactly two requested meals
+  1 occurrence(s): FAIL: middle: carried days equal actual bounded meals got 0.000000000 expected 0.500000000
+  2 occurrence(s): FAIL: middle: departure removes exactly two requested meals
+  1 occurrence(s): FAIL: middle: carried days equal actual bounded meals got 0.750000000 expected 0.500000000
+  1 occurrence(s): FAIL: middle: short migration moves only the one existing fresh meal
+  1 occurrence(s): FAIL: middle: short migration reports only actual carried days got 0.000000000 expected 0.250000000
+  1 occurrence(s): FAIL: middle: short departure debits only existing physical food
+  1 occurrence(s): FAIL: northern: five actual daily meals retain fractional carry got 34.000000000 expected 32.000000000
+  1 occurrence(s): FAIL: northern: five actual daily meals retain fractional carry got 34.000000000 expected 36.000000000
+  1 occurrence(s): FAIL: northern: opening food demand uses actual shares grain got 7.556249321 expected 6.649499403
+  1 occurrence(s): FAIL: northern: opening food demand uses actual shares fruit got 1.175000000 expected 1.034000000
+  1 occurrence(s): FAIL: northern: opening food demand uses actual shares meat got 1.268750679 expected 1.116500597
+  1 occurrence(s): FAIL: northern: birthday refreshes warm same-count cache got 2.600000000 expected 2.800000000
+  1 occurrence(s): FAIL: northern: future-dated age cache cannot serve an earlier day got 2.800000000 expected 2.600000000
+  1 occurrence(s): FAIL: northern: same-count older record invalidates age cache got 2.600000000 expected 2.800000000
+  1 occurrence(s): FAIL: northern: existing home/away role army got 12.800000000 expected 10.800000000
+  1 occurrence(s): FAIL: northern: existing home/away role bandit got 12.800000000 expected 10.800000000
+  1 occurrence(s): FAIL: northern: existing home/away role deserter got 12.800000000 expected 10.800000000
+  1 occurrence(s): FAIL: northern: broth and away shares excluded exactly once got 1.400000000 expected 2.000000000
+  1 occurrence(s): FAIL: northern: switch restores exact home shares got 7.400000000 expected 5.200000000
+  1 occurrence(s): FAIL: northern: rehousing refreshes broth exclusion immediately got 7.400000000 expected 5.200000000
+  1 occurrence(s): FAIL: northern: town supply includes actual household fresh food got 0.000000000 expected 0.750000000
+  1 occurrence(s): FAIL: northern: fresh-only short stock is physically eaten
+  1 occurrence(s): FAIL: northern: three fresh meals cover three of four needed meals got 1.000000000 expected 0.250000000
+  1 occurrence(s): FAIL: northern: mixed physical meals retain identity fresh_meat
+  1 occurrence(s): FAIL: northern: purchased food enters actual daily used ledger
+  2 occurrence(s): FAIL: northern: migration moves exactly two requested meals
+  1 occurrence(s): FAIL: northern: carried days equal actual bounded meals got 0.000000000 expected 0.500000000
+  2 occurrence(s): FAIL: northern: departure removes exactly two requested meals
+  1 occurrence(s): FAIL: northern: carried days equal actual bounded meals got 0.750000000 expected 0.500000000
+  1 occurrence(s): FAIL: northern: short migration moves only the one existing fresh meal
+  1 occurrence(s): FAIL: northern: short migration reports only actual carried days got 0.000000000 expected 0.250000000
+  1 occurrence(s): FAIL: northern: short departure debits only existing physical food
+  1 occurrence(s): FAIL: orc: five actual daily meals retain fractional carry got 34.000000000 expected 32.000000000
+  1 occurrence(s): FAIL: orc: five actual daily meals retain fractional carry got 34.000000000 expected 36.000000000
+  1 occurrence(s): FAIL: orc: opening food demand uses actual shares grain got 7.290447627 expected 6.415593911
+  1 occurrence(s): FAIL: orc: opening food demand uses actual shares fruit got 1.175000000 expected 1.034000000
+  1 occurrence(s): FAIL: orc: opening food demand uses actual shares meat got 1.534552373 expected 1.350406089
+  1 occurrence(s): FAIL: orc: birthday refreshes warm same-count cache got 2.600000000 expected 2.800000000
+  1 occurrence(s): FAIL: orc: future-dated age cache cannot serve an earlier day got 2.800000000 expected 2.600000000
+  1 occurrence(s): FAIL: orc: same-count older record invalidates age cache got 2.600000000 expected 2.800000000
+  1 occurrence(s): FAIL: orc: existing home/away role army got 12.800000000 expected 10.800000000
+  1 occurrence(s): FAIL: orc: existing home/away role bandit got 12.800000000 expected 10.800000000
+  1 occurrence(s): FAIL: orc: existing home/away role deserter got 12.800000000 expected 10.800000000
+  1 occurrence(s): FAIL: orc: broth and away shares excluded exactly once got 1.400000000 expected 2.000000000
+  1 occurrence(s): FAIL: orc: switch restores exact home shares got 7.400000000 expected 5.200000000
+  1 occurrence(s): FAIL: orc: rehousing refreshes broth exclusion immediately got 7.400000000 expected 5.200000000
+  1 occurrence(s): FAIL: orc: town supply includes actual household fresh food got 0.000000000 expected 0.750000000
+  1 occurrence(s): FAIL: orc: fresh-only short stock is physically eaten
+  1 occurrence(s): FAIL: orc: three fresh meals cover three of four needed meals got 1.000000000 expected 0.250000000
+  1 occurrence(s): FAIL: orc: mixed physical meals retain identity fresh_meat
+  1 occurrence(s): FAIL: orc: purchased food enters actual daily used ledger
+  2 occurrence(s): FAIL: orc: migration moves exactly two requested meals
+  1 occurrence(s): FAIL: orc: carried days equal actual bounded meals got 0.000000000 expected 0.500000000
+  2 occurrence(s): FAIL: orc: departure removes exactly two requested meals
+  1 occurrence(s): FAIL: orc: carried days equal actual bounded meals got 0.750000000 expected 0.500000000
+  1 occurrence(s): FAIL: orc: short migration moves only the one existing fresh meal
+  1 occurrence(s): FAIL: orc: short migration reports only actual carried days got 0.000000000 expected 0.250000000
+  1 occurrence(s): FAIL: orc: short departure debits only existing physical food
+  1 occurrence(s): FAIL: goblin: five actual daily meals retain fractional carry got 34.000000000 expected 32.000000000
+  1 occurrence(s): FAIL: goblin: five actual daily meals retain fractional carry got 34.000000000 expected 36.000000000
+  1 occurrence(s): FAIL: goblin: opening food demand uses actual shares grain got 7.556249321 expected 6.649499403
+  1 occurrence(s): FAIL: goblin: opening food demand uses actual shares fruit got 1.175000000 expected 1.034000000
+  1 occurrence(s): FAIL: goblin: opening food demand uses actual shares meat got 1.268750679 expected 1.116500597
+  1 occurrence(s): FAIL: goblin: birthday refreshes warm same-count cache got 2.600000000 expected 2.800000000
+  1 occurrence(s): FAIL: goblin: future-dated age cache cannot serve an earlier day got 2.800000000 expected 2.600000000
+  1 occurrence(s): FAIL: goblin: same-count older record invalidates age cache got 2.600000000 expected 2.800000000
+  1 occurrence(s): FAIL: goblin: existing home/away role army got 12.800000000 expected 10.800000000
+  1 occurrence(s): FAIL: goblin: existing home/away role bandit got 12.800000000 expected 10.800000000
+  1 occurrence(s): FAIL: goblin: existing home/away role deserter got 12.800000000 expected 10.800000000
+  1 occurrence(s): FAIL: goblin: broth and away shares excluded exactly once got 1.400000000 expected 2.000000000
+  1 occurrence(s): FAIL: goblin: switch restores exact home shares got 7.400000000 expected 5.200000000
+  1 occurrence(s): FAIL: goblin: rehousing refreshes broth exclusion immediately got 7.400000000 expected 5.200000000
+  1 occurrence(s): FAIL: goblin: town supply includes actual household fresh food got 0.000000000 expected 0.750000000
+  1 occurrence(s): FAIL: goblin: fresh-only short stock is physically eaten
+  1 occurrence(s): FAIL: goblin: three fresh meals cover three of four needed meals got 1.000000000 expected 0.250000000
+  1 occurrence(s): FAIL: goblin: mixed physical meals retain identity fresh_meat
+  1 occurrence(s): FAIL: goblin: purchased food enters actual daily used ledger
+  2 occurrence(s): FAIL: goblin: migration moves exactly two requested meals
+  1 occurrence(s): FAIL: goblin: carried days equal actual bounded meals got 0.000000000 expected 0.500000000
+  2 occurrence(s): FAIL: goblin: departure removes exactly two requested meals
+  1 occurrence(s): FAIL: goblin: carried days equal actual bounded meals got 0.750000000 expected 0.500000000
+  1 occurrence(s): FAIL: goblin: short migration moves only the one existing fresh meal
+  1 occurrence(s): FAIL: goblin: short migration reports only actual carried days got 0.000000000 expected 0.250000000
+  1 occurrence(s): FAIL: goblin: short departure debits only existing physical food
+  1 occurrence(s): FAIL: moon_elf: five actual daily meals retain fractional carry got 34.000000000 expected 32.000000000
+  1 occurrence(s): FAIL: moon_elf: five actual daily meals retain fractional carry got 34.000000000 expected 36.000000000
+  1 occurrence(s): FAIL: moon_elf: opening food demand uses actual shares grain got 6.022446559 expected 5.299752972
+  1 occurrence(s): FAIL: moon_elf: opening food demand uses actual shares fruit got 2.752553441 expected 2.422247028
+  1 occurrence(s): FAIL: moon_elf: opening food demand uses actual shares meat got 1.225000000 expected 1.078000000
+  1 occurrence(s): FAIL: moon_elf: birthday refreshes warm same-count cache got 2.600000000 expected 2.800000000
+  1 occurrence(s): FAIL: moon_elf: future-dated age cache cannot serve an earlier day got 2.800000000 expected 2.600000000
+  1 occurrence(s): FAIL: moon_elf: same-count older record invalidates age cache got 2.600000000 expected 2.800000000
+  1 occurrence(s): FAIL: moon_elf: existing home/away role army got 12.800000000 expected 10.800000000
+  1 occurrence(s): FAIL: moon_elf: existing home/away role bandit got 12.800000000 expected 10.800000000
+  1 occurrence(s): FAIL: moon_elf: existing home/away role deserter got 12.800000000 expected 10.800000000
+  1 occurrence(s): FAIL: moon_elf: broth and away shares excluded exactly once got 1.400000000 expected 2.000000000
+  1 occurrence(s): FAIL: moon_elf: switch restores exact home shares got 7.400000000 expected 5.200000000
+  1 occurrence(s): FAIL: moon_elf: rehousing refreshes broth exclusion immediately got 7.400000000 expected 5.200000000
+  1 occurrence(s): FAIL: moon_elf: town supply includes actual household fresh food got 0.000000000 expected 0.750000000
+  1 occurrence(s): FAIL: moon_elf: fresh-only short stock is physically eaten
+  1 occurrence(s): FAIL: moon_elf: three fresh meals cover three of four needed meals got 1.000000000 expected 0.250000000
+  1 occurrence(s): FAIL: moon_elf: mixed physical meals retain identity fresh_meat
+  1 occurrence(s): FAIL: moon_elf: purchased food enters actual daily used ledger
+  2 occurrence(s): FAIL: moon_elf: migration moves exactly two requested meals
+  1 occurrence(s): FAIL: moon_elf: carried days equal actual bounded meals got 0.000000000 expected 0.500000000
+  2 occurrence(s): FAIL: moon_elf: departure removes exactly two requested meals
+  1 occurrence(s): FAIL: moon_elf: carried days equal actual bounded meals got 0.750000000 expected 0.500000000
+  1 occurrence(s): FAIL: moon_elf: short migration moves only the one existing fresh meal
+  1 occurrence(s): FAIL: moon_elf: short migration reports only actual carried days got 0.000000000 expected 0.250000000
+  1 occurrence(s): FAIL: moon_elf: short departure debits only existing physical food
+  1 occurrence(s): FAIL: eastern: five actual daily meals retain fractional carry got 34.000000000 expected 32.000000000
+  1 occurrence(s): FAIL: eastern: five actual daily meals retain fractional carry got 34.000000000 expected 36.000000000
+  1 occurrence(s): FAIL: eastern: opening food demand uses actual shares grain got 7.530239865 expected 6.626611081
+  1 occurrence(s): FAIL: eastern: opening food demand uses actual shares fruit got 1.175000000 expected 1.034000000
+  1 occurrence(s): FAIL: eastern: opening food demand uses actual shares meat got 1.294760135 expected 1.139388919
+  1 occurrence(s): FAIL: eastern: birthday refreshes warm same-count cache got 2.600000000 expected 2.800000000
+  1 occurrence(s): FAIL: eastern: future-dated age cache cannot serve an earlier day got 2.800000000 expected 2.600000000
+  1 occurrence(s): FAIL: eastern: same-count older record invalidates age cache got 2.600000000 expected 2.800000000
+  1 occurrence(s): FAIL: eastern: existing home/away role army got 12.800000000 expected 10.800000000
+  1 occurrence(s): FAIL: eastern: existing home/away role bandit got 12.800000000 expected 10.800000000
+  1 occurrence(s): FAIL: eastern: existing home/away role deserter got 12.800000000 expected 10.800000000
+  1 occurrence(s): FAIL: eastern: broth and away shares excluded exactly once got 1.400000000 expected 2.000000000
+  1 occurrence(s): FAIL: eastern: switch restores exact home shares got 7.400000000 expected 5.200000000
+  1 occurrence(s): FAIL: eastern: rehousing refreshes broth exclusion immediately got 7.400000000 expected 5.200000000
+  1 occurrence(s): FAIL: eastern: town supply includes actual household fresh food got 0.000000000 expected 0.750000000
+  1 occurrence(s): FAIL: eastern: fresh-only short stock is physically eaten
+  1 occurrence(s): FAIL: eastern: three fresh meals cover three of four needed meals got 1.000000000 expected 0.250000000
+  1 occurrence(s): FAIL: eastern: mixed physical meals retain identity fresh_meat
+  1 occurrence(s): FAIL: eastern: purchased food enters actual daily used ledger
+  2 occurrence(s): FAIL: eastern: migration moves exactly two requested meals
+  1 occurrence(s): FAIL: eastern: carried days equal actual bounded meals got 0.000000000 expected 0.500000000
+  2 occurrence(s): FAIL: eastern: departure removes exactly two requested meals
+  1 occurrence(s): FAIL: eastern: carried days equal actual bounded meals got 0.750000000 expected 0.500000000
+  1 occurrence(s): FAIL: eastern: short migration moves only the one existing fresh meal
+  1 occurrence(s): FAIL: eastern: short migration reports only actual carried days got 0.000000000 expected 0.250000000
+  1 occurrence(s): FAIL: eastern: short departure debits only existing physical food
+  1 occurrence(s): FAIL: dwarf: five actual daily meals retain fractional carry got 34.000000000 expected 32.000000000
+  1 occurrence(s): FAIL: dwarf: five actual daily meals retain fractional carry got 34.000000000 expected 36.000000000
+  1 occurrence(s): FAIL: dwarf: opening food demand uses actual shares grain got 7.556249321 expected 6.649499403
+  1 occurrence(s): FAIL: dwarf: opening food demand uses actual shares fruit got 1.175000000 expected 1.034000000
+  1 occurrence(s): FAIL: dwarf: opening food demand uses actual shares meat got 1.268750679 expected 1.116500597
+  1 occurrence(s): FAIL: dwarf: birthday refreshes warm same-count cache got 2.600000000 expected 2.800000000
+  1 occurrence(s): FAIL: dwarf: future-dated age cache cannot serve an earlier day got 2.800000000 expected 2.600000000
+  1 occurrence(s): FAIL: dwarf: same-count older record invalidates age cache got 2.600000000 expected 2.800000000
+  1 occurrence(s): FAIL: dwarf: existing home/away role army got 12.800000000 expected 10.800000000
+  1 occurrence(s): FAIL: dwarf: existing home/away role bandit got 12.800000000 expected 10.800000000
+  1 occurrence(s): FAIL: dwarf: existing home/away role deserter got 12.800000000 expected 10.800000000
+  1 occurrence(s): FAIL: dwarf: broth and away shares excluded exactly once got 1.400000000 expected 2.000000000
+  1 occurrence(s): FAIL: dwarf: switch restores exact home shares got 7.400000000 expected 5.200000000
+  1 occurrence(s): FAIL: dwarf: rehousing refreshes broth exclusion immediately got 7.400000000 expected 5.200000000
+  1 occurrence(s): FAIL: dwarf: town supply includes actual household fresh food got 0.000000000 expected 0.750000000
+  1 occurrence(s): FAIL: dwarf: fresh-only short stock is physically eaten
+  1 occurrence(s): FAIL: dwarf: three fresh meals cover three of four needed meals got 1.000000000 expected 0.250000000
+  1 occurrence(s): FAIL: dwarf: mixed physical meals retain identity fresh_meat
+  1 occurrence(s): FAIL: dwarf: purchased food enters actual daily used ledger
+  2 occurrence(s): FAIL: dwarf: migration moves exactly two requested meals
+  1 occurrence(s): FAIL: dwarf: carried days equal actual bounded meals got 0.000000000 expected 0.500000000
+  2 occurrence(s): FAIL: dwarf: departure removes exactly two requested meals
+  1 occurrence(s): FAIL: dwarf: carried days equal actual bounded meals got 0.750000000 expected 0.500000000
+  1 occurrence(s): FAIL: dwarf: short migration moves only the one existing fresh meal
+  1 occurrence(s): FAIL: dwarf: short migration reports only actual carried days got 0.000000000 expected 0.250000000
+  1 occurrence(s): FAIL: dwarf: short departure debits only existing physical food
+FAIL | tests/test_land_capacity_v046.gd | 28.390s | exit 125
+  116 occurrence(s): FAIL: keeper-only generated business plot is worked
+  1 occurrence(s): FAIL: middle service none active: repeated native estate sale stays within real available labour (repeat=0 need=2.75000000 capacity=0.00000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.00000000 adults=2 serving=1 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=0.00000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: middle service none active: repeated native estate sale stays within real available labour (repeat=1 need=2.75000000 capacity=0.00000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.00000000 adults=2 serving=1 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=0.00000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: middle service none active: repeated native estate sale stays within real available labour (repeat=2 need=2.75000000 capacity=0.00000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.00000000 adults=2 serving=1 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=0.00000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: middle keeper none active: repeated native estate sale stays within real available labour (repeat=0 need=2.75000000 capacity=1.35000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.35000000 adults=2 serving=0 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=1.35000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  3 occurrence(s): FAIL: middle keeper none active: purchase retains existing household reserve
+  1 occurrence(s): FAIL: middle keeper none active: repeated native estate sale stays within real available labour (repeat=1 need=2.75000000 capacity=1.35000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.35000000 adults=2 serving=0 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=1.35000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: middle keeper none active: repeated native estate sale stays within real available labour (repeat=2 need=2.75000000 capacity=1.35000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.35000000 adults=2 serving=0 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=1.35000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: middle occupied none active: repeated native estate sale stays within real available labour (repeat=0 need=2.75000000 capacity=1.00000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.00000000 adults=2 serving=0 keepers=0 jobs=1 casual={} opening_need=0.00000000 opening_capacity=1.00000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  3 occurrence(s): FAIL: middle occupied none active: purchase retains existing household reserve
+  1 occurrence(s): FAIL: middle occupied none active: repeated native estate sale stays within real available labour (repeat=1 need=2.75000000 capacity=1.00000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.00000000 adults=2 serving=0 keepers=0 jobs=1 casual={} opening_need=0.00000000 opening_capacity=1.00000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: middle occupied none active: repeated native estate sale stays within real available labour (repeat=2 need=2.75000000 capacity=1.00000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.00000000 adults=2 serving=0 keepers=0 jobs=1 casual={} opening_need=0.00000000 opening_capacity=1.00000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: middle free none active: repeated native estate sale stays within real available labour (repeat=0 need=2.75000000 capacity=2.00000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.00000000 adults=2 serving=0 keepers=0 jobs=0 casual={} opening_need=0.00000000 opening_capacity=2.00000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: middle free none active: repeated native estate sale stays within real available labour (repeat=1 need=2.75000000 capacity=2.00000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.00000000 adults=2 serving=0 keepers=0 jobs=0 casual={} opening_need=0.00000000 opening_capacity=2.00000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: middle free none active: repeated native estate sale stays within real available labour (repeat=2 need=2.75000000 capacity=2.00000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.00000000 adults=2 serving=0 keepers=0 jobs=0 casual={} opening_need=0.00000000 opening_capacity=2.00000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: middle free partial active: repeated native estate sale stays within real available labour (repeat=0 need=2.75000000 capacity=2.00000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.00000000 adults=2 serving=0 keepers=0 jobs=0 casual={} opening_need=0.00000000 opening_capacity=2.00000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: middle free partial active: repeated native estate sale stays within real available labour (repeat=1 need=2.75000000 capacity=2.00000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.00000000 adults=2 serving=0 keepers=0 jobs=0 casual={} opening_need=0.00000000 opening_capacity=2.00000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: middle free partial active: repeated native estate sale stays within real available labour (repeat=2 need=2.75000000 capacity=2.00000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.00000000 adults=2 serving=0 keepers=0 jobs=0 casual={} opening_need=0.00000000 opening_capacity=2.00000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  3 occurrence(s): FAIL: middle legacy ox missing zero-head one-acre transfer: repeated native sale rejects the infeasible physical acre
+  3 occurrence(s): FAIL: middle legacy ox missing zero-head one-acre transfer: real prospective crop work remains feasible
+  3 occurrence(s): FAIL: middle legacy ox missing zero-head one-acre transfer: rejected sale spends no household reserve (801.00000000 versus 2001.00000000)
+  3 occurrence(s): FAIL: middle legacy ox -1 zero-head one-acre transfer: repeated native sale rejects the infeasible physical acre
+  3 occurrence(s): FAIL: middle legacy ox -1 zero-head one-acre transfer: real prospective crop work remains feasible
+  3 occurrence(s): FAIL: middle legacy ox -1 zero-head one-acre transfer: rejected sale spends no household reserve (801.00000000 versus 2001.00000000)
+  3 occurrence(s): FAIL: middle claimed inactive keeper estate sale: stale keeper defers every physical purchase
+  3 occurrence(s): FAIL: middle claimed inactive keeper estate sale: sale leaves ordinary keeper repair to native reassignment
+  3 occurrence(s): FAIL: middle claimed inactive keeper estate sale: deferral spends no household coins (567.38056013 versus 12800.00000000)
+  3 occurrence(s): FAIL: middle claimed inactive keeper estate sale: deferral creates no debt (1600.00000000 versus 0.00000000)
+  3 occurrence(s): FAIL: middle claimed inactive keeper estate sale: deferred purchase retains existing credit (6600.00000000 versus 1600.00000000)
+  3 occurrence(s): FAIL: middle claimed inactive keeper estate sale: deferral moves no treasury coins (646768.20997853 versus 635168.20997853)
+  1 occurrence(s): FAIL: middle claimed inactive keeper estate sale: repaired opening holding fits actual keeper-adjusted capacity
+  3 occurrence(s): FAIL: middle claimed inactive keeper estate sale: later repeated purchase fits real capacity with the repaired keeper
+  3 occurrence(s): FAIL: middle claimed inactive keeper estate sale: later purchase retains the household reserve
+  1 occurrence(s): FAIL: northern keeper none active: repeated native estate sale stays within real available labour (repeat=0 need=2.75000000 capacity=1.20000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.20000000 adults=2 serving=0 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=1.20000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: northern keeper none active: repeated native estate sale stays within real available labour (repeat=1 need=2.75000000 capacity=1.20000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.20000000 adults=2 serving=0 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=1.20000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: northern keeper none active: repeated native estate sale stays within real available labour (repeat=2 need=2.75000000 capacity=1.20000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.20000000 adults=2 serving=0 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=1.20000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: northern occupied none active: repeated native estate sale stays within real available labour (repeat=0 need=2.00000000 capacity=0.55000000 acres=8 ox=0 herd_care=0.00000000 helpers=0.55000000 adults=1 serving=0 keepers=0 jobs=1 casual={} opening_need=0.00000000 opening_capacity=0.55000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  3 occurrence(s): FAIL: northern occupied none active: earned creditors survive sale without new historical wages
+  1 occurrence(s): FAIL: northern occupied none active: repeated native estate sale stays within real available labour (repeat=1 need=2.00000000 capacity=0.55000000 acres=8 ox=0 herd_care=0.00000000 helpers=0.55000000 adults=1 serving=0 keepers=0 jobs=1 casual={} opening_need=0.00000000 opening_capacity=0.55000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: northern occupied none active: repeated native estate sale stays within real available labour (repeat=2 need=2.00000000 capacity=0.55000000 acres=8 ox=0 herd_care=0.00000000 helpers=0.55000000 adults=1 serving=0 keepers=0 jobs=1 casual={} opening_need=0.00000000 opening_capacity=0.55000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: northern free none active: repeated native estate sale stays within real available labour (repeat=0 need=2.00000000 capacity=1.55000000 acres=8 ox=0 herd_care=0.00000000 helpers=0.55000000 adults=1 serving=0 keepers=0 jobs=0 casual={} opening_need=0.00000000 opening_capacity=1.55000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: northern free none active: repeated native estate sale stays within real available labour (repeat=1 need=2.00000000 capacity=1.55000000 acres=8 ox=0 herd_care=0.00000000 helpers=0.55000000 adults=1 serving=0 keepers=0 jobs=0 casual={} opening_need=0.00000000 opening_capacity=1.55000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: northern free none active: repeated native estate sale stays within real available labour (repeat=2 need=2.00000000 capacity=1.55000000 acres=8 ox=0 herd_care=0.00000000 helpers=0.55000000 adults=1 serving=0 keepers=0 jobs=0 casual={} opening_need=0.00000000 opening_capacity=1.55000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: northern free partial active: repeated native estate sale stays within real available labour (repeat=0 need=2.00000000 capacity=1.55000000 acres=8 ox=0 herd_care=0.00000000 helpers=0.55000000 adults=1 serving=0 keepers=0 jobs=0 casual={} opening_need=0.00000000 opening_capacity=1.55000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: northern free partial active: repeated native estate sale stays within real available labour (repeat=1 need=2.00000000 capacity=1.55000000 acres=8 ox=0 herd_care=0.00000000 helpers=0.55000000 adults=1 serving=0 keepers=0 jobs=0 casual={} opening_need=0.00000000 opening_capacity=1.55000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: northern free partial active: repeated native estate sale stays within real available labour (repeat=2 need=2.00000000 capacity=1.55000000 acres=8 ox=0 herd_care=0.00000000 helpers=0.55000000 adults=1 serving=0 keepers=0 jobs=0 casual={} opening_need=0.00000000 opening_capacity=1.55000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  3 occurrence(s): FAIL: northern claimed inactive keeper estate sale: stale keeper defers every physical purchase
+  3 occurrence(s): FAIL: northern claimed inactive keeper estate sale: sale leaves ordinary keeper repair to native reassignment
+  3 occurrence(s): FAIL: northern claimed inactive keeper estate sale: deferral spends no household coins (1200.00000000 versus 12800.00000000)
+  3 occurrence(s): FAIL: northern claimed inactive keeper estate sale: deferral creates no debt (1600.00000000 versus 0.00000000)
+  3 occurrence(s): FAIL: northern claimed inactive keeper estate sale: deferred purchase retains existing credit (6600.00000000 versus 1600.00000000)
+  3 occurrence(s): FAIL: northern claimed inactive keeper estate sale: deferral moves no treasury coins (615708.38281260 versus 604108.38281260)
+  1 occurrence(s): FAIL: northern claimed inactive keeper estate sale: repaired opening holding fits actual keeper-adjusted capacity
+  3 occurrence(s): FAIL: northern claimed inactive keeper estate sale: later repeated purchase fits real capacity with the repaired keeper
+  1 occurrence(s): FAIL: goblin service none active: repeated native estate sale stays within real available labour (repeat=0 need=2.75000000 capacity=0.00000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.00000000 adults=2 serving=1 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=0.00000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: goblin service none active: repeated native estate sale stays within real available labour (repeat=1 need=2.75000000 capacity=0.00000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.00000000 adults=2 serving=1 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=0.00000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: goblin service none active: repeated native estate sale stays within real available labour (repeat=2 need=2.75000000 capacity=0.00000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.00000000 adults=2 serving=1 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=0.00000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: goblin keeper none active: repeated native estate sale stays within real available labour (repeat=0 need=2.75000000 capacity=0.00000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.00000000 adults=2 serving=1 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=0.00000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: goblin keeper none active: repeated native estate sale stays within real available labour (repeat=1 need=2.75000000 capacity=0.00000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.00000000 adults=2 serving=1 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=0.00000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: goblin keeper none active: repeated native estate sale stays within real available labour (repeat=2 need=2.75000000 capacity=0.00000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.00000000 adults=2 serving=1 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=0.00000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: goblin occupied none active: repeated native estate sale stays within real available labour (repeat=0 need=2.75000000 capacity=2.00000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.00000000 adults=3 serving=0 keepers=0 jobs=1 casual={} opening_need=0.00000000 opening_capacity=2.00000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: goblin occupied none active: repeated native estate sale stays within real available labour (repeat=1 need=2.75000000 capacity=2.00000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.00000000 adults=3 serving=0 keepers=0 jobs=1 casual={} opening_need=0.00000000 opening_capacity=2.00000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: goblin occupied none active: repeated native estate sale stays within real available labour (repeat=2 need=2.75000000 capacity=2.00000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.00000000 adults=3 serving=0 keepers=0 jobs=1 casual={} opening_need=0.00000000 opening_capacity=2.00000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  3 occurrence(s): FAIL: goblin legacy ox missing zero-head one-acre transfer: repeated native sale rejects the infeasible physical acre
+  3 occurrence(s): FAIL: goblin legacy ox missing zero-head one-acre transfer: real prospective crop work remains feasible
+  3 occurrence(s): FAIL: goblin legacy ox missing zero-head one-acre transfer: rejected sale spends no household reserve (801.00000000 versus 2001.00000000)
+  3 occurrence(s): FAIL: goblin legacy ox -1 zero-head one-acre transfer: repeated native sale rejects the infeasible physical acre
+  3 occurrence(s): FAIL: goblin legacy ox -1 zero-head one-acre transfer: real prospective crop work remains feasible
+  3 occurrence(s): FAIL: goblin legacy ox -1 zero-head one-acre transfer: rejected sale spends no household reserve (801.00000000 versus 2001.00000000)
+  3 occurrence(s): FAIL: goblin claimed inactive keeper estate sale: stale keeper defers every physical purchase
+  3 occurrence(s): FAIL: goblin claimed inactive keeper estate sale: sale leaves ordinary keeper repair to native reassignment
+  3 occurrence(s): FAIL: goblin claimed inactive keeper estate sale: deferral spends no household coins (1200.00000000 versus 12800.00000000)
+  3 occurrence(s): FAIL: goblin claimed inactive keeper estate sale: deferral creates no debt (1600.00000000 versus 0.00000000)
+  3 occurrence(s): FAIL: goblin claimed inactive keeper estate sale: deferred purchase retains existing credit (6600.00000000 versus 1600.00000000)
+  3 occurrence(s): FAIL: goblin claimed inactive keeper estate sale: deferral moves no treasury coins (632700.49263440 versus 621100.49263440)
+  1 occurrence(s): FAIL: goblin claimed inactive keeper estate sale: repaired opening holding fits actual keeper-adjusted capacity
+  3 occurrence(s): FAIL: goblin claimed inactive keeper estate sale: later repeated purchase fits real capacity with the repaired keeper
+  1 occurrence(s): FAIL: orc service none active: repeated native estate sale stays within real available labour (repeat=0 need=2.56250000 capacity=2.55000000 acres=12 ox=0 herd_care=0.00000000 helpers=0.55000000 adults=4 serving=1 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=2.55000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: orc service none active: repeated native estate sale stays within real available labour (repeat=1 need=2.56250000 capacity=2.55000000 acres=12 ox=0 herd_care=0.00000000 helpers=0.55000000 adults=4 serving=1 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=2.55000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: orc service none active: repeated native estate sale stays within real available labour (repeat=2 need=2.56250000 capacity=2.55000000 acres=12 ox=0 herd_care=0.00000000 helpers=0.55000000 adults=4 serving=1 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=2.55000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: orc keeper none active: repeated native estate sale stays within real available labour (repeat=0 need=2.56250000 capacity=2.55000000 acres=12 ox=0 herd_care=0.00000000 helpers=0.55000000 adults=4 serving=1 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=2.55000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: orc keeper none active: repeated native estate sale stays within real available labour (repeat=1 need=2.56250000 capacity=2.55000000 acres=12 ox=0 herd_care=0.00000000 helpers=0.55000000 adults=4 serving=1 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=2.55000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: orc keeper none active: repeated native estate sale stays within real available labour (repeat=2 need=2.56250000 capacity=2.55000000 acres=12 ox=0 herd_care=0.00000000 helpers=0.55000000 adults=4 serving=1 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=2.55000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: orc occupied none active: repeated native estate sale stays within real available labour (repeat=0 need=2.54375000 capacity=1.40000000 acres=11 ox=0 herd_care=0.01250000 helpers=0.40000000 adults=3 serving=0 keepers=0 jobs=2 casual={} opening_need=0.00000000 opening_capacity=1.40000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[["pigs",1,0,0]])
+  1 occurrence(s): FAIL: orc occupied none active: repeated native estate sale stays within real available labour (repeat=1 need=2.54375000 capacity=1.40000000 acres=11 ox=0 herd_care=0.01250000 helpers=0.40000000 adults=3 serving=0 keepers=0 jobs=2 casual={} opening_need=0.00000000 opening_capacity=1.40000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[["pigs",1,0,0]])
+  1 occurrence(s): FAIL: orc occupied none active: repeated native estate sale stays within real available labour (repeat=2 need=2.54375000 capacity=1.40000000 acres=11 ox=0 herd_care=0.01250000 helpers=0.40000000 adults=3 serving=0 keepers=0 jobs=2 casual={} opening_need=0.00000000 opening_capacity=1.40000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[["pigs",1,0,0]])
+  3 occurrence(s): FAIL: orc legacy ox missing zero-head one-acre transfer: repeated native sale rejects the infeasible physical acre
+  3 occurrence(s): FAIL: orc legacy ox missing zero-head one-acre transfer: real prospective crop work remains feasible
+  3 occurrence(s): FAIL: orc legacy ox missing zero-head one-acre transfer: rejected sale spends no household reserve (801.00000000 versus 2001.00000000)
+  3 occurrence(s): FAIL: orc legacy ox -1 zero-head one-acre transfer: repeated native sale rejects the infeasible physical acre
+  3 occurrence(s): FAIL: orc legacy ox -1 zero-head one-acre transfer: real prospective crop work remains feasible
+  3 occurrence(s): FAIL: orc legacy ox -1 zero-head one-acre transfer: rejected sale spends no household reserve (801.00000000 versus 2001.00000000)
+  3 occurrence(s): FAIL: orc claimed inactive keeper estate sale: stale keeper defers every physical purchase
+  3 occurrence(s): FAIL: orc claimed inactive keeper estate sale: sale leaves ordinary keeper repair to native reassignment
+  3 occurrence(s): FAIL: orc claimed inactive keeper estate sale: deferral spends no household coins (985.00000000 versus 12800.00000000)
+  3 occurrence(s): FAIL: orc claimed inactive keeper estate sale: deferral creates no debt (2700.00000000 versus 0.00000000)
+  3 occurrence(s): FAIL: orc claimed inactive keeper estate sale: deferred purchase retains existing credit (7200.00000000 versus 2700.00000000)
+  3 occurrence(s): FAIL: orc claimed inactive keeper estate sale: deferral moves no treasury coins (674258.32555490 versus 662558.32555490)
+  1 occurrence(s): FAIL: orc claimed inactive keeper estate sale: repaired opening holding fits actual keeper-adjusted capacity
+  3 occurrence(s): FAIL: orc claimed inactive keeper estate sale: later repeated purchase fits real capacity with the repaired keeper
+  1 occurrence(s): FAIL: moon_elf keeper none active: repeated native estate sale stays within real available labour (repeat=0 need=3.00000000 capacity=2.20000000 acres=12 ox=0 herd_care=0.00000000 helpers=0.20000000 adults=3 serving=0 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=2.20000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  3 occurrence(s): FAIL: moon_elf keeper none active: purchase retains existing household reserve
+  1 occurrence(s): FAIL: moon_elf keeper none active: repeated native estate sale stays within real available labour (repeat=1 need=3.00000000 capacity=2.20000000 acres=12 ox=0 herd_care=0.00000000 helpers=0.20000000 adults=3 serving=0 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=2.20000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: moon_elf keeper none active: repeated native estate sale stays within real available labour (repeat=2 need=3.00000000 capacity=2.20000000 acres=12 ox=0 herd_care=0.00000000 helpers=0.20000000 adults=3 serving=0 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=2.20000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: moon_elf occupied none active: repeated native estate sale stays within real available labour (repeat=0 need=2.78333333 capacity=1.15000000 acres=11 ox=0 herd_care=0.03333333 helpers=0.15000000 adults=3 serving=0 keepers=0 jobs=2 casual={} opening_need=0.00000000 opening_capacity=0.15000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[["horses",1,0,0]])
+  3 occurrence(s): FAIL: moon_elf occupied none active: purchased holding never displaces occupied paid jobs
+  3 occurrence(s): FAIL: moon_elf occupied none active: earned creditors survive sale without new historical wages
+  1 occurrence(s): FAIL: moon_elf occupied none active: repeated native estate sale stays within real available labour (repeat=1 need=2.78333333 capacity=1.15000000 acres=11 ox=0 herd_care=0.03333333 helpers=0.15000000 adults=3 serving=0 keepers=0 jobs=2 casual={} opening_need=0.00000000 opening_capacity=0.15000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[["horses",1,0,0]])
+  1 occurrence(s): FAIL: moon_elf occupied none active: repeated native estate sale stays within real available labour (repeat=2 need=2.78333333 capacity=1.15000000 acres=11 ox=0 herd_care=0.03333333 helpers=0.15000000 adults=3 serving=0 keepers=0 jobs=2 casual={} opening_need=0.00000000 opening_capacity=0.15000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[["horses",1,0,0]])
+  3 occurrence(s): FAIL: moon_elf legacy ox missing zero-head one-acre transfer: repeated native sale rejects the infeasible physical acre
+  3 occurrence(s): FAIL: moon_elf legacy ox missing zero-head one-acre transfer: real prospective crop work remains feasible
+  3 occurrence(s): FAIL: moon_elf legacy ox missing zero-head one-acre transfer: rejected sale spends no household reserve (801.00000000 versus 2001.00000000)
+  3 occurrence(s): FAIL: moon_elf legacy ox -1 zero-head one-acre transfer: repeated native sale rejects the infeasible physical acre
+  3 occurrence(s): FAIL: moon_elf legacy ox -1 zero-head one-acre transfer: real prospective crop work remains feasible
+  3 occurrence(s): FAIL: moon_elf legacy ox -1 zero-head one-acre transfer: rejected sale spends no household reserve (801.00000000 versus 2001.00000000)
+  3 occurrence(s): FAIL: moon_elf claimed inactive keeper estate sale: stale keeper defers every physical purchase
+  3 occurrence(s): FAIL: moon_elf claimed inactive keeper estate sale: sale leaves ordinary keeper repair to native reassignment
+  3 occurrence(s): FAIL: moon_elf claimed inactive keeper estate sale: deferral spends no household coins (725.18592556 versus 12800.00000000)
+  3 occurrence(s): FAIL: moon_elf claimed inactive keeper estate sale: deferral creates no debt (2700.00000000 versus 0.00000000)
+  3 occurrence(s): FAIL: moon_elf claimed inactive keeper estate sale: deferred purchase retains existing credit (7200.00000000 versus 2700.00000000)
+  3 occurrence(s): FAIL: moon_elf claimed inactive keeper estate sale: deferral moves no treasury coins (662874.67099577 versus 651174.67099577)
+  1 occurrence(s): FAIL: moon_elf claimed inactive keeper estate sale: repaired opening holding fits actual keeper-adjusted capacity
+  3 occurrence(s): FAIL: moon_elf claimed inactive keeper estate sale: later repeated purchase fits real capacity with the repaired keeper
+  3 occurrence(s): FAIL: moon_elf claimed inactive keeper estate sale: later purchase retains the household reserve
+  1 occurrence(s): FAIL: eastern keeper none active: repeated native estate sale stays within real available labour (repeat=0 need=2.75000000 capacity=1.40000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.40000000 adults=2 serving=0 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=1.40000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: eastern keeper none active: repeated native estate sale stays within real available labour (repeat=1 need=2.75000000 capacity=1.40000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.40000000 adults=2 serving=0 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=1.40000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: eastern keeper none active: repeated native estate sale stays within real available labour (repeat=2 need=2.75000000 capacity=1.40000000 acres=11 ox=0 herd_care=0.00000000 helpers=0.40000000 adults=2 serving=0 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=1.40000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: eastern occupied none active: repeated native estate sale stays within real available labour (repeat=0 need=3.00000000 capacity=1.60000000 acres=12 ox=0 herd_care=0.00000000 helpers=0.60000000 adults=3 serving=0 keepers=0 jobs=2 casual={} opening_need=0.00000000 opening_capacity=1.60000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: eastern occupied none active: repeated native estate sale stays within real available labour (repeat=1 need=3.00000000 capacity=1.60000000 acres=12 ox=0 herd_care=0.00000000 helpers=0.60000000 adults=3 serving=0 keepers=0 jobs=2 casual={} opening_need=0.00000000 opening_capacity=1.60000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: eastern occupied none active: repeated native estate sale stays within real available labour (repeat=2 need=3.00000000 capacity=1.60000000 acres=12 ox=0 herd_care=0.00000000 helpers=0.60000000 adults=3 serving=0 keepers=0 jobs=2 casual={} opening_need=0.00000000 opening_capacity=1.60000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  3 occurrence(s): FAIL: eastern legacy ox missing zero-head one-acre transfer: repeated native sale rejects the infeasible physical acre
+  3 occurrence(s): FAIL: eastern legacy ox missing zero-head one-acre transfer: real prospective crop work remains feasible
+  3 occurrence(s): FAIL: eastern legacy ox missing zero-head one-acre transfer: rejected sale spends no household reserve (801.00000000 versus 2001.00000000)
+  3 occurrence(s): FAIL: eastern legacy ox -1 zero-head one-acre transfer: repeated native sale rejects the infeasible physical acre
+  3 occurrence(s): FAIL: eastern legacy ox -1 zero-head one-acre transfer: real prospective crop work remains feasible
+  3 occurrence(s): FAIL: eastern legacy ox -1 zero-head one-acre transfer: rejected sale spends no household reserve (801.00000000 versus 2001.00000000)
+  3 occurrence(s): FAIL: eastern claimed inactive keeper estate sale: stale keeper defers every physical purchase
+  3 occurrence(s): FAIL: eastern claimed inactive keeper estate sale: sale leaves ordinary keeper repair to native reassignment
+  3 occurrence(s): FAIL: eastern claimed inactive keeper estate sale: deferral spends no household coins (1200.00000000 versus 12800.00000000)
+  3 occurrence(s): FAIL: eastern claimed inactive keeper estate sale: deferral creates no debt (1600.00000000 versus 0.00000000)
+  3 occurrence(s): FAIL: eastern claimed inactive keeper estate sale: deferred purchase retains existing credit (6600.00000000 versus 1600.00000000)
+  3 occurrence(s): FAIL: eastern claimed inactive keeper estate sale: deferral moves no treasury coins (632599.63221482 versus 620999.63221482)
+  1 occurrence(s): FAIL: eastern claimed inactive keeper estate sale: repaired opening holding fits actual keeper-adjusted capacity
+  3 occurrence(s): FAIL: eastern claimed inactive keeper estate sale: later repeated purchase fits real capacity with the repaired keeper
+  1 occurrence(s): FAIL: dwarf keeper none active: repeated native estate sale stays within real available labour (repeat=0 need=2.00000000 capacity=0.20000000 acres=8 ox=0 herd_care=0.00000000 helpers=0.20000000 adults=1 serving=0 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=0.20000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: dwarf keeper none active: repeated native estate sale stays within real available labour (repeat=1 need=2.00000000 capacity=0.20000000 acres=8 ox=0 herd_care=0.00000000 helpers=0.20000000 adults=1 serving=0 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=0.20000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: dwarf keeper none active: repeated native estate sale stays within real available labour (repeat=2 need=2.00000000 capacity=0.20000000 acres=8 ox=0 herd_care=0.00000000 helpers=0.20000000 adults=1 serving=0 keepers=1 jobs=0 casual={} opening_need=0.00000000 opening_capacity=0.20000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: dwarf occupied none active: repeated native estate sale stays within real available labour (repeat=0 need=3.00000000 capacity=0.15000000 acres=12 ox=0 herd_care=0.00000000 helpers=0.15000000 adults=4 serving=0 keepers=0 jobs=4 casual={} opening_need=0.00000000 opening_capacity=0.15000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  3 occurrence(s): FAIL: dwarf occupied none active: earned creditors survive sale without new historical wages
+  3 occurrence(s): FAIL: dwarf occupied none active: purchase retains existing household reserve
+  1 occurrence(s): FAIL: dwarf occupied none active: repeated native estate sale stays within real available labour (repeat=1 need=3.00000000 capacity=0.15000000 acres=12 ox=0 herd_care=0.00000000 helpers=0.15000000 adults=4 serving=0 keepers=0 jobs=4 casual={} opening_need=0.00000000 opening_capacity=0.15000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  1 occurrence(s): FAIL: dwarf occupied none active: repeated native estate sale stays within real available labour (repeat=2 need=3.00000000 capacity=0.15000000 acres=12 ox=0 herd_care=0.00000000 helpers=0.15000000 adults=4 serving=0 keepers=0 jobs=4 casual={} opening_need=0.00000000 opening_capacity=0.15000000 opening_acres=0 opening_ox=0 opening_herd_care=0.00000000 actual_herds[k,y,g,o]=[])
+  3 occurrence(s): FAIL: dwarf legacy ox missing zero-head one-acre transfer: repeated native sale rejects the infeasible physical acre
+  3 occurrence(s): FAIL: dwarf legacy ox missing zero-head one-acre transfer: real prospective crop work remains feasible
+  3 occurrence(s): FAIL: dwarf legacy ox missing zero-head one-acre transfer: rejected sale spends no household reserve (801.00000000 versus 2001.00000000)
+  3 occurrence(s): FAIL: dwarf legacy ox -1 zero-head one-acre transfer: repeated native sale rejects the infeasible physical acre
+  3 occurrence(s): FAIL: dwarf legacy ox -1 zero-head one-acre transfer: real prospective crop work remains feasible
+  3 occurrence(s): FAIL: dwarf legacy ox -1 zero-head one-acre transfer: rejected sale spends no household reserve (801.00000000 versus 2001.00000000)
+  3 occurrence(s): FAIL: dwarf claimed inactive keeper estate sale: stale keeper defers every physical purchase
+  3 occurrence(s): FAIL: dwarf claimed inactive keeper estate sale: sale leaves ordinary keeper repair to native reassignment
+  3 occurrence(s): FAIL: dwarf claimed inactive keeper estate sale: deferral spends no household coins (1200.00000000 versus 12800.00000000)
+  3 occurrence(s): FAIL: dwarf claimed inactive keeper estate sale: deferral creates no debt (1600.00000000 versus 0.00000000)
+  3 occurrence(s): FAIL: dwarf claimed inactive keeper estate sale: deferred purchase retains existing credit (6600.00000000 versus 1600.00000000)
+  3 occurrence(s): FAIL: dwarf claimed inactive keeper estate sale: deferral moves no treasury coins (729017.09698508 versus 717417.09698508)
+  1 occurrence(s): FAIL: dwarf claimed inactive keeper estate sale: repaired opening holding fits actual keeper-adjusted capacity
+  3 occurrence(s): FAIL: dwarf claimed inactive keeper estate sale: later repeated purchase fits real capacity with the repaired keeper
+FAIL | tests/test_guard_death_v046.gd | 30.485s | exit 87
+  1 occurrence(s): FAIL: dwarf sickness: native death releases exactly one guard service place
+  1 occurrence(s): FAIL: dwarf sickness: guard count matches surviving registered guards
+  1 occurrence(s): FAIL: dwarf sickness after: civilian register equals available adult capacity
+  1 occurrence(s): FAIL: dwarf sickness after: native adult work coverage equals available capacity
+  1 occurrence(s): FAIL: eastern sickness: native death releases exactly one guard service place
+  1 occurrence(s): FAIL: eastern sickness: guard count matches surviving registered guards
+  1 occurrence(s): FAIL: eastern sickness after: civilian register equals available adult capacity
+  1 occurrence(s): FAIL: eastern sickness after: native adult work coverage equals available capacity
+  1 occurrence(s): FAIL: goblin sickness: native death releases exactly one guard service place
+  1 occurrence(s): FAIL: goblin sickness: guard count matches surviving registered guards
+  1 occurrence(s): FAIL: goblin sickness after: civilian register equals available adult capacity
+  1 occurrence(s): FAIL: goblin sickness after: native adult work coverage equals available capacity
+  1 occurrence(s): FAIL: middle sickness: native death releases exactly one guard service place
+  1 occurrence(s): FAIL: middle sickness: guard count matches surviving registered guards
+  1 occurrence(s): FAIL: middle sickness after: civilian register equals available adult capacity
+  1 occurrence(s): FAIL: middle sickness after: native adult work coverage equals available capacity
+  1 occurrence(s): FAIL: moon_elf sickness: native death releases exactly one guard service place
+  1 occurrence(s): FAIL: moon_elf sickness: guard count matches surviving registered guards
+  1 occurrence(s): FAIL: moon_elf sickness after: civilian register equals available adult capacity
+  1 occurrence(s): FAIL: moon_elf sickness after: native adult work coverage equals available capacity
+  1 occurrence(s): FAIL: northern sickness: native death releases exactly one guard service place
+  1 occurrence(s): FAIL: northern sickness: guard count matches surviving registered guards
+  1 occurrence(s): FAIL: northern sickness after: civilian register equals available adult capacity
+  1 occurrence(s): FAIL: northern sickness after: native adult work coverage equals available capacity
+  1 occurrence(s): FAIL: orc sickness: native death releases exactly one guard service place
+  1 occurrence(s): FAIL: orc sickness: guard count matches surviving registered guards
+  1 occurrence(s): FAIL: orc sickness after: civilian register equals available adult capacity
+  1 occurrence(s): FAIL: orc sickness after: native adult work coverage equals available capacity
+  1 occurrence(s): FAIL: native load preserves absence of phantom guard service
+  1 occurrence(s): FAIL: killed-guard loaded boundary: civilian register equals available adult capacity
+  1 occurrence(s): FAIL: killed-guard loaded boundary: native adult work coverage equals available capacity
+  1 occurrence(s): FAIL: dwarf starved: native death releases exactly one guard service place
+  1 occurrence(s): FAIL: dwarf starved: guard count matches surviving registered guards
+  1 occurrence(s): FAIL: dwarf starved after: civilian register equals available adult capacity
+  1 occurrence(s): FAIL: dwarf starved after: native adult work coverage equals available capacity
+  1 occurrence(s): FAIL: eastern starved: native death releases exactly one guard service place
+  1 occurrence(s): FAIL: eastern starved: guard count matches surviving registered guards
+  1 occurrence(s): FAIL: eastern starved after: civilian register equals available adult capacity
+  1 occurrence(s): FAIL: eastern starved after: native adult work coverage equals available capacity
+  1 occurrence(s): FAIL: goblin starved: native death releases exactly one guard service place
+  1 occurrence(s): FAIL: goblin starved: guard count matches surviving registered guards
+  1 occurrence(s): FAIL: goblin starved after: civilian register equals available adult capacity
+  1 occurrence(s): FAIL: goblin starved after: native adult work coverage equals available capacity
+  1 occurrence(s): FAIL: middle starved: native death releases exactly one guard service place
+  1 occurrence(s): FAIL: middle starved: guard count matches surviving registered guards
+  1 occurrence(s): FAIL: middle starved after: civilian register equals available adult capacity
+  1 occurrence(s): FAIL: middle starved after: native adult work coverage equals available capacity
+  1 occurrence(s): FAIL: moon_elf starved: native death releases exactly one guard service place
+  1 occurrence(s): FAIL: moon_elf starved: guard count matches surviving registered guards
+  1 occurrence(s): FAIL: moon_elf starved after: civilian register equals available adult capacity
+  1 occurrence(s): FAIL: moon_elf starved after: native adult work coverage equals available capacity
+  1 occurrence(s): FAIL: northern starved: native death releases exactly one guard service place
+  1 occurrence(s): FAIL: northern starved: guard count matches surviving registered guards
+  1 occurrence(s): FAIL: northern starved after: civilian register equals available adult capacity
+  1 occurrence(s): FAIL: northern starved after: native adult work coverage equals available capacity
+  1 occurrence(s): FAIL: orc starved: native death releases exactly one guard service place
+  1 occurrence(s): FAIL: orc starved: guard count matches surviving registered guards
+  1 occurrence(s): FAIL: orc starved after: civilian register equals available adult capacity
+  1 occurrence(s): FAIL: orc starved after: native adult work coverage equals available capacity
+  1 occurrence(s): FAIL: dwarf childbirth: native death releases exactly one guard service place
+  1 occurrence(s): FAIL: dwarf childbirth: guard count matches surviving registered guards
+  1 occurrence(s): FAIL: dwarf childbirth after: civilian register equals available adult capacity
+  1 occurrence(s): FAIL: dwarf childbirth after: native adult work coverage equals available capacity
+  1 occurrence(s): FAIL: eastern childbirth: native death releases exactly one guard service place
+  1 occurrence(s): FAIL: eastern childbirth: guard count matches surviving registered guards
+  1 occurrence(s): FAIL: eastern childbirth after: civilian register equals available adult capacity
+  1 occurrence(s): FAIL: eastern childbirth after: native adult work coverage equals available capacity
+  1 occurrence(s): FAIL: goblin childbirth: native death releases exactly one guard service place
+  1 occurrence(s): FAIL: goblin childbirth: guard count matches surviving registered guards
+  1 occurrence(s): FAIL: goblin childbirth after: civilian register equals available adult capacity
+  1 occurrence(s): FAIL: goblin childbirth after: native adult work coverage equals available capacity
+  1 occurrence(s): FAIL: middle childbirth: native death releases exactly one guard service place
+  1 occurrence(s): FAIL: middle childbirth: guard count matches surviving registered guards
+  1 occurrence(s): FAIL: middle childbirth after: civilian register equals available adult capacity
+  1 occurrence(s): FAIL: middle childbirth after: native adult work coverage equals available capacity
+  1 occurrence(s): FAIL: moon_elf childbirth: native death releases exactly one guard service place
+  1 occurrence(s): FAIL: moon_elf childbirth: guard count matches surviving registered guards
+  1 occurrence(s): FAIL: moon_elf childbirth after: civilian register equals available adult capacity
+  1 occurrence(s): FAIL: moon_elf childbirth after: native adult work coverage equals available capacity
+  1 occurrence(s): FAIL: northern childbirth: native death releases exactly one guard service place
+  1 occurrence(s): FAIL: northern childbirth: guard count matches surviving registered guards
+  1 occurrence(s): FAIL: northern childbirth after: civilian register equals available adult capacity
+  1 occurrence(s): FAIL: northern childbirth after: native adult work coverage equals available capacity
+  1 occurrence(s): FAIL: orc childbirth: native death releases exactly one guard service place
+  1 occurrence(s): FAIL: orc childbirth: guard count matches surviving registered guards
+  1 occurrence(s): FAIL: orc childbirth after: civilian register equals available adult capacity
+  1 occurrence(s): FAIL: orc childbirth after: native adult work coverage equals available capacity
+FAIL | tests/test_hiring_timing_v046.gd | 16.563s | exit 1
+  1 occurrence(s): FAIL: generated labour fixture exists
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-baseline-corrected3
+Source receipt SHA256: 849593ff6343d28eb0f0f74a382bb1574d73e1d9146776fb8f98e588ed4e3a1e
+
+Notes (you can write here):

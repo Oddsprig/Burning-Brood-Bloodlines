@@ -1,0 +1,4 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+DYNASTY FOUNDATION checks=227 failures=0
+== res://tests/test_dynasty_foundation.gd: PASS ==

@@ -1,0 +1,98 @@
+BURNING BROOD: BLOODLINES v0.010 - BATTLE PERFORMANCE RESULTS
+2026-10-11 | Final selected runs PASS; failures retained separately.
+
+MEASURED WINDOWS RENDERING
+Godot4.7.2 official Windows runtime; OpenGL3.3/NVIDIA610.88; RTX5090 Laptop GPU.
+1280x720, VSync disabled, cap60FPS, hidden/no-focus window; no player foreground.
+Native Factory forces/seed1010; actual battle scene.100/100 and200/200 both start
+in separately created Normal/seed777 worlds with exactly one history day and an
+actual native house selected. Force size is an isolated fixture, not recruitment
+or campaign result handback. Additional200/200 contact fixture uses native custom
+deployment cells without world generation. No save compatibility tests.
+Each probe12s; first2s are cold; later frames include camera pan/zoom/fit, inspector
+selection, a real pause/resume and the persistent Performance panel. Full frame
+time measured between real frame_post_draw signals; headless tests are not FPS.
+
+Final approach/camera/archery cases and dense contact case:
+  100/100 contact=False: 60.12FPS, p95 20.981ms, p99 22.731ms, worst 25.154ms; setup 1,032.4ms.
+    Native ticks 220 + accumulator 0.7148 = weighted budget 220.7148; slowmo 1.400s. Tick delivery PASS.
+    Cold frames: 118; cold p95 19.861ms, max 73.073ms.
+    Cache pixels 77.68MiB/1186 entries; peak requests 59, peak tasks 4; tracked RAM 600.49-619.30MiB.
+  200/200 contact=False: 59.27FPS, p95 24.349ms, p99 26.975ms, worst 33.822ms; setup 2,100.2ms.
+    Native ticks 219 + accumulator 0.3263 = weighted budget 219.3263; slowmo 1.383s. Tick delivery PASS.
+    Cold frames: 117; cold p95 22.528ms, max 86.224ms.
+    Cache pixels 94.32MiB/1443 entries; peak requests 200, peak tasks 4; tracked RAM 630.38-659.64MiB.
+  200/200 contact=True: 33.19FPS, p95 41.382ms, p99 44.034ms, worst 63.184ms; setup 2,177.5ms.
+    Native ticks 176 + accumulator 0.4611 = weighted budget 176.4611; slowmo 4.160s. Tick delivery PASS.
+    Cold frames: 110; cold p95 27.974ms, max 81.001ms.
+    Cache pixels 82.15MiB/1274 entries; peak requests 199, peak tasks 4; tracked RAM 129.00-193.17MiB.
+Contact: 1048 attacks/805 hits/700 wounds/51 deaths/11 severings from actual native events.
+Recovery floor30FPS/p95<=50ms passed in all three measured cases. Heavy melee
+is about33FPS with occasional63ms frames;60FPS everywhere remains future work.
+Initial sprite setup is still eager, about1s/2.1s, separately reported.
+v009 actual baseline100/100:1.968FPS, p95848.038ms, worst848.660ms, tick63.
+Baseline had no persistent panel; final candidates include it. Same force seeds,
+different wall-clock progress; native equality is verified separately by fixed ticks.
+Intermediate coalescing/LRU-only build32.142FPS/p95110.021ms FAILED the gate;
+native raster mean4.479ms caused spikes. Final four-worker drawing removed that
+blocking work from the main battle loop. Synthetic cache tests are not memory/FPS.
+
+NATIVE / IMAGE / UI CHECKS
+651 focused assertions total:77cache/API,25visual/native-duel purity,66full-state
+presentation,443native art,40performance-panel. Seven desktop layout cases.
+All eight worker race outputs match native RGBA;118figures/58icons checked.
+Collision identity, cache eviction/current references, queue fairness, same-key
+coalescing, immutable snapshots, urgent head-loss and offscreen cancellation pass.
+Complete Unit/Fighter/RNG/battle state matches independent native simulations
+at24fixed ticks for100/100 and200/200. Adjacent duel48ticks proves6attacks,
+4hits and3wounds with exact native persistent results. Inspector/pause/dirty
+death-camera-return checks remain pure; exact dead frame eventually completes.
+Scene teardown naturally drains all worker tasks/demand; DB drawing definitions
+remain unchanged. No Units/Items/population/calendar/coin are created by visuals.
+Source: 932 files; 426 prior resource UIDs byte-exact; 430 current unique UIDs.
+100 prior art/data files remain byte-exact; Paperdoll render adapter changed.
+20 native released model files remain exact.
+No model/pixel-painter, weapon/armour definition, portrait or dragon asset replaced.
+
+BOUNDS / TIMING LIMITS
+LRU8192 entries/256MiB cached RGBA payload,8192 exact-spec identities; active sprite
+references/resource overhead are extra. Four raster tasks, one latest request
+per actor,8192request maximum, two uploads per pump. Every native task is retired;
+obsolete demand rotates fairly and urgent identities retain priority. Cached images
+are exact; a doll retains its last completed frame briefly while new art is drawn.
+Main-thread frame/spec/upload/pump/cache and separate FX/gore/arrow callbacks are
+timed. Background worker wall time is separate from main-thread/GPU time.64fixed
+labels/two rolling buckets, fixed UI controls/2Hz. No dropped labels in these runs.
+Short tracked-memory samples do not establish whole OS/GPU or long-session leak
+freedom. Campaign responsiveness, snapshot stalls and repeated ownership cycles
+remain v011/v012. Phone export/QA, combat log(v014), real raising(v015), map/house
+chooser(v016), dragon expansion and old-save compatibility are outside this pass.
+
+SELECTED COMPLETE-LOG RUNS
+  v010-13-final-cache - PASS - 2.876s
+  v010-17-final-test_battle_visual_purity - PASS - 13.196s
+  v010-17-final-test_battle_presentation_state - PASS - 8.336s
+  v010-17-final-test_art_redesign - PASS - 4.726s
+  v010-17-final-test_performance_panel - PASS - 5.125s
+  v010-14-render200-fresh - PASS - 46.542s
+  v010-15-render200-contact - PASS - 19.827s
+  v010-16-render100-fresh-final - PASS - 44.211s
+  v010-18-final-import - PASS - 20.238s
+  v010-20-cold-launcher - PASS - 12.887s
+  v010-21-bundled-main - PASS - 5.379s
+
+FAILED / EARLIER ATTEMPTS
+v010-05 visual fixture clone assigned a missing native favorite drink before
+presentation; source fixtures now initialize it before deep cloning. No fields
+were excluded to hide it. Final25checks pass with actual native combat.
+v010-06 full-state fixture timed out45s while repeatedly sorting/marshaling every
+shared anatomy record. Memoized object-aware snapshots retain every script field,
+yield between stages and compare setup/end. Final66checks pass in8.336s.
+v010-08 diagnostic referenced a nonexistent Battle class_name; native script base
+path repaired. v010-09 intermediate render failed p95, as recorded above.
+v010-12 first async build passed but final fairness code is measured again in16.
+Earlier passes are diagnostic history; final selected passes are not counted twice.
+Only exact Windows root-certificate-store error is excluded as known environment
+output. Every other ERROR/SCRIPT ERROR/FAIL/parse/compile line rejects a run.
+Private screenshots retained in chat work; no images posted into chat or packaged
+as unit replacements. ZIP and actual Desktop/icon readbacks have separate receipts.

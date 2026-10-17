@@ -1,0 +1,4 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Feudal succession: 31 checks, 3 failures
+== res://tests/test_feudal_succession.gd: FAIL (3) ==

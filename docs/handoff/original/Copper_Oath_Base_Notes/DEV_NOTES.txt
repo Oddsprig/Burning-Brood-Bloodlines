@@ -1,0 +1,1713 @@
+CURRENT USER POLICY: DEVELOPMENT VERSION SAVES
+Save compatibility between development versions is not required.
+New version builds may start with a fresh campaign.
+Do not load older-version saves or run cross-version compatibility, migration,
+launcher save-copy or legacy-save regression checks for normal version builds.
+Do not spend development or test resources maintaining cross-version saves.
+Cross-version save work requires an explicit user request.
+Use short current-version checks for breakage. Preserve existing player files.
+This current policy overrides historical save-compatibility instructions below.
+
+COPPER OATH v0.046 WORKING NOTES
+Only046 is current; cumulative045. Work on fix/economy-pass, never master.
+Read V0.046_REPORT.txt, Benchmarks/README.txt and review/v0.046 before changes.
+Keep permanent economy, population, combat, UI and release verification roles;
+reuse and improve the same specialists across versions.
+Population lesson: Persons PID is town-local; compare town/family/PID, and
+use global UnitUID for live unit identity. Preserve all raw lineage properties.
+Combat lesson: native physiology recovers before action; prove a fixture's
+actual threshold/event. Preserve the first real death and positive service
+counts; zero-valued role keys alone do not represent an extra serving person.
+Release lesson: validate each runner's real receipt schema and actual source;
+never invent arguments, passing outcomes, or completed runs.
+Purchases must follow native partial/full physical plots, rotation, real animal
+age and donor-conditioned ox initialization even when mo rounds to0.
+Keep loan/arrears/reserve rules and earned settlement. No yield, worker, wage,
+population, denominator, troop or tick tuning. Real helpers retain existing rules.
+Child caches need record/race/count/day/birthday validity; pure UI readers do
+not mutate caches. Exact stored-food totals and fresh identity must survive
+native departure/migration. Home militia/guard/caravan food policy is unchanged.
+Native service death decrements cover guards and pasture defenders. Reassign
+civilian work after selecting original herders; cleanup resolves actual UID/PID.
+Company payroll credits existing moved/extinct targets before debit/paid flags.
+Unknown recipients remain unpaid and keep payer money for later roster members.
+No invented personal wallets, revived families or compensation coins.
+Original legacy marker FAIL27 is retained. Native27-household load repairs are
+proved independently; saved real payroll loss is fixed, not an oracle waiver.
+User requested no long tests now. Default to short breakage checks and keep
+writable per-run Benchmarks TXT reports. Long benchmarks need explicit request.
+Current full-world/performance and full sickness/UI/census runs are uncompleted
+or unrun. Prior results are historical and identified by their actual source.
+Strict90% day120 land and25ms plot targets remain open; no false all-pass claim.
+Use hidden/headless/BelowNormal isolated engines serially; never mouse, keyboard,
+foreground, visible test windows or player launcher. No dogs work/testing.
+Preserve every prior release, checkpoint and player save. Proposed roadmap
+numbers are planning; descendants are not forced recruits.
+
+COPPER OATH v0.045 WORKING NOTES
+2026-10-10. Read V0.045_REPORT.txt and review/v0.045 evidence before next work.
+Delivered base v044=2eee834efbd0bb42a54fca31a310c2b28b7b9602. Branch fix/economy-pass, never master.
+Stock scratch is call-local and valid only while this town armory shrinks.
+Initialize on first optional request; subtract chosen Item class, including
+required removals. Live targets are read for every optional slot. Do not reuse
+counts across calls, replenishment, another town or returned/player inventory.
+Keep ordered exact-template scans even after a class fallback has been found.
+Optional slots cannot consume foreign role substitutes or reserved stock.
+Shop wrong-slot paid returns retain their original charge and none=false behavior.
+Only nonempty officer rows allocate flow containers; keep empty rank headings.
+All old tests and gates remain exact. Broad result: PASS; actual diagnostic
+and any unresolved timing miss are explicit in the report/CSV.
+Controlled paired medians cover whole rekit_town batches; do not call them FPS.
+No save/map optimization shipped; existing handoff checks and measured remaining
+costs are recorded. Army/guard/muster and other whole-world hitches remain open.
+Keep ordinary cadence and people/items/money/food conservation. No arms contracts.
+Garrisons buy publicly, hold 2.5x reserves, distribute internally every ten days.
+Only v045 is current; preserve every predecessor and original player save.
+Next numbered work v046 land/labour/food; Academy/metallurgy/kin/art remain planning.
+All engines stay serial, hidden/headless/BelowNormal with isolated application data.
+Never manipulate the mouse, keyboard, foreground or launch the player's game.
+
+v0.044 Records performance
+Current cumulative release from v043 on fix/economy-pass.
+Only four Records UI production builders and release metadata change;
+campaign source is unchanged. Mines & land primary metrics use the existing
+TownEcon.land_split ownership read, avoiding unused crop/herd summary work;
+detail disclosures still read their full current account. No reader rule changes.
+Independent v043 closure/equality and native
+actions, same-frame edits, sparse-save purity and exact source binding retained.
+Builders stay strictly pure. Native household details must match exact inherited
+effects captured from complete frozen v043 Pages in an isolated deep world copy,
+including named and missing person lists; live world/cache restoration and RNG
+equality stay strict. Failed final1/final2 receipts are separately archived.
+The Academy keeper test alone migrates its expected designated-head contract;
+all other existing test/UID bytes and all timing gates remain unchanged.
+Measured values, including regressions, appear in V0.044_REPORT.txt.
+Evidence: review/v0.044. Package/install proof remains a separate step.
+
+v0.043 HISTORICAL Records Goods performance
+Current cumulative release from v042 on fix/economy-pass.
+Goods build-local prepared values and optional final initial table columns;
+exact herd head-count loop only, without persistent caches or simulation rules.
+Full source/test/launcher hashes bind exact final3 and complete old snapshot.
+Paired diagnostic builders improve measured cost as recorded in the report;
+no FPS or manual gameplay claim. Old tests/gates remain unchanged.
+Roads/Academy mechanics remain outside scope; next army/simulation/land/food.
+Evidence: V0.043_REPORT.txt and review/v0.043.
+
+v0.042 HISTORICAL Healer/Contracts presentation
+Current cumulative release: v0.042 from v0.041 on fix/economy-pass.
+Two presentation helpers reuse original services, quotes, dictionaries and
+callbacks; exact source/stage/test/capture bindings precede release writes.
+No simulation/data rules change. Fresh-wound assessment in existing quotes
+remains inherited behavior; no promised healing outcome is invented.
+Historical Records broad results are not rerun or claimed fixed here.
+Next: Records speed/army/simulation, then land/food. Academy/metallurgy/kin
+remain planning. Final selected evidence: V0.042_REPORT.txt.
+
+v0.041 HISTORICAL readable Records in every view
+Current cumulative release: v0.041 from v0.040 on fix/economy-pass.
+RecRegions/RecFlows reuse Records, RecKit and original RecWorld builders.
+All sort/filter/search keys and identity callbacks remain; compact columns
+supplement original row details. Every primary tab in all scopes is covered.
+Census/research/army facts use existing backend values. Actual transfers,
+planned budgets, known progress and recorded work state remain distinct.
+Valid sparse optional state is initialized only on selective UI copies.
+Existing family/person navigation mechanics remain intact. No simulation,
+data rules, save schema, staffing, funding or balance changes are introduced.
+Evidence uses exact production hashes; broad tests retain unchanged gates.
+Native foreground input is forbidden in automated checks. Academy vacancy,
+metallurgy and kinship/loss-memory discussions remain untouched planning.
+
+v0.040 readable Town Records
+Current cumulative release: v0.040 from v0.039 on fix/economy-pass.
+Extend Records/RecTable/RecKit; no second simulation or save schema.
+Counts and cash use authoritative reads. Reserve targets are separate from
+issued kit; 2.5x reserves and ten-day internal distribution retain real rules.
+UI display columns supplement existing sort/filter fields and full details.
+Browsing state is screen-local; expanded detail builders are lazy and reused.
+Herd derived-cache reads use shallow UI copies; simulation caches stay intact.
+Native input and foreground interaction are forbidden in automated checks.
+Academy appointment and metallurgy design discussions remain notes only.
+
+v0.039 academy identity and research presentation
+Current cumulative release: v0.039 from v0.038 on fix/economy-pass.
+Academy is a state-funded house with a designated registered paid head.
+b.lead is authoritative; a private family keeper or first employee is not
+a substitute. Base staff wage and conditional head supplement stay separate.
+TownResearchTab reads Academy.report; no second research/economy system.
+Report applies existing defaults to a copied faction state, without repairing
+live saves. Head lookup does not insert missing legacy register arrays.
+The former capital must still belong to the realm before exposing its house.
+Known starting technology is retained; points can rise before know-how.
+Active-line eligibility is a plan; actual activity also needs the real head,
+workers, house and production state. Starting/completed knowledge is not
+evidence of new study. No per-line output rate or completion date is invented.
+S.budget is planned coins/day; S.paid is last faction-turn transfer; b.till
+is remaining cash. Hist records aggregate weekly output and its turn day.
+Preserve cultural titles, staff appointment, research rules and state funding.
+New Campaign uses exact presim_span_days (1..12000); integer-year callers
+still set presim_years through a compatibility adapter. A game year is 120
+days. Saved presim.total remains authoritative; no resimulation of old saves.
+The slider offers days 1..30, then 60/90 days, then whole years through 100.
+Healer, Contracts and general Records presentation remain the next UI pass.
+Future descendant/loss-memory notes below remain planning only.
+Tests stay serial, hidden/headless, isolated and BelowNormal. Native rendering
+uses a never-activated separate Windows desktop and no native input.
+
+v0.038 town presentation and named provisions
+Historical cumulative release: v0.038 from v0.037, on fix/economy-pass.
+Market and provisions delegate to TownMarketTab and TownProvisionsTab.
+Grouping keeps real Item references and all physical/origin/mark metadata;
+legend identities are never consolidated. No duplicate market or outfit system.
+Buy best previews exact items/costs; revalidate every line before spending.
+Execute main-hand changes before shields. Unusable broken stock is excluded
+from best selection and uniform fills. Ordinary quality has an explicit label.
+Food keeps the same meal/beer/wine ledger and existing nutrition/spoil clocks.
+Optional good/name fields identify real grain/fruit/meat lots; old two-field
+lots remain Mixed rations. Preserve FIFO ties, ingredient weights and saves.
+Packing quotes keep a seven-day reserve; aging food excluded from that reserve
+is disclosed, and immediate hunger consumes existing FIFO stock first.
+RecruitBrief reads actual own-person service/work/hardship and stored ambitions;
+family assets and relative service are not substituted for personal history.
+Compact attributes use the same race-relative percentile as UnitSheet.
+Town dashboard facts remain read-only and available in named table sections.
+Automated fit checks cover 960x640, 1280x720 and 1920x1080.
+Render only on an isolated Windows desktop; never switch desktops, activate a
+foreground window or send native input. Tests remain serial and BelowNormal.
+Future kinship/loss-memory notes below are preserved as planning only.
+
+DESIGN CORRECTION 2026-10-09 - FUTURE NOTES ONLY
+- No special descendant recruitment rule. Children or other descendants of former
+  company recruits may join naturally under ordinary eligibility and choices.
+  Descendancy grants no recruitment weighting, guaranteed appearance or teaching bonus.
+- Whenever a descendant is encountered, their person/recruit details identify the
+  actual relation to the prior recruit: son, daughter, grandchild, etc. This applies
+  even if the descendant never joins or is not recruitable. Use real kinship and
+  company service records; retain the link after death, retirement or dismissal.
+- Other real people remember when your company killed their family member. Preserve
+  the victim's identity, actual relationship, responsible company and dated event;
+  show that remembered fact through existing personal records and backstories.
+  Extend existing person IDs, kinship and history instead of a duplicate system.
+  Keep ancestry/service and loss memories across moves, service changes and saves,
+  including after short recent-history lists trim old entries. Attribute responsibility
+  from the actual death, not a shared surname or the victim merely serving with us.
+- Reactions remain individual choices; no forced revenge or recruitment outcome is
+  specified. These notes are not implemented, and work now switches to the user's
+  next topic when supplied. This correction supersedes old children-as-recruits notes.
+
+v0.037 startup scheduling
+See V0.037_REPORT.txt for evidence and remaining hitches.
+Game.new_game_begin/new_game_slice and CampaignWorld.generate_begin/generate_slice
+keep caller-local state outside saves; synchronous wrappers drain the same parts.
+Army/ArmsTrade initializers share band/faction/town passes. Each complete original
+town economy sandwich retains unsorted founding order and its independent RNG.
+CampaignWorld.presim_slice resumes original movement, monsters, midnights and jobs;
+UI12 ms is a soft allowance, not a maximum duration of an indivisible job.
+Chronicle polls only after a newly completed day. Partial generation cannot setup
+map/feed or emit changed. Original cadence/span and company arrival rules remain.
+No stale PC time estimate. Tests remain hidden/headless/isolated/BelowNormal.
+
+COPPER OATH v0.036 WORKING NOTES
+Historical v0.036 release; cumulative from v0.035. fix/economy-pass, never master.
+Read V0.036_REPORT.txt and retained actual evidence before the next change.
+Desktop branding: ship root CopperOath.ico, generated from game/icon.png by
+tools/make_shortcut.ps1. Every installer must use CopperOath.ico,0 for its
+shortcut, never the Godot runtime icon. Verify the shell-extracted icon visually.
+The v0.036 icon correction changes packaging only; gameplay and saves are unchanged.
+Shipped: single-scan vacancy collection with exact original group/sort order;
+call-local reuse of crop/herd labour in reassign; actual camp lair funding link
+for newly spawned roaming bands. No enduring cache or work-cadence change.
+Do not reuse crop/herd results across calls or move lazy index creation past
+the original need_hands point. Assignment helpers change jobs/cash, not land,
+rotation/day or physical herds in this call; keep that invariant explicit.
+Guard selection/take_arms/outfit variants are rejected. Their production files
+stay v0.035. The first selection fixture errored; do not report it as passing.
+The bandit fix intentionally changes recruitment and resulting world history.
+Exact full-state comparison applies to the performance-only candidate, not the
+combined final world. No whole-game or native-FPS claim follows from timings.
+Army fixtures use existing people and transferred cash/food; a payment-reset
+setup must include outstanding sign-on liabilities before daily pay. Keep
+the original assertion and timing thresholds. Restore scenario culture data;
+release live registered people before removing fixture forces. Return existing
+force provisions to the supplying stock before testing another purchase.
+The funding regression audits actual people, cash and physical food, not
+Item/allocation counters. Never claim more conservation coverage than tested.
+17/22 final entries pass; all selected functional assertions complete.
+Remaining speed failures are explicitly recorded in the report/CSV.
+Fresh 120 days and original day 600 + 28 ownership and active-service audits pass.
+Keep historical gone-family labels separate from current roster correctness.
+The baseline archive and original day 600 input are unchanged.
+Next: remaining army re-equipping/guard/muster and whole-world hitches, plus
+the existing army-panel detached empty-row cleanup, then
+sustained 90% worked land, local labour/affordability and food balance.
+For army_rk, split ArmsTrade._take_fit's optional _stock_counts prepass from
+its ordered search on captured actual slow-job inputs. A possible redundant
+alternate-slot check is a hypothesis only; preserve later exact-template checks
+and prove exact Item choice/order before retaining any performance candidate.
+The rejected creation-outfit lookup never runs inside army_rk. Its UI-node leak
+occurs after the timed loop and does not explain the observed re-equipping peak.
+The older monster fixture, later gameplay roadmap and manual/device checks
+remain open. Do not infer a new90% land result from ownership audits.
+Preserve real people, money, goods, equipment, earned wage creditors, dated
+harvest shares, FIFO, household reserves, child cleanup and event order/cadence.
+Garrisons buy on the market, keep 2.5x reserves and distribute within their own
+faction every ten days. No arms contracts, named-case fixes or dog checks.
+User forbids foreground and mouse interference: serial headless hidden engines,
+CreateNoWindow, BelowNormal, isolated APPDATA/LOCALAPPDATA. Never run the player
+launcher or send mouse/keyboard/foreground commands. No cloud test environment
+is attached. Keep package/install verification distinct from manual gameplay.
+
+HISTORICAL v0.035 WORKING NOTES
+At v0.035 release; cumulative from v0.034. fix/economy-pass, never master.
+Read V0.035_REPORT.txt and retained evidence before the next change.
+Done generally: same-faction reserve household moves transfer real Units;
+unique proven old migration copies reconnect, actual releases propagate, and
+proven historical copies stop claiming current service. Ambiguity remains unresolved,
+never guessed. Queued muster identities survive sweeps. Unit allocation persists
+and old-save retained-reference floors include posts/candidates/squad/census IDs.
+Preserve current Unit illness and equipment during repair; household copies may
+be stale. Do not call binding initialization to clear a living Unit's illness.
+New/load clears old pasture BattleSim references even for the same world seed.
+The deterministic 200-step quota is explicit diagnostic-only and resets on load.
+Paired profiling snapshots include transient fights, RNG, IDs and insertion order.
+Shipped performance changes: track metadata reuse and packed geometry buffers.
+Rejected: war lookup/control variants and records typed-filter loop. Keep their
+unchanged production implementations; do not present noisy timings as gains.
+Remaining hotspot: actual muster transitions/reassignment/funded hiring and guard
+formation/outfitting. Profile narrower phases on both fresh and real old worlds.
+Do not skip economic work, lower job frequency, remove physical accounting or
+relax speed thresholds. Component gains do not establish whole-game speed/FPS.
+The old-save repair's unresolved count covers its active pass, not all skipped
+historical rows. Day600 retains87 stale labels in gone households, none referring
+to a living Unit; day628 retains71 of those rows, all UID-1. Keep this distinction.
+The old-save conservation diagnostic compares exact owner cash and serialized
+census/wage facts with the explicit unchanged-loader baseline, retaining raw
+save-to-load differences. No numerical tolerance masks these comparisons.
+Open: timing gates/hitches, sustained 90% land work, local labour/affordability,
+food balance, inherited army/monster fixtures and manual/native gameplay. The
+supplementary army suite stays failed; scoped baseline reproduction is not a pass.
+Later roadmap systems retain order.
+Preserve real people, cash, goods, earned wage creditors, dated harvest shares,
+FIFO, household food reserves, fractional child cleanup and registered service.
+Garrisons buy from the open market, hold 2.5x reserves and check same-faction
+distribution every ten days. No arms contracts. No named-family/town exceptions.
+No dogs or dog-removal tests. Extend existing systems instead of second ledgers.
+User forbids foreground and mouse interference: headless hidden engines only,
+CreateNoWindow, BelowNormal, isolated APPDATA/LOCALAPPDATA, one engine at a time.
+Never execute the player launcher or send mouse/keyboard/foreground commands.
+No connected cloud environment was available; these checks run locally in the
+background. Package/installer verification is separate from manual gameplay.
+
+HISTORICAL v0.034 WORKING NOTES
+At v0.034 release; cumulative from v0.033. fix/economy-pass, never master.
+Read V0.034_REPORT.txt and actual measurements before the next change.
+Done: direct owner-filtered harvest lookup; call-local own-faction supply shortlist;
+staged clash positions and daily patrol counts; shared/lazy record data and native
+unchanged row reuse; authoritative typed Census.people; real caravan and census fixtures.
+Keep original bulk reserve_all/reserve_food/_sum cleanup. Indexed and row-batched
+alternatives were rejected after mixed or worse authentic-save measurements.
+No cache survives these calls/page builds; no new save fields or second ledgers.
+Supply candidate IDs stay sorted. Recheck live need after each transfer; donors
+never go below target. Preserve proportional-shortage scoring, sorted-ID ties,
+equipment and cash.
+UI callbacks, colors, details, sort/filter/search and population exclusions count
+as behavior. Do not accept a speedup that changes displayed data or ownership.
+Whole-campaign final states vary even with initial equality; unchanged baseline
+repeat results and the existing wall-clock HerdRaids budget are in the report.
+Do not claim exact whole-campaign equivalence or causal whole-game speedup.
+Keep speed gates failing where measured; no threshold or fixture weakening.
+The caravan correction checks actual accepted real identities, not fabricated people.
+The census correction covers reserve/militia both ways, rejects missing/wrong
+families and duplicate UID bindings, and keeps guards separate. The original
+failed full-run log/source remain evidence. Original day0/day120 snapshots prove
+the stale militia-only assertion; corrected full census is run again.
+The original day600 save has380active-family and217historical gone-family reverse
+reserve bindings that fail the stricter read-only audit. Living roster members
+resolve correctly. These inherited defects remain open; never waive them or
+claim ownership/supply checks establish all military person-record correctness.
+The supply fixture copies exact live state including blank drink preferences;
+current-save Unit.from_dict normalization is separate, unchanged production behavior.
+Preserve real cash, goods, earned creditors, dated shares, FIFO, food reserves,
+fractional child cleanup, lifecycle ownership and registered military service.
+Open: inherited 90% land goal, local labour/affordability/food balance, timing gates,
+remaining heavy jobs, repeatable campaign profiling, and manual/device gameplay.
+No named-family/town exceptions. No dogs/removal tests. Extend existing systems.
+Garrisons buy on the open market, hold 2.5x reserves, check own-faction supply every
+10 days. No arms contracts. Later systems keep their established roadmap order.
+User forbids foreground and mouse interference. Only headless hidden engines,
+CreateNoWindow, BelowNormal and isolated APPDATA/LOCALAPPDATA. Never run the
+player's launcher or send mouse/keyboard/foreground commands for testing.
+Prefer connected cloud tests when available; no cloud environment was attached.
+
+HISTORICAL v0.033 WORKING NOTES
+At v0.033 release; cumulative from v0.032. fix/economy-pass, never master.
+Done generally: private batch funded matching; casual-only offers; Academy adult
+conservation plus post-match lead revalidation; separate gear/recipe fractions;
+read-only producer context; hidden BelowNormal test process records.
+Read V0.033_REPORT.txt and actual measurements before the next change.
+Day120 worked nominal acres: 74.172485%; target90% remains a
+separate balance requirement, not justification to shrink acres or invent hands.
+Hiring trace [0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1]; audit rule counts {'full_market_broke_producer': 5, 'filth_rising_no_remover': 2}.
+Keep real cash, physical goods, earned creditor wages, dated harvest ownership,
+reserves, partial shares, children cleanup and registered military service.
+Mixed legacy partial work is retained inert once, never guessed into item/batch units.
+No named-family/town fixes. No dogs/removal checks. Extend existing systems.
+Next: performance in a separate pass; future gameplay systems keep roadmap order.
+User forbids foreground and mouse interference. All tests must remain headless or
+hidden, use isolated saves and captured logs; no visible test windows. Use the
+test runner's default BelowNormal priority. Do not launch the player's game.
+Cloud testing is preferred when a suitable connected environment is available;
+no such environment is attached now. No source upload was performed.
+
+COPPER OATH v0.032 WORKING NOTES
+Historical v0.032 release; cumulative from v0.031 on fix/economy-pass. Master unchanged.
+Done: shared rotation/soil/climate yield selection for new food acreage; actual
+child meal sizing; plot-aware active/fallow work; species/age care incl oxen/hens;
+real herder keeper offsets; actual cut-season demand; separate output/assignment
+markers; post-layout initial matching/yards; batched militia and post-funding
+matching; public wage bill recount; v0.031 save compatibility; food diagnostics;
+nonnegative harvest-time input and exact dated-share regression.
+Read V0.032_REPORT.txt and measured CSVs before choosing the next pass.
+Worked nominal acreage is 73.692% at day 120. The day-120 90% target remains unmet.
+365-day hiring PASS; ten-day trace [3, 2, 3, 3, 3, 1, 1, 2, 4, 3, 1].
+The first frozen 600-day audit failed 58 pending-carry checks; its tiny negative
+fodder cause was reproduced separately. Earlier 1,890-check regression: 434 failed
+before bounding harvest input; 1,890 passed afterward. Final 2,268-check suite adds
+exact dated shares. First history/proof/source hashes remain separate review evidence.
+New-world physical acreage is larger; existing save acreage is never resized.
+Fallow upkeep is explicitly one quarter [ours]. Keep real nominal acres in reports.
+Do not infer labour from old mirrors when actual plots/herds exist. Never let an
+output refresh mark an adult reassignment complete. Fund jobs from real cash after
+earned obligations; changing service/funding does not advance wages or paydays.
+Prior dated harvest ownership, food reserves, paid child cleanup, owner capital
+and earned-wage records remain. Military supply stays open-market purchases,
+2.5x reserves and own-faction redistribution every10days; arms contracts removed.
+Do not add dogs or schedule dog-removal tests. No named family/town exceptions.
+Extend existing systems. Remain on fix/economy-pass; never commit master.
+For future testing prefer a connected cloud environment when one is available;
+the user explicitly chose to finish v0.032 locally. No remote environment is
+currently attached. All local test runs isolate saves and headless game processes.
+Next: farm affordability/allocation and remaining food/audit findings, followed by
+the separate performance pass. Include general academy layoff reassignment tests:
+funded alternative, no alternative, lead removal and real wage conservation. The
+one-person day 120 gap in the preserved FIRST history is consistent with that
+existing boundary, not proven from an exact event trace. Also trace private farm
+offer/funding after household turns: the FIRST day 375 peak had two real offers
+(11+1) after zero funded places the day before; both owner turns ran that day.
+These historical observations do not substitute for repeated final results.
+Preserve FIFO, reserves, partial shares, carry,
+cash ownership and losses when optimizing retained-date scans.
+
+HISTORICAL v0.031 WORKING NOTES
+At v0.031 release; cumulative from v0.030 on fix/economy-pass. Master unchanged.
+Done: physical dated harvest ownership, reserve before broker sales, actual producer
+receipts, carry/tax attribution, herd/straw/fodder lenders, stock loss, inheritance,
+migration and save preservation. Read V0.031_REPORT.txt and final evidence first.
+Extend HarvestClaims around the existing barn/farm till; no second stock or money.
+Never infer the producer of old stored goods from today's land, staffing or herd.
+Old unknown stock/proceeds, old food metadata and unbacked cumulative balances
+remain explicit. No fabricated creditors, coins, crops or compensation workers.
+New starting stores are an explicit endowment, not simulated historic production.
+Next: rotation-aware land/food sizing, meaningful fallow/herd labour, actual funded
+staffing. The 90% target and transient hiring peaks remain open. Do not alter a
+denominator or remove registered forces to claim a staffing gain.
+Prior wage claims, paid fractional child cleanup, seasonal jobs and real owner
+capital remain in place. Military supply remains open-market purchases, 2.5x
+reserves and own-faction redistribution every 10 days; special arms contracts stay
+removed. Do not add dogs or schedule dog-removal tests.
+Production rules and tests must be general. Named cases are evidence only.
+Performance stays a separate pass; current long-run times include new diagnostics
+and concurrent checks. An isolated diagnostic confirms that reserve_food scans
+scale with retained dates: optimize owner/lot lookup while preserving FIFO,
+reserves, partial ownership, dated carry and loss behavior. Simple ensure/sort
+shortcuts were not effective enough. No whole-game benchmark or manual claim.
+
+HISTORICAL v0.030 WORKING NOTES
+At v0.030 release; cumulative from v0.029 on fix/economy-pass. Master unchanged.
+Done: own-harvest food before spending/slaughter; general household work recovery;
+crop-only harvest jobs and real seasonal estate capacity; immediate existing-owner
+funding for growing farm capacity with once-only receipts; viable maker materials
+capital under real owner limits, protected from withdrawals. Extend these paths.
+The90% land target remains open. Read V0.030_REPORT and its full-year checkpoints.
+Next: dated physical harvest contribution/ownership, broker-before-retention,
+rotation-aware acreage/food sizing. Do not force90% by changing a denominator.
+Ordinary-day hiring peaks remain open; retain the unchanged threshold and trace.
+Producer warnings include normal saturation, missing inputs, market cash and poor
+owners. Operating-capital fixes are conditional, not blanket cash injections.
+Old wages retain creditors/unknown balances; no fabricated money or people.
+Children can use existing paid fractional cleanup work; no duplicate cleanup jobs.
+Military policy remains ordinary market purchases,2.5x reserve, own-faction excess
+distribution every10days, with special arms contracts removed.
+Do not add dogs or repeat dog-removal tests. Performance remains a separate pass.
+Names and IDs identify evidence only. No production fix or test special-cases them.
+History simulations have repeat variability; snapshots are observations, not proofs
+that specific original cases were fixed. Never count non-advancing simulation loops.
+Tests use isolated app data. Manual/native gameplay remains unverified.
+
+v0.029 - EARNED WAGES, FUNDED HIRING AND SEASONAL FARM WORK (2026-10-07)
+Cumulative from v0.028. Current build; previous releases are historical snapshots.
+- Unpaid wages retain the actual household creditor after job changes and moves.
+- Earned liabilities cannot also fund offers or profit withdrawals.
+- Actual earned wage expense and treasury funding are recorded correctly.
+- Ordinary weekly turns update seasonal farm capacity; harvest demand counts once.
+- Records separate known wage claims from preserved unknown older balances.
+- Corrected test isolation preserves registered forces; no population tuning.
+Verification, corrected land baseline and remaining limits: V0.029_REPORT.txt.
+
+COPPER OATH v0.029 WORKING NOTES
+Only v0.029 is current. Cumulative from v0.028 on fix/economy-pass; master unchanged.
+Done: earned household wage claims, retained short pay and former-worker debt;
+real funding after existing liabilities; actual earned expense and public-funding
+bookkeeping; ordinary seasonal farm capacity; single harvest demand multiplier;
+business wage records and active/closed balance audit; old-save preservation.
+Do not rebuild those systems or duplicate existing cleanup/rat-catcher jobs.
+Children remain eligible for the existing fractional cleanup work.
+Military policy remains market-funded purchases, 2.5x reserves, same-faction
+surplus transfers every ten days; arms contracts remain removed.
+
+Read V0.029_REPORT.txt and CSVs before defining the next version.
+Keep open: 90% land target (72.635% corrected final scenario);
+later normal-day hiring peaks; old balances whose creditors were never saved;
+producer saturation/poverty; existing timing failures; repeat variability;
+old monster fixture; manual/native gameplay. Performance scope remains separate.
+The earlier 53% land result came from a test deleting registered forces and is
+not valid evidence of normal campaign worker availability. Corrected v0.028 is
+73.218%. Do not claim that correction as a production gain.
+No dog-removal checks. Names/IDs identify observations, never special-case fixes.
+Do not erase unknown debts, fabricate creditors or money/workers, lower gates,
+or call forced matching ordinary convergence. Only final frozen runs count.
+
+v0.028 - FARM STAFFING, BUILDER PAYMENTS AND PERFORMANCE (2026-10-07)
+Historical v0.028 release, cumulative from v0.027.
+- Farm and estate output follows hires/departures and land/herd transfers.
+- Whole input batches require all materials and both full cash payments.
+- Records rows and garrison details avoid redundant construction/lookups.
+- Militia candidate ordering, muster and trail lookups do less repeated work.
+Verification and remaining economy/performance limits: V0.028_REPORT.txt.
+
+COPPER OATH v0.028 WORKING NOTES
+Historical notes at v0.028 release. Cumulative from v0.027 on fix/economy-pass; master untouched.
+Done: farm/estate staffing-output and transfer synchronization; funded whole
+recipe completion; records row and repeated-read optimization; ordered militia
+and muster/trail lookup optimization. Preserve existing jobs and save data.
+Read V0.028_REPORT.txt and its CSVs before choosing the next version's scope.
+Keep open: 90% land-use target; exact old hiring checkpoint/ordinary persistence;
+producer saturation and retained old wage debts; any failed timing gates;
+simulation repeat variability; original monster fixture; native/manual play.
+Do not label a failed gate passed, reset debts, conjure buyers/workers, change
+cadence to hide timing, or repeat dog-removal checks. Names/IDs are evidence only.
+
+v0.027 - HIRING, SERVICES AND PERFORMANCE (2026-10-07)
+Cumulative from v0.026. Current build; earlier versions are history snapshots.
+- Ordinary family turns see current funded jobs and better paid offers.
+- Retired household farms stop offering jobs after land joins the town estate.
+  Save migration preserves money, old wage books, tools and assignments.
+- Short casual pay releases the actual adult count; fractional child-cleanup
+  occupancy survives saves. Completed sanitation work has its own dated book.
+- Records reuse repeated data and expose heavy details through existing pages
+  and tables. Map lookup/collision/militia work is reduced with exact output.
+Verification and remaining performance/economy/manual limits: V0.027_REPORT.txt.
+
+v0.026 - RECORDS AND STABILITY (2026-10-07)
+Historical v0.026 release, cumulative from v0.025.
+- Town and business records distinguish hired places, working keepers and profit.
+- Keeper/person records no longer imply a zero fixed salary; household receipts
+  are labelled before household expenses rather than net disposable income.
+- Family housing records describe actual rented rooms and their room-based rent.
+- Falling price quotes only claim full stalls when actual stock supports it.
+- Returned fleeing clothing records both town inflow and its real disposition.
+- Legendary arms detail opens on request, preserving list/detail/back navigation.
+- Test runner rejects invalid results; external checks retain script-error detection.
+- Obsolete combat/recruitment fixtures repaired without changing game combat or
+  conjuring full recruitment. Contract arrival/expiry checks test real callbacks.
+  Those fixtures do not verify complete travel/scheduling integration.
+Detailed verification, economic observations and manual limits: V0.026_REPORT.txt.
+
+v0.025 - PRODUCER CASH AND PAID STAFF (2026-10-07)
+Cumulative from v0.024 on fix/economy-pass.
+- Ownerless producer wage bidding/pay follows existing productive limits.
+- Staffed market-rest days age receipts and keep real wage debt visible.
+- Signed operating losses remain in the fourteen-working-day receipt average.
+- A full-market producer with overdue wages rests without wearing tools.
+- Profit-taking keeper remains separate; extra relatives require funded paid
+  vacancies and can move to better funded work using existing job matching.
+Commercial losses and unfilled unfunded capacity are not automatically defects.
+See V0.025_REPORT.txt for measured results and remaining cases.
+
+v0.024 - GARRISON SUPPLY (2026-10-07)
+Built cumulatively from the delivered v0.023, on fix/economy-pass.
+- Special inter-faction arms contracts and their special escort/raid jobs removed.
+- Garrisons buy actual market equipment; direct forge sales and market resale pay
+  the existing seller once. Treasury spending protects garrison wages.
+- Stored reserves are 2.5x living garrison plus the largest active origin caravan,
+  rounded once per interchangeable equipment role, beyond issued equipment.
+- Own-faction armouries redistribute actual excess every ten game days. Weapons,
+  armour and counted arrows move without payment, caravan or new production.
+  Unmatched excess remains physical stock. Ordinary commercial trade remains.
+- Foreign weapon substitutes and usable arrow types satisfy their actual roles.
+- Old staged batches return once; existing shipments/partial caravan creation
+  become ordinary trade. People, equipment, money and history are preserved.
+- Audit reports legitimate retained excess separately from defects. A smaller
+  flag count is not by itself proof of corrected inventory/payment behavior.
+Verification details and inherited failures: V0.024_REPORT.txt and verification/.
+No manual GUI playtest claimed. No dogs checks repeated.
+
+v0.023 ECONOMY PASS (2026-10-07)
+Adds aggregate weekly town waste and rats, actual grain losses, physical cleanup, paid sweepers/night-soil workers/rat catchers, fertiliser sales and sickness exposure. Children of the existing helper age can do short cleanup shifts at the existing one-fifth work allowance; they receive proportional attendance pay and cannot simultaneously count as farm helpers. Family records and saves retain their jobs. Housing adds two lodging houses with thirty rooms TOTAL on a five-acre lot, funded construction, household landlords, real rents, shared vacancies and additional town lots.
+
+Verified base: v0.020. See ECONOMY_REPORT.txt for evidence and limitations.
+
+COPPER OATH - DEVELOPER NOTES (roadmap and planning)
+=====================================================
+Updated every version. CHANGES.txt has the per-version change notes; ROADMAP.txt has the long view.
+Full specs live in docs/specs/*.md; architecture and contracts in docs/ARCHITECTURE.md; combat in docs/SIM.md.
+Last updated: 2026-10-07 (v0.020 performance pass and requested removal of dogs as livestock).
+v0.020: Douglas authorized headless tests for this pass. PERFORMANCE_REPORT.txt records exact performance-only
+snapshot comparisons, the separate intentional dog-removal change, timing results and inherited test failures.
+The older paused/no-run notes below are historical. Original source and earlier Desktop releases are untouched.
+Quick read: ROADMAP.txt is the plain-English overview (shipped, building, next). This file is the detail:
+decisions and defaults (each one Douglas can overrule), what is not built yet, test and tooling rules.
+
+SHIPPED
+-------
+v0.001  First Blood       Whole loop: map, towns, company, uniforms, tick battle with tap logs, aftermath.
+v0.002  Hold the Line     Corridor bug fixed (code bugs), hit floor 0.01% per swing, perf gates pass.
+v0.003  Your Company      Player is the captain (off-field), game over at empty company, unfit units stay in
+                          camp, campaign map jitter fixed (~11 ms -> ~0.2 ms per frame), static smaller icons.
+v0.004  Roads and Wagons  Caravans carry real goods, town food/drink supply, escort contracts, raiding with
+                          real loot, every force has a home town and faction.
+
+SHIPPED v0.005  Wolves at the Door: calendar, food and drink, diplomacy, monsters wave 1.
+
+SHIPPED v0.006  Hearth and Ledger: town economy with families, loot rework, tracks, map tokens, window fit, speed.
+
+SHIPPED v0.007  Bows and Banners: army pay and ranks, hardship and poorhouse, backstories, supplies loot, bows.
+
+SHIPPED v0.008  Iron Loop: gear-loss loop, armories, cross-race arms trade, arms contracts, maker's marks.
+
+SHIPPED v0.009  War Footing: war interception AI, playtest fixes, faster pathfinding.
+
+SHIPPED v0.010  Bronze and Barley (2026-10-06): bronze coins and the Barge economy, real persons and the census,
+                record screens, land map and town buildings, sickness, war fixes, 1.5x map. Details below.
+
+SHIPPED v0.011  Herds and Hearths; v0.012  Stone and Steel; v0.013  Flesh and Bone (not run). PAUSED after v0.013.
+Healing must change: v0.013 marks a severed nerve permanent (sim/healing.gd line ~105: "severed nerves do not
+regrow", limp for good + numb). Douglas 20:43: nerves can heal (bruised: weeks; cut: months, often partly; cord: no,
+without treatment); 20:44: no damage hard-locked, a future treatment such as magic may restore it.
+FIXED 10-06 (re-released v0.013): the title was hard-coded "v0.009" in main.gd (now reads config/version, set by
+release.sh), and the world-start progress screen (ui/presim.gd) never compiled since v0.010 (it used title.gd's inner
+class TitleBackdrop) -> the grey screen. "(DEBUG)" = releases run the Godot editor binary on the project folder;
+a true release build needs the Godot export templates (a download, ask Douglas). Old note: no version string
+is set in the game code (project name is just "Copper Oath"), so that title came from the v0.009 shortcut or folder,
+not a v0.013 bug; confirm on the next test run that the v0.013 shortcut opens v0.013 (TO_TEST).
+Open for Douglas: creatures' "tooth" weapon material is density 2000 / edge 10000, DF says 500 / 1000 (drives bites;
+left as is, his call). 11 old test files read body.parts directly and need updating before any test run.
+
+v0.013 DETAIL (shipped, not run) - full Dwarf Fortress anatomy (2026-10-06; Douglas confirmed the pick)
+- NOT RUN AT ALL: Douglas 14:05 "no tests of any kind", not even the headless load check. Every check is in TO_TEST.txt.
+- Data: tools/gen_anatomy.js writes data/bodies.json (humanoid 117 parts, quadruped 114; the quadruped plan moved out of
+  creatures.json). Sources: DF vanilla raws body_default, b_detail_plan_default (HUMANOID_RELSIZES, VERTEBRATE_TISSUE_
+  LAYERS), tissue_template_default (PAIN_RECEPTORS, VASCULAR), material_template_default, creature_standard (dwarf),
+  creature_large_temperate (wolf, bear). New materials in materials.json at DF raw values: eye, lung, heart, liver, gut,
+  stomach, pancreas, spleen, kidney (density 500, shear 20000), cartilage; brain and nerve corrected to DF (were density
+  1000 / brain shear 10000). Dwarves: races.dwarf.relsize {liver: 300} -> plan humanoid_dwarf (DB builds it).
+  Creatures: drop_parts (wolf toe 5s; boar all toes and eye teeth); the coat is not laid over inner parts, mouth, tongue.
+- Sparse bodies (the planned record-packing step for bodies): BodyState.parts keeps only wounded/marked parts; part(),
+  layers_of(), has_part(), defs(), wound_part(), lost_ids(), compact(). Layer thickness comes from the plan (t x scale),
+  so stored layers carry no "t". Old saves: parts rebuilt by layer name onto the new plan, organ-layer wounds dropped.
+  Memory before (measured once, tests/diag_anatomy_cost.gd, before Douglas's no-run rule): 115.7 KB a unit, 86.0 KB of it
+  the body; save 12.28 KB a unit (body 9.25 KB); 50v50 seed 50 mean 0.425 ms/tick, p99 1.07, worst 2.90. After: not
+  measured (no runs). Expected: an unhurt body ~0.3 KB (the BodyState object and its empty dicts) instead of 86 KB, so a
+  unit ~30 KB; a wounded part ~1 KB. Tick cost expected about the same: the target roll walks ~90 weights instead of 19
+  (a few microseconds a strike), one more roll when a blow goes inside, the function fold adds 10 finger entries;
+  full function recomputes (setup, severs) walk 117 parts with a fast path for unhurt ones.
+- Strike (sim/battle_sim.gd _strike): segments: the struck part's layers, then one inner part by relsize ([roll:inner]),
+  passing a part "around" it first (skull around brain). Sever needs the connector cut through too (skull, upper spine).
+  Effects: HAS_NERVES (muscle of a limb/hand/foot cut through -> nerve_m + nerve_s on the part: limp, no pain from it;
+  healing makes it permanent, impair 1.0); lungs (punct; both -> drowning = the airway air clock); heart vital + major
+  artery; cord ("cord" layer: stance; upper also arms and the air clock; permanent after healing); fingers (Fighter.grip_r/l
+  = share of finger relsize that still closes, multiplies the swing torque's grip; 0 = drop); teeth (SOCKET: broken or cut
+  through -> knocked out, severity minor); guts (UNDER_PRESSURE: lower body wall cut through -> spilled, wound kind
+  mangled, counts as an untreated open wound for Sickness wound rot until treated or mended). Face roll removed.
+- [ours] (DF gives no number or rule):
+  * Thickness of new parts: K x cube root of the DF part volume (70,000 cm3 x relsize / sum of relsizes), K = 5.4 mm/cm
+    fitted to the organ mm the game already had (eye 20, lung 60, heart 50, brain 60, guts 80); split by DF relative
+    thickness. Parts and layers that had a thickness keep it (skull 7, brain 60, ribs 10, spine bone 12, eye 20 ...);
+    the spinal cord takes the spine bone's 12 mm at DF's 1:1.
+  * Nerves: both motor and sensory are severed when the whole muscle layer is cut through (DF says only "when muscles
+    are torn").
+  * Drowning: both lungs punctured or ruined starts the existing 30 s air clock (DF: no lungs, no breath).
+  * Upper spinal cord cut: the same air clock (breathing muscles paralysed).
+  * Grip: torque in proportion to the relsize share of the fingers that still close.
+  * A tooth is knocked out when its layer is broken/mangled/destroyed or cut through.
+  * Guts spill when an edge cuts through every layer of the lower body (no roll).
+  * Boar body: DF boar raw not checked; hoofed (no toes), generic teeth, no tusk parts.
+  * Kept from before (ours, not DF): tendon layers and their hit rolls, the artery bleed rates (heart 0.15, throat 0.35,
+    limb muscles), ORGAN_FRAGILITY, the disable thresholds (NERVE_DISABLE for the cord), quadruped outer relsizes.
+- Not modelled: DF ribs AROUND heart/lungs/liver (5), joints, nails, eyebrows, hair, tusks/antlers, hearing/smell.
+- Not changed: creatures.json "tooth" weapon material (density 2000, max_edge 10000; DF tooth is 500 / 1000) - it
+  drives bites; flagged for Douglas.
+
+IN PROGRESS (v0.014, draft) - militia and caravan guard kit (Douglas 23:02, 2026-10-06)
+- Complaint: armories don't want enough arms and armour, militias barely equipped, some caravans have naked guards.
+- Measured first (tests/diag_kit_cover.gd, Normal world, seed 2026, after world gen and after the five years before;
+  coverage = share of men with body armour / helm / weapon):
+    world gen:          militia 54% / 70% / 100%; no caravans out yet.
+    5 years, before:    militia 52% / 72% / 88%; caravan guards (sampled every 10 days) 5% / 10% / 42%.
+    5 years, after:     militia 60% / 79% / 90%; caravan guards 56% / 79% / 92% (a run with a since-dropped variant gave
+                        militia 57% / 72% / 86%: the militia figure moves a few points from run to run).
+  (Body armour under 100% at world gen is by design: many troop loadouts make body armour optional, and leather or
+  cloth armour is the tailors' work, not the armory's.)
+- Causes found, in order of weight:
+  1. Caravan guards bought their kit only off the stalls (TownEcon.outfit_units with the armory skipped), a quarter of
+     the stall count for the whole caravan, the treasury paying full price and the market buying it back at 70% when
+     they came home. With a poor treasury or thin stalls they went out naked even beside a full armory. FIXED:
+     ArmsTrade.kit_guards (armory first, every loadout slot, then the stalls), called from Caravans.sail after the crew
+     signs on and before the caravan moves; guards_home puts armory pieces back in the armory (no money moves).
+  2. The armory's target was only a spare (25% of what the town's forces should carry + 1 a class), as if every man
+     were already kitted; a militia's missing helms were nobody's want, and guards were not counted. FIXED: targets()
+     = the spare + every slot the militia lacks (optional slots too: the town kits its own men out) + one caravan's
+     guard kit (max_guards x kit_per_man, by the realm's troop weights), less what its guards have out on the road.
+  3. The money: the head spent at most 10% of the treasury per look, and many treasuries sit near zero by year five.
+     FIXED to spend from the treasury above arms_reserve (a quarter of the treasury's short line, which Army.pay_town
+     already keeps, plus the militia's wages until the next look); the unpaid shortfall (arms_due) goes into the month's
+     tax "need" in Barge.treasury_month, so the house tax surcharge rises for it. When he still cannot pay, the men go
+     short and the town's armory log (e.arms_log, ArmsTrade.armory_log, shown on the Economy tab and in Records) says so.
+  4. Smiths not supplying: a full market ("market full": stalls at arms_cap, mostly pieces the armory does not want)
+     stopped the weaponsmith and armourer outright. FIXED: the armory's shortfall is an order book; a smith with full
+     stalls still makes what it is short of and the head buys those pieces straight off him (ArmsTrade.order_buy, at
+     the market's buying price, treasury above the reserve).
+  Not a cause: the purchase step ran (every 3 days per town); guards were already outfitted before leaving.
+- STILL OPEN (not fixed here, outside the arms code): by year five almost every town's weaponsmith and armourer has
+  nobody working (0 of 1 places), many with thousands of coins in the till. Places are open and payable, so nobody
+  signs on because the families have no spare grown-ups (Families._best_places). That is why the militia's numbers
+  barely moved: the armories ask, but few pieces are made. The armory log names it ("the armourer has nobody
+  working"). Worth a look with the labour market: Douglas's call whether a town's own smithy should get a keeper first.
+- Decision Douglas can overrule: militia and caravan guards fill their OPTIONAL loadout slots too (a spearman's
+  "mail shirt or none" gets the mail shirt when the armory has one). Field bands keep the old rule (optional slots
+  only from stock above target).
+- Test: tests/test_kit_cover.gd (thresholds chosen, not tuned: with stock and money, militia and guards 100% armed
+  and at least 90% of their loadout armory slots filled; with an empty chest, the stripped militia stays under 50%
+  and the log says the treasury cannot pay).
+
+IN PROGRESS (v0.014, draft) - legendary items and gems (docs/specs/next/03-legendary-items.md; Douglas 22:31-23:00)
+- Quality curve (core/factory.gd roll_quality): a Laplace (double exponential) roll replaces the normal one, because
+  only an exponential tail gives the same ratio per skill point that Douglas asked for. Anchors MW_AT_10 0.014 and
+  MW_AT_15 0.25 (ratio (0.25/0.014)^(1/5) = x1.78); scale B = (1/3) / ln 1.78 ~ 0.58 (sd ~0.82, about the old 0.8);
+  median ~ skill/3 - 0.90 (was - 0.6). Measured: masterwork 1.40% at 10, 24.97% at 15. Above ~16 the chance flattens
+  smoothly toward 100%. Factory.masterwork_chance / legend_chance / quality_center give the curve.
+- Legendary = quality 6 (DB.LEGEND), quality_mult 3.0. Rolled only with can_legend: a masterwork roll then turns
+  legendary 1 time in 25, so P(legendary) = P(masterwork) / 25 at every skill (measured 0.98% at 15, 0.055% at 10).
+  Call sites: businesses.gd _arms (smiths, tailors, leatherworkers: real forge, legend ON), bows_econ.gd bowyers (ON);
+  militia.gd world-gen militia kit, economy.gd stand-in town stock, arms_trade.gd pre-history armory, bows_econ.gd
+  opening bow stock and Factory.make_item (outlaw hoards, generic kit): OFF (no named smith). Steel: a legendary roll
+  stands only where the faction's steel know-how allows masterwork.
+- Legends.forge (campaign/legends.gd): maker = a random register person working the forge (its keeper via f.keeps or
+  its staff via Persons.work) with fewer than CAP 5 (person field Persons.LEG, optional 14th field). Gem: the dearest
+  stone on the market (forge till pays the market), else one a family keeps (forge pays the family). FALLBACK (my
+  pick, Douglas can overrule): no maker under the cap, or no stone in the town at all -> the piece stays a masterwork;
+  no made-up stones. So legendaries are rarer than 1% wherever no gems reach the town. The market pays at most what
+  its till holds for one (it is never left unmade). Name: two parts from Legends.NAME_A + NAME_B_*, unique per world
+  (world.legend_names). Value: LEGEND_VALUE 20 x the masterwork value + the gem's price (Item.GEM_PRICES).
+- Never lost: Loot.spoils keeps it without a roll (Legends.fell logs it and the carrier's home town's history +
+  e.legends_lost); ArmsTrade.to_holder -> Legends.give (best fitting fighter: weapon = highest skill of its kind, armour
+  = rank/officer; one legendary per slot; the piece he wore goes the normal way); no fighter -> hoard or armory without
+  caps. Beasts win / no holder / a man fleeing to a town without an economy -> nearest town armory ("found on the
+  field"). Also guarded: caravan cargo (company plunder, AI plunder_cargo, Caravans.lost), outlaw hoard sale on
+  clear_camp (to the stash), Academy study break-up, and the v0.014 gear damage in the battle sim (_gear_bend,
+  _gear_chip, _armor_dmg skip a legendary piece: no snap, bend, chip, crack or quality step; the struck spot still
+  gives for that battle). Not guarded: a dead man removed by the daily army sweep outside a fight.
+- History: Item.legend.h (cap 120 lines, the making line kept): made, carried by (logged when it is taken up, at
+  every company battle start and at each kill: Legends.touch), taken from the fallen, found, handed in; kills and the
+  last 10 victims (Renown.on_kill -> Legends.on_kill). Saved with the item ("lg").
+- Gems (Douglas 23:00): goods quartz (rock crystal), amethyst, garnet, topaz, sapphire, ruby, emerald, bcat household.
+  No gem mines: Legends.mine_day, gem_pockets.chance = 0.002 per basket of ore (TUNABLE, data/economy.json), one draw a
+  mine-day (P = 1 - (1 - c)^baskets). Stone weights: quartz 50, amethyst 25, garnet 8, topaz 4, sapphire 1.5, ruby 1.2,
+  emerald 1; hilly ground (6+ hill cells) x3 garnet, x2 sapphire and ruby; tin ore x4 topaz x3 emerald; flux x2 ruby;
+  iron x1.5 garnet. Measured: 0.0019 a basket over 200,000 baskets; about 13 stones a year from a 6-hand mine.
+  Families: f.gems {stone: n} (e.gh the town's total, counted by TownEcon.town_total); bought in Families._restock's
+  "rest" (gem_pockets.per_year: poor 0, middling 0.5, rich 3 stones a year; rich the dearest on offer, middling the
+  cheapest), filled by the batch as kind "keep". Coping ladder: Legends.sell_gems runs first (cheapest stone first,
+  sell_share 0.8 of the price, to min_purse + a week's grain); Barge.pawn only when it had no stones to sell. A family
+  that moves takes its stones (Barge.move_family). Prices move through the normal barge supply and demand.
+IN PROGRESS (v0.014, draft) - gore, vivid combat log, gear damage (2026-10-06, Douglas 22:51-22:58)
+- Asks: more gore on injury; shocking, entertaining DF-style lines; blades bend (and the log says so), armour cracks;
+  "it just degrades quality" (22:58: replaces the camp straightening / metal fatigue defaults I had started);
+  broken is different from bent (bent = quality loss, broken = scrap); destroyed gear is scrap sold to the town,
+  smelters remelt it; tone examples "Arnold slashes the orc through his iron breastplate ... severing ..." and
+  "Arnold, swinging his steel battle axe, splits the helm and skull of Grushnak in half ... slaying him!"; do not say
+  "destroying the armour" when the wound already shows it; always say when the attacker's own weapon fails.
+- Text rule: the log says only what the strike record holds (tests/test_gore_text.gd maps every claim word to it).
+  Story line = opener (plain / through the armour / breach when a piece broke AND the bone under it) + the two worst
+  tissues (skin and fat only when nothing deeper) + payoff (kill by cause, sever, decap) + up to two of guts, drowning,
+  spine, windpipe, lung, eye, tooth (the rest stay in the detail) + artery + stuck + armour damage (only when nothing
+  got through, clothes never) + the attacker's weapon failing (always) + a cry (pain >= 15 below a stun; stun, vomit,
+  fall and faint have their own lines). Cries/taunts are log-only entries (BattleSim._say), no event, no feed.
+- Defaults [ours, tuned, Douglas may overrule]: blade section = cube root of head cm3 in mm (solid heads x10); a bend
+  costs 1 quality step, 2 at twice the yield; chip = 0.1 x (target shear yield / blade's - 1, max 1), 1.0 of chips =
+  a quality step; dull edge x (1 - 0.5 dull); armour spot weakness 0.25 dent / 0.5 hole / 1.0 broken, thickness x
+  (1 - 0.6 w) for the rest of the battle; pommel, shaft and haft blows never bend the head; mail and cloth do not dent
+  (they flex); a point through armour = a hole (quality step), a cutting edge through = split (scrap). PAIN_CRY 15.
+  Gore layer: 384 droplets, 900 ground marks, pool radius 6 + 30 px x sqrt(lost / 45%), drips 40 per unit bleed rate.
+- Numbers from the test battles: tin weapons bend often against bone and any armour (165 bends in 852 strikes, mostly
+  tin); a copper mace dents a copper pot helm on ~95% of blows that the helm holds; snaps are rare (3 in 852).
+  Quality falls fast for tin. Flagged for Douglas: bends keep being reported at quality 0 (nothing left to lose).
+- Not done: AI-only battles (arms_trade.gd field) still pay scrap at the battle estimate, not the town's scrap price
+  (the company's scrap is re-priced in world.gd). AI winners' own broken gear (duels in army.gd) stays on them, unused
+  (a broken weapon starts the next fight dropped). Unit.sex is set when a recruit is bound to the register; older
+  saves and warband men default to male. Legendary items (docs/specs/next/03, "never destroyed") are not built yet:
+  when they land, _gear_bend/_armor_dmg must never break one (snap/crack/split -> no scrap for legendaries).
+
+IN PROGRESS (v0.014, draft) - bronze and iron know-how, smiths' bar wants, deposits by city (2026-10-06)
+- Douglas 22:19: bronze in the smelting recipes, bronze bar targets for armourers and weaponsmiths; bronze a tech humans
+  and dwarves get easily, elves slower; 22:20 confirmed "goblins and orcs" cannot get it (his first message said
+  "goblins and dwarves"). 22:23-22:25: iron is one metal (its own DF values, no grades, the six craft qualities
+  stay), a tech every race can learn at the same rate, from iron ore, iron bar targets like bronze. 22:26-22:27:
+  deposits belong to cities, an asymmetric economy; a city with all four (copper, tin, iron, flux) an extreme rarity.
+- Built: smelter recipe 22 copper + 3 tin bars + 10 wood -> 25 bronze bars, rate 0.24 runs a hand-day (the old 3 runs
+  x 2 bars = 6 bars a hand-day kept); recipes are integer batches because the recipe code takes whole units of each
+  input. Research lines bronze and iron (data research.lines: start by race, race_factor, p0/p100, teach); Academy
+  line_of / race_may / kh_after; Businesses.kh_of = the faction's know-how, for bronze the lower of that and the
+  town's own practice (e.knowhow, unchanged: grows with work, caravans, decays); recipes knowhow "iron" on iron ore,
+  iron scrap and the steel-scrap-to-iron remelt; _pick_metal skips bronze / iron without know-how; smith_want (data
+  smith_bars) in Businesses.daily for every working weaponsmith and armourer, resting or not; caravans carry only the
+  origin's usable bronze lore. EconGen._deposits + tin_belts replace the old count rolls and _iron_deposits.
+- Bronze coin: NOT gated. Mints keep casting from copper and tin bars or from bronze bars (Barge.mint_day, coin
+  mint_recipe / mint_recipe_bronze) for every race, orcs and goblins too; melting gives back copper and tin. Coin
+  conserved (tests/test_metal_tech.gd, 30 days, worst gap 0.000; tests/test_barge.gd).
+- Item repair: the game has no item mending yet (wear is only set, by battle); nothing is gated there. Wearing,
+  using, buying, selling and looting bronze or iron have no race rule.
+- Defaults [ours], each Douglas's to overrule (one data edit each, economy.json research.lines / deposits / smith_bars):
+    - Bronze start: humans and dwarves 100 (bronze was known for two thousand years before iron; any people that
+      works iron and steel knows it; the town's own practice still has to grow, which is the "achieved easily" part).
+      Moon elves (and the unused high / dark elf rows) start at 0 and learn at 0.6 x; bronze p0 1,500, p100 15,000
+      (a tenth or less of steel's 60,000 / 900,000: alloying is easier than steel). Read from the code, not run: the
+      elves' house splits its research between steel and bronze, so first bronze in very roughly 5-10 game years at
+      average funding and mastery in decades, and their steel research is halved while bronze is worked. Orcs and
+      goblins: not in the line's races, so 0 for good. Teach 8: once the elves' house has researched bronze, their
+      capital's smiths' practice is kept at least min(know-how, 8), else no elf town could ever start (practice grows
+      only by working the metal).
+    - Iron start: every race 100, because every realm has had iron smiths and iron in its markets since v0.012, and
+      iron gear is in their troops' kit; the line exists so a realm set lower (factions.json iron_knowhow) learns it,
+      every race at factor 1.0, p0 1,500, p100 15,000.
+    - Smiths' standing want a worker-day: iron 0.5 x iron know-how / 100, steel 0.5 x know-how, bronze 0.5 x usable
+      bronze know-how (iron and steel as v0.012 had them; bronze new).
+    - Bronze fuel: 10 loads of wood for 25 kg (0.4 a bar, against 1 a bar when smelting ore): melting metal already
+      won costs less fuel than reducing ore.
+    - Deposits, chance by [flat, 1-5 hill cells, 6+, mining town]: copper 4/25/40/55%, iron 15/25/35/50%, flux
+      20/25/30/30%, tin 0/25/40/50% inside a tin belt (3 a world, radius 12% of the map's width, on hill or mountain
+      cells), 2% in hills outside; a mining town with nothing gets copper or iron; dwarf holds always iron (they used to
+      get iron and flux both). Measured (tests/test_metal_tech.gd, seeds 2026 and 99): Normal 46 cities: copper 18,
+      tin 4, iron 23, flux 13; 0/1/2/3/4 kinds 13/16/10/6/1. Large 136 cities: copper 56, tin 15, iron 53, flux 39;
+      38/48/35/15/0. Before: Normal 7/11/13/10/5 and Large 36/20/37/30/13 (tin 55 of 136, a third with three or four).
+      Worlds change: the old deposit rolls drew from the town's main random stream, the new ones have their own, so
+      the same seed gives other crops and herds than before.
+- Not built: per-line research materials (the house buys iron, flux and wood for every line); study of bronze pieces;
+  mines as land plots and deposits running out (after v0.014, the wild-land job).
+
+IN PROGRESS (v0.014, draft) - businesses, keepers and jobs (Fenmere findings, 2026-10-06)
+- Causes found: (1) two rows of one trade = generation cut each trade into rows of 5-8 places (Businesses.generate
+  `add`, Herds._gen_trades rows of 6, two bowyers / up to three forges by town size), each to another family; plus
+  100-150 families sharing ~21 surnames, so "the Blackmere X" named different families' rows. (2) 0 coins = keeper's
+  take reserve counted only hired hands' wages (an unstaffed shop kept ~240 coins), upkeep drained the rest, and the
+  owner funded only the wage bill (0). (3) idle beside open places = those empty tills (nobody signs on under two days'
+  wages) and, after drift, farms whose families cannot pay hands; shops bid pay up past what their tills held.
+  (4) "kept by: not tracked" = no keeper in the sim; the books counted a keeper (+1 staff) who did not exist or work.
+  Also: b.owed only ever grew, so "can't pay wages" fired on any till under two days; farms were judged at odd times.
+- Fixed in Businesses (generate, fit_to_people, free_first, takeable, title/_who, daily keeper hand, _books p1,
+  hiring "made over a day's wage yesterday", bid_day cash check, owner_turn reserve on places and no 14 ceiling,
+  _farm_books, service_states unpaid_d), Families (_keep, _heirless, keeps_stale, _best_places, _paid_worse,
+  owed paid down per pay day), Persons.work (keeper places), BowsEcon/Herds (one row), TownEcon._sell_businesses
+  (buyer needs a free grown-up), EconGen order (rows -> fit -> register -> jobs), records (keeper, staff, dry places).
+- [ours]: FIT_BONUS 0.1 (a trade the family has worked counts as 10% better pay); the keeper before the family land;
+  farm books weekly (7 loss days a step); heirless shops for sale rather than closed; the trades' fit at world gen
+  cuts every trade in proportion to the grown-ups the land does not need.
+- Still drifting (not fixed here): over a year many farm families cannot pay hired hands (their tills stay under two
+  days of wages), so most open places in a town are farm places nobody can take. Diagnostic: tests/diag_biz_fit.gd
+  (DIAG_DAYS, DIAG_ROWS=<town>).
+
+IN PROGRESS (v0.012, draft) - animals, dwarves, Eastern humans (2026-10-06; spec docs/specs/next/01-animals-dwarves-eastern.md)
+- Not run (Douglas: no test runs); headless load check only. Numbers below are defaults, not measured.
+- Animals (data economy.json animals; campaign/herds.gd): kinds horses, donkeys ("donkeys and mules", one entry), dogs
+  added; hens kept as the poultry entry (id "hens", name "poultry": chickens and geese). Herds.GRAZE now has horses and
+  donkeys (f.herd mirrors; pasture; restocking, drovers, raids, pot buys). Dogs and poultry are household stock (pens).
+  Start mixes: animals.start per culture (graze shares, head_mult, valley kinds, small stock, dogs); EconGen.herd_mix
+  replaces the climate's herd pick; Families.distribute_land picks each herding family's kind by share.
+  Wolves and rustlers: Herds._predators each herd week (WarAI._nearby band grid, no loop over every force).
+  Feathers: poultry carcass 0.2 bundles, 0.001 a grown bird a day gathered spring-autumn; BowsEcon._fowl (the old
+  per-grain-acre stand-in) now runs only for towns without herd records.
+  Defaults [ours]: horse 8,000 coins, grown at 3, prime 12, 55% of mares foal a spring, feed 1.2, 250 kg carcass, no
+  milk (Europeans did not milk mares; kumis not built); donkey 1,800, grown 2, prime 15, 45% foal, feed 0.6, hardy
+  (1.5% ailments); dog 150, 60% of bitches whelp 5, guard 25 head each, meat 0 (never butchered, never sold as
+  surplus); poultry feathers above; strangles (horses, donkeys) 5% a town a year, kills 3% of the sick a week; distemper
+  (dogs) 5%, kills 25%; wolves within 300 px kill 0.5 head a wolf a week, outlaws within 300 px drive off 0.2 head an
+  outlaw a week, dogs spare 80% of the guarded share; wolves take beasts by 1 / feed (small stock and the young first).
+  Start mixes (graze shares): Middle cattle .3 pigs .3 sheep .3 horses .1, poultry 60% of homes, dogs 25%; North sheep
+  .45 cattle .35 horses .12 pigs .08, poultry 50%, dogs 35%; East horses .35 goats .3 sheep .25 cattle .05 pigs .05,
+  poultry 50%, dogs 50%; orcs pigs .6 goats .3 cattle .1, dogs 50%, NO poultry (spec list; they had hens); goblins goats
+  .6 pigs .4, rats 60%, poultry 30%, no dogs; moon elves horses .35 goats .35 sheep .3, head x0.5 ("few meat beasts,
+  kept long"), poultry 50%, hives 60%, no dogs; dwarves goats .35 sheep .25 pigs .25 donkeys .1 cattle .05 (only with
+  water nearby) horses .01, poultry 50%, no dogs. Where a culture keeps dogs, every herding family keeps one per 25 head.
+  The old per-day herd rows (economy.json "herds", tanners' sizing and land worth) got horses (meat 0.12, hides 0.008)
+  and donkeys (meat 0.06, hides 0.008).
+  Not built: horses and donkeys as draught (ploughing is still oxen), pack animals for caravans, riding; mares' milk;
+  dogs herding (fewer herdsmen); mules bred from horse and donkey (one entry); animals in battle (spec: off the field).
+- Map (campaign/worldgen.gd): REGIONS now middle, north, south, east, west, southeast, holds (region chars 0-6; old
+  saves keep 0-4). Choice: the old east split in two: the orcs ("east") moved from (86, 32) to (86, 26) and keep the
+  north-east, the Eastern humans ("southeast", 3 towns x TF) centre at (86, 52). Every older realm keeps land and its
+  town count. The dry band WorldGen.dryness(u, v) = smoothstep(64, 76, x) x smoothstep(30, 40, y) in BASE cells
+  [ours]: moisture -0.25 x dryness (more badland and grass, little forest); a town with dryness >= 0.5 gets the new
+  climate "dry" (millet/barley, grain yield 0.75, fruit 0.8, grass 0.9/0.35/0.45/0.15, temperature 12/27/13/-3 C,
+  beer share 0.6) [ours]. Sickness rates for "dry" use the 1.0 default of each disease's climate table.
+  Dwarf holds (place_holds): HOLDS_PER_TF 5/3 (Normal 2, Large 5, Huge 10), on passable main-land cells with at least
+  6 mountain cells within 4 BASE cells, best by mountains and hills (x0.85-1.15), normal town spacing; their land is the
+  mountains and hills round each hold up to half the town spacing (region "holds"). Every hold is a mining town; dwarf
+  holds always get iron ore and flux (EconGen._iron_deposits) [ours]. Fewer holds when the mountains run out.
+- Dwarves (data factions.json races.dwarf, ages, cultures.dwarf): mass 60, height 0.72, width 1.22, tiers STR TOU END
+  REC WIL FOC SPA +, AGI -, mean limbs arm 86% leg 82% (Factory.roll_size reads races[].limbs; reach and draw length
+  follow), gait 200/400/600, always bearded [ours, tiers after DF]. Ages adult 25, elder 120, lifespan 160, bearing to
+  100: Persons.bearing gives a child every ~7.1 years while married (human 2.75), carrying 14 months; no plugged rate.
+  Culture: stone hall (50 stone, 5 wood, decay 0.0002), household 5, baron / king under the mountain, rank rule
+  lineage, ranks shieldbearer, oathsworn, squad leader, captain, commander, high marshal of the Holds; militia
+  hold-warden; guard gate-guard, gate-sergeant, gate-captain. Faction dwarf_holds: wealth 3, steel_knowhow 100, 1
+  patrol per area unit, bands 3-6, troops axedwarf / hammerdwarf / hold guard (no archers: bows only, never crossbows).
+  Weapons war axe, war hammer, war mattock; armour dwarven mail, helm, greaves, gauntlets, round shield. Tastes grain
+  1.2 meat 0.6; fav drink beer 80%.
+- Eastern humans (cultures.eastern, faction eastern_khanate): race human, felt yurt (12 wool, 6 wood, decay 0.002),
+  household 6, bey / khan, rank rule renown, span 10, ranks rider, seasoned rider, leader of ten, of a hundred, of a
+  thousand, khan's marshal (militia camp-rider; guard keshig, keshig captain). The economy spec had left Eastern ranks
+  "later": this ladder is ours. Wealth 2, 2 patrols, bands 4-8; troops steppe archer (steppe composite bow), lancer,
+  keshig; weapons steppe sabre, flanged steppe mace, lance; armour steppe lamellar, spired helm, bracers, small round
+  shield. Tastes grain 1.0 meat 0.8.
+- Diplomacy [ours]: dwarves +15 with the Middle March and the North, +10 the khanate, -15 the moon elves, -40 orcs,
+  -60 goblins; the khanate -15 the March, 0 the North and elves, -55 the orcs. Neither hostile to a human company.
+  Research houses (merged from master): House of Wisdom / Hakim, Hall of Makers / Maker-Lord.
+- Humans, no culture wall (checked): weddings are within a town and never look at culture; move-in is within a realm;
+  flight goes to the realm's towns or a pact/alliance realm's. Found and fixed: flight never checked RACE, so with
+  dwarves at peace with everyone a human family could flee into a dwarf hold (or elf town) and its people's ages and
+  names would be read as dwarves'. Barge._refuge now takes only towns of the family's race. Names: a person's name is
+  an index into ONE human list (person_names.human + eastern, Persons.names_for), so moving or marrying never renames
+  anyone; babies draw from their family's culture's part (f.cul, set at world gen; Persons.name_range). Surnames by the
+  culture row's "names" (DB.names.eastern / dwarf).
+- Screens read the data: rec_town herd lines (HERD_ORDER + any other data kind), rec_world food by climate (the data's
+  climates), the census by-race card (by town race, unchanged), land map sprites (horses, donkeys, dogs, stone hall,
+  yurt), map region colours (7 regions), banners (anvil, steppe bow), tracks ("short, heavy-booted walkers").
+- For Douglas: old saves will lack the two new realms (start a new campaign); the orc lands moved north a little, so
+  more orc towns may be cold; orcs lose their hens (spec); feathers for arrows now come only from real birds and the
+  hunt (watch for arrow shortages); dwarf and elf numbers are left to their biology (report, no cap).
+
+IN PROGRESS (v0.012, draft) - steel and the research house (2026-10-06; spec docs/specs/next/02-steel-assay-house.md)
+- Douglas 13:05 picked the spec; 13:13 changed it: the capital's research building holds ALL of a faction's research
+  as a list of lines, steel the first. 13:23: every race's capital has one, each named for its people; a line lists
+  the races that may take it (steel: never orcs or goblins; not a line for dwarves, who hold it whole). 13:27: goblins
+  are Tolkien-style cave goblins (The Pit, Pit-Master), orcs Tolkien crossed with fel orcs in look and tone only (Blood
+  Forge, Forge-Boss). No test runs; only the headless load check.
+- Built: campaign/academy.gd (the house, its lead, the faction know-how, the weekly funding, reads for the screens);
+  data economy.json goods iron_ore, flux, iron_bars, pig_iron, steel_bars, scrap_iron, scrap_steel; smelter recipes
+  (iron from ore and scrap, pig iron and steel with know-how "steel", steel scrap back to steel only where known, else
+  to iron); business "academy" (a town row); block "research"; culture rows research_name / research_lead.
+  materials.json: iron and steel use the DF raw values (no multipliers, below). Hooks (one line each): EconGen.generate (iron and flux
+  deposits from their own rng, the house row, opening iron stocks), CampaignWorld.generate / after_load, TownEcon.
+  faction_turn, Businesses.daily / title / kh_of / _arms / _pick_metal, Persons.work (the lead's title), Recruits.
+  job_title, Barge.labour_kind, Plots.layout / building, land_map icon, rec_data / rec_world / rec_pages.
+- Iron was a battle material only (no ore, bars or smiths); now it is in the economy through the same tables as copper.
+- Know-how: w.research[fid].kh (faction); each town mirrors it in e.fkh at the faction turn. Bronze stays per town.
+- Not built: traits for the lead (the register has none: skill alone shapes output and how fast staff learn; the
+  capital ruler's temper is the only "trait" in the state's interest); a dwarf hired onto the staff adding a lot (the
+  register's families are all of their town's race); steel met in battle counted apart from steel in the stalls and
+  armories (the interest reads the latter); conquest moving smiths and buildings; old saves get no iron deposits.
+- For the other helper's merge (dwarves, Eastern humans): the dwarf and eastern culture rows should carry
+  research_name / research_lead (Hall of Makers / Maker-Lord, House of Wisdom / Hakim); until then the fallback in
+  research.names uses culture ids "dwarf" and "eastern" and race "dwarf" (guesses). factions.json steel_knowhow is read
+  when present (else 0, and the faction id dwarf_holds 100). tests/test_econ_town.gd checks a town has at most 3
+  deposits: with iron and flux a mining town can now have 5 (not run, per Douglas).
+- Defaults [ours], each Douglas's to overrule:
+    - Metals: REVERTED the x1.5 / x1.3 rescale (Douglas 2026-10-06 13:41: pure physics, "actual calculations like we
+      established"). Iron and steel use DF raws; the order comes from the shear fracture values (edge) and 2IF-IY (blunt).
+    - Steel: iron bar + flux + 1 fuel -> pig iron (2 a hand a day); pig iron + iron bar + flux + 1 fuel -> 2 steel bars
+      (1 a hand a day): 2 fuel and 1 flux a steel bar against iron's 1 fuel. Prices: iron ore 40, flux 12, iron bars
+      160, pig iron 200, steel bars 400, iron scrap 90, steel scrap 150 coins.
+    - Deposits (own rng; chance iron / flux): mining towns 60% / 50%, hilly (6+ hill cells) 40% / 45%, some hills
+      20% / 25%, flat 5% / 8%; richness 0.5-1.5. Opening stocks: 40 iron ore, 30 iron bars, 30 flux where found.
+    - Smiths: iron weighs 1.2 in their metal choice (copper 0.6-1.35, tin 0.8), steel 0.5 + 1.5 x know-how; a smith
+      wants 0.5 iron bars a worker-day (and steel by know-how) as market demand. Best steel quality = floor(know-how
+      / 16.7), so 1-16% = poor only, 100% = all six.
+    - House: wage 110 (a skilled craft); the lead is paid his place plus 1 x wage; places = interest x 6 (at most 10);
+      materials 15% of the budget (0.05 iron bars, 0.05 flux, 0.2 wood a worker-day; shortages slow research to 25%
+      at worst); research a day = lead skill + 0.4 x each staff member's skill, x the materials share; new staff start
+      at skill 1 and learn 0.003 x (0.5 + lead skill / 10) a day; the lead 0.002 a day; a lead from the town starts at
+      2-5, from the staff with the staff's skill. The till is kept at two weeks of the budget, from the realm's treasury
+      (at most a quarter of it a week), then the capital's chest above its short line (a quarter of the spare).
+    - Interest 0-1 = 0.35 + 0.2 x (treasury / 60 days of army pay - 1, clamped -1..1) + 0.1 at war + 0.2 x steel
+      pieces in its towns / 10 (at most 1) + temper (greedy -0.1, merciful +0.05).
+    - Study: one steel piece a week from the stalls, 150 x (quality + 1) research.
+    - Know-how = 0 until research x race factor passes 60,000, then rises in a straight line to 100 at 900,000. Race
+      factor elves 1.25, humans 1. Read from the code, not run: steady average funding (interest 0.5: a lead and two
+      staff) gives about 5 research a day at first and 15-20 after decades of learning, so poor steel in roughly
+      40-50 game years for humans (35-40 for elves), full mastery after several centuries. A starting value.
+
+IN PROGRESS (v0.011, draft) - births, the orc towns, the coin (2026-10-06)
+- Found from the people themselves (tests/diag_people.gd: diag_barge_years plus the pyramid, the wives, the singles,
+  the homes, the treasuries' flows by job, the mints' days, the coin metals), seed 2026, 600 days, TOWN_SCALE 1.
+  BIRTHS, why so few (v0.010): a birth was one roll per FAMILY a week (culture growth 0.012 human, 0.018 orc: 0.21
+  births a family a 120-day year at most), only for the first married woman of the house, and only while the family's
+  people < homes x room x (0.6 + 0.4 condition). Year 1, humans: 535 women of an age to bear, 387 married (72%), 359
+  families with a wife, 120 of them "crowded", 239 open -> 53 births (0.14 a wife a year; natural is 0.35-0.45). Orcs:
+  132 families with a wife, 109 crowded (households of 7 in tents for 7 at 0.6-1.0 condition), 21 open -> 14 births;
+  year 2 all 141 wives' families crowded, then homeless (below) -> 4, 0, 0, 0 births. Weddings: the 2-a-call cap held
+  in every goblin and orc call and 27 of 30 human calls; single women of an age to wed grew 56 -> 199 (goblins).
+  The 120-day year was not the cause: ages and the rolls both used EconGen.YEAR_DAYS.
+  Fixed: Persons.childbearing - each married woman at home, husband at home, of an age to bear the child before
+  mother_max, not with child, not nursing, the family not hungry, conceives with chance 1 - exp(-days / conceive);
+  the child is born a gestation later (f.preg). Persons.bearing: one rule for every race from its own ages (data
+  "bearing", the human numbers; interval x fertile years / 29, gestation x adult / 16): human 0.75 + 1.5 + 0.5 = 2.75
+  years between births, orc 1.71, goblin 1.14, troll 3.8, elves 20.9. No room gate (a full house builds or buys a
+  home, it does not stop births). Weddings: every pair the rules match marries at the call (one bride from a house).
+  A child born to a family in the poorhouse is counted at its broth at once (Families.born: e.shel_n).
+  ORC TOWNS, why they emptied (v0.010): hide tents decay 0.004 a day; a repair needs 2 leather; the orc markets held
+  48 -> 3 leather, so 84 tents fell in year 1, 167 in year 2, and from year 3 every orc family (225 of 225) was
+  homeless; sleeping rough counts as days short (the one hunger number), so famine stages, flight (13 / 69 / 212 / 514
+  people a year between orc towns), the body meter (starved), and no births (room 0). Causes under it: (1) a repair
+  that found no leather asked nobody for it (no demand), so tanners never saw the want; (2) pigs and sheep, the herds
+  of all three orc towns but Grolruk's cattle, gave no hides at all; (3) in Grolruk every trade (tanner, woodcutter,
+  builder, hunter) stands empty: every adult is needed on the family's own land, and field hands earn 1.15 x the day
+  wage against the trades' pay table. The hoard: the town's own fields (land of families who fled or died) sold their
+  grain at famine prices into the treasury (town turn +716,000 in year 5), and the treasury spent only above its full
+  line, on stone, wood and tools in the stalls (a quarter of the stock a week) and on idle hands: there were none.
+  No rule blocks any treasury spending for orcs. Fixed (1) repairs add their want to the market's demand (bought,
+  unmet, unaffordable), (2) pigs and sheep give hides, (4) a treasury over its full line hires day labour for a great
+  work (barge part 4: "more when rich, a great work hires extra day labour"). Not fixed: (3), the labour allocation.
+  After: orc markets hold 682 / 1,158 / 1,530 / 1,179 / 1,083 leather (48 -> 3 before); homeless orc families 44 / 116 /
+  128 / 132 / 134 of ~225 (65 / 202 / 225 / 224 / 224); now the orc markets are short of wood (1-7 a town from year
+  2: woodcutters without hands), and a homeless family can only buy a builder's home (12,700-15,500 coins) or rent an
+  empty one, so the ones who lost their tents stay out.
+  COIN, why it shrinks (v0.010): 5 years cast 0.22M, melted 0.96M, drained 5.54M. The mints stood empty ("hands",
+  minters 0) most days: a town-owned row is topped up only while the treasury holds 3 x the bill, nobody signs on at an
+  empty till, and the treasuries sat under their short lines; the treasury also had to front the metal from coin it did
+  not have; melted coin came out as bronze bars that the mint could not use (360-1,287 bronze bars piled at mints,
+  copper 0-4), and melting, set off by dear copper, gave no copper back, so it went on. Fixed: the mint casts from
+  copper and tin or from bronze bars (coinage spec 2), the cheaper first, each only below face; it pays the market for
+  the metal out of what it casts and keeps its own till at two weeks of wages from it; with bars in the market its
+  first wages are advanced; melting gives back the copper and tin in the coin. Not fixed: copper itself. World copper
+  bars made 4,537 / 2,362 / 2,632 / 1,806 / 699 a year (one mint at its rated 12,000 coins a day needs 55 bars a day)
+  while 3,000-3,800 copper ore lies unsmelted and ore mined falls 3,683 -> 147: mines and smelters are short of hands
+  (the same cause as Grolruk's trades). Melting rose (0.96M -> 1.82M) as dear copper sets it off more often.
+  After (tests/diag_barge_years.gd, seed 2026, 600 days, TOWN_SCALE 1, the census; v0.010 in brackets):
+    people        8,063 -> 8,014 / 8,034 / 8,033 / 8,022 / 7,925   (7,774 / 7,544 / 7,285 / 6,994 / 6,582)
+    births        412 / 389 / 330 / 392 / 412 = 51 / 48 / 41 / 49 / 52 per 1,000   (104 / 86 / 81 / 58 / 61 = 13 / 11 / 11 / 8 / 9)
+      human         56 / 48 / 40 / 47 / 42 per 1,000   (15 / 15 / 13 / 9 / 8)
+      orc           55 / 58 / 44 / 51 / 48             (9 / 3 / 0 / 0 / 0)
+      goblin        73 / 67 / 67 / 78 / 104            (10 / 10 / 13 / 9 / 15)
+      moon elf       6 / 13 / 7 / 11 / 10              (18 / 14 / 15 / 15 / 15)
+    deaths        461 / 369 / 331 / 403 / 509   (393 / 316 / 340 / 349 / 473); 5 years: sickness 817, battle 663, old age
+                  373, starved 209, murdered 11   (sickness 578, battle 629, old age 372, starved 280, murdered 12)
+    moved between towns 0 / 30 / 71 / 145 / 222 (5 / 13 / 73 / 185 / 393); none off the map; nobody made up
+    hungry households 0.1 / 2.2 / 3.5 / 6.3 / 11.7%   (0.3 / 3.0 / 6.4 / 9.7 / 9.0%)
+    day wage      112 / 103 / 94 / 90 / 82   (101 / 97 / 87 / 79 / 77)
+    coin a head   1,930 / 1,785 / 1,658 / 1,530 / 1,425 (1,893 / 1,784 / 1,687 / 1,609 / 1,564); coin held 15.50M ->
+                  11.31M (14.73M -> 10.31M); 5 years cast 2.33M (0.22M), melted 1.82M (0.96M), drained 5.90M (5.54M);
+                  price level year 5 0.77-0.84 (0.72-0.78)
+    town treasuries 54k / 70k / 83k / 355k / 184k (61k / 108k / 75k / 232k / 665k); orc 226k at year 4, 130k at year 5
+                  (167k, 619k)
+    by race at year 5: human 3,676 (3,067), orc 1,553 (1,158), goblin 1,626 (1,212), moon elf 1,070 (1,145); hunger
+                  human 10.1%, orc 16.6%, goblin 14.1%, moon elf 10.4% (5.8 / 14.3 / 5.3 / 14.0%)
+    the years before take 53.4 s, worst day 202 ms (46.6 s, 181 ms)
+  Defaults [ours], each Douglas's to overrule: human childbearing 0.75 years carrying, 1.5 nursing, 0.5 waiting (2.75
+  between births); other races by their own fertile years and age of adulthood (Persons.bearing); a child is conceived
+  only with wife and husband at home ("", for hire, militia) and the family not hungry; the wives with child at world
+  gen are the steady share; no wedding cap; sheep 0.013 and pigs 0.033 hides a head a day (the goats' hides to meat);
+  the mint's bronze recipe 5 bronze bars + 0.45 wood a thousand; the mint's till kept at two weeks of wages from its
+  cast; a great work hires with half of what the treasury holds over its full line (two weeks' wages).
+  For Douglas: elves (fertile 220 years -> a child every 20.9 years) are born at 6-13 per 1,000 against 30-40 deaths
+  and fall 1,276 -> 1,070; goblins (a child every 1.14 years) at 67-104 per 1,000. Hunger at year 5 is 11.7% of
+  households (9.0% before: more mouths, and sickness deaths rise with the children, 302 in year 5). The trades and mines that cannot hire against field-hand pay (Grolruk; copper) are the
+  next cause of both the orc homes and the coin. "The house cannot spare her" (a daughter or widow whose house would
+  have fewer than 2 grown-ups at home) keeps 30-60 women single in each year. No deaths in childbirth yet.
+  (Those three are answered in the next block.)
+
+IN PROGRESS (v0.011, draft, part 2) - labour, each race's body, childbirth, weddings, elders (2026-10-06)
+- Measured with tests/diag_people.gd (now also LABOUR by trade, Grolruk's rows, DIAG_ROWS=1 for every mine, smelter,
+  woodcutter, tanner and builder, deaths by cause and age band, births per woman), seed 2026, 600 days, TOWN_SCALE 1.
+  "Before" is the merged v0.011 part 1 (ab5e835).
+  LABOUR, the causes found (it was not only "every adult on the land"; most towns had 120-280 idle grown-ups):
+  (1) an empty business never hired: nobody signs on at a till under two days' wages, and the owner tops the till up
+      only to 7 days of the wage BILL, which is 0 with nobody on it. Year 1: nearly every mine, smelter, builder and
+      orc woodcutter stood 0/1 "short-handed" with till 0, while copper bars sold at 3-5 x base and ore at 0.3 x.
+  (2) an empty shop lost a "loss day" every day for its upkeep alone (profit -4 < -0.3 x 0 staff x wage), so its places
+      fell to 1 within the year (Grolruk: woodcutter 5 -> 1, tanner 5 -> 1). Barge part 3 section 4 counts a family
+      shop's keeper as staff; we did not.
+  (3) pay stood at the pay table whatever the goods fetched (wood at 7 x base, bars at 3-5 x): no trade could bid,
+      and the open places were offered field hands first, so in Grolruk (land needs 179 hands, 140 grown-ups) every
+      spare hand went to other men's fields and the trades stayed empty for five years.
+  (4) the mint's want of copper, tin and charcoal counted nowhere in the market's demand, so the normal stock of bars
+      stayed a smith's few: smelters rested "market full" with 1,000-2,000 ore beside them.
+  The barge rules this deviated from (part 3): section 5 "below target a business hires if thriving, or ... its
+  output is scarce and it has cash"; the cottage trades' pay "moves 10% a day toward each share" (95% of the net) and
+  "one paying over 75 with scarce output (price > 1.25 x base) gains one" member; section 4 "a family shop counts
+  its keeper"; section 1 the day wage from demand and labourers (unchanged).
+  Fixed (Businesses.bid_day, hand_value, hiring, _gains_hand; owner_turn; _books; rebuild_open; Families.land_worth,
+  _to_trades; Barge.mint_day):
+  - A family trade whose goods are scarce (dearest output it can make over 1.25 x base) and that is short of hands
+    raises its pay 10% a day until it hires, never past 0.95 x what a hand makes there (barge value per hand: outputs
+    at 0.92 P - inputs at P, x the batches it would really make: its share of the makers' aim and of the inputs in
+    the market). Full, it holds that pay while the goods stay scarce; when they are not, pay moves back to the table
+    10% a day. Town rows (mint, collectors) keep the table; field hands, builders and works follow the day wage.
+  - A business that would hire (short of places, thriving or scarce) is funded by its owner for one hand more.
+  - A family shop's keeper counts as staff in the loss-day rule.
+  - A scarce trade, full, where one more hand would earn at least the table, gains a place (weekly).
+  - Open places are offered by pay; the fields come first at equal pay (they pay 1.15 x the day wage, so they still
+    lead unless a trade bids above them).
+  - A family weighs: a land hand leaves for a trade place only when it pays more than a whole hand's worth on its land
+    (land_worth = the year's crop and herd output at today's prices per hand the land needs, and never under a field
+    hand's pay). Whole hand, because the harvest needs 2 x the hands (part 3 section 1): even the last hand is needed.
+  - The mint asks the market for its metal (Barge.add_demand: taken, unmet, or "unaffordable" when dearer than coin).
+  Before -> after (five years; year by year):
+    copper ore mined     4,800 / 4,371 / 2,652 / 2,107 / 188  ->  23,833 / 5,981 / 3,708 / 4,155 / 1,811
+    copper bars made     4,466 / 3,109 / 2,863 / 2,110 / 1,337  ->  10,930 / 6,569 / 6,481 / 3,996 / 1,414
+    coin cast (5 yrs)    2.57M (melted 1.85M, drained 5.93M, held at year 5 11.48M)  ->  4.33M (2.72M, 6.08M, 12.19M)
+    orc wood made        9,352 / 6,136 / 7,640 / 7,776 / 7,301  ->  25,885 / 15,006 / 17,509 / 12,782 / 11,515
+    human wood made      39,373 / 39,866 / 41,801 / 34,244 / 31,502  ->  46,217 / 51,490 / 47,520 / 45,234 / 33,491
+    orc homeless         44 / 107 / 120 / 134 / 136 of 225  ->  3 / 23 / 40 / 51 / 53 of 226-222
+    orc grown-ups in trades  92 / 66 / 74 / 64 / 74  ->  137 / 126 / 123 / 118 / 108
+    hands per trade, end of year 5, world (staff/places): woodcutter 92/95 -> 59/66 (pay 69-73 -> 123-452), smelter
+      14/30 -> 17/27 (pay 79-82 -> 81-397), mine 1/13 -> 3/13, tanner 13/21 -> 19/27, builder 5/15 -> 12/16,
+      weaponsmith 8/26 -> 12/26, carpenter 3/15 -> 10/19
+    Grolruk year 1: woodcutter 0/1 -> 9/9 (wood 0 @78 -> 909 @14); later years 4-5 woodcutters; tanner 0/1 -> 1-2;
+      builder 1/1 both; its land keeps 79-93 of its 120-150 grown-ups (98-115 before). Hunters, smiths, quarry, weaver
+      stay empty: their goods are not scarce there or need inputs it lacks.
+  Still open: mints often stand "bars dearer than coin" (copper at 1.2-1.8 x base: the metal is worth more than the
+  coin it makes; melting 2.7M in five years). Human and elf towns keep 200-240 idle grown-ups: farm places stay open
+  because poor farm families cannot fund their field hands' till (a separate cause, not touched).
+- EACH RACE'S BODY (Douglas 12:14-12:15: "orcs should be able to breed fast too. goblins breed twice as fast as orcs";
+  "orc birth rate should be like 7% - goblins like 14%"; "(make it work naturally)"). No multiplier: data
+  bearing.races gives orcs and goblins their own body (Persons.bearing, Persons.litter), every other race keeps the
+  human numbers scaled by its own ages. Biology [ours], each Douglas's to overrule:
+    human   grown at 16, bears to 45; carries 9 months, nurses 18, about 6 months to conceive: a birth every 2.75 years;
+            twins 1.2% (the pre-modern European rate). Unchanged.
+    orc     grown at 12, bears to 30; carries 6 months, nurses about 7, about 5 months to conceive: a birth every 1.5
+            years; twins 17%, triplets 3% (1.23 children a birth). A bigger, faster-growing breeder than a human.
+    goblin  grown at 8, bears to 20; carries about 3.6 months, nurses 3, 3 months to conceive: a birth every 0.8
+            years; litters of 1 (60%), 2 (30%), 3 (10%): 1.5 a birth, like small quick-breeding animals.
+    elves, trolls: the human numbers x their own fertile years (elves a birth every 20.9 years); human twins.
+  Hunger and sickness hold back every race alike: no child is conceived while the family is hungry (as before) or
+  while the woman lies sick (new). Marriage ages unchanged (women from adulthood, men from adulthood + 2).
+  Census births per 1,000 a year (per woman of bearing age in brackets), years 1-5:
+    human   before 55 / 50 / 42 / 51 / 45 (0.37 / 0.34 / 0.27 / 0.32 / 0.28)  after 57 / 53 / 40 / 54 / 46 (0.39 / 0.36 / 0.27 / 0.35 / 0.29)
+    orc     before 55 / 58 / 40 / 55 / 48 (0.46 / 0.42 / 0.29 / 0.37 / 0.30)  after 73 / 75 / 60 / 69 / 63 (0.60 / 0.58 / 0.46 / 0.57 / 0.53)
+    goblin  before 72 / 68 / 65 / 82 / 99 (0.68 / 0.53 / 0.44 / 0.51 / 0.58)  after 150 / 107 / 101 / 133 / 140 (1.47 / 0.93 / 0.79 / 0.95 / 0.96)
+    elf     before 6 / 12 / 6 / 12 / 9  after 6 / 12 / 7 / 11 / 11
+  The lower years are the hungry ones (orc hunger 7-17% of households in years 3-5). Over the five years together
+  (seed 2026): human 49.9, orc 68.0, goblin 126.3 per 1,000 a year; per woman of bearing age 0.33 / 0.54 / 1.04
+  (goblins 1.9 x orcs). (A five-year test of this was written and passed once, then dropped: Douglas 12:33, no new
+  automated tests.)
+  The goblin towns outgrow their food: population 1,475 -> 1,877 at year 4, then in year 5 the staple goes to 6 x
+  base, 238 starve, 308 die of sickness (254 of them children) and 501 flee for hunger: 1,522 at year 5. Not capped
+  (Douglas: report it). Orcs 1,640 -> 1,723 (1,552 before), humans 3,672 -> 3,776, elves 1,276 -> 1,143.
+- CHILDBIRTH: a mother dies bearing a child with chance bearing.maternal = 1% a birth (one roll a birth, twins and
+  litters too), every race [ours]: the English parish registers of the late 1600s give about 10 per 1,000 births
+  (Schofield 1986; Wrigley et al. 1997), the best-measured pre-modern series; 1.5% figures come from worse places.
+  Through Sickness.kill (her record, the row, the census once, cause "childbirth"); the child lives. No separate
+  infant death: sickness's child band already kills children of every age (humans: 46-83 child deaths of sickness a
+  year, 30-60 per 1,000 children). Deaths in childbirth: 1 / 5 / 3 / 5 / 8 a year (22 in five years).
+- WEDDINGS: "the house cannot spare her" is gone: 30-45 single women a year were held by it. She moves to her
+  husband's house; the house she leaves (often only children and elders) goes on under the hard-times rules
+  (casual work, the poorhouse, the coping ladder). Singles of an age to wed held by it before: 22-45 a year (humans,
+  goblins); now none held (the diag still counts 1-23 women in such houses waiting for a match).
+- ELDERS AND ELVES: elf deaths were 64 / 45 / 36 / 69 / 52 a year (30-61 per 1,000). By cause, five years before ->
+  after: battle 98 -> 65, sickness 75 -> 56 (most of them children, ages 0-39: an elf child is a child 40 years),
+  starved 55 -> 63, old age 40 -> 6. The one rule found ignoring race ages: the weekly elder death roll (Families.
+  _people) gave every race's elders a mean of 8 years left, so elves of 300-399, with 150 years to their lifespan,
+  died "of old age" as fast as a human of 60. Now an elder's mean years left = 0.4 x (lifespan - elder age): human 8
+  (unchanged), orc 6, goblin 4, troll 16, elf 60. Checked and race-correct already: the sickness bands (child, adult,
+  elder by the race's own ages), the helpers' shares (children 10-14 scaled by adulthood, elders by elder age), the
+  draft ages (17-30 mapped into each race's adult years), old age at the lifespan, childbearing years. Not changed,
+  for Douglas: sickness strikes every race at the same rate a year, so a race living 450 years meets ~25 times the
+  epidemics of a human life; elf births of 6-13 per 1,000 cannot cover 30-35 deaths a year (war, hunger, children's
+  sickness) and elves still fall 1,276 -> 1,143. Also: rank_rules.gd "lineage" adds age / 10 to a candidate's
+  score, so among elves age outweighs battles (not a death rule; left).
+  After (deaths a year): elves 42 / 27 / 44 / 39 / 38 (34 / 22 / 37 / 33 / 33 per 1,000).
+- diag_barge_years, before -> after (world; year 1..5):
+    people        8,013 / 8,139 / 8,125 / 8,102 / 7,882  ->  8,145 / 8,340 / 8,410 / 8,545 / 8,164
+    births        404 / 402 / 331 / 425 / 416  ->  563 / 514 / 437 / 574 / 533
+    deaths        454 / 276 / 345 / 448 / 636  ->  481 / 319 / 367 / 439 / 914
+      by cause, 5 years: sickness 851 -> 1,031, battle 616 -> 648, old age 386 -> 384, starved 275 -> 401,
+      murdered 31 -> 34, childbirth 0 -> 22
+    hungry households 0.1 / 2.0 / 4.1 / 8.4 / 11.9%  ->  0.1 / 1.0 / 4.5 / 6.6 / 5.8%
+    day wage      108 / 102 / 94 / 87 / 85  ->  112 / 109 / 100 / 97 / 96
+    coin a head   1,936 / 1,773 / 1,648 / 1,530 / 1,455  ->  1,913 / 1,761 / 1,644 / 1,527 / 1,491
+    town treasuries 54k / 130k / 102k / 204k / 82k  ->  95k / 77k / 99k / 188k / 575k (goblin towns 473k at year 5:
+                  the land of the starved and fled sells its grain at famine prices into the treasury)
+    by race at year 5: pop human 3,707 -> 3,776, orc 1,552 -> 1,723, goblin 1,559 -> 1,522, elf 1,064 -> 1,143;
+      hunger human 8.3 -> 3.0%, orc 21.8 -> 16.7%, goblin 14.0 -> 1.8% (after its flight), elf 11.2 -> 6.3%;
+      wage human 90 -> 91, orc 93 -> 116, goblin 70 -> 104, elf 75 -> 71; coin a head human 1,461 -> 1,496,
+      orc 1,413 -> 1,560, goblin 1,298 -> 1,183, elf 1,642 -> 1,572; treasuries human 5k -> 44k, orc 18k -> 47k,
+      goblin 57k -> 473k, elf 2k -> 11k
+    the years before take 67.5 s in this diag (59.7 s before), worst day 209 ms (209); more people, and the
+    trades' daily bids
+  Defaults [ours] added: bearing.maternal 0.01; bearing.litter (human twins 1.2%); bearing.races orc and goblin
+  (above); a sick woman does not conceive; barge.business scarce 1.25 (barge's cottage line), bid_share 0.95 (the
+  cottage trades' share of net), bid_step 0.1 (their 10% a day); a hiring business funded for one hand more; a
+  family shop's keeper counted as staff in the loss-day rule; a scarce full trade gains a place a week; land worth
+  = output at today's prices per needed hand, floor the field-hand pay, a whole hand; the mint's metal want as
+  market demand; Families.ELDER_MEAN 0.4 (an elder's mean years left = 0.4 x his race's lifespan - elder age).
+
+IN PROGRESS (v0.011, draft) - world size and the phone (2026-10-06)
+- Douglas 12:27: "we do need the map to work with considerable more space (think a large battlebrothers map,
+  minimum)"; 12:28: "we still need it to run on a phone - think of what a google 10 can handle"; 12:45: "we dont want
+  new villages being founded. but we do want more map space - and more villages for gobbies yes."
+- Built: one world-size setting, WorldGen.WORLD_SIZE (normal 150 x 96 cells, large 260 x 166, huge 370 x 237). A
+  constant: the title's New Campaign button starts at once and there is no options screen to put it on yet. Towns,
+  patrols, the caravan cap and the lair and camp caps grow with the land; town spacing and road reach stay as on the
+  normal map. Every town runs the full economy. Goblins hold 5 warrens at the normal size (2 before; 15 at large).
+  No town is founded in play, for any race (only world gen makes towns).
+- Fixed for size (all cheap, no depth cut): road spanning tree O(n^2) (was O(n^3)); town spacing, lair wild cells,
+  militia threat checks and the daily queue checks through buckets or one pass (they were towns x forces or towns x
+  queue); the census and the plot weeks are one job per town at the front of the queue (they were every town in
+  the midnight frame: 20 ms + 9 ms at large); map frames run ceil(queue x days) jobs (one before: at x4 the queue
+  grew without end); the map's decor is drawn in culled 24-cell chunks and hides when zoomed far out, and the
+  map's textures are built once per world (coming back from a town: 1-2 ms, was the full build every time).
+  The normal world's five years come out the same as before these fixes (7,925 people, seed 2026) until the goblin
+  warrens are added (then 9,598).
+- Measured (tests/diag_world_size.gd, seed 2026, laptop, one run per size; huge 120 days only):
+                            normal (18 towns)   large (54 towns)    huge (90 towns, old goblin count)
+    map, px                 3,600 x 2,304       6,240 x 3,984       8,880 x 5,688
+    farthest towns, march   15.4 days           27.0 days           42.6 days
+    people at start         9,495               24,808              41,202
+    world gen               0.7 s               2.0 s               3.6 s
+    5-year years before     53 s (89 ms a day)  150 s (249 ms)      ~280-330 s est. (465 ms a day, year 1)
+    worst day               217 ms              439 ms              764 ms
+    map frame x1 mean/worst 0.6 / 18.8 ms       1.8 / 40.3 ms       2.4 / 23.8 ms (after 120 days)
+    map frame x4 mean/worst 1.5 / 32.5 ms       4.6 / 69.5 ms       6.4 / 47.7 ms
+    worst single job        spawn 30 ms         spawn 46, arms_spawn 29, caravan 25 ms
+    memory (static) start / after 5 years   102 / 146 MB   211 / 340 MB   347 / 387 MB (year 1)
+    save file               12.3 MB             35.8 MB             39.2 MB (year 1)
+  Phone (Pixel 10, Tensor G5) [estimates]: GDScript 1.6-2x the laptop, x1.3-1.5 more for long runs (heat); the game
+  process should stay under 2.5-3 GB. Years before: normal ~1.5-2.5 min, large ~4-7.5 min, huge ~8-16 min. Map frame
+  mean at x4: normal ~3 ms, large ~7-9 ms, huge ~10-13 ms. Every size has single jobs over 8 ms on the laptop
+  (16 ms on the phone): spawning a band (making its units and drafting them), arms convoys, caravans (their path).
+  Memory fits at every size. Biggest that fits the phone at full depth: large, once the big jobs are split.
+- Found: memory after load is about twice the world (295 MB normal, 772 MB large): the world loaded over is not freed
+  (units held in cycles?). For the record-packing work.
+- Plan (in order, none cuts depth): split the band spawn into a job per few men (and the arms convoy spawn);
+  caravans walk their road's own points (no grid path); arms_week and the army day per town; record packing (a unit
+  is ~118 KB: spawning, memory and save size all follow it); a shorter years-before for large worlds if Douglas
+  wants (his call).
+- Done (2026-10-06, Douglas: keep the full 5-year startup on every size, faster, no depth cut):
+  1. The muster: a band of a realm, a caravan and an arms convoy are raised over several work jobs
+     (CampaignWorld.muster_start / muster_step, MUSTER_STEP 3 men a job: make, then draft (Army.enlist_begin /
+     enlist_some / enlist_end), then outfit (TownEcon.outfit_units with the band's one budget; quivers once at the end).
+     The force goes into w.warbands only when whole. The next job goes to the FRONT of the queue, so the years before
+     (and any big time jump) run them back to back with the same draws: identical results there. On the map one job
+     a frame; pending musters count as had (patrol count in _daily, Caravans.count, the town's one caravan, the arms
+     contract's "mustering" flag) and their men are not swept as dead (Army.sweep).
+  2. Caravans walk the roads' own points (Caravans.road_path: the fewest-px chain of roads, Dijkstra over the town
+     graph; arms convoys may cross several roads); a grid path only when no road chain joins the towns. NOT identical:
+     the road points differ from the old grid path, so trip lengths, crews' trip pay and arrival days differ a little.
+  3. The army day: Army.faction_day (work job) pays, feeds and deserts as before, then queues at the front a job per
+     home town that re-arms its bands (army_rk) and the rank tree (army_tree). Towns share no armory, stalls or
+     treasury, so per town = the old pass. arms_week runs a realm a job (the week's generator handed on): identical.
+     Per realm, not per town: one offer a week per realm is the unit of that work.
+  4. From the one profile of the years before (DIAG_PROFILE=1, large, seed 2026; job totals by kind now print):
+     jobs 179 s of 203 s; fam+fam2 42 s, herds 20, recruit refresh 17, econ 14.5, bday 12.7, tturn 9.3, militia 9.3,
+     caravan 8.6, sick 7.9, army 7.6 (re-arming 4.8 of it), plots 7.5; movement sub-steps 22 s (move 17).
+     Taken (identical results): re-arming remembers a loadout slot the town had nothing for within its pass (armory
+     and stalls only shrink in it); a band's draft takes the pool spawn_faction_band already built to check the town
+     (was built twice); a body's unhurt parts are built once per plan and deep-copied (BodyState._fresh); make_troop
+     and make_recruit no longer build a race-mass body that roll_size throws away.
+  Measured before (same diag, profile on, laptop): years before 203.2 s (338.5 ms a day), worst day 533.5 ms,
+  worst single job in the years before spawn 47.9 ms (map x4: spawn 25.4, caravan 22.5, arms_week 19.1), map frame
+  x4 worst 42.7 ms (mean 6.1). (The helper's earlier 150 s run had no profile timers and fewer herds.)
+  After (same command): pre-sim 186.5 s (310.7 ms a day, was 203.2 s); worst day 456.5 ms (was 533.5); worst pre-sim job
+  arms_week 23.8, caravan 21.6, econ 20.5 ms (spawn now 11.3, was 47.9); map x4 mean 5.46 ms, worst 38.5 ms (was 6.1 / 42.7).
+- Left: unit records (a unit is ~118 KB, mostly its body's layer dictionaries; units made in the years before
+  cost ~35 s of 203 s together: recruits 17, militia 9, bandits 5, caravans and bands 4). Plan: an unhurt body kept
+  as "fresh" (no parts until first hurt or looked at), skills and xp sparse (only non-zero kept), to_dict leaving
+  defaults out; then the recruit pool as register persons with the Unit made when the company first looks at the
+  town (changes later uids, so not identical). Also left: family turns (42 s, already tuned), herds (another
+  helper), movement (17 s: find_path for wandering bands).
+- For Douglas: WORLD_SIZE stays "normal"; large is the "large Battle Brothers map". A New Campaign screen with the
+  choice when he wants it. [Since then: Large is the default (Douglas), and the screen is built, below.]
+
+IN PROGRESS (v0.011, draft) - the New Campaign screen and long histories (2026-10-06)
+- Douglas 12:55: "have both be toggleable for world size/simulation span. - im okay with 100 years simulation up to.
+  and as few as one year."
+- Built: ui/newgame.gd ("newgame" screen; title and game-over New Campaign open it). World size Normal / Large / Huge
+  (WorldGen.SIZE_ORDER, default WorldGen.WORLD_SIZE) and the years before 1-100 (slider, - / +, picks 1 5 20 50 100;
+  default CampaignWorld.PRESIM_YEARS 5). Begin sets WorldGen.gen_size and CampaignWorld.presim_years, then new_game and
+  the presim screen ("year N of M"). The length is stored in the world (presim.total, days) at the first step, so
+  everything that read the fixed five years reads presim_total / presim_years_of now; diagnostics take DIAG_YEARS.
+- Startup estimate: WorldGen.SIZES[size].ms_day x days, labelled "about N min on this PC". The ms are the laptop
+  measurements above (normal 89 ms a day, large 249, huge 465 from year 1 only); they are data in one place, to be
+  re-measured after the startup-speed work lands. A day may cost more late in a long history (more people, more
+  records); the estimate does not guess that. On this laptop: normal 5 y ~1 min, 20 y ~4 min, 100 y ~18 min;
+  large 5 y ~2.5 min, 20 y ~10 min, 100 y ~50 min; huge 5 y ~5 min, 100 y ~93 min.
+  Phone (Pixel 10) [estimate, not measured]: 1.6-2x the laptop, x1.3-1.5 more on long runs (heat): large 5 y ~4-7.5
+  min, large 100 y ~1.7-2.5 hours, normal 100 y ~37-54 min. A phone also pauses the run when the app is put away (the
+  presim screen runs in _process). Long histories on a phone want the Normal size or a background-safe runner.
+- Long histories: what grows with the years (read from the code; NOT run: Douglas, no test runs. The 20-year run is
+  a TO_TEST line: DIAG_SIZE=normal DIAG_YEARS=20 DIAG_FRAMES=0 TEST_TIMEOUT=900 tools/test.sh tests/diag_world_size.gd
+  prints people, coin and its ledger drift, grain, the census balance since gen, memory, save size and record counts
+  every 5 years).
+  Already capped: family history 12 lines, family events 14, life history 16 a person, remembered dead 8 a family,
+  loan sale lines 12, town history 10, town events 10, census (deaths 400, moves 300, births 200, rows 40 = 10
+  years, 60-day buffers), herd log 300, world log 30, diplomacy logs, war news, arms and army histories 20.
+  Capped or packed now:
+    - Gone family rows (moved away or died out): a row must stay (ids are places in e.fams), but a year after it went
+      the weekly sweep packs it (Persons.pack_gone): a moved row drops its person records (they live on, renumbered,
+      in the new town) and its events and pregnancies; a row that died out puts its dead into f.dp like any family
+      (the newest 8) and drops them; both drop the loan book, wear and crop claims. Records of men still serving stay
+      until their unit is gone. The row keeps name, history, remembered dead and the empty holdings the family page
+      reads, so the dead stay findable (census deaths -> family page -> remembered dead). Before: every move left the
+      whole house behind (each person with 16 life-history entries), about 3-5 KB a move, for good.
+    - Immunities of people who died of anything but sickness (old age, battle) or were packed: dropped with the record.
+    - Ended arms contracts: kept a year, then dropped (the arms history and stats keep them). Were kept for good and
+      walked every day.
+    - Sickness by year per town: the newest 30 years.
+    - A unit's kill list: the newest 40 names (the kill count is kept whole).
+    - Herd log: the drove-theft and drove-purchase lines pushed it past 300 for good; it trims back now.
+  Still grows (small, left): one gone row per move (~1.5 KB packed); a new farm business row when a family that moved
+  in first needs hired hands (~0.5 KB; old ones stay at cap 0); the straw-loan book keyed by owner (2 numbers an
+  owner); plots split now and then (bounded by the acres; merges undo most); timed immunities that ran out are not
+  pruned while the person lives (2 diseases grant them).
+  100-year estimate [estimate, NOT measured]: the upper bound on moves is move_in_max 3 families a town a month: on
+  Normal (18 towns) 216 a year, about 0.4 MB of save a year, 40 MB over a century (Large x3: ~120 MB); real moves are
+  a fraction of that. Memory grows with the same rows (not measured; Godot dictionaries cost several times their JSON).
+  Before the packing the same bound was ~1 MB a year. Nothing else found grows with time.
+  Population, coin and prices over a century: NOT measured. What holds them: land and towns are fixed (no town is
+  founded), so people are held by food (hunger, famine, flight, childbirth needs a fed family); coin is conserved by
+  the coin ledger (cast - melted - drained = holdings; drift is a bug to look for) and prices follow money over goods.
+  The risks to watch in the 20- and 100-year runs: a race that outgrows its land and swings through famines (goblins
+  do this inside five years), coin piling up in faction treasuries (war chests) so towns run short and prices sink,
+  and the day cost rising with people (the startup estimate assumes the five-year pace).
+
+v0.010 DETAIL (shipped)
+- Real persons in family registers; loans/interest/forced sales; real-job titles and stories; census, ages;
+  life histories and a 5-year pre-simulated world. [built]
+- Barge economy model parts 1-4 and the coinage (docs/specs/barge/01-05): bronze coins (gold x20), the coin ledger,
+  mints and melting, price level, prices by category, spoilage by temperature, two harvests and the year's harvest
+  factor, household spending by class, hunger per family and famine stages, the day wage and field hands first, the
+  pay table and soldier pay, business books, treasury taxes and levers, the granary, rent, movers. [built, branch
+  worktree-agent-a4e6b9d2fb9168ab0; numbers for Douglas before v0.010 ships]
+  Defaults taken while Douglas was away (2026-10-05; each one his to overrule):
+    - Coin factor x20 (the farmhand's 4.5 gold a day = 90 coins; a labourer's day 100 coins).
+    - Money need = the coin each realm (and town) actually held at world start, so the money index is 1 at start.
+    - Fruit (our produce) keeps 30 days; our meat is salted meat and keeps 120 days.
+    - Farm families get oxen at world gen (one per 8 acres): 8 acres a hand with an ox, 4 without.
+    - "2x hands at harvest" adds to labour demand (more field-hand places in the harvest season), not to yield.
+    - Grain prices are free (no pinning). Field hands may take part of their pay in grain from the harvest at the market
+      price (their families buy their staple straight from the barns at P, without the shop markup).
+  Forks taken closest to the spec [ours], also his to overrule:
+    - Barge tastes mapped onto our three foods: grain = our keeping staple (wheat, barley, rye, millet; the goblins' dried
+      mushrooms; the moon elves' nuts and honey), fruit = produce, meat = salted meat (orcs, the goblins' rats, the
+      north's meat 0.5).
+    - Our families take a turn a week, not a day: the jars are "a week's food + the class's jar days", filled a fifth
+      of the gap a day over the week; budgets are the barge's daily rules compounded over the week.
+    - Rest wants q a person a day by class (meat 0.15/0.4/0.8, produce 0.2/0.3/0.4, drink 0.6/1.0/1.5).
+    - Classes at world gen by holdings: the richest 3% rich, the next 25% middling, the rest poor; then by savings.
+    - Treasury lines = the barge's x town people / 8,000; a tax day = the town's first day of each 30-day month.
+    - The garrison is paid only while the treasury holds the day's bill + a quarter of its short line; else owed.
+    - Family "Short to Fed needs 7 days' store": the family's larder when it last shopped.
+    - Temperatures by climate and season (cold 2/10/4/-6 C, temperate 10/18/12/2, hot 20/30/24/14).
+    - A mint keeps its minters only while there are bars to cast; the mint recipe uses our wood for charcoal.
+    - Coin on a dead man without a household: none (the old stand-in purse made coin from nothing).
+    - Contract pay: the company gets the coin the employer has; the rest is owed (no coin from nothing).
+    - Makers' margins and aims are worked out once a day per town on the barge day (from that day's prices, demand
+      and stock) and used on the next market day; a maker whose aim for all its goods is nothing rests like a full
+      market (no trickle).
+  Integration with sickness, census, plots and the draft (2026-10-06):
+    - One hunger truth: the family turn works out the days the family went short (its larder after the gruel kitchen,
+      the poorhouse broth not served, sleeping rough, plus the household pool's shortfall on the days it did eat) and
+      keeps it in f.fshort; the famine stage and Sickness.food_short_days both read that one number.
+    - One path for "starved": the sickness body meter (6b) kills; the barge's stage death rates (famine.deaths in the
+      data, 0.75% / 3% / 4% a day) are not used, so no death is counted twice. Every starvation death goes through
+      Census.record_death once with cause "starved". The famine stages still set work output, gruel, flight.
+    - Poorhouse broth: a family on broth is short by the share of the broth the kitchen could not serve (it was "a day
+      short when over 30% went unserved").
+    - Movers: Census.record_move out (to the real town, why) and in (from it, why) for every family that moves; their
+      open cases, immunities and body condition go with them under their new numbers (Sickness.family_moved).
+    - The draft (war pick 4) is the war helper's; soldier pay, sign-on and fight pay are paid onto it unchanged.
+    - Herbalist wage 100 coins (5 gold x 20), remedy 60 coins (3 gold x 20); households pay x1.1 like any good.
+  Merged world numbers (seed 2026, 600 days, census): people 8,063 -> 7,774 / 7,544 / 7,285 / 6,994 / 6,582; births
+  104 / 86 / 81 / 58 / 61; deaths 393 / 316 / 340 / 349 / 473 (5 years: battle 629, sickness 578, old age 372,
+  starved 280, murdered 12); moved between towns 5 / 13 / 73 / 185 / 393, none off the map; nobody made up; land
+  worked 86 / 85 / 85 / 82 / 84%; day wage 101 -> 77; hungry households 0.3 -> 9.0%; coin a head 2,056 -> 1,564;
+  census balance adds up every year. 1.5x towns -16%, 2x -17% (1x -18%). Pre-sim 46.6 s (worst day 181 ms).
+  Watch: orc towns have 18 births in five years against 500 deaths (and 514 people moving between orc towns for
+  hunger), and their treasuries hoard 620,000 coins: not tuned, for Douglas.
+  Numbers (seed 2026, 600 days, tests/diag_barge_years.gd): population 8,401 -> 8,014 / 7,783 / 7,469 / 7,171 /
+  6,914 (was -> 7,579 / 2,229 / 510 / 315 / 313); land worked 84% -> 78%; hunger 0.2% -> 9.0% of households; deaths
+  2,886 (war 1,223, hunger 825, old age 410, outlaws 317, service 111) vs 335 births; coin held 17.4M -> 10.6M
+  (cast 0.3M, melted 1.2M, drained 5.8M): the price level falls to about 0.77 and the day wage to 84. Bigger towns
+  (EconGen.TOWN_SCALE 1.5 / 2) decline about as fast (-24% / -23% vs -18%), so the default stays 1. Pre-sim
+  40.6 s wall (worst day 203 ms).
+  Not built yet (later or for Douglas): foreign coin at metal value, forgery; the prepared-food category and rotten
+  food; funerals and pauper burials; grain loans from neighbours, stripping the house, the lodging house; at-home
+  spinning income and the cottage trades' floating wages; carters; business closing / reopening, licences, let
+  premises, keeper's living; mortgages, business and reopening loans, courts for businesses, clerks' bribes, debts to
+  neighbours; plot values, housing tightness, dian pledges, distress sales, landlords' fields; riots; merchants'
+  carrying costs, tolls and broker cuts beyond the 3% duty; buying off a host, ransoms, army food from granaries and
+  foraging, band tolls; the Treasury tab's "The money" card and the world Goods tab (screens batch). Army raising
+  from real people (barge part 4 section 8) is the war helper's; until it lands, Army._new_family still invents
+  families when a town cannot spare a man (380-550 people a year in years 4-5), now without a purse.
+- Land plots and the land map (barge 07 + addendum A part A): campaign/plots.gd, ui/land_map.gd, tests
+  test_land_plots / test_ui_land_map. [built, waiting on merge]
+  Defaults [ours]: 5 acres a plot; plot cap 1,500 (woods and pasture shrink first); pasture acres a head cattle 1,
+  sheep and goats 0.3, pigs 0.15; 300 loads of wood an acre; regrowth 0.0006 of a full wood a day (thin again in
+  ~4 years, dense in ~13); clearing 20 worker-days an acre, the public works spend half their days on it when a
+  felled plot lies by the fields (Plots.AUTO_CLEAR); houses, yards and state buildings 1 acre, the square 2.
+  Pasture is the town's common grazing (families' herds graze it; their acres are not land in the economy).
+  Upkeep shown for a town building = what the treasury already pays (collectors, militia pay, shelter keep, rat
+  catchers); no new charges until the economy merge. The mint is a cold building until coinage is built; the jail
+  is empty (no crime yet). After the economy merge: herds as records (addendum B), the shelter's bed price, meal
+  price and gruel kitchen read from data shelter.bed_price / meal_price and e.gruel when they exist.
+  Hooks in others' files: families.gd move_land (1 line), world.gd generate + _daily (1 line each),
+  ui/town_econ_tab.gd (the Land map button, 1 line).
+- Herds 2 (Douglas 12:40-12:55; branch herds-2): breeding from biology and the owners' choice, slaughter only for
+  use, family pot buys, herd-level diseases, grass by climate and weather, winter hay stockpiles, hay meadows.
+  Calendar: the game year (120 days), the one people age and bear by, so a beast's life keeps step with its
+  owners'; real gestation decides how many breeding seasons fit in a year (pigs two, hens two, rats three).
+  Numbers (seed 2026, diag_barge_years, five years): people 8,063 -> 8,024 (master before: 7,963). Herds at
+  year 5: cattle 2,326, plough oxen 1,630 (from 2,373), sheep 963, goats 294 (from 1,283), pigs 4,320, hens
+  1,425, rats 689, hives 249. Five years: 48,317 born, 42,244 slaughtered, 18,633 sold between owners, 392
+  starved, 127 stolen. Meat: fresh meat made 43,788 and spoiled 39,993 (was 7.1 million made, 6.9 million
+  spoiled); keeping meat made 2.14 million, spoiled 244,000 (was 734,000 made). No grain field went to hay
+  meadow in the run: barn straw kept hay cheap.
+  Defaults [ours]: cattle bear 0.85 a year (one spring calf), sheep 0.9 x 1.4 lambs, goats 0.9 x 1.6, pigs 0.85
+  x 7 piglets in spring and autumn, hens 0.4 x 6 chicks in spring and summer, rats 0.9 x 8 three times, hives
+  0.3 swarms; females per male: cattle 25, sheep 40, goats 30, pigs 10, hens 12, rats 5. Owners breed at least
+  5% of their females; half the replacements when a young beast is worth less than its raising fodder (40% of its
+  growing days on winter feed). A family's own slaughter keeps up to 120 days of its food as meat; a carcass is
+  killed when half of it is used. Pot buys: a beast costing under 0.8 x its meat at the keeping-meat price, at most
+  20 a town a week, the family keeping 300 coins. Diseases (chance a town a year / spread in a herd a week /
+  from the common / killed of the sick a week / weeks / immune after): cattle plague 5% / 0.6 / 0.3 / 12% / 4 /
+  90%; sheep pox 5% / 0.5 / 0.25 / 8% / 4 / 90%; swine fever 5% / 0.6 / 0.3 / 20% / 3 / 70%; fowl pest 8% / 0.8 /
+  0.2 / 30% / 2 / 50%; foot rot and mouth 3% / 0.7 / 0.4 / 2% / 3 / 80%; 5% sick when it breaks out, x1.5 hungry,
+  no sales past 30% sick, immunity fades 30% a year. Grass a day an acre (spring, summer, autumn, winter): cold
+  0.6 / 1.1 / 0.4 / 0, temperate 1.3 / 1.1 / 0.6 / 0, hot 1.2 / 0.7 / 1.0 / 0.5, x the year's harvest factor; days
+  on stored feed follow (cold ~63, temperate ~44, hot ~11). Winter stocks bought in summer and autumn keeping 200
+  coins. Hay meadow 200 bales an acre (summer cut); a grain plot goes to hay when hay pays 1.15 x grain and its
+  straw and the herds have under 60 days of fodder, and back the other way.
+  Not built: a separate town granary of hay (the market's normal stock is the town's hay stock); land prices still
+  fixed by the acre (the crop choice moves, the price does not).
+  Watch: goats fall from 1,283 to 294 (the cause not yet found: likely cheap goats bought for the pot in cold towns
+  faster than they breed); plough oxen still fall by a third.
+- Herds and their businesses (addendum 1 part B, decided by Douglas; v0.011): campaign/herds.gd, data economy.json
+  "animals" + new goods and trades, tests test_herds.gd (B5). [built, branch worktree-agent-a1c0b7384dbea4ec0]
+  Numbers after the merge with the births fix (seed 2026, five years before the player arrives; no tuning):
+  head at world gen cattle 2,508, oxen 2,373, sheep 1,366, goats 1,283, pigs 2,837, hens 1,718, rats 863, hives 230.
+  At year 5: cattle 2,005, oxen 1,556, sheep 1,272, goats 1,057, pigs 5,451, hens 1,310, rats 377, hives 344.
+  Over the five years: 1,487 beasts starved, 3,208 died of old age, 5,754 of sickness, 184 of cold; 107,993 were
+  slaughtered (most at home); 1,678 sold between owners; none stolen in this run. People at year 5: 7,963 (7,925
+  on master before the herds). A town's herd week is one work job of about 4 ms.
+  Meat: 7.1 million meals of fresh meat were slaughtered in five years and 6.9 million of them spoiled in the barns;
+  of 734,000 meals of keeping (salted) meat, 66,000 spoiled.
+  Watch (for Douglas):
+    - The meat surplus does not come from how world gen sizes the herds. Beasts are born once each game year
+      (120 days), so a herd breeds three times as fast per day as a real one, while people eat by the day. Tried:
+      sizing the herds from the land (a quarter acre of pasture to each acre of field, a head per its kind's feed)
+      gives the same pasture but three times the pigs, and it was worse: 14.1 million meals spoiled, 5,960 beasts
+      starved, 7,556 people at year 5. So the old sizing stays. The choices are Douglas's: smaller herds at world
+      gen, births spread over real years, or people eating more meat.
+    - The plough oxen fall by a third in five years. Old oxen die, and poor farm families cannot pay 4,000-6,000
+      coins for a new one (families with their own cattle train them). Shared plough teams are not built.
+    - Pigs double wherever the common pasture has room.
+    - Straw for families with no coin: the barge spec's grain loan (part 2 section 7) is now used for fodder too.
+      A family borrows straw from the barns and owes 1.5 times as much, paid back in its own straw or in coin.
+      About 32,000 bales were owed at year 5. Beasts still starve where the barns are empty or the loan limit
+      (30 days of the herd's feed) is reached.
+    - The single economy job p99 runs at 1.96-2.00 ms against the new 2 ms gate (master: 1.75 ms). The family
+      turns are slower (not the candles: taking them out changed nothing). It passed when run alone.
+  Defaults [ours] (each Douglas's to overrule; all in data economy.json "animals" unless noted):
+    - Kinds: cattle (cow 4,000), oxen (6,000), sheep (500), goats (400), pigs (1,600: barge), hens (30) per the
+      addendum; the goblins' rats (5) and the moon elves' hives (300) as their small stock; orcs call pigs boars,
+      goblins their goats cave goats. Climate still picks the grazing kinds (world gen unchanged); race picks the
+      households' small stock. "Northern humans more sheep and goats" is not separately weighted (cold climates
+      already pick sheep, cattle and goats).
+    - Life by the game year (120 days): cattle young 2 years, prime 8, 75% of cows calve each spring, 1 calf;
+      sheep 1 / 5 / 90% / 1.3 lambs; goats 1 / 6 / 90% / 1.5; pigs 1 / 3 / 90% / a litter of 6; hens 0.5 / 2 / 60% /
+      5 chicks; rats 0.2 / 1 / 100% / 8; hives: 30% swarm each spring (a new hive, young half a year; swarms are
+      kept). Ailments 1.5-20% a year by kind,
+      the old die 30-90% a year, cold kills 3-10% of the young a winter week in cold towns. Beast plagues (cattle
+      plague, sheep pox, swine fever, fowl pest): 5-8% a town a year, 3-4 weeks, 5-12% of their kinds a week.
+      Daily yields by the day: milk 3 l a cow (goat 1, ewe 0.3) for 60 / 60 / 40 days after a birth; eggs 0.5 a hen a
+      day, honey 0.04 and wax 0.004 kg a hive a day (spring to autumn); wool a fleece a sheep each summer.
+    - Feed: a grown head eats the kind's feed in bales a day (cattle and oxen 1, sheep and goats 0.3, pigs 0.15, the
+      land map's acres a head); young half; an acre of pasture grows 1.3 / 1.1 / 0.6 / 0 bales a day by season;
+      half the spare spring and summer grass is cut for hay (a herd keeps at most 60 days of feed); 60 bales of
+      straw an acre of grain at its cut (into the barns; a family takes its own grain land's straw in kind, the rest
+      is bought and paid to the field owners per acre); herds start with 10 days of hay. Plough oxen graze their
+      family's fallow and stubble (1 / 1 / 0.6 / 0 of their feed) and eat straw or bought fodder the rest (the barge's
+      "fodder takes 0.5 field an ox" is not taken off the harvest). Hungry more than 10 days, 30% of the unfed die a
+      week. Pasture grazed to the full in spring or summer loses 5% condition a week (floor 30%), mends 3% a week
+      lightly grazed and through autumn and winter.
+    - Owners keep what their pasture carries in summer (by the herd's mix of young and grown); they offer the rest,
+      the old in autumn and winter (not plough oxen: an old ox ploughs on; not hives), and in autumn what they cannot
+      winter (their hay and own straw, their share of the town's hay and straw now and the cut to come, paid from the
+      purse and from selling the rest at half a grown head's price; plough oxen are wintered first). What nobody buys
+      in the week the owners slaughter at home (3 cattle-equivalents a hand a week; small stock any): a family keeps
+      up to 30 days of its food of the meat (as keeping meat), the rest and the hides, tallow... go to the market at
+      the broker's share. Farm families short of oxen train their own grown cattle first, then buy oxen or grown
+      cattle (two a week at most, keeping 1,000 coins); herds under half their keep buy back up to 10 grown a week.
+      Animal prices: 30% a week toward base x PL x (wanted / offered)^0.5 (x0.25-4). Young sell at half, old at 0.6.
+      Carcass by age: young half, old 0.8.
+    - Fodder loan: at most 30 days of the herd's feed owed, paid back at 1.5 times, in the family's own straw first.
+    - Carcass yields (addendum: ox 200 kg, pig 70, sheep 20 and a skin): cow 200 kg (as the ox), goat 18, hen 1.2,
+      rat 0.3; hides 1 (cattle, oxen, sheep, goats, pigs; hides come only from slaughter - the old per-day herd rows
+      in economy.json now only size the tanners at world gen); tallow cattle 20 / oxen 25 / sheep 3 / goats 2 kg; bones 30 /
+      35 / 3 / 3 / pigs 7 kg; horn 2 (sheep 1); sinew 2 (sheep, goats, pigs 0.5). A meal of meat is 0.4 kg.
+    - Trades: butcher 200 kg of carcass a hand a day; salter 10 meals of fresh meat + 1 kg salt -> 10 meals of keeping
+      meat (20 runs a hand a day); dairy 4 litres -> a meal of cheese and butter (25 runs); chandler 1 kg tallow -> a
+      dozen candles (20 runs), 1 kg wax -> 2 dozen (15); salt works 1 load of wood -> 6 kg salt (4 runs) in towns
+      with water or hills; tanner also 3 kg bones -> 2 pots of glue. Wages 95 (any other craft), herdsmen, drovers,
+      salt boilers 85. Sized at world gen by what the herds give; the town's biggest family herd of 40+ head becomes a
+      herder's business; a drover (2 hands) in towns of size 1+ with 60+ grazing head.
+    - New goods: fresh meat 16 coins a meal (perishes like the barge's meat, 4 days), milk 2 a litre (2 days),
+      tallow 12 a kg, bones 2, candles 40 a dozen (households buy a dozen a home a month: needs.wear_days), salt 8 a
+      kg (condiment), hay and straw 3 a bale (keeps 240 days), wax 30 a kg. Opening stocks: a month of salting salt,
+      a little tallow, a dozen candles a home.
+    - Forks closest to the spec: households eat our three foods, so the dairy's cheese and butter and the hens' eggs
+      (8 to a meal) are our keeping protein food ("meat", labelled cheese at the dairy), and the moon elves' honey is
+      their staple (grain), as the barge mapping already does for their nuts and honey.
+    - Pasture: the families whose herds need more than the common's cap (10 acres) own their pasture at world gen;
+      on the common each family grazes what its herds need up to 10 acres while there is room; when more is wanted
+      than it grows, each family by its stint (what its herds needed when it was first counted, at most 10 acres;
+      the town's own herds what they need). 1 coin an acre a week (x PL) to the treasury.
+      Old saves keep all their pasture common. Manure: 7 t a grown cow or ox a year (sheep 0.6, goats 0.5, pigs 1.2,
+      hens 0.02); 8 t manures an acre; a fully manured town's fields yield +10%.
+    - Drovers: 15 head a hand, 40 px a day, go where a grown head fetches 1.3x; bandits, or patrols and raiders of a
+      realm at war with the drove's town, within 60 px drive it off (the beasts end as meat in their stores). At its
+      market the herd is offered whole; after 28 days the drover sells the rest for slaughter. Sacking raiders drive
+      off 20% of each herd to their nearest town (its estate's herds: stolen there, looted here).
+  Hooks in others' files (one line each): families.gd move_herd and move_land (Herds.moved); econ_gen.gd (gen_town,
+  opening_stocks); town_econ.gd _farms (manure_f, straw, Herds.day replace the old per-head herd output; the barn's
+  straw is paid to the grain land: 2 lines); businesses.gd daily (butcher_day); army.gd on_sack; world.gd _daily,
+  _do_work, after_load; plots.gd _sync_grazing, layout (pasture by the records), card; ui/land_map.gd sprite keys.
+  Not built (for later or for Douglas): renting pasture from a landlord; a herder tending other families' herds for
+  a fee (the herder keeps its own); shared plough teams; carting with oxen (draft is ploughing only); sickness rows for beasts in
+  sickness.json (they are economy.json "animals" plagues); calf sex (females by the kind's share).
+- Records screen (barge specs 08-12 + addendum 13): town (12 tabs), world (10 tabs), faction (+ Army), selector,
+  sortable lists, tap-through pages, phone sizes; the census with one cause per death and the balance line. [built]
+
+RECORDS SCREEN: "NOT TRACKED" (sim gaps; each shows as "not tracked", never padded)
+------------------------------------------------------------------------------------
+Every number on ui/records.gd reads a real sim field (through ui/rec_data.gd). These are the fields the specs ask
+for that the sim does not keep yet. When a sim lands, replace the line in rec_town.gd / rec_world.gd / rec_pages.gd.
+Now read from the barge economy (2026-10-06 merge): the day wage, price level and coin shortage, the town's famine
+stage, each family's famine stage and days short, the class (f.cls), the harvest factor (town and world), granary
+buying or selling today, the monthly taxes (service money by class, house tax, surcharge), the chest's lines and its
+change over the month, the ruler's temper and tribute, business health / 14-day profit / loss days, the recipe margin
+rule, pay per weapon grade, where movers went and came from, deaths by starvation (the body meter).
+Town, Overview:   food share of income; wood cut a day;
+                  timber held for building; caravans sent this week; state buildings as plots with staff, residents,
+                  upkeep (addendum A) (herd records, hens and fodder days are read from campaign/herds.gd now):
+                  keep / hall / granary / armory / shelter show what runs today, barracks, jail and mint have no sim.
+Town, Market:     supply a day per good; price charts (only grain has a 60-day buffer, kept by the census).
+Town, Businesses: address, rent (v0.014: the keeper and profit yesterday are tracked now),
+                  cash chart, yesterday's ledger, labour and fuel cost per unit, hiring this month (open
+                  posts, hired, quit, let go), last 10 events, when a business closed.
+Town, Register:   home address; kind (institutions as households); hunger % of the last 14 days (the sim keeps
+                  the famine stage and the days short at the last turn); cold, winter clothing, mourning, pawned
+                  goods, spent today, food in store by kind, seed kept, missed rent payments.
+Person page:      skills from work (only men with a unit on the map show skills).
+Town, Land:       pasture and woodland acres; one record per home (kind, condition, value, mortgage); seized homes,
+                  rent this month.
+Town, Census:     sick at each season's census (the census rows do not count the sick; the Sickness card shows
+                  sick now and cases / deaths by year from the sickness book); deaths by cold, wounds later,
+                  accident: the sim has no such deaths yet, so those rows read 0 (childbirth is real since v0.011).
+Town, Treasury:   in and out today; month by month accounts and a ledger (the last month's taxes and change only);
+                  the company's own dues; loan kind, collateral and clerk.
+Town, Hardship:   when each forced sale happened.
+Town, Garrison:   morale, kit %, drill %, deserted this year, promotion tests, barracks vs at home, XP to the next
+                  weapon level.
+Town, Roads:      danger from sightings; caravans sent / arrived / robbed this year (all-time trade value only).
+Town, Sickness:   where a disease came from when its first case predates the town book's "first" record (shown as
+                  not tracked); the 60-day chart is open cases (e.sk.h60 counts incubating cases too), not sick now.
+Town, Books:      the business event log and the year-end lines (the tab shows the town's own record instead).
+World, Towns:     arms price spread; "lives on" (earners by output); health trend (the row
+                  shows open cases of sickness from e.sk.act; sick now is on each town's own pages).
+World, Factions:  faction head person; tax in a day; last change of each relation and its cause; war chest chart.
+World, Rulers:    heads as persons with traits and what they care for; rules rolled from traits (every town asks the
+                  same, from data/economy.json, until then); labour duty, levies, relief rules; when rules changed.
+World, On the move: robbed this season; worth of consignments; empty carriers; relief grain; buyer vs seller; ETA.
+                  (Carriers: the sim has wagons only.)
+World, Food flows: surplus and shortfall by food per region; the great food houses; relief grain.
+World, Fights:    fight records (both sides, the named dead, loot, what changed); seen vs out of sight vs called off;
+                  wounded, maimed, died later, fled; prisoners; fights coming up. (The world log and the census's
+                  battle deaths are real.)
+World, Mines & land: mine output a day; pasture, woodland, cut vs regrown.
+World, Merchants: merchant families owning caravans (each town's caravans trade on its treasury's purse), profit
+                  and robbed this season.
+Also found: militiamen raised when a town could spare nobody have no family at all (family -1: militia.gd).
+                  test_campaign_census prints how many; every militiaman WITH a family resolves both ways.
+
+THE CENSUS (game/campaign/census.gd) - for every helper that kills or moves people
+-----------------------------------------------------------------------------------
+Every change to a family row's people counts must call one of: Census.record_death / person_died (one cause from
+Census.CAUSES, counted = was he in the town's head count), record_birth, record_move (dir "in"/"out", other town,
+why, n). Fights that kill men later (the army sweep) note the cause per unit: Census.note_fate(w, uid, cause, detail),
+or wrap the fight in Census.ctx(cause, detail) ... ctx_end(). tests/test_campaign_census.gd fails if the balance
+(births - deaths + arrived - left = change) breaks for any town, faction or the world. Wired now: old age
+(persons.gd die_elder, families.gd record-less elders), battle (people.gd casualty_rec: AI clashes, caravan raids,
+the company's battles, militia, succession duels, monsters through the militia), murdered (rank_rules backstab),
+births (families.gd), leavers (families.gd hunger/crowding, recruits.gd hired by the company), arrivals (army.gd
+new families from the countryside, company deserters home, people.gd company families).
+- Sickness (docs/specs/barge/06-sickness.md, 6b starvation): campaign/sickness.gd, data/sickness.json, tests
+  test_sickness.gd. Every case a register person with a source; herbalist + remedies; body meter and "starved".
+  [built. Douglas 2026-10-06 00:17: "keep every sick person real yes, you can even count each person every two
+  days if it impacts performance, it shouldnt be a big deal" -> towns run sickness every 2 days (half the towns
+  each day, a run covers both days). Gate (Douglas 01:15, "8ms per day seems fine"): mean sickness cost <= 8 ms a
+  campaign day and worst single sickness job (map frame) <= 4 ms at 20 towns x 150 families (test_sickness).
+  Measured ~6.7-7.4 ms mean, ~2.7-3.2 ms worst job. Town-pass gate in test_econ_town 6 -> 6.5 ms for the
+  herbalists (Douglas 01:15: "the herbalist piece is fine").]
+- War picks (docs/specs/barge/90-war-picks.md) 2-5 [built on their own branch; pick 1 = the economy rebuild]:
+  truce of 60-120 days after a peace; militia hold the walls unless 1.25x the enemy; armies drafted only from
+  the town's free 17-30s (labourers first, never needed land hands, never made-up families); map 1.5x
+  (150 x 96 cells). Plus Douglas's pick: orcs and goblins start at -60 with a human company (the default band).
+  Measured (diag_war_map, seed 2026, 600 days, before -> after): men off the field in fights 2,924 -> 1,197;
+  militia's own men lost 816 -> 202; war deaths (not old age) 2,247 -> 636, year 1 1,114 -> 436; wars 68 -> 33,
+  March-Orc at war 510 -> 307 days; made-up family rows 685 -> 261 (all outlaws/deserters now); world pop at
+  day 600 313 -> 557 (the starvation collapse is pick 1's); sim 31.4 -> 32.9 s.
+  Watch: with the draft, towns run dry of men (bands smaller / not raised); the economy rebuild reworks wages
+  around it. Bandits and deserters still get a made-up family when no one fits (not part of pick 4).
+---------------------------------------------------
+- Calendar: day/time/season/year, map day-night and season tint, latitude for climate.   [merged]
+- Food and drink: rations, belly, buzz, hangovers, favourite drink, feasts, enemy states. [merged]
+- Diplomacy: faction relations and wars, company standing, band make-up, war contracts.   [merged]
+- (nothing building; waiting on picks)
+
+QUEUE (in order)
+----------------
+1. Economy spec 1: real town economy with families (docs/specs/economy-1-town.md).
+2. Economy spec 2: army pay, ranks, rank rules per faction, kill renown, succession (economy-2-army.md).
+3. AI clashes in the real sim, every unit fighting, sliced across frames; spatial grid; fronts for big
+   armies; aftermath to families (docs/specs/ai-clashes.md).
+4. Retirement, pensions, Family tab, wages paid home, ordinary recruitment and kinship notes
+   (see the 2026-10-09 correction above).
+5. Record packing before the phone port. Measured: one full unit ~118 KB in memory and 12 KB in the save;
+   5,000 units with 100 history events = ~560 MB, 67 MB save, ~3 s save / 2.5 s load on the laptop.
+   Target ~1-2 KB per unit (sparse bodies, packed stats, coded history, full records only where they matter).
+6. Phone port (Android export, touch polish, device perf).
+
+PICKS (2026-10-05; anatomy, healing, downed enemies, aftermath+retirement CONFIRMED by Douglas 23:12)
+-------------------------------------------------------------------------------
+- Orcs and goblins start at -60 to the company WHEN the company is a human band (the default); other bands normal (Douglas 23:10).
+- Full DF-style anatomy: YES, after v0.010 (touches combat, save size, healing).
+- Healing plan 1-6: ALL SIX, after v0.010; wound rot comes from the sickness spec in v0.010.
+- Prisoners and mop-up (execute, prisoners, ransom, bounties, release; slavers later): YES, after v0.010;
+  AI-war ransoms (barge-4 section 8) go in with the economy.
+- AI clash aftermath + retirement with pensions + Family tab: ALL, after v0.010.
+  Descendant recruitment proposal superseded by the 2026-10-09 correction above.
+- AI clashes: real sim for every clash, sliced across frames: YES, after v0.010.
+- Economy speed: the full model in every town (no light model); the perf gates stay; if over budget,
+  record packing (queue item 5) comes before cutting depth.
+- Barge spec questions: farm families get oxen; 2x harvest hands adds labour demand, not a yield cut;
+  grain prices free, field hands may take part of their pay in grain; money need = coin held at start.
+- Town size: 1x / 1.5x / 2x families and acreage measured; one world-gen constant; Douglas picks.
+
+v0.010 HELPERS (2026-10-05 evening)
+- War: truce, militia walls, 1.5x map, recruit only spare men, orcs/goblins -60.
+- Economy: bronze coins + barge parts 1-4, town-size runs.
+- Town + world screens, census deaths by cause (owns census.gd).
+- Sickness + starvation.
+- Land plots, land map, state buildings (herds and their businesses after the economy merge).
+WAITING ON DOUGLAS (picks)
+--------------------------
+- Sickness: the cases and deaths per town per year from the 5-year startup sim (CHANGES v0.010 draft) and the
+  [ours] defaults in data/sickness.json. Perf: gate decided (see IN PROGRESS); the mean is still over 6 ms at
+  ~50-60 new cases a day (the work is per case: catching it, household/workplace contacts, the end): options
+  are a higher mean gate, fewer modelled illnesses, or resolving ends at the family turn (spec cadence).
+- Orcs and goblins hostile to the company from the start? (recommended: yes, start at -60)
+- Full DF-style anatomy (two lungs, separate organs, sensory nerves, fingers/toes, ears/nose/teeth)?
+- Healing plan points 1-6 (treatments, untreated consequences, fighting hurt, lasting damage, rest, golden window).
+- Prisoners and mop-up phase (execute, prisoners, ransom, head/live bounties, release; slavers/recruit later).
+- AI clash aftermath + retirement with pensions + Family tab (recommended: all, with pensions).
+  Descendants use ordinary recruitment; see the 2026-10-09 correction above.
+- AI clashes: integrator read "real sim for every clash, sliced" - correct?
+
+SCREEN SWITCH TIMES (v0.014; Douglas playtest: "pretty long loading screen between menus. and map screen to town screen")
+--------------------------------------------------------------------------------------------------------------------
+Measured headless on this laptop, Large world (68 towns), one year of the years before (26.5 MB save), with
+tests/diag_screen_load.gd (DIAG_CACHE=1 keeps the world between runs; DIAG_SAVE_PARTS=1 splits the save). Each time is
+the switch plus the new screen's first frame. Before -> after:
+  - map -> town:              2,450-2,920 ms -> ~800 ms   (the town autosave was 2.0-2.3 s of it)
+  - town -> map (Leave):        ~2,300+ ms -> ~760 ms     (autosave again, then the map redrew every tree and peak)
+  - company/records -> town:  2,450-2,490 ms -> ~130 ms   (the town saved again on every return)
+  - company -> map:             230-250 ms -> 20-30 ms    (map decor redraw)
+  - company tab switch:           72-87 ms -> 3-12 ms
+  - first records open:           ~750 ms -> ~100 ms; first town open had ~530 ms of scene/script load, first company
+    ~180 ms, first map ~200 ms: now loaded in the background while the title shows
+  - title, new game, settings: already 2-40 ms (unchanged)
+The causes and fixes:
+  1. Autosave on the town screen (save_game in town.gd _ready, so on arrival AND on every return from the company or
+     records screen, and again on Leave). A Large save is ~26 MB of JSON: the walk that tags units, items and
+     positions ~1.0 s, JSON.stringify ~1.2 s, all on the main thread. Now: the walk copies each container natively and
+     only replaces non-plain values (~0.65 s), and the JSON is made and written by a worker thread
+     (Game.save_game_async: to a .tmp file, then moved over the save; load, save_game, game over and quitting wait for
+     it). The town autosaves on arrival from the map ({"arrive": true}) and on Leave, not on coming back from its own
+     sub-screens. The map's Save button and the end of the years before use the background save too. The save file is
+     the same JSON as before (tests/test_ui_load_times.gd compares the old and new walks on a real world). Loading
+     rebuilds in place (no second copy): _deserialize 0.9 s -> 0.55 s.
+  2. The map layer's decor (every tree, peak, hill... ~70 chunks) was drawn again in code each time the map screen
+     opened (~220 ms here, more on a phone). The textures and decor lists were already cached; the chunk nodes were not.
+     Now the chunks are RenderingServer canvas items kept with that cache, drawn once per world and hung under each new
+     map screen (map_terrain.gd RSPen records the same draw commands). The ground shader is compiled once too.
+  3. Company screen: a tab switch rebuilt the roster list (two health reports per man); now only the sheet. The
+     roster card takes one report per man (Game.deploy_block_reason accepts the report).
+  4. Each screen's scene was loaded from disk at every switch and its scripts compiled on first use; main.gd now loads
+     the map, town, company and records scenes in the background at the title and keeps them.
+Left as they are: the remaining ~0.65 s main-thread save walk on town arrival and Leave (it is the volume: ~110k
+dictionaries and ~315k arrays in the towns' registers, families and herds); the first map open of a new or loaded
+world (~0.5 s: building the ground textures and decor lists, once); the town Market tab (~75 ms, one card per item).
+Options if the remaining walk still feels long on the phone: autosave on Leave only (not on arrival), or a binary
+save (var_to_bytes: 0.4 s but a 46 MB file).
+Gate: tests/test_ui_load_times.gd (default Large world, 20 days before): map -> town and town -> map under 1.5 s,
+company/records under 0.6 s, a company tab under 60 ms (measured 0.6 s, 0.6 s, under 0.1 s, 13 ms).
+
+WORKING RULE: TESTING AND USAGE (Douglas 2026-10-06 21:11: "go ahead and run the tests, and turn testing back on as u
+see fit" - replaces the 12:33 no-test rule; usage still matters)
+-------------------------------------------------------------------------------------------------------------
+- Claude tests as it judges best. Minimum before any release folder: the tests relevant to the change plus a launch
+  smoke test (the game starts and a new campaign reaches the map). Bugs Douglas finds get a test that would have
+  caught them. No 20-year or other long runs unless needed. TO_TEST.txt stays as the playtest checklist.
+- Never overwrite or delete an existing release folder: every release, hotfixes too, goes in a new folder (v0.013b,
+  v0.013c ...). Saves live in user data (user://save.json), not the release folder.
+- Save compatibility does not matter while Douglas playtests (21:08: "idc about save compatibility this is a test
+  run"): fixes may break old saves; no migration work.
+- One business per production trade per town (Douglas 21:12): one weaponsmith, one armorsmith, one bowyer...;
+  more demand = more staff, never a second shop. Farms are the exception (several per town, named apart).
+- Every change adds plain one-line checks to TO_TEST.txt with a [ ] box. When Douglas asks for a test run, Claude
+  works through TO_TEST.txt: checks each item, ticks what passes, reports what failed. Unticked lines carry
+  forward. TO_TEST.txt goes into every release folder.
+- No timing or five-year runs unless he asks, or the numbers ARE the deliverable he asked for (one run, no repeats).
+- Fewer helpers at once; short replies and status lines.
+
+STANDING DESIGN DECISIONS (do not relitigate without Douglas)
+-------------------------------------------------------------
+- No HP. Tissue layers only. Dumb, size-weighted targeting.
+- Our own weighted combat system, DF as inspiration. Weights stay; no outcome tuning toward win-rate targets.
+- Not invincible = a non-zero chance of losing. Hit floor 0.01% per swing (was 5%).
+- Per-weapon air drag stays (small, on top of swing inertia).
+- Randomness only at named steps; deterministic physics in between.
+- Attribute scale 200-4000, human median 1000; DF ceiling rule with talent stars.
+- Player is the mercenary captain, never in battle. Game over when the company is gone. Officer permadeath.
+- Monsters/megabeasts never rout. Hydra = epic, dragon = legendary (breathes fire, no wings).
+- Economy is real: goods and gold only move by production, use, trade, loss or raids.
+- Every non-monster force belongs to a home town and faction.
+- Orcs and goblins start hostile (standing -60) to a human company (the default band); other bands start normal. Armies are drafted only from real people of
+  their town; a peace holds a 60-120 day truce; militia sally only at 1.25x; the map is 1.5x (war picks).
+- Battles: generic animation; detail lives in the combat log. CHANGED v0.014 (Douglas 22:51 "more gore-heavy"):
+  blood sprays, pools, drip trails, arterial spurts, wound marks on the sprites and severed parts on the ground are ON
+  by default (Settings > Gore: Full; Reduced for a phone build), all driven by the real wounds and bleeding. The
+  remaining special animations (parts flying off in an arc, stuck weapons, wrestling) stay behind Settings toggles,
+  off by default. Campaign-map sprites static and small.
+- Gear breaks for real (v0.014, Douglas 22:52-22:58): bends and dents cost quality steps (bent back, never a repair
+  to full); snapped, cracked, split or shattered = scrap of its metal at the battle's end. No per-metal multipliers.
+- Caravans move physical goods; the player may raid them and loot the actual goods.
+- Tests headless only, standard Godot build only; never open windows; full suite green before any release.
+
+TOOLING NOTES
+-------------
+- Godot 4.7.2 standard build at .tools/godot/ (the .NET build pops a modal dialog per launch; never use it).
+- tools/test_all.sh = regression gate. tools/release.sh vX = suite + desktop build + shortcut.
+- Perf gates: 50v50 battle worst tick < 2 ms (flaky only when other workers run Godot at the same time);
+  campaign map frame well under 1 ms.

@@ -1,0 +1,4 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Paperdoll cache/API: 77 assertions; failures=0; capacity fixtures are synthetic, not FPS/memory measurements
+== res://tests/test_paperdoll_cache.gd: PASS ==

@@ -1,0 +1,72 @@
+BURNING BROOD: BLOODLINES v0.017 - CURRENT NATIVE CHECKS
+2026-10-11 | PASS for the selected runs below
+Source:releases/v0.017_SOURCE_MANIFEST.json;999 game files;463 unique resource
+UIDs, all457 prior UIDs preserved.101 prior art/data files and20 exact released
+Copper Oath v0.053 model files remain unchanged. Godot4.7.2 official bundled.
+
+SELECTED CURRENT RESULTS
+Native mobilization:185 checks,3.908s. Real private funding, pure quote/cancel,
+honest partial muster, stock/coin/workforce conservation,200 total capacity,
+actual officers, borrowed kit return, repeated return/re-raise, death estates,
+and living-away household preservation. No generated army purse or equipment.
+Private reserve identity:60 checks,3.251s. Same physical Unit/body/person/kin/
+wounds/gear, native healing/age/sickness, exact current JSON values, safe home
+dismissal, elder/death counts and private equipment conservation. Changed UID,
+regenerated lost limb and changed wound damage are explicitly rejected.
+Officer rally regression:140 checks,2.970s, actual assigned both-side commands.
+Save queue regression:54 assertions,2.694s; current ownership/capture ordering.
+Rendered Army:925 assertions/15 desktop fits,21.573s. Five states at1280x720,
+1920x1080,2560x1440 with native performance panel and full resolved Army title.
+Actual fresh world:341 checks,32.092s. Normal/seed777/EXACT one history day,
+real Anvilvault/House Orevein.100 actual native residents raised; actual owned
+coins/gear/food and two same-body return/re-raise cycles. No injected people,
+coin or kit. Actual native world generation24.992s; quote24.686ms;
+raise100=222.157ms; stand-down100=39.027ms. Commands are not FPS benchmarks.
+Rendered map:17 checks,50.248s total including generation; measured18s wait,
+two native midnights, camera/menu interaction at2560x1440 with native panel.
+58.56FPS; p9526.82ms; worst101.30ms. Recovery floor30FPS/p95<=50ms and
+no frame>150ms PASS. This short sample does not establish long-session behavior.
+Total:1722 assertions across7 current selected runs;17 rendered gate cases
+(15 Army fits+actual world+map probe). All full logs clean of script/runtime
+errors, assertion failures and resource/object leaks. Only the exact known
+Windows certificate-store environment diagnostic is excluded.
+
+VISUAL REVIEW
+All19 native Army/world PNGs have recorded hashes. Root actually reviewed five
+current native captures:1280 confirmation,1920 raised,2560 stood down, actual
+fresh100 raised and actual fresh100 stood down. Title, story/body widths, complete
+confirmation, private purse/pay, partial receipts and return controls readable.
+Images remain verification artifacts; no art was replaced or posted as game art.
+Fresh-world fixture logs a harmless explicit-size/full-anchor warning; actual
+native full-viewport and content widths pass. This is recorded, not hidden.
+
+REPAIRS / EXCLUDED ATTEMPTS
+Initial parser/inferred-type problems, strict JSON container-tag comparison,
+overstated usable-width threshold and incorrect raw-Control screenshot fixture
+were corrected. An early rendered probe used an invalid resolution separator.
+Native JSON changed58 int/float tags over277 values; zero numeric values or actual
+person IDs changed. Current comparisons keep exact numeric values/no tolerance,
+strict keys/order/non-numeric types and complete person/physical data.
+Current native source was unchanged after freezing except the isolated private
+no-focus setting; each rendered probe explicitly uses offscreen/no-focus state.
+Candidate-copy helper now asserts insertion with the display section's actual
+newline. Native title measurement now uses the resolved inherited font.
+First map probe met performance measurements but could not write its report
+because its private parent folder was absent. It is FAILED and NOT counted.
+The folder was corrected; only complete v017-release-map-render-02 is selected.
+Earlier failed/partial or superseded probes are excluded from current counts.
+
+COLD LAUNCH / DELIVERY
+Fresh spaced-path bundled PrepareOnly:8.874s, PASS; actual native main boot:
+5.425s, PASS. All999 game bytes match this source manifest. Private user-data,
+hidden/BelowNormal serial engine jobs; no player saves/input/foreground touched.
+Archive and actual Desktop shortcut/icon receipts are separate dated TXT/JSON.
+Older Desktop versions and packages are preserved.
+
+LIMITS
+Native100-person raising still costs about222ms as one explicit confirmed command;
+generation still takes about25s in this sample. No universal60FPS or leak-free
+claim. Dense battle performance is retained from v016, not rebenchmarked here.
+Private natural-death estates are owned saved custody; management actions follow
+later. No phone QA/export, old-save compatibility, new wars, artwork or salvage
+policy changes. v018 readable records/fonts/Laws is next, without a stop.

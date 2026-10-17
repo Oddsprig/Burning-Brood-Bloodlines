@@ -1,0 +1,15 @@
+{
+  "Run": "v006-45-red-blood-cached-noise",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v006-source-verification\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_dragon_damage_art.gd",
+    "--watchdog=40"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 2.341
+}

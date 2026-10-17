@@ -1,0 +1,13 @@
+{
+  "Run": "v009-03-candidate-import",
+  "Arguments": [
+    "--headless",
+    "--editor",
+    "--import",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v009-source-verification\\game"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 9.136
+}

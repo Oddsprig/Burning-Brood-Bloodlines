@@ -1,0 +1,212 @@
+[
+  {
+    "seconds": 0.305,
+    "private_bytes": 77447168,
+    "working_bytes": 97550336
+  },
+  {
+    "seconds": 0.582,
+    "private_bytes": 70799360,
+    "working_bytes": 84066304
+  },
+  {
+    "seconds": 0.846,
+    "private_bytes": 95051776,
+    "working_bytes": 99028992
+  },
+  {
+    "seconds": 1.109,
+    "private_bytes": 95051776,
+    "working_bytes": 99069952
+  },
+  {
+    "seconds": 1.376,
+    "private_bytes": 95145984,
+    "working_bytes": 99274752
+  },
+  {
+    "seconds": 1.639,
+    "private_bytes": 95145984,
+    "working_bytes": 99274752
+  },
+  {
+    "seconds": 1.906,
+    "private_bytes": 95145984,
+    "working_bytes": 99274752
+  },
+  {
+    "seconds": 2.17,
+    "private_bytes": 190173184,
+    "working_bytes": 157409280
+  },
+  {
+    "seconds": 2.434,
+    "private_bytes": 377556992,
+    "working_bytes": 296337408
+  },
+  {
+    "seconds": 2.697,
+    "private_bytes": 478724096,
+    "working_bytes": 396120064
+  },
+  {
+    "seconds": 2.961,
+    "private_bytes": 524476416,
+    "working_bytes": 440799232
+  },
+  {
+    "seconds": 3.228,
+    "private_bytes": 606564352,
+    "working_bytes": 521650176
+  },
+  {
+    "seconds": 3.493,
+    "private_bytes": 581255168,
+    "working_bytes": 496279552
+  },
+  {
+    "seconds": 3.758,
+    "private_bytes": 626872320,
+    "working_bytes": 540966912
+  },
+  {
+    "seconds": 4.021,
+    "private_bytes": 635400192,
+    "working_bytes": 549998592
+  },
+  {
+    "seconds": 4.287,
+    "private_bytes": 625713152,
+    "working_bytes": 540000256
+  },
+  {
+    "seconds": 4.552,
+    "private_bytes": 564654080,
+    "working_bytes": 478474240
+  },
+  {
+    "seconds": 4.815,
+    "private_bytes": 532135936,
+    "working_bytes": 378118144
+  },
+  {
+    "seconds": 5.079,
+    "private_bytes": 543506432,
+    "working_bytes": 385806336
+  },
+  {
+    "seconds": 5.341,
+    "private_bytes": 569454592,
+    "working_bytes": 444866560
+  },
+  {
+    "seconds": 5.606,
+    "private_bytes": 593223680,
+    "working_bytes": 469172224
+  },
+  {
+    "seconds": 5.872,
+    "private_bytes": 601231360,
+    "working_bytes": 446443520
+  },
+  {
+    "seconds": 6.137,
+    "private_bytes": 631828480,
+    "working_bytes": 474828800
+  },
+  {
+    "seconds": 6.401,
+    "private_bytes": 677089280,
+    "working_bytes": 448782336
+  },
+  {
+    "seconds": 6.667,
+    "private_bytes": 673513472,
+    "working_bytes": 446545920
+  },
+  {
+    "seconds": 6.93,
+    "private_bytes": 688443392,
+    "working_bytes": 455626752
+  },
+  {
+    "seconds": 7.196,
+    "private_bytes": 693768192,
+    "working_bytes": 460271616
+  },
+  {
+    "seconds": 7.459,
+    "private_bytes": 725766144,
+    "working_bytes": 445960192
+  },
+  {
+    "seconds": 7.724,
+    "private_bytes": 738197504,
+    "working_bytes": 452042752
+  },
+  {
+    "seconds": 7.988,
+    "private_bytes": 733065216,
+    "working_bytes": 454971392
+  },
+  {
+    "seconds": 8.256,
+    "private_bytes": 741429248,
+    "working_bytes": 462807040
+  },
+  {
+    "seconds": 8.52,
+    "private_bytes": 767848448,
+    "working_bytes": 493383680
+  },
+  {
+    "seconds": 8.784,
+    "private_bytes": 741920768,
+    "working_bytes": 485335040
+  },
+  {
+    "seconds": 9.05,
+    "private_bytes": 747950080,
+    "working_bytes": 491225088
+  },
+  {
+    "seconds": 9.31,
+    "private_bytes": 814964736,
+    "working_bytes": 472489984
+  },
+  {
+    "seconds": 9.574,
+    "private_bytes": 933572608,
+    "working_bytes": 521854976
+  },
+  {
+    "seconds": 9.839,
+    "private_bytes": 933838848,
+    "working_bytes": 521904128
+  },
+  {
+    "seconds": 10.103,
+    "private_bytes": 934350848,
+    "working_bytes": 522354688
+  },
+  {
+    "seconds": 10.367,
+    "private_bytes": 904818688,
+    "working_bytes": 519147520
+  },
+  {
+    "seconds": 10.631,
+    "private_bytes": 924573696,
+    "working_bytes": 519524352
+  },
+  {
+    "seconds": 10.893,
+    "private_bytes": 907030528,
+    "working_bytes": 504856576
+  },
+  {
+    "seconds": 11.159,
+    "private_bytes": 345649152,
+    "working_bytes": 205946880
+  }
+]

@@ -1,0 +1,118 @@
+DYNASTY / FEUDAL SPECIALIST - Burning Brood: Bloodlines
+2026-10-11 CURRENT PLAN / READ-ONLY FINDINGS
+v011:repeated Dynasty.accounts/ruler resolution and expanded draft candidate
+arrays need measurement. v015:explicit funded raise/stand-down, no starter company.
+Game.new_game_begin creates troops/coin before world; People adopts real residents.
+Recruits.hire removes company-out resident counts; People.release alone does not
+restore them. Roster dismiss leaves links that Persons sweep treats as death.
+Survivor return must conserve PersonUID, household/cohort, work/census, kit and
+money once. Feudal.fund supplies real private funding; no borrowed town treasury.
+v016 local-house chooser may include non-rulers; keep actual authority/assets,
+never grant the incumbent's office/taxes merely because another house is chosen.
+Current numbering/gates:ROADMAP.txt. Planning only; no engine/tests ran.
+
+v0.009 CURRENT LEARNING
+Successful gear lookup was the fresh-world hotspot: repeated full armory walks.
+Transient indexes preserve earliest exact/class/role Item and actual stock order,
+optional reserves and used books. Rebuild after purchases; never persist indexes.
+Frozen old procurement/selector and mixed withdrawals passed68 native checks.
+Pending midnight must finish before town entry or synchronous rest/new calendar.
+
+Updated 2026-10-10; stable role: real rulers/kin, political offices and account owners.
+v0.008 CURRENT LEARNING
+Resolve actual live owner->current tracked native household; gone/cohort/estate/
+unclaimed/unmatched refs cannot pay. Remote owner pays saved location market.
+Feed via stock/retail pay_market/used/demand only, never family_buy household
+credit. Fresh/preserved substitutes count total unmet demand once. Wood supplies
+provide shelter upkeep; no new keeper wage/job mechanic in this contained pass.
+Protect aged seven-day payer human-food gap and three-day local essential stock.
+Run explicit dragon_care job after economy/deaths/feudal, reconcile then debit;
+persist last_day, never final Game.day, quote/load/reconcile charges or backbill.
+Root44 care/account tests passed; one test parenthesis fixed before final run.
+Actual queued care/current campaign save-load216 passed; full native economy-day
+timed out50.029s and is not a pass. Retain complete diagnostics/explicit scope.
+v0.006 CURRENT LEARNING
+DragonConcepts is a pure exact gem/form type-example registry, not a portrait
+of every generated individual's appearance seed. Sixteen canonical pairs use
+imported cached 384x384 WebP Texture2D resources (419,328 bytes total). Full
+generated originals/prompts remain in Desktop/ASSET/Burning_Brood/. No PNG
+originals in the runtime, no generated fake individual likeness or names.
+Root verified 117 registry/path/dimensions/decoded-texture/cache/purity checks.
+Campaign dragon ownership, cultural inheritance, native economy and save schema
+remain unchanged. Care/growth is v008, actual person bonds v009; art saddle fit
+assigns no rider and changes no owner, body, money or population.
+v0.005 PRIVATE ASSET INHERITANCE
+Dynasty.asset_heirs(owner_person_uid,owner_house_uid) is pure; shared traversal
+preserves previous office heirs. Use retained dead owner's race and actual kin,
+not current office/title/faction/estate culture. Male-preference humans/dwarves,
+eldest-child elves; minors and dead eldest branches remain eligible.
+Strength assets use only existing bound same-house living offices; capital must
+match native war_leader.person_uid when present. No new contest or usurper gift.
+Actual person HOUSE_UID and household refs matter after native marriage/moves;
+founding_house_uid is a different economic anchor. DP trimming leaves retained kin.
+World/Feudal completed-death boundary reconciles owners and independent custody.
+Primary:29 new asset-specific checks and32 prior succession checks clean; original
+registry160 also covers humans/daughters/elves/dwarves/extinction/custody. No engines
+from specialist. Gifted non-ruler, moved heir, trimmed ancestor and orc gates tested.
+v0.004 PORTRAIT BINDING
+Root passes actual registered ruler sex/age to imported native art; stable seed,
+race, beard/death and real person identity retained. Focused ruler-art fixture
+passed36 checks: male50, female28, remembered dead female28, minor successor12.
+Portrait/spec/native render reads preserve state/population/all purses and native
+Unit/Item counters. One small existing register fixture, no worldgen or fake Units.
+No succession/politics/economy expansion. Root owns tests/UID/delivery evidence.
+SOURCE ENTRY POINTS (game/ relative; native resource UIDs remain authoritative)
+campaign/dynasty.gd - identities, ancestry, explicit succession and Unit appointment.
+campaign/feudal.gd - hierarchy, private tribute, loyalty, governance and defection.
+campaign/militia.gd,town_defence.gd - native threats/drill and persisted defence policy.
+campaign/army.gd - native contests, wage bills/pay; no new combat resolver.
+campaign/population.gd - owned cohorts and conserved individual ruler promotion.
+campaign/persons.gd,families.gd,people.gd,census.gd - authoritative native registers.
+campaign/barge.gd - actual monthly tax and pure common-tax quote; economy owner.
+campaign/town_econ.gd - separate native public military levy/surplus transfers.
+tests/test_feudal_succession.gd,test_feudal_governance.gd - small native fixtures.
+IMPLEMENTED v0.002 (primary reports clean 1955 focused checks and Desktop delivery)
+Human/dwarf male-preference; elves eldest-child; dead eldest branches retain precedence.
+Actual same-house collaterals; minors inherit with visible same-house adult regency.
+Kin index holds refs/birth/sex/race only; native births/deaths retain real ancestry.
+Only reigning mother's newborns retain her lineage; marriage/adults remain native.
+Orcs retain native Army.fill/fight_step contests and real strength/gear/wounds/deaths.
+Political person/house refs differ from head.fam/household_uid economic/loan anchors.
+Selected household follows actual successor; estate_household_uid retains old anchor.
+Every settlement: village -> nearest same-faction county -> existing capital sovereign.
+Defection updates real holdings/capital, Units/musters/ranks/knowledge/diplomacy/history.
+Resident races/body stay native; AI uses low loyalty + protection, 60-day cooldown.
+Private cohort estate tax -> actual lord household; private tribute -> liege household.
+Tribute 0.1% daily surplus above 100*COIN, once payer/day; public books separate.
+IMPLEMENTED v0.003 - primary gameplay validation complete
+Feudal.budget(game,tid) pure actual owners/balances, quote/receipt, tribute/pay/food.
+governance_preview/governance(game,tid,action,amount=0.0): execution revalidates.
+Tax_policy accepts .02/.05/.10; weekly decree sets only econ.lord_tax_rate/history.
+Actual owner/month payment + native food reserve/shortage feeds loyalty once.
+Tax burden records payer/month and tax-town location, not estimated income.
+Fund_garrison: selected actual house purse -> native target city's public treasury.
+Fund_realm_army: reigning sovereign's house purse -> existing realm treasury only.
+Existing Fund Army remains house -> company; no wallet aliases/new currency.
+Muster/stand_down/auto_defence persist in feudal town row with order day/history.
+Muster uses existing Units; native service/job/pay/food mechanics remain authoritative.
+Stand_down declines militia threat callup/combat/drill; professional guards stay on duty.
+Auto restores ordinary threat/drill; new militia/recruits respect persisted decree.
+All local/sovereign Unit-backed appointments use appoint_unit + promote_ruler.
+Only winning common person gains tracked household/lineage; estate anchors unchanged.
+Conservation/authority, defence identity/threat, local orc promotion fixtures added.
+VERIFICATION LESSONS / OPEN DESIGN
+v0.001: primary211checks PASS2.247s;23-town day +11persistence checks PASS11.969s.
+Refs15..19 string padding/str(); fixtures need native fields and pp/kp death paths.
+JSON refs exact; numeric tolerances; clean diagnostics required; Unit loads advance UID.
+Cohorts own wealth; tracked families own business/land; conserve people/work/food/coin.
+Serving Units retain bodies; full civilian discharge body retention remains later work.
+Primary v003-06: 42 checks passed in 2.333s; succession 32, private-tax/metallurgy 27.
+Printed PASS + script errors is FAIL; empty plot fixtures require complete columns/crops.
+Primary closed assault/defend-contract stand-down bypasses; guards remain real.
+Open: multi-office tribute allocation, goblin civil law, regency replacement, cultural kin.
+
+v010 native-state verification: compare every Unit/Fighter/BattleSim script field
+and RNG at fixed native ticks; normalize shared anatomy with identity memoization.
+Do not drop difficult fields or repeatedly expand shared objects. Await real worker
+completion for exact dead-frame pixels without advancing native ticks. Natural
+scene teardown must drain workers. Final66 checks PASS8.336s; primary integrated.

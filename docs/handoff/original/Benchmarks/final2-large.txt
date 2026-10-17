@@ -1,0 +1,14 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: final2-large
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 5.328s | exit 0
+FAIL | tests/diag_land_food_v046.gd | 339.625s | exit 2
+  1 occurrence(s): FAIL: individual adult assignment {"assigned":2,"available":1,"family":28,"register_home_adults":1,"town":"t39"}
+  1 occurrence(s): FAIL: strict day120 90% worked/full nominal target {"actual_worked":61125.528036791366,"applicable":true,"evaluated":true,"fraction":0.6639604618278048,"minimum":0.9,"nominal":92062.0,"passed":false}
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-final2-large
+Source receipt SHA256: 606f644bd4bda7eb25ef18cef869d260392ab731c2f83771a4e3d8e7c4d9fe29
+
+Notes (you can write here):

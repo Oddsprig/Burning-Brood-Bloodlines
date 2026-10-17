@@ -1,0 +1,64 @@
+SCRIPT ERROR: Trying to assign an array of type "Array" to a variable of type "Array[String]".
+   at: attack_rows (res://campaign/dragon_combat.gd:277)
+   GDScript backtrace (most recent call first):
+       [0] attack_rows (res://campaign/dragon_combat.gd:277)
+       [1] _init_fighter (res://sim/battle_sim.gd:363)
+       [2] setup (res://sim/battle_sim.gd:215)
+       [3] per_individual_native_physics (res://tests/test_dragon_combat_v022.gd:111)
+       [4] run (res://tests/test_dragon_combat_v022.gd:203)
+       [5] _ready (res://tests/runner.gd:41)
+SCRIPT ERROR: Trying to assign an array of type "Array" to a variable of type "Array[String]".
+   at: attack_rows (res://campaign/dragon_combat.gd:277)
+   GDScript backtrace (most recent call first):
+       [0] attack_rows (res://campaign/dragon_combat.gd:277)
+       [1] _init_fighter (res://sim/battle_sim.gd:363)
+       [2] setup (res://sim/battle_sim.gd:215)
+       [3] per_individual_native_physics (res://tests/test_dragon_combat_v022.gd:111)
+       [4] run (res://tests/test_dragon_combat_v022.gd:203)
+       [5] _ready (res://tests/runner.gd:41)
+SCRIPT ERROR: Out of bounds get index '0' (on base: 'Array')
+   at: per_individual_native_physics (res://tests/test_dragon_combat_v022.gd:114)
+   GDScript backtrace (most recent call first):
+       [0] per_individual_native_physics (res://tests/test_dragon_combat_v022.gd:114)
+       [1] run (res://tests/test_dragon_combat_v022.gd:203)
+       [2] _ready (res://tests/runner.gd:41)
+SCRIPT ERROR: Trying to assign an array of type "Array" to a variable of type "Array[String]".
+   at: attack_rows (res://campaign/dragon_combat.gd:277)
+   GDScript backtrace (most recent call first):
+       [0] attack_rows (res://campaign/dragon_combat.gd:277)
+       [1] _init_fighter (res://sim/battle_sim.gd:363)
+       [2] setup (res://sim/battle_sim.gd:215)
+       [3] persistence_growth_care_and_receipt (res://tests/test_dragon_combat_v022.gd:184)
+       [4] run (res://tests/test_dragon_combat_v022.gd:203)
+       [5] _ready (res://tests/runner.gd:41)
+SCRIPT ERROR: Trying to assign an array of type "Array" to a variable of type "Array[String]".
+   at: attack_rows (res://campaign/dragon_combat.gd:277)
+   GDScript backtrace (most recent call first):
+       [0] attack_rows (res://campaign/dragon_combat.gd:277)
+       [1] _init_fighter (res://sim/battle_sim.gd:363)
+       [2] setup (res://sim/battle_sim.gd:215)
+       [3] persistence_growth_care_and_receipt (res://tests/test_dragon_combat_v022.gd:184)
+       [4] run (res://tests/test_dragon_combat_v022.gd:203)
+       [5] _ready (res://tests/runner.gd:41)
+SCRIPT ERROR: Out of bounds get index '-1' (on base: 'Array')
+   at: roll_weighted (res://sim/formulas.gd:941)
+   GDScript backtrace (most recent call first):
+       [0] roll_weighted (res://sim/formulas.gd:941)
+       [1] roll_attack_choice (res://sim/formulas.gd:949)
+       [2] debug_strike (res://sim/battle_sim.gd:1340)
+       [3] persistence_growth_care_and_receipt (res://tests/test_dragon_combat_v022.gd:185)
+       [4] run (res://tests/test_dragon_combat_v022.gd:203)
+       [5] _ready (res://tests/runner.gd:41)
+SCRIPT ERROR: Invalid access to property or key 'i' on a base object of type 'Dictionary'.
+   at: BattleSim.debug_strike (res://sim/battle_sim.gd:1340)
+   GDScript backtrace (most recent call first):
+       [0] debug_strike (res://sim/battle_sim.gd:1340)
+       [1] persistence_growth_care_and_receipt (res://tests/test_dragon_combat_v022.gd:185)
+       [2] run (res://tests/test_dragon_combat_v022.gd:203)
+       [3] _ready (res://tests/runner.gd:41)
+SCRIPT ERROR: Invalid access to property or key 'landed' on a base object of type 'Dictionary'.
+   at: persistence_growth_care_and_receipt (res://tests/test_dragon_combat_v022.gd:186)
+   GDScript backtrace (most recent call first):
+       [0] persistence_growth_care_and_receipt (res://tests/test_dragon_combat_v022.gd:186)
+       [1] run (res://tests/test_dragon_combat_v022.gd:203)
+       [2] _ready (res://tests/runner.gd:41)

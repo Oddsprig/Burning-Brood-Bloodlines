@@ -1,0 +1,14 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: baseline-huge
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 5.250s | exit 0
+FAIL | tests/diag_land_food_v046.gd | 574.437s | exit 11
+  10 occurrence(s): FAIL: civilian register availability {"available":0,"family":106,"register_home_adults":1,"town":"t0"}
+  1 occurrence(s): FAIL: strict day120 90% worked/full nominal target {"actual_worked":108872.74794303741,"applicable":true,"evaluated":true,"fraction":0.6610246804432063,"minimum":0.9,"nominal":164703.0,"passed":false}
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-baseline-huge
+Source receipt SHA256: 6657e59290f6be23181e2762fb354b4f6e7be9f9d0dae61e7aea591407b402f7
+
+Notes (you can write here):

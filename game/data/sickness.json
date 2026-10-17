@@ -1,0 +1,381 @@
+{
+  "_note": "Sickness (docs/specs/barge/06-sickness.md; code campaign/sickness.gd). Every number here is a starting default [ours]: after the 5-year startup sim the cases and deaths per town per year go to Douglas; nothing is tuned toward an outcome. Days are campaign days (a season is 30 days, a year 120). Rates are per person per day.",
+  "_disease_note": "One row per disease (adding one = one row). where: town (conditions in the household and town), contact (only from a sick person: never starts by itself), camp (forces in the field and the company out of town), wound (an open untreated wound of a company man). inc / sick: incubation and sick days (min, max, whole days). shed: share of the incubation at its end during which he already passes it on (carriers travel while incubating). bed: share of cases bed-ridden (no work, no wage). death: chance per sick day by age band (child / adult / elder, race ages). immune: 0 none, -1 for life, N = years after recovery. base: cases per person-day at reference conditions (town rows) or per man-day in the field (camp) or per open wound-day (wound). season: spring, summer, autumn, winter weights. climate: cold / temperate / hot weights. water: [river or coast town, dry town] weights. crowd / poor / hunger / cold: added to the condition factor K = 1 + crowd x crowding above the home's room (0..1.5) + poor x (homeless or poorhouse) + hunger x (family hungry) + cold x (no firewood at home, or homeless; +0.5 when the town is short of clothing). home / town / work / camp: contact rates per day: per sick member of his household, x the town's share of people sick, per sick workmate (business staff, the garrison, a caravan crew), x the share of a force sick (household rates set for a household attack rate of about 10% flux, 15% winter cough, 50% pox over the shedding days; town rates for about 0.03 / 0.1 / 1.4 town cases per case). catch: catch multiplier by age band. race: catch multiplier by race (race_all applies to every row). relapse: [chance, min days, max days]: after recovery the disease comes back in a new bout; immunity only after the last bout.",
+  "diseases": {
+    "flux": {
+      "name": "the flux",
+      "spread": "foul water and crowding",
+      "where": "town",
+      "inc": [
+        2,
+        4
+      ],
+      "sick": [
+        4,
+        9
+      ],
+      "shed": 0.5,
+      "bed": 0.6,
+      "death": {
+        "child": 0.012,
+        "adult": 0.0015,
+        "elder": 0.012
+      },
+      "immune": 0,
+      "base": 0.0008,
+      "season": [
+        0.5,
+        1.8,
+        0.9,
+        0.2
+      ],
+      "climate": {
+        "cold": 0.6,
+        "temperate": 1.0,
+        "hot": 1.6
+      },
+      "water": [
+        1.2,
+        1.0
+      ],
+      "crowd": 1.0,
+      "poor": 1.0,
+      "hunger": 0.8,
+      "cold": 0.0,
+      "home": 0.013,
+      "town": 0.004,
+      "work": 0.003,
+      "camp": 0.02,
+      "catch": {
+        "child": 1.5,
+        "adult": 1.0,
+        "elder": 1.2
+      },
+      "race": {
+        "orc": 0.3,
+        "goblin": 0.3
+      },
+      "hyg_k": 0.1,
+      "rat_k": 0.3
+    },
+    "marsh_fever": {
+      "name": "marsh fever",
+      "spread": "hot, wet seasons by rivers and coasts",
+      "where": "town",
+      "inc": [
+        7,
+        14
+      ],
+      "sick": [
+        5,
+        12
+      ],
+      "shed": 0.0,
+      "bed": 0.7,
+      "death": {
+        "child": 0.006,
+        "adult": 0.002,
+        "elder": 0.006
+      },
+      "immune": 3,
+      "base": 0.0004,
+      "season": [
+        0.7,
+        1.6,
+        1.1,
+        0.1
+      ],
+      "climate": {
+        "cold": 0.2,
+        "temperate": 0.7,
+        "hot": 1.8
+      },
+      "water": [
+        2.5,
+        0.3
+      ],
+      "crowd": 0.3,
+      "poor": 0.5,
+      "hunger": 0.5,
+      "cold": 0.0,
+      "home": 0.0,
+      "town": 0.0,
+      "work": 0.0,
+      "camp": 0.0,
+      "catch": {
+        "child": 1.3,
+        "adult": 1.0,
+        "elder": 1.1
+      },
+      "race": {},
+      "relapse": [
+        0.3,
+        15,
+        40
+      ],
+      "hyg_k": 0,
+      "rat_k": 0
+    },
+    "winter_cough": {
+      "name": "winter cough",
+      "spread": "cold homes in winter",
+      "where": "town",
+      "inc": [
+        2,
+        5
+      ],
+      "sick": [
+        6,
+        14
+      ],
+      "shed": 0.5,
+      "bed": 0.5,
+      "death": {
+        "child": 0.004,
+        "adult": 0.001,
+        "elder": 0.006
+      },
+      "immune": 0,
+      "base": 0.0005,
+      "season": [
+        0.0,
+        0.0,
+        0.0,
+        1.6
+      ],
+      "climate": {
+        "cold": 1.5,
+        "temperate": 1.0,
+        "hot": 0.4
+      },
+      "water": [
+        1.0,
+        1.0
+      ],
+      "crowd": 0.6,
+      "poor": 1.0,
+      "hunger": 1.0,
+      "cold": 2.5,
+      "home": 0.014,
+      "town": 0.01,
+      "work": 0.005,
+      "camp": 0.015,
+      "catch": {
+        "child": 1.0,
+        "adult": 0.8,
+        "elder": 1.8
+      },
+      "race": {},
+      "hyg_k": 0,
+      "rat_k": 0
+    },
+    "pox": {
+      "name": "the pox",
+      "spread": "contact only (a carrier brings it)",
+      "where": "contact",
+      "inc": [
+        10,
+        14
+      ],
+      "sick": [
+        12,
+        20
+      ],
+      "shed": 0.2,
+      "bed": 0.9,
+      "death": {
+        "child": 0.025,
+        "adult": 0.01,
+        "elder": 0.02
+      },
+      "immune": -1,
+      "base": 0.0,
+      "season": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "climate": {
+        "cold": 1.0,
+        "temperate": 1.0,
+        "hot": 1.0
+      },
+      "water": [
+        1.0,
+        1.0
+      ],
+      "crowd": 0.0,
+      "poor": 0.0,
+      "hunger": 0.0,
+      "cold": 0.0,
+      "home": 0.038,
+      "town": 0.08,
+      "work": 0.03,
+      "camp": 0.1,
+      "catch": {
+        "child": 1.5,
+        "adult": 1.0,
+        "elder": 1.0
+      },
+      "race": {
+        "elf": 0.2
+      },
+      "hyg_k": 0,
+      "rat_k": 0
+    },
+    "camp_sickness": {
+      "name": "camp sickness",
+      "spread": "armies and crowded camps in the field, poor food",
+      "where": "camp",
+      "inc": [
+        3,
+        7
+      ],
+      "sick": [
+        6,
+        14
+      ],
+      "shed": 0.5,
+      "bed": 0.6,
+      "death": {
+        "child": 0.01,
+        "adult": 0.004,
+        "elder": 0.01
+      },
+      "immune": 0,
+      "base": 0.002,
+      "season": [
+        1.0,
+        1.3,
+        1.0,
+        0.8
+      ],
+      "climate": {
+        "cold": 0.9,
+        "temperate": 1.0,
+        "hot": 1.2
+      },
+      "water": [
+        1.0,
+        1.0
+      ],
+      "crowd": 0.0,
+      "poor": 0.0,
+      "hunger": 2.0,
+      "cold": 0.0,
+      "home": 0.015,
+      "town": 0.005,
+      "work": 0.0,
+      "camp": 0.03,
+      "catch": {
+        "child": 1.0,
+        "adult": 1.0,
+        "elder": 1.2
+      },
+      "race": {
+        "orc": 0.3,
+        "goblin": 0.3
+      },
+      "hyg_k": 0,
+      "rat_k": 0
+    },
+    "wound_rot": {
+      "name": "wound rot",
+      "spread": "an open wound left untreated",
+      "where": "wound",
+      "inc": [
+        2,
+        4
+      ],
+      "sick": [
+        5,
+        15
+      ],
+      "shed": 0.0,
+      "bed": 1.0,
+      "death": {
+        "child": 0.03,
+        "adult": 0.02,
+        "elder": 0.03
+      },
+      "immune": 0,
+      "base": 0.02,
+      "season": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "climate": {
+        "cold": 1.0,
+        "temperate": 1.0,
+        "hot": 1.0
+      },
+      "water": [
+        1.0,
+        1.0
+      ],
+      "crowd": 0.0,
+      "poor": 0.0,
+      "hunger": 0.0,
+      "cold": 0.0,
+      "home": 0.0,
+      "town": 0.0,
+      "work": 0.0,
+      "camp": 0.0,
+      "catch": {
+        "child": 1.0,
+        "adult": 1.0,
+        "elder": 1.0
+      },
+      "race": {},
+      "hyg_k": 0,
+      "rat_k": 0
+    }
+  },
+  "race_all": {
+    "troll": 0.3
+  },
+  "_body_note": "Body condition meter (spec 6b), 1 = well fed, 0 = dead of hunger. fall: per full day without food (about 45 days to death); weak: x for children, elders, the sick and nursing mothers (a child under 1 year at the breast); refill: per fed day. catch / death: low condition raises every disease's catch and death chance by x (1 + w x (1 - condition)). eat_order by culture row (default: workers, then children, then elders).",
+  "body": {
+    "fall": 0.022,
+    "weak": 1.5,
+    "refill": 0.05,
+    "catch": 2.0,
+    "death": 2.0
+  },
+  "eat_order": {
+    "_default": [
+      "workers",
+      "children",
+      "elders"
+    ]
+  },
+  "_unit_note": "A sick man fielded in battle (spec 5): END and STR multipliers, fatigue gain multiplier, focus change (inside the food and drink focus cap).",
+  "unit": {
+    "END": 0.75,
+    "STR": 0.85,
+    "fatigue": 1.3,
+    "focus": -0.1
+  },
+  "_remedy_note": "A remedy (herbalist's good) given to a sick person: his remaining sick days x days, his death chance per sick day x death. A family buys one only with reserve_days of food money left over after it.",
+  "remedy": {
+    "days": 0.7,
+    "death": 0.5,
+    "reserve_days": 14
+  },
+  "_carrier_note": "stay: days a carrier spends in a town he passes (caravan crews at the far market, the company per day in town, a force camped within near_px of a town). edge: chance per day that a traveller from beyond the map edge brings the disease into the town nearest the edge (contact-only rows; a rare world event, logged).",
+  "carrier": {
+    "stay": 1.0,
+    "near_px": 60.0
+  },
+  "edge": {
+    "pox": 0.0028
+  },
+  "_herbalist_note": "Herbalists per town: 1 business row of cap 1 + size / 2 (economy.json row herbalist, good remedy).",
+  "herbalist_cap": [
+    1,
+    0.5
+  ]
+}

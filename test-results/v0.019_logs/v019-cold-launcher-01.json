@@ -1,0 +1,5143 @@
+{
+  "Run": "v019-cold-launcher-01",
+  "Version": "0.019",
+  "Seconds": 10.783,
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Arguments": [
+    "bundled launcher",
+    "PrepareOnly",
+    "fresh folder with spaces",
+    "private user paths"
+  ],
+  "CacheAndMarker": true,
+  "InteractiveLaunch": false,
+  "Root": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v019 final package verification\\Burning Brood Bloodlines v0.019 selection",
+  "PrivateDataRoot": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\isolated-engine-data\\v019-cold-launcher-01",
+  "GameFilesVerified": 1024,
+  "SourceManifestSHA256": "318def06d5c613e3c0e68076d92d3040f57e04557da450693d82417ce794856d",
+  "GameFiles": [
+    {
+      "path": "game/icon.png",
+      "bytes": 2076,
+      "sha256": "277cc3a066f6173499190056ba3c74f67ae5b17e5ece4a38bfc472bf1f2d43da"
+    },
+    {
+      "path": "game/main.gd",
+      "bytes": 2643,
+      "sha256": "0bc3303f264f6c938b86b5424b7bb02a73fe108b73db065e2259609b130885a0"
+    },
+    {
+      "path": "game/main.gd.uid",
+      "bytes": 20,
+      "sha256": "0ac719137e6751d47eef7819f2098fd8a439d0cea2d1fc931c0449de461d9366"
+    },
+    {
+      "path": "game/main.tscn",
+      "bytes": 149,
+      "sha256": "227df0fb6efd7611bfd69e0393df885446ce8bc521cad7f4450753d59da4a1eb"
+    },
+    {
+      "path": "game/project.godot",
+      "bytes": 3439,
+      "sha256": "da8d306611d43a1ee73c571d7b3711662dde39cf7cf87902b8b02a5f669387b5"
+    },
+    {
+      "path": "game/art/creature_painter.gd",
+      "bytes": 20653,
+      "sha256": "4e96dc78f8eeb4a65eec9eaf6f43120581e55f7997f1f3ab45a9f9bd14a2a69a"
+    },
+    {
+      "path": "game/art/creature_painter.gd.uid",
+      "bytes": 20,
+      "sha256": "4fd7220bb28bd3e5d20255b6af82f2dfbcd19256b3ee64381f2152854b473b08"
+    },
+    {
+      "path": "game/art/dragon_art.gd",
+      "bytes": 12933,
+      "sha256": "07327a7e2a06a05a07ab3bc09760dae76e4f3811ad8f90155401a1f18428a30a"
+    },
+    {
+      "path": "game/art/dragon_art.gd.uid",
+      "bytes": 19,
+      "sha256": "1bc7a9539745bd76759e55e23e239a7044a9b1f3abb3897869df7db6c51d59b6"
+    },
+    {
+      "path": "game/art/dragon_concepts.gd",
+      "bytes": 3741,
+      "sha256": "cc3bd0f27102198ecad53d19c944b36a0412cc3d70774b60720082d463a79232"
+    },
+    {
+      "path": "game/art/dragon_concepts.gd.uid",
+      "bytes": 21,
+      "sha256": "e46a15ecaecae8e53f96a92991e61d3eb56dfc08a3ccacd2a111ac14245c4fc7"
+    },
+    {
+      "path": "game/art/dragon_damage_art.gd",
+      "bytes": 22914,
+      "sha256": "f4363329ca41bf07c0d1d54746af258f77a2053d2150f9b0583b8fd7760b7719"
+    },
+    {
+      "path": "game/art/dragon_damage_art.gd.uid",
+      "bytes": 18,
+      "sha256": "854cbfe7620636735a6f1e60ac87ce6506b878c56ff37d5989871b9abf618053"
+    },
+    {
+      "path": "game/art/dragon_mount_preview_art.gd",
+      "bytes": 5809,
+      "sha256": "e022308330a313b11cb8f1d93a015d57d87012d036ac78321b9b0e6c70a07c3a"
+    },
+    {
+      "path": "game/art/dragon_mount_preview_art.gd.uid",
+      "bytes": 21,
+      "sha256": "c38727fe88e01c65e41c6228b3b92ca4a3c145d6ddf8143133798703dbcb5a99"
+    },
+    {
+      "path": "game/art/dragon_rig_art.gd",
+      "bytes": 24309,
+      "sha256": "840b19446eb9e7ac3cc84cae7c49fc8265efc4df5bcb5fe6f145acff0e1bb6a9"
+    },
+    {
+      "path": "game/art/dragon_rig_art.gd.uid",
+      "bytes": 19,
+      "sha256": "a3ff01167840f127f5c060ac21ec997c47f0f01769344b1f75e356a7fa143721"
+    },
+    {
+      "path": "game/art/dragon_sprite_catalog.gd",
+      "bytes": 3133,
+      "sha256": "b0c8b0ce29edcb578447babb861891d3bdc843c0ae6e10339b83ec9eff84ebfa"
+    },
+    {
+      "path": "game/art/dragon_sprite_catalog.gd.uid",
+      "bytes": 23,
+      "sha256": "5699cb2a2559119bc8a1d7895c6d8a9fdf1db18bc9170a61fbdebfda831700b8"
+    },
+    {
+      "path": "game/art/dwarf_art.gd",
+      "bytes": 40283,
+      "sha256": "7f6b7a33371c881877777f7717f6f186c8278255b2d7c600fe45fa4eb1cde1dd"
+    },
+    {
+      "path": "game/art/dwarf_art.gd.uid",
+      "bytes": 20,
+      "sha256": "66069f52ff23c361c849590ff82293e59033eff6e8c64c1aa4f93f2fb584a71b"
+    },
+    {
+      "path": "game/art/elf_art.gd",
+      "bytes": 52183,
+      "sha256": "43ab47cf9998aa28a0a9a5b1dbee31e282951fd7aa63f5a14eb40a998468dd65"
+    },
+    {
+      "path": "game/art/elf_art.gd.uid",
+      "bytes": 22,
+      "sha256": "2e8940f4644589c2ae493efbff32c9c30c1c3b6a25c706549542218501368279"
+    },
+    {
+      "path": "game/art/figure_painter.gd",
+      "bytes": 73313,
+      "sha256": "6b70b11a61b14296db18d71db9935ce0f8639c1682d296044a06d92d41944dc9"
+    },
+    {
+      "path": "game/art/figure_painter.gd.uid",
+      "bytes": 20,
+      "sha256": "0f64ec7fefb4c12fda089b7aec713a79a4d02625107045cdf24bbd11bdd52158"
+    },
+    {
+      "path": "game/art/goblin_art.gd",
+      "bytes": 55782,
+      "sha256": "d8a466e6873311eaf5bd82c27f5a4b4b8ce07fb10fb173716f9b03507d4c42f3"
+    },
+    {
+      "path": "game/art/goblin_art.gd.uid",
+      "bytes": 22,
+      "sha256": "1e81e18748b8c04ca16641b3bd52a7b70ac980e2f6f14ea3379392ba11c26e0e"
+    },
+    {
+      "path": "game/art/human_art.gd",
+      "bytes": 53304,
+      "sha256": "8d6f1e5fd8d568c908e4410d2adcc0692e2d36c737278a253457a6e70b963259"
+    },
+    {
+      "path": "game/art/human_art.gd.uid",
+      "bytes": 22,
+      "sha256": "c656ba7efcc2d7038cfeddc6b1d68d092204019c8b0696df13f5e570d56cb44c"
+    },
+    {
+      "path": "game/art/icon.gd",
+      "bytes": 2167,
+      "sha256": "4bc6b18835da4ac22dfd0eaa867873a820bee771ffdb7d093bb78095d3d77361"
+    },
+    {
+      "path": "game/art/icon.gd.uid",
+      "bytes": 20,
+      "sha256": "3443710c158a5e4d9844c6618b963f3d62d1bf2773a45b3a3fae521c9b4acc9b"
+    },
+    {
+      "path": "game/art/item_icon_art.gd",
+      "bytes": 44299,
+      "sha256": "39513b22ca77e66b2bc249b2c13cd05bd28980f1dfdd3fdce21cafc269e09340"
+    },
+    {
+      "path": "game/art/item_icon_art.gd.uid",
+      "bytes": 20,
+      "sha256": "78c403d5bfe61519eef48e000a757d586a07b435cebefcb4a1ef5bae695986ff"
+    },
+    {
+      "path": "game/art/item_icon.gd",
+      "bytes": 23002,
+      "sha256": "8f359340a8a73b0a26dafb6622508c7d0d28c3335bede4ac5cf3941b3aa01849"
+    },
+    {
+      "path": "game/art/item_icon.gd.uid",
+      "bytes": 19,
+      "sha256": "7a61760f87699eae6a2f47e3e5f2043de6eb68f78a9e3eb5083766107af5cd00"
+    },
+    {
+      "path": "game/art/make_icon.gd",
+      "bytes": 623,
+      "sha256": "45055f775260dce078914e7ad437def9a4f79d4d76ca5326b76f5b06c1e13336"
+    },
+    {
+      "path": "game/art/make_icon.gd.uid",
+      "bytes": 20,
+      "sha256": "f85f83c9ce5ea3a9c0d61e5db976e7c82f2997e7b1b8bd1ee938f73ac1763446"
+    },
+    {
+      "path": "game/art/map_token.gd",
+      "bytes": 1417,
+      "sha256": "bffa8f5218afa955a29d6fffeca75036f374a9f032a10ce2e03fd82bacb20d7d"
+    },
+    {
+      "path": "game/art/map_token.gd.uid",
+      "bytes": 20,
+      "sha256": "ae19152aa75228007ff9aaa96acd0902cc3678968b82dc0ce703611001a699fa"
+    },
+    {
+      "path": "game/art/map_tokens.gd",
+      "bytes": 34308,
+      "sha256": "14f4a8c4cb916a628bdfbc20cbd074ee692a8ff261d3b5a8065d23105ca532bd"
+    },
+    {
+      "path": "game/art/map_tokens.gd.uid",
+      "bytes": 19,
+      "sha256": "d41c2b01c770529ba3328cbc632327ebf6ea66a8e95ccb02595f9558afbe86bf"
+    },
+    {
+      "path": "game/art/mounted_rider_art.gd",
+      "bytes": 10252,
+      "sha256": "c7cf245c7ca91bd4f73d023de06f34db46a3919dd2eadbb758c25ab09189c86b"
+    },
+    {
+      "path": "game/art/mounted_rider_art.gd.uid",
+      "bytes": 20,
+      "sha256": "a10afd7c107a23fa910a47eb77d319a0fffc1fa3ae161d36e99b535444b51665"
+    },
+    {
+      "path": "game/art/orc_art.gd",
+      "bytes": 82197,
+      "sha256": "fbc4cac3dfa4a4be07b7d722e176e5cfd847a6f7e1ac74d20f69e7defeb864f9"
+    },
+    {
+      "path": "game/art/orc_art.gd.uid",
+      "bytes": 21,
+      "sha256": "3df35a15685a31c7121d2012ddc36eebbb44d091dc457dc4d08aa352c45532a4"
+    },
+    {
+      "path": "game/art/paperdoll.gd",
+      "bytes": 24042,
+      "sha256": "75fe0dffb13a5ba8dd679e29dc9f9487b53121b3e38b75ab4a334ff229a76bc0"
+    },
+    {
+      "path": "game/art/paperdoll.gd.uid",
+      "bytes": 20,
+      "sha256": "229067f17466264cdf692eb70b6bb318266ff13e5f53a291a859f0bfed0fd28a"
+    },
+    {
+      "path": "game/art/party_icon.gd",
+      "bytes": 5537,
+      "sha256": "86b7e6e1cb70114f024fea7d57437804f0be82e4218ef5e97120912837982371"
+    },
+    {
+      "path": "game/art/party_icon.gd.uid",
+      "bytes": 20,
+      "sha256": "5cbfc3f17a1ff5c675607d28d7a86a7089ffc0db79d9bfd8e9a9db92a18f1b94"
+    },
+    {
+      "path": "game/art/pixel_canvas.gd",
+      "bytes": 6986,
+      "sha256": "51cf6dc37dda5849ab1a541fe8dd37b90af8dbc7991e952f9edcc4b0b526eefa"
+    },
+    {
+      "path": "game/art/pixel_canvas.gd.uid",
+      "bytes": 20,
+      "sha256": "ce151776f122df397262929a23296977af2480d45bc6e5488c2838f2b2fe8b55"
+    },
+    {
+      "path": "game/art/portrait.gd",
+      "bytes": 1902,
+      "sha256": "e31f90dcedd01dcbd3d308252823421a50dde492c04e6a08870bd83f66439e37"
+    },
+    {
+      "path": "game/art/portrait.gd.uid",
+      "bytes": 20,
+      "sha256": "42399a3089adbf1e81be16753097b6a9735a6f03f8ee2c987805b10af4641d0d"
+    },
+    {
+      "path": "game/art/preview.gd",
+      "bytes": 12749,
+      "sha256": "058a930473ad5298353a9e6e508b5851b5af6f2935e6dceba9e8979cf51eb734"
+    },
+    {
+      "path": "game/art/preview.gd.uid",
+      "bytes": 20,
+      "sha256": "e5d09efd21ff71719a15e52b58d66b38d77c6eddc09a3ad56a86bff4e9872c88"
+    },
+    {
+      "path": "game/art/preview.tscn",
+      "bytes": 164,
+      "sha256": "e961af43e0bcc34ff1a56c381b8e1e1da9b606b45647ecb9b086e9146b2a8fab"
+    },
+    {
+      "path": "game/art/troll_art.gd",
+      "bytes": 33923,
+      "sha256": "a6780bc48fe04ad0ad8874b9e6657597cdf5385ab95981d7a0a9fc4a63fadd46"
+    },
+    {
+      "path": "game/art/troll_art.gd.uid",
+      "bytes": 21,
+      "sha256": "323fa81ba87a202629b76669464c4063f6f5f761405c33a42dd59f4372a9ab34"
+    },
+    {
+      "path": "game/art/weapon_art.gd",
+      "bytes": 16737,
+      "sha256": "7ee1374ce8f14f63da3bbc5a8ebe624341bf6d2c56d84e8c449d96b038118fa7"
+    },
+    {
+      "path": "game/art/weapon_art.gd.uid",
+      "bytes": 20,
+      "sha256": "59ad0ec4706dd4020a612e99a8908c93dd029c730a487320c62ac082e322fdfc"
+    },
+    {
+      "path": "game/art/concepts/dragon_amethyst_v006.webp",
+      "bytes": 27776,
+      "sha256": "d8fe0fd3d6be4b4ec54c1662dca39e9a6832255a59435b1fe821d4637ac760d7"
+    },
+    {
+      "path": "game/art/concepts/dragon_aquamarine_v006.webp",
+      "bytes": 28826,
+      "sha256": "7e37060dc391cfea8cbfc9cba512f37ee73843bf8e21d9e38a7449fa745cef58"
+    },
+    {
+      "path": "game/art/concepts/dragon_black_diamond_v006.webp",
+      "bytes": 26254,
+      "sha256": "047cdfa314d8547397b2dd1385ff3b64f2d75ccc101b3d1c3e8acb2cff352096"
+    },
+    {
+      "path": "game/art/concepts/dragon_citrine_v006.webp",
+      "bytes": 28750,
+      "sha256": "408f79ed63b2c386322bbf182c51b47b6f882a15fe697d48df054e11faa9d203"
+    },
+    {
+      "path": "game/art/concepts/dragon_diamond_v006.webp",
+      "bytes": 28130,
+      "sha256": "a6dc968c1edc573be79a48e6bba72a34216979046fca818cae7377a1c822c616"
+    },
+    {
+      "path": "game/art/concepts/dragon_emerald_v006.webp",
+      "bytes": 31534,
+      "sha256": "3b5554f6a2329cbe3ac7ad5fe999a838261af026d8d1727f98d8ad9de536a48c"
+    },
+    {
+      "path": "game/art/concepts/dragon_garnet_v006.webp",
+      "bytes": 27444,
+      "sha256": "b2ef5ffb57f8cc217478d4a00066980c66d9bdf02dfcf79722bef7545f64a1db"
+    },
+    {
+      "path": "game/art/concepts/dragon_jade_v006.webp",
+      "bytes": 27422,
+      "sha256": "da67f75847ec77a14fc5747a8e38ab805e55acdbd1883afe5bcd20b71b5b5928"
+    },
+    {
+      "path": "game/art/concepts/dragon_moonstone_v006.webp",
+      "bytes": 24424,
+      "sha256": "0eb37998a48fe8b2db997f18961b727c9d8a0cf6b19ff842690437ad75680049"
+    },
+    {
+      "path": "game/art/concepts/dragon_onyx_v006.webp",
+      "bytes": 25896,
+      "sha256": "9d5a84867f53af3d84f387bacef1e68a864a60065f1fdf783e1429fe7e80a325"
+    },
+    {
+      "path": "game/art/concepts/dragon_opal_v006.webp",
+      "bytes": 28180,
+      "sha256": "0dfbe5a94526fbda6929fe6af856c9c8529f57eb0154154d137a1cdc718c6a12"
+    },
+    {
+      "path": "game/art/concepts/dragon_pearl_v006.webp",
+      "bytes": 21592,
+      "sha256": "75a241b4517fc576bdfb7679878fde16254a9706eeebd1011e6eb7e59e994ecd"
+    },
+    {
+      "path": "game/art/concepts/dragon_ruby_v006.webp",
+      "bytes": 27280,
+      "sha256": "a72491363ed8f9c731906f4c64833a6093ab3c2d665a72474f756ba1b04a300d"
+    },
+    {
+      "path": "game/art/concepts/dragon_sapphire_v006.webp",
+      "bytes": 26640,
+      "sha256": "5f70154479cde7418b3d07da3e3423fc19db1135023520a4c995ee782e2e3e12"
+    },
+    {
+      "path": "game/art/concepts/dragon_topaz_v006.webp",
+      "bytes": 33722,
+      "sha256": "e8233b34eeca31de801917444bb5aa1c19479586335ac4992d72ba31031cce5c"
+    },
+    {
+      "path": "game/art/concepts/dragon_tourmaline_v006.webp",
+      "bytes": 28360,
+      "sha256": "920e8ff959ee66380cbb5a70c9d5ebb39be2934a75635bb5409c86a7c86ef5b1"
+    },
+    {
+      "path": "game/art/dragon_source/broadmantle_source_v006.png",
+      "bytes": 2131700,
+      "sha256": "908d12896386f680e48c522abf6581f605fe6f18c8bee4b85f91bf3528866b29"
+    },
+    {
+      "path": "game/art/dragon_source/broadmantle_source_v006.png.import",
+      "bytes": 991,
+      "sha256": "4bc7cbd5def5b7e3e67c972a7117b1cafe8515ede0eea226783646c1ed488dae"
+    },
+    {
+      "path": "game/art/dragon_source/duskfin_source_v006.png",
+      "bytes": 1865202,
+      "sha256": "241edf88490a0da40a372f9fa2c116e2575f8ad33256291fb2a7e0d25e85def8"
+    },
+    {
+      "path": "game/art/dragon_source/duskfin_source_v006.png.import",
+      "bytes": 980,
+      "sha256": "d9f785b502c989df9b2841291aba2e90d1914130e215502d548afd6aeef33dcf"
+    },
+    {
+      "path": "game/art/dragon_source/ironcrest_source_v006.png",
+      "bytes": 2173211,
+      "sha256": "c8af51584c59d98ba43c5391b2d1fed11a06267c5e720138854a302ca6655623"
+    },
+    {
+      "path": "game/art/dragon_source/ironcrest_source_v006.png.import",
+      "bytes": 986,
+      "sha256": "f5e420495f5e6dab94bfb6320f18160c936f345ed889bc1547a9c958432701f9"
+    },
+    {
+      "path": "game/art/dragon_source/reedrunner_source_v006.png",
+      "bytes": 1800437,
+      "sha256": "c338561bba751b7c4c1675fa37fb229c37cd034aa0ddbe605ab65c111b8eb2f4"
+    },
+    {
+      "path": "game/art/dragon_source/reedrunner_source_v006.png.import",
+      "bytes": 989,
+      "sha256": "347f4d3a9ecabd6c40ec78de1ff3eb0f0eb5a4160e11224912b97eeca531bc2e"
+    },
+    {
+      "path": "game/art/dragon_source/source_catalog_v006.json",
+      "bytes": 109431,
+      "sha256": "a37d6994f887cd644f7102ad28acf7130b2f57e25e0e44e7c1b42f2258b7cf3b"
+    },
+    {
+      "path": "game/art/dragon_source/spirewing_source_v006.png",
+      "bytes": 1965634,
+      "sha256": "fc5973655ad0cf8738786456b92102670bbc4a70c26db2cedb5c244929ae9651"
+    },
+    {
+      "path": "game/art/dragon_source/spirewing_source_v006.png.import",
+      "bytes": 985,
+      "sha256": "6748c6660ccca58e93c7c2263db7d6c78e79a5824ec9272f8c14a843e69b007c"
+    },
+    {
+      "path": "game/art/dragon_source/stormkeel_source_v006.png",
+      "bytes": 2320150,
+      "sha256": "36deada7e0d76d6edb6ff49915a6ba5db47eba8c265f4165f2519c7561d50b83"
+    },
+    {
+      "path": "game/art/dragon_source/stormkeel_source_v006.png.import",
+      "bytes": 985,
+      "sha256": "89a34baccf24bf991003b3be0be55d33976f79c45ad17b4affb3e4d7fec3f2a8"
+    },
+    {
+      "path": "game/art/icons/icon_256.png",
+      "bytes": 2076,
+      "sha256": "277cc3a066f6173499190056ba3c74f67ae5b17e5ece4a38bfc472bf1f2d43da"
+    },
+    {
+      "path": "game/art/icons/icon_32.png",
+      "bytes": 876,
+      "sha256": "3a7c05cfde3bc8de6c274c05eaed7ad148c08b107e2d2cf05969e4b0906b6b34"
+    },
+    {
+      "path": "game/art/icons/icon_48.png",
+      "bytes": 1217,
+      "sha256": "a29120fb4f06d967d764789c2f3c3bf19184727eeab1181b9ba32f4fb2560a58"
+    },
+    {
+      "path": "game/battle/aftermath.gd",
+      "bytes": 16715,
+      "sha256": "79fefb360e03d61f448a7016113954214520d16266700155ed1313fbb45f7d4f"
+    },
+    {
+      "path": "game/battle/aftermath.gd.uid",
+      "bytes": 20,
+      "sha256": "13f9fb5e07e51e99a50137aa3b7f9c6c96d627053fd138eb54d02d31677f06f6"
+    },
+    {
+      "path": "game/battle/aftermath.tscn",
+      "bytes": 282,
+      "sha256": "315fd8d85a6a9037653fa4eeed20251cf90ac9630c42d36e33dddf13da9815c9"
+    },
+    {
+      "path": "game/battle/arrow_layer.gd",
+      "bytes": 2359,
+      "sha256": "9b67c25ae777185ea9bdd004a53e80ba9c33c7cf766e7b20661f2a6b3404b91c"
+    },
+    {
+      "path": "game/battle/arrow_layer.gd.uid",
+      "bytes": 20,
+      "sha256": "028492d0dc51530e279b81c91be851f63985e6e911a23cb9d3d90d8c10d8a587"
+    },
+    {
+      "path": "game/battle/battle.gd",
+      "bytes": 35811,
+      "sha256": "bd308e6b6665cc8e0c00ffb55fbd76d075a1ed99727199ae4ca221acd912fa7c"
+    },
+    {
+      "path": "game/battle/battle.gd.uid",
+      "bytes": 20,
+      "sha256": "1411d083fda128392411481dc9e7a27d2a11f70655d41723d82a0b6cb4560b52"
+    },
+    {
+      "path": "game/battle/battle.tscn",
+      "bytes": 162,
+      "sha256": "7a60803e679b79dfa50fb69ad1f5a8cf06613b8d3e00ea576dc054c01fb44fbc"
+    },
+    {
+      "path": "game/battle/combat_log.gd",
+      "bytes": 11105,
+      "sha256": "3b63462398a5990114ad4100111df95e960a43d8f614599ce175463cab93ca2c"
+    },
+    {
+      "path": "game/battle/combat_log.gd.uid",
+      "bytes": 20,
+      "sha256": "d12458decf01e62dbecf18f0c5468adfaa40110fc5aff6c3ed41b58586cba9ee"
+    },
+    {
+      "path": "game/battle/fx_layer.gd",
+      "bytes": 1686,
+      "sha256": "38dc9518fbc6effb31892725d1ae1ab391981755113c985fdea72e6e7922f445"
+    },
+    {
+      "path": "game/battle/fx_layer.gd.uid",
+      "bytes": 19,
+      "sha256": "459fc43b3ca2656274e0d9299e4e537b27f67107a5ff5401655cfdd1374821cf"
+    },
+    {
+      "path": "game/battle/gore_layer.gd",
+      "bytes": 9445,
+      "sha256": "422f551353e66d7a2d80d1d04a72adbacf582569b73e8f510855ec196f959f83"
+    },
+    {
+      "path": "game/battle/gore_layer.gd.uid",
+      "bytes": 19,
+      "sha256": "ad29c745f7f4b394953e7c7113a0ad5396a7a8639bc8bb56b63c1500a4939a1c"
+    },
+    {
+      "path": "game/battle/inspector.gd",
+      "bytes": 13095,
+      "sha256": "681ebc301d646af68e073b26958445535b46407a3be683e67b78f99415d10f35"
+    },
+    {
+      "path": "game/battle/inspector.gd.uid",
+      "bytes": 20,
+      "sha256": "8d6ac9736461d6fe31b4dbd30ef68f04e29ff05cb802e8d3b94c1a6fa671b45e"
+    },
+    {
+      "path": "game/battle/map_view.gd",
+      "bytes": 5936,
+      "sha256": "4d4934097e45369edd1bd84f3c4de103fa5a3af78fa4454f595755b19e949ecf"
+    },
+    {
+      "path": "game/battle/map_view.gd.uid",
+      "bytes": 20,
+      "sha256": "7dc7e71dded8ff5345d7d19375516bbea9b5a440933aaf84adf2a8633f06d3eb"
+    },
+    {
+      "path": "game/battle/result_summary.gd",
+      "bytes": 7607,
+      "sha256": "66c4f616d9f92ce64f250aab65b4938772df2550563c3a43cd6e6753964dc72d"
+    },
+    {
+      "path": "game/battle/result_summary.gd.uid",
+      "bytes": 20,
+      "sha256": "d9a4810bbe0dbe60c2d24c8b37cccf3d71017853d8da9ba36fb5af490a11d71f"
+    },
+    {
+      "path": "game/battle/test_battle.gd",
+      "bytes": 3150,
+      "sha256": "4614870d0b1c08743b3a6d32a8dc040b98bf7937fc23a799a691282514b33056"
+    },
+    {
+      "path": "game/battle/test_battle.gd.uid",
+      "bytes": 20,
+      "sha256": "4b5c1460b2d7b3fc16a97697e7cee1e1c38bfccc099be84667e7dae1e5118a69"
+    },
+    {
+      "path": "game/battle/test_battle.tscn",
+      "bytes": 169,
+      "sha256": "1d2c7658fd8a09af5779680d35d63dd448a55ea356a1e4c3e2bd56123b36be65"
+    },
+    {
+      "path": "game/battle/unit_view.gd",
+      "bytes": 5244,
+      "sha256": "ad0c21401741e6dcb9b307fa60956e27de22dead02a8c3bd1d4ff5679bcfb627"
+    },
+    {
+      "path": "game/battle/unit_view.gd.uid",
+      "bytes": 20,
+      "sha256": "7451468f0ab7c647fabdda5ffc78f86af8626d2da3a200dd9463cd4aa7c03f64"
+    },
+    {
+      "path": "game/campaign/academy.gd",
+      "bytes": 28994,
+      "sha256": "0dbdd3db2cffa70365f06ba62fae719a82d29eed1dffe00f6cfb8677c2d44db6"
+    },
+    {
+      "path": "game/campaign/academy.gd.uid",
+      "bytes": 20,
+      "sha256": "8fd4726dde4d48b1a4d7aa4806f404ee6e69d8f71995381bede63af635e1afc6"
+    },
+    {
+      "path": "game/campaign/arms_trade.gd",
+      "bytes": 69238,
+      "sha256": "2a4592a5d4d9038cbeb54885865e9c012174bfda08b8f492f903ad49f6f32adc"
+    },
+    {
+      "path": "game/campaign/arms_trade.gd.uid",
+      "bytes": 20,
+      "sha256": "acd2be9a7ad2e1554efb252f0d77ca0e195a567aa9b19298c1c70c0274fe6a64"
+    },
+    {
+      "path": "game/campaign/army.gd",
+      "bytes": 63067,
+      "sha256": "7d7b8bb906c811ad18624f689a1c02c054faae1c789b9a62f24dc9e3206fdd42"
+    },
+    {
+      "path": "game/campaign/army.gd.uid",
+      "bytes": 20,
+      "sha256": "d4956d72060579f570aecc40227a84d63d77970afb50896bb7c3e82018231ffb"
+    },
+    {
+      "path": "game/campaign/backstory.gd",
+      "bytes": 28231,
+      "sha256": "2294e649840560d52f32706124fffbaad626b78ae996294db4c1c0fe5a4371be"
+    },
+    {
+      "path": "game/campaign/backstory.gd.uid",
+      "bytes": 19,
+      "sha256": "285ed46e3df842e9a85b8572cd58d22ccffaa1e1e0dd721536fc858a115c9ecc"
+    },
+    {
+      "path": "game/campaign/bandits.gd",
+      "bytes": 10433,
+      "sha256": "ebb9ca9d85d2ebabd4b3e090fa91ce9c42247931b7505c05d76af3cd2c1a9caf"
+    },
+    {
+      "path": "game/campaign/bandits.gd.uid",
+      "bytes": 20,
+      "sha256": "1373a50e9ceecf069c111365f508fc27e0b80dfdcf716e7d702f094d21be1ca5"
+    },
+    {
+      "path": "game/campaign/barge.gd",
+      "bytes": 71933,
+      "sha256": "072511d9827bee1eafa3a5f4cf32fb75c044a63c1d97fee83b89de19d555cbac"
+    },
+    {
+      "path": "game/campaign/barge.gd.uid",
+      "bytes": 19,
+      "sha256": "c91f87cabbd34d23547590b08834d14c616909c3ecee9355eecdc8ea5c9f8f25"
+    },
+    {
+      "path": "game/campaign/bows_econ.gd",
+      "bytes": 20473,
+      "sha256": "bae7fffc45f24fa23a38fb6e4964b97d6ef56f2f9f097b46166dfdc305123bd2"
+    },
+    {
+      "path": "game/campaign/bows_econ.gd.uid",
+      "bytes": 20,
+      "sha256": "5eced1572239c6d851db7dbfdbe8d666de380420355f062724356166f9fffbb8"
+    },
+    {
+      "path": "game/campaign/businesses.gd",
+      "bytes": 67410,
+      "sha256": "da7df1511313e2e5411523815f247199a75440c458e4f50250c85c93e780003c"
+    },
+    {
+      "path": "game/campaign/businesses.gd.uid",
+      "bytes": 20,
+      "sha256": "258b96670400889c098f3d7eece059a0ee431ab3aaa0e0a587cc2f0f3fa9a9e6"
+    },
+    {
+      "path": "game/campaign/calendar.gd",
+      "bytes": 2619,
+      "sha256": "a44f5b9add02f32751b187896349c84f6307143fe2892e2c959f3315f3ed7a30"
+    },
+    {
+      "path": "game/campaign/calendar.gd.uid",
+      "bytes": 20,
+      "sha256": "77675305ee8c8208cb239b98d98b1c318b394b2b9184b8f6fec10825af6641d6"
+    },
+    {
+      "path": "game/campaign/caravans.gd",
+      "bytes": 32527,
+      "sha256": "a75b6d1c7cb61992a10324c20f923c2b76bb65a6e89159527c42913f3c3469ca"
+    },
+    {
+      "path": "game/campaign/caravans.gd.uid",
+      "bytes": 19,
+      "sha256": "e6df8ac94cf63c791004c2d96be66983ea4d49e9c6713e6caec6c38e3b6c9f7e"
+    },
+    {
+      "path": "game/campaign/census.gd",
+      "bytes": 17273,
+      "sha256": "69509a5957bbf4487a53532e1b591102e5f563377432664284c0cfd1195891fb"
+    },
+    {
+      "path": "game/campaign/census.gd.uid",
+      "bytes": 20,
+      "sha256": "368cefb6d1eec68b6e623934ef457be06db6fb54bab43fa7c94495bacfba7814"
+    },
+    {
+      "path": "game/campaign/contracts.gd",
+      "bytes": 20274,
+      "sha256": "23c7814ce5d2a91d45591804fb18484426db49d05ac102b2b41e24095cc54893"
+    },
+    {
+      "path": "game/campaign/contracts.gd.uid",
+      "bytes": 20,
+      "sha256": "a7786b9432714fceeffe3b3d346ee54c1205c56aa5a9241ef75ba05cc7478266"
+    },
+    {
+      "path": "game/campaign/crop_rotation.gd",
+      "bytes": 8616,
+      "sha256": "a301316f3ebc40a6307eb0f3759c84b62a76f64acbeb55b2ae0d3951a2f3ff7e"
+    },
+    {
+      "path": "game/campaign/crop_rotation.gd.uid",
+      "bytes": 20,
+      "sha256": "97ed8adaddadb51392df779f6b2cfa07afd55a670f0cce86fbd17b7cdce77310"
+    },
+    {
+      "path": "game/campaign/debug_map.gd",
+      "bytes": 1646,
+      "sha256": "a58e36c169e9f758edc5c1d17acdc359e6ca50845fa4506dbb7a54bc1324569e"
+    },
+    {
+      "path": "game/campaign/debug_map.gd.uid",
+      "bytes": 19,
+      "sha256": "d123b7ac11696eff76c07c3f5808701ae5b5190abd4e426d450e023c4aa109da"
+    },
+    {
+      "path": "game/campaign/debug_map.tscn",
+      "bytes": 167,
+      "sha256": "4417bce2b352cab36a664517f20c2851142e2a357aacdb6af3cc7d7150a7060c"
+    },
+    {
+      "path": "game/campaign/diplomacy.gd",
+      "bytes": 37330,
+      "sha256": "774b3ae4315bae4b9ce93cf8a14c33b06c184531ee8860c58a95bd3dd369a7ef"
+    },
+    {
+      "path": "game/campaign/diplomacy.gd.uid",
+      "bytes": 19,
+      "sha256": "68c65ca16c9eb734082a9bfa24e397d1c08fb9d33cd06f1646b38edf74568d58"
+    },
+    {
+      "path": "game/campaign/dragon_care.gd",
+      "bytes": 12402,
+      "sha256": "5af02e9363b11df381e6519ac724eaa7e390ed47f260e502c93073351ea25c3a"
+    },
+    {
+      "path": "game/campaign/dragon_care.gd.uid",
+      "bytes": 20,
+      "sha256": "4b6ed45ac66c408758b7539ba345a269d562c54dbba35c4b7b1c8934ad1c581b"
+    },
+    {
+      "path": "game/campaign/dragon_growth.gd",
+      "bytes": 4646,
+      "sha256": "283fd54893d59c49e1ed641d36114515612afffeaf6166598f991ee4b890841e"
+    },
+    {
+      "path": "game/campaign/dragon_growth.gd.uid",
+      "bytes": 20,
+      "sha256": "55b485ef23123305f4bc039e11080459c1ae664b963433a07acb04687a50db07"
+    },
+    {
+      "path": "game/campaign/dragons.gd",
+      "bytes": 21201,
+      "sha256": "6de687abb1f00ae7b13906947751807faf066a7be50d24623472b1caf829c2d1"
+    },
+    {
+      "path": "game/campaign/dragons.gd.uid",
+      "bytes": 20,
+      "sha256": "3633078a865072660783e5295b9f203bfdc3fe652ebb326e223a71eb4974ce99"
+    },
+    {
+      "path": "game/campaign/dynasty.gd",
+      "bytes": 38853,
+      "sha256": "b6307b5e375c96b7dc219c397bf1f73a3025f7a3a6b77cee32da5ccde7edf4ce"
+    },
+    {
+      "path": "game/campaign/dynasty.gd.uid",
+      "bytes": 20,
+      "sha256": "ba6ff092c89a47b309e7fcf8f3311d5abbbe0b3c33eb1bea9639f5498080883c"
+    },
+    {
+      "path": "game/campaign/econ_gen.gd",
+      "bytes": 22233,
+      "sha256": "de4ebab19b98cfb4d87fadaa9e17bbd77a3d632641e4f9ec5196ccfe61c3d151"
+    },
+    {
+      "path": "game/campaign/econ_gen.gd.uid",
+      "bytes": 19,
+      "sha256": "4a8e4beb5a059950a861f7725a54119e2e23c19aaddc67f2e8d303f90aa5922b"
+    },
+    {
+      "path": "game/campaign/economy_audit.gd",
+      "bytes": 9671,
+      "sha256": "a3981bbf1a53a663e3e8b594448ee0046f7450ee0d414ba8eed1e00eb26b9582"
+    },
+    {
+      "path": "game/campaign/economy_audit.gd.uid",
+      "bytes": 20,
+      "sha256": "34d5666cdf09d564127a5d8aef1a3219228fc164705fcd886268df78dca4c9a4"
+    },
+    {
+      "path": "game/campaign/economy_rules.gd",
+      "bytes": 7142,
+      "sha256": "8bb77e5004b053ef5c396bf75ba9e696df0f2f24fbbef1b626096157a491e1c8"
+    },
+    {
+      "path": "game/campaign/economy_rules.gd.uid",
+      "bytes": 19,
+      "sha256": "852a87560c612fabbc7c4f25299d297436968bfa0747538b607208fa768e1334"
+    },
+    {
+      "path": "game/campaign/economy.gd",
+      "bytes": 11420,
+      "sha256": "f4ca4832e03d91977191aefe96203ba05147ef8f41443bc3ed4cb5e808fdddc8"
+    },
+    {
+      "path": "game/campaign/economy.gd.uid",
+      "bytes": 19,
+      "sha256": "8acd0a8737c88baef30770d9fcdcabd7186f5df60905a8f55ab8dca002671b98"
+    },
+    {
+      "path": "game/campaign/families.gd",
+      "bytes": 83772,
+      "sha256": "642fd34dbe6c40650f05cdd5b0eb63ef10bd2bcda21b3a0b6ddc7350a19539d9"
+    },
+    {
+      "path": "game/campaign/families.gd.uid",
+      "bytes": 19,
+      "sha256": "bb74f887df68c9e5f21de10241038f0d533dea2e8fdbf15a4d8bffdef7ae463e"
+    },
+    {
+      "path": "game/campaign/feudal.gd",
+      "bytes": 31455,
+      "sha256": "67a676e082921ecc99f9456d8f541cab88e6869b7b47761ab020cd49fa362e05"
+    },
+    {
+      "path": "game/campaign/feudal.gd.uid",
+      "bytes": 20,
+      "sha256": "0933da1eee7d75f1f532fd087b2d0d8dcbf9cc460d2960608ef361e32be0c5db"
+    },
+    {
+      "path": "game/campaign/goods.gd",
+      "bytes": 7410,
+      "sha256": "01ea82a207303ab572cc374c1d53c066e6eb4d07c6914e3be2a6fb62d3682589"
+    },
+    {
+      "path": "game/campaign/goods.gd.uid",
+      "bytes": 19,
+      "sha256": "d0a458414d490fa391b43925a7685eeb64603477af56c60ff55419b008b51184"
+    },
+    {
+      "path": "game/campaign/harvest_claims.gd",
+      "bytes": 20395,
+      "sha256": "e74304033d8daf23d9a8f152b7ea5b31b88116c6a4d4b9952a441ee414194f4c"
+    },
+    {
+      "path": "game/campaign/harvest_claims.gd.uid",
+      "bytes": 19,
+      "sha256": "eb20e8ecd80a503771988fe31341750437f7c439074160064fe29317388f9510"
+    },
+    {
+      "path": "game/campaign/herd_raids.gd",
+      "bytes": 9177,
+      "sha256": "d9b5e37c05df9479085a5b0afa1a5654532590319411331fa27afd77aea43450"
+    },
+    {
+      "path": "game/campaign/herd_raids.gd.uid",
+      "bytes": 20,
+      "sha256": "0073c158fc63a2f4eaa7c69b6fad037f91ca72908258c4b92bd0526df07909c6"
+    },
+    {
+      "path": "game/campaign/herds.gd",
+      "bytes": 110541,
+      "sha256": "88ed224f47bde736ca9d29bcfd04f74bff36f6b4ee3435cf78db678978af87f2"
+    },
+    {
+      "path": "game/campaign/herds.gd.uid",
+      "bytes": 20,
+      "sha256": "e742a66e3cf5b9a9355673674f475338b477fc2e7e34e7ee67df5d67274c7d0d"
+    },
+    {
+      "path": "game/campaign/house_onboarding.gd",
+      "bytes": 10124,
+      "sha256": "95e1dcd1613789692cd6a2f26331ecdea85dfb9a9935e128b66ae758952ca9a4"
+    },
+    {
+      "path": "game/campaign/house_onboarding.gd.uid",
+      "bytes": 20,
+      "sha256": "f4dd84df59bbc9c3cfb95b9acc21b26f890837975a5a16f452b93cf3f6ac6c28"
+    },
+    {
+      "path": "game/campaign/lairs.gd",
+      "bytes": 7547,
+      "sha256": "63fd8a06bff673dd1ffd67e081ccca2d7671ccb3d5615f4c6803679e349545ff"
+    },
+    {
+      "path": "game/campaign/lairs.gd.uid",
+      "bytes": 19,
+      "sha256": "ae64780ba5dd906d4eb51ae33ce0548998cc89060b13c7200a3b1d514478c79a"
+    },
+    {
+      "path": "game/campaign/legends.gd",
+      "bytes": 19357,
+      "sha256": "5d0eeec3a946244c21941534f8a6a8e7aa7a3f42c218ee0218f23e6db05822a8"
+    },
+    {
+      "path": "game/campaign/legends.gd.uid",
+      "bytes": 20,
+      "sha256": "508f7fceafa17f84f400f4e56e63486de04698dad7454c6723614f29ce289517"
+    },
+    {
+      "path": "game/campaign/livestock_care.gd",
+      "bytes": 3420,
+      "sha256": "7acdc2648e7ec823c7c183dae845a9951e4027df3377b6a58e821d369116206c"
+    },
+    {
+      "path": "game/campaign/livestock_care.gd.uid",
+      "bytes": 20,
+      "sha256": "e5df6b75f5e1e0564745550eb116f0c1957a77c9409c28189ccd087922973d62"
+    },
+    {
+      "path": "game/campaign/loans.gd",
+      "bytes": 18346,
+      "sha256": "e89bbdfb1f7fc4ee23b0e917aba0b7bb8f174670996688622082d57fcd8fd800"
+    },
+    {
+      "path": "game/campaign/loans.gd.uid",
+      "bytes": 20,
+      "sha256": "d93bd64aa0e7dea3e9a53568941db93c93d9db89f1cd9d966fb2a680b6f343bf"
+    },
+    {
+      "path": "game/campaign/map_sites.gd",
+      "bytes": 1733,
+      "sha256": "3f6e227a13912ba622146790408b26887846ecd9b68131fe20c41827bfcf6b68"
+    },
+    {
+      "path": "game/campaign/map_sites.gd.uid",
+      "bytes": 20,
+      "sha256": "11532f62aab140641b45e4272fe256f84f4ece66f44430f84391307e7ec9848c"
+    },
+    {
+      "path": "game/campaign/map_terrain.gd",
+      "bytes": 27455,
+      "sha256": "35b38c40241ddc15b44cf2b14fb3ff3e602a205c3c7546ee083bee13ac066846"
+    },
+    {
+      "path": "game/campaign/map_terrain.gd.uid",
+      "bytes": 20,
+      "sha256": "a5fac913d4c68840b0eab4ded88bd20cfaccf4241cdbe3b8e02fe821e292a119"
+    },
+    {
+      "path": "game/campaign/map_tracks.gd",
+      "bytes": 6743,
+      "sha256": "7a458bd91ea7e0fad50bb5bdab590904cc57a4e1c90989ca5bb12a91edf70713"
+    },
+    {
+      "path": "game/campaign/map_tracks.gd.uid",
+      "bytes": 19,
+      "sha256": "221facaa166ea6e2930b1066885da8f0257491114cc2c4ab48041f2fde83b74c"
+    },
+    {
+      "path": "game/campaign/metallurgy.gd",
+      "bytes": 3563,
+      "sha256": "e8b45a44ce7fe41ee50bb2376c7ab5301ec1583d90846996a897a80170cf3c7f"
+    },
+    {
+      "path": "game/campaign/metallurgy.gd.uid",
+      "bytes": 19,
+      "sha256": "4e33c2754da93a6772e08922aa2c99c35086f4158bcecd8ff59b219bb37db154"
+    },
+    {
+      "path": "game/campaign/militia.gd",
+      "bytes": 17059,
+      "sha256": "15107596cfbb6b34efdd47932f22ed1e2f7ace0159d7184752e18416df8f32e2"
+    },
+    {
+      "path": "game/campaign/militia.gd.uid",
+      "bytes": 20,
+      "sha256": "43635494a133deacb4269c9b4500f6189c98c12771394d3387d6bdac1003459b"
+    },
+    {
+      "path": "game/campaign/mobilization.gd",
+      "bytes": 27919,
+      "sha256": "653470e50daf191fb2e2e3181e3bdf6a42b0ea647ff887b0d4523a377f99f906"
+    },
+    {
+      "path": "game/campaign/mobilization.gd.uid",
+      "bytes": 20,
+      "sha256": "82fb05a9638620983ff23e3390262f7e0a9178987750861eb6b246241665c201"
+    },
+    {
+      "path": "game/campaign/monster_contracts.gd",
+      "bytes": 9760,
+      "sha256": "83937651870443250ddabbe2cf112df6bb18a202293997ce597860da8abba107"
+    },
+    {
+      "path": "game/campaign/monster_contracts.gd.uid",
+      "bytes": 20,
+      "sha256": "e153d86e321a96f50b5226b6e67e2e2fa1950be2bde2a20b66c321a9087ce9e6"
+    },
+    {
+      "path": "game/campaign/monsters.gd",
+      "bytes": 22079,
+      "sha256": "b5954cea348344801615610abd43c03d4d3cd675eb368996af0e2b39026c1846"
+    },
+    {
+      "path": "game/campaign/monsters.gd.uid",
+      "bytes": 20,
+      "sha256": "dcb1104e7a6cec69eace304623123d49eab02ff78d9cb5a98bfc2c6fe97d13fa"
+    },
+    {
+      "path": "game/campaign/people.gd",
+      "bytes": 35097,
+      "sha256": "5bf704ac6aa0525662c3ac7a2e0c56b842802a4e20567aabd763e939c6040250"
+    },
+    {
+      "path": "game/campaign/people.gd.uid",
+      "bytes": 19,
+      "sha256": "4520167479f42f28b40a514f6312fe87a7b232f941cab70ad3ff643af7cbaa5c"
+    },
+    {
+      "path": "game/campaign/persons.gd",
+      "bytes": 60977,
+      "sha256": "4e919bb7732fd3405e7a8a23379f1f644f82adac9dbb7129b92eb1a6ea7e046a"
+    },
+    {
+      "path": "game/campaign/persons.gd.uid",
+      "bytes": 20,
+      "sha256": "3ba1102789cf0a9f265a9864dcd1ca08c23ce7b24f0095f7ddb4e8a8200ef9df"
+    },
+    {
+      "path": "game/campaign/plots.gd",
+      "bytes": 67402,
+      "sha256": "80dd473d03c93af744fa08389454c646b88a410ac4887987485e68b3b076a856"
+    },
+    {
+      "path": "game/campaign/plots.gd.uid",
+      "bytes": 20,
+      "sha256": "cbd59fc4dc3e5070497eb798dd97c68ee8e64d904acd1097924b2616a63604c8"
+    },
+    {
+      "path": "game/campaign/population.gd",
+      "bytes": 17362,
+      "sha256": "06b2af2e312a2202a907a65fe881969a1272c1d15759d46fe01234d1567d2fb1"
+    },
+    {
+      "path": "game/campaign/population.gd.uid",
+      "bytes": 20,
+      "sha256": "fb772d4d83343713117373b6d70c3b1e31faf1e037e721061697d31905fee2ab"
+    },
+    {
+      "path": "game/campaign/rank_rules.gd",
+      "bytes": 5705,
+      "sha256": "6153badc05b28c1d49f2f93a394811189ed5621666da9ddc3208d28328a386f2"
+    },
+    {
+      "path": "game/campaign/rank_rules.gd.uid",
+      "bytes": 20,
+      "sha256": "c903f8d697b417364e477fe313ccf818e3d2cddf1f91d1fff735d978011e89a4"
+    },
+    {
+      "path": "game/campaign/recruits.gd",
+      "bytes": 25101,
+      "sha256": "a28ce6be98a201ff1df5e75c0cb3bd582a15f9458a6dc254dc499ec34af3c0c7"
+    },
+    {
+      "path": "game/campaign/recruits.gd.uid",
+      "bytes": 20,
+      "sha256": "f073e584e1b8958d6421044dddc8c6050ee7f2d5bab4e14170c9e898a1e0f081"
+    },
+    {
+      "path": "game/campaign/renown.gd",
+      "bytes": 2010,
+      "sha256": "9699a0a16fe821c1990b79f35f7e2b47f62baabfbf56548990f734d953510a75"
+    },
+    {
+      "path": "game/campaign/renown.gd.uid",
+      "bytes": 20,
+      "sha256": "eb0945e3bb02f61e526ce8952d76505fb76df8b5c3c959317f05320bf8838f23"
+    },
+    {
+      "path": "game/campaign/service_identity.gd",
+      "bytes": 13340,
+      "sha256": "b6b871fdd815803dae53b2ae3d0717ef64bb3ec03dad09e004fada0df14beb2c"
+    },
+    {
+      "path": "game/campaign/service_identity.gd.uid",
+      "bytes": 20,
+      "sha256": "3fa332c31a211ab450e5cad46cb2d275a98b9f75cfb9742002c4cf6eefce6b60"
+    },
+    {
+      "path": "game/campaign/shelter.gd",
+      "bytes": 20479,
+      "sha256": "01ba03ed6e0283ff433bb6cd3f3616b154cefa88f21a1498c08f12bb1aeedf32"
+    },
+    {
+      "path": "game/campaign/shelter.gd.uid",
+      "bytes": 19,
+      "sha256": "3ccc1abe2ab01c9e807e5bb0f44bc1beefd539747516718dffdcbf9ce78272d4"
+    },
+    {
+      "path": "game/campaign/sickness.gd",
+      "bytes": 91358,
+      "sha256": "f9f7ccc46ca65ea8b7b02e2ddf65ddaca563a56483b7387db4379ffee84092c7"
+    },
+    {
+      "path": "game/campaign/sickness.gd.uid",
+      "bytes": 20,
+      "sha256": "43c33201548647e6ef2f2902b4037624e9582e2a379f1c510e41107902e6bf8d"
+    },
+    {
+      "path": "game/campaign/supplies.gd",
+      "bytes": 5917,
+      "sha256": "bdf0a2dfdb4297ccec829e55b080e942637d679a1c4e6b041c25c407b779ec53"
+    },
+    {
+      "path": "game/campaign/supplies.gd.uid",
+      "bytes": 20,
+      "sha256": "687217b9d2e68b4f6d4578d2ce2f52b993274833ef3f576174aadc4ef6347060"
+    },
+    {
+      "path": "game/campaign/town_defence.gd",
+      "bytes": 7852,
+      "sha256": "df2cc463fc5e25d4f767c28b99d8989dc9f58d218ae3df07be3c836f7f69c2ea"
+    },
+    {
+      "path": "game/campaign/town_defence.gd.uid",
+      "bytes": 20,
+      "sha256": "f7714db9c31a835ca189710c34c59efb06d090cae6d673381e115fe5432f9d86"
+    },
+    {
+      "path": "game/campaign/town_econ.gd",
+      "bytes": 70747,
+      "sha256": "843ae634999f8947c358ddb09e9f14bf511e01591caa6eb91666580ad084da5e"
+    },
+    {
+      "path": "game/campaign/town_econ.gd.uid",
+      "bytes": 20,
+      "sha256": "4910c5c5bebc0ca54054db5da329f8c70f2edbe24034c0abf67fa1b5ca8b60ce"
+    },
+    {
+      "path": "game/campaign/town_housing.gd",
+      "bytes": 5116,
+      "sha256": "1c4783c6f0c056b852cedf498e46061d70f623b970ffc3d3de5e9e8b0823bfba"
+    },
+    {
+      "path": "game/campaign/town_housing.gd.uid",
+      "bytes": 20,
+      "sha256": "8791d8e0033d81424f8e92aea055e0d539b5342bdd59d8855a94df067aedb71d"
+    },
+    {
+      "path": "game/campaign/town_sanitation.gd",
+      "bytes": 8291,
+      "sha256": "4bc5819836672d2129e3cdea5bccf08fc1f58f2d340abba4b40756ea767d37c5"
+    },
+    {
+      "path": "game/campaign/town_sanitation.gd.uid",
+      "bytes": 20,
+      "sha256": "6dc724cf5bc48bb67eea29e37ad4bc638e9402906bab5e55bc178bf9a85df543"
+    },
+    {
+      "path": "game/campaign/tracks.gd",
+      "bytes": 20507,
+      "sha256": "0524ca851659db60d0a6335453013b48f2f7dbd103e1618f827f62fa310c72b0"
+    },
+    {
+      "path": "game/campaign/tracks.gd.uid",
+      "bytes": 20,
+      "sha256": "2eb22a6efc33cbd72792b8688f7c69e606e1d6e21f691c15c371febcb0a47b1c"
+    },
+    {
+      "path": "game/campaign/wage_claims.gd",
+      "bytes": 5577,
+      "sha256": "ba0faed93378f580e19094628904eb2e70d5a1439b2fc0982a8e57d069e9c397"
+    },
+    {
+      "path": "game/campaign/wage_claims.gd.uid",
+      "bytes": 20,
+      "sha256": "da0117a824ce291e30dac1faa0d4636d085f9ed7a0fcae7328bf51b59dea4729"
+    },
+    {
+      "path": "game/campaign/war_ai.gd",
+      "bytes": 40010,
+      "sha256": "9a19d03ccf0c97415e8dea036508e30c7cb70a4568bec7d2da60b79d160a57d6"
+    },
+    {
+      "path": "game/campaign/war_ai.gd.uid",
+      "bytes": 20,
+      "sha256": "b4f0c6fe290631eec660f2f507fd7b22fd2394f55c44de7d98aab5ead1fc7dd6"
+    },
+    {
+      "path": "game/campaign/world_map.gd",
+      "bytes": 31469,
+      "sha256": "53dfc2f312c3fcb0cdd4d3ae53b151fcea47675415b096bdc54087d8027508a5"
+    },
+    {
+      "path": "game/campaign/world_map.gd.uid",
+      "bytes": 20,
+      "sha256": "ea23e907b838cf000e4ef36c34c09573d3c1f3813e4341313ac53b4fdbd6df18"
+    },
+    {
+      "path": "game/campaign/world_map.tscn",
+      "bytes": 169,
+      "sha256": "0fc72371d3183e25c80c15eba7386a6250996312ec3ef0ecc2c60d61df2be6d6"
+    },
+    {
+      "path": "game/campaign/world.gd",
+      "bytes": 89317,
+      "sha256": "96831db38b445fcc7047a48a155721d5fd823033b3f80f426aaf42d893a09c9f"
+    },
+    {
+      "path": "game/campaign/world.gd.uid",
+      "bytes": 20,
+      "sha256": "0bee9b79f90f4c39882a183e60bc06969c883fe88c6d497dc229c2970185e1d6"
+    },
+    {
+      "path": "game/campaign/worldgen.gd",
+      "bytes": 24684,
+      "sha256": "e64284508db5573c19a590c9280459690b2ec7253593de0697f0873e94b17771"
+    },
+    {
+      "path": "game/campaign/worldgen.gd.uid",
+      "bytes": 20,
+      "sha256": "764440f5407f2f767e48301b5bb62f9fbde88857254b23f6e489e91a136e139c"
+    },
+    {
+      "path": "game/core/baggage.gd",
+      "bytes": 7078,
+      "sha256": "e5cd0a33787cc358bd0e5e49fcb1856ea78eb9af690ebfc8bee2116fa459061f"
+    },
+    {
+      "path": "game/core/baggage.gd.uid",
+      "bytes": 20,
+      "sha256": "65b0c8ac19f1a5c16eac808d3e3dec3fca64321c4cbc06d695b8d080a276e14d"
+    },
+    {
+      "path": "game/core/body_state.gd",
+      "bytes": 7700,
+      "sha256": "e5a626210b6683268206a4695af6494b2efb26976445b2802052423c8aa83349"
+    },
+    {
+      "path": "game/core/body_state.gd.uid",
+      "bytes": 20,
+      "sha256": "e014e937c104240c23ad7bb9049b9c27a50cdddffb49744c4e4cb11d9ffada5a"
+    },
+    {
+      "path": "game/core/creatures.gd",
+      "bytes": 6093,
+      "sha256": "effd149f421f470328a767c549792ef606dd0eb78becec78cdacfdb1492fb25e"
+    },
+    {
+      "path": "game/core/creatures.gd.uid",
+      "bytes": 20,
+      "sha256": "92d94e3e96dac1b5c5e637ff22473f0107175eb831194a4b6a05e8c72a9cb90c"
+    },
+    {
+      "path": "game/core/db.gd",
+      "bytes": 13281,
+      "sha256": "58bc6508678cce1e3f8a5505d7c929b000ca2ad8ec551fc224221833f8f473d5"
+    },
+    {
+      "path": "game/core/db.gd.uid",
+      "bytes": 20,
+      "sha256": "85b469a0432124767ee6b868d00820dc7c5fa1b550f05e01d55834ed94ac2d2b"
+    },
+    {
+      "path": "game/core/factory.gd",
+      "bytes": 13664,
+      "sha256": "a2552870912e9ea3a1ae2bbe5b94c9dff2cd12ec9cdacf85bb091d7651b83ba1"
+    },
+    {
+      "path": "game/core/factory.gd.uid",
+      "bytes": 20,
+      "sha256": "a11515096412617dcf7f6dafefb8aea780a804b2bee3aab2eb71136c30f63538"
+    },
+    {
+      "path": "game/core/food.gd",
+      "bytes": 32365,
+      "sha256": "e6b7a28837331391bfbc598754d5c9c278b1c5de1b2ffa3456d8d6f2270c4799"
+    },
+    {
+      "path": "game/core/food.gd.uid",
+      "bytes": 20,
+      "sha256": "22b980469f56cec917601fcac239eeefe7b39e246d6fa49feec8e8034a80a0a2"
+    },
+    {
+      "path": "game/core/game.gd",
+      "bytes": 33811,
+      "sha256": "e4143efce3eee8905f7bfa095e0294690c37bffe5acafc44f1b01c3ef0f1b71e"
+    },
+    {
+      "path": "game/core/game.gd.uid",
+      "bytes": 19,
+      "sha256": "56cd0b276a8b959da9a7f69a0b43eebb765bae59f6d961afbaefb553c3a013aa"
+    },
+    {
+      "path": "game/core/item.gd",
+      "bytes": 8284,
+      "sha256": "49c0884b75c21a1d08b00ba07896285371ce9df39a48a4ee65c56315f07f6323"
+    },
+    {
+      "path": "game/core/item.gd.uid",
+      "bytes": 19,
+      "sha256": "529de67895a0c90542a71535fcb837ea37b8bb1cfd2749e8837c2955823a36e0"
+    },
+    {
+      "path": "game/core/loot.gd",
+      "bytes": 6369,
+      "sha256": "09dbab3fbfe49c82fc27cf1b6e2749eff42142114714e273ebf63049ec80fa1f"
+    },
+    {
+      "path": "game/core/loot.gd.uid",
+      "bytes": 20,
+      "sha256": "71c88df8eddecd74d9b9c5ef1f5d47ce4734fbdb223f11e947ec59981f814a24"
+    },
+    {
+      "path": "game/core/memory_owners.gd",
+      "bytes": 8467,
+      "sha256": "9fc5ddfcb850b493e2d9daa7b0820b3de3a7455b2ddc14fca5c8865feff756c6"
+    },
+    {
+      "path": "game/core/memory_owners.gd.uid",
+      "bytes": 20,
+      "sha256": "e6f75bb08105b2cc02ab4dfb7a60047303a90000e2cb70b4b991e2f77fd1b671"
+    },
+    {
+      "path": "game/core/perf_tracker.gd",
+      "bytes": 9522,
+      "sha256": "6590fb78ff0b46b6a8b2f61fd6ed76370c119d9e1fe576e15070ea1f4655f951"
+    },
+    {
+      "path": "game/core/perf_tracker.gd.uid",
+      "bytes": 20,
+      "sha256": "e281d63cca7fddff96a4d1eab426160b48dc48a808c06a349afbbffb9491dce1"
+    },
+    {
+      "path": "game/core/save_snapshot.gd",
+      "bytes": 3834,
+      "sha256": "045292b052455ed5bf57d67164b896be80d679157eb943d0ed2f33aabf9dea16"
+    },
+    {
+      "path": "game/core/save_snapshot.gd.uid",
+      "bytes": 20,
+      "sha256": "6c9ca0977c32336e1cbdde7d568fa98b3d39c76164044169e15ba00d72f73fcd"
+    },
+    {
+      "path": "game/core/unit.gd",
+      "bytes": 13739,
+      "sha256": "dd929964a776b8639a16f92f31be2ef47d5084c0678fa47b48316f65e13e9648"
+    },
+    {
+      "path": "game/core/unit.gd.uid",
+      "bytes": 19,
+      "sha256": "99b375796fc4cedf0295439291586260beaa672b91e49183d6da0e00485361b8"
+    },
+    {
+      "path": "game/data/armor.json",
+      "bytes": 9570,
+      "sha256": "9299fc78ce6a6762d439631724ca9b431f8eff66b08564a8d9bddb948e92ec1e"
+    },
+    {
+      "path": "game/data/backstory.json",
+      "bytes": 18929,
+      "sha256": "94bdc05275ef8497e9b8324454042433456868b93d425599a614c971cc0fa3f1"
+    },
+    {
+      "path": "game/data/bodies.json",
+      "bytes": 50029,
+      "sha256": "80bd49f4cf8d4b3089d3182840daf39542f9beaf0b18844c9d2ad07f05e56ca0"
+    },
+    {
+      "path": "game/data/bows.json",
+      "bytes": 5556,
+      "sha256": "3c7d5133c641c7503c7acbb03d90ceeb16bf385779ee2c354bdbcf39da4b6713"
+    },
+    {
+      "path": "game/data/combat_text.json",
+      "bytes": 31175,
+      "sha256": "7a9e9292c60c05386d49957590f699ee8000785e1f203982cafdbea02b715c71"
+    },
+    {
+      "path": "game/data/creatures.json",
+      "bytes": 13279,
+      "sha256": "403aea316606a23677963ab4fba41f413aabd15a59132b33cd490076992b08ef"
+    },
+    {
+      "path": "game/data/diplomacy.json",
+      "bytes": 3673,
+      "sha256": "fbf3008fc31d819eb40b04602379e5e90c615d35b7fa42f1e9feb9cf6aa816cb"
+    },
+    {
+      "path": "game/data/dragons.json",
+      "bytes": 6696,
+      "sha256": "2325e8ae922dce7a8117633bbe9e972a92c17b4031842e96d191a602eb48f47c"
+    },
+    {
+      "path": "game/data/economy.json",
+      "bytes": 104481,
+      "sha256": "0430a98852721a0f0600dc2e25bbb4403994e75cb2a0b1c7ab7315659346d9e8"
+    },
+    {
+      "path": "game/data/factions.json",
+      "bytes": 20042,
+      "sha256": "d44abd1173a5fc5be2f750613c0c4dd763cc4d02f0945b503b75d91b9a00566f"
+    },
+    {
+      "path": "game/data/food.json",
+      "bytes": 1212,
+      "sha256": "3708b50f2eca4b381879716fc22688007b0d5ce8ad7f62f6e32db610d27271b4"
+    },
+    {
+      "path": "game/data/materials.json",
+      "bytes": 8013,
+      "sha256": "617d44cefd627c3bbb625483d5dd5d5ccb2d3c3bb6cb7f1bcf6be07f85d5e20a"
+    },
+    {
+      "path": "game/data/sickness.json",
+      "bytes": 9685,
+      "sha256": "3a48503599f1734120b39683ac44334ba733744396589ed34ee46c382c638bcc"
+    },
+    {
+      "path": "game/data/weapons.json",
+      "bytes": 9940,
+      "sha256": "93d2c7732a499b4b575e5d4d860e366d60010aaed41aa6fbd5ee7074bd05b975"
+    },
+    {
+      "path": "game/sim/archery.gd",
+      "bytes": 29125,
+      "sha256": "5beefc2fc5391eea653b8d1a37b7beb9a9434753de8951f6b535f3f0ad48fcac"
+    },
+    {
+      "path": "game/sim/archery.gd.uid",
+      "bytes": 20,
+      "sha256": "3089b3b66d140d94c7340af8db4422b40a5e867e9eb20655d55108e1efc5ac2b"
+    },
+    {
+      "path": "game/sim/battle_sim.gd",
+      "bytes": 132206,
+      "sha256": "79b9a172c8db94eedf8449fc5cce2b7bf9d4daf7ff83db834d696177d2f41503"
+    },
+    {
+      "path": "game/sim/battle_sim.gd.uid",
+      "bytes": 20,
+      "sha256": "b947e2e82c910d44e70686ee9ded48aff45cb2ae9003152791cee6e08984ceca"
+    },
+    {
+      "path": "game/sim/combat_journal.gd",
+      "bytes": 15313,
+      "sha256": "e97a8b718b077e25814af688acc4acbfa6e3d07aa7cac2acbe5fc0acfbcc49f1"
+    },
+    {
+      "path": "game/sim/combat_journal.gd.uid",
+      "bytes": 20,
+      "sha256": "582d312ccf53b2aabd8d7a31bb3d659f903a33566063ce364b89e7a91547dc66"
+    },
+    {
+      "path": "game/sim/combat_text.gd",
+      "bytes": 27378,
+      "sha256": "bd820b45f4b6f6e84d6837351ad8eed9b40ea21167557d443fb9befb4f233274"
+    },
+    {
+      "path": "game/sim/combat_text.gd.uid",
+      "bytes": 20,
+      "sha256": "a221d4566c69a3199d57d6fdad3aaa41e7821f4f3af9a0958a9da668bc3f3e31"
+    },
+    {
+      "path": "game/sim/fighter.gd",
+      "bytes": 10145,
+      "sha256": "8e69d07fba6469529e98f5e27c5d425d9948974618bd6db295c6f56fd912653f"
+    },
+    {
+      "path": "game/sim/fighter.gd.uid",
+      "bytes": 20,
+      "sha256": "94514f4e121126b2d9e6756c928bdc5de7385fd9f9caaf2ff035018495acce75"
+    },
+    {
+      "path": "game/sim/formulas.gd",
+      "bytes": 63258,
+      "sha256": "a7417a7bba065a0217f1c1e4b4e33c88534d535fdedfcfe4e6568bb3e238cdba"
+    },
+    {
+      "path": "game/sim/formulas.gd.uid",
+      "bytes": 20,
+      "sha256": "55d06adf1b1676c5d0904fcab4ff7339e0de59e8a38415d10f8f5af77b9183f5"
+    },
+    {
+      "path": "game/sim/healing.gd",
+      "bytes": 17552,
+      "sha256": "97d9afaa84ff6f64566e55e133959bb8e8324f869ad636cdccf6176142d32b47"
+    },
+    {
+      "path": "game/sim/healing.gd.uid",
+      "bytes": 20,
+      "sha256": "f1d4168178de801349e4426ae20d89107d81988a7f2c4f547e953b0d5460cdce"
+    },
+    {
+      "path": "game/sim/health_report.gd",
+      "bytes": 19528,
+      "sha256": "ba3f1e224d7cb036396c1401a9ffb07caac480a59623aed94923fcbecf3c56bb"
+    },
+    {
+      "path": "game/sim/health_report.gd.uid",
+      "bytes": 19,
+      "sha256": "329143a5ee2c397f09ea0d8f3fc4ed4c2081938832ea569ad18ff2d436cb21c6"
+    },
+    {
+      "path": "game/sim/learning.gd",
+      "bytes": 5681,
+      "sha256": "a424ca113a9957af7ad88f5e9d52af2ce5d6051c453e55443e6d9484b3f5ed31"
+    },
+    {
+      "path": "game/sim/learning.gd.uid",
+      "bytes": 20,
+      "sha256": "3807df9afdbf9188845ec9b0b79896303fd8d97cb774093a0902fda7222a67e6"
+    },
+    {
+      "path": "game/sim/natural_attacks.gd",
+      "bytes": 8799,
+      "sha256": "2415eb05cae02072d60feb48280ca1683ad08fccef0af7194f9589649a77b2c0"
+    },
+    {
+      "path": "game/sim/natural_attacks.gd.uid",
+      "bytes": 20,
+      "sha256": "9a7f65f514fb36cfa2f19fe792c7b65ec588dc32422ac12ec423a139c21b9871"
+    },
+    {
+      "path": "game/tests/capture_records_v040.gd",
+      "bytes": 3578,
+      "sha256": "9e338f02ce33b947d750a13d973f8f4f180240dbe27f144cbc396c174551e27a"
+    },
+    {
+      "path": "game/tests/capture_records_v040.gd.uid",
+      "bytes": 20,
+      "sha256": "4fd677bedac526329d921e96224b9ac14e17dc38d917db079dae13ba80003d0c"
+    },
+    {
+      "path": "game/tests/capture_records_v041.gd",
+      "bytes": 3901,
+      "sha256": "3a59996f109d7cf551c68e1a657a96aab9bc4b86c0f37efc71e4e9dc57aeea94"
+    },
+    {
+      "path": "game/tests/capture_records_v041.gd.uid",
+      "bytes": 19,
+      "sha256": "6b3cc7c9337cf132aece4777aeecde28b20acf6236a93271d3309b216a10215b"
+    },
+    {
+      "path": "game/tests/capture_town_services_v042.gd",
+      "bytes": 6187,
+      "sha256": "fceb47a2f849126dc7406247105b19006d5df663b261497071616582e4091e43"
+    },
+    {
+      "path": "game/tests/capture_town_services_v042.gd.uid",
+      "bytes": 21,
+      "sha256": "ca16d12675f766a943fb048f89b5eeb5d873cbef049f59b3a0a445f13210d610"
+    },
+    {
+      "path": "game/tests/capture_town_v038.gd",
+      "bytes": 1619,
+      "sha256": "6056d2e8581199bdc24fdf89681f924b91932aa3181fd97974dfc613a9ccbcaa"
+    },
+    {
+      "path": "game/tests/capture_town_v038.gd.uid",
+      "bytes": 20,
+      "sha256": "44191df6b1e3c5defd7df397d7c9b41ee19e9ad9fc75a1720d602a7e165b1e91"
+    },
+    {
+      "path": "game/tests/capture_town_v039.gd",
+      "bytes": 2044,
+      "sha256": "ec77721e8b682f921b0420beee7841618523696f736bbf046f9bf37130fec4d7"
+    },
+    {
+      "path": "game/tests/capture_town_v039.gd.uid",
+      "bytes": 20,
+      "sha256": "511b7af7eaca64d3c54ce1473ba8c3726f3c3aebaff810e32fae8cd73dd6bab0"
+    },
+    {
+      "path": "game/tests/diag_anatomy_cost.gd",
+      "bytes": 2505,
+      "sha256": "2d0a3ba4432468a85e7cc1ea50d468e67852e7f9c1b0034a4827b65e831e32b2"
+    },
+    {
+      "path": "game/tests/diag_anatomy_cost.gd.uid",
+      "bytes": 19,
+      "sha256": "ccd4673d71859b8219a18603bdabf2eb9898328ebe2f577b9b86e4e8e3a89174"
+    },
+    {
+      "path": "game/tests/diag_army_equipment_v045.gd",
+      "bytes": 2564,
+      "sha256": "3aa08b32b3114f6c2ce99f0114a1001dbdc971555eee17341a082441654f5c39"
+    },
+    {
+      "path": "game/tests/diag_army_equipment_v045.gd.uid",
+      "bytes": 20,
+      "sha256": "deb9527c2d402ca519c6602dbff7a20005897c46a9e55386527abbf305f894a8"
+    },
+    {
+      "path": "game/tests/diag_autosave_v012.gd",
+      "bytes": 6638,
+      "sha256": "e539ca497113083d70fc392375e5fc954abb8a45d6992675842f224144920240"
+    },
+    {
+      "path": "game/tests/diag_autosave_v012.gd.uid",
+      "bytes": 20,
+      "sha256": "e83428ce38dc688dc0d7423b88ff0e98827a3f24a11e9e232b1e29e8311c3d31"
+    },
+    {
+      "path": "game/tests/diag_barge_years.gd",
+      "bytes": 15159,
+      "sha256": "1ff0a96c7804655c66a42f75ae64e413152a555f6fc346b3ece1cb2feeed0da3"
+    },
+    {
+      "path": "game/tests/diag_barge_years.gd.uid",
+      "bytes": 20,
+      "sha256": "b268c9bb960735e6b849d4127028af4c82802430ce8e7c4864f7fdc5fb0eea1a"
+    },
+    {
+      "path": "game/tests/diag_battle_render_v010.gd",
+      "bytes": 11066,
+      "sha256": "3853cda1f90de1b5afe08c8742863044e2274e93955a9f21fd31895f96903052"
+    },
+    {
+      "path": "game/tests/diag_battle_render_v010.gd.uid",
+      "bytes": 19,
+      "sha256": "43bd310182539e869e4445189be60a487882afd1d64f80c1127c455af95c837d"
+    },
+    {
+      "path": "game/tests/diag_battle_render_v014.gd",
+      "bytes": 12644,
+      "sha256": "64e3e10899e603c8f482f5fb39aafc5e84344dd9734530030e6d6beae8526e71"
+    },
+    {
+      "path": "game/tests/diag_battle_render_v014.gd.uid",
+      "bytes": 19,
+      "sha256": "ebc20ca112e83a699d4732e25796c7bd0d7b7f6b937269a29662d82fb3cb8448"
+    },
+    {
+      "path": "game/tests/diag_battle_render_v016.gd",
+      "bytes": 14476,
+      "sha256": "589ff5c874f7c594b0f55a3e649a54179c70739d641263df74b0c18623a7300c"
+    },
+    {
+      "path": "game/tests/diag_battle_render_v016.gd.uid",
+      "bytes": 20,
+      "sha256": "a134a279a218c7c58fd29401637ffa5403c219b0dd2961c7d4ed05abce2141f1"
+    },
+    {
+      "path": "game/tests/diag_biz_fit.gd",
+      "bytes": 2956,
+      "sha256": "2f497df8eaa883a591d1632f42cec0c6e2290d4e96b55971bc5f249f0eb6fe54"
+    },
+    {
+      "path": "game/tests/diag_biz_fit.gd.uid",
+      "bytes": 19,
+      "sha256": "ec248b17ac5c40d32823ac4e1fd396f9db04bd4731e8fd1e2f748e90a2598470"
+    },
+    {
+      "path": "game/tests/diag_campaign_render_v011.gd",
+      "bytes": 10919,
+      "sha256": "fdc4f595b8828f6d18b87fe3b4b1e5eba317df760c2b4c0ad073b07e30537038"
+    },
+    {
+      "path": "game/tests/diag_campaign_render_v011.gd.uid",
+      "bytes": 19,
+      "sha256": "b288cf325c14180dc5d0fbbf48f6c64184357cff02bdc961a75ef10387760e52"
+    },
+    {
+      "path": "game/tests/diag_campaign_state_v011.gd",
+      "bytes": 5484,
+      "sha256": "ec735cb9e922f424f35d96350860e17a93fd567816b9506731aa8102d9c5bf22"
+    },
+    {
+      "path": "game/tests/diag_campaign_state_v011.gd.uid",
+      "bytes": 20,
+      "sha256": "aa1025fce82380651f94ff496fe565e0f0150be267e6d9d5a215458854f4dd2c"
+    },
+    {
+      "path": "game/tests/diag_clash_fixture.gd",
+      "bytes": 430,
+      "sha256": "1580246a74f0963cf1cebd17e1947c9746fbcf48129fffc8fb6e47cb7abf4a92"
+    },
+    {
+      "path": "game/tests/diag_clash_fixture.gd.uid",
+      "bytes": 20,
+      "sha256": "df3361618e92708e618859b89c9a40836d79ec85fc954e0e5d29862e80247f02"
+    },
+    {
+      "path": "game/tests/diag_economy_audit.gd",
+      "bytes": 7590,
+      "sha256": "00aca911056f0bc17b5f14b3b3e360fd79403a151c1e59ad64a48b7c46254da2"
+    },
+    {
+      "path": "game/tests/diag_economy_audit.gd.uid",
+      "bytes": 20,
+      "sha256": "5560a9eae7026b034b3a2f71fe80adf56d4efc8e2bc518649682ed55611dab01"
+    },
+    {
+      "path": "game/tests/diag_fresh_performance.gd",
+      "bytes": 4382,
+      "sha256": "5f7e0ad651ab83fdf1a41bdb6b1014481483a566090989889c2de18abd887843"
+    },
+    {
+      "path": "game/tests/diag_fresh_performance.gd.uid",
+      "bytes": 19,
+      "sha256": "816c69dee33a02d8cb328f67aab854bde28bab06ad36d126d3283186de0d5d32"
+    },
+    {
+      "path": "game/tests/diag_full_producer_context.gd",
+      "bytes": 3659,
+      "sha256": "419dc2f8443e222f326a10963da4d939f77c9ff029706b10e660158f5e2197c6"
+    },
+    {
+      "path": "game/tests/diag_full_producer_context.gd.uid",
+      "bytes": 20,
+      "sha256": "03d1b5000914b96ef906c393d08a792cdba54b5686b88a5bee25d3da32189043"
+    },
+    {
+      "path": "game/tests/diag_generation_atomic.gd",
+      "bytes": 2361,
+      "sha256": "1a99388aad953bf944198f5e675cb1143e83aa0136765f413288896111f4faf7"
+    },
+    {
+      "path": "game/tests/diag_generation_atomic.gd.uid",
+      "bytes": 20,
+      "sha256": "2c997eff404b06f8c439e547f9a8b5077bbdb8eca8443f603a7111199ae45ede"
+    },
+    {
+      "path": "game/tests/diag_generation_slices.gd",
+      "bytes": 6608,
+      "sha256": "312be1c428bdd4f0375ffc861c658a8838b838202702cd52b982ea303595a244"
+    },
+    {
+      "path": "game/tests/diag_generation_slices.gd.uid",
+      "bytes": 20,
+      "sha256": "3a5ffe4015697bfa5d8148f1b3fc31dc2f70836082fb132c64c5b4e05622b525"
+    },
+    {
+      "path": "game/tests/diag_harvest_lookup.gd",
+      "bytes": 5660,
+      "sha256": "815340390fc0ecb20ca98282d302c459df5cdd6f99022d84699fc2e8bf69c45c"
+    },
+    {
+      "path": "game/tests/diag_harvest_lookup.gd.uid",
+      "bytes": 20,
+      "sha256": "b33bd5cdfc74804af01b4f2a7dc20dcb4f0ec2d23e7a01ba26a0e4bfbba90e71"
+    },
+    {
+      "path": "game/tests/diag_herds.gd",
+      "bytes": 5468,
+      "sha256": "a0b1911f08de797d7a7db5dc5b683caa656fb7b1bf039347e0166e252e07a594"
+    },
+    {
+      "path": "game/tests/diag_herds.gd.uid",
+      "bytes": 20,
+      "sha256": "8a3934f1fd534552cb1f10b71e7cbba7b958bf877585eaa97c9dbb2e6ecdda0e"
+    },
+    {
+      "path": "game/tests/diag_house_world_v019.gd",
+      "bytes": 9988,
+      "sha256": "4711c41f27e1e8c6053dd97845899800c2e9126d8d331bde7ed9b5ddf429236b"
+    },
+    {
+      "path": "game/tests/diag_house_world_v019.gd.uid",
+      "bytes": 20,
+      "sha256": "7db30a9eb4bae7b9faefbef4eb8e76e7530e9aa9a681ad89f046020000e9046d"
+    },
+    {
+      "path": "game/tests/diag_kit_cover.gd",
+      "bytes": 4435,
+      "sha256": "a61d9ad67159bec297016ae0f85de9dfffbf15ba71ed320c859836fec6e8399b"
+    },
+    {
+      "path": "game/tests/diag_kit_cover.gd.uid",
+      "bytes": 20,
+      "sha256": "bcc94d66d231976232bdc25a126cdcd62d8d1ecbee1a108472bccde12b18e9b1"
+    },
+    {
+      "path": "game/tests/diag_labour_timing.gd",
+      "bytes": 1892,
+      "sha256": "6ba4c5935e62c4e4b6dbb2cad4a3da11d17643ff09adb10e334e1c334dc8a954"
+    },
+    {
+      "path": "game/tests/diag_labour_timing.gd.uid",
+      "bytes": 20,
+      "sha256": "e668e8178fdcd800127b16040fc844a84940b06ee88b382c86edb03a0d674d76"
+    },
+    {
+      "path": "game/tests/diag_land_feasibility.gd",
+      "bytes": 12107,
+      "sha256": "cc0fcbd9755f0311be5ea55eb9133524b284008868829adbec27f69981589387"
+    },
+    {
+      "path": "game/tests/diag_land_feasibility.gd.uid",
+      "bytes": 20,
+      "sha256": "7fb632dafa8c226898914af37561f1a728cb13839541988ac260b9cfc82b45d4"
+    },
+    {
+      "path": "game/tests/diag_land_food_v046.gd",
+      "bytes": 20359,
+      "sha256": "c9801b9bb81fe7ec653335843a4c938c88d631bd28e01adc70bf02058ef6cb54"
+    },
+    {
+      "path": "game/tests/diag_land_food_v046.gd.uid",
+      "bytes": 20,
+      "sha256": "85a770183ff57b7ae6ae0a74691fac419794e48f9717efe7c42c99f934f27008"
+    },
+    {
+      "path": "game/tests/diag_legacy_dogs.gd",
+      "bytes": 1889,
+      "sha256": "8870d70149a2d25c78afebac19acebf0d4cfa45f8270c0825fc8f88513afffdb"
+    },
+    {
+      "path": "game/tests/diag_legacy_dogs.gd.uid",
+      "bytes": 20,
+      "sha256": "cd33e64591eabc6b856759207f55e101de46865c56ca781101ad2b6274596fc0"
+    },
+    {
+      "path": "game/tests/diag_map_batch_v011.gd",
+      "bytes": 4426,
+      "sha256": "dd2e93cd68b343691cb220a938adf37f9fe5ae7e39609e398db0046699d170a8"
+    },
+    {
+      "path": "game/tests/diag_map_batch_v011.gd.uid",
+      "bytes": 20,
+      "sha256": "c119904093825171cba831cf155e49118e4a3f45dee899ab310abf0337c257b4"
+    },
+    {
+      "path": "game/tests/diag_mixed_producer_checkpoint.gd",
+      "bytes": 3195,
+      "sha256": "07fcfd7120e88b1d7fba4e4f5c686bcbd02dc3faaa0b017293285315b3cc0e22"
+    },
+    {
+      "path": "game/tests/diag_mixed_producer_checkpoint.gd.uid",
+      "bytes": 20,
+      "sha256": "cc1394cba45b538a05d84f465617ccba4d634f211c29c922dded5bfe08e6bb5d"
+    },
+    {
+      "path": "game/tests/diag_muster_world_v017.gd",
+      "bytes": 10848,
+      "sha256": "b28c61e8c8ec673de62a47d74e3dceb495e05ae2712f6f133cce1740eb4e44db"
+    },
+    {
+      "path": "game/tests/diag_muster_world_v017.gd.uid",
+      "bytes": 20,
+      "sha256": "943558727ae7452dc6d88d8396b70a84281fa0021d63701cfbcaa59f4be36bc3"
+    },
+    {
+      "path": "game/tests/diag_package_license.gd",
+      "bytes": 726,
+      "sha256": "c05f3906a1eb2a3246dab09c8d2c298627f37dc6bd2102fb6ef8b57e0bca3410"
+    },
+    {
+      "path": "game/tests/diag_package_license.gd.uid",
+      "bytes": 20,
+      "sha256": "e1412e4aa1954a10a41ddb757418a8642ffa74ccc299bcadab237973087be53a"
+    },
+    {
+      "path": "game/tests/diag_payroll_checkpoint.gd",
+      "bytes": 4272,
+      "sha256": "2b69c98ccc75c3c3b28dd569e080fdc9b10dc471ffc0bc707b9539e350eaec9d"
+    },
+    {
+      "path": "game/tests/diag_payroll_checkpoint.gd.uid",
+      "bytes": 19,
+      "sha256": "92494b4403102bc04db8f7facdefe603bde1d11e415a6ebcc63ab19ef10bd7f2"
+    },
+    {
+      "path": "game/tests/diag_people.gd",
+      "bytes": 24821,
+      "sha256": "37981a8a2d993d2a4f5e0771da79428013a7643da1d16f71d3619bb443bfff97"
+    },
+    {
+      "path": "game/tests/diag_people.gd.uid",
+      "bytes": 20,
+      "sha256": "ce1ac01c7e9d97f881e413a40146c974aae03f243e37e29137115958c4aab490"
+    },
+    {
+      "path": "game/tests/diag_presim_econ.gd",
+      "bytes": 17596,
+      "sha256": "e782010618b3db9b23f9c498338a8d30f0895e6441185fb1d1de644f982eb1e5"
+    },
+    {
+      "path": "game/tests/diag_presim_econ.gd.uid",
+      "bytes": 20,
+      "sha256": "fbd1efc1e711aa25411a6a3d2dfe200000d565ca0bcba3d25a74b06162476e2c"
+    },
+    {
+      "path": "game/tests/diag_producer_checkpoint.gd",
+      "bytes": 1721,
+      "sha256": "c3724fb080f8dc2d432d43608933e8cf9e387ad1fc1a1876cf63c98e6789cf99"
+    },
+    {
+      "path": "game/tests/diag_producer_checkpoint.gd.uid",
+      "bytes": 20,
+      "sha256": "17b44dd0e0194eb43cf36bda96e7263e81c027b702fb728586349e8e6cfcb21b"
+    },
+    {
+      "path": "game/tests/diag_producer_recovery.gd",
+      "bytes": 4615,
+      "sha256": "e180c081354465d6c46f454419484cc9d556d4e70cdd7eecea63cd9ee9522db9"
+    },
+    {
+      "path": "game/tests/diag_producer_recovery.gd.uid",
+      "bytes": 20,
+      "sha256": "057f86989f5f9fbef8d793d5e1b46e422243237f36b2655da26ae16d1ad51312"
+    },
+    {
+      "path": "game/tests/diag_records_build.gd",
+      "bytes": 5206,
+      "sha256": "932067a77801072426e351a7052c9bf869c75864e1647bd0dda98da97b21488e"
+    },
+    {
+      "path": "game/tests/diag_records_build.gd.uid",
+      "bytes": 20,
+      "sha256": "5d240f95db4fd61da8f47500da9e219cc78a164625ec5f5ec9e4d0e7f0d119d4"
+    },
+    {
+      "path": "game/tests/diag_records_move.gd",
+      "bytes": 11716,
+      "sha256": "a45825458375a8cc76db63d1836a008db7a71989b5b24090b721529325466b06"
+    },
+    {
+      "path": "game/tests/diag_records_move.gd.uid",
+      "bytes": 20,
+      "sha256": "9e69c076bea2bf04a734443bb2c2deca83f1b4dfe559691ce9626f9443d422fb"
+    },
+    {
+      "path": "game/tests/diag_records_v040.gd",
+      "bytes": 4083,
+      "sha256": "c918b15ad655f6ea65151c06eb9c0091d1a4185e09dcbcb6bffbe21f1f36a521"
+    },
+    {
+      "path": "game/tests/diag_records_v040.gd.uid",
+      "bytes": 20,
+      "sha256": "952550d0d6c7df3c00d11913c7435d7b89a560925fca3966b43137e447f075ec"
+    },
+    {
+      "path": "game/tests/diag_records_v043.gd",
+      "bytes": 9830,
+      "sha256": "5230fa5fe4cd430cb849c5e13b742a4e30d2f10c84084f8b065667cd281a8bb4"
+    },
+    {
+      "path": "game/tests/diag_records_v043.gd.uid",
+      "bytes": 21,
+      "sha256": "8acb4d458d2c1da29b99ca5c153f4337858a003a5113df7689e3b7a6ab6747cf"
+    },
+    {
+      "path": "game/tests/diag_records_v044.gd",
+      "bytes": 7472,
+      "sha256": "c40ac02559cb08e64fa975320c0b7188a4fdd4066bd2106e158fe7fda40f65c5"
+    },
+    {
+      "path": "game/tests/diag_records_v044.gd.uid",
+      "bytes": 19,
+      "sha256": "533ef13a35733631375b2d6a6eb042aebdfd36c66847257832f23ac9bbacd8d2"
+    },
+    {
+      "path": "game/tests/diag_records_world_v018.gd",
+      "bytes": 7127,
+      "sha256": "dcbed451f8619c320fffd05ae0eba3b05dbe995355d15c35d766916a7253d98b"
+    },
+    {
+      "path": "game/tests/diag_records_world_v018.gd.uid",
+      "bytes": 20,
+      "sha256": "b3cdf094c7363b022c008fd2b9c8ca1babfe4c2143c56ba2eebedbdf1503c74d"
+    },
+    {
+      "path": "game/tests/diag_release_perf.gd",
+      "bytes": 7372,
+      "sha256": "ca459002f0d0e2cecb2141607ecc30c4790392deb88652c74f5ecc03a606f471"
+    },
+    {
+      "path": "game/tests/diag_release_perf.gd.uid",
+      "bytes": 20,
+      "sha256": "63805d0a43639fc8f8847016754a1b5b49afce056182b8944ac752672189acc7"
+    },
+    {
+      "path": "game/tests/diag_screen_load.gd",
+      "bytes": 7414,
+      "sha256": "7ab53d33d626329b99309ca9c59f0a3f5b38d100b0e35002f2741504d9d1993b"
+    },
+    {
+      "path": "game/tests/diag_screen_load.gd.uid",
+      "bytes": 20,
+      "sha256": "8919f75ab9b66c916e54a2e95d63eb15c5edfb1bd3a4cf24985cdeeb0d81ef1f"
+    },
+    {
+      "path": "game/tests/diag_service_identity_load.gd",
+      "bytes": 10968,
+      "sha256": "54ed4c2e16d761ba2ec0881d737960a7df6b3bc34ebc9aad3d67403f56f31fd8"
+    },
+    {
+      "path": "game/tests/diag_service_identity_load.gd.uid",
+      "bytes": 20,
+      "sha256": "b7ad5561b5748f80e8429fa3b35a2384bdbf4b5664adc25a116f18fd6f20d394"
+    },
+    {
+      "path": "game/tests/diag_sickness_prof.gd",
+      "bytes": 840,
+      "sha256": "9c5cba9d9700b10986adbbe1cc0a5b69d74fee2c2acb237616e664b141359353"
+    },
+    {
+      "path": "game/tests/diag_sickness_prof.gd.uid",
+      "bytes": 20,
+      "sha256": "345f0523c5a95df892038f23c262339decd3662405d09ffa29f70e9eb099a209"
+    },
+    {
+      "path": "game/tests/diag_smarter_loops.gd",
+      "bytes": 3815,
+      "sha256": "bf6211a6fb3267ad769950cd3fbbf32d6339ca2efb874725ee610a162eb1f3eb"
+    },
+    {
+      "path": "game/tests/diag_smarter_loops.gd.uid",
+      "bytes": 20,
+      "sha256": "2e358d17be13888c00488c052a4a777c1ad4611c57ef49e7b5cae7ee89737fa0"
+    },
+    {
+      "path": "game/tests/diag_startup_handoff.gd",
+      "bytes": 7578,
+      "sha256": "cfd0075f919fbb6629ed5ae7cd4de44e1bda2e539bedf49c262ebecaca102f61"
+    },
+    {
+      "path": "game/tests/diag_startup_handoff.gd.uid",
+      "bytes": 20,
+      "sha256": "d7ed6d04117ce3fbb090c6293c806f1aac21f2b91af82552066137629ccfa623"
+    },
+    {
+      "path": "game/tests/diag_startup_scene.gd",
+      "bytes": 8201,
+      "sha256": "baa6745247dac1c9591c9d4994cadc1c1bfba763c07633c75e33947a3ac3db73"
+    },
+    {
+      "path": "game/tests/diag_startup_scene.gd.uid",
+      "bytes": 20,
+      "sha256": "7f8f268563ff6f1ad5b3979b074bfb90dcb8049649fe58c0c49048e490be1cfe"
+    },
+    {
+      "path": "game/tests/diag_startup_slices.gd",
+      "bytes": 11866,
+      "sha256": "27298a77395df2ed7e225cc66fc1d5647e0c9c2e7c3c0c68f5ce887d12afc48a"
+    },
+    {
+      "path": "game/tests/diag_startup_slices.gd.uid",
+      "bytes": 20,
+      "sha256": "761fffc57c6dbac687bff5fd51a2c665f77d8218b8c09487c67f3cb2c4fac68d"
+    },
+    {
+      "path": "game/tests/diag_time_equivalence.gd",
+      "bytes": 8803,
+      "sha256": "51b0b10d959ef9e4f4b49d7a1c22d07e31c9446341e9d64ba54733771d553ccc"
+    },
+    {
+      "path": "game/tests/diag_time_equivalence.gd.uid",
+      "bytes": 20,
+      "sha256": "a850e3e84aa3799d237d3d95882b94dc9ce70f6c9b217f2a105e434036958345"
+    },
+    {
+      "path": "game/tests/diag_war_map.gd",
+      "bytes": 15368,
+      "sha256": "19b9593f1c1b6b2be5123515b9f897d444f6ba49146da9e403a1a25189927207"
+    },
+    {
+      "path": "game/tests/diag_war_map.gd.uid",
+      "bytes": 20,
+      "sha256": "8e05c17c72644f9696a4e331b94cabe0d343ab6165be9d544f59661104fd45b0"
+    },
+    {
+      "path": "game/tests/diag_world_size.gd",
+      "bytes": 15274,
+      "sha256": "416b2adb931e112bd09a58bb716255d45b37e1a781f9186b893ef0874a005868"
+    },
+    {
+      "path": "game/tests/diag_world_size.gd.uid",
+      "bytes": 20,
+      "sha256": "b8b615368a5b0f8b9e2cd157632febded26d4bab6d89d757aeab6ca2b2810da1"
+    },
+    {
+      "path": "game/tests/farm_fixture_tools.gd",
+      "bytes": 2579,
+      "sha256": "0968e678565a40dca377376d0bd8ebda4288e6b615b02e2187bfb7789e8b4d73"
+    },
+    {
+      "path": "game/tests/farm_fixture_tools.gd.uid",
+      "bytes": 20,
+      "sha256": "d6f36e076961a1de21ba7a99a8188e158ce391758e0b644c5cef5a91e07959d6"
+    },
+    {
+      "path": "game/tests/health_util.gd",
+      "bytes": 1040,
+      "sha256": "ddd872223722e4810a1f9c025b1ba52573fb7d7f64a9a9086779d0fad30e74c1"
+    },
+    {
+      "path": "game/tests/health_util.gd.uid",
+      "bytes": 19,
+      "sha256": "a89e9374ca850afe578deddc819079111983b0b28055311ee597cb5b7bfee8ac"
+    },
+    {
+      "path": "game/tests/reference_smarter_loops.gd",
+      "bytes": 11621,
+      "sha256": "fe54391a97b425740d0550a0aca3916b92506d530e3b2157dffd17220cdd057c"
+    },
+    {
+      "path": "game/tests/reference_smarter_loops.gd.uid",
+      "bytes": 19,
+      "sha256": "b4920f9af98e7cc08b7dedeb7875ba97e7d6414de333a76a778778387a353a2c"
+    },
+    {
+      "path": "game/tests/reference_supply_lookups.gd",
+      "bytes": 8624,
+      "sha256": "bcaad1d90a1a1368862439d55cfdf5e881c6e19e3295a4b215fca461a631d71b"
+    },
+    {
+      "path": "game/tests/reference_supply_lookups.gd.uid",
+      "bytes": 20,
+      "sha256": "edfe90ed0f1437cab24f3120a054c79daaf57c0911d30c3d36bb6eded0206b82"
+    },
+    {
+      "path": "game/tests/runner.gd",
+      "bytes": 2206,
+      "sha256": "641a1e0b31253aff9252d68d22600a7441cc390b7d1c60ed6f8bddbb459e8a4a"
+    },
+    {
+      "path": "game/tests/runner.gd.uid",
+      "bytes": 19,
+      "sha256": "83a75bff2e0912a93f02a924618b3d88cec4042183db4ee3c05f9aa7f492fe19"
+    },
+    {
+      "path": "game/tests/runner.tscn",
+      "bytes": 159,
+      "sha256": "ea0d45a9845ed94752afa5788ca394835cebeed727289db87384ba0e03da92c0"
+    },
+    {
+      "path": "game/tests/sim_util.gd",
+      "bytes": 4421,
+      "sha256": "95a4b32a666ea7f938241669aaae1f26adc2157d5396e20e72d5d1d2cf702dc1"
+    },
+    {
+      "path": "game/tests/sim_util.gd.uid",
+      "bytes": 19,
+      "sha256": "1d5d46d4c02cedc9e7afcced0b233d4817dbbbfef0f69fb69f195caabf6c217f"
+    },
+    {
+      "path": "game/tests/test_academy_assignments.gd",
+      "bytes": 11734,
+      "sha256": "42835d20c31f021c351c93c6605ad6dfa8162207e50d9484b68a47f1b4baf24f"
+    },
+    {
+      "path": "game/tests/test_academy_assignments.gd.uid",
+      "bytes": 20,
+      "sha256": "35a699ea56d182ea82781a72a9266e4d1ec07adea8edd989949dd20d67883c52"
+    },
+    {
+      "path": "game/tests/test_arms_performance.gd",
+      "bytes": 19171,
+      "sha256": "07f9051f1f5f3706e05675a7bce7ed794429e7b374167cb1fcd04fdbde4106af"
+    },
+    {
+      "path": "game/tests/test_arms_performance.gd.uid",
+      "bytes": 19,
+      "sha256": "f8605c69c8c7d7feece332ad72f01c6c265f673dd08cacf526f2c0cce0295b0d"
+    },
+    {
+      "path": "game/tests/test_arms_trade.gd",
+      "bytes": 16815,
+      "sha256": "4d917f2567c3852afee5df5ddedda4fe6a1a9e7b85f9ef38fbc10e53b2807fa5"
+    },
+    {
+      "path": "game/tests/test_arms_trade.gd.uid",
+      "bytes": 20,
+      "sha256": "15cb652983e20316c1261e8def018ed93a4b7fb27da6dfd99842ebc5ce11f053"
+    },
+    {
+      "path": "game/tests/test_army_equipment_v045.gd",
+      "bytes": 19051,
+      "sha256": "6ac34f2005028e197c849788c125cdc6e0a2c98ad14a51201ba32c8cf69cc336"
+    },
+    {
+      "path": "game/tests/test_army_equipment_v045.gd.uid",
+      "bytes": 20,
+      "sha256": "9f626c09e9d641e9e79be1d6cdf2214156b5a0d5ac10f8a3f0af93380da8ac7a"
+    },
+    {
+      "path": "game/tests/test_army_scale_monster_pause.gd",
+      "bytes": 5397,
+      "sha256": "259e40faa8756b930395deb77005f5840ec64ceb305b6f8fb428fc39df6c6c63"
+    },
+    {
+      "path": "game/tests/test_army_scale_monster_pause.gd.uid",
+      "bytes": 19,
+      "sha256": "04e84d9d76a5b0c0a530091d471368eab0080c038ee64886bc7a4519eba881ab"
+    },
+    {
+      "path": "game/tests/test_art_map_tokens.gd",
+      "bytes": 10094,
+      "sha256": "d84c3724b4cc09355dbe70515c4836e65b939a83827f2534c34659c45c870e6c"
+    },
+    {
+      "path": "game/tests/test_art_map_tokens.gd.uid",
+      "bytes": 20,
+      "sha256": "fa8dce012ac66a466724e1bffc98797725ca652f4fd540cb4d354c33ec64c557"
+    },
+    {
+      "path": "game/tests/test_art_menus.gd",
+      "bytes": 1484,
+      "sha256": "6500c9a1d71434c8e5cf66361286c4cc0a20c8e4eea92ef39a14019aec59bcce"
+    },
+    {
+      "path": "game/tests/test_art_menus.gd.uid",
+      "bytes": 20,
+      "sha256": "5b610bb6c5e9072eb70d5a2e3e02d8402ba08256e6df8b5faf802ca6ca9c4ee1"
+    },
+    {
+      "path": "game/tests/test_art_paperdoll.gd",
+      "bytes": 4769,
+      "sha256": "a3be4d4a80357e12319cc30efbae3dbb8fd4e681fdf191fe2e7cece807df98c2"
+    },
+    {
+      "path": "game/tests/test_art_paperdoll.gd.uid",
+      "bytes": 20,
+      "sha256": "61b1c9a8e62013b66baf4a24d3b5da4a0351cb9424460f6c512b2b548a0cb521"
+    },
+    {
+      "path": "game/tests/test_art_redesign.gd",
+      "bytes": 17527,
+      "sha256": "56a059c2464610f8e431c9d91de0380d5d7d33111668015b3074390a7df4d805"
+    },
+    {
+      "path": "game/tests/test_art_redesign.gd.uid",
+      "bytes": 20,
+      "sha256": "d2463833603d722b5ef22b18421f8f7ed177028b14f0af4996499cdfdf8954ad"
+    },
+    {
+      "path": "game/tests/test_backstory_story.gd",
+      "bytes": 4358,
+      "sha256": "558c395dfd9713963c8e92be1b747c62acd79becc2e3e8ae79320743986329a6"
+    },
+    {
+      "path": "game/tests/test_backstory_story.gd.uid",
+      "bytes": 20,
+      "sha256": "7b34e9e27e18dc257b9aba060d3e8c49847ef9be5a4598fdbd69e068acacbe76"
+    },
+    {
+      "path": "game/tests/test_baggage.gd",
+      "bytes": 5237,
+      "sha256": "bb4beb3f8d2bb68756cd6c6f99fedf373ae555ca85c55f3099862cbe79f729b8"
+    },
+    {
+      "path": "game/tests/test_baggage.gd.uid",
+      "bytes": 20,
+      "sha256": "88ecef7fddcf2fdef1fcce240eecc7bcf846f212335872699fdbb5e9d2647000"
+    },
+    {
+      "path": "game/tests/test_bandit_camp_funding.gd",
+      "bytes": 4123,
+      "sha256": "bd263841503fd303fd985fcfd16a0976456666f6bea306634b6d02e5d9505268"
+    },
+    {
+      "path": "game/tests/test_bandit_camp_funding.gd.uid",
+      "bytes": 20,
+      "sha256": "53adce496863723663a00651ce11ee38787ec012f949be2ae9ed13afb4f3f371"
+    },
+    {
+      "path": "game/tests/test_barge.gd",
+      "bytes": 22624,
+      "sha256": "3a4534ec8d66700605f273b655efb0395a3bbd41a978496d50bfe9f49b007394"
+    },
+    {
+      "path": "game/tests/test_barge.gd.uid",
+      "bytes": 20,
+      "sha256": "29735c214c1b2db7b23414f994e56726fae9b60eaf8aadee56e5baacaea5c479"
+    },
+    {
+      "path": "game/tests/test_battle_creatures.gd",
+      "bytes": 3564,
+      "sha256": "3074108cd74b3088290d185d4d29ee2b5d593195c40decd27742d8c7c9ccff25"
+    },
+    {
+      "path": "game/tests/test_battle_creatures.gd.uid",
+      "bytes": 20,
+      "sha256": "c0e0e55b9973ea6cffb506106f567331e062c1aac95e796497c12f6b7be3e9b4"
+    },
+    {
+      "path": "game/tests/test_battle_pace_v014.gd",
+      "bytes": 12853,
+      "sha256": "b8ea01d7b76ae8b65fd93b1f09024f7355aa41bf828ba06d6940e0283bee9545"
+    },
+    {
+      "path": "game/tests/test_battle_pace_v014.gd.uid",
+      "bytes": 19,
+      "sha256": "4df9ecbcd652998b665c6ea04ee9ee5c78661c69de4f59f3939321bb9a19a730"
+    },
+    {
+      "path": "game/tests/test_battle_presentation_state.gd",
+      "bytes": 13110,
+      "sha256": "fd99143d46041ae2b20c029ca7ca718863888f6f80bf7732c21aa980d19c93a7"
+    },
+    {
+      "path": "game/tests/test_battle_presentation_state.gd.uid",
+      "bytes": 20,
+      "sha256": "7aa0f639fb394d1716a01a688e350fe40f7cf8a1cbf9477eb4700a8ae9ba76ca"
+    },
+    {
+      "path": "game/tests/test_battle_result_summary_v014.gd",
+      "bytes": 11805,
+      "sha256": "b604727ad9a943cb722482972bc775e03b85b4add43fa1786f6c716bafff60be"
+    },
+    {
+      "path": "game/tests/test_battle_result_summary_v014.gd.uid",
+      "bytes": 20,
+      "sha256": "805865b98e2171864b6bf30ddf287921e7eb6df65b6740bd98182c916a5b8a9a"
+    },
+    {
+      "path": "game/tests/test_battle_results_ui_v014.gd",
+      "bytes": 14626,
+      "sha256": "07e68a466b430e99a74b0e08cea617af27eabd5673e80334cc077cd3d9e5f9b2"
+    },
+    {
+      "path": "game/tests/test_battle_results_ui_v014.gd.uid",
+      "bytes": 20,
+      "sha256": "3563c1d6b56c5b2ccd39c9709768af95a087826f4f2ab476e363f3f83074d820"
+    },
+    {
+      "path": "game/tests/test_battle_screen.gd",
+      "bytes": 7674,
+      "sha256": "04370f25df4f0401c47e5c566ef88bfcb22e8f718bee3d5b6bca9c5254731f54"
+    },
+    {
+      "path": "game/tests/test_battle_screen.gd.uid",
+      "bytes": 20,
+      "sha256": "2c2a2614ecea564bc136adfaedcaab8ac90f2bf8eecdb3aa37faf9d9cf309d86"
+    },
+    {
+      "path": "game/tests/test_battle_visual_purity.gd",
+      "bytes": 9665,
+      "sha256": "903a91b7e550366cc20b5a557090841fd79bde558779502ac4e2c79a06014c5e"
+    },
+    {
+      "path": "game/tests/test_battle_visual_purity.gd.uid",
+      "bytes": 19,
+      "sha256": "44fb5ca8efd050633cff63d337477927856d4fee6a84f07f610839a025763c49"
+    },
+    {
+      "path": "game/tests/test_biz_people.gd",
+      "bytes": 13332,
+      "sha256": "87978f38e02d3583fbbc7696c8953e5aac106aa0c604feea614732d70a1ab085"
+    },
+    {
+      "path": "game/tests/test_biz_people.gd.uid",
+      "bytes": 20,
+      "sha256": "5fa006307cf8c55a58ecfe7affc753cc6b0227302dfefe086a2e519f33e5ccd8"
+    },
+    {
+      "path": "game/tests/test_bloodlines_ruler_art.gd",
+      "bytes": 5102,
+      "sha256": "07599cd5bfe4e18a5d1b859bc81c874c178579fc748491d67538ca89b6634e97"
+    },
+    {
+      "path": "game/tests/test_bloodlines_ruler_art.gd.uid",
+      "bytes": 20,
+      "sha256": "2d3ace9c9720771b205308d194630678a36659dc89bdb4bf507b38cdbb73e2a9"
+    },
+    {
+      "path": "game/tests/test_bows_econ.gd",
+      "bytes": 15495,
+      "sha256": "b7429444a7df2393db5229ffbaa81fa3716917121de65cef8c9d067c61503718"
+    },
+    {
+      "path": "game/tests/test_bows_econ.gd.uid",
+      "bytes": 20,
+      "sha256": "06f466c0009a9bd38de9f8226b52034e11f9ef395ae83b289ff6e7e319bf2c97"
+    },
+    {
+      "path": "game/tests/test_bows_melee_digest.gd",
+      "bytes": 6997,
+      "sha256": "d16472a09c6cf8a0c0d2d0903a5c85d30abe75d30822136001c4deb25e9cfea7"
+    },
+    {
+      "path": "game/tests/test_bows_melee_digest.gd.uid",
+      "bytes": 20,
+      "sha256": "944216da6c823535aabb4873ccbac5eba9dd444aa78163c87cd10dd10bb3b378"
+    },
+    {
+      "path": "game/tests/test_bows_sim.gd",
+      "bytes": 19395,
+      "sha256": "9d8817ae6455c8c90a3fb771ed8cdd45daa963491232c7a8e59a7cccf0d52e51"
+    },
+    {
+      "path": "game/tests/test_bows_sim.gd.uid",
+      "bytes": 20,
+      "sha256": "a8e63bf03346e8a28e0fb606f8be2a7b87f0c5e2adbfee64104d822473097b98"
+    },
+    {
+      "path": "game/tests/test_builder_payments.gd",
+      "bytes": 6622,
+      "sha256": "e8104e6ff2ccaa25254b28f5bae642e3b9bd562e431cfa5c00c3425e1deec380"
+    },
+    {
+      "path": "game/tests/test_builder_payments.gd.uid",
+      "bytes": 20,
+      "sha256": "1f644e212c9c3f7e7c1c85a6c24f009650faadd82598e204dafe8d8dfc3d0d84"
+    },
+    {
+      "path": "game/tests/test_calendar.gd",
+      "bytes": 801,
+      "sha256": "2a4f222242e77e5a332adc887c9e95b0cecf2f57eac7c818daff24ba42638576"
+    },
+    {
+      "path": "game/tests/test_calendar.gd.uid",
+      "bytes": 20,
+      "sha256": "96e2e0e8d736604a62ffb48bfc77ade74afd81d2c3f2a9569dfd7f57a33b5491"
+    },
+    {
+      "path": "game/tests/test_campaign_caravans.gd",
+      "bytes": 14747,
+      "sha256": "45f57a6f884e7a9af6446c524a4c65151210a3e56e39faf494ff152ff46fe764"
+    },
+    {
+      "path": "game/tests/test_campaign_caravans.gd.uid",
+      "bytes": 20,
+      "sha256": "36ed24010f1baecbfc7199e6147dbf6909f918aac5cf46389a50527496ec70cb"
+    },
+    {
+      "path": "game/tests/test_campaign_census.gd",
+      "bytes": 8139,
+      "sha256": "2baa896076bfeca73fc344a02311cd25d3884e19eef835a769a2b4461ace3ab8"
+    },
+    {
+      "path": "game/tests/test_campaign_census.gd.uid",
+      "bytes": 20,
+      "sha256": "cf89ec790a253ce9ea10adc5d07e2278443fb004fb8184b1845088f0b1e6b719"
+    },
+    {
+      "path": "game/tests/test_campaign_contracts.gd",
+      "bytes": 6698,
+      "sha256": "5c7a00a21e3834a548b7a7f1c2c13f4f394017570e923d49432ad2084a3c87fb"
+    },
+    {
+      "path": "game/tests/test_campaign_contracts.gd.uid",
+      "bytes": 20,
+      "sha256": "234e9f421f7bc2adcbd7f1ba7b9f61e15167bd6c1965c700c6573b6eb951da62"
+    },
+    {
+      "path": "game/tests/test_campaign_diplomacy.gd",
+      "bytes": 28000,
+      "sha256": "e2545ce68755b057f42452295e162db24f76d71a96a4509a84cb49700b85acab"
+    },
+    {
+      "path": "game/tests/test_campaign_diplomacy.gd.uid",
+      "bytes": 19,
+      "sha256": "5f52870b4d038fdaac4f19c7d115552a4506fdf8862ed6947733d20fbde11d3c"
+    },
+    {
+      "path": "game/tests/test_campaign_focus_v011.gd",
+      "bytes": 640,
+      "sha256": "264346062072babbab4d616dcb789a765cdf39e22ab06bc91f55219bc5fd9369"
+    },
+    {
+      "path": "game/tests/test_campaign_focus_v011.gd.uid",
+      "bytes": 20,
+      "sha256": "2a4546e1d3038ce7b448f7af61eaa96a3dc87ae6ac824f56a2300444ece4f941"
+    },
+    {
+      "path": "game/tests/test_campaign_map_lookups.gd",
+      "bytes": 5622,
+      "sha256": "46d6d7686fe7a7052f62a44f3888f7f2137be6fa29af019477b4a40c516b7f19"
+    },
+    {
+      "path": "game/tests/test_campaign_map_lookups.gd.uid",
+      "bytes": 20,
+      "sha256": "f6ad1a6f6103bea67c483e92fcf53e6022f5dbc4d988115504319b7d4121bfb4"
+    },
+    {
+      "path": "game/tests/test_campaign_monsters.gd",
+      "bytes": 19083,
+      "sha256": "8c675aa31d054f42546b7df3bb8bb4e16b6bd632eb49e61d03115b797c10b2d8"
+    },
+    {
+      "path": "game/tests/test_campaign_monsters.gd.uid",
+      "bytes": 19,
+      "sha256": "493a6900dfeb9a21981ae29010b72652ae7138845c1672aca361475a27efe705"
+    },
+    {
+      "path": "game/tests/test_campaign_save.gd",
+      "bytes": 2832,
+      "sha256": "2b5d62555df93971f58cb949f1fd7e94b94587ea72e256f0564cc9b53736f6bd"
+    },
+    {
+      "path": "game/tests/test_campaign_save.gd.uid",
+      "bytes": 20,
+      "sha256": "e2e796d0fa2fb8294f21fcc0e22ce4b97ba7de85616d33d7b326df779744bc30"
+    },
+    {
+      "path": "game/tests/test_campaign_tracks.gd",
+      "bytes": 13780,
+      "sha256": "f9460846cf6664ea80f9623e78ea7afbc6485cbf2afc7b8af91a24309df14d06"
+    },
+    {
+      "path": "game/tests/test_campaign_tracks.gd.uid",
+      "bytes": 20,
+      "sha256": "8b6de77a208a4b0ee9ffafed1b65b82aa9542db2017d4097a21d13e4a1b2d02e"
+    },
+    {
+      "path": "game/tests/test_campaign_war.gd",
+      "bytes": 27857,
+      "sha256": "fd97a04017324b69532aa05a5453f2fc94d3d287576fa96a2e799cab24a8bbc8"
+    },
+    {
+      "path": "game/tests/test_campaign_war.gd.uid",
+      "bytes": 20,
+      "sha256": "4f9a790014684aed5c55290f62b822f7222b0463a53e291bf90aad5df9d9c786"
+    },
+    {
+      "path": "game/tests/test_campaign_warbands.gd",
+      "bytes": 4684,
+      "sha256": "3280aee3c274c11cf29ea6bd04f30491398c1fc9882675cbdf162237464a03d8"
+    },
+    {
+      "path": "game/tests/test_campaign_warbands.gd.uid",
+      "bytes": 20,
+      "sha256": "2ed349d7a89ebce3e9b0f6fdd7d5b5d41ea302e174939a42292cf97f420ad97c"
+    },
+    {
+      "path": "game/tests/test_campaign_world.gd",
+      "bytes": 7663,
+      "sha256": "1ebb15de9f4dfa691516ee8a048bd317da64b10bc72985e96846303f5f9c3023"
+    },
+    {
+      "path": "game/tests/test_campaign_world.gd.uid",
+      "bytes": 20,
+      "sha256": "68d0c11722e4ebded806d03296d0a08c81820590af2817532c77b844adee7be3"
+    },
+    {
+      "path": "game/tests/test_casual_matching.gd",
+      "bytes": 3867,
+      "sha256": "edafa6d62263c49ceb7ceb6abbfb12b376638336bf77eec4140dbe7327e2f4dc"
+    },
+    {
+      "path": "game/tests/test_casual_matching.gd.uid",
+      "bytes": 20,
+      "sha256": "afa0778eec766e754ef7ff2636f73d4f09e7f74167cde6d02fa82aced4b02e5d"
+    },
+    {
+      "path": "game/tests/test_casual_occupancy_save.gd",
+      "bytes": 4105,
+      "sha256": "7be88bb74881159ecaf128f3cfa6d6cb468fceb3a85fc988d372d67c7487ff66"
+    },
+    {
+      "path": "game/tests/test_casual_occupancy_save.gd.uid",
+      "bytes": 20,
+      "sha256": "928b3b6ec8718978cc8b254546f89b5f2f1f16631ac8243be8be2bd8eefd0655"
+    },
+    {
+      "path": "game/tests/test_casual_short_pay.gd",
+      "bytes": 3145,
+      "sha256": "a209d46986fbc9d30ab61ff11e601519f1b1aaf28ec870fe0b94152f683c1bb5"
+    },
+    {
+      "path": "game/tests/test_casual_short_pay.gd.uid",
+      "bytes": 19,
+      "sha256": "13e1134672f59203937855f138d096edc67cd103dccbd43e300560b0d989333a"
+    },
+    {
+      "path": "game/tests/test_child_cleanup.gd",
+      "bytes": 2875,
+      "sha256": "2271608c7f10f8a06da3849150ec80885d37ac60484b20d2a9201fab3685bda0"
+    },
+    {
+      "path": "game/tests/test_child_cleanup.gd.uid",
+      "bytes": 19,
+      "sha256": "5d7b2a2fef6380dcb9f6d4967c2bae5b4e6be3bf92a40e7ad6c2de143f7211f6"
+    },
+    {
+      "path": "game/tests/test_combat_history_integration_v016.gd",
+      "bytes": 8902,
+      "sha256": "24bb317d5d7fe481beed39da783c0d442d0ad19fee172d9d3ae5dd2d161c4351"
+    },
+    {
+      "path": "game/tests/test_combat_history_integration_v016.gd.uid",
+      "bytes": 20,
+      "sha256": "f7ea1bd00aeb7ad58fdad64a94b7058148ee974bbcd0b1c2319e04b80216b646"
+    },
+    {
+      "path": "game/tests/test_combat_journal_v016.gd",
+      "bytes": 15554,
+      "sha256": "af61e478fbedc9072473160614d4d2bf0e0939b51ae5f2fab37c46bed1cf838a"
+    },
+    {
+      "path": "game/tests/test_combat_journal_v016.gd.uid",
+      "bytes": 20,
+      "sha256": "de4dd6da391dd865ac47c3efd5ab9eb109978fec200d457b18f408b7ffce0c6f"
+    },
+    {
+      "path": "game/tests/test_combat_log_ui_v016.gd",
+      "bytes": 28460,
+      "sha256": "41887bf8a23e109d08e4f83134e1ba921f4176006fb753bdaa6ddc5a9035c38c"
+    },
+    {
+      "path": "game/tests/test_combat_log_ui_v016.gd.uid",
+      "bytes": 20,
+      "sha256": "be4eb9d07a18904bc04dc61180dddb52c2e8848a1705a8340c94c999c3b7106d"
+    },
+    {
+      "path": "game/tests/test_company_wages_v046.gd",
+      "bytes": 10103,
+      "sha256": "731bb997a1e21962eeb76cca057b0c3ca4b2d544fc818cbe6e5de4789bcc52eb"
+    },
+    {
+      "path": "game/tests/test_company_wages_v046.gd.uid",
+      "bytes": 20,
+      "sha256": "2ccd9d1058db18b78fb7d637549c171baafb678fc7940f6744b33cd265a7eb44"
+    },
+    {
+      "path": "game/tests/test_core.gd",
+      "bytes": 2041,
+      "sha256": "be3f78c8272d94a0515232d543b1f814c9dbe6f16f0892f799eed6980a2f0823"
+    },
+    {
+      "path": "game/tests/test_core.gd.uid",
+      "bytes": 20,
+      "sha256": "311972116bd667af838794a7005ed9d122220e752b486adbd211ece5b8197bb6"
+    },
+    {
+      "path": "game/tests/test_creature_check_performance.gd",
+      "bytes": 5520,
+      "sha256": "1d2bad43f195655937d59b09e76ad27036778dad70bbd5a60c03856fea00bb72"
+    },
+    {
+      "path": "game/tests/test_creature_check_performance.gd.uid",
+      "bytes": 19,
+      "sha256": "9e1250fe825ce228776b5a55c979a07daca4f3628db340a986f1d10c5795ab0c"
+    },
+    {
+      "path": "game/tests/test_deploy.gd",
+      "bytes": 2238,
+      "sha256": "7d42be58abfdd2d2fb47fd75302d195b495b6f67bbe5211467af30906cc79aa1"
+    },
+    {
+      "path": "game/tests/test_deploy.gd.uid",
+      "bytes": 20,
+      "sha256": "5d5f763f91b17f59c72fc8f92e15b8e6d4739849719278f01506bd4bce06d2e3"
+    },
+    {
+      "path": "game/tests/test_dragon_asset_succession.gd",
+      "bytes": 7429,
+      "sha256": "1796de6b66bc55ff31fa21da725be6bca19bc79213c9bea4798dd98ef3151f9d"
+    },
+    {
+      "path": "game/tests/test_dragon_asset_succession.gd.uid",
+      "bytes": 21,
+      "sha256": "234ad78e5ed62b9fefb6dd20cff1b599186710481d7fda3511d14a0992eff2d5"
+    },
+    {
+      "path": "game/tests/test_dragon_care_release.gd",
+      "bytes": 4087,
+      "sha256": "f76716e9c17a3e7529c57b8c36f6f39f4a6ae195bfd3a1ed620384d7013aa057"
+    },
+    {
+      "path": "game/tests/test_dragon_care_release.gd.uid",
+      "bytes": 20,
+      "sha256": "9cc1ef505c0ac871892a23e88fe0c40711516299d09a87b2dbe3da8caec832e1"
+    },
+    {
+      "path": "game/tests/test_dragon_care_ui.gd",
+      "bytes": 10735,
+      "sha256": "841a4d0f2df678e4bf535ebb299a63eb8145afb6038eee153fa9925439d6c631"
+    },
+    {
+      "path": "game/tests/test_dragon_care_ui.gd.uid",
+      "bytes": 20,
+      "sha256": "882f5509d412d1d6325807d853241d9513e53dbf3e78d60f69ff082854d75afa"
+    },
+    {
+      "path": "game/tests/test_dragon_care.gd",
+      "bytes": 15106,
+      "sha256": "138fae7f8f64c5bf04bc63b85d7e9a121c017a8a57385573a7f56c6b107aad93"
+    },
+    {
+      "path": "game/tests/test_dragon_care.gd.uid",
+      "bytes": 20,
+      "sha256": "c2123d88ed6b358c489af888aacca0bbec5231e60bf44fcb150e95a178d3687b"
+    },
+    {
+      "path": "game/tests/test_dragon_concepts.gd",
+      "bytes": 4064,
+      "sha256": "7da3c3ddeb406ced674465c0657fffb78a7fcb74c867c2ce752e30c8b6d4f71b"
+    },
+    {
+      "path": "game/tests/test_dragon_concepts.gd.uid",
+      "bytes": 21,
+      "sha256": "5fb075f19b709a033d3aca962fe29ad55bd415cceb62e4b6db635802e3854280"
+    },
+    {
+      "path": "game/tests/test_dragon_damage_art.gd",
+      "bytes": 12784,
+      "sha256": "439aa783c7d91e19377fd8b067232ecd139a4c6a1642cdaf4a650671f1cb9c63"
+    },
+    {
+      "path": "game/tests/test_dragon_damage_art.gd.uid",
+      "bytes": 19,
+      "sha256": "cc53526603491190b93aa03183005edae9839af59f86fbe9fb1f5fe9bb6b176e"
+    },
+    {
+      "path": "game/tests/test_dragon_growth.gd",
+      "bytes": 7537,
+      "sha256": "1a91015db29089a738244fe06b780086f738a9d7e334d792c9f7668a599a7268"
+    },
+    {
+      "path": "game/tests/test_dragon_growth.gd.uid",
+      "bytes": 20,
+      "sha256": "f20334ad2c0d6d750335181a786849b1214f20315f46d4a95f2a2058b9eb8def"
+    },
+    {
+      "path": "game/tests/test_dragon_identities.gd",
+      "bytes": 27544,
+      "sha256": "dd61b0eadb642baab66b4582a3287610de038b9156effbb309b7f4e3cd4dda1a"
+    },
+    {
+      "path": "game/tests/test_dragon_identities.gd.uid",
+      "bytes": 20,
+      "sha256": "fd7e6fe559caa91482d57cd99aed185e6d8f7db32d49eed7913630a749678187"
+    },
+    {
+      "path": "game/tests/test_dragon_models.gd",
+      "bytes": 15444,
+      "sha256": "fd5a3ca77e49c01975de3cdabd58cce20672978c63ef1d67b106de0f1f08a18f"
+    },
+    {
+      "path": "game/tests/test_dragon_models.gd.uid",
+      "bytes": 21,
+      "sha256": "7a35a494a7a18c5fbdcc2b2a43cf18ad1f80f01fa02ae74a9a90240a370a18ab"
+    },
+    {
+      "path": "game/tests/test_dragon_mount_preview.gd",
+      "bytes": 10163,
+      "sha256": "07a70d2e075cf34dbe21708a1f734132f5aa40f47ac8bf610a173139dad98b49"
+    },
+    {
+      "path": "game/tests/test_dragon_mount_preview.gd.uid",
+      "bytes": 21,
+      "sha256": "d0d83e057b23b71f5051bd41356ff22f5fc85f1d031ed6e19a4a61db745842c0"
+    },
+    {
+      "path": "game/tests/test_dragon_release.gd",
+      "bytes": 6954,
+      "sha256": "e7b2817f3938225690e4e6fd2d920f5d619afb3ef033500c4fc914fe0387f960"
+    },
+    {
+      "path": "game/tests/test_dragon_release.gd.uid",
+      "bytes": 20,
+      "sha256": "ae44edc7811a68725317897e5f3bdd8a27135ae345bc119a82a34c1d3a83cc31"
+    },
+    {
+      "path": "game/tests/test_dragon_ui.gd",
+      "bytes": 20654,
+      "sha256": "0e6263abe1ee59167764c695880a65e5ebe0455422b770a7bfac061798f9ca02"
+    },
+    {
+      "path": "game/tests/test_dragon_ui.gd.uid",
+      "bytes": 20,
+      "sha256": "427a4b32692464a934d96edcac1a4febfc5e466fb06656cd2d15bcab564c7ffb"
+    },
+    {
+      "path": "game/tests/test_dynasty_card_performance.gd",
+      "bytes": 6934,
+      "sha256": "a6f8f36dd0c55899b4840e91d6525420d770f03a081188f0cdf0ec5a64b2ff36"
+    },
+    {
+      "path": "game/tests/test_dynasty_card_performance.gd.uid",
+      "bytes": 20,
+      "sha256": "7215cbfa8df145b916775924709c74c7da4c40a252545204d0a3f0484e637a85"
+    },
+    {
+      "path": "game/tests/test_dynasty_defeat.gd",
+      "bytes": 8866,
+      "sha256": "2c7552077bb607d7919e30df45a2c1e84de82eb40dbf3197b921300095ab4623"
+    },
+    {
+      "path": "game/tests/test_dynasty_defeat.gd.uid",
+      "bytes": 20,
+      "sha256": "881c00f404399de0cbda9a1f9c51488e2d567d019713fdf38712327ffdddfa90"
+    },
+    {
+      "path": "game/tests/test_dynasty_foundation.gd",
+      "bytes": 13345,
+      "sha256": "b9f4020f8426867b02ebef90b95a4af4fb15fc6f5c39c2dd306eba594decafe5"
+    },
+    {
+      "path": "game/tests/test_dynasty_foundation.gd.uid",
+      "bytes": 20,
+      "sha256": "2a32ad0007d018fe7c89489003c0a5672d382522894d54d1f73b80d04a69cf61"
+    },
+    {
+      "path": "game/tests/test_dynasty_read_performance.gd",
+      "bytes": 12433,
+      "sha256": "ee5b6ae2e647132ad6d68dcd2293b869e6048a240d0ca3d2a43e77d88a1993c8"
+    },
+    {
+      "path": "game/tests/test_dynasty_read_performance.gd.uid",
+      "bytes": 20,
+      "sha256": "d7d271e2d1396027f01c2267e285bb55e7bc2cb1521a1bc51c07ea883f4a82c5"
+    },
+    {
+      "path": "game/tests/test_dynasty_release.gd",
+      "bytes": 6755,
+      "sha256": "76428ec9059b2bdabccf236e93cff8ba3ffca68afef27b2ac2191b1e629335f8"
+    },
+    {
+      "path": "game/tests/test_dynasty_release.gd.uid",
+      "bytes": 20,
+      "sha256": "75aed23463c27eff21835c9ea42637d6a7407a4ef637ca15913415ebc4716f71"
+    },
+    {
+      "path": "game/tests/test_dynasty_ui.gd",
+      "bytes": 12751,
+      "sha256": "edd7c6381f1455518143515c6d537d1d57d1f12c08140cfb2349f3c93d499345"
+    },
+    {
+      "path": "game/tests/test_dynasty_ui.gd.uid",
+      "bytes": 20,
+      "sha256": "52e4911089a172ec8d23b1359a0a8c82186beb92340f7beb6d5d5768ccec1371"
+    },
+    {
+      "path": "game/tests/test_econ_army.gd",
+      "bytes": 39324,
+      "sha256": "a79d93a835ac646d6355e2221ee22900ef497b23ad334676294d495558896b48"
+    },
+    {
+      "path": "game/tests/test_econ_army.gd.uid",
+      "bytes": 20,
+      "sha256": "9e2f8d8791334a4b9ed305b8fd0f82b2aee4d06920accbc727229c9f74d25c19"
+    },
+    {
+      "path": "game/tests/test_econ_hardship.gd",
+      "bytes": 10698,
+      "sha256": "5d9eabb2f9fb9aa5a61a0c3e0aa4f635f47db44e9989476c7a6857b64cf35cb2"
+    },
+    {
+      "path": "game/tests/test_econ_hardship.gd.uid",
+      "bytes": 20,
+      "sha256": "70022dea5542b6096711cb39b6f4ac7f751ba73e9a36ae7dd9d2a71d2d843f5d"
+    },
+    {
+      "path": "game/tests/test_econ_sanity.gd",
+      "bytes": 700,
+      "sha256": "65072963cb3c58b1a48b211d5907e2968e4c217093b79ed19116dc24210ee262"
+    },
+    {
+      "path": "game/tests/test_econ_sanity.gd.uid",
+      "bytes": 19,
+      "sha256": "1d3227bddf6632bdac1e650ec0036fc26307bd22d12e78e9d0068097e8bc580d"
+    },
+    {
+      "path": "game/tests/test_econ_town.gd",
+      "bytes": 63635,
+      "sha256": "08e314666a6db21e83b36d999ad31fbc0bac1209e554b440912c79947cbe67f4"
+    },
+    {
+      "path": "game/tests/test_econ_town.gd.uid",
+      "bytes": 19,
+      "sha256": "b48894a4a86116c1c595f6b239483446397c97eb0f1a6366219b3990f0d0b0bc"
+    },
+    {
+      "path": "game/tests/test_economy_fields.gd",
+      "bytes": 3177,
+      "sha256": "899fb38736f6da2d44621b880598fe0f65fd147c75cab06d481343a58b0a455e"
+    },
+    {
+      "path": "game/tests/test_economy_fields.gd.uid",
+      "bytes": 20,
+      "sha256": "e0f5484e316156dd08a7d85e2437b45f16cc043b18f589ef8f8da06789d43fde"
+    },
+    {
+      "path": "game/tests/test_economy_fixes.gd",
+      "bytes": 3623,
+      "sha256": "3af85bbf1a5d42374d1ec3d9ac34a5af11c0084a6623d7c21dbeb01a87f50d84"
+    },
+    {
+      "path": "game/tests/test_economy_fixes.gd.uid",
+      "bytes": 20,
+      "sha256": "2e5c2f2edc2956604bfbc63de1c71356a31b8b5228b4a146b334e1c2e38b7cff"
+    },
+    {
+      "path": "game/tests/test_economy_town.gd",
+      "bytes": 3698,
+      "sha256": "a35aab73129e44d0e7ad6fdb4eb141daa23a1c6c8bedef2a17d7eebcb8c271dc"
+    },
+    {
+      "path": "game/tests/test_economy_town.gd.uid",
+      "bytes": 20,
+      "sha256": "0d3c3eb31766948981cc9495e439dd4aeb81615866fc7f4c039199d79a915199"
+    },
+    {
+      "path": "game/tests/test_farm_capacity_funding.gd",
+      "bytes": 6757,
+      "sha256": "1f9b2899531f1eee421568221d0a9a43aa7469d2761382381a660132a8d3283f"
+    },
+    {
+      "path": "game/tests/test_farm_capacity_funding.gd.uid",
+      "bytes": 19,
+      "sha256": "c5ed77263c73745fa9fc3f166db78f08adf48e970a6a9ca2c973646db8e0fd08"
+    },
+    {
+      "path": "game/tests/test_farm_inheritance.gd",
+      "bytes": 5857,
+      "sha256": "f2908bfa0f9a5bea68a37b8d344cae16f68a200665ee7898bc72f267c2906c3e"
+    },
+    {
+      "path": "game/tests/test_farm_inheritance.gd.uid",
+      "bytes": 20,
+      "sha256": "aac303ce9a123bf59e8adf5dd7b21e7ca65edceb321a21a1bea3d3609c093d7c"
+    },
+    {
+      "path": "game/tests/test_farm_retention.gd",
+      "bytes": 9085,
+      "sha256": "c88f81e2f1552246c2a86150c5d7211af6d2d77f43fa344f21b784c2ed997729"
+    },
+    {
+      "path": "game/tests/test_farm_retention.gd.uid",
+      "bytes": 20,
+      "sha256": "34c46b11011b51b019559de68306ba38468296a6fa9f9143bb694be58cff6e9e"
+    },
+    {
+      "path": "game/tests/test_farm_season_turn.gd",
+      "bytes": 4313,
+      "sha256": "889d7a74b93de30f8d8d1f0e17fed043a5a3523facb1a3fb8274728aee9142ba"
+    },
+    {
+      "path": "game/tests/test_farm_season_turn.gd.uid",
+      "bytes": 20,
+      "sha256": "d4e4a18bcf933a4d6c71d224a7fb0d5506dbeade82b302469cbe89f5c9febe4f"
+    },
+    {
+      "path": "game/tests/test_farm_work_rules.gd",
+      "bytes": 6569,
+      "sha256": "3209def12779f9456650e730e447ebc344bbf4fa7cb0df7f5ca4a0801e5d797f"
+    },
+    {
+      "path": "game/tests/test_farm_work_rules.gd.uid",
+      "bytes": 19,
+      "sha256": "afe797e7c7c6395856e5dc4a1b2879ac690a37ba48449de50e92c8cf245b5ee4"
+    },
+    {
+      "path": "game/tests/test_farm_work_save.gd",
+      "bytes": 4298,
+      "sha256": "a88c9f76674e41ff21f120d03a220b20f99136c9ef6e54da1b9cf2fd94b38088"
+    },
+    {
+      "path": "game/tests/test_farm_work_save.gd.uid",
+      "bytes": 19,
+      "sha256": "0c763f5c33d511a459c971eabf76b862034caa62da53e0ea6b4cca47f73ea918"
+    },
+    {
+      "path": "game/tests/test_farm_worked.gd",
+      "bytes": 6069,
+      "sha256": "32205f55ea7bf9911401d2a0e3f5f28ffdd8ade7b388cf89c282b21286447e3d"
+    },
+    {
+      "path": "game/tests/test_farm_worked.gd.uid",
+      "bytes": 19,
+      "sha256": "ad1d86740cdbe5db63e3be0fddbee4abcb38383cb50e2e8a868bd0b88cc6af5f"
+    },
+    {
+      "path": "game/tests/test_feudal_governance.gd",
+      "bytes": 15667,
+      "sha256": "e1ee2e3d7f12d33c728c2672a80d5d47f342b46b16a4bfc0673bba81336180ac"
+    },
+    {
+      "path": "game/tests/test_feudal_governance.gd.uid",
+      "bytes": 20,
+      "sha256": "735438a4451b71cb44ebdfdbce545331b133c459872c3be16643a16903f2e215"
+    },
+    {
+      "path": "game/tests/test_feudal_metallurgy.gd",
+      "bytes": 5373,
+      "sha256": "260336c9ae30acd8d832a71275a9dd5f29601b3917c7215b5cd005aa9ad87f68"
+    },
+    {
+      "path": "game/tests/test_feudal_metallurgy.gd.uid",
+      "bytes": 19,
+      "sha256": "788ed53774458582c8380e7bb097063430ae80a77ced1bc5a1213efc0f9b5b2d"
+    },
+    {
+      "path": "game/tests/test_feudal_succession.gd",
+      "bytes": 12114,
+      "sha256": "4e4a9140b980de100bd9386a6094836efad60ccc11ca60e7cfaa16535732453e"
+    },
+    {
+      "path": "game/tests/test_feudal_succession.gd.uid",
+      "bytes": 20,
+      "sha256": "2d3a6fef789692eaeccc61ee9351e3efe9bf123c927bbc65e3b03d2f5f90dac5"
+    },
+    {
+      "path": "game/tests/test_flow.gd",
+      "bytes": 1814,
+      "sha256": "6b38e6da1a0a59050863f1076e4a35d9de87bfb6f264e589fd3d315241483490"
+    },
+    {
+      "path": "game/tests/test_flow.gd.uid",
+      "bytes": 20,
+      "sha256": "9fe3313f75c535ba5c26f6d7ce5a8521b6a2010868d32834450d7d41cd743668"
+    },
+    {
+      "path": "game/tests/test_food_battle.gd",
+      "bytes": 11143,
+      "sha256": "9b3f20902f70c505a574164e6b3f076a7fc7dbd3c275c972b2b76631d83d8076"
+    },
+    {
+      "path": "game/tests/test_food_battle.gd.uid",
+      "bytes": 20,
+      "sha256": "43eb783b48118433734cb8434d6b6a940ba553c605c51e16ab04d79f9780c85a"
+    },
+    {
+      "path": "game/tests/test_food_campaign.gd",
+      "bytes": 16603,
+      "sha256": "1eed16b9786899570cebaf55f4f6df9ea9a32938b520853ba7f8908e8bbcfa9f"
+    },
+    {
+      "path": "game/tests/test_food_campaign.gd.uid",
+      "bytes": 20,
+      "sha256": "43c729bc89d0d6ea84bb348e7e2bb69b86f5f219ce1fb2cb3e6c7841ec95c1d6"
+    },
+    {
+      "path": "game/tests/test_food_hungry.gd",
+      "bytes": 3119,
+      "sha256": "3c7fc61dfa7179141d9a7e8f4a3a7758d6b26e5dc38183ed1ebf31a84f1ee858"
+    },
+    {
+      "path": "game/tests/test_food_hungry.gd.uid",
+      "bytes": 20,
+      "sha256": "dd95f569b5e86ea6d765ffb5e734032c7d62ad80aaaeab5253cc9003db99058f"
+    },
+    {
+      "path": "game/tests/test_food_named_save.gd",
+      "bytes": 1130,
+      "sha256": "1903ad76d45c7e01b30ce26de1e920b92c45776ff9b98e5e5d82dcf15d3d0208"
+    },
+    {
+      "path": "game/tests/test_food_named_save.gd.uid",
+      "bytes": 20,
+      "sha256": "866de675b88256c529850dc0390ac345a719daf8bcda514469012d36d7c5bef0"
+    },
+    {
+      "path": "game/tests/test_food_named_weight.gd",
+      "bytes": 6319,
+      "sha256": "0ba6bbfd2941984c505298baa796ca4f6b165737616a9e8a1f9683de45a8f725"
+    },
+    {
+      "path": "game/tests/test_food_named_weight.gd.uid",
+      "bytes": 20,
+      "sha256": "506a4ce66308b36bd4e602784a8bfd6dc17745becd2fb072064feeeb407c4107"
+    },
+    {
+      "path": "game/tests/test_food_named.gd",
+      "bytes": 8182,
+      "sha256": "0ef069c7e0a6a4c56f793407e9e545997e553f9b18f68a395509d6159130b677"
+    },
+    {
+      "path": "game/tests/test_food_named.gd.uid",
+      "bytes": 20,
+      "sha256": "bcb65789b4f1e8adfdeb78afe18992c15ea3b7109a82d48f95d4df859cec731f"
+    },
+    {
+      "path": "game/tests/test_forge_procurement_v011.gd",
+      "bytes": 6283,
+      "sha256": "a306d3854522fe5f1114339330cf6c344be16f47d29e17f54a79a0030f4b87d7"
+    },
+    {
+      "path": "game/tests/test_forge_procurement_v011.gd.uid",
+      "bytes": 19,
+      "sha256": "c05e24533a4057f164d9a9ae1ded35f8e1823c29b10bf27ae3152c0f8abcf7d8"
+    },
+    {
+      "path": "game/tests/test_funded_hiring.gd",
+      "bytes": 10431,
+      "sha256": "f69d207599a604ddabcee26c4b0657e0b25f7fc9639972e6a9333a977d0e5876"
+    },
+    {
+      "path": "game/tests/test_funded_hiring.gd.uid",
+      "bytes": 19,
+      "sha256": "6f894023b6842531da36e081aab72832779c9c096d84a8bab98a9f9009a1e937"
+    },
+    {
+      "path": "game/tests/test_gore_render_v016.gd",
+      "bytes": 13607,
+      "sha256": "4bd8de8cf17a355b9a5c0f048b1f26bdee33e9c36757becd1a770479407ec8d8"
+    },
+    {
+      "path": "game/tests/test_gore_render_v016.gd.uid",
+      "bytes": 19,
+      "sha256": "198bfc07a0af053438a92dd93712d70d17803300f73d3406e07c16aa85b47e15"
+    },
+    {
+      "path": "game/tests/test_gore_text.gd",
+      "bytes": 20567,
+      "sha256": "2a72cd599cd1abcf926d8fdc915c94231289d03ef98a6eda27e72aeebd1e3052"
+    },
+    {
+      "path": "game/tests/test_gore_text.gd.uid",
+      "bytes": 20,
+      "sha256": "24d260af86838612345aef247c6659cbe7e9089519b2e74a5a868c7254e31f37"
+    },
+    {
+      "path": "game/tests/test_governance_ui.gd",
+      "bytes": 12903,
+      "sha256": "626c74c4aa3ed89acfb2d87bd36e9bcceb7ad04c22172aa8147f453be617cb65"
+    },
+    {
+      "path": "game/tests/test_governance_ui.gd.uid",
+      "bytes": 20,
+      "sha256": "d11eb2a7312788f6f5646055d33b125269e18a2dbaf98fb4fcac0fd7e130c5fa"
+    },
+    {
+      "path": "game/tests/test_guard_death_v046.gd",
+      "bytes": 12118,
+      "sha256": "c1aab2ed91f797eab9fd3cbde53bb383920428325312b5db05baaf540eecd59e"
+    },
+    {
+      "path": "game/tests/test_guard_death_v046.gd.uid",
+      "bytes": 19,
+      "sha256": "076f658c594948b7fb6e20fdde122baef07f7006da8b6d46bfc3d59145ef4660"
+    },
+    {
+      "path": "game/tests/test_harvest_herds.gd",
+      "bytes": 8630,
+      "sha256": "b34f159cf2613a9fe149b955cefe74d3fd4ef01de72a8b00d0de3b7474338910"
+    },
+    {
+      "path": "game/tests/test_harvest_herds.gd.uid",
+      "bytes": 20,
+      "sha256": "2d24319a4c0524bed45f592dfcecc36b12ce4284a5e4f9621e9aebcab1ea6a0b"
+    },
+    {
+      "path": "game/tests/test_harvest_labour.gd",
+      "bytes": 3028,
+      "sha256": "c8b6d16f9d888864f85c5af819b44727d0f8723b9fe8bcca80e02e91b11eef45"
+    },
+    {
+      "path": "game/tests/test_harvest_labour.gd.uid",
+      "bytes": 20,
+      "sha256": "03a6e5c513083991f349c5e908f4b4ac9ed76d98c535c99518d41b151f33a832"
+    },
+    {
+      "path": "game/tests/test_harvest_lifecycle.gd",
+      "bytes": 18808,
+      "sha256": "bc2e9f104063ebd8abdc0f3456109536dd811108487c3be08c4846db2f97efa1"
+    },
+    {
+      "path": "game/tests/test_harvest_lifecycle.gd.uid",
+      "bytes": 20,
+      "sha256": "d41e75e48e5ff5e6be23cd9dad9182428290a514ba0293cc288890ec2d06d7b5"
+    },
+    {
+      "path": "game/tests/test_harvest_lookup.gd",
+      "bytes": 11058,
+      "sha256": "e80db1cd5fd92df99aa180f520220f18c715ff745931b288274cb56f8d6b64d9"
+    },
+    {
+      "path": "game/tests/test_harvest_lookup.gd.uid",
+      "bytes": 20,
+      "sha256": "b8602beec652456e719c4ddb133b3d9e73c07791deddc906fed47d5c2da5d50e"
+    },
+    {
+      "path": "game/tests/test_harvest_nonnegative.gd",
+      "bytes": 3025,
+      "sha256": "32aef8e16033eacb65351e49e100ea60ed56b90445997e40f9647ddd7a4a92dd"
+    },
+    {
+      "path": "game/tests/test_harvest_nonnegative.gd.uid",
+      "bytes": 20,
+      "sha256": "9ea36ff119d5d25f49180e03f9e7af70e15985744fc272c06e99963953251fb7"
+    },
+    {
+      "path": "game/tests/test_harvest_ownership.gd",
+      "bytes": 18879,
+      "sha256": "747e73c0b2f9efd3eb12c66da14ab0ca66e00e00849264bdb42db70ac46b3ab0"
+    },
+    {
+      "path": "game/tests/test_harvest_ownership.gd.uid",
+      "bytes": 20,
+      "sha256": "946eff835c909215248f1b11cdac2833df6c9c3683d7e14b6f0649ffdf2b93d0"
+    },
+    {
+      "path": "game/tests/test_harvest_scope.gd",
+      "bytes": 7279,
+      "sha256": "403e68c681dd8639316852a3f1eb6766fe926d5c31506f4d1263373a5242d362"
+    },
+    {
+      "path": "game/tests/test_harvest_scope.gd.uid",
+      "bytes": 20,
+      "sha256": "c4318acc94a1763c747ff0429baab53dbf3eae5b1384118d2a47c8ddb9091a85"
+    },
+    {
+      "path": "game/tests/test_health_healing.gd",
+      "bytes": 9423,
+      "sha256": "79c6eb8387422620cc7fd6e57821f06f4b268aab5dad0462ff3ae50f11cbd566"
+    },
+    {
+      "path": "game/tests/test_health_healing.gd.uid",
+      "bytes": 20,
+      "sha256": "1175b912db42c7045ff971240916358f61d068c37dd9430eb86f53773b3c87ac"
+    },
+    {
+      "path": "game/tests/test_health_report.gd",
+      "bytes": 9007,
+      "sha256": "6f7d592b00ffd37c15b11d5f19fd6f967a16f52b8e74745ca4dbcfe17fe20717"
+    },
+    {
+      "path": "game/tests/test_health_report.gd.uid",
+      "bytes": 20,
+      "sha256": "6c4a0b2623b6951f9ba03d915ad98f91024a9e54e4f3108939cda0bc448915b1"
+    },
+    {
+      "path": "game/tests/test_health_tissues.gd",
+      "bytes": 1699,
+      "sha256": "ebee16d3e51bff0129f61b2d6d80397145e615f1381b538705d7b248ab5c24e2"
+    },
+    {
+      "path": "game/tests/test_health_tissues.gd.uid",
+      "bytes": 20,
+      "sha256": "25c8796cf3d0ee971dc25ffdb71086fc30b469b7274224e3a7814cf27f853165"
+    },
+    {
+      "path": "game/tests/test_herd_totals_v043.gd",
+      "bytes": 4638,
+      "sha256": "c9763c41e0c11c4a9ab5201ce96538050b5c8c3457264861b15c580bea724d43"
+    },
+    {
+      "path": "game/tests/test_herd_totals_v043.gd.uid",
+      "bytes": 20,
+      "sha256": "2eda59e744c921c9cbfca1451e887ca02db114e818b3a6a960321486773e8875"
+    },
+    {
+      "path": "game/tests/test_herds.gd",
+      "bytes": 14165,
+      "sha256": "feb8e6d7b747de7f0ce8b9938b84535faf946ea55909eba2cc689a5faf8a7f8f"
+    },
+    {
+      "path": "game/tests/test_herds.gd.uid",
+      "bytes": 19,
+      "sha256": "1182b52eaceec72c9e2095702f40ff24d76ec9d8327d45a13350f89ea22feb9b"
+    },
+    {
+      "path": "game/tests/test_hiring_paired.gd",
+      "bytes": 4357,
+      "sha256": "313a5e67170f3968e77979192ca15f5405ca00a672a12b4729f1d89a9cc7bb92"
+    },
+    {
+      "path": "game/tests/test_hiring_paired.gd.uid",
+      "bytes": 20,
+      "sha256": "d2c09e1550c7ae33c3c648c47159bf1dd71f67a8b4c73efe8d5808b1b27ef919"
+    },
+    {
+      "path": "game/tests/test_hiring_timing_v046.gd",
+      "bytes": 6525,
+      "sha256": "9033eb95935387e64a699605810a9aead8dcb2a45f9e6aca6ce13ea87ede4a89"
+    },
+    {
+      "path": "game/tests/test_hiring_timing_v046.gd.uid",
+      "bytes": 20,
+      "sha256": "c64b00210489cff7496b47b046f8e8d1fc687199d06ced3b682a21cf3c675802"
+    },
+    {
+      "path": "game/tests/test_hiring_timing.gd",
+      "bytes": 5647,
+      "sha256": "f14b23f3733f50d75521f39a472a2f64a0fd006103b56c113e6a3fcfd716ff67"
+    },
+    {
+      "path": "game/tests/test_hiring_timing.gd.uid",
+      "bytes": 19,
+      "sha256": "586ec43e1caada43719ea4faefbfc8b96715dbacc1ead83625d68e0bf27a283d"
+    },
+    {
+      "path": "game/tests/test_house_laws_v018.gd",
+      "bytes": 14943,
+      "sha256": "f90f566ddccb683631a16f8ac9110a7c47fb092401563093dc9f82b783744146"
+    },
+    {
+      "path": "game/tests/test_house_laws_v018.gd.uid",
+      "bytes": 20,
+      "sha256": "808445dda6f6aaeea622c8e165c74781dcc4a7560b073b469db7031762f3414e"
+    },
+    {
+      "path": "game/tests/test_house_onboarding_v019.gd",
+      "bytes": 14806,
+      "sha256": "96b2ddbba2e21b5cd9cceb9367d1aefb4e33682929f801332ff3e18bfd0a0bf6"
+    },
+    {
+      "path": "game/tests/test_house_onboarding_v019.gd.uid",
+      "bytes": 20,
+      "sha256": "e7788f781eb1bb5377fd5c01499e73c804342be28a54423e680134ab37be6f1a"
+    },
+    {
+      "path": "game/tests/test_house_select_ui_v019.gd",
+      "bytes": 17950,
+      "sha256": "c06b00d320dcc8b19e9fdb24116ad2b983abdb78c577de2eb84588a25ae9cb38"
+    },
+    {
+      "path": "game/tests/test_house_select_ui_v019.gd.uid",
+      "bytes": 20,
+      "sha256": "cd79a85ed5769d67eaef3c800c942fe01795c396ac013aad27e806e51b5a1c6b"
+    },
+    {
+      "path": "game/tests/test_household_assignment.gd",
+      "bytes": 4402,
+      "sha256": "3b4cf7de084b11a4d0dbc8a9c4aceb65c3a25ed7f260bf93042ec38b4265a1ae"
+    },
+    {
+      "path": "game/tests/test_household_assignment.gd.uid",
+      "bytes": 19,
+      "sha256": "a3fae82a16a2e020bd04a559f9b4208954f1f4af07d1bd8d02965e7706dfc3d2"
+    },
+    {
+      "path": "game/tests/test_household_food_v046.gd",
+      "bytes": 16207,
+      "sha256": "cd0f36f30cfe489b8bb3ce1a44ec6e54d8000b7328c5799e1a6fd7d2067592b5"
+    },
+    {
+      "path": "game/tests/test_household_food_v046.gd.uid",
+      "bytes": 21,
+      "sha256": "7b4a48665a4c72898354d8989bcfe13156323d7e50df20d6ca2f7b2d92b56312"
+    },
+    {
+      "path": "game/tests/test_humanoid_art_import.gd",
+      "bytes": 9217,
+      "sha256": "f70ef80b7ea53ba9d7df2938a4ef034eec83faffa56944dd82777200c8730c19"
+    },
+    {
+      "path": "game/tests/test_humanoid_art_import.gd.uid",
+      "bytes": 18,
+      "sha256": "eaf3ac40a49dd1754ad5f6de6493f33e4a1eaf8a81be23a5df7d382d1145a19a"
+    },
+    {
+      "path": "game/tests/test_humanoid_equipment.gd",
+      "bytes": 7123,
+      "sha256": "dce96f57244ba60e17814dbdf9c8ff95c8a360f2d33f9f7880fcda5d72067f17"
+    },
+    {
+      "path": "game/tests/test_humanoid_equipment.gd.uid",
+      "bytes": 20,
+      "sha256": "5dd3ce6217976b3754ca7f4aa3a9a0c81c859a8518eac0f8b7efa51c60f089c1"
+    },
+    {
+      "path": "game/tests/test_humanoid_interface.gd",
+      "bytes": 14299,
+      "sha256": "a206d4e69ff11b685abc53c5ae7deecada9674a5cafe697501c2655d3f5000c1"
+    },
+    {
+      "path": "game/tests/test_humanoid_interface.gd.uid",
+      "bytes": 20,
+      "sha256": "0e9f7d764448e1f3987f07da52958e1d6a94544d088d8b08418b8172e3eef211"
+    },
+    {
+      "path": "game/tests/test_item_icons.gd",
+      "bytes": 4647,
+      "sha256": "8aba73ce0d5e859608fc28b04ee4774379888ee9db6a81fdb67a473d73408572"
+    },
+    {
+      "path": "game/tests/test_item_icons.gd.uid",
+      "bytes": 20,
+      "sha256": "9781ef95b3df011ab6a3b09328082d4007689f4f232184d8eb53f59a88785bab"
+    },
+    {
+      "path": "game/tests/test_keeper_operating_cash.gd",
+      "bytes": 9894,
+      "sha256": "4ceafc02b3e51f38e673cb79ec68b241684bfe10109d4d21c44c3b0c35f67ea1"
+    },
+    {
+      "path": "game/tests/test_keeper_operating_cash.gd.uid",
+      "bytes": 20,
+      "sha256": "38af52150b015dc0387f7918419611baaccbeffcbef6fbb437a0fe42e8e1c0d5"
+    },
+    {
+      "path": "game/tests/test_kit_cover.gd",
+      "bytes": 6588,
+      "sha256": "7b8045a8330c12f8d28c0de76319f5e12e6ec404f51101bee515d2279d92b65a"
+    },
+    {
+      "path": "game/tests/test_kit_cover.gd.uid",
+      "bytes": 20,
+      "sha256": "3569b4d3f2b475e8817811b0fefb5e610144313e5287eb6817d16fc3d810598b"
+    },
+    {
+      "path": "game/tests/test_kit_metal.gd",
+      "bytes": 2183,
+      "sha256": "3c5a64c55fc536436c2a6b5a6d0257aaef6735515b1121d3ee902a047a760580"
+    },
+    {
+      "path": "game/tests/test_kit_metal.gd.uid",
+      "bytes": 20,
+      "sha256": "7e6d9ae2e4b1ed2ea66c62d4b33c44c65da9095b7302490914489f3995711e40"
+    },
+    {
+      "path": "game/tests/test_land_capacity_v046.gd",
+      "bytes": 32378,
+      "sha256": "96ab088c08904bdd4db67266441f8c59cba9dee4b6139c9838811736bf48a113"
+    },
+    {
+      "path": "game/tests/test_land_capacity_v046.gd.uid",
+      "bytes": 20,
+      "sha256": "c724529cf3bb6bef090c6dbe784868e1c20f8eec2e43ba4b49b03ac72d03b10d"
+    },
+    {
+      "path": "game/tests/test_land_plots.gd",
+      "bytes": 15614,
+      "sha256": "c6ce60fb5d07e0b12a369e57e668b75436b45da24f6862399479aa2eb61497f2"
+    },
+    {
+      "path": "game/tests/test_land_plots.gd.uid",
+      "bytes": 20,
+      "sha256": "e56b8c2602a91f5d48b66a16bffe84e94864479e806c687e8e3c3dcbbe500999"
+    },
+    {
+      "path": "game/tests/test_legends.gd",
+      "bytes": 14536,
+      "sha256": "66d3c58b0620350b11140a95526a2d52a48db1fe48039575e6284ca8529583be"
+    },
+    {
+      "path": "game/tests/test_legends.gd.uid",
+      "bytes": 19,
+      "sha256": "2e52ae17d7392f9a23622bbb92bca65754c40289484dcd9e89720c175f9d23c5"
+    },
+    {
+      "path": "game/tests/test_loot.gd",
+      "bytes": 3059,
+      "sha256": "9b0d183372c39ebe9f863b475f0555ad85e2be797b52e786f971ef9276f3c3c5"
+    },
+    {
+      "path": "game/tests/test_loot.gd.uid",
+      "bytes": 20,
+      "sha256": "2a1dc8d4d10ac07ef0b32a6142fbfc00ddf2a3d81447f9f817478619b5256ed8"
+    },
+    {
+      "path": "game/tests/test_map_v035.gd",
+      "bytes": 5438,
+      "sha256": "0c61e2a007bcc783b8b46c040272455c909bae63860b44c3d5693aba30dfd807"
+    },
+    {
+      "path": "game/tests/test_map_v035.gd.uid",
+      "bytes": 20,
+      "sha256": "eb1470fed1b3bf0d3fe71bc5f42ca648efdc515a2f8142e3cfeac13b188b13a2"
+    },
+    {
+      "path": "game/tests/test_market_best_safety.gd",
+      "bytes": 11945,
+      "sha256": "a7e569b910ce05c1cb0ce25faa0d4bef9481a3eecdec20758c3622fd08037bbd"
+    },
+    {
+      "path": "game/tests/test_market_best_safety.gd.uid",
+      "bytes": 20,
+      "sha256": "d2cf6dbc8e36f4df48a15e7f537dede30397a2a3f10a089ed3de7cd0c6de5dbb"
+    },
+    {
+      "path": "game/tests/test_memory_lifecycle_v012.gd",
+      "bytes": 15772,
+      "sha256": "0dd18852d3da2fe9e6eb686053a61a40a6dadbf3965060e01fc5adbf01114e6d"
+    },
+    {
+      "path": "game/tests/test_memory_lifecycle_v012.gd.uid",
+      "bytes": 20,
+      "sha256": "c187ed917e39158fe2774348461dd74a04cd5f03e62d80c850d7dfdd4f9a1862"
+    },
+    {
+      "path": "game/tests/test_memory_owners_v012.gd",
+      "bytes": 10291,
+      "sha256": "98a576477070994da4c9f744d90fde8d2815114ebe56fc914596c14b9660fb47"
+    },
+    {
+      "path": "game/tests/test_memory_owners_v012.gd.uid",
+      "bytes": 20,
+      "sha256": "7da391b3397779cc3b31e3eb6a06dab2a04df0a6ec801e14bb812f221ec89014"
+    },
+    {
+      "path": "game/tests/test_metal_tech.gd",
+      "bytes": 19531,
+      "sha256": "e638a812e12c440fecae5e2869330c72120253e02b2c3e9a3ec7e170698ca20c"
+    },
+    {
+      "path": "game/tests/test_metal_tech.gd.uid",
+      "bytes": 20,
+      "sha256": "66b9067fe6911fc83d0e29cc35cc0089ca9b91e0b670333ac0fda816bbe58a1f"
+    },
+    {
+      "path": "game/tests/test_military_supply.gd",
+      "bytes": 18237,
+      "sha256": "cbefa5ded1da9a4fef91c5fb62a1b295b01a947fc15eba4520637b29c101bd41"
+    },
+    {
+      "path": "game/tests/test_military_supply.gd.uid",
+      "bytes": 20,
+      "sha256": "5bd63817adb0ec89ed9701c8768ee7345f41030eafaac25831c28c29b6fbc789"
+    },
+    {
+      "path": "game/tests/test_militia_hiring.gd",
+      "bytes": 5749,
+      "sha256": "5d6b6db05867ff0287f899be3a70b0319ea24d1a8c459a4303644caf3ccd9f02"
+    },
+    {
+      "path": "game/tests/test_militia_hiring.gd.uid",
+      "bytes": 20,
+      "sha256": "d9220914f12250d93788eb46ade7f9734fc124117de538139cf5ec22715622a3"
+    },
+    {
+      "path": "game/tests/test_militia_tick_v011.gd",
+      "bytes": 12578,
+      "sha256": "5ecaf0ee4c36de59b106a3d9dcbfb82ac0a3822dd769bda793aca093662f7623"
+    },
+    {
+      "path": "game/tests/test_militia_tick_v011.gd.uid",
+      "bytes": 19,
+      "sha256": "0d8d1d39ad61bbe53dbb8d08408fa61bfdccfbed1566adace3f88386695305d0"
+    },
+    {
+      "path": "game/tests/test_mixed_trade_carry.gd",
+      "bytes": 9382,
+      "sha256": "78b8d0fab4bd4d02ff57dcd8a1bd78f37942c4e6431930a41205a392991a1a33"
+    },
+    {
+      "path": "game/tests/test_mixed_trade_carry.gd.uid",
+      "bytes": 19,
+      "sha256": "2273f2860af3b1655ff3539a04b230191a1c2ccf5f62e0a16d129927a8f60751"
+    },
+    {
+      "path": "game/tests/test_mobilization_v017.gd",
+      "bytes": 27332,
+      "sha256": "b2c35ae2386c2d7098fd16cb2f146e4e2b8ff61642dbe55091765be4489205c5"
+    },
+    {
+      "path": "game/tests/test_mobilization_v017.gd.uid",
+      "bytes": 20,
+      "sha256": "b9703a98ad068f80f497065ce226767d60993ead6d23df4183658b3b64efe0d8"
+    },
+    {
+      "path": "game/tests/test_mounted_rider_art.gd",
+      "bytes": 9371,
+      "sha256": "3f27d369a0fd4e3fd7e4c44dca83632e982072eb82fe49793c86dfa5c0311fa6"
+    },
+    {
+      "path": "game/tests/test_mounted_rider_art.gd.uid",
+      "bytes": 21,
+      "sha256": "bcd5fd99c2e6a12806cce6a6ac3cba691e833644a050805885ab57c8ab3b96f7"
+    },
+    {
+      "path": "game/tests/test_muster_ui_v017.gd",
+      "bytes": 19932,
+      "sha256": "cb578a61241167223723532346eff048eb220c198b8fbcf29420fd6d8ac8e9ca"
+    },
+    {
+      "path": "game/tests/test_muster_ui_v017.gd.uid",
+      "bytes": 20,
+      "sha256": "c68b264351dfcd7db330b569d48a418e6674ce9f48cbb0c780ce066fc735ae13"
+    },
+    {
+      "path": "game/tests/test_no_herd_dogs.gd",
+      "bytes": 4739,
+      "sha256": "b309597e68ab23b9a075b8a6b5d0b227d32ba09155ab3667e42940aa19baa5bc"
+    },
+    {
+      "path": "game/tests/test_no_herd_dogs.gd.uid",
+      "bytes": 20,
+      "sha256": "554885ec2b17b2fd46c00df07761eb2e517e5755f63ea3fafd7e61de6a8c98a6"
+    },
+    {
+      "path": "game/tests/test_officer_rally_v016.gd",
+      "bytes": 19473,
+      "sha256": "348a90f6cdeb3b0729e5690e78abc4ac8fcb588cae08d72e845d80fe9da27bc6"
+    },
+    {
+      "path": "game/tests/test_officer_rally_v016.gd.uid",
+      "bytes": 20,
+      "sha256": "07375bdbfc598cc6bfcab23eea20053fa994e898e58847e6994a112621e67a72"
+    },
+    {
+      "path": "game/tests/test_paperdoll_cache.gd",
+      "bytes": 17730,
+      "sha256": "591d380e854e1fef694772b7e6c5fcfb52fbc88d0745e72afc6d6c7a967ee129"
+    },
+    {
+      "path": "game/tests/test_paperdoll_cache.gd.uid",
+      "bytes": 20,
+      "sha256": "2aebf874d31b592fc0f91ea6b2bc2a34b3c13136c88c232dddd60d88321bb91f"
+    },
+    {
+      "path": "game/tests/test_pasture_assignment_v046.gd",
+      "bytes": 15881,
+      "sha256": "579bfd500673922e7c13fb9657caf9ffdf9655f0335410f118ac4e527ac3aa69"
+    },
+    {
+      "path": "game/tests/test_pasture_assignment_v046.gd.uid",
+      "bytes": 20,
+      "sha256": "c386f4e86cfe255eff4354a6625f4e8d0a67bc9531eda7f9b1a6c7494d3e735b"
+    },
+    {
+      "path": "game/tests/test_pasture_lifecycle.gd",
+      "bytes": 3129,
+      "sha256": "2890fbf043524a318fe0224805fb7306f502ef5177207be8adf1b3dc748290c2"
+    },
+    {
+      "path": "game/tests/test_pasture_lifecycle.gd.uid",
+      "bytes": 20,
+      "sha256": "d5de28151a1102beda6d9eec04b6e4a7a7ac4ea92df013f91621dbaf567ef1e5"
+    },
+    {
+      "path": "game/tests/test_pasture_raids.gd",
+      "bytes": 2746,
+      "sha256": "f7f3adc7afdb1b60bbe2f58b66d37d1bde7157a6b9f9fc1ea51e7d57c9acf2ea"
+    },
+    {
+      "path": "game/tests/test_pasture_raids.gd.uid",
+      "bytes": 20,
+      "sha256": "48fac632c5acd04aefcfb957f99d9a9d47ef0a21356719d7e5b0a36442958b6c"
+    },
+    {
+      "path": "game/tests/test_pasture_sickness_v046.gd",
+      "bytes": 14172,
+      "sha256": "e3923c67300bf846499c1019232263f2c0982cd0be057b62246b4cbc91fcb66f"
+    },
+    {
+      "path": "game/tests/test_pasture_sickness_v046.gd.uid",
+      "bytes": 21,
+      "sha256": "e29129c1251f6ed3bf770d7481c9cc9be50da22f93329b64dd563e0898137fc3"
+    },
+    {
+      "path": "game/tests/test_performance_panel.gd",
+      "bytes": 10266,
+      "sha256": "3dca445ea340fa3728334c3930810a9ceed956ea70ca1ac7c87df1d425ebb4c7"
+    },
+    {
+      "path": "game/tests/test_performance_panel.gd.uid",
+      "bytes": 20,
+      "sha256": "f627c320cd2df36f4da2c6a07a246679492a074f515622192666a25e0ff557dc"
+    },
+    {
+      "path": "game/tests/test_player_reserve_identity_v017.gd",
+      "bytes": 26173,
+      "sha256": "8cb9b632b96348b8a9c553b82a3e0b6db26fe6012d1023024bcb901a507a3116"
+    },
+    {
+      "path": "game/tests/test_player_reserve_identity_v017.gd.uid",
+      "bytes": 20,
+      "sha256": "cc1d4f585d4825cb38dafec29f6d5396741a7f1a1bd383cd3fc4c91edc9b0b56"
+    },
+    {
+      "path": "game/tests/test_population_cohorts.gd",
+      "bytes": 9497,
+      "sha256": "340926ad1a11949d16afc2ce9a0390af391a92871b84d963bcb06e2209fbac83"
+    },
+    {
+      "path": "game/tests/test_population_cohorts.gd.uid",
+      "bytes": 19,
+      "sha256": "f3a7f2055bff5724130f8c0abe6e7b05dc9533a32f90cb324f8df706c6581417"
+    },
+    {
+      "path": "game/tests/test_population_economy_controls.gd",
+      "bytes": 11161,
+      "sha256": "afd47932fc2e339f59c421bbd3fbb0c67364d4bd1e1c378f61f064b5049ced82"
+    },
+    {
+      "path": "game/tests/test_population_economy_controls.gd.uid",
+      "bytes": 19,
+      "sha256": "5d90579c4c31f70b4028beb7e708e22349ba5fa9664791f83979ab54fcddedc5"
+    },
+    {
+      "path": "game/tests/test_presim_short_history.gd",
+      "bytes": 8161,
+      "sha256": "49608f3ea31e51e3997544484b6c99dbd9f81366ca46c798beb78b60d7abd1ac"
+    },
+    {
+      "path": "game/tests/test_presim_short_history.gd.uid",
+      "bytes": 20,
+      "sha256": "9df401ba52afb676ceffb4912b85bdec43e522bdff9231017d97f6deec4b4acc"
+    },
+    {
+      "path": "game/tests/test_presim.gd",
+      "bytes": 11676,
+      "sha256": "6f5adb4f6b685a988848428e42090412dcf9e85ef43331f02ced748769334113"
+    },
+    {
+      "path": "game/tests/test_presim.gd.uid",
+      "bytes": 20,
+      "sha256": "1e07bc20d96b204a79a20e9f9e29e6ebdd080b57aff7ea7593a895ea66c673ac"
+    },
+    {
+      "path": "game/tests/test_private_farm_batch_hiring.gd",
+      "bytes": 5620,
+      "sha256": "70c5ea4ddb35411dcc8c1b32ea3c99af4739a47dda401c18e495ebd80309bec0"
+    },
+    {
+      "path": "game/tests/test_private_farm_batch_hiring.gd.uid",
+      "bytes": 20,
+      "sha256": "55ce4f405ea9a78e5b2c97e55b1e13ad1cac5ada971a9651fb59bd7956024010"
+    },
+    {
+      "path": "game/tests/test_producer_audit_context.gd",
+      "bytes": 1732,
+      "sha256": "6a65aa56d243667ee335a0766feb1ba3ac6f17c63777c90b2c01f3e669d25ddd"
+    },
+    {
+      "path": "game/tests/test_producer_audit_context.gd.uid",
+      "bytes": 20,
+      "sha256": "e8d96f3ab6346a24661ac9289e967151bf4f42ce12e12871fa0ae5de7bf13944"
+    },
+    {
+      "path": "game/tests/test_producer_cash.gd",
+      "bytes": 6922,
+      "sha256": "390e3ecef1b743011401215f378a5b886e67e3b67aa26f1c8161ff22e288eefc"
+    },
+    {
+      "path": "game/tests/test_producer_cash.gd.uid",
+      "bytes": 20,
+      "sha256": "23ee546b624126ab45447e9212ba302790c643c8cf87d5f77baa797477ae6089"
+    },
+    {
+      "path": "game/tests/test_records_economy.gd",
+      "bytes": 4909,
+      "sha256": "9565728e34c1661d24614ea8993e486760b7a6ae9bd9f037f9924460f598d015"
+    },
+    {
+      "path": "game/tests/test_records_economy.gd.uid",
+      "bytes": 20,
+      "sha256": "2402b9678623f7137df143795adefbe91b7fb14f68ebb6153bfd5435a7b35f7c"
+    },
+    {
+      "path": "game/tests/test_records_paired.gd",
+      "bytes": 5260,
+      "sha256": "3209a8bbc8b9106e9ba68f9fc9bff9dfca806ca581bede05c7a4b14c8ebb1480"
+    },
+    {
+      "path": "game/tests/test_records_paired.gd.uid",
+      "bytes": 20,
+      "sha256": "9039fa249372b052bf92bd6d58515ff20764d9a7fc77222b3c482879fc28d146"
+    },
+    {
+      "path": "game/tests/test_records_performance.gd",
+      "bytes": 18561,
+      "sha256": "a805af9874834e2267fc2931cc540e494ad87eb7bdf8240a91c4b7da976160ef"
+    },
+    {
+      "path": "game/tests/test_records_performance.gd.uid",
+      "bytes": 20,
+      "sha256": "e3bb88919137f72edcfe7887873822405eb6922a1fb3e9336a65eb056423b268"
+    },
+    {
+      "path": "game/tests/test_records_snapshot.gd",
+      "bytes": 5749,
+      "sha256": "414817da0b0b3299d6ff8090db80eb92f1d1e2798a2dfa285823f840b777b017"
+    },
+    {
+      "path": "game/tests/test_records_snapshot.gd.uid",
+      "bytes": 20,
+      "sha256": "a05b56fd261e892734f139391a99fbf0cb01f4a8f37cdc0a5dbc1d28bad321a5"
+    },
+    {
+      "path": "game/tests/test_records_sparse_v041.gd",
+      "bytes": 268,
+      "sha256": "184e102a3b4c12f525e0ea63fa72ad329b348dda20f8b6fb750ffc22ceb22206"
+    },
+    {
+      "path": "game/tests/test_records_sparse_v041.gd.uid",
+      "bytes": 20,
+      "sha256": "4c093a7724adef69d9fef5f281ba16ba0efdfde3e098ec493d0ca1127becebb2"
+    },
+    {
+      "path": "game/tests/test_records_ui_v018.gd",
+      "bytes": 18154,
+      "sha256": "de095f4f8beb08ea67fe3ba909fd327dab6c048d90d35f5786a9d18fbb29b7c3"
+    },
+    {
+      "path": "game/tests/test_records_ui_v018.gd.uid",
+      "bytes": 19,
+      "sha256": "5d13d22f271508b422727aaf01b28184c886f7093fbc28ce5ec03650c7904af1"
+    },
+    {
+      "path": "game/tests/test_recruit_brief.gd",
+      "bytes": 5300,
+      "sha256": "5a7f4c2dafebb42d17554c0fcb99e7ef2cba013b65a175d0fa6e145be9630f37"
+    },
+    {
+      "path": "game/tests/test_recruit_brief.gd.uid",
+      "bytes": 19,
+      "sha256": "884e8754255774ad3c7fcc2295719ca62f218fbe24240077cdf7225dbfc6a0c6"
+    },
+    {
+      "path": "game/tests/test_rotation_sizing.gd",
+      "bytes": 10538,
+      "sha256": "495a884067a7e215cdd700f366b746fd75f74cd47791ed89d02c255948cfcde0"
+    },
+    {
+      "path": "game/tests/test_rotation_sizing.gd.uid",
+      "bytes": 19,
+      "sha256": "fc0658ec10dbb10ae6445541213b2611f68988c881043ef1aeef46092c39daec"
+    },
+    {
+      "path": "game/tests/test_save_ownership_v012.gd",
+      "bytes": 19158,
+      "sha256": "0de7f649317aabb973e18a6f6c7e315bc6811f9be8ac22a999707402e5af1053"
+    },
+    {
+      "path": "game/tests/test_save_ownership_v012.gd.uid",
+      "bytes": 19,
+      "sha256": "75dbdaba16bdab3c11a188185617b0927563933d75eb7ee9e2120397aa5280f2"
+    },
+    {
+      "path": "game/tests/test_save_queue_performance.gd",
+      "bytes": 6790,
+      "sha256": "d6e384b3e6be85a8577ef86c21e6cd6e348820bbd6fe0e25fe9a6af24e777037"
+    },
+    {
+      "path": "game/tests/test_save_queue_performance.gd.uid",
+      "bytes": 20,
+      "sha256": "88ec20879d3505fbd22eda881e13668763a6b573013702c3f9e4a46b54adee9f"
+    },
+    {
+      "path": "game/tests/test_scrap_remelt.gd",
+      "bytes": 10354,
+      "sha256": "075cb4b831b6d99026f5d73b033f380689ca66cb1cd7dd501b5f65f913ed6629"
+    },
+    {
+      "path": "game/tests/test_scrap_remelt.gd.uid",
+      "bytes": 20,
+      "sha256": "9e39be133ea02afdd12111be2a940a24647df95af270e017f62feed020862238"
+    },
+    {
+      "path": "game/tests/test_service_identity.gd",
+      "bytes": 13153,
+      "sha256": "5abe9a50f9470584af15e2fe97268839da416728720ea621af45f4bdb32e9e29"
+    },
+    {
+      "path": "game/tests/test_service_identity.gd.uid",
+      "bytes": 19,
+      "sha256": "66c27120ca56eb1805c36c83f121e660be9b924836d0126d7600dc53c9092c2d"
+    },
+    {
+      "path": "game/tests/test_services_flow.gd",
+      "bytes": 8183,
+      "sha256": "f5faf4d46cdaa9d3355e519ab4a56c53aa7ad0636b47b6887f75df9088391633"
+    },
+    {
+      "path": "game/tests/test_services_flow.gd.uid",
+      "bytes": 20,
+      "sha256": "fcb7404268831d0f8b1d2d5f95a157f4852093364d446ca99b34e5cf83b26ebe"
+    },
+    {
+      "path": "game/tests/test_sickness.gd",
+      "bytes": 31676,
+      "sha256": "1fa9fe539f49ff6dd484d7ca27e6d91906099d0b43c415fc58973d1d28947ba8"
+    },
+    {
+      "path": "game/tests/test_sickness.gd.uid",
+      "bytes": 20,
+      "sha256": "48f6933d9ee2e9bceaf10855e7a230f06cf19a909acf4c1bd4627c371e17b481"
+    },
+    {
+      "path": "game/tests/test_sim_armor.gd",
+      "bytes": 5335,
+      "sha256": "ec323e9cdea1515eeab1b715a13bd7ef8fe5b12401a9448c7bcbbf3bc3737208"
+    },
+    {
+      "path": "game/tests/test_sim_armor.gd.uid",
+      "bytes": 20,
+      "sha256": "fb31ba6d7f2265b5991d9c1e93d76d824bcb69b08fd8d130800bb9d5e964301f"
+    },
+    {
+      "path": "game/tests/test_sim_batch.gd",
+      "bytes": 4115,
+      "sha256": "f0d3bf3945865264d5f77278f4fc8205e334e39ace7df124c78cc9067792e100"
+    },
+    {
+      "path": "game/tests/test_sim_batch.gd.uid",
+      "bytes": 19,
+      "sha256": "7a2b0c9756460007993c03974462986dfb864f6912d8c7589e02dd486c665d9a"
+    },
+    {
+      "path": "game/tests/test_sim_creatures.gd",
+      "bytes": 9241,
+      "sha256": "c5b3de1a5488343282e35738ea509d55127126062e663cc41fa24cd26313be3a"
+    },
+    {
+      "path": "game/tests/test_sim_creatures.gd.uid",
+      "bytes": 20,
+      "sha256": "92b988721689728caa02d14f80db3c6d2757ffa8fcaf1671747548ccefbd5e62"
+    },
+    {
+      "path": "game/tests/test_sim_determinism.gd",
+      "bytes": 1492,
+      "sha256": "c9de42c00cfe8fb2ddb7875635628ce9b8488f5a9a1dfa3da8ce42f37831b675"
+    },
+    {
+      "path": "game/tests/test_sim_determinism.gd.uid",
+      "bytes": 20,
+      "sha256": "e8a9633deb92eaab2924e85eef9ffd61af7c5faef990495743fad97d5f65857d"
+    },
+    {
+      "path": "game/tests/test_sim_duel.gd",
+      "bytes": 2586,
+      "sha256": "c76fe7bdd3a94214b0e88fe2ff3d380d6cd9fb0875505695addbe5bcfaf37c6a"
+    },
+    {
+      "path": "game/tests/test_sim_duel.gd.uid",
+      "bytes": 20,
+      "sha256": "7eabb183769c167a3d904e57b296c8d62206031f826ffc2cd113a1c6f0e0b76e"
+    },
+    {
+      "path": "game/tests/test_sim_harness_choke.gd",
+      "bytes": 6914,
+      "sha256": "9b61bb2284d313508acb38acfbe033cac9402659ba879fd43106c42c85e6fc8d"
+    },
+    {
+      "path": "game/tests/test_sim_harness_choke.gd.uid",
+      "bytes": 20,
+      "sha256": "6ba66fd250c45b7afa561f79bcc57e1f26b48bd1e89efa204e0e32cffbb4a202"
+    },
+    {
+      "path": "game/tests/test_sim_harness_open.gd",
+      "bytes": 5559,
+      "sha256": "0800e54b90e7104042bd69135ea2ea9e0e23039582e4c216c8e0153e2e35f055"
+    },
+    {
+      "path": "game/tests/test_sim_harness_open.gd.uid",
+      "bytes": 19,
+      "sha256": "93f5c11cabfcb34020b2f4c57db7e6e10d6bac2c9c92cff918e7d6b5e4331c4b"
+    },
+    {
+      "path": "game/tests/test_sim_nonzero.gd",
+      "bytes": 3316,
+      "sha256": "dc64cf158b570c4cb6ab0aa7b5e27b7d8b032a47a5b365156e85cac58b35990b"
+    },
+    {
+      "path": "game/tests/test_sim_nonzero.gd.uid",
+      "bytes": 20,
+      "sha256": "cde76dc4c8e9231c23a0dde054427e9b55327ea590736a72862e814a84caa898"
+    },
+    {
+      "path": "game/tests/test_sim_perf_creatures.gd",
+      "bytes": 2756,
+      "sha256": "3cd1a07e2b9a8ac9b11e1c7b74abc6233ee805425debe9eecb1daf5a0268b357"
+    },
+    {
+      "path": "game/tests/test_sim_perf_creatures.gd.uid",
+      "bytes": 20,
+      "sha256": "3ce5fb15c80b357a16e32dbcf63acf85ad22b2b4423960672fd975c9016d2b5e"
+    },
+    {
+      "path": "game/tests/test_sim_perf.gd",
+      "bytes": 4969,
+      "sha256": "e61fc534bea4a92a9fdca2b0f8ee525ca9ea50e667e4ad020a2d1a26de394f7c"
+    },
+    {
+      "path": "game/tests/test_sim_perf.gd.uid",
+      "bytes": 20,
+      "sha256": "1aa58359ad57e7d17548f8eb420277f88812f1fdb7eff9534d89a19f6acc23c8"
+    },
+    {
+      "path": "game/tests/test_smarter_loops.gd",
+      "bytes": 4309,
+      "sha256": "2953387622145f852c87d015c02389d9a334a7c3e6c02d76f71f2adc7aebc429"
+    },
+    {
+      "path": "game/tests/test_smarter_loops.gd.uid",
+      "bytes": 19,
+      "sha256": "9be4464dc9ef5c72ab86e23f030c79e67196576961e17f79a94898bf07d172fa"
+    },
+    {
+      "path": "game/tests/test_startup_slices.gd",
+      "bytes": 1021,
+      "sha256": "61e7eeade55bdccbcefecbfc4e984a8a121f51d606b0e7a4fbc70ad879f18c5a"
+    },
+    {
+      "path": "game/tests/test_startup_slices.gd.uid",
+      "bytes": 20,
+      "sha256": "6eeaec4dbd0bf826512e655a682ff104c5a18fe6a7038e492bff965bb079c98f"
+    },
+    {
+      "path": "game/tests/test_supply_lookups.gd",
+      "bytes": 12109,
+      "sha256": "ebee315ee3c97d5e94b2485f1b711cb98ca5119a7c5e10edeeec23025f783d9e"
+    },
+    {
+      "path": "game/tests/test_supply_lookups.gd.uid",
+      "bytes": 19,
+      "sha256": "2e6ec3f6a0f98a0b5b43853ad1f9dec9d719a9a74a53b88366547334074750fc"
+    },
+    {
+      "path": "game/tests/test_town_market_view.gd",
+      "bytes": 4771,
+      "sha256": "198b376cd8f22f9513a14678aa29cbb63bf6817c6e8e90b4a56dcca0056f2023"
+    },
+    {
+      "path": "game/tests/test_town_market_view.gd.uid",
+      "bytes": 19,
+      "sha256": "6ab7b7b872363deff7f069823526d22073323f9f296d2881315ab52a8e47476c"
+    },
+    {
+      "path": "game/tests/test_town_research.gd",
+      "bytes": 13856,
+      "sha256": "8660a6e95c4fe95ad1521366f7c4fe99d60fc85b45d8a0328410837f881bbe9c"
+    },
+    {
+      "path": "game/tests/test_town_research.gd.uid",
+      "bytes": 19,
+      "sha256": "0ccc6a1d7fc0e517402b73fc1ec33f90903ed84a6fb0eed1cbbbdf4f1f6dce06"
+    },
+    {
+      "path": "game/tests/test_town_services_v042.gd",
+      "bytes": 23420,
+      "sha256": "8893e0f9571726aaeff0b7994b053c17e9d8d31a11e0aae2553567f0527ae2f8"
+    },
+    {
+      "path": "game/tests/test_town_services_v042.gd.uid",
+      "bytes": 21,
+      "sha256": "a697d809c72bb650d3c7fcf0d1a8ddaa526732b61e5b62c10833bf8d305251f0"
+    },
+    {
+      "path": "game/tests/test_town_v038_fit.gd",
+      "bytes": 1085,
+      "sha256": "d13acf0131efae3352b2024701a9701f067f74253a4c445b71093763eba441b8"
+    },
+    {
+      "path": "game/tests/test_town_v038_fit.gd.uid",
+      "bytes": 20,
+      "sha256": "44bea503c8f5ca5d466b135922338e16293d5275d1cd60a0ae166f4fdff28aec"
+    },
+    {
+      "path": "game/tests/test_trait_words.gd",
+      "bytes": 678,
+      "sha256": "ffad1b68ffaa39675ab0e330cba10edaa5b933b25d5b616884b305e974de903f"
+    },
+    {
+      "path": "game/tests/test_trait_words.gd.uid",
+      "bytes": 20,
+      "sha256": "79329ee70612c371fa16f26143e9976a52782947d636746b9ebd0a516ba5850d"
+    },
+    {
+      "path": "game/tests/test_ui_arrows.gd",
+      "bytes": 1658,
+      "sha256": "da9530f423cfd665ba1159970a176812da0d30567208da8671fb514fa9114080"
+    },
+    {
+      "path": "game/tests/test_ui_arrows.gd.uid",
+      "bytes": 19,
+      "sha256": "b7345f95ebefbf11cb67742c0930daee6be7b737256dfec5b8f30bbefb4f95a1"
+    },
+    {
+      "path": "game/tests/test_ui_buy_best.gd",
+      "bytes": 1465,
+      "sha256": "82e77e46aafb96e35312f82ef92fbb0c2912314b7594d0d38a25698795d0a1b4"
+    },
+    {
+      "path": "game/tests/test_ui_buy_best.gd.uid",
+      "bytes": 20,
+      "sha256": "7da4f90f0778bbc333128327b63967f48a96e6af360a8d2bed7e6b9b683f8fd9"
+    },
+    {
+      "path": "game/tests/test_ui_coins_full.gd",
+      "bytes": 2039,
+      "sha256": "4ff502699127f3ccd74a598c6cc3af7f2f33cad8a3a8ea29c299e8bba819dcee"
+    },
+    {
+      "path": "game/tests/test_ui_coins_full.gd.uid",
+      "bytes": 20,
+      "sha256": "c9be9e92d0c1dafdbd33dad2e3bc3dfa350f869b3a6a6e7f3558f51f373cac33"
+    },
+    {
+      "path": "game/tests/test_ui_company_remedies.gd",
+      "bytes": 3301,
+      "sha256": "95c256e13c6ee03b19b97ab35300ce9e6dabc7402f54972c49740e63d23b5ba9"
+    },
+    {
+      "path": "game/tests/test_ui_company_remedies.gd.uid",
+      "bytes": 19,
+      "sha256": "8008f700deff5d4e8dfb7bca8fc0d47a4dac284abdd0a1c25b13a2b9a2225139"
+    },
+    {
+      "path": "game/tests/test_ui_fit.gd",
+      "bytes": 9581,
+      "sha256": "9d2b0e25eaa08ca13da819ece8d7f70be442d268ed9f40b1977401ff2fc0f245"
+    },
+    {
+      "path": "game/tests/test_ui_fit.gd.uid",
+      "bytes": 20,
+      "sha256": "b71cdd2f9c2ad79e2a080198d3c8e053665b756a1f3b2a9619fdc23390a599f4"
+    },
+    {
+      "path": "game/tests/test_ui_land_map.gd",
+      "bytes": 7284,
+      "sha256": "a6b529ef734ae709d2962bf8903b3b5b2e21e3a638b48d329acc1cb51777a5c0"
+    },
+    {
+      "path": "game/tests/test_ui_land_map.gd.uid",
+      "bytes": 19,
+      "sha256": "444868583adae3520a60c941801073650840d5291707f0cb8baf2389bed0fcb1"
+    },
+    {
+      "path": "game/tests/test_ui_load_times.gd",
+      "bytes": 6441,
+      "sha256": "fc6f446c68944335b6176c4dbdd44df5c4cdd34aef16c586be7142999260145b"
+    },
+    {
+      "path": "game/tests/test_ui_load_times.gd.uid",
+      "bytes": 20,
+      "sha256": "00fa4d1257a710edee814e86375ab5107f743d99cec114fafa15ecff7007e688"
+    },
+    {
+      "path": "game/tests/test_ui_modal.gd",
+      "bytes": 1260,
+      "sha256": "3e405c33beb8d03caf45bb6eb3661cbc7af54ba8992013c6f8d14e9fc8deedc7"
+    },
+    {
+      "path": "game/tests/test_ui_modal.gd.uid",
+      "bytes": 20,
+      "sha256": "3325aee1b1744102510f2741889615ed5110844ee53de395f706a6dd1d94a5ef"
+    },
+    {
+      "path": "game/tests/test_ui_newgame_short.gd",
+      "bytes": 523,
+      "sha256": "4931120c8bcdf4b229eeeaa26f29dc16e4864e5830d2cc6d5328723441f83533"
+    },
+    {
+      "path": "game/tests/test_ui_newgame_short.gd.uid",
+      "bytes": 20,
+      "sha256": "6b25c0d916ee9adfed609cb5a8d1248131e62307fee4073f2f8cacee5acd03bf"
+    },
+    {
+      "path": "game/tests/test_ui_outfit.gd",
+      "bytes": 4533,
+      "sha256": "cf13d286085dd48d8fe049e525aed40cefbbf75c80fedae31109ccb422192f94"
+    },
+    {
+      "path": "game/tests/test_ui_outfit.gd.uid",
+      "bytes": 19,
+      "sha256": "5ccc6d0dc8f30f0d376d83742127fc8f99ab0513f336756e1bad60e7aa0cbb73"
+    },
+    {
+      "path": "game/tests/test_ui_records_v040.gd",
+      "bytes": 27276,
+      "sha256": "9b86c2a8ae01f14093aa010a84157a72add30b7bc014f5f7d521fcabd46ad1db"
+    },
+    {
+      "path": "game/tests/test_ui_records_v040.gd.uid",
+      "bytes": 20,
+      "sha256": "a4c34e3050bf4a380335f122fab6da35c1996f9168995146fe152f67420acc2b"
+    },
+    {
+      "path": "game/tests/test_ui_records_v041.gd",
+      "bytes": 26884,
+      "sha256": "50d50b747f936c6a9133e7281d68226243f98481f2b7698d3c068e099c3f7c13"
+    },
+    {
+      "path": "game/tests/test_ui_records_v041.gd.uid",
+      "bytes": 20,
+      "sha256": "acdc321605c2282b6016d760d11a350ba127e48f7c9cadaf7610e62b3103b30b"
+    },
+    {
+      "path": "game/tests/test_ui_records_v043.gd",
+      "bytes": 20212,
+      "sha256": "ffae2180781e5c0e2f402aac649e210e046d93de67a9a3234a3c059de7568101"
+    },
+    {
+      "path": "game/tests/test_ui_records_v043.gd.uid",
+      "bytes": 20,
+      "sha256": "17510e09b239ef3a52c35f973621ef6cccb4b8fd5a15ca8a0d09afdbdd2ac210"
+    },
+    {
+      "path": "game/tests/test_ui_records_v044.gd",
+      "bytes": 33158,
+      "sha256": "7f56376252ee9c73c4ffc7a42f4c8a54c7a03504239789a8704c5c2cad01867d"
+    },
+    {
+      "path": "game/tests/test_ui_records_v044.gd.uid",
+      "bytes": 17,
+      "sha256": "a781cf763a4c96e18bffbd10e229eaa3ee9fba081f36b399d240a2542847b404"
+    },
+    {
+      "path": "game/tests/test_ui_records.gd",
+      "bytes": 20267,
+      "sha256": "a6b4c9e909f403a55e077a7d36fcee7f0ad7519bf5dd45067e5a4c5081ad6b3b"
+    },
+    {
+      "path": "game/tests/test_ui_records.gd.uid",
+      "bytes": 19,
+      "sha256": "c97ad67f5c1de654f9b37328cdaf370dfdcbb393dfdb470fafb99803b3063eaa"
+    },
+    {
+      "path": "game/tests/test_ui_roster_tags.gd",
+      "bytes": 2566,
+      "sha256": "24d4453d85760a01db598771cdb0767adeed37c3e21341b3a3d7d68492fa88d1"
+    },
+    {
+      "path": "game/tests/test_ui_roster_tags.gd.uid",
+      "bytes": 20,
+      "sha256": "a12cdb3adff16782106b7400c6bb9c92f4473e52b3a0c2dda728db907847314f"
+    },
+    {
+      "path": "game/tests/test_ui_screens.gd",
+      "bytes": 3969,
+      "sha256": "a67543189708bd7314a31ce7ae222d50b5a842ba257a0c3791f8a571e3853b18"
+    },
+    {
+      "path": "game/tests/test_ui_screens.gd.uid",
+      "bytes": 19,
+      "sha256": "aef5e0d02ac9c55ca80fef65415b0c9154fc90236fec1f0172e05314ba08fc74"
+    },
+    {
+      "path": "game/tests/test_ui_town_dashboard.gd",
+      "bytes": 5778,
+      "sha256": "79c8ea1ee111de40d651f75419f028351ccde3902f88002506c91767746e6868"
+    },
+    {
+      "path": "game/tests/test_ui_town_dashboard.gd.uid",
+      "bytes": 20,
+      "sha256": "a13e63fa7dcaaf35de391df4f0d3b4b359c93b80753c44de2e4bee72f13c2aed"
+    },
+    {
+      "path": "game/tests/test_ui_town_research.gd",
+      "bytes": 4556,
+      "sha256": "b3786f9cfe75b756310334aa261d7ec1a90e52ae4282723d96550434dd9b640b"
+    },
+    {
+      "path": "game/tests/test_ui_town_research.gd.uid",
+      "bytes": 19,
+      "sha256": "e7a82e9dce0562d9ebb357ab0e9eb68ba5e8d29b6fbe96f33e1466f686f78755"
+    },
+    {
+      "path": "game/tests/test_ui_town_treat_all.gd",
+      "bytes": 4343,
+      "sha256": "65313de7a404f5b4dc34c305ced7d5e174d33f1153f991e4ea0c8e6b22a18729"
+    },
+    {
+      "path": "game/tests/test_ui_town_treat_all.gd.uid",
+      "bytes": 19,
+      "sha256": "7fb9db57928281c4f3de935a1484706d56fa6670407eed39a75e64712753c9fe"
+    },
+    {
+      "path": "game/tests/test_ui_town.gd",
+      "bytes": 4495,
+      "sha256": "05092eb5d827674f08fdadcbfcc48bbe867bd7f8020946ff88e2f6aa94579ad7"
+    },
+    {
+      "path": "game/tests/test_ui_town.gd.uid",
+      "bytes": 20,
+      "sha256": "a984bed24f6c80aefbc297aa3d9eb1b0ab7152d63666e427b8c295e3f424b617"
+    },
+    {
+      "path": "game/tests/test_wage_books.gd",
+      "bytes": 3346,
+      "sha256": "bd5578c06b8d687f356c856ee70a8310026a87b685b1aec0360de054bfee565c"
+    },
+    {
+      "path": "game/tests/test_wage_books.gd.uid",
+      "bytes": 20,
+      "sha256": "511c4673773134047628f75d0f21a6b0acd379eda5c5ab7b6636d1ebeeee4dca"
+    },
+    {
+      "path": "game/tests/test_wage_claims.gd",
+      "bytes": 10478,
+      "sha256": "ffbbe01a67d440e1ee79b3926b5f21eb6dabc00f25aa53beb6f261db4e0f09f5"
+    },
+    {
+      "path": "game/tests/test_wage_claims.gd.uid",
+      "bytes": 20,
+      "sha256": "f30d69be0f3b5dd3c0ff5c2c0d9f54447b68b265c768a04b925efb11043302aa"
+    },
+    {
+      "path": "game/tests/test_wage_records.gd",
+      "bytes": 3313,
+      "sha256": "4cc764b6bb2b279687ae0da421ae6307142fc8b49e0d0f48def3a5c97389de0f"
+    },
+    {
+      "path": "game/tests/test_wage_records.gd.uid",
+      "bytes": 19,
+      "sha256": "5a624366d77ec1e5d5a99a59066580a7bc542bd70d3d87d79c5733166c67ece2"
+    },
+    {
+      "path": "game/tests/test_weekly_hiring.gd",
+      "bytes": 6674,
+      "sha256": "1bde0041cc61a100d00310700a4b31f8c98097d7c581f6e0b38ccbbfa44fd121"
+    },
+    {
+      "path": "game/tests/test_weekly_hiring.gd.uid",
+      "bytes": 20,
+      "sha256": "ea7022a5570236451c3db7819fcb7959832ff52f3ef04d5ca98d284a9f0a8820"
+    },
+    {
+      "path": "game/tests/test_work_budget.gd",
+      "bytes": 8859,
+      "sha256": "0d97ca0189f519bd92d56c51eda50b1aeda1c13de40a04ecf000233bc7078cbc"
+    },
+    {
+      "path": "game/tests/test_work_budget.gd.uid",
+      "bytes": 20,
+      "sha256": "73e9b84045ce5c2fb372eeebdb7ac24d51dc3a2f69b423ca9e9f381af1ec2c1e"
+    },
+    {
+      "path": "game/tests/fixtures/army_v045_baseline.gd",
+      "bytes": 62486,
+      "sha256": "c1d0116c8bab72de826d743c1788109ca8e7e6f25126d7ba8f3a413440f24405"
+    },
+    {
+      "path": "game/tests/fixtures/army_v045_baseline.gd.uid",
+      "bytes": 20,
+      "sha256": "60084879a263b8a2f68055d6c75ec983c9e90f102d87f7d35b6bac42f0f74fdf"
+    },
+    {
+      "path": "game/tests/fixtures/businesses_v035_hiring.gd",
+      "bytes": 65847,
+      "sha256": "07ed6547f4a6c61034eb573094136c44b45819c0bc58c8ebbf98c433317fc786"
+    },
+    {
+      "path": "game/tests/fixtures/businesses_v035_hiring.gd.uid",
+      "bytes": 19,
+      "sha256": "63c874ef2c62a41662aabbbefb57b6cac4012abbb4e70dfa969bcd9b4a625da0"
+    },
+    {
+      "path": "game/tests/fixtures/families_v035_hiring.gd",
+      "bytes": 80414,
+      "sha256": "a8c74a943d55a4480909f102867b7a29c7b27c3948b3d328b6aa619cc9a82a69"
+    },
+    {
+      "path": "game/tests/fixtures/families_v035_hiring.gd.uid",
+      "bytes": 20,
+      "sha256": "89aacee2c739e798b86a5f5f0243237eaf64acd6e9b6d83e8f7c6315b77c857a"
+    },
+    {
+      "path": "game/tests/fixtures/harvest_claims_v033.gd",
+      "bytes": 20022,
+      "sha256": "1d9537d17241f645c496811467ebb621c776a5d5d6c8dd6039f363c4843bc5f4"
+    },
+    {
+      "path": "game/tests/fixtures/harvest_claims_v033.gd.uid",
+      "bytes": 19,
+      "sha256": "daedfcbd851204059e81e66e2b62003a354283e239f55bb081b4f1b22a981099"
+    },
+    {
+      "path": "game/tests/fixtures/map_tracks_geometry_v034.gd",
+      "bytes": 1512,
+      "sha256": "61714a88c9a6b2e66cee6c9b3b3f8880b8fdb05e99a7f379f2ea95305a1c7422"
+    },
+    {
+      "path": "game/tests/fixtures/map_tracks_geometry_v034.gd.uid",
+      "bytes": 20,
+      "sha256": "5211c1b80aec5650531faace4be139c2f362fe0a8f4ee1bcd12d030ee97a6bdb"
+    },
+    {
+      "path": "game/tests/fixtures/records_v033_world.gd",
+      "bytes": 33394,
+      "sha256": "ff8ae7d8509a36afb0cb6123c6f64c45a838d08c3d0095329e46778b19e7c7d9"
+    },
+    {
+      "path": "game/tests/fixtures/records_v033_world.gd.uid",
+      "bytes": 19,
+      "sha256": "9b55590cc675f47b280ddcdf3fa11986087ffc6b078a2e0f16fc228f053bd363"
+    },
+    {
+      "path": "game/tests/fixtures/records_v034_move.gd",
+      "bytes": 5389,
+      "sha256": "137e4e988ede12f6a47dd2f43e649191487fac810d7efe312c3748f0c921aaf3"
+    },
+    {
+      "path": "game/tests/fixtures/records_v034_move.gd.uid",
+      "bytes": 20,
+      "sha256": "8725472e1503ed4aa3ab4054c7e3d8e6c8ec2b859d0fcf97efaf7824ba346617"
+    },
+    {
+      "path": "game/tests/fixtures/records_v040_world.gd",
+      "bytes": 33816,
+      "sha256": "34c4a39dd0bc9f568986e4b4ffc589a2a01372a4dfbf0a4a4bde33f7f65e5842"
+    },
+    {
+      "path": "game/tests/fixtures/records_v040_world.gd.uid",
+      "bytes": 20,
+      "sha256": "aa1418f84666d253e446d0c326ed818a7ec70f17907269c3e7590cd87775b396"
+    },
+    {
+      "path": "game/tests/fixtures/records_v043_baseline.gd",
+      "bytes": 6277,
+      "sha256": "67655fcdcfdd3f91f45dbb1fcfe93eeebbf651afc0cad23f64b431890a5131b8"
+    },
+    {
+      "path": "game/tests/fixtures/records_v043_baseline.gd.uid",
+      "bytes": 20,
+      "sha256": "cee50fa265468a750d074c1b8576333c05ab1d18809a67ef2570bdb8f77ac1c0"
+    },
+    {
+      "path": "game/tests/fixtures/records_v044_baseline.gd",
+      "bytes": 192480,
+      "sha256": "32506def202c5f77e50a082f85b642239c5087f46c1e92559fea8d7c3049c801"
+    },
+    {
+      "path": "game/tests/fixtures/records_v044_baseline.gd.uid",
+      "bytes": 19,
+      "sha256": "284360da6c686b8ec4e82419cd4148694c4baddfa05a98802d81a51d1a36a815"
+    },
+    {
+      "path": "game/tests/fixtures/tracks_v034.gd",
+      "bytes": 20393,
+      "sha256": "2cf5f33148d60156b519c74811136f7b47f003ae036b826e6f2855283ed715ad"
+    },
+    {
+      "path": "game/tests/fixtures/tracks_v034.gd.uid",
+      "bytes": 19,
+      "sha256": "6468bebeac2a97efb80bfa716b297505e1c5f27e9df8e678c24df61584cae711"
+    },
+    {
+      "path": "game/ui/army_panel.gd",
+      "bytes": 3692,
+      "sha256": "516002b1084d4f23311fc3372bacb17d98ec51a07d77fa87eccd056ba9f97889"
+    },
+    {
+      "path": "game/ui/army_panel.gd.uid",
+      "bytes": 20,
+      "sha256": "c3059e2978ec1f9b387730f2bd08910a68d13b714fbfa7b39c8a6828a952a337"
+    },
+    {
+      "path": "game/ui/attr_bar.gd",
+      "bytes": 1521,
+      "sha256": "f807f738cf6d9c9863d87dad35e0556cd432b7869207b9b364f71a39dbd8156d"
+    },
+    {
+      "path": "game/ui/attr_bar.gd.uid",
+      "bytes": 20,
+      "sha256": "534812865b5f360dac74ad148e8283c70c6c02275f331f42068ec1d1fcc43310"
+    },
+    {
+      "path": "game/ui/baggage.gd",
+      "bytes": 5892,
+      "sha256": "dd0908d3d5f12e9e7b52a21416a9503e11b1535cbaca49588d530daf155e8961"
+    },
+    {
+      "path": "game/ui/baggage.gd.uid",
+      "bytes": 19,
+      "sha256": "32d112688c161db688f8f774e4bc970842be8564967bd183751865e1bbead664"
+    },
+    {
+      "path": "game/ui/baggage.tscn",
+      "bytes": 274,
+      "sha256": "b8afcafc4df818be302f80355ae82adc64d5d818e4e6d8c0ffe1fd91c111b3e6"
+    },
+    {
+      "path": "game/ui/company.gd",
+      "bytes": 17166,
+      "sha256": "7e3bb5120d939f1fe0b418ef170b25ea7ca453c6d695304314d6385463b69959"
+    },
+    {
+      "path": "game/ui/company.gd.uid",
+      "bytes": 20,
+      "sha256": "56551db3418c9faab2eae1999766828e9858a044fd5872304c1b5bea3a5967ce"
+    },
+    {
+      "path": "game/ui/company.tscn",
+      "bytes": 274,
+      "sha256": "53c4ef5fce23b2c3c51ec71c949bb841729e853ddaafc6924852017950dbe409"
+    },
+    {
+      "path": "game/ui/compat.gd",
+      "bytes": 1166,
+      "sha256": "b8cd7c690f4626682677b78cb4cac92c9b9d7e0edecf4c8be521d84fc6875374"
+    },
+    {
+      "path": "game/ui/compat.gd.uid",
+      "bytes": 19,
+      "sha256": "e2ec8f20a263dca4116b89b6986131e0eb22b19a8f2ddfa893625391b8ab120c"
+    },
+    {
+      "path": "game/ui/debug_ui.gd",
+      "bytes": 2513,
+      "sha256": "7e3504ba583700fbe9d3165402a0109167ca4c0a1b8f0ac4ab5384a9960f8940"
+    },
+    {
+      "path": "game/ui/debug_ui.gd.uid",
+      "bytes": 20,
+      "sha256": "7d5eff48d44a1f59541e25599c2fa892bcb41ad9a6eaf96d060332e9d6511901"
+    },
+    {
+      "path": "game/ui/debug_ui.tscn",
+      "bytes": 159,
+      "sha256": "31fbd8bbf904a6b8897e28d740ed1c1b16769727175de77bb527871b4272f8b5"
+    },
+    {
+      "path": "game/ui/dev_town.gd",
+      "bytes": 3175,
+      "sha256": "00ceea320195df687d3b99dcc7eb60879fa001f68a9d2e1951c3179b9c41f073"
+    },
+    {
+      "path": "game/ui/dev_town.gd.uid",
+      "bytes": 20,
+      "sha256": "829d12f0302e1a916916c8b243101778b09a2684693936751a03e2e8e93452e2"
+    },
+    {
+      "path": "game/ui/dragon_card.gd",
+      "bytes": 7180,
+      "sha256": "669b7d1ab31bea56517e00a14a2b934387442f85678cbdb28a3a3e685982c888"
+    },
+    {
+      "path": "game/ui/dragon_card.gd.uid",
+      "bytes": 20,
+      "sha256": "185b32f03e43251d7316ef63ee8fe0e0e354b1dbb236dc70563047c680791eb0"
+    },
+    {
+      "path": "game/ui/dragons.gd",
+      "bytes": 28902,
+      "sha256": "6181c2ed3c909c4d619222ab6e14adfd37d8f928d77c8b96a50ab1c2455d6803"
+    },
+    {
+      "path": "game/ui/dragons.gd.uid",
+      "bytes": 20,
+      "sha256": "77a781a0d303a6ed43f3e61caf6d8749b4ddb7c7f13150c2550241c780d7f012"
+    },
+    {
+      "path": "game/ui/dragons.tscn",
+      "bytes": 272,
+      "sha256": "5a62289a92a28c3446b43edf83a281364f182732e4acaec3be8e5804a91b3b6a"
+    },
+    {
+      "path": "game/ui/dynasty_card.gd",
+      "bytes": 4033,
+      "sha256": "a635e1d6433c664b55fa182f2f35986a3999e267ec3deeb51296e512ff9899e3"
+    },
+    {
+      "path": "game/ui/dynasty_card.gd.uid",
+      "bytes": 20,
+      "sha256": "d21d50b880e2bf307ec51894c52068ceb5cdef1f58398c941ede7f1780079d7f"
+    },
+    {
+      "path": "game/ui/gameover.gd",
+      "bytes": 2019,
+      "sha256": "5dfe90024e9d699f9c5c9bce73fd77a17f9f48ae65410f4ddb4edc305613a0d1"
+    },
+    {
+      "path": "game/ui/gameover.gd.uid",
+      "bytes": 20,
+      "sha256": "4816675be685330f645c3dcbbc8a771ec6d541a90fe4c8db88867ce6680a129f"
+    },
+    {
+      "path": "game/ui/gameover.tscn",
+      "bytes": 276,
+      "sha256": "7dc721c3f40129682982bfee5e578e3bde699969e332886a35b8a84883f37655"
+    },
+    {
+      "path": "game/ui/house_banner.gd",
+      "bytes": 3351,
+      "sha256": "1ca6eb59865c43ae38e7a50d6ceca4281ee5e235867caee632ff59b779fae3b3"
+    },
+    {
+      "path": "game/ui/house_banner.gd.uid",
+      "bytes": 20,
+      "sha256": "4f6b9d3f26c521eda0109bb5de0fdb3e9a0600aff7313fb71751aa6cba5c7448"
+    },
+    {
+      "path": "game/ui/house_laws.gd",
+      "bytes": 8089,
+      "sha256": "8c729f545ede87428663e38b2acc849f49ead2eb37bdebda0f3e6091cdee129f"
+    },
+    {
+      "path": "game/ui/house_laws.gd.uid",
+      "bytes": 20,
+      "sha256": "a2f085d09e35f036c84b338982cf8c010e3e77d9f30414320b1ef0b0262d9a41"
+    },
+    {
+      "path": "game/ui/house_laws.tscn",
+      "bytes": 277,
+      "sha256": "7acac7d740ee9aa27a947116ee87ae6c331b53cd0b5796a78f5afcfb1b15ffc4"
+    },
+    {
+      "path": "game/ui/house_select.gd",
+      "bytes": 15837,
+      "sha256": "5d3b6085136b071f082725de97e2f41c74a2568b1bf69cc3a0ad2a79bbe3461c"
+    },
+    {
+      "path": "game/ui/house_select.gd.uid",
+      "bytes": 20,
+      "sha256": "dd7aad4c2886f92f438af0f022dd567407e1ddf25359694350c780f3703552c2"
+    },
+    {
+      "path": "game/ui/house_select.tscn",
+      "bytes": 281,
+      "sha256": "8ca1ea8b482e0f48925f8ca5a8c188059a0df5985120e075ca8921e836b574b1"
+    },
+    {
+      "path": "game/ui/house.gd",
+      "bytes": 12329,
+      "sha256": "cea5a819111f5a7e4a1c7b1c5f09e8e8c33683d69263950b83fa281d4d1ff424"
+    },
+    {
+      "path": "game/ui/house.gd.uid",
+      "bytes": 20,
+      "sha256": "a06ca49394fcfed8ed1d438190a13a3ba698c24b9ba518e80aedefd1c33584ec"
+    },
+    {
+      "path": "game/ui/house.tscn",
+      "bytes": 268,
+      "sha256": "5310ebf45f09a3fb9345e2e43646daa97ba5009b8f59be51bfcc724610d606af"
+    },
+    {
+      "path": "game/ui/kit.gd",
+      "bytes": 15052,
+      "sha256": "d6ff173777dd2849630674e8abf130ac70e2c677727d1c7a0ad0e2816485b6b5"
+    },
+    {
+      "path": "game/ui/kit.gd.uid",
+      "bytes": 19,
+      "sha256": "6d074878f8e4e3e26ba6aeb4d9d929f5b056404657a59db22c915255aaf02aff"
+    },
+    {
+      "path": "game/ui/land_map.gd",
+      "bytes": 35082,
+      "sha256": "3b54eda0076eea391232e7239c4ef1840795f9c295eb8ea53ab0e0cebc494cb0"
+    },
+    {
+      "path": "game/ui/land_map.gd.uid",
+      "bytes": 20,
+      "sha256": "f9b35bd3ccfb4466ba31750f7724b37efbabadd6b0911c4854e3491f806f423c"
+    },
+    {
+      "path": "game/ui/market.gd",
+      "bytes": 7791,
+      "sha256": "5d1b52fe81ea5c2c0d59642221e228e5eb03ece332f65dac0bc491142f58c6de"
+    },
+    {
+      "path": "game/ui/market.gd.uid",
+      "bytes": 20,
+      "sha256": "b7856f26107a6d3b71b1a7da77e778030d6ce0cbb06120e2d16e6f8e47337d79"
+    },
+    {
+      "path": "game/ui/muster.gd",
+      "bytes": 12199,
+      "sha256": "114e590f6eb2e9692bde157cf1e6bc77abcfafa9c450a2721f28df6abd8878e6"
+    },
+    {
+      "path": "game/ui/muster.gd.uid",
+      "bytes": 19,
+      "sha256": "b975d2a4c892825639a52c241c6eb52fdca3a8718a65764cc2b35e74e703b485"
+    },
+    {
+      "path": "game/ui/muster.tscn",
+      "bytes": 272,
+      "sha256": "c24dde7225441572a70ff6f5a182d5b3e09bcdcd05b205ef014708580c2a03d4"
+    },
+    {
+      "path": "game/ui/newgame.gd",
+      "bytes": 5919,
+      "sha256": "1ce147167cf2a70632455a113308809f946ebe21976117d6f763deab3389a2f4"
+    },
+    {
+      "path": "game/ui/newgame.gd.uid",
+      "bytes": 20,
+      "sha256": "49d09a58657663dd0fad12832ba379dc75b91760139a5a609a2279ef0c371053"
+    },
+    {
+      "path": "game/ui/newgame.tscn",
+      "bytes": 274,
+      "sha256": "2597a235ed2669581e6d7889796bde0fd9d7b0a0b1556bf03a1e7d7f1e9fa4ef"
+    },
+    {
+      "path": "game/ui/outfit.gd",
+      "bytes": 8521,
+      "sha256": "78bf23b92313037331574625b1ea537226e6bf1a890f860f85bee42a64793723"
+    },
+    {
+      "path": "game/ui/outfit.gd.uid",
+      "bytes": 20,
+      "sha256": "d998eca38c931c62ef3f183a231e63d25e4f18b1cf52e06a7a8efe7bc7247123"
+    },
+    {
+      "path": "game/ui/performance_panel.gd",
+      "bytes": 11329,
+      "sha256": "d88bd9737cedaf007b761e27bfbbfc8d221f45aaf6103e46d8750284d85c480f"
+    },
+    {
+      "path": "game/ui/performance_panel.gd.uid",
+      "bytes": 19,
+      "sha256": "ac9705899bb2da76514b57476453b2ec112217683082c197cba9cc33a92db242"
+    },
+    {
+      "path": "game/ui/politics.gd",
+      "bytes": 19648,
+      "sha256": "ade7b8fd5d34dfba35ff67e955493c2942ebc9ef6f5f2a05053af61255e707eb"
+    },
+    {
+      "path": "game/ui/politics.gd.uid",
+      "bytes": 20,
+      "sha256": "01d698344c9682f3a3cfea05bd64c0cd1cd96edcd793bc2ef8ad6d09aa728992"
+    },
+    {
+      "path": "game/ui/politics.tscn",
+      "bytes": 274,
+      "sha256": "3f3c1132b168b65c7fb6c288bb30067ab398a8226a07825a959ca170ff36ff85"
+    },
+    {
+      "path": "game/ui/population.gd",
+      "bytes": 6621,
+      "sha256": "1a3fd4348b670936b8b3e916963644d477353918fa117ef8fcb49189fb5cd22c"
+    },
+    {
+      "path": "game/ui/population.gd.uid",
+      "bytes": 20,
+      "sha256": "c1e110d9041eafc8ab05b6dea3253feea54d7295df8f95b5ca18132513c3d430"
+    },
+    {
+      "path": "game/ui/population.tscn",
+      "bytes": 278,
+      "sha256": "9217a96436850c6bc434c90ccd076237abea4da363c92498f6511f70113c1a89"
+    },
+    {
+      "path": "game/ui/presim_feed.gd",
+      "bytes": 13405,
+      "sha256": "6613c79a4fb170119de344eb62960aef0591b97f890ae4abd291d67ecbc7bdf7"
+    },
+    {
+      "path": "game/ui/presim_feed.gd.uid",
+      "bytes": 20,
+      "sha256": "033465a964e3a4ec884cd426fa2a4904c4b8fab795a51dbcc409364095c467e5"
+    },
+    {
+      "path": "game/ui/presim_map.gd",
+      "bytes": 11311,
+      "sha256": "d694d1431a7059a9821105a1f05f9b7c5a9b642e89d9272cdfef67bc25026264"
+    },
+    {
+      "path": "game/ui/presim_map.gd.uid",
+      "bytes": 20,
+      "sha256": "17108bf5d40d9b35f02e8c4b856f51832059dd91ed2f6301dbcf6aa23940d544"
+    },
+    {
+      "path": "game/ui/presim.gd",
+      "bytes": 12457,
+      "sha256": "28c82bbb43605b3337743e1468eb4b89e2947c706b6105d52d46748a10a10766"
+    },
+    {
+      "path": "game/ui/presim.gd.uid",
+      "bytes": 19,
+      "sha256": "b77bcd915ea0989435e77edde944cb6548411e3d4d012ff931b209e2af16c362"
+    },
+    {
+      "path": "game/ui/presim.tscn",
+      "bytes": 272,
+      "sha256": "2a92dee49252dd08e40f5bc7da1943d11a86635f170f2949d7d0e47608ce5b13"
+    },
+    {
+      "path": "game/ui/rec_cells.gd",
+      "bytes": 2425,
+      "sha256": "6bc97b87ccfd894063513cb8848bd2fe46b8e4864a7ee176ac6fd3e4903a6aea"
+    },
+    {
+      "path": "game/ui/rec_cells.gd.uid",
+      "bytes": 20,
+      "sha256": "f4eeea161768e3369e084aaa188d439752fb0f6a4912fd5432edb152b1499a32"
+    },
+    {
+      "path": "game/ui/rec_chart.gd",
+      "bytes": 716,
+      "sha256": "e8dfebf43e18c5ab46aed325195facc477232b8368152f577a9bfb71d888a91a"
+    },
+    {
+      "path": "game/ui/rec_chart.gd.uid",
+      "bytes": 19,
+      "sha256": "1ef1207da99327cf200715d3102f392045d7955ebcb711a09a1c078321501a4b"
+    },
+    {
+      "path": "game/ui/rec_civic.gd",
+      "bytes": 15860,
+      "sha256": "6a4647fdc46470748061ff22bc872432c6b8336f89d75c1016aac626d9973800"
+    },
+    {
+      "path": "game/ui/rec_civic.gd.uid",
+      "bytes": 20,
+      "sha256": "97e93d06c5ab5bc97256d734d0412b7547624a36f50d18dc4ae8789930c19f28"
+    },
+    {
+      "path": "game/ui/rec_data.gd",
+      "bytes": 23578,
+      "sha256": "f6cc9b13d64691c8a7f5ef3d68ab9cb071a3235d5dffcf74ec86dfd387df22f3"
+    },
+    {
+      "path": "game/ui/rec_data.gd.uid",
+      "bytes": 20,
+      "sha256": "a56c16693ada23713016c52b0d6652cbed88a23a5ed725c27deb869c7f60dc6d"
+    },
+    {
+      "path": "game/ui/rec_flows.gd",
+      "bytes": 14588,
+      "sha256": "c2f195adf56eb652ba14813dfb19f85d89dd0a4bf7c2b061b7e60f0126471b70"
+    },
+    {
+      "path": "game/ui/rec_flows.gd.uid",
+      "bytes": 19,
+      "sha256": "a768a9c5c8d04244ef23a4d360d5befb13c2dfd3d0140972adf77d48d54d8d03"
+    },
+    {
+      "path": "game/ui/rec_kit.gd",
+      "bytes": 8481,
+      "sha256": "1898611896bcd8470368163696c403d2edee3e0f861652020c378c0e91abfe2f"
+    },
+    {
+      "path": "game/ui/rec_kit.gd.uid",
+      "bytes": 19,
+      "sha256": "8898f4c9d036b46f5d32313babd2e3ce9c83e892f4322308c5ebda0d6685c98d"
+    },
+    {
+      "path": "game/ui/rec_market.gd",
+      "bytes": 14949,
+      "sha256": "e4f2fa49f66073226be70078e17dd7eec44dcd75c48c2e1f42056284d5574375"
+    },
+    {
+      "path": "game/ui/rec_market.gd.uid",
+      "bytes": 20,
+      "sha256": "3fd20e87cac773df81709c71b652cc3a174ee0c732dfd73370ca5e60d35cd363"
+    },
+    {
+      "path": "game/ui/rec_pages.gd",
+      "bytes": 22320,
+      "sha256": "6bcbd76be494cde57010fbd6d0097b4a68d3afe2fad6f740377dcd56d0f3ecb0"
+    },
+    {
+      "path": "game/ui/rec_pages.gd.uid",
+      "bytes": 19,
+      "sha256": "19fef28cfd61ba227bf1001d00ba19bd17fd00fea9fa7cdf5635d3044f93a5d5"
+    },
+    {
+      "path": "game/ui/rec_races.gd",
+      "bytes": 8382,
+      "sha256": "60b21d39c55a13447e90a16415b4401868e301e843a3e71d66c8fa8723c5f139"
+    },
+    {
+      "path": "game/ui/rec_races.gd.uid",
+      "bytes": 20,
+      "sha256": "10d7d51a9070227fe5e38c0ad64be74175260700de082f834337829de6c2c9f0"
+    },
+    {
+      "path": "game/ui/rec_regions.gd",
+      "bytes": 15284,
+      "sha256": "d0a0662cd659de0f1ec3f7d7ed72fb68066da1caf5987499e3b7565b050c1129"
+    },
+    {
+      "path": "game/ui/rec_regions.gd.uid",
+      "bytes": 20,
+      "sha256": "ce66b89d103736d0dd2c035b5a003131eb1cf0d2cbf0ec0fe059532c90a26b16"
+    },
+    {
+      "path": "game/ui/rec_row.gd",
+      "bytes": 1868,
+      "sha256": "02ef85a723ea95ee32f8b02da4767cf46c6a0e4165dd039dc359269a4ff0eb76"
+    },
+    {
+      "path": "game/ui/rec_row.gd.uid",
+      "bytes": 20,
+      "sha256": "4bcd42583fc76a37201a327f3efc63298d95aa3204ef5c7ebab9867c77722741"
+    },
+    {
+      "path": "game/ui/rec_table.gd",
+      "bytes": 10377,
+      "sha256": "d9913e9d705d28c9bd3c915178f8563ae7484460178369b5fea69f2bdc51c374"
+    },
+    {
+      "path": "game/ui/rec_table.gd.uid",
+      "bytes": 20,
+      "sha256": "c13bcd0b8f43fa7f8e094e34ce16a7c0daa7103a8831560a0f04ffb220baf224"
+    },
+    {
+      "path": "game/ui/rec_town.gd",
+      "bytes": 76884,
+      "sha256": "059daa6383702bf420e000238f1e4d12934a1ca2bc49ec93cf0a335142621c67"
+    },
+    {
+      "path": "game/ui/rec_town.gd.uid",
+      "bytes": 20,
+      "sha256": "42abe4b52c9986c97b73c5da8c3161a4624b5cebd3d8160a6f562d21b1d6eb51"
+    },
+    {
+      "path": "game/ui/rec_world.gd",
+      "bytes": 39416,
+      "sha256": "9f0cd03343aa98c62cbab7be9135dd3e17fc4daca70f20a2a04bef8336784125"
+    },
+    {
+      "path": "game/ui/rec_world.gd.uid",
+      "bytes": 20,
+      "sha256": "147528b2b76e06372ab1fc005771be0b5a94093128fc8a5e9a723cf2723838a6"
+    },
+    {
+      "path": "game/ui/records.gd",
+      "bytes": 18913,
+      "sha256": "33afa4410fd8c000d591c4f24a55e7063fe1405b05738f1fa003ed171ade40e5"
+    },
+    {
+      "path": "game/ui/records.gd.uid",
+      "bytes": 20,
+      "sha256": "f50a1391ad3c2422903ff7fc7f36bbb53234c336de5af79b4a44f28633ff0beb"
+    },
+    {
+      "path": "game/ui/records.tscn",
+      "bytes": 274,
+      "sha256": "d8ed6d8fce6741449b492a1c1ab6654f56491924768a89631cbb9064a224d0a5"
+    },
+    {
+      "path": "game/ui/recruit_brief.gd",
+      "bytes": 8390,
+      "sha256": "955cf148fb48a35b071a68bba6ac0dead46a179d404add187e3a89ba4a619c8b"
+    },
+    {
+      "path": "game/ui/recruit_brief.gd.uid",
+      "bytes": 20,
+      "sha256": "81151250eeb7fc24cf17188540feee0ccf50e5edb01190499bcb4ab3c1316c8e"
+    },
+    {
+      "path": "game/ui/relations.gd",
+      "bytes": 10202,
+      "sha256": "740f17883f51cc30a67c495a9b2c70f70cc793b2abd5e65f66b0e6d01b4b8c4a"
+    },
+    {
+      "path": "game/ui/relations.gd.uid",
+      "bytes": 19,
+      "sha256": "45ffcff6d6af4ab08965da7ee7aacd09b3d09852e3ee6b4fb5a9ec7feb5df9e6"
+    },
+    {
+      "path": "game/ui/relations.tscn",
+      "bytes": 278,
+      "sha256": "43e0a03761c62438bc1250e16381c78a31ae4a51f5104829d2979eb3c98b4fa8"
+    },
+    {
+      "path": "game/ui/roster.gd",
+      "bytes": 4506,
+      "sha256": "f6002960f1c7a54a97b7d5a89858ff8702d9da8b4c7b7b18aacb069ed072a0f0"
+    },
+    {
+      "path": "game/ui/roster.gd.uid",
+      "bytes": 20,
+      "sha256": "71acae8c93d146c61b1608ec9633919533235a8a001bb6fb59fa034bb9f19f69"
+    },
+    {
+      "path": "game/ui/save_indicator.gd",
+      "bytes": 830,
+      "sha256": "dc1f98011fa8f326b7485a109d52595b1503c69316249cc900bba52b963741e8"
+    },
+    {
+      "path": "game/ui/save_indicator.gd.uid",
+      "bytes": 19,
+      "sha256": "59ed7a92c589427bc78eb6853df8a3cc54233af7d12870f81efb4c13fae20b38"
+    },
+    {
+      "path": "game/ui/settings.gd",
+      "bytes": 4495,
+      "sha256": "7c9470b564ed14b228180f6bfe2499702ddacd82540e67efdaeec6e5e39d96df"
+    },
+    {
+      "path": "game/ui/settings.gd.uid",
+      "bytes": 20,
+      "sha256": "03b8730effb96f65a1957e6c94f963f47ac1119fb573b3b06c9642c318e00cad"
+    },
+    {
+      "path": "game/ui/settings.tscn",
+      "bytes": 276,
+      "sha256": "b7fea09e01734328f0ed3301bd058f97ceba79c19a0bfc24307b9e1dd75ac981"
+    },
+    {
+      "path": "game/ui/settlement_select_map.gd",
+      "bytes": 4652,
+      "sha256": "71fb1294285c3914e471eeba1b62a6a924188de9df7ffe1f09a547d084c8b4e8"
+    },
+    {
+      "path": "game/ui/settlement_select_map.gd.uid",
+      "bytes": 19,
+      "sha256": "1ece9839fea51e6edfea90998a6e63b078739bebe08bd32577b55abf11b3866b"
+    },
+    {
+      "path": "game/ui/stars.gd",
+      "bytes": 801,
+      "sha256": "b91fa145fad7f2c9835d377500bcd99bc4b412b0efd08341c6f2b6f60e9644aa"
+    },
+    {
+      "path": "game/ui/stars.gd.uid",
+      "bytes": 20,
+      "sha256": "76babe8d0ac5aa5d510784554488f9c432cdaf37b20445022d0d714d10e44813"
+    },
+    {
+      "path": "game/ui/theme.gd",
+      "bytes": 8718,
+      "sha256": "4520108d4e1e994dde62b6edd52c4623126fc3f951f6d817b12035b1381326c3"
+    },
+    {
+      "path": "game/ui/theme.gd.uid",
+      "bytes": 20,
+      "sha256": "88d96fe1671e32b96f675323b03513f18b55c62c7f96dfe2394ba6c5ea1eb3fc"
+    },
+    {
+      "path": "game/ui/title.gd",
+      "bytes": 4381,
+      "sha256": "054161d358d6e43600c6f4483e65add9cfb240a4ec9a64bc9903f3627e792dc5"
+    },
+    {
+      "path": "game/ui/title.gd.uid",
+      "bytes": 20,
+      "sha256": "9dada2a9b6000fd58752da1457a16917e499a5d610fb6e95f965361f2720c714"
+    },
+    {
+      "path": "game/ui/title.tscn",
+      "bytes": 270,
+      "sha256": "58ced421d2688233cf7d752854b487df02f1018d0f85010c54b6d72ff621ccc2"
+    },
+    {
+      "path": "game/ui/town_contracts_tab.gd",
+      "bytes": 10678,
+      "sha256": "40fa2b61768f54d00889984d3f38a2237468ba95b566667c82bffdc3218fa804"
+    },
+    {
+      "path": "game/ui/town_contracts_tab.gd.uid",
+      "bytes": 20,
+      "sha256": "85041b1ae49df1110ba44acf44b84ed87eec12745203ddd73da4839a957ae47e"
+    },
+    {
+      "path": "game/ui/town_econ_tab.gd",
+      "bytes": 34875,
+      "sha256": "dc51ce8daace2e7e6ef6a269e782f1689c50e0396ccf01844a580c16560d89f2"
+    },
+    {
+      "path": "game/ui/town_econ_tab.gd.uid",
+      "bytes": 20,
+      "sha256": "e1c724b96e51cc4744b3b27bfea110c1ec7b141f798414992e435f731c1e46eb"
+    },
+    {
+      "path": "game/ui/town_healer_tab.gd",
+      "bytes": 7058,
+      "sha256": "3f55af6d019968dca75a2f2ce3187618608a74464e24f95c47134b7a356af65d"
+    },
+    {
+      "path": "game/ui/town_healer_tab.gd.uid",
+      "bytes": 20,
+      "sha256": "ffd78b1bc8e8922a148a7c44eca0618201ced0aad0357b8e4ee106312cbeda04"
+    },
+    {
+      "path": "game/ui/town_market_tab.gd",
+      "bytes": 17357,
+      "sha256": "8720bb721655b09e9de5fb373f55dd8b301ab2781834bb417a737368f31a02a7"
+    },
+    {
+      "path": "game/ui/town_market_tab.gd.uid",
+      "bytes": 19,
+      "sha256": "930e1dfc01aa687aeee0a7177937a06f185714ccfbe2afb5311e81c4e3aa6058"
+    },
+    {
+      "path": "game/ui/town_provisions_tab.gd",
+      "bytes": 10239,
+      "sha256": "d426407d7e475f699de6e6ccc5241cf07385c48e55cc13d4abf7d12e0bfe8867"
+    },
+    {
+      "path": "game/ui/town_provisions_tab.gd.uid",
+      "bytes": 20,
+      "sha256": "14b4bb4e5529765175af1c1d796dce49f0d2d0b2499e9b7a55328e29ffd72e83"
+    },
+    {
+      "path": "game/ui/town_research_tab.gd",
+      "bytes": 11688,
+      "sha256": "cc4621cdcac4d54edd3b1c25e4c160c57b55fdd7f4d6f40da26e7d67c93b19d8"
+    },
+    {
+      "path": "game/ui/town_research_tab.gd.uid",
+      "bytes": 20,
+      "sha256": "681db9f86e60ed512b0c31c1c2c12ee6ec1a1530e940090bca0795562ba4e186"
+    },
+    {
+      "path": "game/ui/town.gd",
+      "bytes": 20460,
+      "sha256": "c97b03a1db2b8848ea15b367fd5c395c31f09cabe00fe12fc4e9de817d5b284f"
+    },
+    {
+      "path": "game/ui/town.gd.uid",
+      "bytes": 20,
+      "sha256": "f70651562453c01f5bec1778ee243f2c6ff84400840ba21664aa1dacc52e1b7a"
+    },
+    {
+      "path": "game/ui/town.tscn",
+      "bytes": 268,
+      "sha256": "31aa8d4fda69fd14c33f219bfe303e9c816adace56534934d910f3938ca1a37f"
+    },
+    {
+      "path": "game/ui/unit_sheet.gd",
+      "bytes": 23514,
+      "sha256": "e1b3f10c9a88057eb980814d6f5d832e28f1ef7aa2114e856405767fa6ffb1e5"
+    },
+    {
+      "path": "game/ui/unit_sheet.gd.uid",
+      "bytes": 20,
+      "sha256": "8377df666eb09f8fd209cb6448b6b392340241ea43df437bdfbce0dae1a419c7"
+    },
+    {
+      "path": "game/ui/wood_bg.gd",
+      "bytes": 1414,
+      "sha256": "fa7acc7d36f56285568d6ae406d510a4b9ec5110415a79e536a165888e574f7d"
+    },
+    {
+      "path": "game/ui/wood_bg.gd.uid",
+      "bytes": 20,
+      "sha256": "89df6104d18e5457bc9d2501650f511647312a4b450b339739e7ad03a37d2eee"
+    },
+    {
+      "path": "game/ui/words.gd",
+      "bytes": 10383,
+      "sha256": "f6c7cf610fe637ae3115054067bbb2ae7560dbd86bbb1111544ea2d83aaa8892"
+    },
+    {
+      "path": "game/ui/words.gd.uid",
+      "bytes": 20,
+      "sha256": "438375b9ef534c2102a11c1f8bcbc8fdeb8fbb2523ada3f1e4b1718081de41e4"
+    },
+    {
+      "path": "game/ui/fonts/LiberationSans-Bold.ttf",
+      "bytes": 137052,
+      "sha256": "361c61b82d575c5c35fd9157fda8b0194bcfcd0d88ea8521a4fb5dd53d33dddc"
+    },
+    {
+      "path": "game/ui/fonts/LiberationSans-Regular.ttf",
+      "bytes": 139512,
+      "sha256": "f8ace1f892b2bd9dc1792ba7f097fa7588f84fed48321480e04de5390828221f"
+    },
+    {
+      "path": "game/ui/fonts/LICENSE_LIBERATION",
+      "bytes": 4414,
+      "sha256": "93fed46019c38bbe566b479d22148e2e8a1e85ada614accb0211c37b2c61c19b"
+    },
+    {
+      "path": "game/ui/fonts/SOURCE.txt",
+      "bytes": 722,
+      "sha256": "4a54ed822a17bfe6b4a2d7563f730ff470bc510a8cab66f9893af7de34c41c16"
+    }
+  ],
+  "FullLogPass": true,
+  "Result": "PASS"
+}

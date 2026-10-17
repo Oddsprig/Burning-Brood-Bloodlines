@@ -1,0 +1,32 @@
+{
+  "scope": "Proposed handoff palette, not applied to game",
+  "colours": {
+    "bg": "#101117",
+    "panel": "#19211E",
+    "raised": "#252137",
+    "line": "#46534B",
+    "green": "#2F6B4F",
+    "green_text": "#A8E0BD",
+    "purple": "#5B3D82",
+    "purple_text": "#D6B9F5",
+    "text": "#F1EFE8",
+    "muted": "#BCC3BE",
+    "gold": "#E4C47D",
+    "warn": "#F0BE73",
+    "danger": "#FFA0A0"
+  },
+  "contrast_ratios": {
+    "text/bg": 16.38,
+    "text/panel": 14.29,
+    "text/raised": 13.51,
+    "muted/bg": 10.49,
+    "muted/panel": 9.15,
+    "muted/raised": 8.65,
+    "text/green": 5.47,
+    "text/purple": 7.5,
+    "green_text/panel": 11.01,
+    "purple_text/raised": 8.97,
+    "warn/panel": 9.64,
+    "gold/bg": 11.21
+  }
+}

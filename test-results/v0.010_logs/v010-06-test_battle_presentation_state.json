@@ -1,0 +1,15 @@
+{
+  "Run": "v010-06-test_battle_presentation_state",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v010-source-verification\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_battle_presentation_state.gd",
+    "--watchdog=40"
+  ],
+  "ExitCode": -1,
+  "StoppedAtTimeout": true,
+  "Seconds": 45.062
+}

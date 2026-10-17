@@ -1,0 +1,36 @@
+BURNING BROOD: BLOODLINES v0.007 - ACTUAL DESKTOP DELIVERY
+Date: 2026-10-10 | Result: PASS
+Source code checkpoint: 285337e19f25b3f615f95f65b6d83981c1c33b2b
+Desktop folder: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.007
+Desktop shortcut: C:\Users\bligh\Desktop\Burning Brood Bloodlines v0.007.lnk
+Shortcut target: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+Shortcut arguments: -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.007\Launch_Bloodlines.ps1"
+Working directory: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.007
+Branded icon: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.007\Bloodlines.ico,0
+Branded icon SHA256: d1ef199206f031d650bb086846c3ceab34b9217ce09e5a8b07022a6553e42438
+Actual Windows shell icon PNG SHA256: 7de91d3f81c8808019a029b26e30c0a30f4db727d84dca5c6b64e4ed44da6467
+The extracted shell icon is byte-exact to the previously visually reviewed
+green dragon/crown brand with the normal Windows shortcut arrow.
+
+All 1656 installed payload files passed exact length/SHA256 readback.
+Installed release manifest matches source: da9a33d99292ef0e277b882123e9e31cf559b2e802b4d8c58dbfc8a59fd6fbff
+Final ZIP SHA256: 6cd7b304f11d1236807bd40752150c8d332fed4bb853e05e88996ea7aabf2f28
+Final ZIP bytes: 105608575; entries: 1657.
+Previous Desktop folders retained: v0.002, v0.003, v0.004, v0.005, v0.006.
+Their manifest and shortcut bytes match the pre-install snapshot; v0.006 ZIP unchanged.
+
+Complete released Copper Oath v0.053 humanoid art/data imported: eight races,
+all supported genders, faces/hair, both female sets, both Orc forms, eight beard
+styles, all native weapon/bow/shield/clothing/armour/helmet paths. Includes the
+one-handed Moon glaive definition and maker-aware worn helmets. Bound ruler
+portraits use their actual unit's saved look and equipment. Dragon art retained.
+Earlier gameplay evidence: 1430 counted assertions, 546 icon combinations,
+173 native body/bust renders and eight reviewed previews. Fresh bundled
+preparation/main-scene checks passed against these same 894 game file bytes.
+The legacy full-campaign outfit fixture timed out before assertions; retained
+as a failed attempt. The bounded native equipment replacement passed 29 checks.
+
+No interactive game was launched during Desktop delivery. No mouse, keyboard,
+foreground, player saves, Copper Oath source or older installed game was changed.
+Five post-package delivery receipts are copied to the Desktop as supplemental
+files outside the self-hashed release payload and compared by length/SHA256.

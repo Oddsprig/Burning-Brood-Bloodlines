@@ -1,0 +1,36 @@
+BURNING BROOD: BLOODLINES v0.003 - DESKTOP DELIVERY
+Date: 2026-10-10 | Result: PASS
+Source code checkpoint: 198c7164a56f63a9e9bca6395ee561bc11390181
+
+Actual Windows Desktop installation:
+C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.003
+Desktop launcher:
+C:\Users\bligh\Desktop\Burning Brood Bloodlines v0.003.lnk
+Icon:
+C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.003\Bloodlines.ico,0
+
+Installer verified all 1050 source and installed payload
+files by exact size/SHA256. Payload size: 191417673 bytes.
+Included release manifest also matches the source by SHA256.
+Installed config name/version explicitly identify Bloodlines v0.003.
+Shortcut readback matches target, arguments, installed working directory,
+Bloodlines.ico,0 and hidden console style 7. Target is Windows PowerShell;
+arguments launch the installed Launch_Bloodlines.ps1 with its console hidden.
+Windows shell extracted the real shortcut icon; inspected pixels show the green
+ dragon/crown on purple shield with the normal shortcut arrow. Icon art unchanged.
+Shell proof: chat work/v003-desktop-install/desktop-shell-icon.png and JSON.
+Installation command completed in 6.441s; no player game was launched.
+v0.002 Desktop folder and branded shortcut remain present and untouched.
+No Copper Oath files or player saves changed; no foreground/input control.
+
+ZIP already passed full entry readback against this same release payload:
+releases/Burning_Brood_Bloodlines_v0.003_Windows.zip
+SHA256: 4fbf0a0d67d58c329eaa62dde3277f0c1b17f34724550ebe4591df23ac8ee729
+Package proof: test-results/v0.003_2026-10-10_package.txt.
+Gameplay proof: test-results/v0.003_2026-10-10_results.txt (1863 assertions,
+seven desktop fit cases, five previews; no phone QA/export this pass).
+
+Package/Desktop TXT receipts are written after verification and excluded from
+this version's hashed ZIP payload to avoid recursive self-hash dependencies.
+Copies of these two receipts are kept in the installed test-results folder as
+additional evidence; all original 1050 payload files remain unchanged.

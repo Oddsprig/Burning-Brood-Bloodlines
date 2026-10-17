@@ -1,0 +1,45 @@
+CURRENT USER POLICY: DEVELOPMENT VERSION SAVES
+Save compatibility between development versions is not required.
+New version builds may start with a fresh campaign.
+Do not load older-version saves or run cross-version compatibility, migration,
+launcher save-copy or legacy-save regression checks for normal version builds.
+Do not spend development or test resources maintaining cross-version saves.
+Cross-version save work requires an explicit user request.
+Use short current-version checks for breakage. Preserve existing player files.
+This current policy overrides historical save-compatibility instructions below.
+
+COPPER OATH v0.046 WORKING NOTES
+Only046 is current; cumulative045. Work on fix/economy-pass, never master.
+Read V0.046_REPORT.txt, Benchmarks/README.txt and review/v0.046 before changes.
+Keep permanent economy, population, combat, UI and release verification roles;
+reuse and improve the same specialists across versions.
+Population lesson: Persons PID is town-local; compare town/family/PID, and
+use global UnitUID for live unit identity. Preserve all raw lineage properties.
+Combat lesson: native physiology recovers before action; prove a fixture's
+actual threshold/event. Preserve the first real death and positive service
+counts; zero-valued role keys alone do not represent an extra serving person.
+Release lesson: validate each runner's real receipt schema and actual source;
+never invent arguments, passing outcomes, or completed runs.
+Purchases must follow native partial/full physical plots, rotation, real animal
+age and donor-conditioned ox initialization even when mo rounds to0.
+Keep loan/arrears/reserve rules and earned settlement. No yield, worker, wage,
+population, denominator, troop or tick tuning. Real helpers retain existing rules.
+Child caches need record/race/count/day/birthday validity; pure UI readers do
+not mutate caches. Exact stored-food totals and fresh identity must survive
+native departure/migration. Home militia/guard/caravan food policy is unchanged.
+Native service death decrements cover guards and pasture defenders. Reassign
+civilian work after selecting original herders; cleanup resolves actual UID/PID.
+Company payroll credits existing moved/extinct targets before debit/paid flags.
+Unknown recipients remain unpaid and keep payer money for later roster members.
+No invented personal wallets, revived families or compensation coins.
+Original legacy marker FAIL27 is retained. Native27-household load repairs are
+proved independently; saved real payroll loss is fixed, not an oracle waiver.
+User requested no long tests now. Default to short breakage checks and keep
+writable per-run Benchmarks TXT reports. Long benchmarks need explicit request.
+Current full-world/performance and full sickness/UI/census runs are uncompleted
+or unrun. Prior results are historical and identified by their actual source.
+Strict90% day120 land and25ms plot targets remain open; no false all-pass claim.
+Use hidden/headless/BelowNormal isolated engines serially; never mouse, keyboard,
+foreground, visible test windows or player launcher. No dogs work/testing.
+Preserve every prior release, checkpoint and player save. Proposed roadmap
+numbers are planning; descendants are not forced recruits.

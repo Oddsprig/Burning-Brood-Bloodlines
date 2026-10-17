@@ -1,0 +1,21 @@
+BURNING BROOD: BLOODLINES - BOUNDED READ-ONLY QA
+2026-10-12 | GPT-6 Luna/low | bounded_qa | 3/3 PASS
+Scope:roadmap order, actual installed version/file presence, shortcut properties.
+
+1 PASS:docs/ROADMAP.txt identifies v019 after completed17/18. Settlement selection
+and map highlight precede local-house selection, customization/review and Begin.
+Acceptance preserves preview people/coin/troops, persistent customization and
+actual rights/assets for non-ruling houses.
+
+2 PASS:C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.018\game\project.godot
+line9 names Burning Brood: Bloodlines v0.018. Launch_Bloodlines.ps1 and
+Bloodlines.ico are present in the release root alongside game/.
+
+3 PASS:C:\Users\bligh\Desktop\Burning Brood Bloodlines v0.018.lnk inspected with
+WScript.Shell without launching. PowerShell arguments resolve to that release's
+Launch_Bloodlines.ps1; working directory is the release root; IconLocation is
+that release's Bloodlines.ico,0. Resolved launcher and icon paths exist.
+
+Limits:presence/properties checks only; no new engine run, gameplay test,
+performance probe, full hash scan, phone/old-save QA or Desktop mutation.
+Existing full release verification remains in the dated v018 delivery receipts.

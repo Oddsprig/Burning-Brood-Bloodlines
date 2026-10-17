@@ -1,0 +1,14 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: probe-corrected
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 5.312s | exit 0
+PASS | tests/test_household_food_v046.gd | 2.046s | exit 0
+FAIL | tests/test_land_capacity_v046.gd | 29.969s | exit 1
+  1 occurrence(s): FAIL: northern loan none active: available ordinary credit buys feasible physical acres from real treasury coins
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-probe-corrected
+Source receipt SHA256: 8744db4d9fe73a60f9a304a193e13bb62da4fcb08881feca272c4d7c87297780
+
+Notes (you can write here):

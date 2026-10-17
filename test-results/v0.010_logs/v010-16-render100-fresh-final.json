@@ -1,0 +1,19 @@
+{
+  "Run": "v010-16-render100-fresh-final",
+  "Arguments": [
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v010-source-verification\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/diag_battle_render_v010.gd",
+    "--count=100",
+    "--enemies=100",
+    "--seconds=12",
+    "--enforce-gate",
+    "--report=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v010-final-render100-fresh-final.json",
+    "--watchdog=55"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 44.211
+}

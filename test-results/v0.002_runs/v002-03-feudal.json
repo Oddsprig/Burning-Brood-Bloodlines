@@ -1,0 +1,15 @@
+{
+  "Run": "v002-03-feudal",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v002-verification\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_feudal_succession.gd",
+    "--watchdog=40"
+  ],
+  "ExitCode": 3,
+  "StoppedAtTimeout": false,
+  "Seconds": 2.336
+}

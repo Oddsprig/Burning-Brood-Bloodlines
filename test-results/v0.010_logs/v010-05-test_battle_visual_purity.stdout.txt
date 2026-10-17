@@ -1,0 +1,4 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Battle visual purity: 19 checks, 2 failures
+== res://tests/test_battle_visual_purity.gd: FAIL (2) ==

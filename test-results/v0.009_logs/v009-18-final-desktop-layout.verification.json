@@ -1,0 +1,10 @@
+{
+  "error_count": 2,
+  "run": "v009-18-final-desktop-layout",
+  "full_log_pass": false,
+  "known_certificate_environment_line_count": 1,
+  "errors": [
+    "== res://tests/test_performance_panel.gd: FAIL (1) ==",
+    "FAIL: fresh startup controls beside diagnostics at 1280x720: 5 controls push outside the window:"
+  ]
+}

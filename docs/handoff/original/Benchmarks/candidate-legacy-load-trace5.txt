@@ -1,0 +1,12 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: candidate-legacy-load-trace5
+Source: CURRENT GAME PLUS DECLARED EXTERNAL OBSERVER
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 5.141s | exit 0
+PASS | tests/trace_legacy_assignment_v046.gd | 16.219s | exit 0
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-candidate-legacy-load-trace5
+Source receipt SHA256: 29b790f2e21b0f1cf28b38a191a735dd3c5a3eead39c24af9795615ea30fdc32
+
+Notes (you can write here):

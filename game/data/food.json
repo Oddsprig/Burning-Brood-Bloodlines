@@ -1,0 +1,18 @@
+{
+  "_note": "Food and drink (core/food.gd, spec docs/specs/food-drink.md). Race tables and market mapping only; every numeric rule lives in core/food.gd as a tagged constant. fav_drink: [beer %, wine %] at recruitment. enemy_buzz: buzz range rolled at battle spawn. beast: belly only (no buzz, no drink need). goods: which town market good (campaign/goods.gd, data/economy.json) a company stock item is drawn from, and how many come out of one unit of it (economy units are meals, mugs and cups: 1 each; \"food\" = grain, fruit and meat together).",
+  "fav_drink": {
+    "human": [70, 30], "orc": [85, 15], "goblin": [80, 20], "moon_elf": [25, 75], "high_elf": [25, 75], "dark_elf": [25, 75],
+    "troll": [90, 10], "dwarf": [80, 20], "_default": [70, 30]
+  },
+  "enemy_buzz": {
+    "orc": [20, 50], "goblin": [10, 40], "human": [0, 25], "moon_elf": [0, 10], "high_elf": [0, 10], "dark_elf": [0, 10],
+    "troll": [30, 70], "dwarf": [10, 40], "_default": [0, 25]
+  },
+  "supply_belly": {"well": [50, 80], "short": [20, 40], "starving": [5, 20]},
+  "beast_belly": [20, 50],
+  "goods": {
+    "meal": {"good": "food", "per": 1},
+    "beer": {"good": "beer", "per": 1},
+    "wine": {"good": "wine", "per": 1}
+  }
+}

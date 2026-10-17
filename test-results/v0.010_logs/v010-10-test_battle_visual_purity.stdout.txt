@@ -1,0 +1,5 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  Native adjacent combat: 6 attacks, 4 hits, 3 wounds in 48 ticks
+Battle visual purity: 25 checks, 0 failures
+== res://tests/test_battle_visual_purity.gd: PASS ==

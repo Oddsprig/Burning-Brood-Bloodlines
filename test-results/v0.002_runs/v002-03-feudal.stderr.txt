@@ -1,0 +1,5 @@
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+FAIL: real collateral uncle inherits after exhausted eldest branch
+FAIL: daughter fallback inherits when male branches exhausted
+FAIL: reigning mother's newborn retains dynasty despite another birth-house lineage

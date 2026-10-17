@@ -1,0 +1,100 @@
+BURNING BROOD: BLOODLINES v0.011 - CAMPAIGN PERFORMANCE RESULTS
+2026-10-11 | Selected final checks PASS. Earlier failures are recorded below.
+
+MEASURED FRESH GAMEPLAY
+Godot4.7.2 official Windows; OpenGL3.3/NVIDIA610.88; RTX5090 Laptop GPU.
+2560x1440, VSync disabled, cap60FPS, no-focus offscreen window, BelowNormal.
+Fresh native seed777 worlds with exactly ONE history day and an actual native
+house selected. Default Large is68towns/168bands; Normal23towns. No save loading.
+Visible Performance panel; two-second paused warmup before actual frame_post_draw
+measurement.1x, live calendar/movement/native jobs. Travel uses a real reachable
+far corner and remains active; safe-until guard prevents player battle interruption
+only. Other native forces, fights and all daily work remain active.
+Native calendar holds while queued work settles; frame responsiveness is not a
+promise of uninterrupted five-second calendar days on a heavy world.
+
+FINAL RENDERED CASES
+  normal wait: 58.70FPS, p95 26.573ms, p99 40.434ms, worst 102.085ms; 22.01s measured.
+    Day 1.000->4.411; 3 midnights; active 100.0%; queue at end 0; peak draws 711; generation 25.82s.
+    Engine-tracked memory change 7.42MiB; native Settings open 19.086ms; pan/recenter actions 0.
+  normal travel: 58.60FPS, p95 26.518ms, p99 37.802ms, worst 100.236ms; 35.00s measured.
+    Day 1.000->6.398; 5 midnights; active 100.0%; queue at end 0; peak draws 1072; generation 25.80s.
+    Engine-tracked memory change 12.81MiB; native Settings open 18.855ms; pan/recenter actions 2.
+  large travel: 37.44FPS, p95 49.098ms, p99 66.667ms, worst 84.154ms; 22.03s measured.
+    Day 1.000->3.003; 2 midnights; active 100.0%; queue at end 4; peak draws 2413; generation 78.62s.
+    Engine-tracked memory change 12.56MiB; native Settings open 29.542ms; pan/recenter actions 0.
+All three pass30FPS average/p95<=50ms; probe also requires worst<=150ms.
+Frozen v010 Normal wait baseline:21.03FPS, p9573.654ms, worst141.035ms.
+Default Large intermediate builds failed p95; final37.44FPS/p9549.10ms is
+a recovery floor, not60FPS everywhere. Generating a Large one-day world still
+takes roughly79s on this machine, and occasional shorter hitches remain.
+
+WHAT CHANGED / EXACTNESS
+Ordered native terrain commands become batched triangles; no art/geometry reduction.
+Across day/dusk/night/zoom/pan/remount, all RGBA pixels match native controls.
+42703 native source commands ->173 triangle batches;0 native fallbacks in this
+fixture;40489->170 draw calls.1262060vertices/1176654triangles retained; largest
+batch8192vertices. Retained packed geometry44,409,288bytes(~42.35MiB), excluding
+renderer/GPU allocation and unchanged textures. Same-mode cache reuses owned RIDs;
+world/mode replacement and shutdown free them.63 pixel/lifecycle checks pass.
+Remove repeated lookup/stock/template/genealogy scans only within native reads.
+Militia policy/threat/power caches clear after fights; first duplicate UID wins.
+Equipment cost-note cache preserves exact value inputs and float addition order;
+actual purchase prices remain live. Dragon catalog rows return detached copies.
+Queue explicit care payments after native ownership, final reconciliation as its
+own job. Prevent new time advance on the frame that drained jobs. HUD waits for
+a lighter frame with bounded fallback; unchanged account text is assigned once.
+Timing labels include native reconciliation, care, militia, gear issue/cost notes.
+Native daily-job counts are unchanged except two explicit internal continuations.
+
+892 focused checks:32dynasty,590forge,106arms,23ruler card,44care,69growth,
+28militia controls. The ruler-card gear fixture reported unavailable; do not
+count it as an equipped-portrait pass. Ordinary real allocation/full worlds follow.
+Complete native saves match frozen v010 at initial and end checkpoints, including
+ordered/canonical SHA256, RNG, next Unit/ItemUID and unsaved pasture-fight state.
+Normal300fixed advances day1->4, Large200 day1->3; drain all native jobs between
+advances. No rule-changing field exclusions or old-save compatibility testing.
+Normal end canonical SHA256: d6791d8d13f93f76c4ee45d6f548187dc518c70544f869d9d37d19c894f1e5d5
+Normal end ordered SHA256: 4167a51d67004e7ea65e59cd409ba717e01680d8a61810212293af963dcc8122
+Large end canonical SHA256: cf159198e879814afb998e88457ce6b0ea62ecb474131134e9baee9f93adc01b
+Large end ordered SHA256: 3f431df50c6c8a6dd0cc32ef98aab63c08d605a48ec524484a783e52cb6ab221
+Current game files 946; all 430 prior UIDs unchanged; 437 unique UIDs.
+All 101 prior art/data files exact; 20 native released model files exact.
+Recorded assertions 1097; headless state checks are not FPS.
+Cold bundled PrepareOnly and main scene use identical final game bytes in a
+fresh spaced path; source snapshot/cold/private candidate hashes verified.
+
+LIMITS / NEXT SCOPE
+These bounded memory samples do not prove absence of OS/GPU or long-session leaks.
+Remaining generation/snapshot/lifecycle costs are v012; v013 optional slow motion
+OFF default, v014 clean results, v015 full paused/end log, v016 officer rally,
+v017 funded army raising, v018records, v019settlement/house chooser, v020salvage.
+v010 battle sprite work is retained unchanged; no new battle FPS/art claims here.
+No phone QA, art redesign, player foreground/input or Copper Oath changes.
+
+SELECTED COMPLETE LOGS
+  v011-focus-final - PASS - 4.661s
+  v011-map-pixels-final-02 - PASS - 18.153s
+  v011-state-normal-final-02 - PASS - 39.463s
+  v011-state-large-final - PASS - 103.075s
+  v011-wait-final - PASS - 55.571s
+  v011-travel-final - PASS - 68.442s
+  v011-large-travel-final - PASS - 108.275s
+  v011-final-import - PASS - 5.736s
+  v011-20-cold-launcher - PASS - 11.769s
+  v011-21-bundled-main - PASS - 4.812s
+
+EARLIER / FAILED ATTEMPTS
+Large travel01:21.27FPS/p9589.36ms;02:34.50/p9554.91;03:35.23/p9553.51,
+worst198.48ms;04:33.90/p9558.28,worst92.22ms. All FAIL and retained.
+First native-state candidate produced matching state SHA but incorrectly compared
+JSON numeric dictionary types. Explicit per-kind integer comparisons fixed the
+diagnostic; final original counts and continuation totals match independent control.
+First map comparison attempted an incomplete scene fixture; full-log rejection
+invalidated it. Correct native terrain fixture compares complete RGBA. Final map
+attempt with wrong --report flag was rejected before drawing; --report-dir fixed.
+These attempts are not included in the selected final assertion count.
+Every stdout/stderr line is scanned; only exact Windows root-certificate-store
+ERROR is excluded as known environment output. No other ERROR/FAIL is ignored.
+Full snapshots/private screenshots are not shipped. ZIP and Desktop readbacks
+have separate supplemental receipts; the verified archive stays immutable.

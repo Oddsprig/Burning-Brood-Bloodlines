@@ -1,0 +1,36 @@
+BURNING BROOD: BLOODLINES - HANDOFF DOCUMENTATION CHECK
+2026-10-14 | documentation/file checks only; latest game remains v0.022
+
+Canonical handoff: project-root HANDOFF.txt. AGENTS.md and START_HERE.txt point
+to it; active roadmap/dev notes identify22 as delivered and23 as next planned.
+Folder plan includes the new root entry. No v023 implementation was started.
+
+READ-ONLY RELEASE RECHECK
+Actual Desktop folders19/20/21/22 and their versioned shortcuts are present.
+Installed release manifests20/21/22 exactly match the corresponding source
+release manifests. Actual current ZIP lengths and SHA256 match delivery evidence:
+20:107466712bytes f731afdcb6b42414cf1f3340dfde484ce3f9d52834780bf88cc9d2a42459f8c4
+21:107668924bytes 7900f9e6d322896c8a0cc5d7ff4f3a5c25d52f3bdb94133388636e11d3678f9c
+22:107967267bytes 220d30cb7b8669fac9fa347d101098fb4d49271cd7d4313724b911737f8780b8
+Actual22 shortcut COM target/arguments/working directory/icon/WindowStyle7 match
+the release receipt. Shortcut was read, never launched. No Desktop writes.
+
+HANDOFF PATHS / CHANGE SCOPE
+16important read targets,5release receipts and8private helper paths exist.
+Live code is game/ under the editable project root; Desktop/work/old outputs
+are distinguished. Current release source commit daed55489fe7115c40669310f3f6f29fb0400f21
+and delivery commit4d29328e17944421a8314457bfe9e606c4ff6f71 are recorded.
+New/changed files are TXT/Markdown notes only; game/runtime/art, launcher scripts,
+old test receipts, immutable release manifests/archives and installed builds stay
+untouched. Existing source was clean before this handoff documentation pass.
+
+No engine/gameplay/performance/phone/old-save tests were run for this handoff.
+538checks/19rendered gates and FPS figures quoted by HANDOFF.txt are the dated
+2026-10-12v022 evidence, not new2026-10-14engine results. No leak-free claim.
+
+BOUNDED LUNA/LOW READ-ONLY REVIEW: PASS
+Cited code/test paths and runner/autoload instructions match actual source.
+23-28 scope, actual identities, art rules, helper roles and delivery boundaries
+are aligned across current notes. Receipt source_commit is daed554...; later
+delivery commit4d29328... was verified from Git HEAD before this docs-only commit.
+The API shorthand was clarified to exact participation_preview/participation_order.

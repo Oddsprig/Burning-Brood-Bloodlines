@@ -1,0 +1,4 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Native dragon control: 10 checks, 0 failures; SHA=10107054ea86c381cda3380908f596deab158d9522a6f551713fcf60e1efcf95
+== res://tests/diag_dragon_control_v022.gd: PASS ==

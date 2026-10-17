@@ -1,0 +1,568 @@
+CURRENT RELEASE: v0.046 (cumulative045).
+[x] Physical purchases, real household food, native guard/pasture service, payroll.
+[ ] Strict90% day120 nominal worked-land target; annual food balance.
+[ ] Strict25ms plot budget and UI/army/Records hitches; no final-source long rerun.
+[ ] Coherent inherited battle/sickness/legacy-marker fixtures; original failures retained.
+PROPOSED:047 political offices/ruling families;048 Academy/metallurgy;
+049-052 people/portraits/weapons, same animations, each old asset exported to
+Desktop archive;053-058 keeps, mercenary fort, monsters and larger worlds.
+Descendants are not forced recruits; kinship notes and memory remain planned.
+Default short checks; long benchmarks only on explicit user request.
+
+HISTORICAL RELEASE: v0.045 - Army equipment performance and rank-row cleanup.
+Cumulative from delivered v044; read V0.045_REPORT.txt.
+Next numbered work: v0.046 land/labour/food. Remaining guard/muster, save/handoff
+and whole-world hitches stay open; no cadence or balance change.
+The proposed political, Academy, art, keep, fort, monster and world map remains.
+
+HISTORICAL RELEASE: v0.044 - Records performance.
+Cumulative from delivered v043; read V0.044_REPORT.txt.
+Completed: source-bound Records read/render checks, frozen builder closure,
+377-section equality and the existing Academy-head test-oracle migration.
+The unchanged broad <16 ms Records timing gate still fails on this device; its exact diagnostic is retained.
+Next numbered work: v0.045 army/simulation pauses; v0.046 land/labour/food.
+The full proposed version map below is retained as planning, not new gameplay.
+
+HISTORICAL RELEASE: v0.043 - Records Goods performance.
+Cumulative from delivered v042; read V0.043_REPORT.txt.
+Completed: measured Goods read/render optimization with original content,
+actions, source binding and complete Records regression verification.
+Current broad suites still fail: tests/test_ui_records.gd, tests/test_records_performance.gd.
+Their exact gate/oracle diagnostics appear below; no failure is waived.
+Next: remaining Records speed, army/simulation work, then land/food.
+Roads/Academy vacancy/order, metallurgy and kinship remain outside this pass.
+
+PROPOSED VERSION MAP - drafted 2026-10-09 (planning only)
+--------------------------------------------------------
+Delivered base: v0.043. Only this roadmap is being edited; no gameplay work
+is started or newly authorized by recording this proposal. No dates promised.
+v0.044-v0.046 follow the existing current priorities. The placement/order of
+v0.047 onward is a proposal for review, not an agreed change to the older
+gameplay sequence. Split oversized milestones into additional releases;
+later proposed numbers may shift rather than bundle unrelated systems.
+
+Version  Proposed milestone              Scope / completion target
+-------  -----------------------------   ---------------------------------------
+v0.044   Records speed                   Remaining slow Records views; preserve
+                                         exact live data, actions and read purity.
+                                         Keep unresolved gates/oracles explicit.
+v0.045   Army and simulation pauses      Equipment selection, muster/work jobs and
+                                         save/map handoff costs. Preserve real
+                                         goods, money, people and event cadence.
+v0.046   Land, labour and food           Day-120 worked-land target, affordable
+                                         staffing and seasonal food balance.
+v0.047   Political people and families   Extend existing town/capital heads into
+                                         persistent person-linked offices with
+                                         succession and appropriate titles.
+                                         Clearly flag town/faction ruling families
+                                         in registers and household records, with
+                                         officeholder, title and governed place.
+v0.048   Academy staffing and research   Initial state-funded wizard appointment
+                                         and research continuity. Settle the
+                                         bronze/iron progression rules before
+                                         implementing any new technology gate.
+v0.049   Art foundation and first batch  Versioned Desktop legacy source/render
+                                         exports BEFORE EACH replacement; agreed
+                                         visual direction and a small character/
+                                         portrait batch proving rig compatibility.
+v0.050   People and portraits            Extend the approved look across supported
+                                         people/races in manageable batches.
+                                         Same animations, anchors, equipment,
+                                         personal variation and wound layers.
+v0.051   Weapon and item icons           More readable icons consistent with the
+                                         character/portrait art, real materials,
+                                         quality and legendary marks.
+v0.052   Carried weapon sprites          Matching weapons on animated people.
+                                         Preserve grips, poses, bow/shield handling
+                                         and combat timing; archive each old asset.
+v0.053   Settlement keep foundations     Extend existing keep plots/records with
+                                         clear ownership, residents and visible
+                                         culture/settlement-specific presentation.
+v0.054   Keeps and castles               Plan and add physical building detail/use
+                                         and upgrades through existing buildings.
+                                         Full sieges/conquest are separate work.
+v0.055   Company fort                    A persistent company-owned home: acquire
+                                         a site, build a usable basic fort, stay
+                                         there and store real company supplies.
+                                         Reuse existing construction/accounting.
+v0.056   Fort expansions                 Add selected rooms/facilities and real
+                                         construction/maintenance costs. Choose
+                                         modules when planning; treatment-heavy
+                                         facilities depend on the healing system.
+v0.057   More monsters, first batch      Select a small roster from existing later-
+                                         wave candidates; bodies, art, habitats,
+                                         lairs, encounters and rewards. Rare
+                                         megabeasts stay a later content milestone.
+v0.058   Larger world                    Decide added space vs settlement density,
+                                         then extend world generation and travel.
+                                         Full town economies and usable startup/
+                                         simulation performance must be retained.
+
+Dependencies: art replacements use v0.049's archive process every time; weapon
+icons and carried sprites share their art direction; castles extend keeps;
+fort upgrades follow a working base. Expansion reuses existing leadership,
+buildings, lairs and world-size systems.
+
+PREVIOUSLY PLANNED GAMEPLAY SEQUENCE - retained, insertion point undecided
+Healing -> downed enemies/prisoners -> aftermath, retirement and kin/loss
+memory -> wild land and remaining economy systems -> conquest -> saved-record
+packing -> phone port. These plans are still open. This proposal does not
+silently move them behind all of the new ideas or assign them v0.059 onward.
+Roads and other earlier open notes also remain open. Their detailed scope and
+the older confirmed relative order are retained below.
+
+FUTURE DESIGN IDEAS - recorded 2026-10-09 (planning only)
+------------------------------------------------------
+These are roadmap ideas, not an implementation request or a new release.
+Proposed release numbers/order appear above; dates and final art style remain open.
+Current priorities remain Records speed, army/simulation work, then land/food.
+
+1. People sprites and portraits: improve the existing character visuals.
+   Keep the same animations, pose names, frame order/count, timing, facing,
+   foot anchors and weapon grips. Cover idle, walk, prepare, strike, recover,
+   hit, block, dodge, prone and dead. Preserve individual appearance, race
+   differences, faction colours, equipment layers, bow/shield handling,
+   wounds, missing limbs and severed-piece visuals. Better portraits must
+   still represent the actual person and their appearance/equipment.
+   Extend Paperdoll/FigurePainter/Portrait rather than build a second rig.
+
+   Before EACH replacement, export the legacy version into the asset folder
+   on the user's Desktop. Keep a separate, versioned archive for each replaced
+   person/portrait/item asset; never overwrite an earlier legacy export.
+   Much of today's art is drawn in code, so retain the relevant source and
+   export its rendered frames/sprite sheets, portraits or icons as applicable,
+   with animation/anchor metadata and a clear old-to-new asset mapping.
+   The archive is part of every replacement, not a one-time backup at the end.
+   Exact Desktop folder and visual style can be settled when this is scheduled.
+
+2. Weapon and item visuals: improve both inventory/market icons and the actual
+   weapons carried by animated people. Keep the icons, portraits and battle
+   sprites visually consistent. Preserve recognisable weapon types, material,
+   quality and legendary marks, equipment slots and existing combat behaviour.
+   Use the same legacy-export workflow for every replaced weapon/item visual.
+   Compare old/new appearances across the existing art preview's poses,
+   equipment combinations and portrait views before shipping replacements.
+
+3. More world monsters: expand the existing monster/lair/encounter system.
+   The existing later-wave plans are candidate content, not new commitments:
+   trolls, giants, spiders, ogres and other beasts, then rare megabeasts such
+   as hydras and dragons. Choose a first roster and define bodies, visuals,
+   habitats, rarity, behaviour and rewards when the feature is planned.
+   Integrate with existing world spawning, combat and contracts.
+
+4. A larger world: plan more geographical space and exploration beyond the
+   current Normal/Large/Huge options. Decide whether to enlarge those settings
+   or add another size; dimensions, settlement counts and travel pacing are
+   still open. Retain the full economy in every settlement and account for
+   generation/simulation performance when choosing the expansion.
+
+5. Political figureheads: every settlement should have a clear named political
+   head with an appropriate title (reeve, mayor, baron, etc. by settlement and
+   culture), and every faction should have a clear political head too.
+   Town heads and cultural titles already exist, and capital heads have realm
+   titles. Stable person-linked political records and fuller succession remain
+   unfinished. Extend and expose those offices, connecting existing ruler
+   policies and military leadership where the culture requires it. Plan
+   persistent person/family links, office history and succession instead of
+   generating a second unrelated set of leaders.
+   Clearly mark the ruling family in the register and household record, with
+   the officeholder, title and settlement/faction governed; do not rely only
+   on a shared surname or a link buried in town details.
+
+6. Settlement keeps/castles: each settlement should have an actual, identifiable
+   keep or castle appropriate to its scale and culture. Existing town land
+   maps already contain a keep plot and head-household building record.
+   Extend those buildings and their presentation; plan what physical layout,
+   use and progression need adding rather than duplicate the existing keep.
+
+7. A mercenary fort: a company home the player can build and add to, where the
+   band can stay between expeditions. Treat it as a company base and extend
+   existing camp, building, inventory and company systems. Design construction
+   costs, land/access and upgrades before implementation. Quarters, storage,
+   armory, training and an infirmary are possible modules, not a fixed list.
+
+HISTORICAL RELEASE: v0.042 - Healer and Contracts at a glance.
+Cumulative from delivered v0.041; read V0.042_REPORT.txt.
+Completed: compact service summaries/rows, existing actions, lazy details,
+actual care/contract quotes and controls, and responsive town header.
+Next priorities: Records speed, army/simulation work, then land/food.
+Known historical Records broad failures stay open. Academy vacancy/order,
+metallurgy and kinship/loss-memory remain planning only.
+
+HISTORICAL RELEASE: v0.041 - readable Records in every view.
+Read V0.041_REPORT.txt; cumulative from delivered v0.040.
+Completed: every primary Town/World/Faction Records tab, aligned live data,
+original controls/links/Back, lazy full accounts and optional-state pure reads.
+Next UI priorities: Healer and Contracts. Existing performance and balance
+work remains open. Academy vacancy/metallurgy and kinship/loss-memory remain
+planning; no appointment/technology rule or forced recruitment implemented.
+
+HISTORICAL RELEASE: v0.040 - readable Town Records.
+Read V0.040_REPORT.txt. Cumulative from v0.039.
+Completed: all twelve Town Records primary layouts, aligned data, reserve
+bars, named quality, compact controls and retained details/deep links.
+NEXT UI: Healer and Contracts. Existing broad performance gates and balance
+work remain open. Academy vacancy/technology questions await authorization.
+Kinship/loss-memory notes remain planning only; no forced recruitment.
+
+HISTORICAL RELEASE: v0.039 - research and short startup histories.
+Read V0.039_REPORT.txt. Current cumulative version is v0.039, from v0.038.
+Completed: first four town screens, real provisions, equipment actions,
+and the Academy's named state-funded head and tracked research view.
+New Campaign history now supports a one-day minimum and short-history steps.
+NEXT: continue town UI through Healer, Contracts and Records with compact
+data rows, meaningful actions and details on demand.
+Existing economy/muster jobs, save/map handoff costs, army armory selection,
+empty rank rows, land/labor and food balance remain open after this priority.
+Future kinship/loss-memory notes remain planning only. No dates assigned.
+
+HISTORICAL RELEASE: v0.038 - town screens.
+Read V0.038_REPORT.txt. Historical cumulative version v0.038, from v0.037.
+Completed first: Market, Provisions, Recruits and Town presentation, plus
+actual named food purchases and safe equipment/resupply convenience actions.
+NEXT: continue the town UI pass through Healer, Contracts and Records,
+using compact data rows, meaningful actions and details on demand.
+Existing indivisible economy/muster jobs, save/map handoff costs, army armory
+selection/empty rank rows, and land/food balance remain open after this priority.
+Future kinship/loss-memory notes remain planning only. No dates assigned.
+
+HISTORICAL RELEASE: v0.037 - responsive world startup.
+Read V0.037_REPORT.txt for that historical release, cumulative from v0.036-icon1.
+User startup priority handled with shared sliced generation/history and exact checks.
+NEXT: remaining indivisible economy/muster jobs and save/map handoff costs;
+then army armory selection/empty rank rows and the open land/food balance work.
+Later planned systems retain their existing order; no new dates assigned.
+
+HISTORICAL RELEASE: v0.036 - household work, funded hiring and camp recruitment.
+Read V0.036_REPORT.txt. Historical v0.036 release; cumulative from v0.035.
+Measured reassignment/vacancy improvements and real camp funding link complete.
+Narrow muster/guard profiling and authentic army-fixture repair complete.
+17/22 final entries pass; selected functional assertions complete.
+Remaining unchanged speed failures are explicit. Guard candidates rejected.
+Fresh 120 days and actual day 600 + 28 ownership and active-service audits pass.
+NEXT: actual army armory-selection costs, empty rank-row cleanup and remaining
+guard/muster and whole-world hitches. Preserve physical equipment choice/order.
+Then continue the open 90% land target, local labour/funding and food balance.
+Later gameplay systems retain their order; no new dates assigned.
+
+HISTORICAL RELEASE: v0.035 - reserve identities, safe loads and track performance.
+Read V0.035_REPORT.txt. Historical v0.035 release; cumulative from v0.034.
+General reserve-move and proven older-save identity repair is complete.
+Exact track geometry and controlled repeatable profiling checks pass.
+18/24 recorded entries pass; timing failures and the supplementary
+inherited army-fixture failure remain explicit. Focused release checks pass.
+Fresh120 and actual day600+28 ownership and military register audits pass.
+NEXT: profile and reduce muster/reassignment/funded hiring and guard-formation
+costs without changing real staff, money, goods, event ordering or cadence.
+Then continue the open 90% land target, labour/funding and food balance work.
+Later gameplay systems retain their existing order; no new dates assigned.
+
+HISTORICAL RELEASE: v0.034 - records, ownership and faction supply performance.
+Read V0.034_REPORT.txt. Exact component comparisons and 368 record sections pass.
+24/28 final entries pass; 4 existing speed-gate failures remain explicit.
+Fresh 120-day and saved day600+28 ownership audits pass. Whole-run timings are observations;
+campaign replay variation prevents a causal whole-game speedup claim.
+NEXT: remaining measured hitches/speed gates and repeatable campaign profiling.
+Also diagnose inherited day600 reverse reserve-to-roster binding defects generally.
+The 90% land target, local labour/affordability and food balance remain open.
+Later gameplay systems retain their existing order; no new dates assigned.
+
+HISTORICAL RELEASE: v0.033 - funded work events, Academy staffing and mixed production.
+Read V0.033_REPORT.txt. General event gaps and the arrowhead work reset are fixed.
+All 41 final entries pass. Worked nominal land at day120: 74.172%.
+The day-120 90% target remains unmet. Remaining local labour, affordability and food balance are explicit.
+NEXT: the separate performance pass, preserving all accounting and work rules.
+Later systems retain their existing order; no new dates assigned.
+
+HISTORICAL RELEASE: v0.032 - rotation, real farm work and funded event matching.
+Read V0.032_REPORT.txt. Rotation sizing, species/fallow labour, cut seasons and
+the militia/weekly funding delays are implemented and checked generally.
+Next: actual farm affordability/allocation and remaining food/audit observations.
+The day-120 90% target remains unmet. Hiring checkpoint PASS. Performance follows.
+
+HISTORICAL RELEASE: v0.031 - dated harvest ownership and food reserves.
+Read V0.031_REPORT.txt. Ownership and broker-before-retention are now completed.
+Next: rotation-aware land and food balance with real staffing and affordability.
+The 90% target and ordinary hiring peaks remain open. Performance follows separately.
+
+HISTORICAL RELEASE: v0.030 - farm food, workforce correctness and operating cash.
+Read V0.030_REPORT.txt. Next: dated harvest ownership and rotation-aware land/food
+balance; the 90% land target and ordinary hiring peaks remain open.
+Performance stays separate.
+
+HISTORICAL RELEASE: v0.029 - earned wages, funded hiring and seasonal farm work.
+Read V0.029_REPORT.txt for measured results and remaining balance/performance work.
+Later systems retain their existing sequence; no new dates assigned.
+
+HISTORICAL RELEASE: v0.028 - farm staffing, builder payments and performance.
+Read V0.028_REPORT.txt for measured results and remaining work.
+Later systems retain their existing sequence; no new dates assigned.
+
+HISTORICAL RELEASE: v0.027 - hiring, services and performance checkpoint.
+v024/v025/v026 are completed history. See V0.027_REPORT.txt for remaining
+economic observations, timing gates and manual checks; later systems keep
+their existing sequence with no new dates assigned.
+
+HISTORICAL STATUS AT RELEASE: v0.026 - cumulative supply, producer labour, records and stability fixes.
+Remaining economic observations and manual checks are explicit in V0.026_REPORT.txt.
+Later roadmap systems retain their existing sequence; no new release dates assigned.
+
+HISTORICAL STATUS AT RELEASE: v0.025 - supply and producer labour fixes; v0.026 records/stability next.
+
+HISTORICAL STATUS AT RELEASE: v0.024 - garrison supply implemented; v0.025 producer cash flow and v0.026 records/stability remain next.
+See V0.024_REPORT.txt for verification limits.
+
+HISTORICAL STATUS AT RELEASE: v0.023; base v0.020.
+Adds aggregate weekly town waste and rats, actual grain losses, physical cleanup, paid sweepers/night-soil workers/rat catchers, fertiliser sales and sickness exposure. Children of the existing helper age can do short cleanup shifts at the existing one-fifth work allowance; they receive proportional attendance pay and cannot simultaneously count as farm helpers. Family records and saves retain their jobs. Housing adds two lodging houses with thirty rooms TOTAL on a five-acre lot, funded construction, household landlords, real rents, shared vacancies and additional town lots.
+
+The older roadmap below is retained as history.
+
+COPPER OATH - ROADMAP
+=====================
+Plain-English overview. Updated every version.
+  ROADMAP.txt   - this file: what the game is, what shipped, what's being built, what's next.
+  CHANGES.txt   - what changed in each version, newest first.
+  TO_TEST.txt   - the playtest checklist: each change adds lines; ticked when checked.
+  DEV_NOTES.txt - the working notes: decisions taken, defaults chosen, what's not built yet, test rules.
+Last updated: 2026-10-06, v0.014 draft (world-start show).
+
+WHAT THE GAME IS
+----------------
+A mercenary-company auto-battler for phones (tested on PC first). Battle Brothers-style campaign and company;
+Dwarf Fortress-style combat (no hit points: tissue layers, wounds, bleeding, pain), fought in short ticks.
+You are the captain and never fight; the game ends when your company is gone. The world runs on its own:
+real people in real families, a real economy in bronze coins, wars, caravans, monsters, sickness.
+
+Testing: Claude runs the relevant tests and a launch check before each release; TO_TEST.txt is the playtest list.
+(Turned back on 2026-10-06 after untested builds shipped with start-screen and screen bugs.)
+
+SHIPPED
+-------
+v0.001  First Blood        The whole loop: map, towns, company, uniforms, tick battles with logs, aftermath.
+v0.002  Hold the Line      Corridor bug fixed; a hit always has at least a 0.01% chance.
+v0.003  Your Company       You are the captain; game over when the company is gone; smooth campaign map.
+v0.004  Roads and Wagons   Caravans carry real goods; town food and drink; escort contracts; raiding.
+v0.005  Wolves at the Door Calendar and seasons; food and drink; diplomacy between factions; monsters.
+v0.006  Hearth and Ledger  Town economies with families; loot rework; tracks; map tokens.
+v0.007  Bows and Banners   Army pay and ranks; hardship and the poorhouse; backstories; bows.
+v0.008  Iron Loop          Gear lost and recovered; armories; arms trade between races; makers' marks.
+v0.009  War Footing        Factions at war hunt each other's forces; faster pathfinding.
+v0.010  Bronze and Barley  (2026-10-06)
+          - Money is bronze coins (100 coins = a labourer's day), minted from real copper and tin.
+          - The economy rebuilt on the Barge rules: prices, wages, farm hands, hunger per family, treasuries,
+            granaries, people moving between towns. The world no longer collapses (8,063 people -> 6,582 after
+            five years, was -> 313).
+          - Every person is a real person: kin, births, marriages, life histories; the census records every
+            death with its cause.
+          - Town, world and faction record screens (12 town tabs, 10 world tabs).
+          - The land map: every acre a plot; the town's own buildings (keep, hall, barracks, armory, granary,
+            shelter, jail, mint) easy to find.
+          - Sickness in real people, healers and remedies, starvation.
+          - War: truces after peace, militia hold the walls, armies drafted only from men a town can spare,
+            a 1.5x bigger map; orcs and goblins start hostile to a human company.
+
+v0.011  Herds and Hearths  (2026-10-06)
+          - Natural births from each married woman; orcs ~7% and goblins ~14% a year from their biology;
+            childbirth deaths; widows and daughters marry out; elves live their centuries.
+          - Orc towns fixed (leather for tents, treasuries spend); trades short of hands bid real wages;
+            mints cast from melted coin; more copper mined.
+          - Living herds: breeding by species, hay as a traded good, summer grass and winter hay, bad years,
+            owners keep / milk / sell / slaughter by price, herd diseases; butchers, dairies, salters, chandlers.
+          - World size Normal / Large / Huge (Large default, a large Battle Brothers map); goblins 5 warrens;
+            New Campaign screen with size and 1-100 history years; long histories packed; big jobs split.
+          - By-race card in the Census tab.
+
+v0.012  Stone and Steel  (2026-10-06)
+          - Eight farm animals (cattle, horse, sheep, goat, pig, poultry, dog, donkey/mule); dogs guard herds
+            from wolves and outlaws; feathers from real birds go to the fletchers.
+          - Dwarves: a long-lived mountain race and faction, stone holds on iron and ore, ruled by a king
+            under the mountain. Eastern humans: a steppe khanate of riders on the dry south-east.
+          - Iron and steel in the economy, made the Dwarf Fortress way; real DF material values, no multipliers.
+          - A research house in every capital, named by culture (Academy, Lorehall, House of Wisdom,
+            Athenaeum, Blood Forge, The Pit, Hall of Makers); steel is its first research line.
+          - Orcs and goblins reworded: LOTR-and-fel war clans; cruel, lusty, backstabbing cave goblins.
+
+v0.013  Flesh and Bone  (2026-10-06, not yet run or launched)
+          - Full Dwarf Fortress anatomy for every race and beast: lungs, heart, liver, kidneys, guts, spine and
+            cord, ribs, skull, brain, eyes, ears, nose, 32 teeth, 10 fingers, 10 toes, motor and sensory nerves,
+            with DF tissue layers and values. Punctured lungs, spilled guts, limp limbs, lost grip, knocked-out teeth.
+          - Bodies store only wounded parts (expected: a unit drops from ~116 KB to ~30 KB; not measured).
+
+v0.014  (draft, 2026-10-06, not yet run or launched)
+          - World-start show: watch the world being made on a small map (land and sea, mountains, forests,
+            climate and realms, towns and holds, roads, in the generator's order; Skip to jump ahead), then
+            the years before run on that map: town banners, people as dots that grow or shrink, caravans and
+            armies moving, and a Chronicle of real recorded events (wars, peaces, sacks, famines, outbreaks,
+            new leaders, notable deaths, research steps, each season's census) that flashes where it happened.
+
+BEING BUILT NOW
+---------------
+  - Paused after v0.014 (Douglas low on usage). Queued for next time, in order:
+    0. FIRST, ahead of everything (Douglas 01:26 "do u think about the numbers when u build the economy and
+       buildings?"):
+       a. Crops: Gedford (human) is Barley 1,357, Apples 335, Flax 10, Pasture 445 acres, no wheat; Millton the
+          same; the elf town grows wheat. Is barley the only human grain in the crop table? Every race gets its
+          real crop set (wheat, rye, barley, oats, beans, vegetables), chosen by soil, climate, price and the
+          family's own food needs.
+       b. Barracks: Gedford's has a fixed 8 beds (7 residents, levy sergeant). Size it from the guards and
+          soldiers the town actually keeps.
+       c. ECONOMY SANITY AUDIT before building anything else: a per-town numbers report plus automated sanity
+          tests that fail the build on: a rich family starving; a shop whose keeper wage is above its revenue
+          per worker; an armoury above 2x the men it serves; barracks beds below the garrison; one crop over
+          ~60% of farmland; goods "stalls full" while the matching shops have an empty till; woods or herds
+          with no woodcutter or butcher supply; share of each town's plots worked; mines with zero workers;
+          idle adults set against unfilled places (Douglas 01:28: WORKED overlay shows much farmland unworked
+          and edge mines empty while ~1,650 adults idle; likely the wage-above-revenue cause). Run on a Large 5-year world, report the before numbers, then
+          fix until clean.
+    1. Lodging houses (2 per 5-acre lot, ~30 rooms each, race names) so spare farm adults work for wages;
+       smithies sit unstaffed by year 5 and ~1,650 adults are idle.
+    2. More town lot cells on the land map for more houses and businesses.
+    3. Failing tests still to fix (arms trade, econ town, econ army draft pool, monsters militia rebuild,
+       world Goods tab speed, Relations World fit, phone-width town/company screens) and a launch smoke script.
+    4. Family record (Douglas 10-07): list members by name ("Brannoc Greaves (man, 41), Vera Greaves (woman, 38)").
+       Root-cause from the same Greaves screenshot: keepers earn 0 coins a week; a rich family (23,812 coins,
+       pears, 14 pigs, 11 cattle) earned 4 coins last week; firewood 0 days while rich; Baldwin starved in summer
+       year 5 with 57 days of food; Vera, a rich keeper, served in an outlaw band and came home unpaid; the family
+       story repeats "Brannoc's wife Vera" and reads as a list. Vera loops in winter year 5 (home from militia unpaid,
+       outlaw band, home unpaid, bandit's pay, home unpaid within 26 days). Income line leaves out the keeper's take
+       (businesses.gd ~1140 adds it straight to the purse), so rich keepers show ~0 income.
+       Root-cause (Douglas 00:54 "how is such a rich family so tragic, and joining bandits?"): who joins outlaws,
+       armies and militia (must come from real desperation or criminal traits, never a rich fed owner; check a draft
+       that ignores wealth or a recruit pick from any adult); why they come home unpaid within 4 days again and again;
+       how Baldwin starved in a rich house (stock, sharing, turn order); every life event logged twice, in two
+       wordings, with the date doubled inside the text. Also: the Greaves market reads "short-handed" at 2 of 2 at
+       work; keepers (Brannoc, Vera) keep walking off to bands and armies - a keeper should not, and a shop whose
+       keeper leaves must show as unkept. "Remembered (dead and departed)": lists a Vera while Brannoc's wife Vera
+       lives (same-name or bug?); 7 dead or gone from a rich family - real cause for each; Baldwin was a child of ~4
+       when he starved; entries must read "Baldwin Greaves, son, died aged 4, summer year 5, starved" or "left for X",
+       not "born day -4653". Person cards (00:57): Lena died aged 38 of camp sickness (serving), Orrin and Alys died
+       fighting with outlaws, Piers (8) of the flux, Ida (7) and Baldwin (1) starved the same day in a rich house with
+       food stored. Vera is ALIVE but listed under Remembered (list bug). Cards say "his household" for women; ages
+       show "born day -N". CAUSES FOUND (10-07, code read): outlaws and deserters are drawn by People.draw
+       (people.gd:143) scoring idle + hardship + random 0.5 with no wealth or criminal check; and families.gd:706 adds the
+       TOWN pool shortfall (e.food_short) to every family's days short, so a rich family with a full larder still
+       starves (children 1.5x faster). Fix: outlaws only from the desperate or criminal; hunger from the family's own
+       food only; money buys food before hunger; a hungry family slaughters its own livestock (real meat yield,
+       least valuable animals first) before anyone starves. Joining a band is the person's own choice: real expected
+       gain (pay, loot, food) vs current living and risk (a rich keeper stays home); coming home unpaid is a real
+       memory that makes them and their family much less willing to rejoin; check whether People.draw keeps picking
+       the same family because members just home score as idle.
+    5. History speed (profiled 10-07: Large, 1 year = 80 s): smarter job matching, herds and recruit pools first,
+       then a release export (needs Douglas OK for the export templates download), then threads or C++.
+    6. Militia and town guards (Douglas 10-07, Millton: 4 militia, 3 unpaid, always on the map): find why only 4;
+       militia muster out only when a threat is near on the map and go home after; while not mustered they work
+       civilian jobs (labour pool), paid rank rate only on muster and drill days. Each town also keeps
+       professional guards: full-time, rank pay, barracks, guarding the town and gates; size from what the
+       treasury can pay. Fill militia "not tracked" rows (morale, kit, drill, desertion, barracks).
+       FIRST (likely a v0.014 regression): Millton's armoury is far over target (helms 156 of 8, shields 175 of 7,
+       daggers 203 of 0...) while 3 of 4 militia go unpaid and carry tin. Suspect the v0.014 armoury buying past its
+       target (smiths' order book, head spending the surplus) draining the treasury; also check tin issued while
+       better stock sits, the "0.0 of 5" quality readout, and guard kit returning from caravans counted twice.
+       Before number (Douglas 01:13 town map): armoury holds 995 arms against a target of 40 (keeper Hanne Vane, reeve).
+       Stock must be sized to the men the town actually keeps. Rule (Douglas 00:51): armoury target per slot = 2 x
+       the men the town keeps (militia + professional guards + one caravan's guards); never buy past it; stock over
+       target is sold on the market a little at a time, money back to the treasury.
+       Poor smith beside a loaded armoury (Douglas 01:05): Ansel Ironside's Weapon Forge in the same town is
+       "can't pay wages", -44/day over 14 days (15 loss days), till 0, wage 92.3/day with 1,227 owed, inputs only
+       4.12/day, smith skill 5/15; owned by the Elmstead family and kept by Roderic Elmstead (owning family).
+       Check: where the armoury's stock really came from (this forge, other towns, world-gen, returning caravans);
+       why the forge sells so little while the armoury buys; whether a family keeper should draw a fixed wage
+       that sinks the business or take the profit instead; and whether the low inputs mean it is short of metal.
+       Town-wide pattern (Douglas 01:09: "importing huge stocks for its 4 militia... the town smith is making armor
+       for who?"): Liesel Redhand's Armour Forge "market full", staff 0/1, keeper 92.5/day; Bowyer (0 coins, staff
+       0/1, keeper 99.1/day), Builder (keeper 108/day), Butcher, Chandler, Dairy all "can't pay wages", most with
+       no money for materials or beasts; only Brewer and Carpenter healthy. Check: (1) are family keepers drawing
+       a fixed 78-108/day wage above what the shop earns, draining every till? If so the owner-keeper takes the
+       profit, not a wage. (2) The armoury buys from its own town's smiths first and imports only what the town
+       can't make, all within the 2x target. (3) Why an unstaffed armour forge says "market full": who are its
+       customers?
+       More shops at 0 coins (Douglas 01:10): farms offer farmhands 124/day, above the ~100 labourer's day;
+       Fenwick (0/2), Pike (0/4), Ironside (0/3) farms short-handed with 0 coins; Norring farm idle 0/1; Thorne
+       dairy "staff 0 of 0 places", no money for materials; Kettle's drover busy 0/1. Check: is the 124 farm wage
+       above what a farm earns per hand, so farms hire nobody (a direct cause of ~1,650 idle adults)? Wages should
+       come from what each business can afford (its real revenue per worker), not a fixed figure. Why does the
+       dairy have 0 places?
+       Systemic across races (Douglas 01:18, elf town): 5 of 8 shops at 0 till; bowyer, butcher, carpenter,
+       chandler "can't pay wages / no money for materials or beasts"; every keeper paid 77-98/day; builder "short
+       of inputs, no wood" in an elf town; dairy "no milk", "0 of 0 places"; armour forge 0 till yet green "busy"
+       at 0/1 staff. Check that wood and milk reach businesses (woodcutter and herd supply chains), and fix the
+       "(3)" number leaking into display names ("Gaeren Moonmere (3)'s Bowyer").
+       Same elf town, more: flux mine, salt works, weaver, smelter all "market full" with 0 till, mostly 0 staff
+       (salt works 0 of 0 places); armour forge "busy" at 0 with 0 staff; farm (0/3) and iron mine (0/1) can't pay
+       wages; weapon forge no money for materials; Caelan Paleleaf keeps both the farm and the iron mine.
+       Check: what "market full" means and why it freezes a business with an empty till (unsold stock should
+       drop its price until it sells); why some businesses get 0 places; whether one person may keep two businesses.
+       Supply chains (elf town, Douglas 01:21): 745 acres of woods yet arrows and builder "short of wood" (does any
+       woodcutter turn standing woods into wood? may be the wild-land link); 240 acres pasture with herds but
+       "Fresh Meat up: nobody here makes it", "Goat up: salter idle", butcher no money for beasts (herds not
+       reaching the butcher). Price reason "arrows down: short of wood" is backwards: a short input should push
+       the product up; fix logic or wording. Most goods "down: stalls full" (iron bars/ore, tin bars, leather,
+       linen, clothing, blankets, candles): is there real household/business demand, or no money to buy?
+       This town grows wheat (553 acres) and apples, so crop choice varies; compare with Millton's barley.
+       Blade hall 78 arms of target 41: over, but far less than Millton.
+       Archers (Douglas 01:23 "why are towns not stocking arrows and bows... u dont have them using them either"):
+       armoury list has no arrows line; bows 6 of target 2; copper and tin arrows "down: stalls full". FIRST answer
+       in one line: do AI militia, guards, armies and bandits ever field archers? Rule (bows decision: everyone can
+       use bows, quiver up to 50): every AI force fields a real share of archers by each person's bow skill and the
+       culture's habits; armoury target covers bows for them plus arrows at 2x per man (about 2 quivers each);
+       arrows are used up in battle and restocked from local fletchers first.
+       Douglas 01:24: he has seen goblins use bows, so some AI forces do field archers. Find which forces and
+       races field archers and which don't, and why town armouries never stock arrows.
+       Farm names (Douglas 01:11): name each farm by what it actually grows or raises, everywhere it is shown
+       ("Brannoc Greaves's Pear Orchard", "Wheat Farm", "Cattle Ranch"), from its real land use; with more than
+       one crop, name the biggest by acreage/value or join two ("Wheat and Barley Farm").
+       Crop mix (Douglas 01:15 "why are they growing so much barley?"): Millton land map shows Pears 109, Barley 437,
+       Flax 4, Pasture 145, Woods 255 acres; no wheat, rye, oats, beans or vegetables. Find how crops are chosen;
+       each family's choice should come from real causes (soil and climate, what sells: bread grain, brewing,
+       fodder; the family's own food needs; rotation with fallow and legumes). Replace any fixed default or
+       world-gen pick behind the barley. Report the crop mix before and after.
+       Map tokens only while out (Douglas 00:52): caravan guards only as part of a travelling caravan; militia only
+       while mustered; town guards inside the town with no token unless they march. Forces not on the map skip
+       map movement (part of the 8% of history time). Report map force counts before/after on a Large world.
+
+NEXT, IN ORDER (all confirmed by Douglas)
+-----------------------------------------
+  1. Healing: real treatment (bandages, stitching, splints); untreated wounds turn bad; fighting hurt;
+     lasting damage (limps, lost eyes); rest; early treatment works best. Nerves follow real biology, not
+     permanent by default: a bruised or stretched nerve recovers over weeks; a cut nerve regrows slowly over
+     months, often only partly, by how bad the cut is, age, health and treatment; a cut spinal cord does not come
+     back on its own. Nothing is hard-locked as untreatable, so a future treatment (e.g. magic) could restore it.
+     A cut nerve has living tissue on both sides, so it reconnects rather than rebuilds; but the far side dies back
+     over weeks (its sheath and the muscle stay alive a while) and unused muscle wastes over months, so any
+     reconnect, natural or magical, gives back less the longer it waits.
+  2. Downed enemies after a battle: finish off, take prisoner, ransom, bounties dead or alive, or release.
+  3. Aftermath and retirement: AI battles' dead and wounded hit their real families; veterans retire on a
+     pension; a Family tab for each man. Descendants use ordinary recruitment rules, with no special
+     recruitment chance or teaching bonus. When encountered, their details identify the actual son,
+     daughter, grandchild, etc. relationship to a prior company recruit, even if they never join.
+     Real people remember when your company killed their family member; preserve the actual relative
+     and company responsibility in personal records. These are future design notes, not v0.037 features.
+  4. Wild land on each town's land map first (Douglas 21:21): more room for forest worked by woodcutters, hunting
+     ground with game (a real population that breeds and can be overhunted) for hunters, mineral deposits from the
+     town's real geology, and so on; real plots and real jobs, one business per production trade. Deposits
+     (Douglas 22:26): iron, copper, tin (rare, clustered, so bronze needs trade) and flux stone around the map and
+     near cities; mines are plots worked by real miners, and deposits can be worked out.
+     Then the economy pieces not built yet (full list in DEV_NOTES "not built"): foreign coin and forgery, funerals,
+     mortgages and courts, business closing and reopening, housing values, riots, merchant tolls, ransoms
+     and army foraging.
+  5. Conquest (later, with an on/off toggle): factions take existing towns in war; the only way villages change
+     hands. No new villages are ever founded during play (Douglas). With conquest comes one single neutral
+     melting-pot city: ONLY when a whole race has no cities left anywhere do its surviving families go there; while
+     even one city of their race remains, they flee to their own race as now. It starts very small (one family
+     of each race) with lots of open land and room, so it can take refugees later. It is ruled by a senate
+     elected by vote, one representative per race; the first seats are the heads of the founding families.
+  6. Saved-record packing before the phone port (a unit is ~118 KB in memory today; target 1-2 KB).
+  7. Phone port: Android export, touch polish, speed on a real device.
+  Maybe later: magic (Douglas: "we might add magic"). A heal's difficulty scales with the real tissue and mass to
+  rebuild: reconnecting nerves is within reach of many capable healers; regrowing a lost limb (or a head) only of a
+  very rare, very powerful caster.
+
+DECIDED (don't change without Douglas)
+--------------------------------------
+  - No hit points; tissue layers only. Our own weighted combat, Dwarf Fortress as inspiration; no tuning
+    toward win rates.
+  - Everyone is a real person in a real family; nothing appears from nowhere (goods, coin or people).
+  - The full economy runs in every town, no simplified model.
+  - Every sick person is real; sickness may run every second day to save time (limit 8 ms a game day).
+  - Town size stays normal (bigger towns tested: no more stable, slower).
+  - Tests run headless only and never open windows; relevant tests and a launch check before every release.

@@ -1,0 +1,23 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Battle presentation state: bounded fixture starting
+Battle presentation state 100/100: fixture start
+Battle presentation state 100/100: native records ready
+Battle presentation state 100/100: scenes/sims ready
+Battle presentation state 100/100: initial native hashes checked
+Battle presentation state 100/100: tick 8
+Battle presentation state 100/100: tick 16
+Battle presentation state 100/100: tick 24
+Battle presentation state 100/100: purity/refresh checked
+Battle presentation state 100/100: complete in 1939ms
+Battle presentation state 200/200: fixture start
+Battle presentation state 200/200: native records ready
+Battle presentation state 200/200: scenes/sims ready
+Battle presentation state 200/200: initial native hashes checked
+Battle presentation state 200/200: tick 8
+Battle presentation state 200/200: tick 16
+Battle presentation state 200/200: tick 24
+Battle presentation state 200/200: purity/refresh checked
+Battle presentation state 200/200: complete in 2619ms
+Battle presentation state: 62 checks, 0 failures (fixed native ticks, no FPS gate)
+== res://tests/test_battle_presentation_state.gd: PASS ==

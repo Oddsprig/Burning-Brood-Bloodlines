@@ -1,0 +1,148 @@
+BURNING BROOD: BLOODLINES v0.002 - DEVELOPMENT VERIFICATION
+Date: 2026-10-10 | Final focused checks: PASS
+
+SOURCE AND EXECUTION
+Project: outputs/Burning_Brood_Bloodlines; branch dev/burning-brood.
+Tested game: work/v002-verification/game (isolated snapshot).
+Fresh bundled launcher tree: work/v002 package verification/
+Burning Brood Bloodlines v0.002 (new folder containing spaces).
+Godot 4.7.2.stable.official.ed1daf0bf; private isolated user-data paths.
+Checks hidden/headless or hidden offscreen, BelowNormal priority, bounded.
+No installed Copper Oath, real player saves, foreground/input control or
+interactive campaign launch. Only primary ran checks; helpers edited source.
+Final accepted metallurgy/UI runs 22/23 were explicitly completed sequentially.
+Runs 19/20 have uncertain completion overlap, so their serial repeats are the
+accepted final evidence. No additional phone checks after user deferred phone QA.
+
+793 game files match both the tested snapshot and the fresh launcher tree by
+exact length/SHA256. See releases/v0.002_SOURCE_MANIFEST.json.
+All 359 inherited resource UID files unchanged; nine new script UIDs stabilized.
+Official bundled Windows runtime: 180858888 bytes; SHA256:
+ab1824f85bfd8e0e4128182c000c4003a3e042245b2967848d089b2a04b22424
+Versioned release manifest records the committed source and complete ZIP payload.
+Final archive readback is recorded separately in the package TXT report.
+
+COUNTED ACCEPTED ASSERTIONS: 1955 (REPEATS NOT ADDED)
+32   feudal succession, heirs/regency, real hierarchy/allegiance/paid transfers
+1596 native population cohorts, resident promotion/conservation, owners/recruits
+27   metallurgy/private wealth tax, physical scrap mass and actual ruler account
+33   100/200-per-side deployment, native history/creature pause and scale policy
+227  dynasty foundation regression
+26   dynasty defeat regression
+14   actual generated-world current-build save/load
+UI rotation/actions/header/cleanup checks and the native duel are additional
+uncounted evidence. A high assertion count does not imply long-campaign coverage.
+
+ACCEPTED SCOPE
+Succession: human/dwarf male preference, daughters fallback, eldest branches,
+dead-parent descendants, elf absolute primogeniture, real minors/regents and
+native orc winner binding without changing capital household/loan anchors.
+Hierarchy/defection: every faction's town links, actual ruler/liege accounts,
+preserved residents/wealth/culture, destination town lists/capital/troop ranks,
+paid grants/pressure/oaths/funding and conserved private tribute.
+Population: around 15 tracked households, genuine orc promotion may add one,
+bounded common-folk race/age/sex groups, passive probes do not materialize people,
+real soldier/service identities, tracked active business owners, preserved kin
+and permanent duplicate-death protection. All 100 starters have real references.
+Metallurgy: no new copper/tin gear with bronze unlocked; ordinary market items
+recycle once, native smelting/alloy inputs, independently checked 4.2806kg fixture
+mass, issued/legendary exceptions. Local ruler tax protects common food reserve,
+debits private wealth once monthly and credits the actual ruler household.
+Army: normal/large/huge targets 100/150/200, real supply/recruit limits, native
+100/200 fighters each side deployed and advanced two ticks. Not a complete
+200-per-side battle benchmark. Actual native one-on-one duel finished at 118
+ticks with layered material/tissue hits, wounds, blood and a brain kill.
+Save/load: seed 10461, Normal world, 23 towns, exactly one history day, 100 company
+members; population/bins/wealth/owners/UIDs/ledger/hierarchy/accounts survived.
+UI: native political actions and owners, no remote-browse party teleport, actual
+ruler succession/regency portrait, full new headers and no unused tree orphans.
+Nine actual OpenGL render previews inspected: Map, Politics and Population at
+1280x720, 390x844 and 844x390. These initial orientation checks are retained;
+user now defers repeated phone checks until requested or near phone export.
+Fresh bundled launcher PrepareOnly created cache and v0.002 marker in 8.156s.
+Actual bundled engine loaded main headlessly for 90 frames in 3.879s.
+
+COMPLETE RUN HISTORY
+Raw runner JSON/stdout/stderr, where present, retained in v0.002_runs/.
+Seconds are runner wall time; fixture/world timings are not performance promises.
+
+01 import                  FAIL                  7.413s, engine exit 0
+   Script compilation errors: inferred types in Population.age, People.keeps and
+   Dynasty.live. Fixed explicit types and dependent compilation. Exit 0 is not
+   a pass when script diagnostics fail.
+02 import                  PASS                  5.789s
+   Corrected script compilation.
+03 feudal                  FAIL                  2.336s, exit 3
+   31 checks, three failures. Fixture used adult removal on a child and left a
+   granddaughter alive, corrupting collateral/daughter/maternal expectations.
+   Fixed native child forgetting/erase/population decrement in the fixture.
+04 population              STOPPED              45.030s, timeout
+   Inherited default Huge generation exceeded bound before assertions. Test
+   now explicitly chooses Normal and restores prior settings. Not counted.
+05 generation probe        SUPPORT PASS         23.704s
+   Explicit Normal generation: 21.079s, 100 starters. Diagnostic work-only
+   script not shipped; no long-world or balance benchmark claim.
+06 import                  PASS                  5.897s
+   Integrated classes including new UI compiled.
+07 feudal                  PASS                  2.360s, 32 checks
+08 metallurgy              FAIL VERIFICATION     2.247s, engine exit 0
+   Nominal 27 checks passed but script errors existed. Fixture age bins used
+   wrong nested form and market omitted spend. Fixed flat native bins/spend.
+09 armies                  PASS                  2.489s, 33 checks
+10 population              FAIL                 22.324s, exit 1
+   1596 checks, one failure: genuine Krag-Gor orc winner added a 16th tracked
+   house. Stale 15-house cap changed to 15-20 within user's 10-20 target;
+   production behavior retained the actual winner and conserved identity.
+11 metallurgy              PASS                  2.240s, 27 checks
+   Initial pass superseded by independently calculated mass oracle in run 22.
+12 UI                      PASS                  8.147s
+   Initial orientation/action/cleanup matrix; title issue later found visually.
+13 population              PASS                 22.518s, 1596 checks
+14 generated save/load     PASS                 34.498s, 14 checks
+   Captured private current-build world for renderer; not included in package.
+15 dynasty foundation      PASS                  2.361s, 227 checks
+16 dynasty defeat          PASS                  2.518s, 26 checks
+17 native tissue duel      PASS                  2.258s, uncounted
+18 hidden renders          SUPPORT / CORRECTED  10.374s
+   Nine images rendered, exposed clipped new titles and capture-anchor warnings.
+   UI removed 100px header cap, uses full 24px titles; capture removed forced
+   anchor sizes. These images were replaced with final run 21 previews.
+19 UI final                PASS / REPEATED       9.943s
+   Added meaningful glyph-width/title/viewport assertions. Completion was not
+   explicitly awaited before run 20; final serial evidence is run 23.
+20 metallurgy final        PASS / REPEATED       2.535s, 27 checks
+   Physical expected mass now independent. Final serial evidence is run 22.
+21 hidden renders final    PASS                 10.711s
+   Nine clean actual GPU renders; full titles, ordinary people labels; inspected.
+22 metallurgy serial       PASS                  2.246s, 27 checks
+23 UI serial               PASS                  7.976s
+   Final accepted titles/action/viewport/rotation/cleanup, clean diagnostics.
+24 cold launcher           PASS                  8.156s
+   Bundled launcher PrepareOnly, new space-containing path/private user paths.
+   JSON metadata records cache/marker true, interactive launch false.
+25 cold main               PASS                  3.879s
+   Bundled engine, main scene, 90 headless frames, no script errors.
+
+DIAGNOSTICS AND SOURCE
+Final accepted runs contain no SCRIPT ERROR, parse/compile failure, orphaned
+nodes or timeouts. Windows sandbox emits a root-certificate-store diagnostic
+(platform/windows/os_windows.cpp:2582) independently of game script outcomes;
+no tested gameplay feature used network access. Initial failed runs remain
+visible above and in raw logs. Source/docs whitespace check passed (CRLF notice
+only). Raw engine logs retain original blank endings/trailing warning whitespace;
+those preserved diagnostics are excluded from the source whitespace check.
+Working game hashes were compared after all fixes, UID copies and cold launch.
+Current source equals both verification trees; no generated saves/cache/import
+files or work-only probe/capture scripts belong to the deliverable game tree.
+
+NOT TESTED / LATER WORK
+Long economic/demographic balance, complete 200-per-side battle performance,
+broad inherited suite, save migrations and actual Android/iOS export.
+No anonymous epidemic case model; current cohorts have demographic/famine bands
+and named residents retain native individual health. Civilian goblin succession
+remains unconfigured; native military cunning unchanged. Offscreen campaign
+clashes retain the inherited resolver; tactical battles use individual physics.
+Dragons/riders and marriage/court diplomacy are later roadmap milestones.
+Phone export is about 50 passes away per user; future routine checks focus on
+desktop/gameplay. Do not repeat phone QA each build merely because this report
+contains initial orientation evidence.

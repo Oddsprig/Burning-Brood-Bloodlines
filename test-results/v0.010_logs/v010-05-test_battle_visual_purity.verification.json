@@ -1,0 +1,11 @@
+{
+  "error_count": 3,
+  "known_certificate_environment_line_count": 1,
+  "full_log_pass": false,
+  "run": "v010-05-test_battle_visual_purity",
+  "errors": [
+    "== res://tests/test_battle_visual_purity.gd: FAIL (2) ==",
+    "FAIL battle visuals: fixture presentation and restored gear retain exact initial native control",
+    "FAIL battle visuals: 48 native ticks with full event presentation preserve RNG/body/wound/gear/log payloads against control"
+  ]
+}

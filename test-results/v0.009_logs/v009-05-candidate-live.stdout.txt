@@ -1,0 +1,8 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+LIVE frame=60 day=2.79999999999999 queue=0 memory_mb=716.975723266602
+LIVE frame=120 day=3.01333333333332 queue=83 memory_mb=715.956676483154
+LIVE frame=180 day=3.34666666666665 queue=0 memory_mb=715.787063598633
+LIVE frames=180 total_cpu_ms=4045.158 mean_cpu_ms=22.4731 worst_cpu_ms=333.629 calendar_days=1.34666666666665 queue_peak=163 pending=0 memory_change_mb=-2.49356079101563 object_change=-174
+LIVE job_totals_us={"arms_town":[1477192,9],"army":[17784,7],"army_misc":[167,1],"army_rk":[26187,13],"army_sweep":[6248,1],"army_tree":[1379,7],"bday":[24107,23],"caravan":[88743,3],"census_t":[702,23],"coin":[180,1],"dragon_care":[64824,1],"econ":[462527,23],"fam":[68376,23],"fam2":[31014,23],"feudal":[31730,1],"fturn":[41633,1],"herds":[29644,3],"militia":[8529,2],"plots_t":[9895,3],"sick":[3932,36],"sick_w":[779,1],"tmonth":[1298,1],"tturn":[29120,3],"wed":[441,1]} movement_parts_us={"clashes":343359,"move":708567,"tracks":38844,"war_ai":6937}
+== res://tests/diag_live_performance.gd: PASS ==

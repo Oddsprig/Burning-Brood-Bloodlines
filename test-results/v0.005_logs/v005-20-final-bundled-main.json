@@ -1,0 +1,13 @@
+{
+  "Run": "v005-20-final-bundled-main",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v005 final package verification\\Burning Brood Bloodlines v0.005\\game",
+    "--quit-after",
+    "90"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 4.283
+}

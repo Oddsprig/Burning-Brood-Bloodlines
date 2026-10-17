@@ -1,0 +1,62 @@
+BURNING BROOD: BLOODLINES v0.010 - USER PLAYTEST NOTES
+2026-10-11 | Feedback and planning only; not a controlled test result.
+
+CAMPAIGN FREEZES
+User:"every5seconds theres a freeze" on campaign map; still testing, do not start.
+Image:codex-clipboard-3f23c200-1de2-4ffb-a46f-ab5564ff5b1c.png.
+Screenshot Day4 settling:12FPS; frame83.33ms; engine process148.18ms;
+117 pending jobs; session maximum call1435.97ms. Town economy latest76.73ms,
+mean37.43ms, session peak253.35ms. Tracked RAM575.6MiB, change+512.0MiB;
+engine peak1230.1MiB;134545 objects;22891 draw calls. This is a sample:
+neither historical peaks nor startup-relative memory change prove the cause.
+Priority:v011 measures the recurring stalls in fresh Normal/one-history-day play.
+
+COMBAT SLOW MOTION
+User asks why combat slows, then explicitly requires OFF by default, optional
+through Gameplay in the Esc/Settings menu. Image:codex-clipboard-6f62f612-
+8956-4120-8b8a-9b16930a3e2e.png. Existing native triggers are sever/artery events
+and head-related deaths; camera highlight/nudge accompanies the effect.
+Do not confuse deliberate slow motion with actual performance freezes.
+Queued:v013. Persist preference; no auto-slow effect or nudge when disabled.
+
+OFFICERS / MORALE
+Both sides' officers should rally fleeing troops. Their continued fighting
+should keep their commanded men engaged. Use actual squad/officer identities;
+loss/incapacitation/withdrawal removes that officer's rally support.
+Queued:v016; native casualties/equipment must not change through presentation.
+
+BATTLE END SCREEN / LOGS
+User wants an orderly succinct summary suited to larger armies, not three
+long always-open name/stat columns. Visible totals:slain, wounded, seriously
+wounded. Plan also shows both sides and clarifies categories/unique-person counts.
+Fallen/injured names and learning details become expandable sections. Full
+fight combat log is expandable; select/filter one character's combat history.
+The same fight log remains accessible during battle pause. Keep actual detailed
+combat descriptions and injuries; no invented damage or reading-time mutations.
+Images:codex-clipboard-97724d9d-c2df-412d-8af9-d217e8e46b6e.png and
+codex-clipboard-b9bd15b6-4c86-4a5f-a9d9-92eb1f29a0d3.png.
+Queued:v014 compact summary; v015 full/individual log; bound live UI/memory
+without silently discarding early fight history from the requested complete log.
+
+SCRAP / WHICH ECONOMY PAYS?
+User asked where sold scrap goes and whose economy buys it; no replacement
+sale policy was requested. Read-only source inspection answered:
+game/core/game.gd:finish_battle estimates loot, keeps selected gear in stash,
+collects material mass and passes the result to CampaignWorld.on_battle_result.
+game/campaign/town_econ.gd:add_scrap chooses nearest economy-enabled town
+without a faction filter and adds counted kilograms to its market stock.
+game/campaign/world.gd:_battle_result reprices scrap at local sell prices and
+caps the sales payout by Goods.market_gold; Goods.pay_market debits that market
+business's till and company gold receives the actual payout. Kept gear stays
+in stash; coin on bodies is accounted separately. Sale is immediate, no transport
+or buyer selection. The screenshot alone does not identify the actual town.
+Image:codex-clipboard-97724d9d-c2df-412d-8af9-d217e8e46b6e.png.
+Queued:v020 visible sale/ownership receipts and conservation review. Proposed
+future carry-to-market salvage is creative planning, not a quoted user requirement.
+
+STATUS
+The user requested a version-map plan after these notes. Gameplay work remains
+on hold. No new engine tests or model/gameplay edits accompany the planning update.
+v001-v010 packages/installations are untouched. ROADMAP.txt is the current map;
+prior roadmap is retained under docs/history/. New test evidence belongs in
+dated test-results only after an actual implementation/run.

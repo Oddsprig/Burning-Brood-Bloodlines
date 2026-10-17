@@ -1,0 +1,30 @@
+BURNING BROOD: BLOODLINES v0.004 - DESKTOP DELIVERY
+2026-10-10 | Result: PASS
+Source checkpoint: 2ad6953775e7e2a4d487c91600358309e5cdee83
+Installed folder: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.004
+Actual Desktop shortcut: C:\Users\bligh\Desktop\Burning Brood Bloodlines v0.004.lnk
+Windows target: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+Arguments: -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.004\Launch_Bloodlines.ps1"
+Working folder: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.004
+Branded icon: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.004\Bloodlines.ico,0
+
+All1124 final payload files compared by length/SHA256 after Desktop copy,
+including819 tested game files, launcher, icon, docs, TXT evidence and runtime.
+Included release manifest also matched; COM shortcut target/arguments/folder/icon
+readback passed. Windows shell icon was extracted and visually inspected:
+green dragon/crown on purple shield, with the actual shortcut arrow.
+Native shell icon PNG SHA256: 7de91d3f81c8808019a029b26e30c0a30f4db727d84dca5c6b64e4ed44da6467.
+
+A mistyped hash in the development note was corrected before final delivery;
+only that new-version note/manifest was refreshed, then full installation readback
+passed. Final source bytes match the verified model build. Final ZIP SHA256:
+95e189f74a3948eb3853b207f8078be7d919a254373156a41fae03045902e13b.
+Pinned Copper preview05 ZIP still matches the recorded source hash; all26 native
+art/UID entries were rechecked. No Copper source/archive file was modified here.
+
+Original Bloodlines art/source/render/metadata were separately archived BEFORE
+active replacement: Desktop/Burning_Brood_Asset_Archive/v0.004, all2044 files
+verified. Existing v0.002/v0.003 game folders and branded shortcuts remain intact.
+No player game was launched, no user saves or foreground/input were touched.
+This post-install receipt and the post-package receipt are copied beside the
+installed TXT results after verification; they are excluded from self-hashing.

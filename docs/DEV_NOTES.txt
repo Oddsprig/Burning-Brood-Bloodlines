@@ -1,0 +1,322 @@
+BURNING BROOD: BLOODLINES - ACTIVE DEVELOPMENT NOTES
+Updated: 2026-10-14 | v020/v021/v022 delivered; next planned23
+
+CURRENT HANDOFF / DELIVERY
+Read root HANDOFF.txt for exact project/Desktop/package paths and scoped23-28.
+22 source daed55489fe7115c40669310f3f6f29fb0400f21, delivery
+4d29328e17944421a8314457bfe9e606c4ff6f71. Actual2780payload files+10receipts,
+branded launcher/shell icon, cold boot and7842preserved19/20/21paths verified.
+Independent20/21/22 release audit passed. Oct14 read-only ZIP/installed manifest/
+shortcut recheck passed; no new gameplay test. This handoff updates docs only,
+leaves released artifacts/installs immutable and starts no23 implementation.
+
+DELIVERED21 (sourcee87e326/deliveryc531565; separate Desktop/icon readback)
+Actual DragonBond uses native tracked-person adulthood, exact household leadership,
+real settlement contact and reviewed one-to-one bind/release. Death clears once;
+travel retains a living bond. Owners, custody and location stay independent.
+Current4new native UID sidecars; all477 prior UIDs/models/assets remain unchanged.
+Luna/low final01:103 backend +347 UI +27 actual fresh Normal/one-day world +17
+map checks =494 current checks, zero failures;18 desktop UI fits and19 captures.
+Actual generated dragon:777:1 binds existing person:777:t21:1, native private
+disk save/load retains it; explicit release preserves its prior identity. No new
+people/Units/gear/army money are minted by21. Map18.003s/2560x1440:58.27FPS,
+p95 27.215ms,p99 43.885ms,worst111.823ms,two midnights,+6.59MiB engine tracked.
+Short observations only; no universal60FPS/long leak/battle benchmark claim.
+Backend/interface specialists hold21 source; root owns package/Desktop delivery.
+21 actual Desktop2653payload+10supplementals, branded icon and launcher verified;
+19/20 exact5187existing paths preserved. ZIP7900f9e6d322896c8a0cc5d7ff4f3a5c25d52f3bdb94133388636e11d3678f9c.
+Delivered22 creates persistent native dragon bodies and home-only reviewed participation;
+23 actual mounted-character battle display/targeting and24 breath stay later.
+
+CURRENT22 IMPLEMENTATION BOUNDARIES
+Combat specialist:NEW DragonCombat/data/native checks and Unit/Fighter/natural
+attack/BattleSim adapters. Interface:NEW DragonView, actor selection/culling,
+reviewed home defence and focused actual render/UI checks. Root:DB registration,
+fresh preparation/load/UID floors/care, admitted holder receipts, battle entry,
+native aftermath/world accounting exclusions and fresh one-day integration.
+Holdings own one persistent actual Unit/BodyState per living non-egg identity;
+no per-frame creation, global per-gem body mutations, humanoid claims or flight.
+DefaultOFF defence admits only healthy adult bound dragons at the actual home
+settlement, under exact owning household authority. No remote summons/following.
+Native growth keeps permanent wounds and blood fraction; scheduled native rest
+heals once per care day, never on readers/load. Preserve all previous art/data
+bytes and resource UIDs; add native wyvern definitions in a new data file.
+
+22 PREPARATORY FINDINGS (not selected current passes)
+Final01 full logs caught a conditional untyped Array assigned to Array[String];
+false171/0 test summary was rejected. Explicit typed append fixed root cause.
+Final02 core189/control/view/UI passed, but live402actor render2.50FPS failed:
+legacy per-pixel blood decals took2.028s on draw as continuous blood changed keys.
+NEWDragonView now retains3source layers/at most15 owned-alpha injury masks on GPU;
+exact blood scalar updates retain pose cache. No sourceRGBA/data/physics changes.
+Final03 core189/view121/UI142 pass;402battle36.16FPS/p9539.02ms, worst463.908ms
+fails. Sole worst coincides with scripted full-state fingerprints at6.49s;
+production timing peaks below150ms. Separate observer fingerprints from actual
+render/UI action timing, retain150ms gates and verify actual log cost explicitly.
+Do not call rejected/earlier/fingerprint-stalled runs current release evidence.
+
+22 CURRENT VERIFIED SOURCE
+Candidate final04 has all1057source files/489unique UIDs; all481prior UIDs,
+101prior art/data and20released native models are preserved. Selected8runs:
+import17.169s; control10, backend189, view121, UI142, dense27, fresh world32,
+map17 =538checks/0failures.19render gates:15UI fits,1native view fixture,
+1dense battle,1fresh battle/map/save case,1map.7actual PNGs privately inspected.
+Ordinary96tick/37strike control matches exact21 SHA10107054ea86c381cda3380908f596deab158d9522a6f551713fcf60e1efcf95;
+production RNG/native Unit/body/events/flags remain identical in this fixture.
+Actual402actor dense battle:200humanoids+1real dragon each side,18.004s,
+37.16FPS/p9538.641/worst51.622ms;0frames>150ms, full16695record journal.
+Seven real paused-log actions max91.514ms through two drawn frames. Observer
+full-unit fingerprints100.774/97.237/95.164ms are separately recorded outside
+the render/action windows; native1x tick delivery/contact gates still pass.
+Fresh Normal/exact1history day:dragon:777:1/person:777:t21:1/Unit8785 at t21.
+Eight genuinely funded residents face whole native100enemy band wb1. Close
+contact is staged; battle ends in69native ticks/5dragon attacks/618.4ms. Same
+actual body/UID remains through finish, repeat guard, log, map and current disk
+save/load. Native serialized float precision only; no save-format change.
+Map18.003s:58.21FPS/p9527.432/p9941.812/worst116.011ms,two midnights,
++6.16MiB engine tracked. No universal60FPS or long-session leak claim.
+World final04 was rejected for diagnostic Map:Control instead of actualNode2D;
+source/candidate corrected ONLY that diagnostic type, then world05/map04 pass.
+Earlier six selected04 passes load no world diagnostic and production bytes
+remain unchanged. Preserve preparatory full logs separately; exclude counts.
+Source/cold/package/Desktop proof is separate; delivery is complete. See current
+header and dated test-results/v0.022_2026-10-12_{results,package,desktop}.txt.
+
+ENTRY / DELIVERY
+One native Godot4.7.2 game tree; original fork Copper Oath v0.046.
+Branch dev/burning-brood. v0.012 source5e4890f/delivery68e1839 is delivered.
+v013+v014 delivered as v014, v015+v016 as v016. v016 source eb0a12c/delivery2c9da64
+is verified on Desktop. User authorizes17 FIRST, THEN18; finish both in order with
+separate version folders/icons.17 delivered(sourcee460f8b/delivery092a15b).
+18 delivered(source52972bc/deliveryee89258):readable records/fonts/House Laws.
+19 delivered(source49f7f3/delivery7adb03f):settlement map -> local tracked house ->
+Customize/review -> explicit Begin. User authorized "20 21 22, go":20 salvage/
+buyer/payments,21 real rider bonds and22 native dragon autobattle combat are now
+complete with separate Desktop/icon deliveries.23 mounted character presentation
+is next planned;24 breath follows. Luna/low owns bounded QA.
+Read START_HERE.txt, this file and ROADMAP.txt first; specifications only as needed.
+Original handoff is immutable under docs/handoff/original/. Never modify or launch
+Copper Oath. Previous active notes are archived under docs/history/.
+Every release needs its own actual Desktop folder and branded versioned shortcut
+using Bloodlines.ico,0. Verify ZIP, installed files, target and actual shell icon.
+A ZIP alone is incomplete. Preserve previous versions; never touch player input,
+foreground or saves. Test worlds, full snapshots and screenshots stay private.
+
+LOCKED GAME DIRECTION
+Original CK3/AGOT-style feudal dynasty game with army/economy/dragons/riders and
+native DF-style physical combat: materials, tissues, body parts, wounds and blood.
+Humans/dwarves use male-preference primogeniture with daughter fallback; elves
+use eldest-child succession; orcs keep native strength contests. Laws owns the UI.
+Each settlement belongs to its faction's lord/liege/sovereign hierarchy; real
+loyalty, intrigue and defection alter allegiance and offices.
+Common folk are the majority in race/work/age/sex/private-wealth pools.10-20
+tracked families per town own businesses, land and herds; common folk do most
+work. Owned common wealth pays tax to the local ruling family and tribute upward.
+House/town/faction/army money stays distinct; never invent duplicate populations,
+coin or combat. Mobilized100-200-person forces draw real people/food/kit once.
+Bronze smiths recycle counted copper/tin inputs; stop new copper/tin gear when
+bronze is available. Background monsters remain temporarily suspended.
+Selection will be settlement -> visible map location -> local house -> Customize
+House. Ruler portrait stays near lower left. Phone export is far later; preserve
+both orientations but no routine phone QA. Copper v0.053 native character/weapon/
+armour art remains authoritative for all humanoid races/genders/hair/beards.
+
+RETAINED PERFORMANCE FOUNDATION
+Delivered v0.012: consistent saves and native reference ownership. Frozen v011 spends
+over1s(Normal) or2.8s(Large) building an entire save on the main thread. Retiring a
+large worker callable can also destroy its plain tree on the main thread.
+SaveSnapshot captures native ordered plain records in cooperative6ms slices while
+campaign mutations are held. Game/Perf/camera/status keep processing; mutable HUD
+and map travel actions wait. Saving world status explains the hold. Restore prior
+pause state after capture, then encode/write/release the detached tree on a worker.
+One capture/writer plus one coalesced dirty request; no live Unit/Item on a worker.
+Instance IDs, not saved UIDs, identify record memoization. Copy all packed arrays.
+Real-world memo reuse may be zero; do not claim it reduced actual capture CPU.
+Startup waits for complete history/dynasty initialization before any save publishes.
+Shutdown/replacement explicitly drain; wait_save may intentionally block. Keep
+open/write/rename receipts and preserve the prior complete file on failure.
+Clear old pending/results/deployment references on replacement and spent results
+after Continue. Bounded explicit owner scans retain only plain counters; panel
+refreshes never traverse the world. Partial scans are labelled lower bounds.
+Engine tracked bytes, externally sampled OS private/working-set bytes and cache/
+terrain RGBA or geometry payloads are different measures. Owner counts are not an
+allocator estimate. Diagnostic JSON readback temporarily owns another large tree;
+its memory footer is not the live campaign footprint. Warm caches may stay owned.
+Measured fidelity, frame/hold costs and native lifecycle limits belong in the dated
+v012 results TXT. This does not prove long-session leak freedom or60FPS everywhere.
+Retain v011 native job backpressure, read-local indexes and exact terrain batches;
+native calendar also holds while real queued work settles. Show both holds honestly.
+
+RETAINED v016 / CURRENT SCOPE
+User explicitly combined v015+v016 as one v0.016 release. Complete transient
+combat history captures native outcomes before8192-event/512-person tails trim.
+Fighter.idx identifies actual participants, including duplicate names/UIDs and
+fallen people. Private256-record chunks plus3 cached chunks bound resident
+journal records to1024; full fight and fixed-width participant indexes remain on
+disk until the current scene/result releases them. Native deep copy with explicit
+packed-array detachment preserves data without Object ownership. Index writes
+buffer, flush and check before selected reads/disposal. Failure is visibly
+incomplete with actual retained counts; no unlimited permanent battle archive.
+Paused/end browsers build18 detached rows, filter names, jump First/Last and
+expand native tissue/armour/weapon/blood/calculation details. They never repeat
+results, attacks, random rolls, healing or growth. Closing restores prior pause.
+Five compact result headings remain closed initially, Continue stays reachable.
+Actual pixel review caught narrow ScrollContainer contents missed by fit bounds;
+content/card/story widths and normal Details button height are now guarded.
+Both-side fighting officers rally their assigned fleeing followers on scheduled
+native morale checks within the command radius. Injury/death/KO/withdrawal removes
+support; already-fled people never return. Native rank trees supply squad links;
+no new ranks/men/coin are invented. Company/named bandit identities are protected.
+Measured full capture added work. Native copying/buffered indexes reduced it;
+retained pool-first blood circles and30 fixed slot chunks reduce redraw work.
+129 GPU checks preserve exact original pixels/RNG in full/reduced modes. Current
+2560x1440 native200/200 contact reaches34.36FPS/p9540.89ms/worst56.48ms; selected
+1x ticks, zero automatic slowmo and both-side rally are verified.60FPS everywhere
+remains a goal. Fresh-world/lifecycle and delivery have separate dated receipts.
+v014 default-OFF persistent Esc/ordinary Gameplay setting, native result summary,
+v011 campaign order/render caches and v012 save/ownership fences remain intact.
+19 is delivered:settlement location/map -> local house -> Customize/review/Begin.
+20 delivered(source39c155a/deliveryb28ffe8):7637checks/20actual rendered gates,
+ZIP/Desktop/icon verified; current21 actual native person bonds, then22 combat.
+Continue without stopping once
+each prior release is delivered. Retain17 muster and18 records/fonts/Laws.
+Dragon bonds beginv021 after performance/playability gates. See ROADMAP.txt.
+
+v017 replaces the pre-selection free100-person company,75000coin purse and
+generated provisions with an empty field army. Explicit house funding stays a
+native owned transfer. Quotes/cancel stay pure; actual muster uses resident/cohort
+identities, actual kit and paid food. Private home reserves keep the same native
+Unit/body/UID, wounds, skills and equipment ownership; native lookup/sweep/healing
+must see them. Stand-down restores home workers once and stops field payroll.
+f.player_reserve_uids is a small ownership index, not another population; public
+militia targets exclude those privately held reserves.1722 selected native checks
+pass, including15 actual desktop Army fits and a real one-day100-person muster /
+two return cycles. Current map58.56FPS/p9526.82/worst101.30ms; quote24.69ms,
+raise222.16ms, return39.03ms; fresh generation24.99s.17 is delivered before18 edits.
+Private reserve aging requires exact marker+live holder+town/family/person binding.
+Settle actual loans/private estate BEFORE sole native census death retires IDs.
+Native forget/sync is not always death: retain proven living physical enlistments.
+JSON can change int/float container tags while retaining every exact numeric value;
+compare values/keys/order strictly, never regenerate limbs or tolerate wound drift.
+Header width must use its resolved inherited font; pre-parent measurements clipped
+Army to Ar. Current actual-title/column-width guards and PNG review catch this.
+
+RETAINED18
+Read-only city summaries/categories/native bounded tables and House -> Laws.
+Proven invisible rows:RecCells normal UiTheme.LIGHT background equals INK text;
+fix actual surface/text pairing plus legacy brown-muted colours on dark surfaces.
+Bundle exact local Liberation Sans regular/bold with its full SIL OFL1.1 license;
+no font raster/painter/art replacements. Actual glyph widths matter, not just fit
+rectangles. Laws reads actual ruler/heir/native rules; chooser inline Succession
+is removed. Settlement/map/local-house/customization remains19. No law edits or
+new simulation. Root owns integration/serial native renders/package/Desktop.
+Current native checks:19005 assertions/10runs,54 actual desktop fits plus fresh
+world/map gates.13 inspected PNGs among53 hashed actual captures. Source1012
+files/467uniqueUIDs, all463 prior preserved;101 prior art/data/20 native models
+unchanged. Fresh one-day Akbulak/Qara shows actual ruler/minor heir and market
+owner. Tab builds4.51-19.34ms; one-time Garrison exceeds16ms. Map58.72FPS/
+p9526.20/worst105.64ms. Generation24.83s; universal60FPS/leak freedom remains open.
+RecPages isolates legacy display defaults in an econ copy; never Persons.sync,
+regenerate missing people or set native named flags during read-only details.
+Person links re-resolve stable identity on click; records return context includes
+Laws and preserves physical location. Local battle HUD receives the shared font
+explicitly; native sizes/effects/painters remain. Exact font license/source retained.
+
+CURRENT19
+HouseOnboarding reads actual eligible tracked households at the selected town;
+no common-folk cohort, new person/unit/coin/office or preview movement. Explicit
+Begin revalidates stable identities once, positions the existing party, preserves
+the unraised army, and saves only personal display name/emblem/banner colours.
+Keep native household/fiscal names and identities unchanged. Exact actual office
+holder/household controls public command; sharing a dynasty UID is insufficient.
+Ordinary-house Laws show its actual leader/native lineage, not the unrelated lord.
+UI uses cached real-coordinate terrain/roads/settlements, bounded rows and fixed
+stage actions. No campaign movement or expensive live terrain jobs in preview.
+Native portraits/models remain; reusable transparent HouseBanner displays saved
+personal heraldry in selection, House and the existing player map token.
+Root integrates and delivers; Sol/high specialists implement backend/chooser;
+Luna/low executes fixed native/desktop/fresh-one-day/performance checks serially.
+Verified final03:1556current assertions/8runs;12actual chooser fits+fresh-world/map
+gates,18hashed native captures/5inspected. Source1024files/473UIDs;all467priorUIDs,
+101prior art/data and20exactv053models unchanged. Fresh Akbulak15houses selects
+ordinary Yesugei Arslanid, keeps14909private coins and real minor heir Sorkhan5;
+River Lantern/wolf/navy-gold customization persists to native disk/House/map.
+Generation24.514s,Begin1.381ms. Map58.54FPS/p9526.724/worst102.616 across two
+midnights;6frames>50ms/1>100ms/0>150ms,+6.21MiB over18s. No universal60FPS/leak
+freedom claim. Fresh diagnostic full-world fingerprints themselves allocate/stall;
+those UI snapshots are not gameplay FPS evidence. Current cold launcher10.783s/
+main8.320s pass. Dated package/Desktop receipts are the separate delivery proof.
+Preparatory final02 UI parse failure:root duplicated an already-present portrait
+refresh block. Corrected before final03;failed/preparatory runs excluded from counts.
+
+CURRENT20 ACCOUNTABLE SALVAGE
+Native Loot harvest retains exact offered Item references. Salvage.trade resolves
+one nearest economy town and its actual tracked-household market; each whole
+piece must be funded before stock/inventory changes. Actual till debit equals
+recipient credit; unpaid exact pieces retain ownership. Metal stock is whole kg
+plus persisted econ.scrap_residue_kg; round only price in coins. Plain immutable
+receipts survive the result view, which formats only its visible18-row page.
+Game.finish_battle credits actual collected cash and finalized payment once;
+World reconciliation must never repeat a sale. AI uses genuine existing home
+armory/camp custody, with no looting when no owned destination exists. Player
+camp cash and paid intact-hoard inventory are separate actual transactions.
+Current Desktop initially contains only19;10-18 were already absent. Preserve
+all currently present versions; do not recreate absent builds or claim readback.
+Preparatory core/UI assertions passed, but actual PNG review caught an early
+scroll focus/pager visibility issue. Root fresh-world diagnostic used a missing
+econ.race field instead of Persons.race_of; corrected before final candidate.
+Failed/preparatory evidence stays private and is excluded from final counts.
+Final03 passes:98native checks +7500UI assertions/18desktop fits +22actual
+fresh-world +17map checks =7637. Source1032files/477UIDs;all473prior/101art-data/
+20nativev053models remain.20actual captures/4reviewed; source manifest5ed0acc7.
+Fresh Akbulak/Yeke actual1038coins,2.88kg copper,world24.649s/finish30.496ms.
+Map58.44FPS/p9527.368/worst111.932ms over18s/two midnights;6frames>50/1>100/
+0>150ms,+6.63MiB. Not long-session evidence or current dense-battle benchmark.
+Preparatory map158.637ms traced to141ms militia threat/loot. Avoid transaction
+O(offered pieces * existing inventory) scans: temporary instance-ID multiplicity
+indexes retain exact first erase/order/alias semantics; quote values are lazy.
+10differential checks compare512existing Items per inventory to frozen linear
+delivery, exact reference/order/receipt/coin/mass/RNG/UIDs. Native timings expose
+AI loot harvest and Salvage settlement. Current largest militia frame95.192ms
+includes4.358ms harvest/8.581ms sale; other legacy work remains measured debt.
+Cold copied launcher13.295s/native main8.886s pass; preserve exact source bytes.
+
+DRAGON AUTOBATTLE / ASSET CONTRACT
+User clarification2026-10-12:an actual character rides a dragon on the existing
+AUTOBATTLE map with the other units. Existing automatic movement/targeting/attack
+timing and native BattleSim physical calculations handle combat:body parts,
+materials/tissues, size/strength/geometry, armour, wounds/blood, morale and death.
+Keep the real rider and dragon identities; show the character at saddle handles.
+No flight pass, takeoff/landing/altitude system, manual tactical controls or new
+damage resolver. Accepted battle poses/head/jaw movement remain; no full flight
+or gait animation conversion is required for this scope.21 bond,22 dragon native
+autobattle combat,23 mounted character/native injuries,24 automatic breath,
+25 deployment,26 raid,27 siege,28 feudal consequences. No mount/dismount UI pass.
+Living scaled/skinned wyverns with two hind legs and wings as forelimbs; gem type
+is separate from individual name. Gem hardness plus size/strength/bite/geometry
+are distinct. Horns/teeth/claws follow gem colour, including sapphire blue horns.
+Keep source proportions and cut positions; body keeps wings/legs/tail. Only head/
+upper neck and jaw move separately. Mangled limbs stay attached and get localized
+blood; neck separation removes head/jaw; teeth/claw tips can fly off. Rider holds
+saddle handles; no head rope. Compact portraits allowed. Tooth cleanup is deferred.
+
+FOLDER / CONTEXT PLAN
+Full map: docs/FOLDER_PLAN.txt. game/ is the sole live source; runtime/ is bundled
+engine; docs/ holds small active notes, specs, immutable handoff and archived history.
+Keep stable specialist briefs in docs/specialists/; retain specialized helpers and
+teach verified findings there. test-results/ holds dated concise TXT and selected
+full logs. releases/ holds immutable ZIP/SHA/manifests. Chat work/ holds scratch,
+generated worlds/snapshots/screenshots and never enters the ZIP. No .godot/.git/save
+payloads. Large unused art stays in Desktop/ASSET/Burning_Brood/ preserved entries.
+
+VERIFYING / SPECIALISTS
+Run focused checks and actual rendered fresh one-day worlds serially, privately,
+hidden/no-focus and BelowNormal. Full logs matter; failed/skipped/inherited runs
+must never be counted as current passes. No old-save compatibility testing.
+Root integrates and owns delivery. Stable GPT-6.1 Sol high roles: dynasty_economy,
+population_economy, combat_dragons and interface_release. Assign bounded file scopes;
+no helper engines, commits or Desktop mutations unless explicitly coordinated.
+User direction2026-10-12: bounded_qa is GPT-6 Luna/low for exact specified checks.
+Keep Sol/high specialists for implementation; root gives fixed scope/pass criteria
+and coordinates the single engine slot. Brief:docs/specialists/bounded-qa.txt.
+Initial read-only roadmap/release/shortcut checks passed; no engine was launched.

@@ -1,0 +1,6 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.88 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 5090 Laptop GPU
+
+campaign fixture ready: 81215.6ms day1.00 towns68 bands168
+campaign travel: 35.23FPS p95 53.51ms worst 198.48ms day3.003 midnights2 gatefalse
+== res://tests/diag_campaign_render_v011.gd: FAIL (1) ==

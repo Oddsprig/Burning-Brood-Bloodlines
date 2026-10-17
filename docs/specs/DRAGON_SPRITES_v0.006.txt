@@ -1,0 +1,50 @@
+BURNING BROOD: BLOODLINES - SOURCE-MATCHED DRAGON SPRITE CONTRACT
+2026-10-10 | Active v0.006 | Latest user steering overrides earlier atlases.
+
+One complete coherent source per body form. source_catalog_v006.json records
+source PNG/hash/dimensions, original pixel coordinates, labels, source polygons,
+pivots, saddle and wound regions. Three actual image layers: body, head, jaw.
+Body includes all original wings/legs/tail. Head includes short upper neck.
+Jaw is a bite-animation cut, not a separately severed combat limb.
+Highest ownership priority partitions every source pixel exactly once. Preserve
+source offset and RGBA; a shared .04 logical unit/pixel scalar and catalog size
+scale apply to the whole dragon. Never fit, stretch or resize one part alone.
+Rest reconstruction is checked before colour/animation. Head/jaw rotations use
+source-global pivots and parent deltas; body motion preserves its anatomy.
+Animated head seating uses the original alpha-visible neck cut contacts, with
+minimal translation along the neck axis. Zero shift at rest; no new/fitted image
+or stretched part. Shared GPU/software transforms keep the cut connected during
+recoil and bite; head separation still exposes the original bloody neck edge.
+Human native height stays24. Dragon size does not resize the unit.
+Horns use the dragon's gem colour and finish: Sapphire horns are sapphire blue.
+Only original eyeball colours are preserved. Traced source-pixel material masks
+cover horns/eyes; never rectangular colour preservation. All6 forms retain
+continuous organic scale pigmentation; original source PNGs remain unchanged.
+
+DAMAGE
+Copied native lost/dmg/wk/bleed/blood values provide visual preview state.
+15 source-anatomical masks follow the actual owning body/head/jaw transform.
+Broad irregular translucent crimson stains retain scale shading and clip to masks,
+owner alpha and visible foreground. Wings/legs/tail/jaw stay attached if mangled.
+Only lost head/neck hides head+jaw. Blood covers remaining neck-cut tissue.
+Detached head uses original head/jaw pixels; no invented detached whole limb.
+Tiny gem-tinted tooth/claw-tip slivers use explicit progress/seed only, max12,
+tip size<=.7 logical units. They create no Unit/Item and consume no Game.rng.
+
+RIDERS / PORTRAITS
+Saddle-fit preview copies existing equipped living units. Native seated knees,
+stirrups, equipment and injuries are retained. Hands grip saddle mount handles;
+body harness only. No rope, reins or bridle to dragon head or neck.
+16 generated gem/body-form type portraits:384x384 lossy WebP,442230 bytes total.
+Type illustrations are not appearance-seed likenesses. Only exact registered
+gem/body-form matches display. Full originals/prompts and rejected drafts stay
+in actual Desktop/ASSET/Burning_Brood/Dragon_Art_v0.006_2026-10-10.
+
+BOUNDARIES
+This pass provides native model/animation/injury/saddle-fit previews in the
+actual roster UI. Campaign care/growth007,bonds008,body physics009,riding010,
+flight011,breath012,deployment013,raids014,sieges015,feudal consequences016.
+Articulated leg gait is a later art pass. No creature/battle activation, extra
+population, wealth account, force/hardness rebalance or humanoid art redesign.
+No routine phone QA. Archive previous art before replacement; every release
+requires a verified actual Desktop folder and branded versioned shortcut.

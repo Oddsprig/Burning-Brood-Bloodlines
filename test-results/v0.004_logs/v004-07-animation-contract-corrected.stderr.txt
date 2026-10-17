@@ -1,0 +1,7 @@
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+SCRIPT ERROR: Invalid access to property or key 'dims' on a base object of type 'Dictionary'.
+   at: run (res://tests/compare_import_models.gd:45)
+   GDScript backtrace (most recent call first):
+       [0] run (res://tests/compare_import_models.gd:45)
+       [1] _ready (res://tests/runner.gd:41)

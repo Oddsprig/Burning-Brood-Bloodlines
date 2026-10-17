@@ -1,0 +1,12 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: baseline-land
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 5.797s | exit 0
+PASS | tests/diag_land_feasibility.gd | 221.141s | exit 0
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-baseline-land
+Source receipt SHA256: d4e8fd5d7ba711b24fa3edd567c78124a57512adf1157485e64e64751b957cbf
+
+Notes (you can write here):

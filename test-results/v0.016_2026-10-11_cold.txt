@@ -1,0 +1,16 @@
+BURNING BROOD: BLOODLINES v0.016 - FRESH BUNDLED LAUNCHER
+2026-10-11 | PASS
+
+Fresh folder with spaces; private test user paths; bundled Godot4.7.2 runtime.
+PrepareOnly:8.879 seconds, exit0, fresh engine cache and version marker verified.
+Native main scene headless boot:4.757 seconds, exit0, completed without timeout.
+Full stdout/stderr checked for both; only the known Windows certificate-store
+environment diagnostic was excluded. No interactive player game was launched.
+
+All986 game files were compared by length/SHA256 in both the cold tree and current
+source. Source manifest SHA256:
+cfe1b39679778aec9df26803f783f820bdb8f1adcc248f1f9a6a49c007c49df0
+These checks cover the exact shipped source/settings and bundled runtime.
+Rendered UI, blood pixel equivalence, dense battle and fresh one-day scene cleanup
+have separate current evidence in v0.016_2026-10-11_results.txt and v0.016_logs/.
+Cold receipt:releases/verification/v0.016/cold-readback.json.

@@ -1,0 +1,107 @@
+[
+  {
+    "seconds": 0.259,
+    "private_bytes": 77357056,
+    "working_bytes": 97325056
+  },
+  {
+    "seconds": 0.524,
+    "private_bytes": 64315392,
+    "working_bytes": 84099072
+  },
+  {
+    "seconds": 0.79,
+    "private_bytes": 94154752,
+    "working_bytes": 110686208
+  },
+  {
+    "seconds": 1.051,
+    "private_bytes": 235683840,
+    "working_bytes": 224153600
+  },
+  {
+    "seconds": 1.315,
+    "private_bytes": 338456576,
+    "working_bytes": 325455872
+  },
+  {
+    "seconds": 1.578,
+    "private_bytes": 412205056,
+    "working_bytes": 397991936
+  },
+  {
+    "seconds": 1.843,
+    "private_bytes": 464142336,
+    "working_bytes": 449142784
+  },
+  {
+    "seconds": 2.107,
+    "private_bytes": 536203264,
+    "working_bytes": 519905280
+  },
+  {
+    "seconds": 2.373,
+    "private_bytes": 521076736,
+    "working_bytes": 503259136
+  },
+  {
+    "seconds": 2.636,
+    "private_bytes": 554688512,
+    "working_bytes": 537440256
+  },
+  {
+    "seconds": 2.901,
+    "private_bytes": 560783360,
+    "working_bytes": 543784960
+  },
+  {
+    "seconds": 3.165,
+    "private_bytes": 542240768,
+    "working_bytes": 524140544
+  },
+  {
+    "seconds": 3.43,
+    "private_bytes": 434122752,
+    "working_bytes": 416800768
+  },
+  {
+    "seconds": 3.693,
+    "private_bytes": 434307072,
+    "working_bytes": 401780736
+  },
+  {
+    "seconds": 3.958,
+    "private_bytes": 445464576,
+    "working_bytes": 413073408
+  },
+  {
+    "seconds": 4.222,
+    "private_bytes": 455139328,
+    "working_bytes": 420212736
+  },
+  {
+    "seconds": 4.484,
+    "private_bytes": 459603968,
+    "working_bytes": 420253696
+  },
+  {
+    "seconds": 4.749,
+    "private_bytes": 460328960,
+    "working_bytes": 421101568
+  },
+  {
+    "seconds": 5.013,
+    "private_bytes": 462102528,
+    "working_bytes": 422731776
+  },
+  {
+    "seconds": 5.278,
+    "private_bytes": 462102528,
+    "working_bytes": 424837120
+  },
+  {
+    "seconds": 5.539,
+    "private_bytes": null,
+    "working_bytes": null
+  }
+]

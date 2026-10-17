@@ -1,0 +1,12 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: baseline-legacy-load-trace
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 4.859s | exit 0
+PASS | tests/trace_legacy_assignment_v046.gd | 15.609s | exit 0
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-baseline-legacy-load-trace
+Source receipt SHA256: c9d55677381adcb414990486a6c77a1c662ab68da78f9afc1fdeb28ebf1e7287
+
+Notes (you can write here):

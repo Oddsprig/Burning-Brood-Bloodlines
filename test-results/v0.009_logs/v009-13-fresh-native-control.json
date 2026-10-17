@@ -1,0 +1,17 @@
+{
+  "Run": "v009-13-fresh-native-control",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "work\\v009-source-verification\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=tests/test_work_budget.gd",
+    "--watchdog=48",
+    "--mode=sync",
+    "--report=C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v009-fresh-control.json"
+  ],
+  "ExitCode": 124,
+  "StoppedAtTimeout": false,
+  "Seconds": 49.991
+}

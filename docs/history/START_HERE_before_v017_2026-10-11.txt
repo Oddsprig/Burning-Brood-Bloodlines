@@ -1,0 +1,136 @@
+BURNING BROOD: BLOODLINES v0.016
+Updated: 2026-10-11 | combined combat history and officer command build
+
+START
+Use the Desktop shortcut Burning Brood Bloodlines v0.016 (green dragon/crown).
+It opens the versioned Burning_Brood_Bloodlines_v0.016 folder on your Desktop.
+To install another extracted copy, run Install_Desktop.cmd. Extract the whole
+Windows ZIP, then double-click Launch_Bloodlines.cmd; keep game/ and runtime/
+beside it. First launch prepares quietly. Windows64-bit Godot4.7.2 is bundled.
+Saves use the separate Burning Brood Bloodlines user-data folder.
+
+THIS VERSION - v015 + v016 TOGETHER
+Combat log opens during a battle, holding playback while you read. Back to battle
+or Esc restores the previous pause state. Open the unit inspector's Full combat
+history button for that person directly. At the end, expand Combat log beside
+the other result details. Find a name, choose the actual combatant, and use
+First/Previous/Next/Last.18 chronological outcomes are built per page; Details
+opens actual tissue damage, armour/weapon consequences and calculation records.
+Names remain linked to the same participant even after death or duplicate names.
+Reading never repeats an attack, changes the battle tick or consumes random rolls.
+
+The complete record is captured before the old8192-event/512-person tails trim.
+Old tails remain only for live presentation. The current fight uses private
+transient chunks and participant indexes; resident journal records are bounded
+at1024. This is a record bound, not a total RAM/byte limit. No unlimited permanent
+battle archive is created. Continue, world replacement and battle exit release
+history/files; an IO failure is visibly labelled incomplete rather than hidden.
+The right performance panel includes log capture/page cost and retained counters.
+
+On BOTH sides, a standing, fighting officer supports actual soldiers assigned to
+that command within the native command radius. Scheduled morale checks call
+fleeing men back to the fight, reset their fleeing orders and count their return
+once. Native wounds, blood, death and unconsciousness remain real: rally neither
+heals nor resurrects, and cannot return troops who already left the battlefield.
+Officer death, incapacity or flight removes that support. Campaign field-army,
+militia and guard rank trees now supply their actual Unit.squad links; company
+and named bandit commands retain their own identities. No new men/ranks/funds
+are created by linking or rallying. Autonomous morale recovery remains available.
+
+The v014 compact both-side casualty/loot summary remains. All five detail headings
+are closed initially; only one section/page is built at a time. Continue remains
+reachable. Automatic event slow motion remains OFF by default; opt in via
+Esc/Settings -> Gameplay. Your chosen playback speed and pause remain intact.
+v011 campaign responsiveness and v012 consistent sliced saves/ownership remain.
+Current actual frame/world/cleanup results and practical limits are recorded in
+test-results/v0.016_2026-10-11_results.txt; package/Desktop receipts are separate.
+No artwork, old-save migration or phone export work belongs to this release.
+Next:v017 funded raising/stand-down, v018 records/Laws, v019 map/local-house
+selection/customization, v020 salvage receipts. Dragon bonds begin v021 after
+performance/playability checks. See docs/ROADMAP.txt.
+
+Dragons receive daily feeding, shelter supplies, condition and continuous growth.
+Their actual owning household buys meat and wood from the location market; a
+living custodian must be present. Human food reserves are protected. House ->
+Dragons & eggs shows the current quote and last actual payment separately.
+Advance campaign time to process care. Shortages lower health and stall growth;
+prolonged neglect can kill. Supplied dragons recover. Growth changes physical
+mass, strength, bite force and tooth/claw dimensions while gem hardness stays
+fixed. Full care takes 20 native calendar years per size band, up to Colossal.
+Eggs need shelter care, consume no meat and do not hatch in this pass.
+Gifted/inherited holdings charge the new owner's actual household. Saves retain
+care, growth and daily payment guards. A missing keeper can be appointed through
+Choose custodian. Buying care does not grant a rider bond.
+
+Copper Oath v0.053 humanoid art now supplies units and portraits: humans,
+high/moon/dark elves, dwarves, orcs, goblins and trolls. Includes both women's
+drawing sets, male beard styles, fitted clothing/armour, rebuilt open helmets
+and the enclosed closed helmet. Real metal and forge-maker identity determine
+equipment appearance. The existing weapon drawings match v0.053; the Moon
+glaive now has its released one-handed crescent definition, grip and dimensions.
+Bound ruler portraits use the same real unit appearance and worn equipment.
+Household-only rulers retain stable portraits without creating combat units.
+
+House -> Dragons & eggs opens your family's individual holdings and the realm
+roster. Dragons have two hind legs and wings as forelimbs, with varied original
+builds and sizes. Egg colours use gem names: Ruby Egg, Sapphire Egg, Black Diamond
+Egg, Emerald Egg, Amethyst Egg and more. Inspect parents, age, owner, keeper and
+location. A gift changes ownership; it leaves the keeper and location as recorded.
+Living dragons have personal names separate from types such as Sapphire Dragon.
+Type sets tooth/claw hardness; size, strength, bite force and tooth/claw dimensions
+are calculated separately in the details. Native tactical dragon bodies follow.
+Dragon ownership follows legitimate family succession; it grants no rider bond.
+Model preview now uses six coherent organic sprites with original proportions.
+Horns match the gem type: Sapphire horns are sapphire blue. Teeth and claws
+also use gem colours; scales and skin remain organic.
+Play bite/recoil movement, view broad blood and mangled limbs, head separation
+at the neck, tiny tooth/claw chips and existing-unit saddle fit. Wings/limbs stay
+attached when mangled. Only head separation removes head/jaw. Riders hold saddle
+handles; no rope to the head. Full leg gait and actual riding/battles follow.
+16 compact generated type portraits supplement the native head portraits.
+The earlier v0.004 draft humanoid art has been replaced by released v0.053 art.
+Rider bonds and dragon battles follow in separate roadmap versions.
+
+FIRST CAMPAIGN
+New Campaign -> Normal / 1 day for a quick start -> choose an existing city
+and its real ruling family. Larger worlds and longer histories take longer.
+The map keeps your current ruler portrait near the lower left.
+House -> Realm politics shows your lord, liege, sovereign, heir and loyalty.
+Taxes & defence shows actual private/public budgets and current tax estimates.
+Set 2%, 5% or 10% estate tax (one decree per week), fund your city treasury,
+and order existing militia to muster, stand down or use automatic defence.
+Only the sovereign can fund the realm treasury from their own house purse.
+These are ordinary public funds; your travelling company's wallet stays separate.
+Stand-down returns militia to civilian work; professional guards keep their duty.
+Monthly estimates do not create income. The actual levy protects essential food.
+Population shows people, common-folk savings/jobs and the town's tracked families.
+Businesses belong to tracked families; common folk provide most of the labour.
+Public service operators draw wages from the actual city/realm funding account.
+Monthly common-folk wealth tax goes to the actual ruling family. Tribute goes up
+the hierarchy. House, town, faction and army accounts remain separate owners.
+You can fund your army from your ruling household, and take paid political actions.
+Humans/dwarves: sons' lines first, daughters as fallback. Elves: eldest child's
+line. Orcs retain native strength contests. Defection changes real allegiance.
+The company starts with 100 real people. Supported field-force targets are
+100 / 150 / 200 by world size, with individual material/body/wound battles.
+Bronze-capable smiths stop making copper/tin gear; market gear becomes real scrap
+and alloy inputs. Existing issued/legendary gear retains its history.
+Creature encounters, movement and battles are temporarily suspended.
+
+READ ONLY WHAT YOU NEED
+docs/DEV_NOTES.txt - current decisions, findings and folder building plan.
+docs/ROADMAP.txt - next milestones and completion criteria.
+docs/specialists/ - four retained specialist briefs.
+test-results/ - actual dated TXT evidence and preserved diagnostics.
+game/ - one editable source tree; focused tests remain in game/tests/.
+docs/handoff/original/ and docs/specs/ - preserved reference material.
+releases/ - Windows ZIP, notes, manifests and current preview images.
+
+CURRENT LIMITS
+Dragon hatching/breeding, riders, battles and negotiated marriage diplomacy are later.
+Anonymous epidemic cases, longer balance runs, complete large-battle performance
+and native phone exports remain unverified/later work. Offscreen clashes retain
+the inherited campaign resolver; tactical battles use individual native physics.
+Start a new v0.016 campaign; cross-version save migration is not verified.
+Earlier Desktop game folders and shortcuts remain intact.
+

@@ -1,0 +1,27 @@
+{
+  "Run": "v019-world-render-final03",
+  "Arguments": [
+    "--position",
+    "-20000,-20000",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v019-candidate-final03\\game",
+    "--rendering-method",
+    "gl_compatibility",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=tests/diag_house_world_v019.gd",
+    "--watchdog=125",
+    "--report-dir=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v019-world-render/final03"
+  ],
+  "Project": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v019-candidate-final03\\game",
+  "Engine": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\outputs\\Burning_Brood_Bloodlines\\runtime\\Godot_v4.7.2-stable_win64.exe",
+  "DataRoot": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\isolated-engine-data\\v019-world-render-final03",
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 57.587,
+  "BelowNormal": true,
+  "Headless": false,
+  "NoFocusProjectSetting": true,
+  "HiddenLaunch": true,
+  "Result": "PASS"
+}

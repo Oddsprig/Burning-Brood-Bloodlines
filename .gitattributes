@@ -1,0 +1,15 @@
+* text=auto eol=lf
+*.png binary
+*.ico binary
+review/v0.032/** -text
+review/v0.033/** -text
+review/v0.034/** -text
+review/v0.035/** -text
+review/v0.036/** -text
+review/v0.037/** -text
+review/v0.043/** -text -whitespace
+review/v0.044/** -text -whitespace
+game/tests/fixtures/records_v044_baseline.gd -whitespace
+review/v0.045/** -text -whitespace
+game/tests/fixtures/army_v045_baseline.gd -whitespace
+review/v0.046/** -text -whitespace

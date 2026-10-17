@@ -1,0 +1,16 @@
+{
+  "run": "v022-combat-final01",
+  "full_log_pass": false,
+  "error_count": 8,
+  "errors": [
+    "SCRIPT ERROR: Trying to assign an array of type \"Array\" to a variable of type \"Array[String]\".",
+    "SCRIPT ERROR: Trying to assign an array of type \"Array\" to a variable of type \"Array[String]\".",
+    "SCRIPT ERROR: Out of bounds get index '0' (on base: 'Array')",
+    "SCRIPT ERROR: Trying to assign an array of type \"Array\" to a variable of type \"Array[String]\".",
+    "SCRIPT ERROR: Trying to assign an array of type \"Array\" to a variable of type \"Array[String]\".",
+    "SCRIPT ERROR: Out of bounds get index '-1' (on base: 'Array')",
+    "SCRIPT ERROR: Invalid access to property or key 'i' on a base object of type 'Dictionary'.",
+    "SCRIPT ERROR: Invalid access to property or key 'landed' on a base object of type 'Dictionary'."
+  ],
+  "known_certificate_environment_line_count": 0
+}

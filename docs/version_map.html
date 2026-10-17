@@ -1,0 +1,142 @@
+<title>Bloodlines Version Map</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root {
+  --bg: #ead9ad;
+  --parchment: #f4e7c3;
+  --parchment-deep: #e2cb96;
+  --ink: #3b2a16;
+  --ink-soft: #6b4f2c;
+  --rule: #b28c4e;
+  --accent: #8a3b1e;
+  --tag-delivered-bg: #51663a;
+  --tag-delivered-ink: #f4ecd4;
+  --tag-planned-bg: #d9c08a;
+  --tag-planned-ink: #5b421f;
+  --tag-chatgpt-bg: #7a4a21;
+  --tag-chatgpt-ink: #f6ead0;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #211809;
+    --parchment: #2d2010;
+    --parchment-deep: #3a2b15;
+    --ink: #f0dfba;
+    --ink-soft: #c9ab7d;
+    --rule: #7d5f30;
+    --accent: #e0a877;
+    --tag-delivered-bg: #5d7550;
+    --tag-delivered-ink: #11170c;
+    --tag-planned-bg: #5b4622;
+    --tag-planned-ink: #efdcb4;
+    --tag-chatgpt-bg: #8a5a28;
+    --tag-chatgpt-ink: #fff3da;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #211809;
+  --parchment: #2d2010;
+  --parchment-deep: #3a2b15;
+  --ink: #f0dfba;
+  --ink-soft: #c9ab7d;
+  --rule: #7d5f30;
+  --accent: #e0a877;
+  --tag-delivered-bg: #5d7550;
+  --tag-delivered-ink: #11170c;
+  --tag-planned-bg: #5b4622;
+  --tag-planned-ink: #efdcb4;
+  --tag-chatgpt-bg: #8a5a28;
+  --tag-chatgpt-ink: #fff3da;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Alegreya", Georgia, serif;
+  font-size: 17px;
+  line-height: 1.45;
+  margin: 0;
+}
+.wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding-top: 28px;
+  padding-bottom: 40px;
+  padding-left: max(16px, env(safe-area-inset-left,0px));
+  padding-right: max(16px, env(safe-area-inset-right,0px));
+}
+h1 {
+  font-family: "Cinzel", Georgia, serif;
+  font-size: 30px;
+  line-height: 1.15;
+  margin: 0 0 6px;
+  color: var(--accent);
+}
+.sub { color: var(--ink-soft); font-style: italic; margin: 0 0 22px; }
+ol.versions { list-style: none; margin: 0; padding: 0; }
+ol.versions li {
+  background: var(--parchment);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 10px 14px;
+  margin: 0 0 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 10px;
+}
+.ver {
+  font-family: "Cinzel", Georgia, serif;
+  font-weight: 700;
+  font-size: 18px;
+  white-space: nowrap;
+}
+.feat { flex: 1 1 170px; min-width: 0; overflow-wrap: anywhere; }
+.tag {
+  font-family: "Cinzel", Georgia, serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+  margin-left: auto;
+}
+.tag-delivered { background: var(--tag-delivered-bg); color: var(--tag-delivered-ink); }
+.tag-planned { background: var(--tag-planned-bg); color: var(--tag-planned-ink); }
+.tag-chatgpt { background: var(--tag-chatgpt-bg); color: var(--tag-chatgpt-ink); }
+.outside {
+  background: var(--parchment-deep);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 12px 14px;
+  margin-top: 18px;
+}
+@media (max-width: 400px) {
+  body { font-size: 16px; }
+  h1 { font-size: 24px; }
+  .tag { margin-left: 0; }
+}
+</style>
+<div class="wrap">
+  <h1>Bloodlines Version Map</h1>
+  <p class="sub">Burning Brood: Bloodlines — v0.022 to v0.035, updated 2026-10-17.</p>
+  <ol class="versions">
+    <li><span class="ver">v0.022</span><span class="feat">dragon autobattle combat</span><span class="tag tag-chatgpt">delivered by ChatGPT</span></li>
+    <li><span class="ver">v0.023</span><span class="feat">mounted character — riders fight bonded on their dragons; seated drawing to be confirmed</span><span class="tag tag-delivered">delivered</span></li>
+    <li><span class="ver">v0.024</span><span class="feat">breath</span><span class="tag tag-delivered">delivered</span></li>
+    <li><span class="ver">v0.025</span><span class="feat">campaign deployment — dragons march, feed from the army purse</span><span class="tag tag-delivered">delivered</span></li>
+    <li><span class="ver">v0.026</span><span class="feat">raid</span><span class="tag tag-delivered">delivered</span></li>
+    <li><span class="ver">v0.027</span><span class="feat">siege</span><span class="tag tag-delivered">delivered</span></li>
+    <li><span class="ver">v0.028</span><span class="feat">finish feudal consequences: fear of dragons</span><span class="tag tag-planned">planned</span></li>
+    <li><span class="ver">v0.029</span><span class="feat">equipment refits and balance: levies get armour</span><span class="tag tag-planned">planned</span></li>
+    <li><span class="ver">v0.030</span><span class="feat">dynasty alliances and diplomacy</span><span class="tag tag-planned">planned</span></li>
+    <li><span class="ver">v0.031</span><span class="feat">intrigue: plots, schemes and assassinations</span><span class="tag tag-planned">planned</span></li>
+    <li><span class="ver">v0.032</span><span class="feat">prisoner ransom and exchange</span><span class="tag tag-planned">planned</span></li>
+    <li><span class="ver">v0.033</span><span class="feat">population migration, housing and illness</span><span class="tag tag-planned">planned</span></li>
+    <li><span class="ver">v0.034</span><span class="feat">creature review</span><span class="tag tag-planned">planned</span></li>
+    <li><span class="ver">v0.035</span><span class="feat">dragon portrait fangs</span><span class="tag tag-planned">planned</span></li>
+  </ol>
+  <p class="outside">Also delivered outside the numbered list (Claude Edition): court and marriage, interface pass, 100 v 100 battle rounds, armies to 1000, house officers and noble call-up, house arms pool, ennoblement, medics and aftermath.</p>
+</div>

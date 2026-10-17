@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "anatomy": {"id": "wyvern", "hind_legs": 2, "forelimbs": "wings", "wings": 2, "separate_front_legs": 0},
+  "note": "Original wyvern identities and authored resting physical profiles, not active combat bodies. Gem type sets fantasy mineralized tooth/claw yield hardness only; not literal jewel teeth or a Mohs-to-stress conversion. Toughness and sharpness remain independent. Colors confer no elemental attacks. Care, growth, bonding and battle binding are later milestones.",
+  "proper_names": ["Cinderwake","Ashenmere","Gloamreach","Vespercoil","Brackenfall","Mournspire","Emberloft","Sablehush","Fallowcrest","Rillwarden","Thornwake","Duskmantle","Hearthshadow","Wilderkeel","Oathwing","Shaleheart","Rookhaven","Frostmere","Alderfang","Smolderfen","Cloudriven","Hollowcrest","Brightscar","Veilrunner","Galeshard","Nightreed","Flintwhisper","Briarwake","Wrenstorm","Cairnshade","Dawnrill","Crestwarden","Stillcinder","Fernshadow","Hushedvale","Rainspire","Kindlethorn","Mosskeel","Gravenwing","Starfen","Rivenshale","Ocherwind","Boughbreaker","Hollowwake","Hearthriven","Wistfulcrag","Dunemantle","Thistlecoil","Ridgewhisper","Greyhaven","Siltwarden","Yarrowfall","Highmorrow","Cinderbough","Wickerstorm","Vesperreach","Glimmerfen","Ashrill","Cloudhollow","Fallowwing","Brumeloft","Nightwarden","Galehaven","Rookcinder"],
+  "physics": {
+    "calibration": "All values are authored game balance values. Material yield/fracture retain native units; hardness_index is 0..100, not Mohs. Native raw contact is projected from cm2 using the explicit authored factor below. Rest estimates have zero skill, fatigue and pain. No armour outcome is decided here.",
+    "native_contact_per_cm2": 100.0,
+    "reference_jaw_out_lever_m": 0.12,
+    "reference_tooth_length_cm": 8.0,
+    "reference_claw_length_cm": 12.0,
+    "tissue_material": {"density":2000,"shear_fracture":1500000,"impact_fracture":4000000,"shear_strain":100,"impact_strain":100,"max_edge":10000}
+  },
+  "gems": [
+    {"id":"ruby","name":"Ruby","base":"#9e183a","accent":"#ff718b","pattern":"veined","hardness_index":90,"shear_yield":800000,"impact_yield":2100000},
+    {"id":"sapphire","name":"Sapphire","base":"#2543a7","accent":"#96caff","pattern":"faceted","hardness_index":90,"shear_yield":800000,"impact_yield":2100000},
+    {"id":"black_diamond","name":"Black Diamond","base":"#151522","accent":"#9299b6","pattern":"faceted","hardness_index":100,"shear_yield":1000000,"impact_yield":2600000},
+    {"id":"emerald","name":"Emerald","base":"#177c56","accent":"#a0e4b2","pattern":"veined","hardness_index":75,"shear_yield":520000,"impact_yield":1350000},
+    {"id":"amethyst","name":"Amethyst","base":"#71419e","accent":"#dcb7ff","pattern":"banded","hardness_index":70,"shear_yield":400000,"impact_yield":1050000},
+    {"id":"opal","name":"Opal","base":"#d4ddd7","accent":"#87cacf","pattern":"iridescent","hardness_index":55,"shear_yield":250000,"impact_yield":750000},
+    {"id":"topaz","name":"Topaz","base":"#c47727","accent":"#ffe6a0","pattern":"faceted","hardness_index":80,"shear_yield":620000,"impact_yield":1600000},
+    {"id":"garnet","name":"Garnet","base":"#611c31","accent":"#df8068","pattern":"marbled","hardness_index":72,"shear_yield":460000,"impact_yield":1150000},
+    {"id":"jade","name":"Jade","base":"#598773","accent":"#d0e4b8","pattern":"marbled","hardness_index":65,"shear_yield":350000,"impact_yield":950000},
+    {"id":"aquamarine","name":"Aquamarine","base":"#4ba5ad","accent":"#d3f7ec","pattern":"banded","hardness_index":75,"shear_yield":520000,"impact_yield":1350000},
+    {"id":"citrine","name":"Citrine","base":"#c8a126","accent":"#fff1a4","pattern":"veined","hardness_index":70,"shear_yield":400000,"impact_yield":1050000},
+    {"id":"moonstone","name":"Moonstone","base":"#adb7d0","accent":"#f8e3d5","pattern":"iridescent","hardness_index":60,"shear_yield":300000,"impact_yield":850000},
+    {"id":"pearl","name":"Pearl","base":"#e6d6c0","accent":"#fcf3e4","pattern":"speckled","hardness_index":25,"shear_yield":160000,"impact_yield":450000},
+    {"id":"onyx","name":"Onyx","base":"#272627","accent":"#d2bca6","pattern":"banded","hardness_index":70,"shear_yield":400000,"impact_yield":1050000},
+    {"id":"diamond","name":"Diamond","base":"#c2d4e1","accent":"#ffffff","pattern":"faceted","hardness_index":100,"shear_yield":1000000,"impact_yield":2600000},
+    {"id":"tourmaline","name":"Tourmaline","base":"#466b69","accent":"#eb93ae","pattern":"banded","hardness_index":75,"shear_yield":520000,"impact_yield":1350000}
+  ],
+  "morphs": [
+    {"id":"spirewing","name":"Spirewing","build":"lean","description":"A lean wyvern with a long neck and tall narrow wings; two hind legs and wings as its only forelimbs.","physical":{"mass":0.85,"strength":0.95,"tooth":1.10,"claw":1.10,"jaw_gain":0.95,"jaw_lever":1.10}},
+    {"id":"broadmantle","name":"Broadmantle","build":"heavy","description":"A wide-chested heavy wyvern with broad wings and a thick tail; no separate front legs.","physical":{"mass":1.25,"strength":1.15,"tooth":1.05,"claw":0.95,"jaw_gain":1.20,"jaw_lever":1.05}},
+    {"id":"reedrunner","name":"Reedrunner","build":"long","description":"An elongated low-bodied wyvern with a long tail and slim hind legs; its forelimbs are wings.","physical":{"mass":0.95,"strength":0.90,"tooth":1.15,"claw":1.15,"jaw_gain":0.90,"jaw_lever":1.15}},
+    {"id":"ironcrest","name":"Ironcrest","build":"compact","description":"A compact wyvern with a short deep torso and a high crest, two hind legs and two wings.","physical":{"mass":1.10,"strength":1.10,"tooth":0.90,"claw":1.00,"jaw_gain":1.25,"jaw_lever":0.85}},
+    {"id":"stormkeel","name":"Stormkeel","build":"barrel","description":"A barrel-bodied wyvern with a deep keeled chest, broad wing roots and two sturdy hind legs.","physical":{"mass":1.20,"strength":1.20,"tooth":1.00,"claw":1.05,"jaw_gain":1.15,"jaw_lever":1.00}},
+    {"id":"duskfin","name":"Duskfin","build":"sleek","description":"A smooth slender wyvern with swept wings and a finned tail; wings replace separate front legs.","physical":{"mass":0.80,"strength":0.90,"tooth":1.00,"claw":1.20,"jaw_gain":0.90,"jaw_lever":1.00}}
+  ],
+  "sizes": [
+    {"id":"small","name":"Small","physical":{"body_mass_kg":350,"strength":1000,"linear_scale":1.0}},
+    {"id":"medium","name":"Medium","physical":{"body_mass_kg":1200,"strength":1150,"linear_scale":1.5}},
+    {"id":"large","name":"Large","physical":{"body_mass_kg":5000,"strength":1300,"linear_scale":2.4}},
+    {"id":"huge","name":"Huge","physical":{"body_mass_kg":18000,"strength":1500,"linear_scale":3.8}},
+    {"id":"colossal","name":"Colossal","physical":{"body_mass_kg":65000,"strength":1750,"linear_scale":5.7}}
+  ]
+}

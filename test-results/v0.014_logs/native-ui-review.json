@@ -1,0 +1,27 @@
+{
+  "result": "PASS",
+  "version": "0.014",
+  "scope": "Primary visually inspected actual final native PNGs for readable contrast/layout, visible default sections and Continue, detail pagination/recovery, all three desktop sizes; not phone QA.",
+  "reviewed": [
+    {
+      "file": "results_1280x720_closed.png",
+      "sha256": "9bae185d57479d67f6f8252912330515aa099ff97d2a99b9b482233ff28b7d5a"
+    },
+    {
+      "file": "results_2560x1440_wounded.png",
+      "sha256": "137dc3d7dcd345ac04d1a3d275ac6f39bdec20234b98c6ba855338ea6743088d"
+    },
+    {
+      "file": "results_1920x1080_loot.png",
+      "sha256": "e9ed8560ab153465a88beadacf19a0c352814e4b190215381bed584f8a5057c9"
+    },
+    {
+      "file": "results_2560x1440_lessons.png",
+      "sha256": "032554d715bcca271f64bdc40a95809fc9c3254f31171afcf537a447b9895c6d"
+    },
+    {
+      "file": "results_1280x720_fallen.png",
+      "sha256": "e309adea0c7f6081553fbfb35fb5c89712964a9116b3b9768ea48d0913f4d5a5"
+    }
+  ]
+}

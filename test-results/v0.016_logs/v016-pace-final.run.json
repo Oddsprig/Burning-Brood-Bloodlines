@@ -1,0 +1,15 @@
+{
+  "Run": "v016-pace-final",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v016-candidate\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=tests/test_battle_pace_v014.gd",
+    "--watchdog=40"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 3.91
+}

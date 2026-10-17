@@ -1,0 +1,15 @@
+{
+  "Run": "v004-14-desktop-controls",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v004-model-import\\candidate\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_governance_ui.gd",
+    "--watchdog=25"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 4.374
+}

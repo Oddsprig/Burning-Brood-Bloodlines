@@ -1,0 +1,15 @@
+{
+  "Run": "v007-12-native-outfit",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v007-source-verification/game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_ui_outfit.gd",
+    "--watchdog=45"
+  ],
+  "ExitCode": -1,
+  "StoppedAtTimeout": true,
+  "Seconds": 50.015
+}

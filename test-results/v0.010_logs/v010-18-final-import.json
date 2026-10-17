@@ -1,0 +1,13 @@
+{
+  "Run": "v010-18-final-import",
+  "Arguments": [
+    "--headless",
+    "--editor",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v010-source-verification\\game",
+    "--quit"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 20.238
+}

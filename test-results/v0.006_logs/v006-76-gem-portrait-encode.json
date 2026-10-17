@@ -1,0 +1,13 @@
+{
+  "Run": "v006-76-gem-portrait-encode",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v006-gem-portrait-encode",
+    "--script",
+    "res://encode.gd"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 4.398
+}

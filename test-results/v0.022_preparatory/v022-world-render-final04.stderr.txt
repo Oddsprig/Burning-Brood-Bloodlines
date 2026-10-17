@@ -1,0 +1,11 @@
+SCRIPT ERROR: Trying to assign value of type 'Node2D' to a variable of type 'Control'.
+   at: run (res://tests/diag_dragon_world_v022.gd:173)
+   GDScript backtrace (most recent call first):
+       [0] run (res://tests/diag_dragon_world_v022.gd:173)
+       [1] frames (res://tests/diag_dragon_world_v022.gd:31)
+WARNING: 1 RID of type "CanvasItem" was leaked.
+   at: _free_rids (servers/rendering/renderer_canvas_cull.cpp:2733)
+WARNING: 3 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)

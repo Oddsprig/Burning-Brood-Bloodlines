@@ -1,0 +1,32 @@
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+WARNING: Loaded resource as image file, this will not work on export: 'res://art/dragon_parts/spirewing_atlas_v006.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+   at: load_from_file (core/io/image.cpp:2780)
+   GDScript backtrace (most recent call first):
+       [0] _atlas (res://art/dragon_rig_art.gd:44)
+       [1] model (res://art/dragon_rig_art.gd:190)
+       [2] model (res://art/dragon_art.gd:33)
+       [3] framing (res://art/dragon_art.gd:129)
+       [4] image_for (res://art/dragon_art.gd:138)
+       [5] run (res://tests/capture-v006-articulated-01.gd:10)
+       [6] _ready (res://tests/runner.gd:41)
+WARNING: Loaded resource as image file, this will not work on export: 'res://art/dragon_parts/broadmantle_atlas_v006.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+   at: load_from_file (core/io/image.cpp:2780)
+   GDScript backtrace (most recent call first):
+       [0] _atlas (res://art/dragon_rig_art.gd:44)
+       [1] model (res://art/dragon_rig_art.gd:190)
+       [2] model (res://art/dragon_art.gd:33)
+       [3] framing (res://art/dragon_art.gd:129)
+       [4] image_for (res://art/dragon_art.gd:138)
+       [5] run (res://tests/capture-v006-articulated-01.gd:10)
+       [6] _ready (res://tests/runner.gd:41)
+WARNING: Loaded resource as image file, this will not work on export: 'res://art/dragon_parts/ironcrest_atlas_v006.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+   at: load_from_file (core/io/image.cpp:2780)
+   GDScript backtrace (most recent call first):
+       [0] _atlas (res://art/dragon_rig_art.gd:44)
+       [1] model (res://art/dragon_rig_art.gd:190)
+       [2] model (res://art/dragon_art.gd:33)
+       [3] framing (res://art/dragon_art.gd:129)
+       [4] image_for (res://art/dragon_art.gd:138)
+       [5] run (res://tests/capture-v006-articulated-01.gd:10)
+       [6] _ready (res://tests/runner.gd:41)

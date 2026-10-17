@@ -1,0 +1,20 @@
+{
+  "Run": "v016-lifecycle-render-final",
+  "Arguments": [
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v016-candidate\\game",
+    "--resolution",
+    "2560x1440",
+    "--position",
+    "-20000,-20000",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=tests/test_memory_lifecycle_v012.gd",
+    "--ticks=160",
+    "--report=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v016-lifecycle-render-final.json",
+    "--watchdog=135"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 95.167
+}

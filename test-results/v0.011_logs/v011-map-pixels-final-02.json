@@ -1,0 +1,19 @@
+{
+  "Run": "v011-map-pixels-final-02",
+  "Arguments": [
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v011-candidate\\game",
+    "--position",
+    "-20000,-20000",
+    "--resolution",
+    "2560x1440",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/diag_map_batch_v011.gd",
+    "--watchdog=45",
+    "--report-dir=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v011-map-pixels-final-02"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 18.153
+}

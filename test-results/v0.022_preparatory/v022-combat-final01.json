@@ -1,0 +1,23 @@
+{
+  "Run": "v022-combat-final01",
+  "Arguments": [
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v022-candidate-final01\\game",
+    "--headless",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_dragon_combat_v022.gd",
+    "--watchdog=35"
+  ],
+  "Project": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v022-candidate-final01\\game",
+  "Engine": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\outputs\\Burning_Brood_Bloodlines\\runtime\\Godot_v4.7.2-stable_win64.exe",
+  "DataRoot": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\isolated-engine-data\\v022-combat-final01",
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 4.859,
+  "BelowNormal": true,
+  "Headless": true,
+  "NoFocusProjectSetting": true,
+  "HiddenLaunch": true,
+  "Result": "FAIL"
+}

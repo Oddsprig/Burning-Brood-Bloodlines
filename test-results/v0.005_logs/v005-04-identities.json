@@ -1,0 +1,15 @@
+{
+  "Run": "v005-04-identities",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v005-verification\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_dragon_identities.gd",
+    "--watchdog=18"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 2.441
+}

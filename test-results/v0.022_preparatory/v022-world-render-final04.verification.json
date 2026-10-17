@@ -1,0 +1,10 @@
+{
+  "run": "v022-world-render-final04",
+  "full_log_pass": false,
+  "error_count": 2,
+  "errors": [
+    "SCRIPT ERROR: Trying to assign value of type 'Node2D' to a variable of type 'Control'.",
+    "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+  ],
+  "known_certificate_environment_line_count": 0
+}

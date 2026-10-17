@@ -1,0 +1,23 @@
+{
+  "Run": "v011-travel-wide-02",
+  "Arguments": [
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v011-candidate\\game",
+    "--position",
+    "-20000,-20000",
+    "--resolution",
+    "2560x1440",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/diag_campaign_render_v011.gd",
+    "--watchdog=110",
+    "--seconds=35",
+    "--travel",
+    "--wide",
+    "--enforce-gate",
+    "--report=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v011-travel-wide-02.json"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 69.453
+}

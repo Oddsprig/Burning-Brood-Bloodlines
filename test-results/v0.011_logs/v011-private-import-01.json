@@ -1,0 +1,14 @@
+{
+  "Run": "v011-private-import-01",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v011-candidate\\game",
+    "--editor",
+    "--import",
+    "--quit"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 11.297
+}

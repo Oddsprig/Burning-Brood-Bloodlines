@@ -1,0 +1,65 @@
+STABLE SPECIALIST - COMBAT / DRAGONS
+Role: combat_dragons | GPT-6.1 Sol high | retain across versions.
+Current22 after delivered21:ONE persistent actual dragon Unit/BodyState, additive
+wyvern definitions and peractor native material/mass/strength/geometry adapters.
+Never feed already-scaled physical_profile momentum back as native basep.
+Reads/orders use exact real household/person/body identities, no cloned riders.
+Root owns actual admission/results/DB/care/save hooks. No sourceart/data changes
+to earlier files; newdata only. Luna/low runs bounded serial native checks.
+22 lesson:conditional plain array literals do not become Array[String] at
+runtime by declaration; append into an explicit typed array. Reject full-log
+SCRIPT ERROR even when a runner's partial test summary misleadingly says0fail.
+Current22 backend189/control10/fresh native world32 pass. Small ordinary combat
+control is exact21SHA; actual Unit8785 survives native battle/map/disk save at
+t21. Six hind stance chain parts; no wing stance tags. Fractional STR/mass stay
+actual, attack formula scale applies once. Native arrow dimensions use detached
+peractor definition. Death holders remain saved and never regenerate/resurrect.
+Read DEV_NOTES.txt/ROADMAP.txt. Prior role history is archived at
+history/specialists_before_v011_2026-10-11/combat-dragons.txt.
+Own explicit native combat/dragon scope only. Root integrates, runs serial private
+engines, verifies source and delivers Desktop. Do not expand current v012 ownership
+repair into battle/gameplay. Imported art/stats/material/body/wounds stay unchanged.
+Native DF-style tissues, size/force/geometry/material physics, wounds/blood, RNG
+and battle participants are authoritative. Never create a second damage resolver.
+v010 bounded native sprite/spec cache and four raster workers remain unchanged.
+v012 lifecycle lessons: native _deserialize mutates its input; duplicate plain test
+templates on EVERY reconstruction. Clear test-owned force/sim/fighter references
+before WeakRef checks. Native build_result mutates state: call once, keep a plain
+result for reopening, and never reconcile an artificial force into campaign money.
+Check actual main screen removal/Continue/menu paths and drained workers while
+allowing bounded warm caches. Short three-cycle evidence is not leak freedom.
+Full battle log must capture immutable outcomes before existing8192/512caps; bounded
+chunked storage/paging, whole-fight and individual-character views. Reading cannot
+consume RNG, advance ticks or call mutating build_result. Accurate descriptions only.
+Delivered v013+v014 together: native event slow motion OFF default; setting_changed
+cancels live slow/cooldown/nudge without changing speed/pause. Esc uses existing
+Settings overlay and restores pause; disconnect the listener on battle exit.
+Add pure aligned fighter_states/player_fled/side_names metadata; growth and arrows
+still finalize exactly once. Result reads never call build_result again.
+Upcoming v015 complete paused/end log; v016 actual fighting officers
+rally their own fleeing men on BOTH sides; loss/incapacity removes support. No pair
+scan every frame. v017 real population-backed army raising/return; no free start.
+User clarification2026-10-12:the battlemap is AUTOBATTLE. Show the actual bonded
+character on the dragon's saddle with the other units. Existing automatic
+movement/targeting/attack timing and native physical combat calculations handle
+both identities, wounds and deaths. No flight milestone, takeoff/landing/altitude
+system, manual tactical controls, separate damage resolver or mount/dismount UI.
+Accepted battle poses/head/jaw movement suffice; full gait/flight is not required.
+Dragon bonds v021, native dragon autobattle combat v022, mounted character v023,
+automatic breath v024, deployment v025, raid v026, siege v027, feudal effects v028.
+Gem type is separate from individual name; teeth/claws/horns match gem colours,
+while scales/skin remain animal tissue. Hardness and force/size/geometry are distinct.
+Preserve cut labels/source proportions and positions. Body retains limbs; blood
+marks damage; only neck/head separation removes head/jaw. Tooth/claw tips can fly.
+Rider holds saddle handles, never a rope to head. Compact portraits permitted.
+Defer tooth artwork cleanup, no images in chat. Preserve art source before replacement.
+No old-save compatibility, routine phone QA, engines, broad tests, commits or Desktop
+mutations without explicit root coordination. Stable roles learn; do not replace.
+
+Verified v015+v016: command links must come from actual Army post trees; Factory
+stress forces have no leaders unless a diagnostic fixture explicitly assigns them.
+Native damage/RNG stay authoritative. Support expires with live officer condition.
+Gore performance: original pools draw BEFORE slot decals. Retain exact draw_circle
+arguments/alpha order, fixed30-slot chunks and pool-only invalidation;129 GPU
+checks preserve pixels/RNG. Compare total draw CPU per battle frame, not the
+mean of mixed chunk/pool/drop callbacks.34.36FPS current dense recovery gate.

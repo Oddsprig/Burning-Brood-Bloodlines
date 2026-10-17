@@ -1,0 +1,19 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: baseline-company-wages
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 5.375s | exit 0
+FAIL | tests/test_company_wages_v046.gd | 14.062s | exit 7
+  1 occurrence(s): FAIL: shared native target receives its exact aggregated company wages
+  1 occurrence(s): FAIL: authentic accepted recipient credits equal the actual player debit
+  1 occurrence(s): FAIL: authentic remittance conserves every global coin holding
+  1 occurrence(s): FAIL: rejected first wage leaves funding for the second real member on both days
+  1 occurrence(s): FAIL: unresolved recipient accrues exactly two unpaid days with zero last payment
+  1 occurrence(s): FAIL: valid recipient is fully paid on both days with accurate native flags
+  1 occurrence(s): FAIL: unresolved reference and repeated daily payroll conserve all holdings
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-baseline-company-wages
+Source receipt SHA256: 670c24aaf84aabe12c9aef5af1258659067d7a6e405d78003b7aa6f97e71826b
+
+Notes (you can write here):

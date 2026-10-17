@@ -1,0 +1,168 @@
+BURNING BROOD: BLOODLINES v0.006 - DRAGON SPRITES / BLOOD / GEM MATERIALS
+2026-10-10 | Final selected checks PASS. Every failed/stopped attempt retained.
+Exact source hashes: releases/v0.006_SOURCE_MANIFEST.json.
+
+Selected scope assertions: 1906 (shared setup/global/catalog checks repeat
+across short batches; not a claim of that many unique independent assertions).
+  742: six original-source RGBA reconstructions, one pixel owner, original
+      offsets/proportions, rigid head/jaw motion, native human size, all5 sizes,
+      damage/head-only removal, cache/purity and shaped gem-horn/eye/skin probes.
+  126: deep crimson stains, retained limbs, correct neck lip, tiny chips,
+      exact cached/uncached avalanche noise, source/owner alpha and native purity.
+  311: actual Unit/equipment/native seated knees/stirrups/handle-grips,
+      no head rope, original body/gear/identity state preserved. Adapter unchanged
+      after its check; fresh current model views also show an equipped real human.
+  133: exact16 gem/form type illustrations, imported384px WebP decoding,
+      cached textures, total442230 bytes. Original full PNGs preserved on Desktop.
+  287: desktop catalog, original egg palettes, actual controls/orders/cancel,
+      stale authority, Back context, blood/head/chip camera stability and cleanup.
+  307: fresh Normal/one history day/native save-load:23towns,23eggs,
+      14named adults,100people; exact owner/name/type/parents/physical profiles.
+14 desktop fit executions at1280x720, including repeated batch catalog fits.
+Twenty-two inspected current native views plus3 original labeled source-layer PNGs.
+Six organic forms use gem-coloured HORNS/teeth/claws; eyes alone preserve source
+colour. Sapphire horns are sapphire blue. No rectangular gray head patch or
+natural brown/gray preserved horn band. Skin/scales remain organic and shaded.
+Damaged/mangled wings and legs stay attached with blood; head/neck separation
+alone hides head+jaw and exposes bloody neck tissue. Tiny tooth/claw tips fly off.
+Live GPU layers retain source positions; head removal does not resize/recenter body.
+Rider fit previews copy native equipped Units and create no bond/person/item/wound.
+
+All888 game files match tested snapshot AND fresh bundled copy.
+All396 previous UID files retained;408 UID files now, plus6 pinned
+lossless source texture import controls. 39 native art/data/registry files
+unchanged. Copper Oath source never modified/launched. Before art replacement,
+986 original v005 source/render/metadata files plusmanifest archived/hash-verified
+on actual Desktop. New generated originals and unused/rejected drafts preserved
+in Desktop/ASSET/Burning_Brood/Dragon_Art_v0.006_2026-10-10.
+Fresh bundled PrepareOnly and actual main passed in a new path with spaces.
+Complete source/import logs scanned; only exact Windows certificate-store
+environment diagnostic excluded. No remaining script/game errors in selected runs.
+Catalog image batches preceded the neck-only repair; their zero-delta source
+images are unchanged. Final contact/model checks cover all six forms; actual
+UI controls and fresh native frames cover the completed animation repair.
+Checks isolated,serial,hidden/headless,BelowNormal. Native frames used a never-shown
+embedded host. No player mouse/keyboard/foreground/interactive game touched.
+
+Every engine attempt (PASS here means clean engine execution, not visual approval):
+v006-01-original-art-import                        PASS   8.995s
+v006-02-original-art-renders                       PASS   6.232s
+v006-03-models-import                              PASS   7.943s
+v006-04-first-model-capture                        PASS   5.409s
+v006-05-sprite-render-import                       PASS   5.062s
+v006-06-first-sprite-native                        FAIL   3.483s
+v006-07-first-rider-native                         PASS   4.750s
+v006-08-atlas-rig-import                           PASS   5.200s
+v006-09-first-articulated-native                   FAIL   3.233s
+v006-10-first-articulated-native                   PASS  11.140s
+v006-11-stance-import                              PASS   5.727s
+v006-12-stance-native                              PASS  13.637s
+v006-13-folds-import                               PASS   5.069s
+v006-14-folds-native                               PASS  13.254s
+v006-15-anatomical-capture                         PASS   4.096s
+v006-16-proportions-import                         PASS   4.976s
+v006-17-proportions-native                         PASS  15.768s
+v006-18-portrait-encode                            FAIL   0.356s
+v006-19-portrait-encode                            PASS   1.239s
+v006-20-source-import-settings                     PASS   2.766s
+v006-21-coherent-import                            PASS  12.403s
+v006-22-source-models                              PASS  31.509s
+v006-23-coherent-native                            PASS  41.113s
+v006-24-mounted-rider                              PASS   2.529s
+v006-25-compact-concepts                           PASS   2.332s
+v006-26-blood-colour-import                        PASS   5.940s
+v006-27-blood-cut-fragments                        PASS   3.031s
+v006-28-bloody-native                              PASS  43.558s
+v006-29-final-import                               PASS   4.598s
+v006-30-final-models                               FAIL  50.021s
+v006-31-mount-fit                                  PASS  19.164s
+v006-32-final-batch-import                         PASS   4.301s
+v006-33-final-models-spire-broad                   PASS  37.795s
+v006-34-final-models-reed-iron                     PASS  15.104s
+v006-35-final-models-storm-dusk                    PASS  17.817s
+v006-36-final-ui                                   FAIL  50.034s
+v006-37-current-save                               PASS  36.381s
+v006-39-final-ui-controls                          PASS  41.868s
+v006-42-final-ui-pictures                          FAIL  55.044s
+v006-44-shaped-materials-import                    PASS   4.710s
+v006-45-red-blood-cached-noise                     PASS   2.341s
+v006-46-models-spire-broad-shaped-colour           PASS  11.787s
+v006-47-models-reed-iron-shaped-colour             FAIL  50.069s
+v006-53-final-native                               PASS  35.087s
+v006-56-cold-launcher                              FAIL  14.916s
+v006-57-bundled-main                               PASS   4.184s
+v006-58-gem-horns-import                           PASS   4.502s
+v006-59-gem-forms-native                           PASS  12.997s
+v006-60-gem-models-spire-broad                     PASS  11.593s
+v006-61-gem-models-reed-iron                       PASS  11.223s
+v006-62-gem-models-storm-dusk                      PASS  12.137s
+v006-63-gem-ui-controls                            PASS  14.514s
+v006-64a-gem-ui-pictures-spire-broad               PASS  39.208s
+v006-64b-gem-ui-pictures-reed-iron                 PASS  37.020s
+v006-64c-gem-ui-pictures-storm-dusk                PASS  38.301s
+v006-66-gem-injury-native                          PASS  33.063s
+v006-67-gem-ui-native                              PASS   9.830s
+v006-70a-joined-models-spire-broad                 PASS  11.503s
+v006-70b-joined-models-reed-iron                   PASS  20.183s
+v006-70c-joined-models-storm-dusk                  PASS  12.151s
+v006-71-joined-ui-controls                         PASS  19.453s
+v006-72-gem-joined-injury-native                   PASS  33.015s
+v006-73-gem-joined-ui-native                       PASS  12.252s
+v006-74-gem-joined-forms-native                    PASS  15.168s
+v006-75-cold-launcher                              PASS   9.891s
+v006-76-gem-portrait-encode                        PASS   4.398s
+v006-77-gem-portrait-import                        PASS   4.689s
+v006-78-gem-portraits                              PASS   2.245s
+v006-79-gem-portrait-ui-controls                   PASS  11.115s
+v006-80-gem-portrait-ui-native                     FAIL  55.037s
+v006-83-gem-portrait-cold-launcher                 PASS   9.840s
+v006-84-gem-portrait-bundled-main                  PASS   4.161s
+
+Portrait consistency correction: the original concept images still used natural
+horns after model horns were corrected. All16 were individually edited with the
+built-in image tool to match their gem material, preserving organic bodies and
+composition. New full PNGs, old portraits and the initial v006 ZIP are archived
+before replacement in the Desktop ASSET portrait-gem-correction entry.
+Concept checks (133), actual controls (86/8 fits), all16 imported textures,
+fresh bundled import/launch were rerun. Existing native model/details views use
+unchanged rendering files; the new16 portrait edits were individually inspected.
+The other selected art/physics/rider/campaign checks concern unchanged files;
+the portrait correction changes only16 WebP files, the concept description and
+its test. Source/model/damage/rider/native registry files remain byte-identical.
+
+FAILED / REJECTED WORK - NEVER PRESENTED AS FINAL ART
+Capsule/flat sources and independently fitted atlases were visually rejected.
+Source-coherent render23 retained correct proportions but had striped rust-colour
+blood. Avalanche pools removed stripes; deep crimson palette replaced rusty wash.
+Broad head colour rectangles produced gray caps; tighter natural-horn masks left
+blue ribbons. User clarified HORNS ARE GEM COLOURED. Final typed masks pigment
+horns and organic scales correctly, preserving only eyeballs. Superseded previews
+remain drafts, outside final active assets. Original source PNGs unchanged.
+Fresh gem-coloured render66 exposed a neck gap during recoil. A minimal rigid
+head translation derived from the original visible cut contacts seats the
+animated head back against the body. It is zero at rest; no new body image,
+part fitting or altered pixels. Contact checks and fresh native views verify
+the corrected join; head separation retains the original bloody cut.
+06/09 compile failures and18 lossless portrait-size failure retained in raw logs.
+Cold56 prepared successfully but its verification wrapper combined four log
+paths into one string and failed before reviewing them. It remains a failed
+verification attempt. The wrapper was repaired and cold preparation repeated
+in a second fresh path with spaces; all four complete logs passed review.
+Any timeout/stopped run is FAIL, even if no script error appears; all large
+model/UI runs were split into focused batches without dropping their checks.
+Earlier mount-fit246 checks remain a bounded geometry check; final source-model
+and actual equipped-unit captures verify current proportions. Do not count it
+again in the selected assertion total.
+
+Limits: animation/injury/saddle-fit previews in actual roster; no tactical dragon
+body, rider assignment or campaign wounds. Care/growth007,bond008,bodies009,
+rider combat010,flight011,breath012,deployment013 stay separate scoped milestones.
+Full articulated leg gait, old-save migration,long balance/battle runs and phone
+QA were not performed. Use a new v0.006 campaign. Package/Desktop receipts separate.
+
+User requested immediate packaging after reviewing concept teeth. Tooth/fang
+spacing, placement and gem-colour cleanup are recorded for later. No additional
+art changes were made. Native capture80 timed out and was excluded; no captures
+from that attempt are delivered. The existing22 model/native detail captures
+use unchanged renderers; the16 new gem-horn portraits were inspected individually
+and all current imported textures and descriptions passed133 checks.

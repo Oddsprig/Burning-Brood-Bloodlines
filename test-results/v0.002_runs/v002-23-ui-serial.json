@@ -1,0 +1,15 @@
+{
+  "Run": "v002-23-ui-serial",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v002-verification\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_dynasty_ui.gd",
+    "--watchdog=35"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 7.976
+}

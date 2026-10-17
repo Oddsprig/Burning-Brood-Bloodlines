@@ -1,0 +1,80 @@
+BURNING BROOD: BLOODLINES v0.003 - PRIMARY VERIFICATION
+Date: 2026-10-10 | Integrated gameplay result: PASS
+Engine: Godot 4.7.2.stable.official.ed1daf0bf, Windows 64-bit.
+Scope: ruler economy/defence controls and native common-folk integration.
+
+SOURCE AND ISOLATION
+799 game files match the isolated tested snapshot and fresh
+space-containing launcher tree by SHA256. All 376 existing v0.002 resource UIDs
+remain unchanged (including 359 inherited UIDs); 3 new test UIDs are stable.
+Bundled runtime equals the official verified runtime by SHA256.
+Short serial hidden/headless checks used private user paths and BelowNormal
+test processes. No foreground, mouse/keyboard, player save or Copper Oath use.
+
+COUNTED RESULTS: 1,863 ASSERTIONS, 0 UNRESOLVED FAILURES
+60 population/economy controls: normalized class/household workload, split-pool
+equivalence through four synthetic wage/food weeks, conserved public contract
+funding, ownership changes and protected wage claims, academy sole payer,
+essential food/store/reserved-barn quote purity, weak promotion, held private levy.
+1,596 impacted population regression checks: actual generated owners/pools,
+draw/service/population/coin identity, demographic bands and office promotion.
+42 governance: pure preview/budget, actual house -> town/realm money, native wage
+payment, authority/affordability revalidation, weekly future tax, real paid burden,
+militia duty/work/identity, raid/drill/assault/defend-contract stand-down and orc
+individual ruler promotion with unchanged estate anchors/body/population/coin.
+32 succession/feudal and 27 private-tax/metallurgy regressions.
+19 generated-world/current-save checks: Normal world, exactly one history day,
+23 settlements and 100 original company residents. Actual rate, decree cooldown,
+stand-down, public transfer, budgets, service funding/property, hierarchy/owners,
+private pools, permanent deaths and person/Unit refs survive native save/load.
+33 army/creature-pause checks: actual 100/200 formation/body refs, two bounded
+native ticks, history limits and creature suspension. This is not a full battle.
+54 final UI assertions plus 7 separate desktop fit cases at 1280x720 only:
+preview/Cancel purity, stale accounts/authority, exact recipients, successor
+labels, existing militia, Back context, map portrait/account pay and orphan cleanup.
+Repeated UI assertions and the initial failed fixture are not double-counted.
+
+RENDER AND LAUNCH
+Five native desktop previews inspected: map, politics, population, house and
+funding review. After inspection, funding text was shortened and population
+totals moved ahead of service detail; final UI/renders reran cleanly. Unchanged
+map/politics/house pixels match the inspected first renders by exact SHA256.
+Fresh bundled launcher PrepareOnly passed in 9.810s with real cache/v0.003 marker.
+Actual bundled main/title scene passed for 90 headless frames in 4.073s.
+Desktop installation and ZIP verification have their own post-delivery TXT reports.
+
+DIAGNOSTICS / LIMITS
+Run 03 printed 42 checks with no assertions failing, but had three missing-crops
+script errors from its synthetic plot fixture; it is recorded as FAIL. A complete
+native empty plot/economy fixture fixed this; run 06 passed with clean diagnostics.
+Windows sandbox root-certificate-store diagnostic remains the sole tolerated
+environment error; no network request was used. Script/compile errors always fail.
+No phone matrix/export this pass; user places phone export about 50 passes later.
+No long economy/balance campaign, cross-version save migration, full 200-person
+battle benchmark, dragon/rider implementation or marriage/court expansion claim.
+Offscreen assaults still use inherited probabilistic resolution, now with actual
+living defenders/order. Tactical combat retains individual tissue/material rules.
+Whole-pool migration/housing, anonymous epidemics, complete civilian Unit-body
+retention and multi-office tribute allocation remain bounded later work.
+
+ACTUAL RUN HISTORY
+v003-01-import                       8.300s PASS
+v003-02-economy-controls             2.492s PASS
+v003-03-governance                   2.528s FAIL: incomplete native crop fixture (superseded by run 06)
+v003-04-governance-ui                4.678s PASS
+v003-05-population-regression       24.385s PASS
+v003-06-governance-corrected         2.333s PASS
+v003-07-succession                   2.249s PASS
+v003-08-private-tax-metallurgy       2.344s PASS
+v003-09-generated-save              34.924s PASS
+v003-10-army-pause                   2.633s PASS
+v003-11-desktop-renders              9.650s PASS
+v003-12-ui-final                     4.682s PASS
+v003-13-desktop-final-renders        9.283s PASS
+v003-14-cold-launcher                9.810s PASS
+v003-15-cold-main                    4.073s PASS
+
+Raw metadata/stdout/stderr are preserved in test-results/v0.003_runs/.
+Source hashes: releases/v0.003_SOURCE_MANIFEST.json.
+Final ZIP/installed hashes: releases/v0.003_RELEASE_MANIFEST.json and the separate
+package/Desktop TXT reports, written only after those verifications complete.

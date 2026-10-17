@@ -1,0 +1,71 @@
+BURNING BROOD: BLOODLINES v0.004 - MODEL IMPORT RESULTS
+2026-10-10 | Final focused checks PASS; failed attempts retained below.
+Source hashes: releases/v0.004_SOURCE_MANIFEST.json (all819 game files).
+Copper exact import/ZIP provenance: docs/specs/MODEL_IMPORT_v0.004.json.
+
+6,773 counted comparisons/assertions:
+  6,240 complete import contract comparisons: all925 sampled animation joints,
+  times, physical feet/canvas dimensions; all1267 exact Copper RGBA records.
+  443 native art:118 figures,58 icons; real equipment/wounds/losses/materials,
+  quality/gems, cache/refresh/facing and state/identity/RNG purity.
+  36 registered-ruler portrait checks: male/female/dead/minor, native96px raster,
+  actual age/sex, determinism and no population/coin/Unit/Item/state mutation.
+  54 desktop controls checks and7 separate fit cases (1280x720 only).
+Native all-faction portraits/force icons/game-icon sizes passed separately;
+their uncounted loop validations are not added to the assertion total.
+
+819 source game files match both tested candidate and fresh bundled copy.
+379 prior UIDs unchanged;389 unique UIDs total. All13 native data files
+unchanged.13 exact art scripts plus UIDs imported; only ruler metadata binding
+and version labels adapt Bloodlines. No campaign/weapon/body stats imported.
+Three actual native reference boards inspected, before=Bloodlines003, after=import.
+Fresh launcher PrepareOnly:9.861s, cache and0.004 marker present; bundled actual
+main scene:4.748s. Hidden/headless/serial/BelowNormal; private user-data paths.
+Windows root-certificate diagnostic appeared as before; no final script/game error.
+
+Actual execution history (process seconds; repeated work not counted twice):
+v004-01-baseline-import                   PASS   8.094s
+v004-02-original-export                   PASS   5.354s
+v004-03-candidate-import                  PASS   7.926s
+v004-04-native-art                        PASS   3.733s
+v004-05-imported-export                   PASS  10.217s
+v004-06-animation-contract                FAIL   2.340s
+v004-07-animation-contract-corrected      FAIL   2.432s
+v004-08-original-complete-metadata        PASS   4.861s
+v004-09-import-complete-metadata          PASS  10.055s
+v004-10-complete-animation-contract       PASS   2.427s
+v004-11-ruler-art                         PASS   2.517s
+v004-12-art-menus                         PASS   4.094s
+v004-13-final-script-registration         PASS   4.410s
+v004-14-desktop-controls                  PASS   4.374s
+v004-15-cold-launcher                     PASS   9.861s
+v004-16-bundled-main                      PASS   4.748s
+v004-17-reference-boards                  PASS   2.481s
+
+FAILED OBSERVERS - NOT CURRENT PASSES
+Attempt06 wrongly assumed old template icon paths were distinct; native old
+dirk/hammer/mattock aliases shared30 paths. Aborted on missing new-only key.
+Attempt07 found missing dimensions in the extra moon-glaive capture case.
+Both printed runner PASS and exited0 despite script errors, so are FAIL here.
+Fixed observer counts/path assertions and complete dimension capture; no game-art
+contract relaxed and no production art bytes changed. Attempt10 clean.
+Original complete rerender verified all1237 previous RGBA hashes unchanged.
+Earlier preparation manifest lookup used a game/ prefix absent from Copper's
+index; it aborted before integration and was corrected by exact hash lookup.
+
+ORIGINAL ART ARCHIVE - BEFORE ACTIVE REPLACEMENT
+C:\Users\bligh\Desktop\Burning_Brood_Asset_Archive\v0.004
+All2044 source/render/metadata files verified.799 runnable original source files,
+1237 unique native PNGs,925 sampled frames/25 cases and exact sample specs retained.
+Archive SHA256 manifest:8e929548b65245db3512cf9f339f2eed289a6ef8920d792da67f194ed811a8b2.
+
+LIMITS / DELIVERY
+No phone matrix, player launch/input, new campaign, save migration, long campaign,
+large-army performance or old-save check. Existing Troll prone-bow edge contact
+belongs to the imported source; redesign/performance are later scoped passes.
+Package/Desktop verification have separate post-delivery TXT receipts. Every
+delivered version must have its actual versioned Desktop folder and branded icon.
+Source code checkpoint is recorded by the release manifest during packaging.
+Current roadmap: model import004; identities005; care006; bond007; ground008;
+rider ground009; flight010; breath011; deployment012; raid013; siege014;
+feudal consequences015. Each has explicit scope/deferred/done criteria.

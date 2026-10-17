@@ -1,0 +1,48 @@
+BURNING BROOD: BLOODLINES v0.008 - ACTUAL RESULTS
+2026-10-10 | Final selected focused checks: PASS
+
+664 counted assertions: growth69, native care/accounting44, desktop UI56,
+actual queued-care/current campaign save216, identities/physical profiles279.
+Six desktop1280x720 fit cases passed; no images posted or new artwork created.
+906 game files match final isolated tested and fresh bundled copies.
+All 411 prior UID files retained byte-exact; 417 current unique UIDs.
+All 101 prior art/data files unchanged; all21 released v053 model files retained.
+
+ACTUAL COVERAGE
+Feed/wood use actual local market stock, retail price, private payer purse,
+market till/sales and native used/demand books. No double substitute demand.
+Remote and moved/inherited owners pay from their actual current household.
+Human reserves, missing/unclaimed owner, away keeper, missing market, shortages,
+recovery, growth/force/geometry with fixed gem hardness, neglect death and dead
+no-pay are covered. Quotes/fractional/repeat/older days and load guards are pure.
+Actual Normal campaign:23towns,37holdings,100-person native company. The queued
+care job was dispatched through CampaignWorld._do_work on its real saved world;
+32holdings supplied,5interrupted. Care receipts persist in full native save/load.
+That bounded care-job check does not claim the whole economy-day process passed.
+
+SELECTED RUNS (complete stdout/stderr checked; exit0, no timeout):
+  v008-02-growth - PASS - 2.438s
+  v008-04-care-accounts - PASS - 3.547s
+  v008-05-care-desktop - PASS - 8.826s
+  v008-07-queued-care-save - PASS - 20.061s
+  v008-09-identities - PASS - 2.621s
+  v008-10-final-import - PASS - 5.432s
+  v008-11-cold-launcher - PASS - 11.884s
+  v008-12-bundled-main - PASS - 4.278s
+
+FAILED ATTEMPTS / LIMITS
+v008-03 compile failure: missing parenthesis in new test fixture; fixed04.
+v008-06 timed out50.029s during broader native daily processing. Its initial
+307 campaign-generation/save assertions printed0failures, but the attempt is
+not selected/count-passed. The current saved campaign was reused for bounded
+queued-care and subsequent full native save/load in07; no world regenerated.
+v008-08 two prior fixture failures: changed size label retained its previous
+growth scalar. Fixture now changes authoritative size and label together;09passes.
+All12 attempts/full diagnostics are retained in v0.008_logs/. Only the exact
+Windows root-certificate-store error is excluded as known environment output.
+SCRIPT ERROR/ERROR/FAIL/parse/compile failures otherwise reject a run.
+Fresh bundled PrepareOnly and finite actual main scene passed. No interactive
+player game/input/foreground, Copper Oath launch/modification, phone QA, cross-
+version migration, full economy-day, large battle or long balance pass claimed.
+No hatching, bonds, tactical dragon body, flight or breath enabled.
+Package and actual Desktop/icon hashes have separate dated TXT receipts.

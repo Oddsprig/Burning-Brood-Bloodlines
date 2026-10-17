@@ -1,0 +1,55 @@
+COPPER OATH v0.046 - HANDOFF BASE STATUS
+Game release commit: 1c676972da7b5778a5a2ee50b423756663395ced
+Policy notes commit: deb17a455580422bdc4f8638efd00208886f480d
+Engine: Godot 4.7.2. Language: GDScript.
+Original branch: fix/economy-pass. Original master remains unchanged.
+
+The game source archive is read directly from v0.046 and includes the full
+game/ tree, docs/specs/ and repository attributes/ignore rules.
+It is editable source, not a new dragonlord build. No engine is bundled.
+Historical engine-generated .godot imports, campaign checkpoints, review
+archives, prior-release installers and large benchmark evidence are omitted.
+Tests and actual data files in the source tree are retained.
+Current canonical notes are included separately. The latest no-save-
+compatibility policy overrides historical instructions in source/specs/notes.
+The historical root README discusses an older release; it is not current
+release authority. Use this file and V0.046_REPORT.txt.
+
+WHAT v0.046 ALREADY CHANGED
+Native physical plot/animal purchase-capacity checks and household labour.
+Actual home/away/child-age/broth food shares and physical fresh-food accounting.
+Native guard/pasture service-death bookkeeping and correct muster assignment.
+Company payroll conserved through real recipients/inheritance before debit.
+Readable town/Records/services UI and the earlier army/Records optimizations
+are inherited cumulatively.
+
+ACTUAL EXISTING VERIFICATION
+15/16 executions in the completed focus/save/short cases passed.
+Short import/startup, named-food weight and Records snapshot passed.
+The single original legacy-marker expectation failed 27/32535, identically on
+v0.045. Its native identity repair was separately verified. It is historical
+and is not a reason to restart cross-version compatibility work.
+19 additional original farm/harvest/inheritance/wage checks completed and
+passed before the user stopped the long queue; its remaining suite was
+interrupted. That suite is not an overall pass.
+Payroll: 105 native checks passed. The authentic day600-to628 run reported
+256543 accounting checks, zero failures, and 6527618 ownership checks, zero
+violations. These results describe their tested scope, not every gameplay path.
+Package/import/launcher/installation verification completed separately.
+No new engine tests have been run for this handoff.
+
+STILL OPEN
+Strict 90% day120 nominal worked-land target and annual food balance.
+Unchanged 25 ms plot budget, broader hitches and manual smoothness.
+Full final-source world-size/performance/sickness/census/UI runs were not all
+completed; historical failure and timing results remain historical.
+Political offices/person linkage and succession are incomplete.
+Academy staffing continuity and metallurgy progression remain open.
+No dragon bodies, flight, mounted dragon combat or dragon husbandry exists in
+the current source. Dragons in older roadmap/lore notes are planned content.
+
+Keep these limits visible. Do not declare the inherited game universally
+balanced or benchmark-clean, dilute existing gates, or spend hours rerunning
+them before making the small new-game foundation. Follow the user's short-check
+policy. Benchmarks TXT summaries are included; full raw evidence remains in
+the original Copper Oath repository's review/v0.046 archive.

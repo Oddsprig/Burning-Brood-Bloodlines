@@ -1,0 +1,4 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Records UI v018: 8640 assertions, 27 desktop fit cases; failures=0
+== res://tests/test_records_ui_v018.gd: PASS ==

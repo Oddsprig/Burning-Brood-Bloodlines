@@ -1,0 +1,15 @@
+{
+  "Run": "v008-02-growth",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v008-source-verification/game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_dragon_growth.gd",
+    "--watchdog=30"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 2.438
+}

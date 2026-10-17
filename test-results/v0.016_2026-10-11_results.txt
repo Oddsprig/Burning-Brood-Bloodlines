@@ -1,0 +1,117 @@
+BURNING BROOD: BLOODLINES v0.016 - COMBINED v015 + v016 RESULTS
+2026-10-11 | Current selected native checks PASS; source freeze before separate cold/package/Desktop gates.
+User authorized combat history and officer rally together; one substantive v0.016 release.
+
+WHOLE-FIGHT HISTORY / ACTUAL COMMAND
+Combat capture is enabled by default before inherited event/person tails trim.
+Native outcomes retain exact emission order, frozen Fighter.idx/name/side and
+detached strike/event/movement data. Character filters tolerate duplicate UIDs
+and names and retain fallen combatants. First/middle/last records survive
+the inherited8192-event/512-person presentation limits; no silent whole-fight claim.
+Journal storage:256 active records plus3 cached256-record chunks (1024 resident
+record ceiling); participant indexes and full history spill to transient disk.
+Resident record bound is not a byte limit or complete RAM accounting. Disk use
+can grow with fight duration. Capture/IO failure reports incomplete/error and
+the actual readable count; bounded latest tail remains available.
+Shared browsers read detached18-row chronological pages and format only those
+entries with native CombatText. Expand actual tissue/armour/blood/gear/calcs;
+no rerolls, body repair, healing, growth, native tick or result regeneration.
+Search narrows frozen participant names without a full text-history scan.
+Unmatched current selection is clearly labelled; search does not silently switch.
+Actual command-tree assignments drive both-side fighting-officer rally:
+native routed followers, range/leadership/morale/scheduled checks and living officer
+authority are tested. No unrelated UID or opposing-side leadership substitution.
+
+CURRENT FOCUSED NATIVE COUNTS
+  Combat journal v016: 90 assertions; 0 separate desktop fit cases.
+  Officer rally v016: 140 assertions; 0 separate desktop fit cases.
+  Combat history integration v016: 75 assertions; 0 separate desktop fit cases.
+  Combat log UI v016: 181 assertions; 12 separate desktop fit cases.
+  Battle pace v014: 39 assertions; 0 separate desktop fit cases.
+  Battle result summary v014: 110 assertions; 0 separate desktop fit cases.
+  Performance panel UI: 40 assertions; 7 separate desktop fit cases.
+  Save queue performance: 54 assertions; 0 separate desktop fit cases.
+
+ACTUAL RENDERED DESKTOP UI
+Rendered UI: 249 assertions/15 separate fit cases; 15 exact native PNG captures.
+1280x720,1920x1080,2560x1440: five closed results toggles and Continue;
+whole log first page, fallen-name filter, expanded native tissue/calculation,
+and actual paused-battle overlay. Native PerformancePanel remains visible;
+diagnostics lane is reserved. Window stays offscreen/no-focus; no user input.
+Root Battle overlay holds native playback and restores its previous pause.
+End results open one lazy section; closing frees controls/page caches without
+disposing shared history. Existing Continue releases result-owned journal.
+Both-side casualty totals and settled loot/supplies/gear/lessons remain native.
+Primary actually reviewed 5 final current PNGs. All15 dimensions/hashes and exact review list are preserved.
+Pixels stay private in work; no preview images are included in the package.
+Initial heavily wounded400-person summary remains synchronous; no claim that
+this history pass removes its initial cost. Actual UI work timings below.
+  1280x720 results_closed: 232.132ms.
+  1280x720 results_log_first: 11.382ms.
+  1920x1080 results_closed: 146.029ms.
+  1920x1080 results_log_first: 11.454ms.
+  2560x1440 results_closed: 146.294ms.
+  2560x1440 results_log_first: 10.872ms.
+
+ACTUAL RENDERED BATTLE / LIFECYCLE
+Retained gore: 129 current GPU checks, exact original primitive pixel output in full/reduced modes.
+Pool-first native circle/alpha order is retained; only changed chunks/pools
+rebuild their drawing commands. Native blood, landing, spray/RNG and clearing
+stay identical. Resident record copying uses a native deep copy with packed
+array detachment; private participant index writers buffer tiny writes.
+Native200/200 close contact: 34.36FPS; p95 40.889ms; worst 56.479ms; 241 ticks; 20 checks.
+2560x1440 actual renderer, offscreen/no-focus, visible diagnostics.30FPS/
+p95<=50ms recovery and native1x tick-delivery gates pass. Default event slowmo
+remainsOFF, zero automatic slow frames; both actual officers rally in playback.
+Playback journal: 9481 outcomes; active 9, cached 0, disk 9973804 bytes; complete=True, dropped=0.
+60FPS everywhere remains a development goal, not a measured universal promise.
+Lifecycle: 72 checks, 3 cycles, 1 actual native fights/160 ticks.
+v011 campaign and v012 sliced-save/ownership boundaries retained. Explicit
+scene/result history cleanup, worker drains and weak-reference release are
+bounded fixture evidence, not long-session leak freedom. Engine tracked RAM,
+OS process samples and cached payload estimates are different measurements.
+
+SOURCE / SELECTED EVIDENCE
+Recorded assertions: 1199; focused 729; rendered gate cases 6, lifecycle separate.
+All 986 shipped game files source/candidate exact; candidate only adds private window/no_focus=true.
+All 449 priorv014 UIDs unchanged; 457 current unique UIDs; 101 priorart/data exact; 20 releasedv053 model files exact.
+Bundled runtime: 3 files match immutable prior release.
+Selected full stdout/stderr checked; only the exact known Windows root-
+certificate-store diagnostic is excluded. Failed/stopped/development runs are
+not current pass counts. No phone QA, old-save work, art replacement or foreground.
+Cold-launch/main, ZIP readback and actual Desktop/icon/preserved-prior-version
+verification follow source freeze and have separate supplemental receipts.
+
+DEVELOPMENT ATTEMPTS / LIMITS
+Initial UI run failed3 search assertions because programmatic LineEdit.text
+does not emit typed-input text_changed; native signal path and explicit Current
+search selection are now checked. A journal destructor fallback diagnostic
+was repaired and separately reverified. Earlier failed attempts are retained
+as development evidence and excluded from the selected final counts.
+A fit-only passing UI render still exposed narrow unreadable story rows in
+the actual PNGs. Scroll contents now fill width; width/button-size checks and
+private visual inspection guard this separately from bounds checks.
+Initial400-person gate attempts missed30FPS. One diagnostic had an invalid
+fixture-only empty morale roll; that fixture was corrected. Journal copying
+and per-index flushing were reduced, then retained native gore commands
+addressed measured redraw work. The selected current rendered gate passes.
+An unrelated native Godot game was active; it was never stopped or controlled.
+The no-journal control also missed the floor and is not a current gate pass.
+
+SELECTED COMPLETE RUNS
+  v016-journal-final-02 - PASS - 3.417s
+  v016-rally-final - PASS - 3.334s
+  v016-history-final-02 - PASS - 3.856s
+  v016-ui-headless-final-02 - PASS - 6.672s
+  v016-ui-render-final-03 - PASS - 11.221s
+  v016-pace-final - PASS - 3.91s
+  v016-summary-final - PASS - 3.882s
+  v016-panel-final - PASS - 5.086s
+  v016-save-queue-final - PASS - 3.042s
+  v016-gore-render-final - PASS - 5.559s
+  v016-battle-render-final-03 - PASS - 18.869s
+  v016-lifecycle-render-final - PASS - 95.167s
+
+NEXT
+v017 funded raising/stand-down, then readable records/Laws, settlement/map/local
+house/customize flow and buyer receipts in their scoped passes. No standalone015.

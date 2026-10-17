@@ -1,0 +1,25 @@
+{
+  "Run": "v002-21-hidden-renders-final",
+  "Arguments": [
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v002-verification\\game",
+    "--windowed",
+    "--position",
+    "-32000,-32000",
+    "--resolution",
+    "1280x720",
+    "--rendering-method",
+    "gl_compatibility",
+    "--audio-driver",
+    "Dummy",
+    "--max-fps",
+    "30",
+    "--script",
+    "res://capture_bloodlines_ui.gd",
+    "--quit-after",
+    "600"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 10.711
+}

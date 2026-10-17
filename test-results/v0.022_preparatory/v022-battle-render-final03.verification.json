@@ -1,0 +1,10 @@
+{
+  "run": "v022-battle-render-final03",
+  "full_log_pass": false,
+  "error_count": 2,
+  "errors": [
+    "== res://tests/diag_dragon_render_v022.gd: FAIL (1) ==",
+    "FAIL battle render: native402actor recovery floor30FPS/p95<=50/worst<=150ms"
+  ],
+  "known_certificate_environment_line_count": 0
+}

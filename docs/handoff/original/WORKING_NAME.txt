@@ -1,0 +1,12 @@
+WORKING NAME - 2026-10-10
+Burning Brood: Bloodlines (compact logo: Burning Brood / Bloodlines).
+Suggested tagline: Bleed or Burn.
+The user proposed this name and said development names can change later.
+Do not spend further development resources trying to finalize the title.
+
+A brief web search checked Burning Brood: Bloodlines, BurningBrood and Burning
+Brood game. No exact game title surfaced in the returned results. This is a
+record of that limited search, not a claim of universal availability.
+The following rejected candidate had a direct game-store collision:
+Dragon Vow: https://store.playstation.com/en-gb/concept/10013569
+The handoff's names and UI sample data are working examples, not new lore rules.

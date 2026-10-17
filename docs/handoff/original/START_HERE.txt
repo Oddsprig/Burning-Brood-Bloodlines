@@ -1,0 +1,67 @@
+BURNING BROOD: BLOODLINES - DEVELOPMENT HANDOFF
+Working title only. The user can rename this game later.
+Suggested tagline: Bleed or Burn.
+Prepared 2026-10-10.
+
+WHAT THIS IS
+A separate development path from Copper Oath v0.046. The player controls a
+family ruling one city. Managing dragons, their riders and conventional troops
+is central. Family politics, city politics, diplomacy and marriage alliances
+drive the campaign. Keep Copper Oath's real economy, campaign-map style and
+detailed tactical combat. Use dark green/purple presentation suited to mobile.
+
+This package is a source handoff and design plan. It is not a playable
+dragonlord build. No dragon mechanics, ruler controls or new theme have been
+implemented here. Copper Oath's source and installed release remain unchanged.
+
+READ IN THIS ORDER
+1. HANDOFF_BURNING_BROOD.txt - confirmed direction, existing systems, new work.
+2. DEV_NOTES_BURNING_BROOD.txt - current user rules override older base notes.
+3. UI_DIRECTION.txt and UI_CONCEPT.svg - proposed presentation.
+4. BASE_STATUS.txt - actual release verification and remaining issues.
+5. BASE_SOURCE_v0.046.zip - full game source, data, scenes, art code, tests and
+   existing design specifications, directly from the release's Git tag.
+6. Copper_Oath_Base_Notes - retained design history and current save policy.
+7. MANIFEST.json - release identity and handoff file/source hashes.
+
+BASE
+Godot 4.7.2 / GDScript.
+Release tag v0.046.
+Game commit 1c676972da7b5778a5a2ee50b423756663395ced.
+Later notes-only commit deb17a455580422bdc4f8638efd00208886f480d records that
+development versions do not require cross-version save compatibility.
+
+START A SEPARATE GAME WHEN IMPLEMENTATION IS REQUESTED
+Extract BASE_SOURCE_v0.046.zip into a new Burning_Brood development folder,
+separate from Copper Oath. Open game/project.godot in Godot 4.7.2.
+Create a separate repository/development branch, suggested dev/burning-brood.
+Use the included source snapshot as the baseline; do not start from GitHub
+master, v0.020 or a historical checkpoint.
+Before any player-facing launch, give the new copy its own project name,
+version, user-data directory, launcher and icon. Do not copy Copper Oath saves.
+The source archive includes no engine binary; use Godot 4.7.2.
+Keep the existing Copper Oath project, releases and launcher intact.
+
+FIRST IMPLEMENTATION REQUEST FOR THE RECEIVING DEVELOPER
+Work on the proposed v0.001 foundation: separate game identity, an actual
+registered ruling family/person for the selected starting city, clear public
+and private accounts, and the green/purple/dark UI shell. Keep the economy,
+campaign map and troop battle simulation. Prove that the selected ruler is the
+same person represented in the register. Treat later milestones as roadmap
+work, and keep checks short, hidden and limited to detecting breakage.
+This handoff itself does not start implementation.
+
+LOCAL REFERENCES, IF WORKING ON THE SAME COMPUTER
+Canonical Copper Oath repository:
+C:/Users/bligh/Documents/Codex/2026-10-07/ok-so-now-u-extract-it/work/release-history-final
+Existing complete Copper Oath v0.046 package:
+C:/Users/bligh/Documents/Codex/2026-10-07/ok-so-now-u-extract-it/outputs/Copper_Oath_v0.046.zip
+Installed Copper Oath:
+C:/Users/bligh/Desktop/Copper_Oath_v0.046
+
+UI PREVIEWS
+UI_CONCEPT.png/svg: desktop dashboard direction.
+UI_PHONE_CONCEPT.png/svg: proposed phone layout.
+UI_PALETTE.json: colours and text contrasts.
+All displayed people/numbers are fictional concept data.
+Benchmarks/*.txt: actual inherited test summaries and current check policy.

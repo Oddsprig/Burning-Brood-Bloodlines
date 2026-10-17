@@ -1,0 +1,10 @@
+{
+  "known_certificate_environment_line_count": 1,
+  "errors": [
+    "SCRIPT ERROR: Parse Error: Could not find base class \"Battle\".",
+    "ERROR: Failed to load script \"res://tests/diag_battle_render_v010.gd\" with error \"Parse error\"."
+  ],
+  "error_count": 2,
+  "full_log_pass": false,
+  "run": "v010-08-render100-fresh"
+}

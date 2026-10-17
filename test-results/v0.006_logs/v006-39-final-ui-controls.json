@@ -1,0 +1,16 @@
+{
+  "Run": "v006-39-final-ui-controls",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v006-source-verification\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_dragon_ui.gd",
+    "--section=controls",
+    "--watchdog=50"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 41.868
+}

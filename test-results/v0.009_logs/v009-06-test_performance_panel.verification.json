@@ -1,0 +1,10 @@
+{
+  "errors": [
+    "== res://tests/test_performance_panel.gd: FAIL (1) ==",
+    "FAIL performance panel: instrumented main-thread work and GPU time are distinguished"
+  ],
+  "full_log_pass": false,
+  "run": "v009-06-test_performance_panel",
+  "known_certificate_environment_line_count": 1,
+  "error_count": 2
+}

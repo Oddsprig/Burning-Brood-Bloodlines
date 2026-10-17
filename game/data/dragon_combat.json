@@ -1,0 +1,3100 @@
+{
+  "schema": 1,
+  "provenance": "Authored game wyvern anatomy reuses local native quadruped organ/layer/connector definitions. Both former forelimb chains are wings, never walking front legs; organic scales are native scale tissue. Gem material and tooth/claw geometry resolve per actual actor.",
+  "race": {
+    "name": "dragon",
+    "body": "wyvern",
+    "creature": true,
+    "beast": true,
+    "mass": 350,
+    "height": 3.0,
+    "width": 4.0,
+    "attrs": {
+      "SPA": 1000,
+      "TOU": 1000,
+      "END": 1000,
+      "KIN": 1000,
+      "AGI": 900,
+      "REC": 1000,
+      "WIL": 1000,
+      "FOC": 1000,
+      "STR": 1000
+    },
+    "gait": [
+      350,
+      500,
+      675
+    ],
+    "learn": 50,
+    "attr_cost": 600,
+    "personality": {
+      "aggression": 55,
+      "loyalty": 60,
+      "cohesion": 50,
+      "protectiveness": 60,
+      "temper": 50,
+      "courage": 60,
+      "caution": 50,
+      "nerve": 60
+    },
+    "attacks": [],
+    "tokens": []
+  },
+  "body": {
+    "parts": [
+      {
+        "id": "head",
+        "name": "head",
+        "parent": "neck",
+        "relsize": 280,
+        "severable": true,
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 2
+          },
+          {
+            "tissue": "fat",
+            "t": 1
+          },
+          {
+            "tissue": "muscle",
+            "t": 8
+          }
+        ],
+        "visual_region": "head"
+      },
+      {
+        "id": "eye_l",
+        "name": "left eye",
+        "parent": "head",
+        "relsize": 4,
+        "embedded": true,
+        "permanent_loss": true,
+        "layers": [
+          {
+            "tissue": "organ",
+            "t": 15,
+            "mat": "eye",
+            "pain": 5,
+            "vasc": 3,
+            "name": "eye",
+            "functions": [
+              "sight"
+            ]
+          }
+        ],
+        "visual_region": "head"
+      },
+      {
+        "id": "eye_r",
+        "name": "right eye",
+        "parent": "head",
+        "relsize": 4,
+        "embedded": true,
+        "permanent_loss": true,
+        "layers": [
+          {
+            "tissue": "organ",
+            "t": 15,
+            "mat": "eye",
+            "pain": 5,
+            "vasc": 3,
+            "name": "eye",
+            "functions": [
+              "sight"
+            ]
+          }
+        ],
+        "visual_region": "head"
+      },
+      {
+        "id": "nose",
+        "name": "nose",
+        "parent": "head",
+        "relsize": 10,
+        "severable": true,
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 4.9
+          },
+          {
+            "tissue": "bone",
+            "t": 19.4,
+            "mat": "cartilage",
+            "pain": 0,
+            "vasc": 0,
+            "name": "cartilage"
+          }
+        ],
+        "visual_region": "head"
+      },
+      {
+        "id": "mouth",
+        "name": "mouth",
+        "parent": "head",
+        "relsize": 20,
+        "embedded": true,
+        "no_coat": true,
+        "layers": [
+          {
+            "tissue": "skin",
+            "t": 2.8
+          },
+          {
+            "tissue": "muscle",
+            "t": 27.8
+          }
+        ],
+        "visual_region": "head"
+      },
+      {
+        "id": "tongue",
+        "name": "tongue",
+        "parent": "head",
+        "relsize": 20,
+        "severable": true,
+        "no_coat": true,
+        "layers": [
+          {
+            "tissue": "skin",
+            "t": 2.8
+          },
+          {
+            "tissue": "muscle",
+            "t": 27.8
+          }
+        ],
+        "visual_region": "head"
+      },
+      {
+        "id": "tooth1",
+        "name": "tooth 1",
+        "parent": "jaw",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 1",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "jaw",
+        "no_coat": true
+      },
+      {
+        "id": "tooth2",
+        "name": "tooth 2",
+        "parent": "head",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 2",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "head",
+        "no_coat": true
+      },
+      {
+        "id": "tooth3",
+        "name": "tooth 3",
+        "parent": "jaw",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 3",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "jaw",
+        "no_coat": true
+      },
+      {
+        "id": "tooth4",
+        "name": "tooth 4",
+        "parent": "head",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 4",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "head",
+        "no_coat": true
+      },
+      {
+        "id": "tooth5",
+        "name": "tooth 5",
+        "parent": "jaw",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 5",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "jaw",
+        "no_coat": true
+      },
+      {
+        "id": "tooth6",
+        "name": "tooth 6",
+        "parent": "head",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 6",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "head",
+        "no_coat": true
+      },
+      {
+        "id": "tooth7",
+        "name": "tooth 7",
+        "parent": "jaw",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 7",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "jaw",
+        "no_coat": true
+      },
+      {
+        "id": "tooth8",
+        "name": "tooth 8",
+        "parent": "head",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 8",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "head",
+        "no_coat": true
+      },
+      {
+        "id": "tooth9",
+        "name": "tooth 9",
+        "parent": "jaw",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 9",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "jaw",
+        "no_coat": true
+      },
+      {
+        "id": "tooth10",
+        "name": "tooth 10",
+        "parent": "head",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 10",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "head",
+        "no_coat": true
+      },
+      {
+        "id": "tooth11",
+        "name": "tooth 11",
+        "parent": "jaw",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 11",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "jaw",
+        "no_coat": true
+      },
+      {
+        "id": "tooth12",
+        "name": "tooth 12",
+        "parent": "head",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 12",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "head",
+        "no_coat": true
+      },
+      {
+        "id": "tooth13",
+        "name": "tooth 13",
+        "parent": "jaw",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 13",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "jaw",
+        "no_coat": true
+      },
+      {
+        "id": "tooth14",
+        "name": "tooth 14",
+        "parent": "head",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 14",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "head",
+        "no_coat": true
+      },
+      {
+        "id": "tooth15",
+        "name": "tooth 15",
+        "parent": "jaw",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 15",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "jaw",
+        "no_coat": true
+      },
+      {
+        "id": "tooth16",
+        "name": "tooth 16",
+        "parent": "head",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 16",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "head",
+        "no_coat": true
+      },
+      {
+        "id": "tooth17",
+        "name": "tooth 17",
+        "parent": "jaw",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 17",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "jaw",
+        "no_coat": true
+      },
+      {
+        "id": "tooth18",
+        "name": "tooth 18",
+        "parent": "head",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 18",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "head",
+        "no_coat": true
+      },
+      {
+        "id": "tooth19",
+        "name": "tooth 19",
+        "parent": "jaw",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 19",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "jaw",
+        "no_coat": true
+      },
+      {
+        "id": "tooth20",
+        "name": "tooth 20",
+        "parent": "head",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 20",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "head",
+        "no_coat": true
+      },
+      {
+        "id": "tooth21",
+        "name": "tooth 21",
+        "parent": "jaw",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 21",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "jaw",
+        "no_coat": true
+      },
+      {
+        "id": "tooth22",
+        "name": "tooth 22",
+        "parent": "head",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 22",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "head",
+        "no_coat": true
+      },
+      {
+        "id": "tooth23",
+        "name": "tooth 23",
+        "parent": "jaw",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 23",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "jaw",
+        "no_coat": true
+      },
+      {
+        "id": "tooth24",
+        "name": "tooth 24",
+        "parent": "head",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 24",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "head",
+        "no_coat": true
+      },
+      {
+        "id": "tooth25",
+        "name": "tooth 25",
+        "parent": "jaw",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 25",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "jaw",
+        "no_coat": true
+      },
+      {
+        "id": "tooth26",
+        "name": "tooth 26",
+        "parent": "head",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 26",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "head",
+        "no_coat": true
+      },
+      {
+        "id": "tooth27",
+        "name": "tooth 27",
+        "parent": "jaw",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 27",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "jaw",
+        "no_coat": true
+      },
+      {
+        "id": "tooth28",
+        "name": "tooth 28",
+        "parent": "head",
+        "relsize": 1,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 11.3,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "tooth 28",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "head",
+        "no_coat": true
+      },
+      {
+        "id": "tooth_eye_r",
+        "name": "right eye tooth",
+        "parent": "head",
+        "relsize": 15,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 27.8,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "right eye tooth",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "head",
+        "no_coat": true
+      },
+      {
+        "id": "tooth_eye_l",
+        "name": "left eye tooth",
+        "parent": "head",
+        "relsize": 15,
+        "socket": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 27.8,
+            "mat": "tooth",
+            "pain": 0,
+            "vasc": 0,
+            "name": "left eye tooth",
+            "dragon_material": "tooth",
+            "dragon_geometry": "tooth_diameter_cm",
+            "geometry_share": 1.0
+          }
+        ],
+        "visual_region": "head",
+        "no_coat": true
+      },
+      {
+        "id": "skull",
+        "name": "skull",
+        "parent": "head",
+        "relsize": 200,
+        "internal": true,
+        "connector": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 9,
+            "name": "skull"
+          }
+        ],
+        "visual_region": "head"
+      },
+      {
+        "id": "brain",
+        "name": "brain",
+        "parent": "head",
+        "relsize": 200,
+        "internal": true,
+        "around": "skull",
+        "layers": [
+          {
+            "tissue": "brain",
+            "t": 40,
+            "pain": 0,
+            "vasc": 3,
+            "name": "brain",
+            "functions": [
+              "vital",
+              "think"
+            ]
+          }
+        ],
+        "visual_region": "head"
+      },
+      {
+        "id": "neck",
+        "name": "neck",
+        "parent": "torso_upper",
+        "relsize": 200,
+        "severable": true,
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 2
+          },
+          {
+            "tissue": "fat",
+            "t": 4
+          },
+          {
+            "tissue": "muscle",
+            "t": 25,
+            "artery": 0.06
+          }
+        ],
+        "visual_region": "neck"
+      },
+      {
+        "id": "throat",
+        "name": "throat",
+        "parent": "neck",
+        "relsize": 40,
+        "embedded": true,
+        "armor_as": "neck",
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 38.5,
+            "name": "throat",
+            "artery": 0.35,
+            "major": true,
+            "functions": [
+              "breathe",
+              "airway"
+            ]
+          }
+        ],
+        "visual_region": "neck"
+      },
+      {
+        "id": "spine_upper",
+        "name": "upper spine",
+        "parent": "neck",
+        "relsize": 100,
+        "internal": true,
+        "spine": "upper",
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 14,
+            "name": "upper spine"
+          },
+          {
+            "tissue": "nerve",
+            "t": 14,
+            "pain": 0,
+            "vasc": 3,
+            "name": "spinal cord",
+            "functions": [
+              "cord"
+            ]
+          }
+        ],
+        "connector": true,
+        "visual_region": "neck"
+      },
+      {
+        "id": "torso_upper",
+        "name": "chest",
+        "parent": "",
+        "relsize": 1000,
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 2
+          },
+          {
+            "tissue": "fat",
+            "t": 6
+          },
+          {
+            "tissue": "muscle",
+            "t": 20
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "torso_lower",
+        "name": "belly",
+        "parent": "torso_upper",
+        "relsize": 900,
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 2
+          },
+          {
+            "tissue": "fat",
+            "t": 8
+          },
+          {
+            "tissue": "muscle",
+            "t": 18
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "lung_r",
+        "name": "right lung",
+        "parent": "torso_upper",
+        "relsize": 200,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "organ",
+            "t": 60,
+            "mat": "lung",
+            "pain": 5,
+            "vasc": 8,
+            "name": "right lung",
+            "functions": [
+              "breathe"
+            ]
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "lung_l",
+        "name": "left lung",
+        "parent": "torso_upper",
+        "relsize": 200,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "organ",
+            "t": 60,
+            "mat": "lung",
+            "pain": 5,
+            "vasc": 8,
+            "name": "left lung",
+            "functions": [
+              "breathe"
+            ]
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "heart",
+        "name": "heart",
+        "parent": "torso_upper",
+        "relsize": 100,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "organ",
+            "t": 45,
+            "mat": "heart",
+            "pain": 5,
+            "vasc": 10,
+            "name": "heart",
+            "functions": [
+              "vital"
+            ],
+            "artery": 0.15,
+            "major": true
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "liver",
+        "name": "liver",
+        "parent": "torso_upper",
+        "relsize": 200,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "organ",
+            "t": 65.9,
+            "mat": "liver",
+            "pain": 5,
+            "vasc": 8,
+            "name": "liver"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "guts",
+        "name": "guts",
+        "parent": "torso_lower",
+        "relsize": 600,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "organ",
+            "t": 70,
+            "mat": "gut",
+            "pain": 5,
+            "vasc": 3,
+            "name": "guts"
+          }
+        ],
+        "under_pressure": true,
+        "visual_region": "torso"
+      },
+      {
+        "id": "stomach",
+        "name": "stomach",
+        "parent": "torso_lower",
+        "relsize": 200,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "organ",
+            "t": 65.9,
+            "mat": "stomach",
+            "pain": 5,
+            "vasc": 3,
+            "name": "stomach"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "pancreas",
+        "name": "pancreas",
+        "parent": "torso_lower",
+        "relsize": 100,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "organ",
+            "t": 52.3,
+            "mat": "pancreas",
+            "pain": 5,
+            "vasc": 3,
+            "name": "pancreas"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "spleen",
+        "name": "spleen",
+        "parent": "torso_lower",
+        "relsize": 100,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "organ",
+            "t": 52.3,
+            "mat": "spleen",
+            "pain": 5,
+            "vasc": 5,
+            "name": "spleen"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "kidney_r",
+        "name": "right kidney",
+        "parent": "torso_lower",
+        "relsize": 100,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "organ",
+            "t": 52.3,
+            "mat": "kidney",
+            "pain": 5,
+            "vasc": 8,
+            "name": "right kidney"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "kidney_l",
+        "name": "left kidney",
+        "parent": "torso_lower",
+        "relsize": 100,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "organ",
+            "t": 52.3,
+            "mat": "kidney",
+            "pain": 5,
+            "vasc": 8,
+            "name": "left kidney"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "spine_middle",
+        "name": "middle spine",
+        "parent": "torso_upper",
+        "relsize": 100,
+        "internal": true,
+        "spine": "middle",
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 12,
+            "name": "middle spine"
+          },
+          {
+            "tissue": "nerve",
+            "t": 12,
+            "pain": 0,
+            "vasc": 3,
+            "name": "spinal cord",
+            "functions": [
+              "cord"
+            ]
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "spine_lower",
+        "name": "lower spine",
+        "parent": "torso_lower",
+        "relsize": 100,
+        "internal": true,
+        "spine": "lower",
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 12,
+            "name": "lower spine"
+          },
+          {
+            "tissue": "nerve",
+            "t": 12,
+            "pain": 0,
+            "vasc": 3,
+            "name": "spinal cord",
+            "functions": [
+              "cord"
+            ]
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_true1_l",
+        "name": "first left true rib",
+        "parent": "torso_upper",
+        "relsize": 30,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "first left true rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_true2_l",
+        "name": "second left true rib",
+        "parent": "torso_upper",
+        "relsize": 30,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "second left true rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_true3_l",
+        "name": "third left true rib",
+        "parent": "torso_upper",
+        "relsize": 30,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "third left true rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_true4_l",
+        "name": "fourth left true rib",
+        "parent": "torso_upper",
+        "relsize": 30,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "fourth left true rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_true5_l",
+        "name": "fifth left true rib",
+        "parent": "torso_upper",
+        "relsize": 30,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "fifth left true rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_true6_l",
+        "name": "sixth left true rib",
+        "parent": "torso_upper",
+        "relsize": 30,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "sixth left true rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_true7_l",
+        "name": "seventh left true rib",
+        "parent": "torso_upper",
+        "relsize": 30,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "seventh left true rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_false1_l",
+        "name": "first left false rib",
+        "parent": "torso_upper",
+        "relsize": 30,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "first left false rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_false2_l",
+        "name": "second left false rib",
+        "parent": "torso_upper",
+        "relsize": 30,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "second left false rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_false3_l",
+        "name": "third left false rib",
+        "parent": "torso_upper",
+        "relsize": 30,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "third left false rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_floating1_l",
+        "name": "first left floating rib",
+        "parent": "torso_upper",
+        "relsize": 20,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "first left floating rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_floating2_l",
+        "name": "second left floating rib",
+        "parent": "torso_upper",
+        "relsize": 20,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "second left floating rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_true1_r",
+        "name": "first right true rib",
+        "parent": "torso_upper",
+        "relsize": 30,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "first right true rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_true2_r",
+        "name": "second right true rib",
+        "parent": "torso_upper",
+        "relsize": 30,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "second right true rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_true3_r",
+        "name": "third right true rib",
+        "parent": "torso_upper",
+        "relsize": 30,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "third right true rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_true4_r",
+        "name": "fourth right true rib",
+        "parent": "torso_upper",
+        "relsize": 30,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "fourth right true rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_true5_r",
+        "name": "fifth right true rib",
+        "parent": "torso_upper",
+        "relsize": 30,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "fifth right true rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_true6_r",
+        "name": "sixth right true rib",
+        "parent": "torso_upper",
+        "relsize": 30,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "sixth right true rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_true7_r",
+        "name": "seventh right true rib",
+        "parent": "torso_upper",
+        "relsize": 30,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "seventh right true rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_false1_r",
+        "name": "first right false rib",
+        "parent": "torso_upper",
+        "relsize": 30,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "first right false rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_false2_r",
+        "name": "second right false rib",
+        "parent": "torso_upper",
+        "relsize": 30,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "second right false rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_false3_r",
+        "name": "third right false rib",
+        "parent": "torso_upper",
+        "relsize": 30,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "third right false rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_floating1_r",
+        "name": "first right floating rib",
+        "parent": "torso_upper",
+        "relsize": 20,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "first right floating rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "rib_floating2_r",
+        "name": "second right floating rib",
+        "parent": "torso_upper",
+        "relsize": 20,
+        "internal": true,
+        "layers": [
+          {
+            "tissue": "bone",
+            "t": 10,
+            "name": "second right floating rib"
+          }
+        ],
+        "visual_region": "torso"
+      },
+      {
+        "id": "wing_upper_l",
+        "name": "wing upper l",
+        "parent": "torso_upper",
+        "relsize": 200,
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 2
+          },
+          {
+            "tissue": "fat",
+            "t": 3
+          },
+          {
+            "tissue": "muscle",
+            "t": 28,
+            "artery": 0.03
+          },
+          {
+            "tissue": "bone",
+            "t": 20
+          }
+        ],
+        "nerves": true,
+        "severable": true,
+        "functions": [],
+        "visual_region": "wing_upper_l"
+      },
+      {
+        "id": "wing_upper_r",
+        "name": "wing upper r",
+        "parent": "torso_upper",
+        "relsize": 200,
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 2
+          },
+          {
+            "tissue": "fat",
+            "t": 3
+          },
+          {
+            "tissue": "muscle",
+            "t": 28,
+            "artery": 0.03
+          },
+          {
+            "tissue": "bone",
+            "t": 20
+          }
+        ],
+        "nerves": true,
+        "severable": true,
+        "functions": [],
+        "visual_region": "wing_upper_r"
+      },
+      {
+        "id": "wing_lower_l",
+        "name": "wing lower l",
+        "parent": "wing_upper_l",
+        "relsize": 140,
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 2
+          },
+          {
+            "tissue": "muscle",
+            "t": 12,
+            "artery": 0.01
+          },
+          {
+            "tissue": "tendon",
+            "t": 3,
+            "name": "tendon",
+            "hit": 0.3,
+            "functions": []
+          },
+          {
+            "tissue": "bone",
+            "t": 16
+          }
+        ],
+        "nerves": true,
+        "severable": true,
+        "functions": [],
+        "visual_region": "wing_lower_l"
+      },
+      {
+        "id": "wing_lower_r",
+        "name": "wing lower r",
+        "parent": "wing_upper_r",
+        "relsize": 140,
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 2
+          },
+          {
+            "tissue": "muscle",
+            "t": 12,
+            "artery": 0.01
+          },
+          {
+            "tissue": "tendon",
+            "t": 3,
+            "name": "tendon",
+            "hit": 0.3,
+            "functions": []
+          },
+          {
+            "tissue": "bone",
+            "t": 16
+          }
+        ],
+        "nerves": true,
+        "severable": true,
+        "functions": [],
+        "visual_region": "wing_lower_r"
+      },
+      {
+        "id": "wing_tip_l",
+        "name": "wing tip l",
+        "parent": "wing_lower_l",
+        "relsize": 60,
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 2
+          },
+          {
+            "tissue": "muscle",
+            "t": 6
+          },
+          {
+            "tissue": "tendon",
+            "t": 2,
+            "name": "tendon",
+            "hit": 0.3,
+            "functions": []
+          },
+          {
+            "tissue": "bone",
+            "t": 10
+          }
+        ],
+        "nerves": true,
+        "severable": true,
+        "functions": [],
+        "visual_region": "wing_lower_l"
+      },
+      {
+        "id": "wing_tip_r",
+        "name": "wing tip r",
+        "parent": "wing_lower_r",
+        "relsize": 60,
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 2
+          },
+          {
+            "tissue": "muscle",
+            "t": 6
+          },
+          {
+            "tissue": "tendon",
+            "t": 2,
+            "name": "tendon",
+            "hit": 0.3,
+            "functions": []
+          },
+          {
+            "tissue": "bone",
+            "t": 10
+          }
+        ],
+        "nerves": true,
+        "severable": true,
+        "functions": [],
+        "visual_region": "wing_lower_r"
+      },
+      {
+        "id": "wing_digit1_l",
+        "name": "wing digit1 l",
+        "parent": "wing_tip_l",
+        "relsize": 5,
+        "severable": true,
+        "armor_as": "foot_front_l",
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 0.3
+          },
+          {
+            "tissue": "fat",
+            "t": 1.7
+          },
+          {
+            "tissue": "muscle",
+            "t": 8.6
+          },
+          {
+            "tissue": "bone",
+            "t": 8.6
+          }
+        ],
+        "functions": [],
+        "visual_region": "wing_lower_l"
+      },
+      {
+        "id": "wing_digit2_l",
+        "name": "wing digit2 l",
+        "parent": "wing_tip_l",
+        "relsize": 3,
+        "severable": true,
+        "armor_as": "foot_front_l",
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 0.3
+          },
+          {
+            "tissue": "fat",
+            "t": 1.5
+          },
+          {
+            "tissue": "muscle",
+            "t": 7.3
+          },
+          {
+            "tissue": "bone",
+            "t": 7.3
+          }
+        ],
+        "functions": [],
+        "visual_region": "wing_lower_l"
+      },
+      {
+        "id": "wing_digit3_l",
+        "name": "wing digit3 l",
+        "parent": "wing_tip_l",
+        "relsize": 3,
+        "severable": true,
+        "armor_as": "foot_front_l",
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 0.3
+          },
+          {
+            "tissue": "fat",
+            "t": 1.5
+          },
+          {
+            "tissue": "muscle",
+            "t": 7.3
+          },
+          {
+            "tissue": "bone",
+            "t": 7.3
+          }
+        ],
+        "functions": [],
+        "visual_region": "wing_lower_l"
+      },
+      {
+        "id": "wing_digit4_l",
+        "name": "wing digit4 l",
+        "parent": "wing_tip_l",
+        "relsize": 3,
+        "severable": true,
+        "armor_as": "foot_front_l",
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 0.3
+          },
+          {
+            "tissue": "fat",
+            "t": 1.5
+          },
+          {
+            "tissue": "muscle",
+            "t": 7.3
+          },
+          {
+            "tissue": "bone",
+            "t": 7.3
+          }
+        ],
+        "functions": [],
+        "visual_region": "wing_lower_l"
+      },
+      {
+        "id": "wing_digit5_l",
+        "name": "wing digit5 l",
+        "parent": "wing_tip_l",
+        "relsize": 2,
+        "severable": true,
+        "armor_as": "foot_front_l",
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 0.3
+          },
+          {
+            "tissue": "fat",
+            "t": 1.3
+          },
+          {
+            "tissue": "muscle",
+            "t": 6.3
+          },
+          {
+            "tissue": "bone",
+            "t": 6.3
+          }
+        ],
+        "functions": [],
+        "visual_region": "wing_lower_l"
+      },
+      {
+        "id": "wing_digit1_r",
+        "name": "wing digit1 r",
+        "parent": "wing_tip_r",
+        "relsize": 5,
+        "severable": true,
+        "armor_as": "foot_front_r",
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 0.3
+          },
+          {
+            "tissue": "fat",
+            "t": 1.7
+          },
+          {
+            "tissue": "muscle",
+            "t": 8.6
+          },
+          {
+            "tissue": "bone",
+            "t": 8.6
+          }
+        ],
+        "functions": [],
+        "visual_region": "wing_lower_r"
+      },
+      {
+        "id": "wing_digit2_r",
+        "name": "wing digit2 r",
+        "parent": "wing_tip_r",
+        "relsize": 3,
+        "severable": true,
+        "armor_as": "foot_front_r",
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 0.3
+          },
+          {
+            "tissue": "fat",
+            "t": 1.5
+          },
+          {
+            "tissue": "muscle",
+            "t": 7.3
+          },
+          {
+            "tissue": "bone",
+            "t": 7.3
+          }
+        ],
+        "functions": [],
+        "visual_region": "wing_lower_r"
+      },
+      {
+        "id": "wing_digit3_r",
+        "name": "wing digit3 r",
+        "parent": "wing_tip_r",
+        "relsize": 3,
+        "severable": true,
+        "armor_as": "foot_front_r",
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 0.3
+          },
+          {
+            "tissue": "fat",
+            "t": 1.5
+          },
+          {
+            "tissue": "muscle",
+            "t": 7.3
+          },
+          {
+            "tissue": "bone",
+            "t": 7.3
+          }
+        ],
+        "functions": [],
+        "visual_region": "wing_lower_r"
+      },
+      {
+        "id": "wing_digit4_r",
+        "name": "wing digit4 r",
+        "parent": "wing_tip_r",
+        "relsize": 3,
+        "severable": true,
+        "armor_as": "foot_front_r",
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 0.3
+          },
+          {
+            "tissue": "fat",
+            "t": 1.5
+          },
+          {
+            "tissue": "muscle",
+            "t": 7.3
+          },
+          {
+            "tissue": "bone",
+            "t": 7.3
+          }
+        ],
+        "functions": [],
+        "visual_region": "wing_lower_r"
+      },
+      {
+        "id": "wing_digit5_r",
+        "name": "wing digit5 r",
+        "parent": "wing_tip_r",
+        "relsize": 2,
+        "severable": true,
+        "armor_as": "foot_front_r",
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 0.3
+          },
+          {
+            "tissue": "fat",
+            "t": 1.3
+          },
+          {
+            "tissue": "muscle",
+            "t": 6.3
+          },
+          {
+            "tissue": "bone",
+            "t": 6.3
+          }
+        ],
+        "functions": [],
+        "visual_region": "wing_lower_r"
+      },
+      {
+        "id": "leg_upper_l",
+        "name": "hind leg upper l",
+        "parent": "torso_lower",
+        "relsize": 260,
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 2
+          },
+          {
+            "tissue": "fat",
+            "t": 5
+          },
+          {
+            "tissue": "muscle",
+            "t": 34,
+            "artery": 0.04
+          },
+          {
+            "tissue": "bone",
+            "t": 22
+          }
+        ],
+        "nerves": true,
+        "severable": true,
+        "functions": [
+          "stance"
+        ],
+        "visual_region": "leg_upper_l"
+      },
+      {
+        "id": "leg_upper_r",
+        "name": "hind leg upper r",
+        "parent": "torso_lower",
+        "relsize": 260,
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 2
+          },
+          {
+            "tissue": "fat",
+            "t": 5
+          },
+          {
+            "tissue": "muscle",
+            "t": 34,
+            "artery": 0.04
+          },
+          {
+            "tissue": "bone",
+            "t": 22
+          }
+        ],
+        "nerves": true,
+        "severable": true,
+        "functions": [
+          "stance"
+        ],
+        "visual_region": "leg_upper_r"
+      },
+      {
+        "id": "leg_lower_l",
+        "name": "hind leg lower l",
+        "parent": "leg_upper_l",
+        "relsize": 150,
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 2
+          },
+          {
+            "tissue": "muscle",
+            "t": 12,
+            "artery": 0.01
+          },
+          {
+            "tissue": "tendon",
+            "t": 4,
+            "name": "tendon",
+            "hit": 0.3,
+            "functions": [
+              "stance"
+            ]
+          },
+          {
+            "tissue": "bone",
+            "t": 16
+          }
+        ],
+        "nerves": true,
+        "severable": true,
+        "functions": [
+          "stance"
+        ],
+        "visual_region": "leg_lower_l"
+      },
+      {
+        "id": "leg_lower_r",
+        "name": "hind leg lower r",
+        "parent": "leg_upper_r",
+        "relsize": 150,
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 2
+          },
+          {
+            "tissue": "muscle",
+            "t": 12,
+            "artery": 0.01
+          },
+          {
+            "tissue": "tendon",
+            "t": 4,
+            "name": "tendon",
+            "hit": 0.3,
+            "functions": [
+              "stance"
+            ]
+          },
+          {
+            "tissue": "bone",
+            "t": 16
+          }
+        ],
+        "nerves": true,
+        "severable": true,
+        "functions": [
+          "stance"
+        ],
+        "visual_region": "leg_lower_r"
+      },
+      {
+        "id": "foot_l",
+        "name": "hind foot l",
+        "parent": "leg_lower_l",
+        "relsize": 60,
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 2
+          },
+          {
+            "tissue": "muscle",
+            "t": 6
+          },
+          {
+            "tissue": "tendon",
+            "t": 2,
+            "name": "tendon",
+            "hit": 0.3,
+            "functions": [
+              "stance"
+            ]
+          },
+          {
+            "tissue": "bone",
+            "t": 10
+          }
+        ],
+        "nerves": true,
+        "severable": true,
+        "functions": [
+          "stance"
+        ],
+        "visual_region": "foot_l"
+      },
+      {
+        "id": "foot_r",
+        "name": "hind foot r",
+        "parent": "leg_lower_r",
+        "relsize": 60,
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 2
+          },
+          {
+            "tissue": "muscle",
+            "t": 6
+          },
+          {
+            "tissue": "tendon",
+            "t": 2,
+            "name": "tendon",
+            "hit": 0.3,
+            "functions": [
+              "stance"
+            ]
+          },
+          {
+            "tissue": "bone",
+            "t": 10
+          }
+        ],
+        "nerves": true,
+        "severable": true,
+        "functions": [
+          "stance"
+        ],
+        "visual_region": "foot_r"
+      },
+      {
+        "id": "toe1_l",
+        "name": "hind toe1 l",
+        "parent": "foot_l",
+        "relsize": 5,
+        "severable": true,
+        "armor_as": "foot_rear_l",
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 0.3
+          },
+          {
+            "tissue": "fat",
+            "t": 1.7
+          },
+          {
+            "tissue": "muscle",
+            "t": 8.6
+          },
+          {
+            "tissue": "bone",
+            "t": 8.6
+          }
+        ],
+        "visual_region": "foot_l"
+      },
+      {
+        "id": "toe2_l",
+        "name": "hind toe2 l",
+        "parent": "foot_l",
+        "relsize": 3,
+        "severable": true,
+        "armor_as": "foot_rear_l",
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 0.3
+          },
+          {
+            "tissue": "fat",
+            "t": 1.5
+          },
+          {
+            "tissue": "muscle",
+            "t": 7.3
+          },
+          {
+            "tissue": "bone",
+            "t": 7.3
+          }
+        ],
+        "visual_region": "foot_l"
+      },
+      {
+        "id": "toe3_l",
+        "name": "hind toe3 l",
+        "parent": "foot_l",
+        "relsize": 3,
+        "severable": true,
+        "armor_as": "foot_rear_l",
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 0.3
+          },
+          {
+            "tissue": "fat",
+            "t": 1.5
+          },
+          {
+            "tissue": "muscle",
+            "t": 7.3
+          },
+          {
+            "tissue": "bone",
+            "t": 7.3
+          }
+        ],
+        "visual_region": "foot_l"
+      },
+      {
+        "id": "toe4_l",
+        "name": "hind toe4 l",
+        "parent": "foot_l",
+        "relsize": 3,
+        "severable": true,
+        "armor_as": "foot_rear_l",
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 0.3
+          },
+          {
+            "tissue": "fat",
+            "t": 1.5
+          },
+          {
+            "tissue": "muscle",
+            "t": 7.3
+          },
+          {
+            "tissue": "bone",
+            "t": 7.3
+          }
+        ],
+        "visual_region": "foot_l"
+      },
+      {
+        "id": "toe5_l",
+        "name": "hind toe5 l",
+        "parent": "foot_l",
+        "relsize": 2,
+        "severable": true,
+        "armor_as": "foot_rear_l",
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 0.3
+          },
+          {
+            "tissue": "fat",
+            "t": 1.3
+          },
+          {
+            "tissue": "muscle",
+            "t": 6.3
+          },
+          {
+            "tissue": "bone",
+            "t": 6.3
+          }
+        ],
+        "visual_region": "foot_l"
+      },
+      {
+        "id": "toe1_r",
+        "name": "hind toe1 r",
+        "parent": "foot_r",
+        "relsize": 5,
+        "severable": true,
+        "armor_as": "foot_rear_r",
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 0.3
+          },
+          {
+            "tissue": "fat",
+            "t": 1.7
+          },
+          {
+            "tissue": "muscle",
+            "t": 8.6
+          },
+          {
+            "tissue": "bone",
+            "t": 8.6
+          }
+        ],
+        "visual_region": "foot_r"
+      },
+      {
+        "id": "toe2_r",
+        "name": "hind toe2 r",
+        "parent": "foot_r",
+        "relsize": 3,
+        "severable": true,
+        "armor_as": "foot_rear_r",
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 0.3
+          },
+          {
+            "tissue": "fat",
+            "t": 1.5
+          },
+          {
+            "tissue": "muscle",
+            "t": 7.3
+          },
+          {
+            "tissue": "bone",
+            "t": 7.3
+          }
+        ],
+        "visual_region": "foot_r"
+      },
+      {
+        "id": "toe3_r",
+        "name": "hind toe3 r",
+        "parent": "foot_r",
+        "relsize": 3,
+        "severable": true,
+        "armor_as": "foot_rear_r",
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 0.3
+          },
+          {
+            "tissue": "fat",
+            "t": 1.5
+          },
+          {
+            "tissue": "muscle",
+            "t": 7.3
+          },
+          {
+            "tissue": "bone",
+            "t": 7.3
+          }
+        ],
+        "visual_region": "foot_r"
+      },
+      {
+        "id": "toe4_r",
+        "name": "hind toe4 r",
+        "parent": "foot_r",
+        "relsize": 3,
+        "severable": true,
+        "armor_as": "foot_rear_r",
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 0.3
+          },
+          {
+            "tissue": "fat",
+            "t": 1.5
+          },
+          {
+            "tissue": "muscle",
+            "t": 7.3
+          },
+          {
+            "tissue": "bone",
+            "t": 7.3
+          }
+        ],
+        "visual_region": "foot_r"
+      },
+      {
+        "id": "toe5_r",
+        "name": "hind toe5 r",
+        "parent": "foot_r",
+        "relsize": 2,
+        "severable": true,
+        "armor_as": "foot_rear_r",
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 0.3
+          },
+          {
+            "tissue": "fat",
+            "t": 1.3
+          },
+          {
+            "tissue": "muscle",
+            "t": 6.3
+          },
+          {
+            "tissue": "bone",
+            "t": 6.3
+          }
+        ],
+        "visual_region": "foot_r"
+      },
+      {
+        "id": "tail",
+        "name": "tail",
+        "parent": "torso_lower",
+        "relsize": 50,
+        "severable": true,
+        "layers": [
+          {
+            "pain": 1,
+            "tissue": "scale",
+            "vasc": 0.3,
+            "t": 3.0
+          },
+          {
+            "tissue": "skin",
+            "t": 2
+          },
+          {
+            "tissue": "muscle",
+            "t": 8
+          },
+          {
+            "tissue": "bone",
+            "t": 8
+          }
+        ],
+        "visual_region": "tail"
+      },
+      {
+        "visual_region": "jaw",
+        "no_coat": true,
+        "relsize": 95,
+        "name": "lower jaw",
+        "parent": "head",
+        "layers": [
+          {
+            "tissue": "skin",
+            "t": 2.0
+          },
+          {
+            "tissue": "muscle",
+            "t": 12.0
+          },
+          {
+            "tissue": "bone",
+            "name": "jaw bone",
+            "t": 10.0
+          },
+          {
+            "pain": 8,
+            "tissue": "tendon",
+            "vasc": 1.0,
+            "t": 1.5
+          }
+        ],
+        "nerves": true,
+        "severable": true,
+        "id": "jaw"
+      },
+      {
+        "visual_region": "wing_lower_l",
+        "name": "wing membrane l",
+        "severable": true,
+        "id": "wing_membrane_l",
+        "nerves": true,
+        "relsize": 500,
+        "layers": [
+          {
+            "tissue": "skin",
+            "vasc": 2.0,
+            "t": 1.3
+          },
+          {
+            "tissue": "muscle",
+            "t": 0.8
+          },
+          {
+            "pain": 8,
+            "tissue": "tendon",
+            "vasc": 1.0,
+            "t": 0.5
+          }
+        ],
+        "parent": "wing_lower_l"
+      },
+      {
+        "layers": [
+          {
+            "mat": "tooth",
+            "pain": 0,
+            "geometry_share": 1.0,
+            "tissue": "bone",
+            "vasc": 0,
+            "dragon_geometry": "claw_width_cm",
+            "t": 12.0,
+            "name": "claw",
+            "dragon_material": "claw"
+          }
+        ],
+        "name": "hind claw 1 l",
+        "severable": true,
+        "id": "claw1_l",
+        "visual_region": "foot_l",
+        "relsize": 3,
+        "parent": "toe1_l",
+        "no_coat": true
+      },
+      {
+        "layers": [
+          {
+            "mat": "tooth",
+            "pain": 0,
+            "geometry_share": 1.0,
+            "tissue": "bone",
+            "vasc": 0,
+            "dragon_geometry": "claw_width_cm",
+            "t": 12.0,
+            "name": "claw",
+            "dragon_material": "claw"
+          }
+        ],
+        "name": "hind claw 2 l",
+        "severable": true,
+        "id": "claw2_l",
+        "visual_region": "foot_l",
+        "relsize": 3,
+        "parent": "toe2_l",
+        "no_coat": true
+      },
+      {
+        "layers": [
+          {
+            "mat": "tooth",
+            "pain": 0,
+            "geometry_share": 1.0,
+            "tissue": "bone",
+            "vasc": 0,
+            "dragon_geometry": "claw_width_cm",
+            "t": 12.0,
+            "name": "claw",
+            "dragon_material": "claw"
+          }
+        ],
+        "name": "hind claw 3 l",
+        "severable": true,
+        "id": "claw3_l",
+        "visual_region": "foot_l",
+        "relsize": 3,
+        "parent": "toe3_l",
+        "no_coat": true
+      },
+      {
+        "layers": [
+          {
+            "mat": "tooth",
+            "pain": 0,
+            "geometry_share": 1.0,
+            "tissue": "bone",
+            "vasc": 0,
+            "dragon_geometry": "claw_width_cm",
+            "t": 12.0,
+            "name": "claw",
+            "dragon_material": "claw"
+          }
+        ],
+        "name": "hind claw 4 l",
+        "severable": true,
+        "id": "claw4_l",
+        "visual_region": "foot_l",
+        "relsize": 3,
+        "parent": "toe4_l",
+        "no_coat": true
+      },
+      {
+        "layers": [
+          {
+            "mat": "tooth",
+            "pain": 0,
+            "geometry_share": 1.0,
+            "tissue": "bone",
+            "vasc": 0,
+            "dragon_geometry": "claw_width_cm",
+            "t": 12.0,
+            "name": "claw",
+            "dragon_material": "claw"
+          }
+        ],
+        "name": "hind claw 5 l",
+        "severable": true,
+        "id": "claw5_l",
+        "visual_region": "foot_l",
+        "relsize": 3,
+        "parent": "toe5_l",
+        "no_coat": true
+      },
+      {
+        "visual_region": "wing_lower_r",
+        "name": "wing membrane r",
+        "severable": true,
+        "id": "wing_membrane_r",
+        "nerves": true,
+        "relsize": 500,
+        "layers": [
+          {
+            "tissue": "skin",
+            "vasc": 2.0,
+            "t": 1.3
+          },
+          {
+            "tissue": "muscle",
+            "t": 0.8
+          },
+          {
+            "pain": 8,
+            "tissue": "tendon",
+            "vasc": 1.0,
+            "t": 0.5
+          }
+        ],
+        "parent": "wing_lower_r"
+      },
+      {
+        "layers": [
+          {
+            "mat": "tooth",
+            "pain": 0,
+            "geometry_share": 1.0,
+            "tissue": "bone",
+            "vasc": 0,
+            "dragon_geometry": "claw_width_cm",
+            "t": 12.0,
+            "name": "claw",
+            "dragon_material": "claw"
+          }
+        ],
+        "name": "hind claw 1 r",
+        "severable": true,
+        "id": "claw1_r",
+        "visual_region": "foot_r",
+        "relsize": 3,
+        "parent": "toe1_r",
+        "no_coat": true
+      },
+      {
+        "layers": [
+          {
+            "mat": "tooth",
+            "pain": 0,
+            "geometry_share": 1.0,
+            "tissue": "bone",
+            "vasc": 0,
+            "dragon_geometry": "claw_width_cm",
+            "t": 12.0,
+            "name": "claw",
+            "dragon_material": "claw"
+          }
+        ],
+        "name": "hind claw 2 r",
+        "severable": true,
+        "id": "claw2_r",
+        "visual_region": "foot_r",
+        "relsize": 3,
+        "parent": "toe2_r",
+        "no_coat": true
+      },
+      {
+        "layers": [
+          {
+            "mat": "tooth",
+            "pain": 0,
+            "geometry_share": 1.0,
+            "tissue": "bone",
+            "vasc": 0,
+            "dragon_geometry": "claw_width_cm",
+            "t": 12.0,
+            "name": "claw",
+            "dragon_material": "claw"
+          }
+        ],
+        "name": "hind claw 3 r",
+        "severable": true,
+        "id": "claw3_r",
+        "visual_region": "foot_r",
+        "relsize": 3,
+        "parent": "toe3_r",
+        "no_coat": true
+      },
+      {
+        "layers": [
+          {
+            "mat": "tooth",
+            "pain": 0,
+            "geometry_share": 1.0,
+            "tissue": "bone",
+            "vasc": 0,
+            "dragon_geometry": "claw_width_cm",
+            "t": 12.0,
+            "name": "claw",
+            "dragon_material": "claw"
+          }
+        ],
+        "name": "hind claw 4 r",
+        "severable": true,
+        "id": "claw4_r",
+        "visual_region": "foot_r",
+        "relsize": 3,
+        "parent": "toe4_r",
+        "no_coat": true
+      },
+      {
+        "layers": [
+          {
+            "mat": "tooth",
+            "pain": 0,
+            "geometry_share": 1.0,
+            "tissue": "bone",
+            "vasc": 0,
+            "dragon_geometry": "claw_width_cm",
+            "t": 12.0,
+            "name": "claw",
+            "dragon_material": "claw"
+          }
+        ],
+        "name": "hind claw 5 r",
+        "severable": true,
+        "id": "claw5_r",
+        "visual_region": "foot_r",
+        "relsize": 3,
+        "parent": "toe5_r",
+        "no_coat": true
+      }
+    ]
+  },
+  "combat": {
+    "initial_belly": 60.0,
+    "maximum_reach_tiles": 3,
+    "healthy_care_floor": 0.0,
+    "reference_reach_m": 0.65,
+    "reach_jaw_lever_gain": 2.0,
+    "skills": {
+      "observer": 2,
+      "brawler": 2,
+      "dodger": 1,
+      "discipline": 2,
+      "fighter": 2
+    }
+  }
+}

@@ -1,0 +1,19 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ruby 384x384 26204 bytes
+sapphire 384x384 25260 bytes
+black_diamond 384x384 24246 bytes
+emerald 384x384 27842 bytes
+amethyst 384x384 24266 bytes
+opal 384x384 26248 bytes
+topaz 384x384 33342 bytes
+garnet 384x384 27154 bytes
+jade 384x384 25632 bytes
+aquamarine 384x384 26000 bytes
+citrine 384x384 27424 bytes
+moonstone 384x384 25030 bytes
+pearl 384x384 21374 bytes
+onyx 384x384 26978 bytes
+diamond 384x384 26868 bytes
+tourmaline 384x384 25460 bytes
+PASS: 16 compact portraits; total 419328 bytes

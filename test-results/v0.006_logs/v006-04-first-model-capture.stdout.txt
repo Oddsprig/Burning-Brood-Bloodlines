@@ -1,0 +1,4 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Six dragon body forms / two poses / exact-model close portraits: 18 native images captured.
+== res://tests/capture_models.gd: PASS ==

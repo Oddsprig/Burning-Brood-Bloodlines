@@ -1,0 +1,224 @@
+BURNING BROOD: BLOODLINES - CURRENT GAME HANDOFF
+Prepared 2026-10-14 | latest delivered game v0.022 | next planned pass v0.023
+
+START HERE / EXACT LOCATIONS
+Editable project root (P):
+C:\Users\bligh\Documents\Codex\2026-10-10\you\outputs\Burning_Brood_Bloodlines
+The ONE live game source is P\game. Open P\game\project.godot in Godot.
+Do not develop in a Desktop install, old output, work candidate or Copper Oath.
+
+Latest playable installed game:
+C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.022
+Actual Desktop shortcut:
+C:\Users\bligh\Desktop\Burning Brood Bloodlines v0.022.lnk
+Launch_Bloodlines.cmd / Launch_Bloodlines.ps1 live in the release ROOT beside
+game/ and runtime/, not inside game/. The versioned shortcut uses Bloodlines.ico.
+
+Engine: Godot 4.7.2.stable.official.ed1daf0bf, GDScript, GL compatibility renderer.
+Bundled executable: P\runtime\Godot_v4.7.2-stable_win64.exe
+Project autoloads: DB, Game, Perf. Custom user-data name: Burning Brood Bloodlines.
+Git branch: dev/burning-brood. Original fork: Copper Oath v0.046; current humanoid
+art is imported from RELEASED Copper Oath v0.053. Never modify/launch Copper Oath.
+
+Workspace (W): C:\Users\bligh\Documents\Codex\2026-10-10\you
+W\work contains private candidates, verification tools, worlds and screenshots.
+It is scratch/evidence, not another editable game. Avoid reading all of it.
+
+READ ORDER - KEEP STARTUP CONTEXT SMALL
+1. This HANDOFF.txt, then AGENTS.md for persistent user rules.
+2. START_HERE.txt for actual controls, playable features and current limits.
+3. docs/ROADMAP.txt: current status and v023-v028, plus performance contract.
+4. docs/DEV_NOTES.txt: delivered22, native identity boundaries and failure lessons.
+5. docs/FOLDER_PLAN.txt and the relevant docs/specialists/*.txt role brief.
+6. test-results/v0.022_2026-10-12_results.txt and its desktop/package TXT receipts.
+7. Read only relevant code/specs/tests listed below. Original handoff is immutable
+   reference under docs/handoff/original/; old history is not current instruction.
+
+CURRENT STATE / WHAT IS FINISHED
+20,21,22 were completed sequentially with separate packages/Desktop folders/icons.
+20: salvage goes to an actual nearest economy market; its actual owned till pays
+   per whole piece. Unpaid exact Items stay owned. Receipts identify buyer/payment/
+   inventory or metal stock plus fractional residue. Same path for AI/camp loot.
+21: an actual eligible local adult tracked person forms one reviewed rider bond.
+   Exact household authority, persistent IDs, death/release history and current
+   save/load; no imaginary rider, generated Unit, free equipment or army funds.
+22: original dragons own persistent native combat bodies and fight automatically
+   alongside existing units through the SAME BattleSim physical calculations.
+   Individual mass/strength/size/tooth-claw geometry/gem material affect attacks.
+   Wounds, blood, lost parts and deaths stay on the same original dragon body.
+   Reviewed defend-home order defaults OFF. A healthy adult dragon, valid present
+   rider and actual owner-home/party co-location are required for admission.
+   No remote summon/following. Eggs are not combatants. Mounted actual-person
+   battle presentation/targeting is NOT implemented in22; that is23. Breath is24.
+
+Retained: funded, initially UNRAISED armies; real population/pay/food/kit; local
+settlement-map -> tracked house -> Customize -> Review -> Begin selection;
+readable records/fonts; House -> Laws; lower-left real ruler portrait; both-side
+officer rally; compact expandable results; complete paused/end combat logs with
+character filtering and bounded pages. Automatic slow motion defaults OFF in
+Esc/Settings -> Gameplay. Background monsters remain suspended.
+
+RELEASE BASELINE / EVIDENCE
+v022 source commit: daed55489fe7115c40669310f3f6f29fb0400f21
+v022 delivery commit: 4d29328e17944421a8314457bfe9e606c4ff6f71
+This handoff pass changes documentation only; no v023 gameplay work has started.
+Released files/receipts remain immutable. Editable notes now postdate that release;
+do not overwrite its manifests/ZIP or reinstall22 from a documentation-edited tree.
+Use its existing Desktop install or exact released ZIP if the old build is needed.
+ZIP: P\releases\Burning_Brood_Bloodlines_v0.022_Windows.zip
+SHA256: 220d30cb7b8669fac9fa347d101098fb4d49271cd7d4313724b911737f8780b8
+107,967,267 bytes;2,781 ZIP entries;2,780 installed payload files+10 receipts.
+Source manifest: releases/v0.022_SOURCE_MANIFEST.json; game1057files/489uniqueUIDs.
+Manifest SHA256: 8ac1837ac829e62308a93641846593bf0a79473825c14cbc76c660526133acc7
+All481previous UIDs,101previous art/data files and20released v053model files kept.
+Release manifest and proof: releases/v0.022_RELEASE_MANIFEST.json and
+releases/verification/v0.022/{desktop-readback,cold-readback,package-readback,
+previous-desktop-readback,independent-release-audit}.json.
+2026-10-14 read-only recheck:20/21/22 ZIP hashes and installed release manifests
+match receipts;19-22 folders/icons are present;22 shortcut properties match.
+This is a file/delivery recheck, not new engine/gameplay testing.
+
+PERFORMANCE / KNOWN LIMITS - DO NOT CLAIM LEAK FREEDOM
+Oct12 v022 evidence:538checks/0failures,19render gates; actual native Windows GPU
+frames at2560x1440. Map18s/two midnights:58.21FPS,p95 27.432ms,worst116.011ms.
+Dense battle:200humanoids+1dragon PER SIDE,402total;18s,37.16FPS,p95 38.641ms,
+worst51.622ms,zero>150ms. Full journal16,695records/zero dropped.
+Seven actual paused-log actions:max91.514ms through two drawn frames.
+Fresh Normal/seed777/exact1history-day world:actual dragon:777:1, rider
+person:777:t21:1, Unit8785 at t21. Eight funded actual residents vs genuine100enemy
+band; staged contact69native ticks/5dragon attacks, then actual finish/log/map/
+current disk save/load. This bounded fixture is not a full-war FPS benchmark.
+Ordinary native96tick/37strike control exactly matches released21 fixture state.
+Cold bundled PrepareOnly12.915s/main8.898s passed. Generation is about25.6s.
+60FPS in dense combat, long-session behavior and expensive save-capture simulation
+holds remain debt. About6.16MiB short map allocation growth is not proof of a leak.
+See docs/specs/PERFORMANCE_RECOVERY_PLAN.txt and dated results before changes.
+
+NEXT VERSION PASSES - EACH SMALL, REVIEWABLE AND DELIVERED SEPARATELY
+23 MOUNTED ACTUAL CHARACTER / NATIVE RIDER INJURY
+  Scope: display the real bonded person's native race/gender/look/equipment at
+  the original source-matched saddle handles, together with the dragon. Preserve
+  actual rider and dragon bodies/identities through native targeting/injury/death.
+  Audit how a real tracked person's physical Unit is obtained before adding any
+  adapter; do not use Factory stand-ins or duplicate a person/fighter/population.
+  Acceptance: original humanoid look/helm/weapon visible; saddle contact/mirroring/
+  scale/source proportions correct; both identities get correct native outcomes;
+  one aftermath/accounting path, correct logs/bond death handling, current save/
+  map return. Rider must not also appear as a second walking/paid/population copy.
+  Keep existing home-defence gate; breath/deployment/gait conversion stay deferred.
+24 BREATH
+  One automatic native material/tissue attack with real recovery limits and
+  friendly-fire risk. Actual outcomes in the journal; no separate damage engine.
+  Acceptance: counted native wounds/deaths and recovery; defer more breath types.
+25 CAMPAIGN DEPLOYMENT
+  One bonded dragon physically joins/moves with a genuine force; real feed/supply
+  costs, location/custody and first bounded AI decision. No remote teleportation.
+26 RAID
+  One action with real participants and counted property/supply/population losses;
+  accountable outcomes once. Defer siege and general economy expansion.
+27 SIEGE
+  One native dragon siege contribution with actual defenders and losses;
+  defer a general siege-system rewrite.
+28 FEUDAL CONSEQUENCES
+  Recorded dragon-war fear/grievance/loyalty/defection affects actual allegiance/
+  offices once. Defer a vague court/marriage bundle.
+Performance and a good game outrank feature volume. Insert a measured repair if
+the next scope cannot meet the current recovery gate; never hide native work.
+This request prepares the handoff; it does not start any of23-28.
+
+IMPORTANT CODE - RESOLVE RELATIVE PATHS AGAINST P
+game/campaign/dragons.gd: actual records/owners/custody/gem physical profiles.
+game/campaign/dragon_bond.gd: real-person identity, eligibility, reviewed commands.
+game/campaign/dragon_combat.gd: persistent actual combat holders, native peractor
+  profile, admission receipts, outcome reconciliation, visual-state reader.
+  world.dragons.combat_units[dragon_uid] owns the original Unit/BodyState;
+  row.combat_unit_uid and Unit.dragon_uid link it. Dead holders stay saved, never
+  regenerate/resurrect. Reads/reviews do not heal, allocate people or consume RNG.
+  APIs: participation_preview, participation_order, battle_units, admission_receipt,
+  on_battle_result, is_dragon_unit, visual_state, after_load, uid_floor.
+game/data/dragon_combat.json: native125part wyvern plan. Two hind stance chains;
+  wings are forelimbs, not extra walking legs. Do not mutate shared race profiles.
+game/campaign/dragon_care.gd and dragon_growth.gd: scheduled actual-day care and
+  organic growth. Preserve permanent wounds/blood fraction; no reader/load heal.
+game/core/game.gd: start_battle/finish_battle/current native save_game and UID floors.
+game/campaign/world.gd: fresh setup/load and real human accounting exclusions.
+game/battle/battle.gd: original player dragon_units admission, result/map lifecycle.
+  pending_battle.dragon_admission is validated/applied once. Do not put dragons
+  into Game.company or human census/loot/payroll. Existing finish repeat guard stays.
+game/sim/{fighter,battle_sim,natural_attacks,combat_journal}.gd and
+game/core/{unit,body_state}.gd: native physical combat/body/immutable outcome log.
+game/battle/{unit_view,dragon_view,combat_log}.gd: actual battle actors/render/log.
+game/art/{paperdoll,figure_painter,mounted_rider_art,dragon_mount_preview_art,
+  dragon_rig_art,dragon_damage_art,dragon_sprite_catalog}.gd: existing artwork/
+  seated human/source anchors. Mount preview is illustrative, not a real bond or
+  mounted battle actor. Humanoids use code-drawn layered cached sprite frames;
+  dragons use original source layers/head/jaw poses. No Skeleton2D rig conversion.
+game/ui/dragons.gd: actual House -> Dragons roster/bond/defence UI.
+game/campaign/{persons,dynasty,mobilization,feudal,salvage,house_onboarding}.gd:
+  real person/household rights, population/army and owned-account integration.
+
+LOCKED GAME / ART CONTRACT
+Original setting with CK3/AGOT-style feudal dynasty/economy/army; native DF-style
+material/tissue/size/force/contact/armour/wound/blood/morale/death calculations.
+Battles are AUTOBATTLES on the EXISTING battlemap. No flight/takeoff/landing/
+altitude simulation, manual tactical control, player mount/dismount system or
+second combat resolver. Full flight or articulated gait conversion is unnecessary.
+Human/dwarf male-preference primogeniture with daughters as fallback; elves use
+eldest child; orcs keep native rules. Succession presentation belongs under Laws.
+Every settlement belongs to its faction's lord/liege/sovereign hierarchy, with
+loyalty/intrigue/defection. Common-folk race/work/wealth pools are the majority;
+10-20 tracked families per town own businesses/land/herds. Private pooled wealth
+pays actual local tax/tribute; house/city/realm/army accounts remain separate.
+100-200-person armies draw real manpower/kit/food once; no raised/free army at start.
+Bronze unlock recycles counted copper/tin and replaces new copper/tin gear output.
+Retain exact RELEASED v053 models for ALL humanoid races/genders, hair/beards,
+helmets/armour and weapons including Moon glaive. Inventory:
+docs/specs/MODEL_IMPORT_v0.007.json. Do not infer sameness from duplicate filenames.
+Dragons are scaled/skinned animals, not gem statues. Egg/type names (Ruby, Sapphire,
+Black Diamond, etc.) differ from personal names. Horns/teeth/claws follow gem
+colour, including SAPPHIRE BLUE horns. Hardness
+does not replace size/strength/force/geometry/fracture. Keep source scale/positions:
+body retains original wings/legs/tail; head/upper-neck and jaw are moving cuts.
+Mangled limbs stay attached/bloody; neck separation removes head; tiny teeth/claw
+chips may fly off. Rider holds SADDLE HANDLES; no rope/bridle to head or neck.
+Concept portrait fang/colour cleanup is explicitly DEFERRED. No new artwork/images
+in chat needed. Preserve original art before any later authorized replacement.
+Both phone orientations remain a foundation; export/touch QA is much later.
+
+VERIFICATION / HELPERS / DELIVERY
+Retain specialized GPT-6.1 Sol/high implementation roles: combat_dragons,
+interface_release, dynasty_economy, population_economy. Briefs:docs/specialists/.
+Use GPT-6 Luna/low bounded_qa for EXACT assigned checks; do not let QA expand scope
+or implement fixes. Reuse available agents; briefs are durable if a new chat cannot
+access old helpers. Root integrates and owns delivery; one engine run at a time.
+Run short private hidden/no-focus BelowNormal checks, fresh Normal/EXACT1day
+worlds, actual native-size Windows renders and screenshots. No foreground/input,
+player saves, old-save compatibility, broad reruns, long soak or routine phone QA.
+Tests are RefCounted.run(tree); launch game/tests/runner.tscn with
+-- --test=res://tests/<file>.gd --watchdog=<seconds>. Autoloads make direct -s wrong.
+Recent tests: test_dragon_{combat,view,combat_ui}_v022.gd,
+diag_dragon_{control,render,world}_v022.gd. v021 bond tests remain separate.
+Reusable PRIVATE helpers under W\work: run-v022-bounded.ps1, verify-v022-cold.ps1,
+collect-v022-cold.ps1, finalize-v022-source.ps1, package-bloodlines-v022.ps1,
+verify-v022-previous-desktop.ps1, finalize-v022-delivery.ps1 and
+v022-desktop-install/verify-shell-icon.ps1. Inspect/adapt to a NEW version/run name;
+never run old finalizers over immutable22 artifacts. Wait for full completion.
+Preserve every .gd.uid and source-matched dragon .png.import exception. Freeze
+source exact bytes and fresh cold copy before packaging. Full logs override a
+partial PASS summary. Selected current evidence and failed preparatory runs must
+remain separate; test-results/v0.022_preparatory/ documents rejected attempts.
+GPU lesson: legacy per-pixel dragon blood rebuild caused2s stalls. Current
+DragonView retains3source layers/<=15owned-alpha GPU masks and64pose models.
+Changing blood must not rebuild the raster/cache. Keep source scale/culling/head
+cut correct. Native formula_scale applies ONCE; never rescale profile momentum.
+Full402Unit QA fingerprints themselves take~100ms: time observers separately AND
+gate actual UI/draw stalls; never trim simulation, units or damage to pass FPS.
+Every new version needs its own actual Desktop folder + branded .lnk using
+Bloodlines.ico,0, verified ZIP/source/install hashes and real shell icon. Preserve
+currently installed19/20/21/22. Older10-18 were absent; do not recreate or claim
+current checks. A ZIP alone is incomplete. Desktop filesystem grants from an old
+turn may not persist: stage/verify first and use real current tool permissions.
+Keep TXT roadmap/dev notes/folder plan and dated TXT tests. No second source tree,
+population/coin system or speculative rewrite. No caches/work/Git/player saves in
+packages. Existing releases/runtime are ignored by Git; add required new release
+proof explicitly when committing, without rewriting older manifests.

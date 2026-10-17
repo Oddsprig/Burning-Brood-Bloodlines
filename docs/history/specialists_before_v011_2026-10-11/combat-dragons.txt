@@ -1,0 +1,161 @@
+COMBAT / DRAGONS SPECIALIST - Burning Brood: Bloodlines
+2026-10-11 CURRENT PLAN / READ-ONLY FINDINGS
+v010:all actor visual updates fall outside step/presentation labels; measure full
+frame/spec/raster/upload/cache costs and coalesce dirty actors after native ticks.
+v014:BattleSim army caps8192 events/512 per fighter; CombatText renders actual
+recorded outcomes deterministically. Pause/end log is paged and reading is pure.
+Never call battle.build_result for inspection:it removes arrows/applies growth.
+v015:stand-down must restore company-out resident counts and living Person links;
+current roster dismissal plus Persons sweep can falsely record survivor deaths.
+Unexplained starting100 troops/75000 army coins/8640 daily pay is rejected.
+Default field army should not auto-raise on house selection. Later scope must
+review troop/kit/coin origins and separate garrison/service from mobilization.
+Battle screenshot:1x/92 vs150 at2FPS; overall call mean728.32ms, Battle calculations
+mean1.62ms. Full rendered battle profiling remains pending; preserve native combat.
+Dragon bonds/body/rider combat now v017/v018/v019, after recovery gates.
+Details:specs/PERFORMANCE_RECOVERY_PLAN.txt. No engine/tests ran for this plan.
+v010 now verified:coalesced per-actor dirty state, quantized reuse and camera-gated
+raster keep offscreen logical state current. Full frame and separate FX/gore/arrow
+CPU labels expose costs. Four bounded native raster workers preserve actual art.
+25adjacent visual/native checks and66full-state checks pass; actual dense200/200
+melee33.19FPS/p9541.38ms; native attack/body/gear/blood/RNG remain intact.
+Native DB definitions are startup-only/immutable while workers run. Exit drains.
+Queue review found/fixed stale-frame starvation by rotating serviced timestamps.
+
+v0.009 CURRENT LEARNING
+Ruler signal bursts coalesce4Hz; explicit refresh remains immediate and detached
+cards disconnect. Per-call creature checks read each race once, no stale globals.
+Fresh Normal/one-day control and budgeted native day matched the full state SHA,
+207 ordered jobs, RNG and Unit/Item counters. No prior-release save import.
+
+Role: native combat, army/service reconciliation and later dragon/rider extensions.
+Updated: 2026-10-10 | v0.008 care/growth; retain GPT-6.1 Sol/high role.
+
+v0.008 CURRENT LEARNING
+DragonGrowth is a pure base-metric/record helper: growth_points0..4 interpolates
+the authored five sizes; original morph/seed factors apply once in Dragons.
+Full band20 native years/2400days; nutrition/care>=.8,health>=.5, Colossal cap.
+No age catchup, Unit/material mutation or battle resolver; eggs/dead never grow.
+DragonCare applies real once-per-job-day supplies/condition; physique strength
+factor(.4+.6*health), gem hardness/material unchanged. Native combat body nowv018.
+Root69 growth and279 identity/profile checks passed. Prior size fixtures must
+change growth_points with the derived size_class; label-only changes are stale.
+All art/data files and prior UID bytes unchanged. No engine from specialist.
+
+v0.007 CURRENT LEARNING
+All humanoid FigurePainter/race/weapon/icon art uses exact released Copper v053.
+Native dimensions/rig/frame timing/private mounted APIs are retained. Dwarf's
+visual head factor0.79 has matching head/neck wound mapping. Original/Refined
+women, both Orc forms, all hair and eight beard styles use saved optional look
+keys with independent deterministic seed defaults. Preserve original UID bytes.
+Moon glaive old polearm DATA was a missing dependency despite matching WeaponArt:
+released onehand axe-class crescent uses reach70,len.45,bal.10,gyr.24, native
+mass/attacks and glaive-dancer axe skill. Actual free left hand grips saddle.
+Closed helmet is native added armor with actual face/tooth coverage, and appears
+once in common metal smith pools. No other existing gear rebalance. Foreign
+helmet wearers retain maker style. Root ran native part/portrait/mounted tests.
+Legacy test_ui_outfit creates a full campaign and timed out at50s; never call it
+a pass. New test_humanoid_equipment covers its native cases with four Units plus
+actual glaive/closed-helm strike, without world generation. Root owns runs.
+Full current source/result/Desktop receipts: v007 dated TXT files.
+
+v0.006 CURRENT LEARNING
+DragonDamageArt consumes copied native lost/dmg/wk/bleed/blood for PREVIEW ONLY.
+Fifteen source-coordinate anatomical masks attach to body/head/jaw owners.
+Mangled wings/legs remain attached; only head/neck separation hides head+jaw.
+Neck flesh/blood lip follows every segment of the actual source cut line.
+Blood uses deep crimson irregular source-cell pools and unsigned avalanche
+hashes: linear hashes made visible stripes; brown palette read as rusty recolour.
+Clip stains to owned nontransparent animal pixels. Per-mark seed hashes and
+build-local bounded noise caches preserve exact original interpolation; scratch
+mask inverse is reused. Root checks cached/uncached equality at seed/cell edges.
+Tiny tooth/claw-tip fragments only; deterministic preview progress, no RNG/body
+or equipment mutation. No whole wing/leg/jaw detachment or new combat resolver.
+MountedRiderArt reads an ACTUAL equipped Unit through native FigurePainter:
+native 24-unit person, seated knees/stirrups, far/saddle/near depth and free-hand
+saddle handles. Equipped hands retain gear. No head/neck rope or dummy Unit.
+Native battle binding moves to v018, rider combat v019. Art damage is a display
+adapter, never a substitute for material/tissue/body-part battle calculations.
+Root: mounted-unit 311, damage 126 and mount-fit 246 checks passed; actual native
+visual evidence and final delivery live in v006 dated TXT results.
+
+v0.005 CURRENT LEARNING
+campaign/dragons.gd + data/dragons.json: plain world.dragons schema1, counter and
+individual records. Wyvern anatomy: two hind legs, two wing forelimbs, no front
+legs. Six original builds/five size classes/16 gem palettes; Ruby/Sapphire/Black
+Diamond Egg names. Gem type sets tooth/claw hardness. Personal names differ from gem Dragon types.
+Size/mass/STR/bite force and tooth/claw geometry are independent pure profiles.
+Reuse Formulas.torque/natural_swing; unscaled inputs vs rest estimates distinct.
+Native materials use yield/fracture/strain/edge; no Mohs stress conversion.
+Calibration:docs/specs/DRAGON_PHYSICS_v0.005.txt. No battle bodies enabled yet.
+Future per-individual gem attacks must avoid the shared per-race material cache.
+Initialize once in World.presim_finish after Feudal.finish; load never generates
+missing identities. Native parent pair per valid faction seat, egg per ruling seat.
+Pure copy readers; local RNG-independent appearance hash, no Unit/Item/pop/coin.
+Reviewed gifts change true owner; keeper/location/empty rider stay independent.
+Custody requires current present resident state('',hire,reserve), not home-town
+registration for absent military people. Departure/death clears custody once.
+Owner death uses Dynasty.asset_heirs(recorded owner/house), never current-office
+usurper. Extinct ownership is unclaimed with retained history; no replacement.
+Native cultural/household/moved refs and trimmed-dead kin retained. History<=32.
+people() traverses actual native rows once; commands revalidate true identities.
+Backend is state-only; DragonsView emits changed/save once for successful orders.
+Primary:160 identity checks,29 asset/kin checks,32 prior succession checks clean;
+full native campaign/save180 checks. No specialist engines. Care/bonds/combat later.
+Explicit Dictionary type required for squads fixture and Variant dictionary reads.
+Dictionary.merge defaults to preserving old keys; active:false overlay requires
+merge(...,true). Attempt15 caught it; root fix/final24:279checks clean.
+
+ENTRY POINTS (relative to game/)
+core/game.gd: SCREENS, is_game_over, start_battle, finish_battle.
+battle/battle.gd: battle_opts, playback/skip, build_result; inspector.gd: bounded logs.
+sim/battle_sim.gd: setup, formation_grid, padded_tiles, step, result_events.
+campaign/world.gd: generation, field_target, supported_field_count, resident troops,
+native muster, movement/clashes, engage, on_battle_result.
+campaign/monsters.gd: campaign gates; lairs/map_sites/herd_raids/militia/contracts.
+campaign/army.gd: enlisted native roll, wages, stores, casualties and service reconciliation.
+people.gd/persons.gd: registered UnitUID; dynasty.gd: founding-house survival.
+
+INVARIANTS
+Use actual people, native household/house identity, UnitUID and original persistent bodies.
+Keep markets, wages, supplies, kit, loot, casualty ledgers and service records native.
+Tactical BattleSim retains DF-style material/tissue/body/wound/blood-loss calculations.
+No second tactical resolver, synthetic army people or dragon mechanics claimed.
+
+v0.001 LIFECYCLE / VERIFIED LEARNING
+Selected campaigns end only on native founding-lineage extinction after reconciliation.
+Troop wipe or ruler death with living relatives remains playable; onboarding stays safe.
+Standalone world={} keeps inherited troop-loss fallback; no invented successor.
+Native registered UnitUID precedes casualty names; repeats cannot remove a namesake.
+Gameover waits for async writes; deletes only the truly ended campaign save.
+Primary: 26 defeat/identity checks PASS, 2.545 s; native physics duel PASS, 2.354 s.
+Primary: normal 23-town save/load PASS. These are v0.001 evidence only.
+
+v0.002 IMPLEMENTED / AWAITING PRIMARY CHECKS
+Field requests: normal 100, large 150, huge 200; replacements +25/week, maximum 200.
+Requests shrink to native eligible pool/spare; Army draft still prunes unsupported Units.
+Campaign raising checks real pay plus three-day meals; half home food stock stays local.
+Native Supplies/kit purchasing retained; caravan escort counts unchanged.
+Initial creation batches three Units/generation part; primary owns Army.init draft batching.
+Inherited opening kit/stores remain the explicitly retained prehistory policy.
+Native home culture selects body/troop style independently political allegiance.
+Army fields expand to 80x44; central explicit terrain survives padding; no Unit truncation.
+Distinct deployment cells; capacity expands for additional allied Units.
+History bounded at 8192 events/512 log entries per fighter; latest learning retained.
+Playback/large skip limit tick work per frame; one native tick cannot be interrupted.
+Creature lairs/packs/spawning/jobs/movement/encounters/clashes/contracts/map sites paused.
+Human camps/outlaws/militia and human/goblin/orc conventional factions remain enabled.
+Primary coordinates core/map/tracks/WarAI gates outside specialist ownership.
+Focused test_army_scale_monster_pause authored; no specialist engine runs.
+Full 100-200 battles/performance and broad suites remain unrun.
+Inherited OFFSCREEN clashes/militia use power probabilities; tactical physiology unchanged.
+Future dragons extend Creatures/BodyState/NaturalAttacks/BattleSim/Fighter.unit and service.
+
+2026-10-11 ROADMAP REVISION ONLY - GAMEPLAY WORK ON HOLD
+Current numbering:slow-motion default OFF v013, summary v014, full/individual
+log v015, real officer rally on both sides v016. Complete fight access supersedes
+silent8192/512-history dropping for the new log:capture before truncation, bounded
+memory and paged/chunked storage. Reading never calls mutating build_result.
+Officer support follows actual command identity and living/engaged state; no
+healing/resurrection or every-pair scans. Dragon bonds/body/rider v021/v022/v023.
+Existing native bodies/art/RNG fidelity remain the baseline. No new engine run.

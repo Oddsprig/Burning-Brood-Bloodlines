@@ -1,0 +1,40 @@
+BURNING BROOD: BLOODLINES v0.008 - ACTUAL DESKTOP DELIVERY
+Date: 2026-10-11 | Result: PASS
+Source code checkpoint: 2f49ac7e5f4b8fd39649aeed930eecd97cbb0c78
+Desktop folder: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.008
+Desktop shortcut: C:\Users\bligh\Desktop\Burning Brood Bloodlines v0.008.lnk
+Shortcut target: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+Shortcut arguments: -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.008\Launch_Bloodlines.ps1"
+Working directory: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.008
+Branded icon: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.008\Bloodlines.ico,0
+Branded icon SHA256: d1ef199206f031d650bb086846c3ceab34b9217ce09e5a8b07022a6553e42438
+Actual Windows shell icon PNG SHA256: 7de91d3f81c8808019a029b26e30c0a30f4db727d84dca5c6b64e4ed44da6467
+The extracted shell icon is byte-exact to the previously visually reviewed
+green dragon/crown brand with the normal Windows shortcut arrow.
+
+All 1713 installed payload files passed exact length/SHA256 readback.
+Installed release manifest matches source: d364e775bdd9933deb34e3566cc8d938aa9cdf3322d4163480498883e7750807
+Final ZIP SHA256: aea7f09a72a5b6b7e3d2d6f281f24387d121416b336a9f838d12f6b88c492c86
+Final ZIP bytes: 105403236; entries: 1714.
+Previous Desktop folders retained: v0.002, v0.003, v0.004, v0.005, v0.006, v0.007.
+Their manifest, shortcut and icon bytes match the pre-install snapshot.
+Previous v0.007 and v0.006 Windows ZIPs are unchanged.
+
+Dragon care consumes real market meat and wood, charges the actual owning
+household, and records payments, shortages, health recovery and neglect.
+Fed, cared-for dragons grow in mass, strength and tooth/claw dimensions;
+gem hardness remains fixed. The care panel and native save/load preserve this.
+All 101 prior art/data files and all21 released v053 model files are unchanged.
+All 411 prior UID files remain byte-exact; 417 current unique UIDs.
+Earlier focused verification:664 assertions and six desktop1280x720 fit cases.
+Actual queued care in the23-town saved campaign:37holdings,32supplied and
+5interrupted; care receipts preserved by a full native save/load.
+Fresh bundled preparation and finite actual main-scene checks passed against
+these same906 game files. The broader full economy-day attempt timed out at
+50.029s and remains unverified; complete diagnostics are retained in TXT/logs.
+
+No interactive game was launched during Desktop delivery. No mouse, keyboard,
+foreground, player save, Copper Oath source or older installed game was changed.
+No phone, long-balance, full-day, hatching, bonds or tactical-combat pass claimed.
+Five post-package delivery receipts are copied to the Desktop as supplemental
+files outside the self-hashed release payload and compared by length/SHA256.

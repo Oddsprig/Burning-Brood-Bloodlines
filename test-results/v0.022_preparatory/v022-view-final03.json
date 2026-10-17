@@ -1,0 +1,24 @@
+{
+  "Run": "v022-view-final03",
+  "Arguments": [
+    "--position",
+    "-20000,-20000",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v022-candidate-final03\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_dragon_view_v022.gd",
+    "--watchdog=45"
+  ],
+  "Project": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v022-candidate-final03\\game",
+  "Engine": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\outputs\\Burning_Brood_Bloodlines\\runtime\\Godot_v4.7.2-stable_win64.exe",
+  "DataRoot": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\isolated-engine-data\\v022-view-final03",
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 9.546,
+  "BelowNormal": true,
+  "Headless": false,
+  "NoFocusProjectSetting": true,
+  "HiddenLaunch": true,
+  "Result": "PASS"
+}

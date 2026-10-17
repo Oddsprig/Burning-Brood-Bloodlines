@@ -1,0 +1,36 @@
+# Burning Brood: Bloodlines (Claude Edition) - cloud handoff
+
+Current version: **v0.032** (in-game label `0.032-claude`, game/project.godot `config/version`).
+This repository is a single snapshot of v0.032; the full local history stays on the user's PC.
+
+## Version numbering (follow exactly)
+- The roadmap is `docs/ROADMAP.txt`. One feature per version, steps of 0.001 (v0.033, v0.034, ...).
+- No 1.x or other labels. Never change a version number or the in-game label unless the user says so.
+- When a version is done and its tests pass: commit it and set `config/version` to `0.0NN-claude`.
+
+## What each Claude Edition version added
+- v0.023 mounted character: bonded riders fight on their dragons (seated drawing to be confirmed).
+- v0.024 breath, v0.025 dragons march with the army (feed from the army purse), v0.026 raid, v0.027 siege.
+- v0.028 fear of dragons: dragon battles frighten towns; frightened, disloyal towns defect to the dragon realm.
+- v0.029 levies get armour; Refit army action.
+- v0.030 dynasty alliances and diplomacy: marriage ties lift standing; alliance, non-aggression pact, break alliance; allies join wars.
+- v0.031 army markers (realm-coloured headcount badges, march lines), army card (commander, troops, objective), objectives, travel 35% slower and slower for big armies.
+- v0.032 intrigue: assassinate, sway, fabricate claim; AI houses plot against the player.
+- Also built outside the numbered list: court and marriage, interface pass, 100 v 100 battle rounds, armies to 1000, house-only officers and noble call-up, house arms pool, ennoblement, medics and battle aftermath.
+
+## Next, in order (not started)
+1. **v0.033 prisoner ransom and exchange** - next job. Build on `world["prisoners"]` / `world["captives"]` from `game/campaign/battle_rounds.gd` (`_take_prisoners`, `_note_captured`).
+2. v0.034 population migration, housing and illness.
+3. v0.035 creature review (creatures are switched off by `Monsters.CAMPAIGN_CREATURES_ENABLED`).
+4. v0.036 dragon portrait fangs.
+
+## Running and testing
+- Godot **4.7.2** (stable), GL compatibility renderer. The Windows runtime is not in this repo; get Godot 4.7.2 for your platform.
+- Import once: `godot --headless --path game --import`
+- Run a test: `godot --path game --rendering-method gl_compatibility res://tests/runner.tscn -- --test=res://tests/<file>.gd --watchdog=700`
+  (add `--headless` where no display is available; screenshot tests need a display).
+- Main checks: `claude_campaign.gd`, `claude_rounds.gd`, `claude_marriage.gd`, `claude_diplomacy_v030.gd`, `claude_markers_v031.gd`, `claude_intrigue_v032.gd`, `claude_refit.gd`, `claude_dragonfear.gd`.
+- Known older failures that predate this work: `test_econ_army.gd` draft-pool checks, phone-size layout checks in `test_dynasty_ui.gd`.
+
+## Helpers
+The BigBridge / LegionaryAI helpers (Sol, Grok, Argon, Muse via `run_agent`) run only on the user's PC. A cloud session will not have `run_agent`; do the work directly.

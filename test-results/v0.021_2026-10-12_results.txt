@@ -1,0 +1,41 @@
+BURNING BROOD: BLOODLINES v0.021 - CURRENT NATIVE CHECKS
+2026-10-12 | stable Luna/low bounded QA; root source integration/visual review.
+
+SOURCE
+work/v021-candidate-final01; same shipped game bytes except private no-focus flag.
+Actual bundled Godot4.7.2; serial hidden/offscreen, BelowNormal, unique private
+user paths. No mouse/keyboard/foreground, player saves, Copper Oath, phone checks,
+old-save compatibility or long benchmarks. All full logs clean; no timeouts.
+
+ACTUAL SELECTED RESULTS
+Import15.076s PASS;4new gd.uid sidecars retained,477existing UIDs preserved.
+Dragon bond5.580s:103 checks,0failures. Native adulthood/presence/household
+authority; same-name people distinguished by UID; one-to-one reviewed commands,
+stale/cancel/repeat purity; death/care separation; travel; current serialization.
+UI18.282s:347checks,0failures;18actual desktop fits,0fit failures at1280x720,
+1920x1080,2560x1440 with performance panel;18actual PNGs. Picker/search/8-row
+paging, real stamped helmet/person portrait, reviews/cancel, actual record/Back,
+one success-only changed/save boundary. Arbitrary sample-rider control removed.
+Fresh world73.020s:27checks,0failures. Actual seed777/Normal/exactly1history day,
+generation25.352s. Existing dragon:777:1/actual owner household at t21; actual
+adult person:777:t21:1 binds, renders, survives current private disk save/load,
+and releases once. Native people/gear/funds/owner/custody/location unchanged.
+Map52.976s:17checks,0failures. Actual2560x1440/18.003s/1x measurement withtwo
+midnights, pan/recenter/paused Settings and visible diagnostics:58.27FPS,
+p95 27.215ms,p99 43.885ms,worst111.823ms,+6,906,893engine bytes (~6.59MiB).
+Recovery floor PASS. Total494 current checks;20render gates (18UI,1world,1map).
+
+PRIVATE VISUAL REVIEW
+Luna:1280 picker/review andactual2560freshworld:readable text/portrait,
+full paging/review/cancel actions, nav/performancepanel fits.
+Root:1280 bonded detail:actual native helmet portrait, active rider status and
+full Choose/Release/Record controls readable; existing organic dragon art intact.
+No image posts or new art generated. Source/proof hashes in source manifest.
+
+LIMITS
+Short current checks, not universal60FPS or long-session leak proof. Actual fresh
+save/load is current-version only; no compatibility claim. No dragon combat
+bodies in21; native autobattle22 thenmounted-character presentation23/breath24.
+No current dense-combat performance claim. Cold/package/install are separately
+recorded after source verification. Older absent10-18Desktop builds not recreated;
+currently installed19/20 baseline5187paths captured before21installation.

@@ -1,0 +1,10 @@
+{
+  "errors": [
+    "== res://tests/diag_campaign_render_v011.gd: FAIL (1) ==",
+    "FAIL campaign render: rendered recovery floor30FPS/p95<=50ms/no frame>150ms"
+  ],
+  "known_certificate_environment_line_count": 1,
+  "full_log_pass": false,
+  "run": "v011-large-travel-02",
+  "error_count": 2
+}

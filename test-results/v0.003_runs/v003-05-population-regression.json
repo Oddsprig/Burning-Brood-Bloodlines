@@ -1,0 +1,15 @@
+{
+  "Run": "v003-05-population-regression",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v003-verification\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_population_cohorts.gd",
+    "--watchdog=40"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 24.385
+}

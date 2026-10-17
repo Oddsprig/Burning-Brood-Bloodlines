@@ -1,0 +1,17 @@
+{
+  "Run": "v011-candidate-state-01",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\outputs\\Burning_Brood_Bloodlines\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/diag_campaign_state_v011.gd",
+    "--watchdog=90",
+    "--report-dir=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v011-candidate-state-01",
+    "--compare-dir=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v011-baseline-state-01"
+  ],
+  "ExitCode": 1,
+  "StoppedAtTimeout": false,
+  "Seconds": 47.585
+}

@@ -1,0 +1,18 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: probe-corrected3
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 7.875s | exit 0
+PASS | tests/test_household_food_v046.gd | 1.969s | exit 0
+PASS | tests/test_land_capacity_v046.gd | 29.563s | exit 0
+PASS | tests/test_guard_death_v046.gd | 32.438s | exit 0
+FAIL | tests/test_hiring_timing_v046.gd | 17.484s | exit 1
+  1 occurrence(s): FAIL: generated labour fixture exists
+PASS | tests/test_harvest_ownership.gd | 6.563s | exit 0
+PASS | tests/test_farm_retention.gd | 6.796s | exit 0
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-probe-corrected3
+Source receipt SHA256: 8d8e7a92ba275291ac4725f6e4cbfa7e2d436156e5a1be0787f439d175ac6725
+
+Notes (you can write here):

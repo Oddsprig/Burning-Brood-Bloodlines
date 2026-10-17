@@ -1,0 +1,21 @@
+{
+  "Run": "v021-cold-main-01",
+  "Arguments": [
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v021 final package verification\\Burning Brood Bloodlines v0.021 battle\\game",
+    "--headless",
+    "--quit-after",
+    "8"
+  ],
+  "Project": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v021 final package verification\\Burning Brood Bloodlines v0.021 battle\\game",
+  "Engine": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v021 final package verification\\Burning Brood Bloodlines v0.021 battle\\runtime\\Godot_v4.7.2-stable_win64.exe",
+  "DataRoot": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\isolated-engine-data\\v021-cold-main-01",
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 9.548,
+  "BelowNormal": true,
+  "Headless": true,
+  "NoFocusProjectSetting": false,
+  "HiddenLaunch": true,
+  "Result": "PASS"
+}

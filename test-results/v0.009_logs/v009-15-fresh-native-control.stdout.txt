@@ -1,0 +1,4 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+WORK BUDGET fresh seed777 mode=sync checks=17 failures=0 jobs=207 slices=0 campaign_ms=2124.687 SHA=104a57ce99dd2abd1c84dbf0fdf3a96c0a56c003199441a7ee51ca2581b425ef report=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v009-fresh-final-control.json
+== res://tests/test_work_budget.gd: PASS ==

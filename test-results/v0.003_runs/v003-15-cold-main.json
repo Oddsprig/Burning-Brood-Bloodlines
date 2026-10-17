@@ -1,0 +1,13 @@
+{
+  "Run": "v003-15-cold-main",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v003 package verification\\Burning Brood Bloodlines v0.003\\game",
+    "--quit-after",
+    "90"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 4.073
+}

@@ -1,0 +1,4 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+house laws v018: 93 checks, 0 failures, 12 desktop fit cases
+== res://tests/test_house_laws_v018.gd: PASS ==

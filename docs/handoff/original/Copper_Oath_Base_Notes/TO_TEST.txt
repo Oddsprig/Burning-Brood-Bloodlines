@@ -1,0 +1,537 @@
+v0.046 CURRENT VERIFICATION
+[x] Focused food/land/guard/pasture/payroll and authentic saved600-to628 accounting.
+[x] Short startup, named-food weight and Records snapshot.
+[x] Nineteen completed original farm/harvest/inheritance/wage regression checks.
+[ ] Census and remaining interrupted original regressions; not completed.
+[ ] Current full Normal/Large/Huge day120, full sickness/UI and plot benchmark.
+    Long runs stopped at user request. Historical results retained in Benchmarks.
+[ ] Strict90% worked/full nominal land and strict25ms plot gates remain open.
+[ ] Original legacy-marker expectation retains FAIL27/32535; native identity repair proved.
+[ ] Inherited original combat/sickness expectations; no current full rerun claimed.
+[ ] Annual food balance and manual smoothness. No original tests/gates changed.
+
+v0.045 HISTORICAL VERIFICATION
+[x] Exact frozen selection/rekit, all troop loadouts, physical metadata/order.
+[x] Fresh/saved seven-pair real jobs; complete simulation/RNG/UID/job-count controls.
+[x] Current selected service/supply/pay/save/startup/handoff checks.
+Broad army result: PASS; see exact unchanged gates in V0.045_REPORT.txt.
+[ ] Remaining performance/land/food balance and manual smoothness.
+Separate package/install proof: PACKAGE_VERIFICATION_v0.045.txt after delivery.
+
+v0.044 CURRENT VERIFICATION
+[x] 14 selected exact-final entries; TEST_RESULTS_v0.044.csv.
+[x] Complete frozen v043 builder closure and original data/native actions.
+[x] 377-section delivered/final equality and full source/test bindings.
+[x] Same-frame updates, sparse saves, save/RNG purity and fit checks.
+[x] Native household details match complete frozen v043 page effects exactly;
+    isolated world/cache restore and RNG checks stay strict; builders remain pure.
+[x] Migrated Academy keeper contract; current records_performance passes.
+[x] Controlled seven-pair raw measurements; original timing gate unchanged.
+Broad timing outcome: V0.044_REPORT.txt.
+[ ] Manual smoothness/gameplay assessment and separate package/install proof.
+
+v0.043 HISTORICAL CURRENT VERIFICATION
+[x] 13 selected final entries pass; TEST_RESULTS_v0.043.csv.
+[x] Independent Goods data/actions/purity and herd cache/fallback contract.
+[x] Existing 33-view v041 matrix rerun at both sizes, including details.
+[x] Complete delivered/final snapshot equality; exact full source/test binding.
+[x] Controlled paired Goods measurements; full raw samples retained.
+[x] Existing core/save/load/economy/wage/hidden launch checks pass.
+[ ] Manual gameplay preference and smoothness; no FPS claim.
+Broad unchanged gate/oracle outcomes: V0.043_REPORT.txt.
+Roads/Academy mechanics remain outside this pass. Package/install proof is separate.
+
+v0.042 HISTORICAL VERIFICATION
+[x] 11 selected final passes; TEST_RESULTS_v0.042.csv.
+[x] 571 service checks; zero service/fit failures at four sizes.
+[x] Actual quotes/terms, native treatment/rest/contract callbacks and details.
+[x] Current anatomy health fixtures/report expectations; medical coverage retained.
+[x] Exact production/test source binding; clean import and hidden launch smoke.
+[x] 6 same-stage private native captures; no foreground activation/input.
+[ ] Manual gameplay preferences and smoothness.
+[ ] Historical Records speed and old keeper-fixture assertions remain open.
+[ ] Records speed/army/simulation work, then land/food.
+Academy/metallurgy/kinship remain planning; no 33-tab retest claimed here.
+
+v0.041 HISTORICAL VERIFICATION
+[x] 9 selected functional entries pass; TEST_RESULTS_v0.041.csv.
+[x] All 33 scope/tab combinations at 1280x720 and 720x1280, plus disclosures.
+[x] Actual totals, original row contracts, sort/filter/search and live links.
+[x] Deep links, native Back table/scroll/disclosure state and optional-state purity.
+Functional matrix/regressions precede only the documented caption color append;
+exact final visual source has clean import, launch smoke and ten new captures.
+[x] Ten representative native captures on a never-activated desktop; no input.
+[ ] Existing broad timing/oracle failures remain open.
+[ ] Manual gameplay preference/smoothness; Healer and Contracts presentation.
+[ ] Existing performance and land/food/army balance work.
+Academy vacancy/appointment and metallurgy discussions remain planning.
+
+v0.040 HISTORICAL VERIFICATION
+[x] Seven selected final functional entries pass; TEST_RESULTS_v0.040.csv.
+[x] Twelve Records panels fit 1280x720 and 720x1280.
+[x] Actual totals, quality/price/material filtering and issued/reserve distinction.
+[x] Native links, filters, sorting, Back state and lazy disclosure reuse.
+[x] Whole-save purity before/after all panels and expanded details.
+[x] Seven real native captures on a never-activated desktop; no native input.
+[ ] Healer and Contracts presentation; manual gameplay preference/smoothness.
+[ ] Broad <16ms speed gate and old keeper-oracle failures remain open.
+[ ] Existing army/armory, land/food balance and simulation performance work.
+Academy staffing and metallurgy discussions remain unimplemented planning.
+
+v0.039 HISTORICAL VERIFICATION
+[x] All 11 selected final functional checks pass; see TEST_RESULTS_v0.039.csv.
+[x] Actual registered heads, vacancies, culture names and paid assignments.
+[x] Exact points/know-how, native bars and distinct completed/unavailable states.
+[x] Daily budget, last transfer and till are distinct; zero transfer alone
+    never labels funded busy research as unfunded.
+[x] Missing legacy research/register reads are pure; foreign capital guarded.
+[x] Native section/history/household callbacks and non-capital realm research.
+[x] All eight Town sections fit 960x640, 1280x720 and 1920x1080.
+[x] Existing Academy staffing/payment and selected Records checks pass.
+[x] Four actual rendered views including the one-day New Campaign option;
+    research screenshots follow seven real simulation days on a
+    separate never-activated desktop; no native input sent.
+[ ] Continue Healer, Contracts and general Records presentation.
+[ ] Manual gameplay preferences and native device smoothness.
+[ ] Existing performance, army/armory and land/food balance work.
+[ ] Broad Records <16ms speed gate: current and unchanged v0.038 baseline
+    miss the target; all other assertions pass. Original test is retained.
+Earlier attempt logs are retained in review/v0.039; no dog-removal checks.
+
+v0.038 HISTORICAL VERIFICATION
+[x] All 22 selected final test entries pass; script/engine errors checked.
+[x] Town layout and working sections at 960x640, 1280x720 and 1920x1080.
+[x] Market grouping/filtering, exact best-buy quotes, weapon/shield execution,
+    broken stock handling, uniforms, coins and existing transaction callbacks.
+[x] Real food/cash transfers, names/ages/FIFO, hunger and seven-day packing.
+[x] Actual Game save/load, baggage weights/values and salvage capacity.
+[x] Factual recruit briefs across cultures, identities and legacy records;
+    unchanged full backstory/history checks pass.
+[x] Existing town, arrows, land map, treatment, outfit, screens and core checks.
+[x] Seven actual rendered screens on a separate never-activated desktop.
+[ ] Continue presentation improvements through Healer, Contracts and Records.
+[ ] Manual gameplay preference checks and native device smoothness.
+[ ] Existing performance thresholds, army/armory and land/food balance work.
+Earlier diagnostic failures/timeouts remain recorded in review/v0.038.
+No foreground, mouse or keyboard testing. No dog-removal checks.
+
+v0.037 HISTORICAL VERIFICATION
+[x] All 15 final entries and10 control/component entries pass.
+[x] Full ordered state/RNG/UID generation across Normal/Large/Huge and two seeds.
+[x] Exact 30-day histories, per-kind jobs, zero-budget progress and no-op finish.
+[x] Map/town fractional and multi-day synchronous time equality.
+[x] Actual loading scene, production finish/async save/map request exactly once.
+[x] Core/save/load/supply/hiring and actual map/async save infrastructure.
+[x] Full ordinary Large 120-day ownership audit and headless main launch.
+[ ] Further indivisible-job and final save/map hitches; native/manual smoothness.
+[ ] Inherited speed thresholds, army/armory and worked-land/food balance.
+Four earlier diagnostic-fixture failures preserved separately.
+No foreground or mouse testing. No dog-removal checks.
+
+v0.036 HISTORICAL VERIFICATION
+[x] Selected final functional assertions complete; 17/22 entries pass overall.
+[x] Fresh/saved exact town-economy and ordering paired comparisons.
+[x] Cold crop/herd indexes, season/year changes, ties/funding/closure cases.
+[x] Performance-only fresh 7/saved7 complete state/order equals v0.035.
+[x] Narrow fresh/saved muster/reassignment/hiring/guard phase profiling.
+[x] Funded camp recruits real adults; no-fund refusal and same-person return.
+[x] Corrected broad army fixtures complete without script errors.
+[x] Existing military supply, wages, farms, harvest, services, identity and saves.
+[x] Ordinary-scheduling fresh 120 days and day 600 + 28 ownership/service audits.
+[x] Hidden isolated headless main scene; no mouse or foreground commands.
+[ ] Remaining unchanged speed gates and army/guard/muster/world hitches.
+[ ] Sustained 90% worked-land target, local labour/funding and food balance.
+[ ] Older monster fixture and manual/native gameplay/device smoothness.
+No foreground or mouse testing. No dog-removal checks.
+
+v0.035 HISTORICAL VERIFICATION
+[x] Focused release functional checks; 18/24 recorded entries pass overall.
+[x] General multi-move reserve transfer, blocked unsafe moves and exact Units.
+[x] Proven old-save repair, retained sickness/service facts and idempotence.
+[x] Pending muster survival and cold-load UID floors after real officer desertion.
+[x] Exact old-save owner cash, equipment, goods, census and wage preservation.
+[x] Exact trail state/order and packed geometry/colour comparisons.
+[x] Same-seed new/load discards previous pasture battle references.
+[x] Controlled saved28 repeat and fresh10 timing-probe state/order equality.
+[x] Existing supply, wage, farm, migration, services, census and Barge checks.
+[x] Ordinary-scheduling fresh120 and day600+28 ownership/roster audits.
+[x] Isolated hidden headless main-scene launch; no foreground or mouse control.
+[ ] Meet all existing speed gates and reduce remaining whole-world hitches.
+[ ] Narrow muster/reassignment/funded hiring and guard-formation profiling.
+[ ] Sustained 90% worked-land target, local labour/funding and food balance.
+[ ] Broad army suite: inherited recruitment fixtures and observed 20.3ms job gate.
+[ ] Older monster-test fixture and manual/native gameplay/device smoothness.
+Do not use foreground or mouse for testing. No dog-removal checks.
+
+v0.034 HISTORICAL VERIFICATION
+[x] Combined source: all selected functional assertions; 24/28 entries pass overall.
+[x] Exact harvest-owner, supply, map ordering and complete 368-section record output.
+[x] Filtering/sorting/details/pagination/callbacks and current census equivalence.
+[x] Existing harvest/wage/farm ownership, saves, census and full arms compatibility.
+[x] Fresh 120-day and actual day600+28 audits: zero ownership violations.
+[x] Unchanged v0.033 replay comparisons; limits retained in the release report.
+[x] Corrected full census rerun; original stale-role failure and source preserved.
+[x] Headless main scene and reproducible captured process metadata.
+[ ] Meet all existing timing gates; 4 remain failed in final evidence.
+[ ] Remaining heavy jobs and repeatable whole-campaign profiling.
+[ ] Inherited day600 reverse reserve-to-roster records; counts in release report.
+[ ] Sustained 90% land target, local labour/funding and food-market balance.
+[ ] Older monster-test fixture and manual/native gameplay/device smoothness.
+Do not use foreground or mouse for testing. No dog-removal checks.
+
+v0.033 HISTORICAL VERIFICATION
+[x] All 37 focused suites, headless launch and three campaign diagnostics.
+[x] Private owner timing, casual-only funded offers and fractional child occupancy.
+[x] Academy cuts/appointments/growth, lead departure and real wage conservation.
+[x] Independent mixed production, real batches and explicit legacy work migration.
+[x] Actual v0.032 save continued28days with service/pay/close/save conservation.
+[x] 120-day land/food, 365-day hiring and 600-day ownership reconciliation.
+[x] Complete arms supply compatibility; producer audit context stays read-only.
+[ ] Sustained90% land work, local labour/funding and food-market balance.
+[ ] Separate performance gates and older monster-test fixture.
+[ ] Manual/native gameplay and device smoothness.
+Do not use foreground or mouse for testing. No dog-removal checks.
+
+v0.032 HISTORICAL VERIFICATION
+[x] All 28 focused tests and the headless main-scene launch.
+[x] Rotation/soil/climate sizing, physical fields and generated map yards.
+[x] Active/fallow/cut-season work, species/age care and real keeper offsets.
+[x] Actual adult movement after rotation and physical v0.031 save preservation.
+[x] General militia and weekly funding matching, wage and cash conservation.
+[x] Existing ownership, household reserves, inheritance, child cleanup and saves.
+[x] Nonnegative harvest and exact dated producer shares: final 2,268-check suite.
+[x] 120-day land/food observation retaining registered forces.
+[x] 600-day ownership reconciliation with zero violations; economy flags retained.
+[x] Existing 365-day hiring threshold: PASS; ordinary trace retained.
+[ ] Sustained 90% land target, remaining farm affordability and food/market balance.
+[ ] Remaining economy observations and any ordinary scheduling gaps in evidence.
+[ ] Separate performance gates and the older monster-test fixture.
+[ ] Manual/native play: old save, new world, changing seasons and crop rotation,
+    person work roles, wages, household reserves and long-history smoothness.
+No dog-removal checks. Earlier checklists describe historical releases.
+
+v0.031 HISTORICAL VERIFICATION
+[x] All 23 focused functional and headless launch entries.
+[x] Dated ownership, food reserves, herd/fodder lenders and real cash settlement.
+[x] Actual v0.030 save load/reload and continued towns, queues and lifecycle rules.
+[x] 600-day ownership reconciliation with zero violations; economy flags retained.
+[x] Full-year land observation with registered forces retained.
+[ ] Existing 365-day hiring threshold: FAIL; see V0.031_REPORT.txt.
+[ ] Rotation-aware land/food balance and the 90% target.
+[ ] Ordinary-day hiring peaks and remaining producer/sanitation observations.
+[ ] Separate performance gates and the older monster-test fixture.
+[ ] Manual/native play: copied save, household food/reserves and later crop receipts,
+    moving/landless families, seasonal jobs and long-history smoothness.
+No dog-removal checks. Earlier checklists describe historical releases.
+
+v0.030 HISTORICAL VERIFICATION
+[x] All 18 focused functional and headless launch entries.
+[x] Full-year land observations and 600-day economy audit completed; flags retained.
+[ ] Existing 365-day hiring threshold: FAIL; see V0.030_REPORT.txt.
+[ ] Ordinary-day hiring peaks and the 90% land target.
+[ ] Dated harvest ownership and rotation-aware land/food balance.
+[ ] Inherited performance gates and the older monster-test fixture.
+[ ] Manual gameplay: load a copied old save, inspect household food and funding
+    records, watch crop-only seasonal jobs and viable material purchases.
+Automated evidence and remaining limits: V0.030_REPORT.txt.
+
+v0.029 HISTORICAL VERIFICATION
+[x] All 19 combined focused functional/launch entries.
+[x] Earned wages, funding, accounting, season changes and records regressions.
+[x] Full functional sickness suite; performance section explicitly excluded.
+[x] Actual v0.028 save: old business wage balances preserved over 14 normal days.
+[x] 600-day audit and corrected day-60 land diagnostic; observations retained.
+[x] Existing annual hiring threshold; later ten-day peaks remain in report.
+[ ] 90% land target and universal ordinary-day hiring convergence.
+[ ] Prior performance gates, simulation variability and monster-test fixture.
+[ ] Interactive/native gameplay, old-save experience and device smoothness.
+No dog-removal checks. Earlier checklists are historical context.
+The old 53% land result is invalid for normal balance; see the corrected baseline.
+
+v0.028 HISTORICAL VERIFICATION
+[x] All 15 combined focused functional/launch entries.
+[x] Farm 336 and builder 104 checks, each with failing unchanged baseline.
+[x] 600-day audit completed; observations preserved in report/CSV.
+[x] Annual checkpoint and 10 ordinary days captured; see actual result in report.
+[x] Automated records content/navigation/phone fit and visual row comparison.
+[ ] 90% land-work target; measured result and actual staff totals in report.
+[ ] Original exact hiring warning and simulation repeat variability fully resolved.
+[ ] Every existing timing gate; final measurements in report.
+[ ] Existing monster test's missing deserter fixture repaired and remaining assertions run.
+[ ] Interactive/native gameplay and device smoothness.
+No dog-removal checks scheduled. Older checklists are historical context.
+
+v0.027 HISTORICAL VERIFICATION
+[x] Combined focused functional checks and launch smoke.
+[ ] Existing 365-day labour threshold: one remaining flag, detailed in the release report.
+[ ] Existing land-use target: 55% worked at day 60 versus the stated 90% target.
+[x] 600-day large-world audit completed; observations retained in report/CSV.
+[x] Actual cleanup/sanitation queues, previous-version save continuation and fractional occupancy.
+[x] General inherited-farm job retirement and existing money/land preservation.
+[x] Automated record content, sorting, pagination, detail/Back and phone-fit checks.
+[ ] Meet every existing records/map performance gate; final measured failures in report.
+[ ] Interactive gameplay: new detail buttons, cleanup, lodgings, garrison logs and save continuation.
+[ ] Native/device smoothness and histories beyond the verified scenario.
+Historical unchecked lists below remain context; no dog-removal checks scheduled.
+
+v0.026 HISTORICAL VERIFICATION LIMITS
+Automated lodging/child-cleanup checks and save/load have run; interactive gameplay coverage remains open.
+Current audit/performance/labour results are in V0.026_REPORT.txt. Historical entries below are not new feature requests.
+
+v0.024 MANUAL PLAY CHECKS STILL OPEN
+- Inspect reserve wording, actual market purchases and ten-day same-faction transfer logs.
+- Continue an older campaign and inspect ordinary converted shipments/jobs.
+- Automated conservation and save checks are recorded separately in V0.024_REPORT.txt.
+
+v0.023 MANUAL PLAYTESTS STILL TO DO
+- Inspect healthy and filthy towns, rat grain losses, cleanup wages and sickness records.
+- Check a helper-age child cleaner: short shift, proportionate wage, no double-counted farm work.
+- Rent lodging rooms, grow a tenant family, pay rent, evict and reuse vacant rooms.
+- Save/load a campaign with child cleaners, lodgers, guards and a travelling raid.
+
+Automated evidence is in ECONOMY_REPORT.txt; no GUI playtest was performed.
+
+COPPER OATH - TO BE TESTED
+=========================
+The checklist for a test run. When Douglas asks for a test run, Claude works through it: checks each line,
+ticks [x] what passes, and reports what failed (with a note after the line). Unticked lines carry forward.
+Every change adds its lines here.
+
+v0.010  Bronze and Barley
+-------------------------
+Money and economy
+[ ] Prices and wages are in coins: a labourer earns about 100 a day, a grain meal costs a few coins.
+[ ] Loot still pays 5% of a dead man's household purse (10% if he was the last of his house), never over 500.
+[ ] Town screen: the market has goods and prices move over a few weeks (nothing stuck at 0 or sky-high).
+[ ] Buy best from local shops still works, and the company's coins go down by what you paid.
+The world over time
+[ ] New campaign: the five pre-simulated years finish (about 47 s) and the world isn't empty afterwards.
+[ ] Records (town screen -> Records): each of the 12 town tabs opens and shows numbers, not errors.
+[ ] Records -> View: switch to the whole world and a faction; the tabs open.
+[ ] Census tab: deaths have causes (battle, sickness, starved, old age...) and the balance line adds up.
+[ ] Tap a name anywhere in Records: it opens that person's page; Back returns.
+Land map
+[ ] Land & Homes -> Open the land map: tiles show fields, pasture, woods, homes; drag and zoom work.
+[ ] The overlays (Use, Owner, State, Value, For sale, Worked) change the colours.
+[ ] Town buildings (keep, hall, barracks, armory, granary, shelter, jail, mint) are easy to spot; tap one.
+[ ] Tap a plot: its card shows owner, use, value and history.
+Sickness
+[ ] Sickness tab shows sick people and diseases; tap a disease for its sick.
+[ ] A sick company man shows his disease on the unit card.
+[ ] Provisions: "Buy remedies" appears when men are sick and costs what it says.
+War
+[ ] After two factions make peace, Relations shows "truce, N days left" and they don't fight.
+[ ] Militia stay in town against bigger enemies instead of marching out to die.
+[ ] Orcs and goblins are hostile to your (human) company from the start.
+[ ] The world map is bigger (1.5x); zooming out still shows it all; travel takes longer.
+
+v0.011  Herds and Hearths
+------------------
+[ ] Census: births per 1,000 a year look natural for humans (about 40-50).
+[ ] World records, Census: a "By race" card on top (people, towns, births, deaths, growth, hungry %, homeless; every column sorts); tap a race for its years and towns. Same card in a faction's Census.
+[ ] Orcs breed about 7% a year, goblins about 14%; elves slowly.
+[ ] Orc towns: families have tents and aren't all homeless after five years.
+[ ] Records Overview: the Herds line shows head by kind and fodder days; tap it for every herd, owner, herders.
+[ ] Land map: pasture tiles show the animal grazing them; homes with hens, rats or hives show a pen marker.
+[ ] Tap a pasture tile: owner (or the common and its fee), the herd, its herders, grass, head it can carry.
+[ ] Market: "Raw: live animals" opens the animal price table (price, head, offered, sold).
+[ ] A family page lists its animals; a butcher's page shows "The chain" (bought from, output went to).
+[ ] World records, Goods: herds by town with fodder days; droves on the road when drovers are out.
+[ ] Businesses include herder, butcher, salter, dairy, chandler, salt works and drover, with staff and wages.
+[ ] Load an old save: herds appear from its old totals, no errors.
+[ ] Winter: a poor herd family's beasts eat borrowed straw instead of starving while the barns are full.
+[ ] Some women die in childbirth (census cause "childbirth"), rarely; the family page shows the child lived.
+[ ] Orc and goblin registers: twins (goblin triplets too) share a birth day.
+[ ] Goblin towns late in the years before: hunger, starvation and flight when they outgrow their food.
+[ ] Elf registers: elders aged 300-449 alive; few elves die of old age before 450.
+[ ] A widow or orphaned daughter marries away; the house she leaves carries on without errors.
+[ ] Grolruk, years 1-2: its woodcutter and tanner have workers and wood is in the market.
+[ ] A town where wood or copper bars are dear: that trade's pay sits above the pay table and falls back later.
+[ ] Mint pages: whether mints still stand idle with "bars dearer than coin" most days.
+[ ] A new campaign is the Large world (about 54 towns); roads reach every town; the 5-year startup finishes.
+[ ] Goblins have 4-5 warrens on a Normal world (more on Large).
+[ ] Zoom fully out and pan the whole map: trees and hills draw, no stutter.
+[ ] Enter and leave a town: the map comes back at once, no pause.
+[ ] Run at x4 for a few in-game days: no long freezes at midnight.
+[ ] On the Large map at x4: no hitch when a new patrol or caravan appears; it appears a few frames after setting out.
+[ ] Caravans follow the drawn roads between towns (arms convoys may go along several roads).
+[ ] Save while a patrol is being raised, load: no errors, the patrol appears.
+[ ] Census tab: the "By race" card lists each race; columns sort; tap a race for its years and towns.
+[ ] Herds 2: a herd's line says what share is sick and what share of its females were bred this season.
+[ ] Herds 2: in summer and autumn owners buy hay and straw for winter; the hay price moves; caravans may carry it.
+[ ] Herds 2: a cold town's herds need more winter hay than a hot town's (fodder days on Overview).
+[ ] Herds 2: when beasts are cheap, families buy one for their own larder (herd log: "for their pot").
+[ ] Herds 2: a beast disease breaks out now and then (town story), spreads on the common, then dies down.
+[ ] Herds 2: little fresh meat rots in the barns; salted meat is on the stalls.
+[ ] Goats hold their numbers over five years (fixed: herds were culled to the dry-summer grass in hot towns).
+[ ] New Campaign opens an options screen: World size (Normal / Large / Huge, Large picked) and History years (5).
+[ ] The years slider, - and +, and the 1 / 5 / 20 / 50 / 100 buttons change the years (never below 1 or over 100).
+[ ] The startup estimate changes with size and years ("about N min on this PC"); Back returns to the title.
+[ ] On a phone (720 x 1280) the options screen fits, nothing is cut off, every button is easy to tap.
+[ ] Begin with 1 year: the progress bar says "year 1 of 1" and the map opens; with 20 years it counts to 20.
+[ ] A 20-year and a 100-year history finish and stay sane (people, coin, prices, memory, save size).
+[ ] Game over -> New Campaign also opens the options screen.
+
+v0.012  Stone and Steel
+-----------------------
+[ ] Orc and goblin towns show the new rank, home and building names (warchief / taskmaster, the war-hall / the whip-hall, hide-and-bone tent / cave burrow) with no blank or broken labels.
+Steel and the research house
+[ ] Orcs and goblins never gain steel know-how over a long run; they still use looted and traded steel.
+[ ] Cutting a faction's research budget lays off house staff and drops output.
+[ ] Losing the lead researcher (death or leaving) drops output until a successor is appointed.
+[ ] Elves gain know-how faster than humans under equal funding.
+[ ] Dwarf holds export steel through the arms trade at peace.
+[ ] Humans of all cultures migrate and change allegiance across human factions.
+[ ] The Academy lists its research lines; steel is the only one and shows progress.
+[ ] Each faction's research house has its own name and lead title (Academy/Master, Lorehall/Loremaster, House of Wisdom/Hakim, Athenaeum/Sage).
+[ ] Orc, goblin and dwarf capitals have a research house with a lead but no active line; steel never appears as a line for orcs and goblins (Blood Forge/Forge-Boss, The Pit/Pit-Master, Hall of Makers/Maker-Lord).
+[ ] Records, a faction view (Towns tab) and a faction's page under Factions: a Research card with know-how %, budget, staff and each line; the Factions table has a "Steel %" column.
+[ ] A capital's Businesses tab lists its research house; its page shows the lead with his title, staff, wages, materials and its log book.
+[ ] The lead's register line shows his title (e.g. "Master at the Academy"); a new lead's family history says when he was named.
+[ ] The capital's land map shows the research house as a town building; tap it for its lead and staff.
+[ ] Iron: towns with iron ore and flux stone have mines for them; smelters make iron bars; smiths make iron gear.
+[ ] Steel is made only where the faction knows it (dwarves at the start): pig iron, then steel bars, from iron, flux and twice iron's fuel.
+[ ] Steel gear from a faction with low know-how is poor at best; full know-how allows every quality.
+[ ] Load an old save: no errors; each capital gets a research house (empty until the next weekly faction turn funds it).
+Animals, dwarves and Eastern humans (spec docs/specs/next/01-animals-dwarves-eastern.md)
+[ ] New campaign (Normal, Large, Huge): world gen finishes with no errors; the map shows seven realms, the dwarves' land a small patch round each hold in the mountains.
+[ ] Large map: about 5 dwarf holds (2 on Normal, about 10 on Huge), each in the mountains, each a mining town with copper or tin, iron ore and flux.
+[ ] The orcs hold the north-east and the Eastern khanate the dry south-east; every older realm still has its towns (count them per faction in Records).
+[ ] Eastern towns read "Dry" for climate on the town's economy tab; their grain is millet or barley; their summer grass is thin and their herds lean on hay.
+[ ] Town herds by culture at the start: Middle cattle, pigs, sheep, some horses, dogs, poultry; North sheep and cattle first; East horses and goats; orcs pigs and goats with dogs, no poultry; goblins goats, pigs, rats and poultry, no dogs; moon elves horses, goats, sheep, poultry and hives; dwarves goats, sheep, pigs, donkeys, poultry, cattle only in a hold with water nearby.
+[ ] Records -> a town's Herds card names horses, donkeys and mules, poultry and dogs; tapping a herd shows its ages, owner and ledger.
+[ ] Land map: horse and donkey pastures, dogs and poultry at the homes, stone halls in dwarf holds and felt yurts in Eastern towns all draw (no blank tiles).
+[ ] Over a year horses and donkeys breed slowly, dogs stay about steady, poultry give eggs and feathers (feathers in the market where there is poultry).
+[ ] Fletchers in towns with poultry keep making arrows; note any town where arrows run out for want of feathers.
+[ ] A wolf pack near a town: its herd book shows deaths to "wolves"; herds whose owners keep dogs lose fewer; outlaws near a town show "stolen" beasts and their stores gain meat.
+[ ] Dwarves: register people have dwarf names, live past 100 and have children slowly (the Census by-race card has a dwarf row); note whether their numbers rise, hold or fall over 5 years (not capped: report it).
+[ ] Dwarf soldiers are short and stocky (short arms and legs on the unit sheet), bearded, in heavy mail with axes and hammers; no dwarf carries a bow.
+[ ] Dwarf holds show their own building names (the baron's hall, the armor vault, the deep larder) and ranks (shieldbearer ... high marshal of the Holds); the head is a baron, the capital's a king under the mountain.
+[ ] Eastern humans have Eastern names (Batu, Khulan, Arslanid, Khasar ...); their archers carry the steppe bow; ranks run rider, leader of ten, of a hundred, of a thousand; the head is a bey, the capital's a khan.
+[ ] Dwarves and the khanate are on the Relations screen with standings; neither is hostile to a fresh human company.
+[ ] Dwarves turn up in a hold's recruit pool now and then (rare: few holds, few desperate dwarves).
+[ ] An Eastern family that moves to a Middle town keeps its people's names, and its babies there still get Eastern names; a Middle family in an Eastern town keeps Middle names.
+[ ] A hungry family flees only to a town of its own race (never a human family into a dwarf hold or an elf town).
+[ ] Holds trade: caravans carry grain, wood and charcoal in and metal, tools and arms out (watch a hold's market over a year).
+
+v0.013  Flesh and Bone (nothing run yet, not even a launch)
+-----------------
+Full Dwarf Fortress anatomy. Nothing below has been run: no Godot launch at all (Douglas 14:05).
+[ ] The game starts and loads with no script errors (the headless load check, tools/gen_class_cache.sh then Godot --headless --path game --quit-after 300, was NOT run).
+[ ] An old v0.012 save loads: wounded men keep their limb wounds; old organ wounds (lung, heart, guts, airway, skull, brain layers) are dropped; an old cut motor nerve becomes "motor nerve severed".
+[ ] Memory per unit: run tests/diag_anatomy_cost.gd once. Before (v0.012, measured): 115.7 KB a unit in memory, 86.0 KB of it the body; save 12.28 KB a unit (body 9.25 KB). Expected after: the body near 0 KB for an unhurt man, a few KB for a wounded one. Write the numbers in DEV_NOTES.
+[ ] Battle tick cost: the same diag's 50v50 (seed 50). Before: mean 0.425 ms, p99 1.07, worst 2.90 ms (one run). Expected close to that; the test_sim_perf gates (mean under 1 ms, worst under 2 ms) still hold.
+[ ] A battle runs to the end with humans, orcs, goblins, elves, dwarves and trolls, and with wolves, bears and boars: no errors.
+[ ] The combat log names the new parts: fingers, toes, teeth, ears, nose, cheeks, lips, eyelids, mouth, tongue, throat; and inner parts after trunk and head hits (left lung, heart, liver, stomach, guts, kidneys, spleen, pancreas, ribs, spine, skull, brain).
+[ ] The calc log shows "[roll:inner]" picking the inner part; no "[roll:face]" any more.
+[ ] Small parts are hit about as often as their size says: over a long battle fingers, teeth and eyes are hit rarely, the trunk and legs most.
+[ ] A cut through a limb's muscle says the nerves are cut: that arm drops its weapon or that leg gives way, and later blows to it cause no pain.
+[ ] A stab through a lung says it is punctured (he is winded and tires faster); both lungs punctured = drowning, he dies in about 30 s.
+[ ] A heart wound can kill outright and bleeds hard.
+[ ] A cut through the upper spine leaves him limp in arms and legs and choking; the middle or lower spine: he falls and cannot stand.
+[ ] Lost fingers: the weapon swings weaker (calc log grip lower); every finger of the sword hand gone = he drops it.
+[ ] A tooth can be knocked out; it shows as "knocked out" (minor) and nothing else happens.
+[ ] An edge through the lower body's wall spills the guts ("guts spill out!"); after the battle an untreated man with spilled guts can catch wound rot.
+[ ] Eyes: a destroyed eye still blinds that side; both = blind.
+[ ] Heads and necks still come off, but only when the blow also cuts through the skull / upper spine.
+[ ] Health tab: the new parts and marks show (fingers, teeth "knocked out", "motor nerve severed - limp", "sensory nerve severed - numb", lung "punctured", guts "spilled", spinal cord); a weak grip shows after lost fingers; parts that heal clean drop off the list.
+[ ] Dwarves have the bigger DF liver (their own plan, humanoid_dwarf); every race's body is the full anatomy at its own size.
+[ ] Wolves have 4 toes a paw, bears 5, boars none; fur is not laid over a beast's mouth, tongue or anything inside.
+[ ] A beast's coat trophy still loses value with coat damage (not watered down by the new teeth and toes).
+[ ] Arrows that stop inside an organ are pulled out after the battle without errors.
+[ ] The old automated tests that poke body.parts["..."] directly will fail until they use body.part / body.wound_part (not updated: no test runs).
+[ ] The v0.013 shortcut's window says "Copper Oath v0.013"; New Campaign shows the options screen, then a moving year-by-year progress bar (not a grey screen).
+[ ] Records (town, world, faction): the tab row shows a scrollbar when it is wider than the window; the mouse wheel scrolls it sideways; every tab (Sickness, Books...) can be reached.
+
+v0.014  Forge and Fire
+-----------------
+Legendary items and gems (headless test tests/test_legends.gd passes; the game itself not played yet). Start a NEW campaign.
+[ ] Town > Market: a skill-15 smith's stalls show far fewer masterful (ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã¢â‚¬Â¹Ãƒâ€¦Ã¢â‚¬Å“ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¼) pieces than before (about 1 in 4); a skill-10 smith almost none. The town screen's "expect around ... work" line still reads sensibly.
+[ ] After some years a legendary piece turns up (World > Fights > Legendary arms lists them): its name reads like "Oathbreaker, legendary copper sword", it costs a fortune on a stall, and its icon shows five gold pips, a sixth pip in the gem's colour and the gem itself on the pommel / axe socket / shield boss / helm brow / breast.
+[ ] Tap a legendary piece in Records: its page gives where it is now, its worth, the gem and where it is set, the maker and his town, its kills, and every change of hands with dates.
+[ ] The maker's own Records page: "Legendary pieces made: N" and a "made <name>" line in his life history. No smith ever shows more than 5.
+[ ] Buy one (if you can afford it) and put it on a man: the unit card shows its gem line, maker and kills; kills go up when he kills with it.
+[ ] Win a fight against a man carrying one: it is always among the kept loot (never scrap). Lose a man carrying one: the enemy band takes it, and later you can find it on one of their best fighters (Records shows "Taken up by ...").
+[ ] A town whose man lost one: its Overview shows "Legendary pieces lost" and the story line in its history.
+[ ] A legendary weapon or armour piece in a hard fight never bends, snaps, chips, cracks or drops a quality step (other pieces still do); after the battle it is still legendary.
+[ ] Clearing an outlaw camp that holds one: it goes to your stash, not sold with the hoard.
+[ ] Goods: rock crystal, amethyst, garnet, topaz, sapphire, ruby, emerald show in mining towns' markets now and then (cut-stone icons in their colours); caravans trade them.
+[ ] A rich family's household page: the family buys a stone or so a year; in a famine families sell their stones (family history "Sold ... to buy food") and the stone prices fall.
+Gore, combat log and gear damage (headless tests pass; the game itself not launched).
+[ ] In a battle, every blow that draws blood throws a spray of red droplets; a big wound or an opened artery throws more than a scratch.
+[ ] Fighters who go down or die leave a pool of blood that keeps growing while they bleed; bleeding fighters leave a trail of drips as they walk; an opened artery spurts every second or so.
+[ ] Severed arms, legs and heads drop and stay on the field.
+[ ] Wounds show on the fighters: purple bruises, red gashes, white broken bone.
+[ ] A 50-a-side battle on the big map still runs smoothly with all that blood (no stutter late in the fight).
+[ ] Settings (title and the battle gear button) has "Gore: Full / Reduced". Reduced: much less blood, half-size pools, small dim severed parts, milder log words. It is remembered after quitting.
+[ ] Tap a fighter and read his log: lines name the attacker, the weapon and its metal, the armour gone through, the worst wound, and a kill as "slaying him". Lines vary and read fresh; kills and severed limbs get the big lines.
+[ ] The log never mentions a wound that did not happen (no "brains" without a head wound to the brain, no "artery" without an opened artery).
+[ ] Each man shouts a battle cry on his first blow, and killers taunt; orcs, goblins, dwarves, elves and humans sound different. A goblin who strikes from behind gloats about it.
+[ ] A tin weapon against steel or iron armour bends, and sometimes snaps: the log says "... snapped in half on ...'s steel gauntlet!" and the man fights on unarmed. After the battle a bent weapon has lost a quality step; a snapped one is gone (sold as scrap).
+[ ] A heavy maul on a plate helm or breastplate dents it (a quality step after the battle), or cracks it (scrap after the battle).
+[ ] After a won battle, the coin includes the scrap of broken gear, and the nearest town's market shows more scrap; its smelter turns it into bars over the next days (with wood).
+[ ] Town > Healer: "Treat all (N)" sits beside Rest. Disabled when nobody needs treatment. Pressing it asks "Treat N men for X coins?"; yes treats the worst-hurt first and charges the same as treating each one with the single Treat button. With too little coin the confirm says so, then a list shows who was treated and who was not.
+World-start show. Nothing below has been run: no Godot launch at all, not even a load check (Douglas).
+[ ] New Campaign -> the world-start screen opens with no script errors (new files ui/presim_map.gd, ui/presim_feed.gd), not a grey screen.
+[ ] "The Making of the World": the small map starts dark, then land and sea sweep down the map, then mountains and hills, then forests, then the realms' grass colours and borders, then the towns pop up one by one with their banners (the dwarf holds last, as grey peaks, and their mountain land takes the holds' colour), then the roads draw one by one. About six seconds. The line under the map names each stage.
+[ ] The map that was built matches the campaign map you get afterwards (same coasts, mountains, towns and roads).
+[ ] Skip (next to the bar) jumps straight to the finished map and the years start; the button then goes away.
+[ ] "The Years Before": the season line ("Summer, year 1 of 5") and the progress bar still run as before.
+[ ] The map during the years: each town has a banner in its owner's colours and a row of white dots for its people; a town that grew turns its dots green, one that shrank turns them red. Capitals have a brass ring and their name.
+[ ] Moving forces show as small marks: caravans brass squares, armies marching on a town bigger with a red rim, patrols and others small dots in their colours. They move a few times a second.
+[ ] The Chronicle on the right fills with dated lines ("Year 2, summer"), newest on top, older ones fading, one about every 0.8 s; not a flood. Wars declared and peaces made, sacked towns, armies marching on towns, famines (and their end), outbreaks of sickness ("An outbreak of the flux in X: 12 sick"), new war leaders and new heads of capitals, deaths of war leaders and town heads, research steps, and a census line each season (born, died, the main cause, people in the land).
+[ ] Every chronicle line is something that really happened: check a few against Records (world log, town history, Census deaths, Relations).
+[ ] A line that happened at a town flashes a ring on the map at that town (red for the big ones, brass for the rest).
+[ ] War and sack lines show in a reddish colour.
+[ ] Startup is no slower than in v0.013 for the same world size and years (the screen should cost well under a millisecond a frame on top of the sim). A 100-year run still finishes.
+[ ] When the years end, the campaign map opens as before and the save works.
+[ ] On a narrow window the map and the Chronicle both still fit (nothing runs off the screen).
+Gear icons and the company baggage (Douglas: icons for armour and weapons; a baggage inventory screen)
+[ ] Company -> Gear tab: every worn piece has a small coloured picture left of its name (sword, spear, axe, mace, bow, shield, helm, mail and so on). Empty slots show a blank.
+[ ] The colour follows the metal: copper orange-brown, bronze dull gold, iron dark grey, steel bright blue-grey with a glint, tin pale grey and dull. Gold dots in the top-left corner show the quality (one per level).
+[ ] Town -> Market: each item for sale has its icon. "Sell from stash" and the stash picker under Gear -> Change show icons too.
+[ ] After a battle with loot kept, each kept piece shows with its icon, name and wear.
+[ ] Company -> Baggage (top bar) opens the baggage screen. Tabs: Weapons, Armour, Food and drink, Other items.
+[ ] Every row shows an icon, name, number, quality, metal, weight, wear and who has it (worn by X / in the stash / in X's quiver / in the wagons). Food, drink, goods and coins have their own icons (loaf, mug, wine jug, sacks and bars, coins).
+[ ] The totals line gives the tab's weight and worth and the whole baggage's; they change when you move or sell something.
+[ ] Show: All / In use / Stash filters the gear; Sort: Name / Weight / Value / Quality reorders it.
+[ ] Equip on a stash piece asks who takes it and puts it on him (what he wore there goes to the stash). To stash takes a worn piece off.
+[ ] In a town, Sell on a stash piece sells it at the market's price; Sell all sells a trade good. Outside a town there is no Sell button.
+[ ] There is no Drop button yet (the game had no drop action to reuse). Food has no buttons here: rations stay on the company screen.
+[ ] On a phone (720x1280) the baggage screen fits and every button is easy to tap.
+Fixes from Douglas's Gear-tab screenshot
+[ ] New campaign: the starting company's metal gear is a mix like the start town's own stalls and armory (mostly copper with some tin in most towns), not nearly all tin. A recruit's gear follows his town the same way.
+[ ] Run out of food, get hungry, then buy meals: the men eat at once and the "N men are hungry" warning goes away. With meals in stock on Normal or Feast nobody stays hungry.
+[ ] On Short rations with meals in stock the warning says "hungry on Short rations".
+[ ] Roster: a man with "wounded" and "stays in camp" tags still shows his whole name; the tags sit under the name and shrink if they must.
+[ ] Recruit cards read as one short story, not a list: where the recruit comes from (family, their land or no field, the town), then what happened in date order with "so" / "but" where one thing led to the next, ending on why they stand before you (with their temper and dream worked in). Check a few in different towns (human, orc, goblin, elf, dwarf, steppe): the wording should fit the people, and every place, business and date should match their Records (family page, the person's history).
+Businesses and jobs (Fenmere findings; headless test tests/test_biz_people.gd passes, the game itself not played yet). Start a NEW campaign (old saves are not converted).
+[ ] Records -> Businesses: each trade appears once per town (one bowyer, one weaponsmith, one armourer, one brewer...). Mines: one per ore. Several farms are fine.
+[ ] No two rows share a name: family businesses are named by the head of the family ("Aldric Blackmere's farm"); two heads of one name read "the elder" / "the younger".
+[ ] Every row's details say "kept by: <a person>" (a family shop: one of its family; a farm: the family head; a town row: one of its staff), never "not tracked". Tap the business: "Kept by ..." opens that person.
+[ ] A shop worked by its keeper alone is listed ("staff 0 of 1 places and its keeper").
+[ ] Shops show real coins, not 0 everywhere, after the five years before.
+[ ] Farms show "health and profit" (steady / thriving / struggling, a profit a day), like the shops.
+[ ] A farm or shop with plenty of coins does not say "can't pay wages"; one says it only when a hand really went unpaid that week (or, for a shop, it owes more than its till holds).
+[ ] Hardship -> "Labour wanted vs offered": the open places say how many of them the till cannot pay for. Adults without work should be few where there are places they could take.
+[ ] Register: a person who keeps the family shop shows "keeper of the bowyer" at that shop.
+[ ] A worker moves to a better-paid opening when one comes up (his life history shows the change).
+Bronze, iron and ore deposits (headless test tests/test_metal_tech.gd passes; the game itself not played yet). Start a NEW campaign.
+[ ] Records -> a faction -> Research card: lines steel, bronze and iron. Humans and dwarves: bronze "mastered". Elves: bronze being worked, "learns at 0.60 x". Orcs and goblins: bronze "closed to this race for good". Iron "mastered" for everyone.
+[ ] Orc and goblin towns: no bronze gear on the stalls made there (only pieces bought, traded or looted); their smelters never list bronze bars as made (Records -> goods made). Their mints still cast coin.
+[ ] An orc or goblin company man can wear a bronze piece you give him or that he loots; it fights like any bronze piece.
+[ ] Elves: over years the Athenaeum's bronze know-how climbs (Research card), then their capital's smiths start making bronze and it spreads by caravan.
+[ ] Town -> Market -> Metal: bronze bars, iron bars and steel bars are listed with stock, demand and price. A town with weaponsmiths or armourers shows demand for bronze and iron bars even when the stalls are full; with none in stock their price rises and caravans bring some.
+[ ] Town tab: "Know-how: bronze N of 100 (the smiths' practice M), iron N" - orc and goblin towns show bronze 0 whatever their practice.
+[ ] A smelter making bronze uses 22 copper bars and 3 tin bars with 10 loads of wood for 25 bronze bars (its log book / goods used and made).
+[ ] Deposits: look at several towns (Town tab, first line): each has its own ores; many have one or two, some none, almost none have copper, tin, iron and flux all together. Tin is rare and found in a few hilly regions, so most towns buy it.
+[ ] In a big town the one weaponsmith (and others) has more places than in a small one, and grows when its goods sell.
+[ ] Town, company and baggage screens show the full coin sum (e.g. "1,234,567 coins") on its own row, never cut off with "...".
+[ ] Faster screens on a Large world: map to town, town back to the map, and back to the town from Company or Records all feel quick (no long pause); the map's trees and mountains look as before; Continue after quitting in a town, or just after leaving one, loads the latest save.
+Militia and caravan guard kit (Douglas 23:02; headless test tests/test_kit_cover.gd passes, the game itself not played yet). Start a NEW campaign.
+[ ] After the five years before, look at several towns' militia: most men have a weapon and a helm, and body armour where their people wear metal armour. Before this fix about half lacked body armour and a quarter a helm.
+[ ] Check a few caravans on the map: their guards carry weapons, helms and armour from the town's armory, not bare tunics. Before, about 95% went out without body armour.
+[ ] Town -> Economy tab -> the armory: the targets are bigger than before (they count every piece the militia is missing and a caravan's guard kit), and under them a line or two say why it is short, e.g. "the treasury (N coins, M held back for the garrison's pay) cannot pay for them" or "none on the stalls; the armourer has nobody working".
+[ ] A rich town with a short armory buys pieces off its stalls within days; the treasury drops by what it paid but never below what the militia's pay needs.
+[ ] A poor town: its militia stays short, its armory line says the treasury cannot pay, and its house tax surcharge goes up over the next months.
+[ ] When the stalls are full ("market full") but the armory is short, the weaponsmith and armourer keep working on what the armory lacks and those pieces go straight into the armory.

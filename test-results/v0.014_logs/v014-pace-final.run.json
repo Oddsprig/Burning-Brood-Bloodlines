@@ -1,0 +1,15 @@
+{
+  "Run": "v014-pace-final",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\outputs\\Burning_Brood_Bloodlines\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=tests/test_battle_pace_v014.gd",
+    "--watchdog=35"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 3.079
+}

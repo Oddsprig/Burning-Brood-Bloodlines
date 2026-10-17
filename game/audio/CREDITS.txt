@@ -1,0 +1,14 @@
+AUDIO CREDITS - all CC0 (public domain dedication), recorded/composed by their authors
+Music
+  music_title.ogg   "Lament for a Warrior's Soul" by RandomMind - opengameart.org/content/fantasy-lament-for-a-warriors-soul
+  music_map.ogg     "Fantasy Orchestral Theme" by Joth - opengameart.org/content/fantasy-orchestral-theme
+  music_battle.ogg  "Call to War" by Umplix - opengameart.org/content/call-to-war
+Sound effects
+  clash_*, hit_*, fall     Kenney "Impact Sounds" (CC0) - kenney.nl/assets/impact-sounds
+  ui_confirm               Kenney "RPG Audio" (CC0) - kenney.nl/assets/rpg-audio
+  roar_0                   "CC0 Deep Monster Roar" by trazzz123 - opengameart.org/content/cc0-deep-monster-roar
+  roar_1, breath_frost, breath_storm, event_fanfare
+                           "80 CC0 RPG SFX" by rubberduck - opengameart.org/content/80-cc0-rpg-sfx
+  breath_venom             "80 CC0 creature SFX" by rubberduck - opengameart.org/content/80-cc0-creature-sfx
+  breath_fire              "Fireball 1" (JM FX fireball 01, Julien Matthey), posted by diligentcircle - opengameart.org/content/fireball-1
+All files were trimmed and loudness-normalised (ffmpeg loudnorm) for the game.

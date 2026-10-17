@@ -1,0 +1,4 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+mounted rider art: 311 checks, 0 failures
+== res://tests/test_mounted_rider_art.gd: PASS ==

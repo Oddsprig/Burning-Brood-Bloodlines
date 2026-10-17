@@ -1,0 +1,11 @@
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+WARNING: Loaded resource as image file, this will not work on export: 'res://art/dragons/wyvern_spirewing_ground_v006.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+   at: load_from_file (core/io/image.cpp:2780)
+   GDScript backtrace (most recent call first):
+       [0] _asset (res://art/dragon_art.gd:37)
+       [1] model (res://art/dragon_art.gd:78)
+       [2] framing (res://art/dragon_art.gd:217)
+       [3] image_for (res://art/dragon_art.gd:226)
+       [4] run (res://tests/capture_sprite.gd:8)
+       [5] _ready (res://tests/runner.gd:41)

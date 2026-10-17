@@ -1,0 +1,14 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: probe-corrected2
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 4.953s | exit 0
+PASS | tests/test_household_food_v046.gd | 1.953s | exit 0
+PASS | tests/test_land_capacity_v046.gd | 29.906s | exit 0
+PASS | tests/test_guard_death_v046.gd | 31.125s | exit 0
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-probe-corrected2
+Source receipt SHA256: 605e72c7fcee3789279b30d82b9ff9bebde0cc2eb93ee741620bedbb80fc29a0
+
+Notes (you can write here):

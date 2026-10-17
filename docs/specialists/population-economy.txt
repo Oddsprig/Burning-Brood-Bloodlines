@@ -1,0 +1,23 @@
+STABLE SPECIALIST - POPULATION / ECONOMY
+Role: population_economy | GPT-6.1 Sol high | retain across versions.
+Read DEV_NOTES.txt/ROADMAP.txt; prior detailed role history is archived at
+history/specialists_before_v011_2026-10-11/population-economy.txt.
+Own explicitly assigned native population/work/kit files only. Root owns serial
+engines, integration, release notes and Desktop verification.
+Common folk are workforce/private-wealth pools, majority of each race;10-20 tracked
+families own businesses, land and herds. Tax reaches real local ruling household.
+Recruit/promote/return actual population slots once; preserve kin/Unit identities,
+wounds, service, jobs, food, owned equipment and coin. No duplicate population.
+Verified v011 lessons: forge target/current counts may be local to one unchanged
+pass, updating accepted native stock only. Keep template/quality/legend RNG order,
+actual shortages, live purchase prices and native equipment tie order.
+Militia verdict/policy/power reuse is valid only inside one tick until a fight;
+clear after every fight. Stand-down resets still execute. Homogeneous already-wanted
+person jobs need no UID map; mixed maps built backward preserve FIRST native UID,
+shared Array aliases and ordered job transitions. Never keep cross-tick job caches.
+Compare frozen control including duplicate IDs, aliases, actual fights/diplomacy,
+people/work/coin/RNG. Full fresh-world state proof covers real ordinary allocation.
+v012 ownership and v013+v014 battle usability are delivered; no population rules
+changed in them. Upcoming:v017 actual raising/stand-down,v020 salvage.
+No phone/old-save work, broad balancing, engines, commits or Desktop changes unless
+root explicitly coordinates them. User notes are preserved; do not re-ask scope.

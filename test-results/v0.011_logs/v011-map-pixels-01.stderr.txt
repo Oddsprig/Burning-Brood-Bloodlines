@@ -1,0 +1,12 @@
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+ERROR: Parent node is busy setting up children, `add_child()` failed. Consider using `add_child.call_deferred(child)` instead.
+   at: add_child (scene/main/node.cpp:1721)
+   GDScript backtrace (most recent call first):
+       [0] run (res://tests/diag_map_batch_v011.gd:31)
+       [1] _ready (res://tests/runner.gd:41)
+ERROR: Condition "!enabled || !is_inside_tree()" is true.
+   at: make_current (scene/2d/camera_2d.cpp:588)
+   GDScript backtrace (most recent call first):
+       [0] run (res://tests/diag_map_batch_v011.gd:34)
+       [1] _ready (res://tests/runner.gd:41)

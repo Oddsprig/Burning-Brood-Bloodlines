@@ -1,0 +1,4 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+MODEL IMPORT CONTRACT checks=6240 failures=0 animated=925 exact_source_images=1267 changed_from_bloodlines=1237 added=30
+== res://tests/compare_import_models.gd: PASS ==

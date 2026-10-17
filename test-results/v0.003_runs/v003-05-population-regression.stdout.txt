@@ -1,0 +1,1600 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ok: native starting company has 100 actual people
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: starting Unit has actual home household and registered person
+ok: starting company consumes 100 distinct away resident identities
+ok: starting company body matches actual source resident race
+ok: Elmham: 15 initial tracked households plus actual exceptional offices within 20
+ok: Elmham: bounded workforce owners
+ok: Elmham: common-folk majority
+ok: Elmham: authoritative resident census
+ok: Elmham: represented homes differ from tracked families
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: Goldwell: 15 initial tracked households plus actual exceptional offices within 20
+ok: Goldwell: bounded workforce owners
+ok: Goldwell: common-folk majority
+ok: Goldwell: authoritative resident census
+ok: Goldwell: represented homes differ from tracked families
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: Cedfield: 15 initial tracked households plus actual exceptional offices within 20
+ok: Cedfield: bounded workforce owners
+ok: Cedfield: common-folk majority
+ok: Cedfield: authoritative resident census
+ok: Cedfield: represented homes differ from tracked families
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: Marlgate: 15 initial tracked households plus actual exceptional offices within 20
+ok: Marlgate: bounded workforce owners
+ok: Marlgate: common-folk majority
+ok: Marlgate: authoritative resident census
+ok: Marlgate: represented homes differ from tracked families
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: Vikhaug: 15 initial tracked households plus actual exceptional offices within 20
+ok: Vikhaug: bounded workforce owners
+ok: Vikhaug: common-folk majority
+ok: Vikhaug: authoritative resident census
+ok: Vikhaug: represented homes differ from tracked families
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: Hrafngarth: 15 initial tracked households plus actual exceptional offices within 20
+ok: Hrafngarth: bounded workforce owners
+ok: Hrafngarth: common-folk majority
+ok: Hrafngarth: authoritative resident census
+ok: Hrafngarth: represented homes differ from tracked families
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: Kolfell: 15 initial tracked households plus actual exceptional offices within 20
+ok: Kolfell: bounded workforce owners
+ok: Kolfell: common-folk majority
+ok: Kolfell: authoritative resident census
+ok: Kolfell: represented homes differ from tracked families
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: Mireburrow: 15 initial tracked households plus actual exceptional offices within 20
+ok: Mireburrow: bounded workforce owners
+ok: Mireburrow: common-folk majority
+ok: Mireburrow: authoritative resident census
+ok: Mireburrow: represented homes differ from tracked families
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: Muckpit: 15 initial tracked households plus actual exceptional offices within 20
+ok: Muckpit: bounded workforce owners
+ok: Muckpit: common-folk majority
+ok: Muckpit: authoritative resident census
+ok: Muckpit: represented homes differ from tracked families
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: Mucksump: 15 initial tracked households plus actual exceptional offices within 20
+ok: Mucksump: bounded workforce owners
+ok: Mucksump: common-folk majority
+ok: Mucksump: authoritative resident census
+ok: Mucksump: represented homes differ from tracked families
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: Muckwarren: 15 initial tracked households plus actual exceptional offices within 20
+ok: Muckwarren: bounded workforce owners
+ok: Muckwarren: common-folk majority
+ok: Muckwarren: authoritative resident census
+ok: Muckwarren: represented homes differ from tracked families
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: Nibwarren: 15 initial tracked households plus actual exceptional offices within 20
+ok: Nibwarren: bounded workforce owners
+ok: Nibwarren: common-folk majority
+ok: Nibwarren: authoritative resident census
+ok: Nibwarren: represented homes differ from tracked families
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: Gashgrat: 15 initial tracked households plus actual exceptional offices within 20
+ok: Gashgrat: bounded workforce owners
+ok: Gashgrat: common-folk majority
+ok: Gashgrat: authoritative resident census
+ok: Gashgrat: represented homes differ from tracked families
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: Gashmok: 15 initial tracked households plus actual exceptional offices within 20
+ok: Gashmok: bounded workforce owners
+ok: Gashmok: common-folk majority
+ok: Gashmok: authoritative resident census
+ok: Gashmok: represented homes differ from tracked families
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: Krag-Gor: 15 initial tracked households plus actual exceptional offices within 20
+ok: Krag-Gor: bounded workforce owners
+ok: Krag-Gor: common-folk majority
+ok: Krag-Gor: authoritative resident census
+ok: Krag-Gor: represented homes differ from tracked families
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: Lunesse: 15 initial tracked households plus actual exceptional offices within 20
+ok: Lunesse: bounded workforce owners
+ok: Lunesse: common-folk majority
+ok: Lunesse: authoritative resident census
+ok: Lunesse: represented homes differ from tracked families
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: Aelaleth: 15 initial tracked households plus actual exceptional offices within 20
+ok: Aelaleth: bounded workforce owners
+ok: Aelaleth: common-folk majority
+ok: Aelaleth: authoritative resident census
+ok: Aelaleth: represented homes differ from tracked families
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: Silvalen: 15 initial tracked households plus actual exceptional offices within 20
+ok: Silvalen: bounded workforce owners
+ok: Silvalen: common-folk majority
+ok: Silvalen: authoritative resident census
+ok: Silvalen: represented homes differ from tracked families
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: Akkala: 15 initial tracked households plus actual exceptional offices within 20
+ok: Akkala: bounded workforce owners
+ok: Akkala: common-folk majority
+ok: Akkala: authoritative resident census
+ok: Akkala: represented homes differ from tracked families
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: Kumkent: 15 initial tracked households plus actual exceptional offices within 20
+ok: Kumkent: bounded workforce owners
+ok: Kumkent: common-folk majority
+ok: Kumkent: authoritative resident census
+ok: Kumkent: represented homes differ from tracked families
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: Koksu: 15 initial tracked households plus actual exceptional offices within 20
+ok: Koksu: bounded workforce owners
+ok: Koksu: common-folk majority
+ok: Koksu: authoritative resident census
+ok: Koksu: represented homes differ from tracked families
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: Coaldeep: 15 initial tracked households plus actual exceptional offices within 20
+ok: Coaldeep: bounded workforce owners
+ok: Coaldeep: common-folk majority
+ok: Coaldeep: authoritative resident census
+ok: Coaldeep: represented homes differ from tracked families
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: Undergate: 15 initial tracked households plus actual exceptional offices within 20
+ok: Undergate: bounded workforce owners
+ok: Undergate: common-folk majority
+ok: Undergate: authoritative resident census
+ok: Undergate: represented homes differ from tracked families
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: workforce owns its purse, no family shop/estate
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: every generated active native business belongs to tracked family
+ok: real anonymous draft-age residents exist
+ok: company is counted exactly once away from resident town census
+ok: pure census/eligibility reads never materialize anonymous people
+ok: one real anonymous draft becomes one stable person
+ok: materialization preserves resident headcount
+ok: materialization conserves private coin and physical market stock
+ok: native service removes actual working hands and binds Unit
+ok: real payroll credits the same private owner
+ok: field death leaves town count exactly once and retains immutable identity
+ok: duplicate unit death remains deduplicated after visible histories trim
+ok: next soldier consumes another slot with another stable identity
+ok: actual common-folk contest winner has his own tracked household
+ok: office promotion moves the same registered person and Unit identity
+ok: office promotion preserves actual name, age and combat body
+ok: only actual winner founds a lineage; cohort lineage stays separate
+ok: office promotion preserves residents, represented households and physical dwellings
+ok: office purse is an owned transfer, never new money
+ok: actual service and retained Army roll follow office holder
+ok: reigning mother's newborn preserves actual maternal dynasty after marriage
+ok: maternal office birth preserves real immutable parents
+ok: nonreigning parent retains native birth-house affiliation rule
+Population cohorts: 1596 checks, 0 failures
+== res://tests/test_population_cohorts.gd: PASS ==

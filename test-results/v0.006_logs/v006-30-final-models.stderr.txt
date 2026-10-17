@@ -1,0 +1,32 @@
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+WARNING: Loaded resource as image file, this will not work on export: 'res://art/dragon_source/spirewing_source_v006.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+   at: load_from_file (core/io/image.cpp:2780)
+   GDScript backtrace (most recent call first):
+       [0] run (res://tests/test_dragon_models.gd:22)
+       [1] _ready (res://tests/runner.gd:41)
+WARNING: Loaded resource as image file, this will not work on export: 'res://art/dragon_source/broadmantle_source_v006.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+   at: load_from_file (core/io/image.cpp:2780)
+   GDScript backtrace (most recent call first):
+       [0] run (res://tests/test_dragon_models.gd:22)
+       [1] _ready (res://tests/runner.gd:41)
+WARNING: Loaded resource as image file, this will not work on export: 'res://art/dragon_source/reedrunner_source_v006.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+   at: load_from_file (core/io/image.cpp:2780)
+   GDScript backtrace (most recent call first):
+       [0] run (res://tests/test_dragon_models.gd:22)
+       [1] _ready (res://tests/runner.gd:41)
+WARNING: Loaded resource as image file, this will not work on export: 'res://art/dragon_source/ironcrest_source_v006.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+   at: load_from_file (core/io/image.cpp:2780)
+   GDScript backtrace (most recent call first):
+       [0] run (res://tests/test_dragon_models.gd:22)
+       [1] _ready (res://tests/runner.gd:41)
+WARNING: Loaded resource as image file, this will not work on export: 'res://art/dragon_source/stormkeel_source_v006.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+   at: load_from_file (core/io/image.cpp:2780)
+   GDScript backtrace (most recent call first):
+       [0] run (res://tests/test_dragon_models.gd:22)
+       [1] _ready (res://tests/runner.gd:41)
+WARNING: Loaded resource as image file, this will not work on export: 'res://art/dragon_source/duskfin_source_v006.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+   at: load_from_file (core/io/image.cpp:2780)
+   GDScript backtrace (most recent call first):
+       [0] run (res://tests/test_dragon_models.gd:22)
+       [1] _ready (res://tests/runner.gd:41)

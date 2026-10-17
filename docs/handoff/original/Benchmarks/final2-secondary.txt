@@ -1,0 +1,26 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: final2-secondary
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 5.969s | exit 0
+PASS | tests/test_rotation_sizing.gd | 30.203s | exit 0
+PASS | tests/test_food_named.gd | 40.219s | exit 0
+PASS | tests/test_food_named_save.gd | 18.828s | exit 0
+PASS | tests/test_food_named_weight.gd | 13.344s | exit 0
+PASS | tests/test_food_hungry.gd | 13.797s | exit 0
+PASS | tests/test_food_campaign.gd | 136.922s | exit 0
+FAIL | tests/test_food_battle.gd | 41.984s | exit 1
+  1 occurrence(s): FAIL: half-starved men gasp for breath
+PASS | tests/test_service_identity.gd | 26.000s | exit 0
+PASS | tests/test_militia_hiring.gd | 8.813s | exit 0
+FAIL | tests/test_sickness.gd | 762.438s | exit 1
+  1 occurrence(s): FAIL: population 764 -> 757 after 6 deaths
+PASS | tests/test_records_snapshot.gd | 24.875s | exit 0
+PASS | tests/test_records_economy.gd | 43.750s | exit 0
+PASS | tests/test_ui_records_v044.gd | 331.657s | exit 0
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-final2-secondary
+Source receipt SHA256: 606f644bd4bda7eb25ef18cef869d260392ab731c2f83771a4e3d8e7c4d9fe29
+
+Notes (you can write here):

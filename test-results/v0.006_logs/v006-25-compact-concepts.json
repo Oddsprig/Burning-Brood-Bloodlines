@@ -1,0 +1,15 @@
+{
+  "Run": "v006-25-compact-concepts",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "work/v006-source-verification/game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_dragon_concepts.gd",
+    "--watchdog=15"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 2.332
+}

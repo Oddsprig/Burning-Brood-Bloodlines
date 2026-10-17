@@ -1,0 +1,57 @@
+[
+  {
+    "seconds": 0.27,
+    "private_bytes": 90763264,
+    "working_bytes": 138510336
+  },
+  {
+    "seconds": 0.548,
+    "private_bytes": 188710912,
+    "working_bytes": 234795008
+  },
+  {
+    "seconds": 0.811,
+    "private_bytes": 238542848,
+    "working_bytes": 283684864
+  },
+  {
+    "seconds": 1.074,
+    "private_bytes": 287571968,
+    "working_bytes": 331849728
+  },
+  {
+    "seconds": 1.339,
+    "private_bytes": 348880896,
+    "working_bytes": 392015872
+  },
+  {
+    "seconds": 1.605,
+    "private_bytes": 329371648,
+    "working_bytes": 370806784
+  },
+  {
+    "seconds": 1.868,
+    "private_bytes": 358412288,
+    "working_bytes": 401145856
+  },
+  {
+    "seconds": 2.13,
+    "private_bytes": 365330432,
+    "working_bytes": 408227840
+  },
+  {
+    "seconds": 2.396,
+    "private_bytes": 353509376,
+    "working_bytes": 396558336
+  },
+  {
+    "seconds": 2.66,
+    "private_bytes": 312193024,
+    "working_bytes": 355430400
+  },
+  {
+    "seconds": 2.924,
+    "private_bytes": 51216384,
+    "working_bytes": 100671488
+  }
+]

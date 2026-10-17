@@ -1,0 +1,15 @@
+{
+  "Run": "v016-ui-headless-final-02",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v016-candidate\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=tests/test_combat_log_ui_v016.gd",
+    "--watchdog=40"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 6.672
+}

@@ -1,0 +1,42 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: baseline-inherited-save
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 6.125s | exit 0
+FAIL | tests/test_farm_work_save.gd | 29.547s | exit 27
+  27 occurrence(s): FAIL: old assignment has no fabricated new-rule marker before ordinary matching
+FAIL | tests/diag_land_food_v046.gd | 114.703s | exit 32
+  1 occurrence(s): FAIL: global coin ledger {"expected":55421741.32034364,"gap":-79.99999924749136,"held":55421661.320344396}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55382031.28672052,"gap":-159.99999929219484,"held":55381871.28672123}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55350200.08944315,"gap":-239.99999932944775,"held":55349960.08944382}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55311659.1514508,"gap":-319.99999928474426,"held":55311339.15145151}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55274064.44642456,"gap":-399.9999992251396,"held":55273664.44642533}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55248596.52671975,"gap":-479.9999992623925,"held":55248116.52672049}
+  2 occurrence(s): FAIL: global coin ledger {"expected":55259719.551838815,"gap":-479.9999992325902,"held":55259239.55183958}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55272826.12907047,"gap":-479.99999924749136,"held":55272346.12907122}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55233964.018313736,"gap":-479.9999992772937,"held":55233484.01831446}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55196078.34508853,"gap":-479.99999928474426,"held":55195598.34508924}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55158655.374045804,"gap":-479.9999993145466,"held":55158175.37404649}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55118668.64914052,"gap":-479.99999928474426,"held":55118188.64914124}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55083307.78005215,"gap":-479.99999935925007,"held":55082827.78005279}
+  2 occurrence(s): FAIL: global coin ledger {"expected":55044857.34452343,"gap":-479.9999993443489,"held":55044377.344524086}
+  1 occurrence(s): FAIL: global coin ledger {"expected":55009464.32617651,"gap":-479.9999993517995,"held":55008984.32617716}
+  1 occurrence(s): FAIL: global coin ledger {"expected":54981725.0398244,"gap":-479.9999993517995,"held":54981245.039825045}
+  1 occurrence(s): FAIL: global coin ledger {"expected":54960186.936353564,"gap":-479.99999929219484,"held":54959706.93635427}
+  1 occurrence(s): FAIL: global coin ledger {"expected":54936516.77724358,"gap":-479.999999307096,"held":54936036.77724427}
+  1 occurrence(s): FAIL: global coin ledger {"expected":54917842.273029536,"gap":-479.999999307096,"held":54917362.27303023}
+  1 occurrence(s): FAIL: global coin ledger {"expected":54897937.778129436,"gap":-479.99999932944775,"held":54897457.77813011}
+  2 occurrence(s): FAIL: global coin ledger {"expected":54907525.20947206,"gap":-479.999999307096,"held":54907045.20947275}
+  1 occurrence(s): FAIL: global coin ledger {"expected":54902161.65655553,"gap":-479.999999307096,"held":54901681.65655623}
+  1 occurrence(s): FAIL: global coin ledger {"expected":54861458.11727542,"gap":-479.9999992623925,"held":54860978.117276154}
+  1 occurrence(s): FAIL: global coin ledger {"expected":54820819.89111143,"gap":-479.99999921023846,"held":54820339.89111222}
+  1 occurrence(s): FAIL: global coin ledger {"expected":54780261.58007006,"gap":-479.9999992027879,"held":54779781.58007086}
+  1 occurrence(s): FAIL: global coin ledger {"expected":54739937.349032775,"gap":-479.99999913573265,"held":54739457.34903364}
+  1 occurrence(s): FAIL: global coin ledger {"expected":54701212.91645448,"gap":-479.9999991133809,"held":54700732.916455366}
+  2 occurrence(s): FAIL: global coin ledger {"expected":54659074.90052445,"gap":-479.999999165535,"held":54658594.90052529}
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-baseline-inherited-save
+Source receipt SHA256: 6657e59290f6be23181e2762fb354b4f6e7be9f9d0dae61e7aea591407b402f7
+
+Notes (you can write here):

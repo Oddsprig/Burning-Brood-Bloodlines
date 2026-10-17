@@ -1,0 +1,12 @@
+{
+  "Run": "v006-26-blood-colour-import",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "work/v006-source-verification/game",
+    "--import"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 5.94
+}

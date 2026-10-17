@@ -1,0 +1,15 @@
+{
+  "Run": "v011-focus-01",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\outputs\\Burning_Brood_Bloodlines\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_campaign_focus_v011.gd",
+    "--watchdog=30"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 3.545
+}

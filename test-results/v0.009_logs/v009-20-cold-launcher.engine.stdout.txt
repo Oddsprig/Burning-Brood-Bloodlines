@@ -1,0 +1,535 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+[  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+[  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+[  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+[  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+[  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+[92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (426 steps)[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | CreaturePainter[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | DragonArt[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | DragonConcepts[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | DragonDamageArt[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | DragonMountPreviewArt[39m[0m
+[   1% ] [90m[1mupdate_scripts_classes[22m | DragonRigArt[39m[0m
+[   1% ] [90m[1mupdate_scripts_classes[22m | DragonSpriteCatalog[39m[0m
+[   1% ] [90m[1mupdate_scripts_classes[22m | DwarfArt[39m[0m
+[   1% ] [90m[1mupdate_scripts_classes[22m | ElfArt[39m[0m
+[   2% ] [90m[1mupdate_scripts_classes[22m | FigurePainter[39m[0m
+[   2% ] [90m[1mupdate_scripts_classes[22m | GoblinArt[39m[0m
+[   2% ] [90m[1mupdate_scripts_classes[22m | HumanArt[39m[0m
+[   2% ] [90m[1mupdate_scripts_classes[22m | GameIcon[39m[0m
+[   3% ] [90m[1mupdate_scripts_classes[22m | ItemIcon[39m[0m
+[   3% ] [90m[1mupdate_scripts_classes[22m | ItemIconArt[39m[0m
+[   3% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   3% ] [90m[1mupdate_scripts_classes[22m | MapToken[39m[0m
+[   3% ] [90m[1mupdate_scripts_classes[22m | MapTokens[39m[0m
+[   4% ] [90m[1mupdate_scripts_classes[22m | MountedRiderArt[39m[0m
+[   4% ] [90m[1mupdate_scripts_classes[22m | OrcArt[39m[0m
+[   4% ] [90m[1mupdate_scripts_classes[22m | Paperdoll[39m[0m
+[   4% ] [90m[1mupdate_scripts_classes[22m | PartyIcon[39m[0m
+[   5% ] [90m[1mupdate_scripts_classes[22m | PixelCanvas[39m[0m
+[   5% ] [90m[1mupdate_scripts_classes[22m | Portrait[39m[0m
+[   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   5% ] [90m[1mupdate_scripts_classes[22m | TrollArt[39m[0m
+[   6% ] [90m[1mupdate_scripts_classes[22m | WeaponArt[39m[0m
+[   6% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   6% ] [90m[1mupdate_scripts_classes[22m | ArrowLayer[39m[0m
+[   6% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   7% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   7% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   7% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   7% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   7% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   8% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   8% ] [90m[1mupdate_scripts_classes[22m | Academy[39m[0m
+[   8% ] [90m[1mupdate_scripts_classes[22m | ArmsTrade[39m[0m
+[   8% ] [90m[1mupdate_scripts_classes[22m | Army[39m[0m
+[   9% ] [90m[1mupdate_scripts_classes[22m | Backstory[39m[0m
+[   9% ] [90m[1mupdate_scripts_classes[22m | Bandits[39m[0m
+[   9% ] [90m[1mupdate_scripts_classes[22m | Barge[39m[0m
+[   9% ] [90m[1mupdate_scripts_classes[22m | BowsEcon[39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | Businesses[39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | Calendar[39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | Caravans[39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | Census[39m[0m
+[  11% ] [90m[1mupdate_scripts_classes[22m | Contracts[39m[0m
+[  11% ] [90m[1mupdate_scripts_classes[22m | CropRotation[39m[0m
+[  11% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  11% ] [90m[1mupdate_scripts_classes[22m | Diplomacy[39m[0m
+[  11% ] [90m[1mupdate_scripts_classes[22m | Dragons[39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | DragonCare[39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | DragonGrowth[39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | Dynasty[39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | Economy[39m[0m
+[  13% ] [90m[1mupdate_scripts_classes[22m | EconomyAudit[39m[0m
+[  13% ] [90m[1mupdate_scripts_classes[22m | EconomyRules[39m[0m
+[  13% ] [90m[1mupdate_scripts_classes[22m | EconGen[39m[0m
+[  13% ] [90m[1mupdate_scripts_classes[22m | Families[39m[0m
+[  14% ] [90m[1mupdate_scripts_classes[22m | Feudal[39m[0m
+[  14% ] [90m[1mupdate_scripts_classes[22m | Goods[39m[0m
+[  14% ] [90m[1mupdate_scripts_classes[22m | HarvestClaims[39m[0m
+[  14% ] [90m[1mupdate_scripts_classes[22m | Herds[39m[0m
+[  14% ] [90m[1mupdate_scripts_classes[22m | HerdRaids[39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | Lairs[39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | Legends[39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | LivestockCare[39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | Loans[39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | Metallurgy[39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | Militia[39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | Monsters[39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | MonsterContracts[39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | People[39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | Persons[39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | Plots[39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | Population[39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | RankRules[39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | Recruits[39m[0m
+[  19% ] [90m[1mupdate_scripts_classes[22m | Renown[39m[0m
+[  19% ] [90m[1mupdate_scripts_classes[22m | ServiceIdentity[39m[0m
+[  19% ] [90m[1mupdate_scripts_classes[22m | Shelter[39m[0m
+[  19% ] [90m[1mupdate_scripts_classes[22m | Sickness[39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | Supplies[39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | TownDefence[39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | TownEcon[39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | TownHousing[39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | TownSanitation[39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | Tracks[39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | WageClaims[39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | WarAI[39m[0m
+[  22% ] [90m[1mupdate_scripts_classes[22m | CampaignWorld[39m[0m
+[  22% ] [90m[1mupdate_scripts_classes[22m | WorldGen[39m[0m
+[  22% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  22% ] [90m[1mupdate_scripts_classes[22m | Baggage[39m[0m
+[  22% ] [90m[1mupdate_scripts_classes[22m | BodyState[39m[0m
+[  23% ] [90m[1mupdate_scripts_classes[22m | Creatures[39m[0m
+[  23% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  23% ] [90m[1mupdate_scripts_classes[22m | Factory[39m[0m
+[  23% ] [90m[1mupdate_scripts_classes[22m | Food[39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | Item[39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | Loot[39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | PerformanceTracker[39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | Unit[39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | Archery[39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | BattleSim[39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | CombatText[39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | Fighter[39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | Formulas[39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | Healing[39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | HealthReport[39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | Learning[39m[0m
+[  27% ] [90m[1mupdate_scripts_classes[22m | NaturalAttacks[39m[0m
+[  27% ] [90m[1mupdate_scripts_classes[22m | ArmyV045Baseline[39m[0m
+[  27% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  27% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  30% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  30% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  30% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  30% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  44% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  44% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  44% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  44% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  44% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  51% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  51% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  51% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  51% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  51% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  53% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  53% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  53% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  53% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  55% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  55% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  55% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  55% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  55% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  57% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  57% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  57% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  57% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  58% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  58% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  58% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  58% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  59% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  59% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  59% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  59% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  59% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  61% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  61% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  61% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  61% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  67% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  67% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  67% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  67% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  69% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  69% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  69% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  69% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  72% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  72% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  72% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  72% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  79% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  79% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  79% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  79% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  86% ] [90m[1mupdate_scripts_classes[22m | ArmyPanel[39m[0m
+[  86% ] [90m[1mupdate_scripts_classes[22m | AttrBar[39m[0m
+[  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  87% ] [90m[1mupdate_scripts_classes[22m | UiCompat[39m[0m
+[  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  87% ] [90m[1mupdate_scripts_classes[22m | DevTown[39m[0m
+[  88% ] [90m[1mupdate_scripts_classes[22m | DragonsView[39m[0m
+[  88% ] [90m[1mupdate_scripts_classes[22m | DragonCard[39m[0m
+[  88% ] [90m[1mupdate_scripts_classes[22m | DynastyCard[39m[0m
+[  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  89% ] [90m[1mupdate_scripts_classes[22m | UiKit[39m[0m
+[  89% ] [90m[1mupdate_scripts_classes[22m | LandMap[39m[0m
+[  89% ] [90m[1mupdate_scripts_classes[22m | Market[39m[0m
+[  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  90% ] [90m[1mupdate_scripts_classes[22m | Outfit[39m[0m
+[  90% ] [90m[1mupdate_scripts_classes[22m | PerformancePanel[39m[0m
+[  90% ] [90m[1mupdate_scripts_classes[22m | PoliticsView[39m[0m
+[  91% ] [90m[1mupdate_scripts_classes[22m | PopulationView[39m[0m
+[  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  92% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  92% ] [90m[1mupdate_scripts_classes[22m | RecruitBrief[39m[0m
+[  92% ] [90m[1mupdate_scripts_classes[22m | RecCells[39m[0m
+[  92% ] [90m[1mupdate_scripts_classes[22m | RecChart[39m[0m
+[  92% ] [90m[1mupdate_scripts_classes[22m | RecCivic[39m[0m
+[  93% ] [90m[1mupdate_scripts_classes[22m | RecData[39m[0m
+[  93% ] [90m[1mupdate_scripts_classes[22m | RecFlows[39m[0m
+[  93% ] [90m[1mupdate_scripts_classes[22m | RecKit[39m[0m
+[  93% ] [90m[1mupdate_scripts_classes[22m | RecMarket[39m[0m
+[  94% ] [90m[1mupdate_scripts_classes[22m | RecPages[39m[0m
+[  94% ] [90m[1mupdate_scripts_classes[22m | RecRaces[39m[0m
+[  94% ] [90m[1mupdate_scripts_classes[22m | RecRegions[39m[0m
+[  94% ] [90m[1mupdate_scripts_classes[22m | RecRow[39m[0m
+[  95% ] [90m[1mupdate_scripts_classes[22m | RecTable[39m[0m
+[  95% ] [90m[1mupdate_scripts_classes[22m | RecTown[39m[0m
+[  95% ] [90m[1mupdate_scripts_classes[22m | RecWorld[39m[0m
+[  95% ] [90m[1mupdate_scripts_classes[22m | Relations[39m[0m
+[  96% ] [90m[1mupdate_scripts_classes[22m | Roster[39m[0m
+[  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  96% ] [90m[1mupdate_scripts_classes[22m | TalentStars[39m[0m
+[  96% ] [90m[1mupdate_scripts_classes[22m | UiTheme[39m[0m
+[  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  97% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  97% ] [90m[1mupdate_scripts_classes[22m | TownContractsTab[39m[0m
+[  97% ] [90m[1mupdate_scripts_classes[22m | TownEconTab[39m[0m
+[  97% ] [90m[1mupdate_scripts_classes[22m | TownHealerTab[39m[0m
+[  98% ] [90m[1mupdate_scripts_classes[22m | TownMarketTab[39m[0m
+[  98% ] [90m[1mupdate_scripts_classes[22m | TownProvisionsTab[39m[0m
+[  98% ] [90m[1mupdate_scripts_classes[22m | TownResearchTab[39m[0m
+[  98% ] [90m[1mupdate_scripts_classes[22m | UnitSheet[39m[0m
+[  99% ] [90m[1mupdate_scripts_classes[22m | WoodBg[39m[0m
+[  99% ] [90m[1mupdate_scripts_classes[22m | UiWords[39m[0m
+[  99% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[92m[ DONE ][39m [1mupdate_scripts_classes[22m
+[0m
+[   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (26 steps)[39m[0m
+[   0% ] [90m[1m_update_scan_actions[22m | dragon_amethyst_v006.webp[39m[0m
+[   3% ] [90m[1m_update_scan_actions[22m | dragon_aquamarine_v006.webp[39m[0m
+[   7% ] [90m[1m_update_scan_actions[22m | dragon_black_diamond_v006.webp[39m[0m
+[  11% ] [90m[1m_update_scan_actions[22m | dragon_citrine_v006.webp[39m[0m
+[  14% ] [90m[1m_update_scan_actions[22m | dragon_diamond_v006.webp[39m[0m
+[  18% ] [90m[1m_update_scan_actions[22m | dragon_emerald_v006.webp[39m[0m
+[  22% ] [90m[1m_update_scan_actions[22m | dragon_garnet_v006.webp[39m[0m
+[  25% ] [90m[1m_update_scan_actions[22m | dragon_jade_v006.webp[39m[0m
+[  29% ] [90m[1m_update_scan_actions[22m | dragon_moonstone_v006.webp[39m[0m
+[  33% ] [90m[1m_update_scan_actions[22m | dragon_onyx_v006.webp[39m[0m
+[  37% ] [90m[1m_update_scan_actions[22m | dragon_opal_v006.webp[39m[0m
+[  40% ] [90m[1m_update_scan_actions[22m | dragon_pearl_v006.webp[39m[0m
+[  44% ] [90m[1m_update_scan_actions[22m | dragon_ruby_v006.webp[39m[0m
+[  48% ] [90m[1m_update_scan_actions[22m | dragon_sapphire_v006.webp[39m[0m
+[  51% ] [90m[1m_update_scan_actions[22m | dragon_topaz_v006.webp[39m[0m
+[  55% ] [90m[1m_update_scan_actions[22m | dragon_tourmaline_v006.webp[39m[0m
+[  59% ] [90m[1m_update_scan_actions[22m | broadmantle_source_v006.png[39m[0m
+[  62% ] [90m[1m_update_scan_actions[22m | duskfin_source_v006.png[39m[0m
+[  66% ] [90m[1m_update_scan_actions[22m | ironcrest_source_v006.png[39m[0m
+[  70% ] [90m[1m_update_scan_actions[22m | reedrunner_source_v006.png[39m[0m
+[  74% ] [90m[1m_update_scan_actions[22m | spirewing_source_v006.png[39m[0m
+[  77% ] [90m[1m_update_scan_actions[22m | stormkeel_source_v006.png[39m[0m
+[  81% ] [90m[1m_update_scan_actions[22m | icon_32.png[39m[0m
+[  85% ] [90m[1m_update_scan_actions[22m | icon_48.png[39m[0m
+[  88% ] [90m[1m_update_scan_actions[22m | icon_256.png[39m[0m
+[  92% ] [90m[1m_update_scan_actions[22m | icon.png[39m[0m
+[92m[ DONE ][39m [1m_update_scan_actions[22m
+[0m
+[   0% ] [90m[1mreimport[22m | Started (Re)Importing Assets (26 steps)[39m[0m
+[   0% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[   3% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[   7% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  11% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  14% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  18% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  22% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  25% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  29% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  33% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  37% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  40% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  44% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  48% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  51% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  55% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  59% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  62% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  66% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  70% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  74% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  77% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  81% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  85% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  88% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  92% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[   0% ] [90m[1mreimport[22m | Executing pre-reimport operations...[39m[0m
+[   0% ] [90m[1mreimport[22m | icon.png[39m[0m
+[   3% ] [90m[1mreimport[22m | icon_256.png[39m[0m
+[   7% ] [90m[1mreimport[22m | icon_48.png[39m[0m
+[  11% ] [90m[1mreimport[22m | icon_32.png[39m[0m
+[  14% ] [90m[1mreimport[22m | stormkeel_source_v006.png[39m[0m
+[  18% ] [90m[1mreimport[22m | spirewing_source_v006.png[39m[0m
+[  22% ] [90m[1mreimport[22m | reedrunner_source_v006.png[39m[0m
+[  25% ] [90m[1mreimport[22m | ironcrest_source_v006.png[39m[0m
+[  29% ] [90m[1mreimport[22m | duskfin_source_v006.png[39m[0m
+[  33% ] [90m[1mreimport[22m | broadmantle_source_v006.png[39m[0m
+[  37% ] [90m[1mreimport[22m | dragon_tourmaline_v006.webp[39m[0m
+[  40% ] [90m[1mreimport[22m | dragon_topaz_v006.webp[39m[0m
+[  44% ] [90m[1mreimport[22m | dragon_sapphire_v006.webp[39m[0m
+[  48% ] [90m[1mreimport[22m | dragon_ruby_v006.webp[39m[0m
+[  51% ] [90m[1mreimport[22m | dragon_pearl_v006.webp[39m[0m
+[  55% ] [90m[1mreimport[22m | dragon_opal_v006.webp[39m[0m
+[  59% ] [90m[1mreimport[22m | dragon_onyx_v006.webp[39m[0m
+[  62% ] [90m[1mreimport[22m | dragon_moonstone_v006.webp[39m[0m
+[  66% ] [90m[1mreimport[22m | dragon_jade_v006.webp[39m[0m
+[  70% ] [90m[1mreimport[22m | dragon_garnet_v006.webp[39m[0m
+[  74% ] [90m[1mreimport[22m | dragon_emerald_v006.webp[39m[0m
+[  77% ] [90m[1mreimport[22m | dragon_diamond_v006.webp[39m[0m
+[  81% ] [90m[1mreimport[22m | dragon_citrine_v006.webp[39m[0m
+[  85% ] [90m[1mreimport[22m | dragon_black_diamond_v006.webp[39m[0m
+[  88% ] [90m[1mreimport[22m | dragon_aquamarine_v006.webp[39m[0m
+[  92% ] [90m[1mreimport[22m | dragon_amethyst_v006.webp[39m[0m
+[  96% ] [90m[1mreimport[22m | Finalizing Asset Import...[39m[0m
+[92m[ DONE ][39m [1mreimport[22m
+[0m
+[   0% ] [90m[1mreimport[22m | Started (Re)Importing Assets (26 steps)[39m[0m
+[   0% ] [90m[1mreimport[22m | Executing post-reimport operations...[39m[0m
+[92m[ DONE ][39m [1mreimport[22m
+[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+[  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+[92m[ DONE ][39m [1mloading_editor_layout[22m
+[0m

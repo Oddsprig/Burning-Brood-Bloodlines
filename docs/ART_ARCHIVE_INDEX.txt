@@ -1,0 +1,79 @@
+BURNING BROOD - ORIGINAL ART ARCHIVE
+Created/verified: 2026-10-10 before icon/title replacements.
+Required Desktop folder:
+C:\Users\bligh\Desktop\Burning_Brood_Asset_Archive\v0.001
+
+001-icon: original code/UIDs/pixel renderer,256px icon and32/48/256px PNGs.
+002-title-backdrop: original script/UID/scene and1280x720 rendered title.
+003-ui-palette: original theme/UID and wood script/UID/render.
+MANIFEST.json:18 original files with verified SHA256, source commit, dimensions
+and static/animation metadata. Character frames/timing/anchors/grips unchanged.
+
+Portable workspace copy and ZIP also live beside this project in outputs/:
+Burning_Brood_Legacy_Assets_v0.001 / Burning_Brood_Legacy_Assets_v0.001.zip.
+Original assets were read from immutable BASE_SOURCE_v0.046.zip.
+Use a new unique version/entry before each future replacement; never overwrite.
+
+v0.004 - ORIGINAL CHARACTER / WEAPON ART - VERIFIED BEFORE IMPORT
+C:\Users\bligh\Desktop\Burning_Brood_Asset_Archive\v0.004
+Original Bloodlines v0.003 source checkpoint: 37e6849.
+2,044 retained files verified by length/SHA256: 799 runnable game source files,
+source ZIP, 1,237 unique native PNGs, exact sample specs/poses/timing/joints/grips,
+capture tools and metadata. All 925 animation samples across 25 cases retained.
+ANIMATION_METADATA_COMPLETE adds extra-case dimensions without changing pixels.
+ARCHIVE_MANIFEST.json SHA256:
+8e929548b65245db3512cf9f339f2eed289a6ef8920d792da67f194ed811a8b2.
+Workspace copy: outputs/Burning_Brood_Legacy_Assets_v0.004 beside this project.
+New art origin: Copper Desktop ASSET/Copper_Oath/Art_redesign/
+Refined_draft_2026-10-10_preview05; exact imported files listed in
+docs/specs/MODEL_IMPORT_v0.004.json. No Copper source/archive file was modified.
+
+v0.006 - ORIGINAL v0.005 DRAGON ART - VERIFIED BEFORE REPLACEMENT
+C:\Users\bligh\Desktop\Burning_Brood_Asset_Archive\v0.006
+986 retained source/render/metadata files, plus the archive manifest: complete
+835-file runnable v0.005 source, 136 original native dragon/egg renders, five
+original desktop views, capture tools and raw full logs. Exact SHA256 readback
+verified in both Desktop and portable workspace copies before replacement.
+Archive manifest SHA256:
+3232b762db51f449e1ff2d16654dfb27e65e6e720e87e15aec0496f267b67406
+Portable copy/ZIP: outputs/Burning_Brood_Legacy_Assets_v0.006 beside this project.
+ZIP SHA256:
+ecba9a8365925d785c87587e41e414c16dfc4f61ea752f5aa0c5eabbe86013b5
+
+v0.006 - NEW GENERATED ART / REJECTED DRAFT PRESERVATION
+C:\Users\bligh\Desktop\ASSET\Burning_Brood\Dragon_Art_v0.006_2026-10-10
+Original generated portraits and coherent sources, unused flat/part-atlas drafts
+and prompt/provenance records remain here. Rejected-runtime/ keeps the fitted
+atlas and old whole-image prototype outside the active game. The active game
+contains six coherent source PNGs with exact source coordinates/import controls,
+not the rejected atlas. Sixteen 384px WebP portraits total 419,328 bytes.
+Metadata/current contract: docs/specs/DRAGON_SPRITES_v0.006.txt and prompt JSONs.
+No existing Desktop archive entry or delivered version was overwritten.
+Final ART_MANIFEST.json:108 preserved files plus its self-excluded manifest;
+all31 generated original PNGs matched exact Desktop hashes. Also retains six
+coherent raw sources/import controls/current source-coordinate material masks,
+25 approved preview PNGs (22 native views plus3 raw labeled source layers) and
+superseded previews outside runtime. Final archive manifest SHA256:
+f3dda9f3e9a1665791844c565a8bd0b839e265559a25c3067f114cb6e0c75c45
+
+v006 PORTRAIT GEM-HORN CORRECTION - PRESERVED BEFORE REPLACEMENT
+Entry: ASSET/Burning_Brood/Dragon_Art_v0.006_2026-10-10/portrait-gem-correction/
+Before/: original16 WebP portraits, original prompts and initial v006 ZIP/manifest.
+Initial ZIP SHA256: 447d5bb38976770f3e1a4c38f197e34a55680bb72ec5d3c7a5ba53980b488fe4
+Gem-horn-originals/:16 individually edited full PNGs, exact copied hash readback.
+GEM_ORIGINALS_READBACK.json SHA256: 70d4173a9fdbc3e8fceb4e1b7e6d8236322d7e9b771d4ebc3068a7ae25a3963a
+EDIT_PROMPTS.json preserves every new built-in edit prompt/reference/output path.
+All47 generated originals remain saved:31 previous plus16 horn corrections.
+Runtime uses only sixteen384px WebP files,total442230 bytes. Source wyvern layers
+and their animation/damage geometry are unchanged. Portrait tooth cleanup was
+explicitly deferred by the user so v006 can ship now.
+
+v0.007 - COMPLETE v0.006 SOURCE / ART BEFORE v0.053 HUMANOID IMPORT
+C:\Users\bligh\Desktop\Burning_Brood_Asset_Archive\v0.007\v0.006_before_Copper_v0.053
+1040 files:complete runnable v006 game, original UIDs/dragon source pixels and
+cuts, native previews, current art/spec/notes, source/release manifests and
+dated result/package/Desktop evidence. Every length/SHA256 verified BEFORE
+replacement. Archive manifest SHA256:
+4645ea93e37f1c00f70417b4833dbc4c7532734049c74fef93ceab1600b01986
+New native source:released Desktop/Copper_Oath_v0.053, commit fd43a0b.
+File-by-file import provenance:docs/specs/MODEL_IMPORT_v0.007.json.

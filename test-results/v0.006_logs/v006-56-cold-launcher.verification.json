@@ -1,0 +1,8 @@
+{
+  "run": "v006-56-cold-launcher",
+  "full_log_pass": false,
+  "error_count": 1,
+  "errors": [
+    "Log-path array construction combined four filenames; engine import finished but wrapper verification failed."
+  ]
+}

@@ -1,0 +1,22 @@
+BLOODLINES v0.004 - MODEL SOURCE
+User choice: import current Copper models first, redesign in a later pass.
+Origin: Desktop/ASSET/Copper_Oath/Art_redesign/
+Refined_draft_2026-10-10_preview05/Copper_Oath_refined_art_draft_source.zip.
+Copper base commit: d29f09f14890f25837911aae87243bf0c8edcafb.
+Origin is an unreleased refined art draft; native exports were inspected here.
+Exact ZIP/imported-file hashes: MODEL_IMPORT_v0.004.json beside this note.
+
+Eight new native modules: human, elf, dwarf, orc, goblin, troll, weapon, item icon.
+Five adapters: FigurePainter, Paperdoll, Portrait, PartyIcon, ItemIcon.
+All eight humanoid race keys and 15 existing weapon/bow sprite keys covered;
+template-specific axe/spear/hammer/dirk/mattock/crescent shapes and real materials.
+Native equipment/wounds/losses/caches and discrete rig/timing/physical anchors
+stay authoritative. Ruler portrait supplies actual person age/sex without a Unit.
+No Copper campaign, currency, body stats, weapon balance or new combat system.
+
+Reference preview PNGs: releases/previews/v0.004/.
+Before=Bloodlines v0.003; After=current imported Copper artwork.
+Original runnable sources/rendered pixels: Desktop/Burning_Brood_Asset_Archive/v0.004.
+Current finite evidence and failed observer attempts: test-results/v0.004*.txt.
+Higher raster detail is current; 100-200-per-side performance/balance is a later
+measured pass. One inherited Troll prone-bow boundary contact remains in the source.

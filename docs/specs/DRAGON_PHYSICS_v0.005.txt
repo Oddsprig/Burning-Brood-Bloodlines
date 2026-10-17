@@ -1,0 +1,79 @@
+BURNING BROOD: BLOODLINES - DRAGON PHYSICAL PROFILE CONTRACT v0.005
+2026-10-10 | Author calibration for fantasy biological tissues; balance provisional.
+
+IDENTITY AND INDEPENDENT INPUTS
+gem_id is the authoritative type: Sapphire Dragon, Ruby Dragon, etc.
+Personal name is separate. Morphology and size class are separate from gem type.
+Eggs retain gem Egg names; no active adult bite/claw profile is claimed for eggs.
+Stable individual appearance seed supplies repeatable physical variation.
+Changing a name cannot change type, anatomy, hardness, mass or attack geometry.
+Changing gem alone cannot change size, muscle strength or bite force.
+
+HARDNESS CALIBRATION (GAME INDEX0-100)
+Type/group                         Index  Shear yield  Impact yield
+Pearl                                25      160000       450000
+Opal                                 55      250000       750000
+Moonstone                            60      300000       850000
+Jade                                 65      350000       950000
+Onyx / Amethyst / Citrine             70      400000      1050000
+Garnet                               72      460000      1150000
+Emerald / Aquamarine / Tourmaline     75      520000      1350000
+Topaz                                80      620000      1600000
+Ruby / Sapphire                      90      800000      2100000
+Diamond / Black Diamond             100     1000000      2600000
+
+Explicit native yield values are author-set game deformation proxies. They
+are not laboratory gemstone stresses or a linear conversion from Mohs hardness.
+Native fields use existing DF-style yield/fracture units. Tooth and claw share
+gem hardness; their independent shape/size determines contact and penetration.
+Hardness does not increase attack force or supply free strike energy.
+
+TOUGHNESS AND SHARPNESS
+Separate biological tooth/claw calibration shared by gem types:
+impact_fracture4000000; shear_fracture1500000; impact/shear_strain100;
+density2000kg/m3; max_edge10000. Fracture values exceed all yield values.
+These fantasy mineralized tissues are not literal jewellery crystals.
+Fracture/strain and edge sharpness are independent from the hardness index.
+Do not assume a Diamond Dragon is unbreakable or a Pearl Dragon hits harmlessly.
+
+MASS, MUSCLE AND WEAPON GEOMETRY
+data/dragons.json is the single author source for size/morph/physical references.
+Size base masses:small350,medium1200,large5000,huge18000,colossal65000kg;
+native STR bases:1000/1150/1300/1500/1750, with independent shape/seed variation.
+Base tooth8cm,claw12cm,jaw out-lever0.12m; linear scales1/1.5/2.4/3.8/5.7.
+These are provisional author values; growth/balance gets its own later scope.
+Dragons.physical_profile(game,row) derives per-record rest estimates; native STR
+uses the existing1000 reference. Mass is kg; force N; torque Nm; tooth/claw
+length and penetration cm; geometric contact cm2; energy J; momentum kg m/s.
+Jaw force is calculated from muscle torque and jaw out-lever geometry.
+Native Formulas.torque/natural_swing supply established strength/mass scaling.
+Unscaled native attack inputs and derived rest swing estimates are distinct:
+future tactical code scales once using actual condition/skill/fatigue/pain.
+Contact uses an explicit authored cm2-to-native raw-area factor100; native
+penetration conversion uses Formulas.PENETRATION_MM_PER_UNIT. No physical
+measurement accuracy is claimed for the inherited abstract contact model.
+Tooth/claw dimensions affect contact/depth and geometry-dependent attack inputs.
+Body size/strength/bite force affect strike momentum/energy independently.
+Profile readers allocate no Units/items, move no population/coin and use no RNG.
+
+NATIVE ARMOUR / TISSUE BINDING - v0.008
+Consume per-individual materials and attack geometry through the existing
+NaturalAttacks/BattleSim/Formulas body/tissue/wound resolver. No second damage
+model, flat armour bypass, gem-only victory rule or guaranteed steel immunity.
+Rest profile values are groundwork; tactical dragons are not enabled in v005.
+Force, contact, depth, material yields/fracture, armour thickness/coverage and
+strike condition must all participate. Check teeth/claws/wing/hind-leg integrity.
+Existing per-race attack cache must not mix individual gem materials.
+Care/growth in v006 updates physical size/force while preserving gem hardness.
+
+REFERENCES (ACCESSED2026-10-10)
+GIA Sapphire Care and Cleaning:
+https://www.gia.edu/sapphire-care-cleaning
+Ruby and sapphire share corundum's Mohs9. Diamond ranks10. Mohs is not linear;
+scratch hardness differs from toughness. Only this distinction/order informs
+the author design; all dragon yield/force values are original balance choices.
+GIA Gemstone Durability: Design to Display (1987):
+https://www.gia.edu/doc/Gemstone-Durability-Design-to-Display.pdf
+Hardness, toughness and stability are distinct properties.
+Native source:game/sim/formulas.gd, sim/natural_attacks.gd, sim/battle_sim.gd,
+data/materials.json and data/creatures.json. Existing material bytes untouched.

@@ -1,0 +1,236 @@
+BURNING BROOD: BLOODLINES
+Separate game handoff from Copper Oath v0.046
+Prepared 2026-10-10. Working title; renaming later is fine.
+
+1. CONFIRMED USER DIRECTION
+The player is a family ruling one of the cities. The same kind of campaign map
+and battles remain, along with the full economy. The central experience is
+managing dragons, their riders and troops, and fighting wars with them.
+Family politics, settlement politics within a city, politics between
+settlements/factions, and marriage alliances become the main campaign themes.
+CK3/AGOT is a reference for the feel of dynastic politics and dragon warfare.
+Build this game's own setting and institutions.
+The presentation moves toward green, purple and dark tones. It must organize
+information into useful cards, columns and clear actions; avoid prose walls.
+The title should suit a mobile game. Mobile readability and touch controls
+should shape the new UI from the start.
+Copper Oath continues as a separate game.
+
+Everything below is a proposed implementation plan unless specifically
+identified as an existing system or confirmed user rule. No dates, final
+balance numbers, dragon-bond laws or succession laws have been agreed.
+
+2. THE CAMPAIGN LOOP
+Manage the ruling family, heirs, court and relationships.
+Govern the city through the existing treasury, households, trades and services.
+Keep dragons fed and fit, raise their young, choose riders and organize troops.
+Arrange marriages and agreements with other houses, cities and factions.
+Choose wars, deploy actual forces on the campaign map and fight tactical battles.
+Apply the real casualties, injuries, costs and political consequences.
+Continue through leadership succession and the next generation.
+
+An army defeat does not automatically end the dynasty. Leadership, military
+command, dragon ownership and dragon-rider bonds are separate relationships.
+A ruler or heir may serve as a rider if the eventual rules allow it. Do not
+silently inherit Copper Oath's rule that the player captain never fights.
+
+3. KEEP AND EXTEND THESE SYSTEMS
+Economy: household property/purses, actual plots and livestock, work and wages,
+business ownership/keepers, market goods and real item provenance, taxes,
+treasuries, debt, trade, named food, supply, housing, sanitation and sickness.
+A new dragon expense must debit a real payer and consume real supplies. Do not
+replace town economies with abstract city income or duplicate the market.
+House money, city treasury and faction money retain separate ownership and
+explicit transfers. Ruling a city does not make every citizen's goods yours.
+
+Population: existing adults/children/dead records, birth dates, spouses,
+parents, histories and live Unit links. A noble house is political/dynastic
+metadata tied to these people and households. It may span several households
+and towns; an economic household and a dynasty are different concepts.
+Do not create duplicate family trees, extra populations or invented rulers.
+
+Politics: towns already have head family/name/title records and culture-based
+capital/town titles. Faction ruler policies, diplomacy and military leadership
+also exist. Persistent person-linked officeholding and fuller succession are
+unfinished. Resolve the existing head to an actual registered person and extend
+the office. Never assume a generated head name already proves that identity.
+Make city/faction ruling families unmistakable in the register and family page.
+
+Military: existing armies, militia/guards, officer hierarchy, supply, equipment
+and campaign movement. Mobilization uses actual people and releases their real
+civilian work. Demobilization and casualties reconcile the same service records.
+Garrisons buy arms/armour from the open market. Existing reserves target 2.5
+times supported troop equipment beyond issued kit; internal distribution checks
+every 10 days within the same faction. Preserve that baseline during the split.
+Trade and internal military distribution remain distinct transactions.
+
+Combat: BattleSim's existing timed tactical grid, initiative, terrain,
+weapons/armour, material/tissue/body-part damage, blood loss, wounds, skill
+learning, morale/rout, aftermath and lasting injuries. Keep this combat style.
+Dragons and riders join this simulation through extensions. They do not use a
+second battle resolver or a separate hit-point abstraction.
+Creature infrastructure exists, but the current creature data contains wolf,
+bear and boar only. Dragon bodies, dragon art, flight, breath attacks and
+ridden-dragon mechanics are new work, not shipped v0.046 features.
+
+Presentation: readable Market/Provisions/Recruit/Healer/Contracts/Town and
+Town/World/Faction Records already exist. Reuse tables, links, filters, sorting,
+details and original transactions. Carry those improvements into the new UI.
+
+4. DRAGON MANAGEMENT - PROPOSED SCOPE
+Each dragon is an individual: stable identity, name, parents/offspring, age,
+growth, physical traits, temperament, owner/custodian, location, health and
+history. Eggs and juveniles develop into adults; stages and rates are undecided.
+Add feeding, care, shelter, breeding/hatching and injuries in manageable steps.
+Show real daily supply demand and upkeep before the player commits to more
+dragons. Obtain food from the existing food/goods/herd economy.
+Keep ownership, rider bond, military assignment and current location separate.
+A marriage transfers only the assets or rights actually written into its terms;
+it does not automatically transfer a dragon or force a new rider bond.
+
+Riders must be actual people. Qualification, training, attempted bonding and
+failed bonds need explicit rules. A proposed first model permits one active
+rider per dragon and one active dragon per rider; this is not a settled law.
+Heritage may matter if designed later, but do not assume that heirs become
+riders, inherit a bond or replace a dead rider automatically.
+Resolve rider death, dragon death, capture, departure and failed succession
+once against the true identities. An unbonded dragon can remain alive and owned.
+
+5. POLITICS AND MARRIAGES - PROPOSED SCOPE
+City: ruling office, council/court roles, prominent households, interests,
+loyalty, grievances, patronage and competing claims. Economic pressures should
+feed political opinions instead of producing unrelated random events.
+Realm: rulers, factions, subject/independent settlements, diplomatic agreements,
+war demands, obligations and succession disputes. Start with bounded systems;
+full intrigue, rebellions, conquest and castle sieges are later expansions.
+Family: stable dynasty membership, heir rules, branches, claims and office history.
+Royal/noble households must not disappear or be regenerated when a ruler dies.
+
+Marriages: extend existing same-town civilian marriage and kinship into real
+negotiated agreements across cities/houses. Show eligible adults, both parties,
+relationship/claims, residence, dynasty membership, optional dowry, obligations
+and intended alliance effect before acceptance. Choose cultural succession and
+marriage rules at that milestone.
+Preserve spouse/parent/history/health/property links through moves between
+households and towns. Dowries/property transfers must conserve real assets.
+Civilian marriages continue; political matching must not turn every household
+into a noble house or block the natural population system.
+An alliance is an explicit political agreement linked to the marriage; it needs
+defined duration and breach/death/succession rules, not a permanent free bonus.
+
+Remember real events: deaths, broken commitments, service and harm to relatives.
+The user previously requested memory of who killed family members and visible
+kinship to prior recruits. Extend actual history/kinship for political memory.
+Descendants are not forced into recruitment or dragon-rider service.
+
+6. PROPOSED VERSION MAP - NEW GAME'S OWN NUMBERING
+Inherited code baseline: Copper Oath v0.046. First new-game build: v0.001.
+These are dependency-ordered milestones, not delivery dates or authorization
+to implement everything at once. Split a milestone if needed.
+
+v0.001 - Separate identity and ruler foundation
+Own project/user-data/launcher; actual ruling family/person and starting city;
+clear offices and accounts; dark green/purple UI shell. Existing map, economy
+and troop battle still work. No dynasty game-over on a mere troop wipe.
+
+v0.002 - Dynasty and city politics
+Persistent offices/succession, heirs, house membership, visible ruling families,
+a small useful court/council and local interests tied to the real economy.
+Leadership survives movement and ordinary army losses.
+
+v0.003 - Marriages and external politics
+Cross-city political marriage proposals/terms, correct person moves, dowries,
+alliances/obligations and house/faction relations. Show reasons and consequences.
+A single accepted agreement changes assets and relations exactly once.
+
+v0.004 - Dragons and the first rider bond
+Individual dragons and eggs, parentage, care/food/upkeep, growth and health;
+one initially approved bond model, real riders and a clear dragon-management UI.
+Finish a playable small roster before adding many breeds or rare powers.
+
+v0.005 - Dragon/rider tactical battles
+Extend existing body/attack/scheduler/terrain/render systems for dragons,
+rider targeting, grounded movement and injury persistence. Then add flight and
+breath with explicit reach, range, terrain and damage rules. Each combatant's
+actual result returns to the same campaign identity.
+
+v0.006 - Dragon wars and campaign integration
+Army deployment/supply, campaign dragon movement, AI rulers/riders, bounded
+war goals/settlement control and political aftermath. Keep ordinary troops
+valuable. Victory, losses and ruler death affect actual offices and relationships.
+
+v0.007 - First cohesive mobile-oriented development build
+Finish the first-city experience, family/dragon/war explanations, touch layouts,
+readable battle controls, current-build saving and short release checks.
+Android/iOS export, packaging, performance budgets and monetization require
+their own scoped work; this handoff does not claim a mobile port is finished.
+
+Later: richer succession crises/plots, sieges and keeps, additional dragons,
+more monsters, wider worlds, improved people/portraits/weapons. New world size
+and content must preserve real settlement economies. Carry the existing art
+archive requirement into each replacement.
+
+7. CODE MAP - ALL PATHS RELATIVE TO THE INCLUDED SOURCE ROOT
+game/project.godot; game/core/game.gd
+  App identity/user-data, campaign state, screen routing, new game, payroll,
+  battle handoff and current company-based defeat condition.
+game/campaign/world.gd; worldgen.gd; world_map.gd; calendar.gd
+  Generation, daily simulation, campaign travel/map and calendar.
+game/ui/newgame.gd; presim.gd
+  Size/history options; history already reaches one day. Year = 120 days.
+game/campaign/persons.gd; families.gd; people.gd; service_identity.gd
+  Real register/kinship/marriage/birth/death, household work and live identity.
+  Persons.marriages is at line 637; parent/spouse fields are SP/MO/FA.
+game/campaign/econ_gen.gd; town_econ.gd; barge.gd
+  Town heads, economy/ownership and civic/faction ruler policy.
+  EconGen.generate writes the current head name/title/family at line 139.
+game/campaign/plots.gd; herds.gd; goods.gd; businesses.gd; loans.gd
+  Physical property, animal ages, goods, keepers/jobs and lending.
+game/campaign/diplomacy.gd; data/diplomacy.json
+  Existing daily faction relations, wars/truces, pacts and player standing.
+  Extend its company-facing layer deliberately for a ruling house.
+game/campaign/army.gd; militia.gd; war_ai.gd; arms_trade.gd; supplies.gd
+  Forces, actual service people, rank/officers, map orders, rekit and supply.
+game/sim/battle_sim.gd; fighter.gd; formulas.gd; natural_attacks.gd; archery.gd
+game/core/unit.gd; body_state.gd; creatures.gd
+game/data/bodies.json; creatures.json; materials.json
+  Shared tactical/body/creature infrastructure for dragon extensions.
+game/battle/battle.gd; unit_view.gd; inspector.gd; aftermath.gd
+  Battle presentation, deployment/details and results.
+game/art/creature_painter.gd; figure_painter.gd; paperdoll.gd; portrait.gd
+  Existing art/animation/body-part rendering; extend for dragons and riders.
+game/ui/theme.gd; wood_bg.gd; words.gd
+  Shared theme, drawn wood background and palette-dependent text.
+game/ui/town*.gd; records.gd; rec_*.gd; relations.gd; army_panel.gd
+  Existing town services, all Records scopes, relations and army UI.
+game/campaign/academy.gd; game/ui/town_research_tab.gd
+  Existing state-funded research infrastructure. Appointment continuity and
+  metallurgy progression remain separate open design/development work.
+docs/specs/diplomacy.md; economy-1-town.md; economy-2-army.md;
+docs/specs/monsters-wave1.md
+  Existing detailed system specifications; interpret through current source.
+
+Important identity limit: person PID and household references are scoped to
+their town. A name or bare PID is not a global identity. Cross-town political
+references must retain a stable person identity and current native location.
+Use existing UnitUID for live combat/service identities; do not instantiate
+duplicate Units for every civilian merely to create a political family tree.
+Use registered people even when the existing head record contains only a name.
+
+8. DESIGN DECISIONS TO RESOLVE AT THEIR MILESTONE
+Starting house/city selection, eligible cultures and opening dragon access.
+Succession law, house membership after marriage and office/claim inheritance.
+Who can bond, dragon custody versus ownership and rider training rules.
+Dragon stages, growth, feeding, eggs/breeding, rarity and starting roster.
+Flight, collision/footprint, breath/fire injuries and dragon-vs-dragon combat.
+War goals, settlement occupation and when full sieges enter the roadmap.
+Portrait/landscape mobile layout and eventual platform/export targets.
+
+Use practical stated defaults to build a reviewable small milestone; ask the
+user about choices that materially change their intended game. Keep all named
+examples as examples, never as special-case production rules.
+
+CURRENT TASK STATUS
+Handoff, source package and visual direction prepared.
+New game implementation, project rename, user-data changes, dragon mechanics
+and political controls have not started. Working name can change later.

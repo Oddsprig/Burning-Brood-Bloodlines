@@ -1,0 +1,13 @@
+{
+  "Run": "v006-01-original-art-import",
+  "Arguments": [
+    "--headless",
+    "--editor",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v006-before-models\\game",
+    "--import"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 8.995
+}

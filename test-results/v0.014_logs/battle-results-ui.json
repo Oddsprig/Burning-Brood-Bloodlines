@@ -1,0 +1,284 @@
+{
+	"captures": [
+		{
+			"capture_us": 22460,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v014-ui-render/final02/results_1280x720_closed.png",
+			"size": [
+				1280,
+				720
+			],
+			"state": "closed"
+		},
+		{
+			"capture_us": 21674,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v014-ui-render/final02/results_1280x720_wounded.png",
+			"size": [
+				1280,
+				720
+			],
+			"state": "wounded"
+		},
+		{
+			"capture_us": 22795,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v014-ui-render/final02/results_1280x720_lessons.png",
+			"size": [
+				1280,
+				720
+			],
+			"state": "lessons"
+		},
+		{
+			"capture_us": 22544,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v014-ui-render/final02/results_1280x720_loot.png",
+			"size": [
+				1280,
+				720
+			],
+			"state": "loot"
+		},
+		{
+			"capture_us": 22801,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v014-ui-render/final02/results_1280x720_fallen.png",
+			"size": [
+				1280,
+				720
+			],
+			"state": "fallen"
+		},
+		{
+			"capture_us": 46850,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v014-ui-render/final02/results_1920x1080_closed.png",
+			"size": [
+				1920,
+				1080
+			],
+			"state": "closed"
+		},
+		{
+			"capture_us": 44826,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v014-ui-render/final02/results_1920x1080_wounded.png",
+			"size": [
+				1920,
+				1080
+			],
+			"state": "wounded"
+		},
+		{
+			"capture_us": 44435,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v014-ui-render/final02/results_1920x1080_lessons.png",
+			"size": [
+				1920,
+				1080
+			],
+			"state": "lessons"
+		},
+		{
+			"capture_us": 45332,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v014-ui-render/final02/results_1920x1080_loot.png",
+			"size": [
+				1920,
+				1080
+			],
+			"state": "loot"
+		},
+		{
+			"capture_us": 44841,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v014-ui-render/final02/results_1920x1080_fallen.png",
+			"size": [
+				1920,
+				1080
+			],
+			"state": "fallen"
+		},
+		{
+			"capture_us": 78899,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v014-ui-render/final02/results_2560x1440_closed.png",
+			"size": [
+				2560,
+				1440
+			],
+			"state": "closed"
+		},
+		{
+			"capture_us": 75952,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v014-ui-render/final02/results_2560x1440_wounded.png",
+			"size": [
+				2560,
+				1440
+			],
+			"state": "wounded"
+		},
+		{
+			"capture_us": 70814,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v014-ui-render/final02/results_2560x1440_lessons.png",
+			"size": [
+				2560,
+				1440
+			],
+			"state": "lessons"
+		},
+		{
+			"capture_us": 73074,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v014-ui-render/final02/results_2560x1440_loot.png",
+			"size": [
+				2560,
+				1440
+			],
+			"state": "loot"
+		},
+		{
+			"capture_us": 72938,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v014-ui-render/final02/results_2560x1440_fallen.png",
+			"size": [
+				2560,
+				1440
+			],
+			"state": "fallen"
+		}
+	],
+	"checks": 266,
+	"desktop_fit_cases": 15,
+	"failures": 0,
+	"native_fixture": "200/200 native persons and wounds",
+	"no_focus": true,
+	"no_full_combat_log": true,
+	"no_phone_qa": true,
+	"offscreen": true,
+	"page_size": 18,
+	"sizes": [
+		[
+			1280,
+			720
+		],
+		[
+			1920,
+			1080
+		],
+		[
+			2560,
+			1440
+		]
+	],
+	"timings": [
+		{
+			"action": "build",
+			"size": [
+				1280,
+				720
+			],
+			"us": 235175
+		},
+		{
+			"action": "open_wounded",
+			"size": [
+				1280,
+				720
+			],
+			"us": 8691
+		},
+		{
+			"action": "open_lessons",
+			"size": [
+				1280,
+				720
+			],
+			"us": 3206
+		},
+		{
+			"action": "open_loot",
+			"size": [
+				1280,
+				720
+			],
+			"us": 5356
+		},
+		{
+			"action": "open_fallen",
+			"size": [
+				1280,
+				720
+			],
+			"us": 5104
+		},
+		{
+			"action": "build",
+			"size": [
+				1920,
+				1080
+			],
+			"us": 142913
+		},
+		{
+			"action": "open_wounded",
+			"size": [
+				1920,
+				1080
+			],
+			"us": 8686
+		},
+		{
+			"action": "open_lessons",
+			"size": [
+				1920,
+				1080
+			],
+			"us": 3176
+		},
+		{
+			"action": "open_loot",
+			"size": [
+				1920,
+				1080
+			],
+			"us": 3635
+		},
+		{
+			"action": "open_fallen",
+			"size": [
+				1920,
+				1080
+			],
+			"us": 5473
+		},
+		{
+			"action": "build",
+			"size": [
+				2560,
+				1440
+			],
+			"us": 143591
+		},
+		{
+			"action": "open_wounded",
+			"size": [
+				2560,
+				1440
+			],
+			"us": 8828
+		},
+		{
+			"action": "open_lessons",
+			"size": [
+				2560,
+				1440
+			],
+			"us": 3188
+		},
+		{
+			"action": "open_loot",
+			"size": [
+				2560,
+				1440
+			],
+			"us": 3568
+		},
+		{
+			"action": "open_fallen",
+			"size": [
+				2560,
+				1440
+			],
+			"us": 5600
+		}
+	]
+}

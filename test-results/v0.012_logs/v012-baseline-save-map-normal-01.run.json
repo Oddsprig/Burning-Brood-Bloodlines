@@ -1,0 +1,15 @@
+{
+  "Run": "v012-baseline-save-map-normal-01",
+  "Arguments": [
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v012-baseline\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=tests/diag_autosave_v012.gd",
+    "--report=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v012-baseline-save-map-normal.json",
+    "--watchdog=110"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 62.219
+}

@@ -1,0 +1,28 @@
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+SCRIPT ERROR: Out of bounds get index '1' (on base: 'PackedStringArray')
+   at: child_older (res://campaign/population.gd:104)
+   GDScript backtrace (most recent call first):
+       [0] child_older (res://campaign/population.gd:104)
+       [1] eaters (res://campaign/barge.gd:411)
+       [2] daily_rates (res://campaign/families.gd:1354)
+       [3] treasury_month (res://campaign/barge.gd:1241)
+       [4] levy (res://tests/test_feudal_metallurgy.gd:32)
+       [5] run (res://tests/test_feudal_metallurgy.gd:81)
+       [6] _ready (res://tests/runner.gd:41)
+SCRIPT ERROR: Out of bounds get index '1' (on base: 'PackedStringArray')
+   at: child_older (res://campaign/population.gd:104)
+   GDScript backtrace (most recent call first):
+       [0] child_older (res://campaign/population.gd:104)
+       [1] eaters (res://campaign/barge.gd:411)
+       [2] daily_rates (res://campaign/families.gd:1354)
+       [3] levy (res://tests/test_feudal_metallurgy.gd:37)
+       [4] run (res://tests/test_feudal_metallurgy.gd:81)
+       [5] _ready (res://tests/runner.gd:41)
+SCRIPT ERROR: Invalid access to property or key 'spend' on a base object of type 'Dictionary'.
+   at: _recipes (res://campaign/businesses.gd:894)
+   GDScript backtrace (most recent call first):
+       [0] _recipes (res://campaign/businesses.gd:894)
+       [1] metallurgy (res://tests/test_feudal_metallurgy.gd:71)
+       [2] run (res://tests/test_feudal_metallurgy.gd:81)
+       [3] _ready (res://tests/runner.gd:41)

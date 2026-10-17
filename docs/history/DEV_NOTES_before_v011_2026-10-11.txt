@@ -1,0 +1,331 @@
+BURNING BROOD: BLOODLINES - ACTIVE DEVELOPMENT NOTES
+Updated: 2026-10-11 | v0.010 delivered; v0.011 campaign freeze repair active
+
+ENTRY AND SOURCE
+Separate native Godot 4.7.2 game forked from Copper Oath v0.046.
+Branch dev/burning-brood; imported source eb1a8a6.
+v001 source/evidence:21a99c2/db4276d; v002:47efcc7/d746d10;
+v003:198c716/37e6849; v004:2ad6953/e6f2983. Preserve delivered versions.
+Original handoff/hash evidence:docs/handoff/original/. Read only as needed.
+Private user data:Burning Brood Bloodlines. Never modify/launch Copper Oath.
+Every version needs an actual versioned Desktop folder and branded .lnk using
+Bloodlines.ico,0 (green dragon/crown). Verify hashes, target and actual shell icon.
+Keep player input/foreground and saves untouched. A ZIP alone is incomplete.
+
+LOCKED DIRECTION
+CK3/AGOT-style feudal dynasty game in an original setting with armies/economy,
+dragons/riders and native DF-style materials/tissues/body/wounds/blood loss.
+Select settlement -> show its map location -> choose a house in that settlement;
+offer Customize House. Ruler portrait near map lower left. Succession UI in Laws.
+Humans/dwarves:male-preference primogeniture, daughters as fallback.
+Elves:eldest child's line regardless of sex; orcs:existing strength contests.
+Each town belongs to its faction's lord/liege/sovereign hierarchy. Intrigue,
+loyalty and defection change real allegiance/offices. No vague court expansion.
+Common folk form the majority in race/age/sex workforce/private-wealth pools.
+About15 tracked families per town own businesses, land and herds; common folk
+supply most labour. Local private tax goes to the actual ruling family, then
+private tribute upward. House/town/faction/army purses remain distinct.
+Do not auto-raise a player field army at game start; review its origin/funding.
+100/150/200 force targets by world size remain for actual mobilized armies.
+Recruit from original population; pay/food/kit/deaths count once, native bodies.
+Bronze smiths stop new copper/tin gear and recycle counted market alloy inputs.
+Background creature movement/encounters/battles remain temporarily suspended.
+Support both phone orientations; export is roughly50 passes away. No routine
+phone QA now. Released Copper v0.053 character/weapon/armour models imported;
+all humanoid races/genders/hair/beards, units and portraits. Redesign later.
+
+USER FEEDBACK - 2026-10-11 - NOTES ONLY, IMPLEMENTATION PENDING
+Starting selection: settlement first, visible location/highlight on the map,
+then houses belonging to that settlement, with a Customize House option.
+Do not limit the chooser to the settlement's current ruling family. Customization
+fields/effects are not yet specified. Remove succession blurbs from selection;
+present the established rules in a Laws category, without changing inheritance.
+City records: user rejects the current layout, font and menu construction.
+Screenshots show huge sparse rows, crowded tabs, low-contrast stat text and
+apparently blank/unreadable table contents. These are visual observations, not
+proof of missing simulation data. Later acceptance must inspect rendered screens
+for legibility, hierarchy and useful density; control-fit checks alone cannot do so.
+Starting army: Day2 screenshot shows100 troops,75000 army coins and8640/day pay
+without an explained recruitment/raising step. User questions both origin and
+already-raised state. Review troop/kit/coin provenance; default field army should
+not auto-raise when selecting a house. Distinguish garrison/available service
+from a mobilized field army; existing cohort/pay/equipment accounting still applies.
+Performance remains poor in actual play despite the short v009 checks:
+- Travelling screenshot:16FPS,62.50ms frame,131.49ms engine process,1481.4MiB
+  tracked RAM,3401.6MiB peak,372498 objects,4059 draw calls, campaign queue empty.
+  Campaign update mean44.41ms; force movement16.88ms; ruler information13.24ms;
+  offscreen clashes11.55ms. Session main-thread call peak4341.70ms.
+- Day6 settling screenshot:39FPS,25.64ms frame,41.36ms engine process,1486.4MiB
+  RAM (+5.4MiB since opening),372891 objects,4075 draw calls,325 pending jobs.
+  Town weekly work mean20.86ms; ruler information13.63ms; town economy12.03ms.
+- Battle screenshot:1x speed, tick79, Company92 vs The Warrens of Skrag150.
+  2FPS,500.00ms frame,738.86ms engine process; overall work call mean728.32ms,
+  max729.80ms. Battle calculations show only1.62ms mean per call (1.88ms max).
+  Campaign queue empty;1551.3MiB RAM (+70.3MiB since opening),374897 objects,
+  599 nodes,1549 draw calls. Autosave snapshot session peak3060.97ms is historical,
+  not evidence of an active save in this frame. Battle performance remains open.
+  Later profiling must account for full battle presentation/animation/drawing/UI
+  work as well as native calculations; the current small calculation row does
+  not explain overall cost. Cause is not established by this screenshot.
+These are screenshot samples, not a controlled benchmark or proof of a leak.
+Nested timings are inclusive; do not sum them. Previous headless checks did not
+validate rendered FPS or rule out long-session memory problems. Follow-up open.
+Combat log request: open while battle is paused and on the end-of-battle screen;
+give richer descriptions of actual strikes/armour/tissue/wounds and consequences.
+The feedback capture changed documentation only; game/install remain unchanged.
+
+ACTIVE PLAN - 2026-10-11
+v010 is delivered. User paused gameplay while collecting notes, requested the
+revised roadmap, then approved it with "ok go." v011 is now active.
+Performance and a good game come first; recurring map freezes are the next priority.
+v011 campaign freeze/responsiveness; v012 memory/autosave; v013 slow-motion option;
+v014 compact expandable battle results; v015 full/individual combat logs;
+v016 officer rally; v017 actual funded army raising/stand-down; v018 records/Laws;
+v019 map-first settlement/local-house/customization; v020 salvage/buyer receipts.
+Dragon bond/body/rider now v021/v022/v023, followed by flight/breath/deployment.
+Only unreleased numbers change. Earlier completed evidence remains historical.
+Target60FPS on this desktop; first gate30FPS average/p95 frame<=50ms at1x,
+plus responsive input and no recurring freezes. Record full frames/spikes/memory;
+timings/targets are planned, not passing results. Preserve native combat/accounting.
+No new dragon expansion until campaign/battles meet the gate. Split a pass when
+measured work exceeds scope; do not hide failures behind average/headless timings.
+Detailed code evidence, validation and creative UI direction live on demand in
+docs/specs/PERFORMANCE_RECOVERY_PLAN.txt. ROADMAP.txt controls current numbering.
+Active scope is the measured v011 campaign freeze repair. Later passes remain queued.
+Full v010 playtest notes:docs/specs/PLAYTEST_v0.010_2026-10-11.txt.
+
+v010 VERIFIED IMPLEMENTATION
+Native battle results, RNG and imported art must stay exact. Dirty actor refresh
+is coalesced; unchanged frames reuse their texture; camera bounds gate only
+raster work while logical animation/flee/flash state continues offscreen.
+Paperdoll uses individual LRU eviction with8192 entries/256MiB cached RGBA payload,
+plus a bounded exact-spec identity index. Active sprites can retain evicted
+textures; these limits are not whole-process/GPU memory. No full-cache cycling.
+Right diagnostics add actual spec/raster/upload/hit/miss/eviction work and cache
+size/activity.64 fixed label slots; fixed controls still refresh2Hz. Complete
+Battle frame and separate FX/gore/arrows callback CPU timings retain native order.
+Four native raster workers draw immutable spec snapshots, with one latest request
+per actor and at most two main-thread uploads per pump. Changed wounds/gear get
+priority; completed actors rotate fairly. Keep the last completed texture briefly;
+native art/physics remain exact. Battle exit drains all tasks before teardown.
+Workers read immutable drawing definitions only; never Unit/Item/campaign state.
+Fresh Normal/one-day rendered probes include camera/inspector/pause and actual
+native tick budget, plus separate adjacent-army fighting. No old-save migration.
+Baseline v009 reproduces1.97FPS for100/100. Final100/100:60.12FPS/p9520.98ms;
+200/200:59.27FPS/p9524.35ms; dense200/200 melee:33.19FPS/p9541.38ms, worst63.18ms.
+Actual contact:1048attacks,805hits,700wounds,51deaths,11severings; native weighted
+20tick/sec delivery including pause/slowmo passes. Heavy melee still needs work
+toward60FPS. Initial eager sprite setup takes about1s/2.1s. No leak-free claim.
+651focused assertions/seven desktop fits pass; exact native100/200 fixed-tick
+state/RNG, adjacent duel, all-eight worker race pixels, urgent death pan return,
+fair bounded queues, exact native art and natural worker teardown are checked.
+932source files/430unique UIDs;426prior UIDs byte-exact. Native art/data unchanged
+except the Paperdoll performance adapter. Final cold launcher/main scene pass.
+Full results/failures/limits: test-results/v0.010_2026-10-11_results.txt.
+
+v009 IMPLEMENTATION / INHERITED BASE
+Target is a fresh Normal world with one day of history, then continued map play.
+Right performance panel stays alive across screens; collapse with Performance.
+Show FPS/frame/process/physics, per-calculation latest/mean/max/window total,
+inclusive elapsed main-thread work, backlog age/count and RAM/object/resources.
+Fixed48 label slots/two time buckets per label; fixed controls refresh2Hz.
+RAM is engine-tracked memory, not whole OS/GPU usage; debug-only counters are
+marked unavailable when unsupported. Headless timings do not prove rendered FPS.
+Realtime map drains native ordered work with a4ms SOFT slice, holding calendar
+while a midnight is pending; indivisible jobs can overrun. Clamp stalled frame
+catch-up to0.1s. Town entry waits for queued work; paused campaign views also
+settle it. Synchronous rests settle prior jobs before company/calendar changes.
+Race classification reads each race once per call; no persistent stale flags.
+Ruler refreshes coalesce to4Hz; explicit refresh remains immediate. Equipment
+passes reuse local missing-slot/stock indexes and reset after actual purchases.
+Autosaves keep one worker/snapshot and one dirty flag, then copy newest state;
+waiting/quitting flushes it. No worker/snapshot chains grow with save requests.
+Desktop navigation/inspector reserve256px beside the240px diagnostics panel.
+No artwork or native battle resolver changes, no images in chat/phone QA.
+Final evidence:258 assertions/seven desktop fits; fresh Normal/1-day creation,
+600 map callbacks mean15.757ms/p9548.503ms/worst156.898ms. Peak equipment job
+90.724ms (earlier1635.633ms). RAM+2.510MiB, objects-540; no long-leak/GPU claim.
+207 native day jobs match full state/RNG/IDs across fresh control/budgeted runs.
+924 exact tested/bundled game files;417 previous UID bytes retained,426 unique.
+All101 art/data and21 released models unchanged. Full logs/delivery in v009 TXT.
+That checkpoint's follow-up is delivered v010; queued rider bonds/body are now v021/v022.
+
+v008 IMPLEMENTATION / DELIVERED SOURCE
+DragonCare owns only daily upkeep of existing records; no new coin/population,
+household, market or combat system. Explicit dragon_care jobs run after native
+food/deaths/feudal succession, then reconcile owner/keeper before buying once.
+Living present keeper required. Actual tracked owner's current household pays
+location-market retail prices, even if owner lives elsewhere; gift/inheritance
+changes payer without changing location/custody. No substitute treasury/wallet.
+Fresh/preserved meat substitute within one ration; used/demand books count once.
+Wood bundles cover shelter/warmth. Payer's seven-day human food gap and town's
+three-day essential-food stock are protected; hh/barn/granary/herds stay owned.
+Stored care.last_day/last receipt survives current saves; no load/quote charge.
+Feed/shelter shortages lower condition and can cause death; full care recovers.
+DragonGrowth interpolates existing size bases, one band per20 native years at
+full feed/care/health, capped Colossal. No age catchup; poor nutrition/care/health
+stalls growth. Physical profile applies morph/seed once and condition to strength;
+mass/bite/tooth/claw geometry change, gem hardness/material stay fixed.
+Eggs use shelter, no meat/hatching. No art replacement/images in chat this pass.
+Care view shows real payer/keeper, quote vs actual receipt and simple progress.
+Detailed calibration:docs/specs/DRAGON_CARE_v0.008.txt; actual checks/delivery
+are recorded separately in v008 dated TXT reports. Rider bonds now scheduled v021.
+Final focused source:664 counted assertions,six desktop fits;906 game files
+match tested/fresh bundled copies,411 prior UID bytes retained,417 unique now.
+Actual23-town/37-holding/100-person campaign queued care and full native save/load
+passed. Whole economy-day attempt timed out50.029s; not counted as a pass.
+All101 prior art/data files unchanged. Fresh preparation/main passed; separate
+package/Desktop/icon TXT evidence follows. No phone or broad balance claims.
+
+v007 IMPLEMENTATION / DELIVERED SOURCE
+Entire native v053 humanoid model set replaces the earlier preview05 draft:
+human,three elf types,dwarf,orc,goblin,troll; Original/Refined women, both Orc
+forms, face/hair variations and eight beard styles. Character, weapon/bow,
+shield/clothing/armour/helmet code and definitions match released source hashes.
+Expanded Orc skin/hair palettes imported. All existing UID bytes preserved.
+Moon glaive's old polearm template was the missing model dependency: replace
+with v053 one-handed crescent/axe definition and matching glaive-dancer skill.
+Its physical size/mass/attacks now agree with grip/pose. Other existing gear
+templates unchanged; add native closed helm and common smith pool exactly once.
+Actual metal and maker determine helmets, independently from wearer identity.
+Bound ruler portraits read real company/warband Unit look and equipment after
+UID/home/family/race checks. Civilian fallback stays person-seeded and pure.
+No new population, Unit, coin account, equipment system or combat resolver.
+Before replacement:1040 Desktop archive files verified, exact manifest/pointers
+in docs/specs/MODEL_IMPORT_v0.007.json and docs/ART_ARCHIVE_INDEX.txt.
+Short focused source/current-run evidence lives in v007 dated TXT results;
+actual Desktop/ZIP delivery receipts are separate. Dragon artwork is retained.
+1430 counted assertions,546 template/material/quality icons,173 native body/bust
+renders and eight reviewed previews passed;894 final game files match tested
+and fresh bundled copies. All408 previous UID files retained,411 current unique.
+Fresh bundled prepare/main passed. A legacy campaign-generating outfit fixture
+timed out before assertions; bounded native equipment cases passed29 checks.
+Delivered Desktop/ZIP/icon source285337e/evidence3ca9f3c. Rider bonds v021,
+native dragon battle body v022 follow the recovery passes.
+
+DRAGON CONTRACT - LATEST USER STEERING
+Original wyverns:two hind legs, two wings as forelimbs, no separate front legs.
+Six original body forms and five size classes;16 gem colour types/egg palettes.
+Ruby Egg, Sapphire Egg, Black Diamond Egg, etc. Living type is Sapphire Dragon,
+Ruby Dragon, etc.; an original individual name is a separate stored identity.
+Gem type sets tooth/claw hardness. Size/mass, strength, bite force, tooth/claw
+length, contact area and penetration affect physical attacks independently.
+Hardness differs from fracture resistance and sharpness. A softer colossal
+dragon can have much greater strike energy than a small harder dragon.
+Horns, teeth and claws use their gem material; skin/scales remain living tissue.
+Pure physical profiles exist; tactical body binding/armour wounds in v022.
+Care/growth/v008 must alter size/force profiles without altering gem hardness.
+Organic scaled/skin body; gem-like curved horns, claws and teeth. Latest user
+correction: Sapphire horns MUST be sapphire blue; each horn follows gem type.
+Never preserve brown/gray keratin. Original eye colours alone may be preserved.
+Trace material masks to actual anatomy, no rectangular strip across the head.
+Latest user correction supersedes independent fitted atlases/whole-limb removal:
+label cuts from ONE coherent source per form, preserving original sizes/positions.
+Body includes original wings, legs and tail; only head/upper neck and jaw are cut.
+Rest layers reconstruct original source pixels before gem pigmentation/animation.
+Damaged/mangled wings and limbs STAY ATTACHED with broad localized bloody stains.
+Only head/neck separation removes head+jaw, leaving a bloody neck-cut edge.
+Tiny tooth/claw-tip fragments can fly off using deterministic preview progress.
+Native lost/dmg/wk/bleed/blood fields remain copied preview values, never combat.
+Generated type portraits are approved, encoded compactly for game use; full
+originals/drafts preserved in Desktop/ASSET/Burning_Brood/Dragon_Art_v0.006_2026-10-10.
+Rider holds saddle mount handles and sits on body harness; NO head/neck rope.
+
+v006 IMPLEMENTATION / VERIFIED SOURCE
+Six coherent organic wyvern sources with original body/head/jaw offsets and
+true seated native unit fit. Preview body sway, jaw/head bite, attack/recoil and
+fallen movement; localized bloody wounds, retained mangled limbs, head cut and
+tiny tooth/claw-tip fragments. Full articulated leg gait is a later art pass.
+No campaign rider assignment, dragon tactical body activation or force/size/
+hardness rebalance. Native people/gear/art remain unchanged. Real battle binding
+and riding retain separate roadmap milestones after care and bond foundation.
+User rejected capsule drawing and independently fitted pieces that distorted
+anatomy. Preserve rejected drafts outside active runtime. Latest direction uses
+coherent sources as labeled native layers, not independently generated pieces.
+Before v005 art replacement:986 source/render/metadata files verified in Desktop
+Burning_Brood_Asset_Archive/v0.006 (136 original renders plus full835-file source).
+Final source checks:1,906 selected assertions (shared setup repeats across batches),
+14 desktop fit executions. Exact raw-source rest reconstruction, shaped gem horns,
+neck contact, deep crimson damage, native equipped unit fit, compact portraits
+and actual controls passed. Current Normal/one-day campaign save/load passed.
+Recoil initially opened the neck cut; rigid head seating now keeps the original
+cut contacts connected, with zero rest shift and no new/fitted pixels. Original
+PNG files, all396 prior UIDs, native humanoid/weapon/data/dragon records unchanged.
+Final native visuals, cold bundled launch and actual Desktop/package delivery
+have separate exact-source manifests and dated TXT receipts in test-results/.
+
+v005 IMPLEMENTATION
+world.dragons schema1/next_id/records:UID, personal name, gem_id, morph_id,
+size_class, appearance_seed, age/sex, parent/bloodline refs, real owner/house/
+household, estate, keeper, location, empty rider and bounded32-entry history.
+Native history finish seeds once:parent pair per valid faction seat and one egg
+per valid ruling seat. No load regeneration, fake people or new money account.
+Pure copied readers and seed hash consume no Game.rng or native identity counters.
+Actual owner/current ruler can give reviewed gift/keeper orders. Fresh apply
+revalidates ruler/source/recipient. Gift preserves keeper/location; custody
+needs a present resident. Departure/death clears unavailable custody once.
+Dead ownership uses stored legitimate kin via Dynasty.asset_heirs, even for
+non-rulers or minors; title usurpation does not grant privately owned dragons.
+Native moved households and trimmed dead ancestry remain valid. Orc kin need
+an existing same-house bound strength office/war-leader match. Extinct ownership
+stays unclaimed with prior refs/history. Ownership does not create a rider.
+Backend mutates only at commands/reconciliation. UI emits changed/save once
+after success. House->Dragons & eggs:own/realm/all filters, parents/keeper/town,
+six four-limb silhouettes and16 eggs, search/review/cancel, retained Back context.
+New static code-native portraits are additive; prior imported art stays exact.
+Final source:827 assertions,15 desktop fits,five inspected native images passed.
+Normal/one-day actual save/load:23towns,23eggs,14 named adults; all profiles stable.
+All835 source files match tested copies;389 prior UIDs unchanged,396 unique total.
+Fresh bundled preparation/main passed. Desktop/ZIP gates have separate receipts.
+Attempt15 caught inactive flag:Dictionary.merge(...,true) explicitly overwrites.
+Exact current results: test-results/v0.005_2026-10-10_results.txt and raw logs.
+Physical calibration:docs/specs/DRAGON_PHYSICS_v0.005.txt; no second resolver.
+
+PRIOR VERIFIED LEARNING
+v004 imported immutable Copper preview05 art/provenance:6,773 checks,
+925 animation samples,1,267 exact RGBA images,seven desktop fits;389UIDs total.
+Desktop original-art archive:2,044 verified source/render/metadata files.
+Display detail doubled with compensated native feet/grips/timing; portraits96px,
+items64px. True ruler portrait uses registered person's sex/age, no fake Unit.
+v003:1,863 assertions,seven desktop fits,Normal23-town native current save/load.
+Pool class/demand/work/service ledgers match native ownership; tax protects food.
+Muster/stand-down affects actual militia participation; guards retain duty.
+Historical run details stay in versioned TXT results/manifests, not active context.
+
+FOLDER BUILDING PLAN
+Burning_Brood_Bloodlines/
+  START_HERE.txt,AGENTS.md    Small entry points.
+  Launch_Bloodlines.cmd/ps1  Windows launch; bundled engine in runtime/.
+  Install_Desktop.cmd/ps1    Verified Desktop copy/versioned branded shortcut.
+  Bloodlines.ico            Windows icon from game/icon.png.
+  game/                     One source/data/art tree; focused tests/ inside.
+  docs/DEV_NOTES.txt         Current decisions/learning and this folder plan.
+  docs/ROADMAP.txt           One outcome per pass, deferred scope/done criteria.
+  docs/specialists/          Small briefs for four retained roles.
+  docs/specs/                Detailed specs/calibrations/provenance on demand.
+  docs/history/              Superseded roadmap/context; current plan stays concise.
+  docs/handoff/original/     Immutable handoff/evidence.
+  docs/ART_ARCHIVE_INDEX.txt Archive pointers; archive before replacing art.
+  test-results/             Actual dated version/run TXT evidence and failures.
+  releases/                 Finished ZIP, manifests, notes and inspected previews.
+Chat work/                  Intermediate scripts, isolated snapshots and logs.
+Desktop/Burning_Brood_Asset_Archive/ Original art before replacement.
+
+TEAM AND VERIFICATION
+Retain specialized GPT-6.1 Sol/high:combat_dragons,dynasty_economy,
+population_economy,interface_release. Bounded write scopes, no helper engines/
+commits/Desktop writes; primary integrates, runs checks, notes and packages.
+Short isolated,serial,BelowNormal checks, including rendered performance/visual
+checks when relevant without player foreground/input. SCRIPT ERROR means
+FAIL even if runner says PASS/exit0. Keep failed attempts and actual duration.
+No old-save migration,long campaigns,broad benchmarks or phone export claimed.
+Anonymous epidemic cases,whole-pool migration/housing,complete civilian bodies
+and multi-office tribute remain later work. Actual100-200-per-side rendered
+performance is now a recovery gate, ahead of dragon expansion.
+Offscreen clashes retain inherited campaign resolution; tactical battles use
+native individual physics. Current profiles prepare dragons for that resolver.
+
+DEFERRED ART FIX - USER REQUEST, 2026-10-10
+Concept portrait teeth need a later pass: oversized/awkward fangs, uneven tooth
+spacing/placement and mixed gem colours in some mouths. User requested packaging
+now, retaining these portraits for v006. Do not delay this release for tooth edits.

@@ -1,0 +1,25 @@
+{
+  "Run": "v016-battle-render-final-03",
+  "Arguments": [
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v016-candidate\\game",
+    "--resolution",
+    "2560x1440",
+    "--position",
+    "-20000,-20000",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=tests/diag_battle_render_v016.gd",
+    "--count=200",
+    "--enemies=200",
+    "--seconds=12",
+    "--contact",
+    "--no-world",
+    "--enforce-gate",
+    "--report=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v016-battle-render-final-03.json",
+    "--watchdog=40"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 18.869
+}

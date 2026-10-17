@@ -1,0 +1,38 @@
+BURNING BROOD: BLOODLINES v0.017 - ACTUAL DESKTOP DELIVERY
+2026-10-11 | PASS
+Source checkpoint: e460f8b44a39024c063f3ab2a22776546a443d15
+Desktop folder: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.017
+Desktop shortcut: C:\Users\bligh\Desktop\Burning Brood Bloodlines v0.017.lnk
+Target: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+Arguments: -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.017\Launch_Bloodlines.ps1"
+Working directory: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.017
+Icon: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.017\Bloodlines.ico,0
+ICO SHA256: d1ef199206f031d650bb086846c3ceab34b9217ce09e5a8b07022a6553e42438
+Actual native shell icon SHA256: 7de91d3f81c8808019a029b26e30c0a30f4db727d84dca5c6b64e4ed44da6467
+Shell icon matches the unchanged approved green dragon/crown brand.
+
+All 2443 installed payload files passed length/SHA256 readback.
+999 game files match the tested source manifest.
+457 inherited UIDs; 463 unique current UIDs.
+Current native assertions: 1722.
+Current rendered gate cases: 17.
+Counts and current fresh one-day, desktop Army UI and map frame
+evidence come from the current source manifest/results. Scope: funded native muster,
+real home returns and unraised startup, with actual identity and gear conservation.
+Native material/body damage and accounts remain authoritative. The selected map
+probe passes the recovery floor; universal60FPS and long-session leak freedom remain open.
+No art replacement, phone QA or old-save compatibility work in this pass.
+
+ZIP: 107313336 bytes; 2444 entries.
+ZIP SHA256: 1e74c18378b7df079d3a0d64537473076faad7abc11ebc95f157fb71ed0f1831
+Previous Desktop versions preserved: v0.010, v0.011, v0.012, v0.014, v0.016.
+All 11024 captured prior paths remain unchanged;
+v0.010/v0.011/v0.012/v0.014/v0.016 payload/manifests/icons/shortcuts are explicitly required.
+Prior v016 ZIP SHA256 remains 09babad7340464de9709c0aa8285a61111b96500947a5177ecb7ffaab0e12ab9.
+Current cold PrepareOnly and native main scene receipts match the source manifest.
+No interactive game launch, foreground/input or Copper Oath changed.
+
+Current source/cold/prior capture receipts included in the archive remain immutable.
+Post-package/post-install receipts live beside the source and installed copy;
+desktop-readback.json identifies archive membership of each receipt explicitly.
+All 10 listed receipt files are copied and exact hash/length read back.

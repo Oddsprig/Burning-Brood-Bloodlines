@@ -1,0 +1,22 @@
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "authority" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://ui/dragons.gd:150)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://tests/runner.gd:31)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+   at: GDScript::reload (res://tests/test_dragon_ui.gd:0)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://tests/runner.gd:31)
+ERROR: Failed to load script "res://tests/test_dragon_ui.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://tests/runner.gd:31)
+SCRIPT ERROR: Trying to assign value of type 'Control' to a variable of type 'dragons.gd'.
+   at: run (res://tests/test_dragon_ui.gd:26)
+   GDScript backtrace (most recent call first):
+       [0] run (res://tests/test_dragon_ui.gd:26)
+WARNING: 1 RID of type "CanvasItem" was leaked.
+   at: _free_rids (servers/rendering/renderer_canvas_cull.cpp:2733)
+WARNING: 2 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)

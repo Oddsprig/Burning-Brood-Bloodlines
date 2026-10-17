@@ -1,0 +1,15 @@
+{
+  "Run": "v007-13-cold-launcher",
+  "Seconds": 10.908,
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Arguments": [
+    "bundled launcher",
+    "PrepareOnly",
+    "fresh folder with spaces",
+    "private user paths"
+  ],
+  "CacheAndMarker": true,
+  "InteractiveLaunch": false,
+  "Root": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v007 final package verification\\Burning Brood Bloodlines v0.007 complete-models"
+}

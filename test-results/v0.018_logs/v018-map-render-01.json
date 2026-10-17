@@ -1,0 +1,25 @@
+{
+  "Run": "v018-map-render-01",
+  "Arguments": [
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v018-candidate-final01\\game",
+    "--resolution",
+    "2560x1440",
+    "--position",
+    "-20000,-20000",
+    "--max-fps",
+    "60",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/diag_campaign_render_v011.gd",
+    "--watchdog=100",
+    "--seconds=18",
+    "--wide",
+    "--interact",
+    "--enforce-gate",
+    "--report=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v018-map-render/final01.json"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 50.356
+}

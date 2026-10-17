@@ -1,0 +1,12 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: candidate-sickness-death-trace2
+Source: HISTORICAL SOURCE; NOT CURRENT PASSING PROOF
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 7.532s | exit 0
+PASS | tests/trace_sickness_deaths_v046.gd | 20.437s | exit 0
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-candidate-sickness-death-trace2
+Source receipt SHA256: e05f0d3aececbc4e9a4c124dba185c55deb8ef25239d8f83baa1526053b44a76
+
+Notes (you can write here):

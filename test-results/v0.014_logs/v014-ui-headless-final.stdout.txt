@@ -1,0 +1,4 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Battle results UI v014: 231 assertions, 15 desktop fit cases; failures=0
+== res://tests/test_battle_results_ui_v014.gd: PASS ==

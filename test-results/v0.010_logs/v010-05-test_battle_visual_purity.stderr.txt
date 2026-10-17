@@ -1,0 +1,4 @@
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+FAIL battle visuals: fixture presentation and restored gear retain exact initial native control
+FAIL battle visuals: 48 native ticks with full event presentation preserve RNG/body/wound/gear/log payloads against control

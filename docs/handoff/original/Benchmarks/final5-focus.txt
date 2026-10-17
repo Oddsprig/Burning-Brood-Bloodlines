@@ -1,0 +1,21 @@
+COPPER OATH v0.046 TEST / BENCHMARK LOG: final5-focus
+Source: EXACT CURRENT GAME SOURCE
+Run: COMPLETE
+Single observed timings; no FPS or controlled speedup claim.
+
+PASS | __import__ | 4.875s | exit 0
+PASS | tests/test_household_food_v046.gd | 1.953s | exit 0
+PASS | tests/test_land_capacity_v046.gd | 30.391s | exit 0
+PASS | tests/test_guard_death_v046.gd | 31.578s | exit 0
+PASS | tests/test_hiring_timing_v046.gd | 16.312s | exit 0
+PASS | tests/test_harvest_ownership.gd | 6.672s | exit 0
+PASS | tests/test_farm_retention.gd | 6.610s | exit 0
+PASS | tests/test_pasture_assignment_v046.gd | 12.141s | exit 0
+PASS | tests/test_pasture_sickness_v046.gd | 7.046s | exit 0
+PASS | tests/test_pasture_raids.gd | 22.625s | exit 0
+PASS | tests/test_company_wages_v046.gd | 12.813s | exit 0
+
+Raw evidence: C:\Users\bligh\Documents\Codex\2026-10-07\ok-so-now-u-extract-it\work\evidence\v0.046-final5-focus
+Source receipt SHA256: 7738fd905ca7c156e098549481e7ea79c682d269d6d3ded8495689db32b65b7c
+
+Notes (you can write here):

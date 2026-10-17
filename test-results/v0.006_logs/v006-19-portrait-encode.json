@@ -1,0 +1,13 @@
+{
+  "Run": "v006-19-portrait-encode",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "work/v006-portrait-encode",
+    "--script",
+    "res://encode.gd"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 1.239
+}

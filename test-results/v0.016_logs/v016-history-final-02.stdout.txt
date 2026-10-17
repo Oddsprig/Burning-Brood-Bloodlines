@@ -1,0 +1,4 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Combat history integration v016: 75 checks, 0 failures
+== res://tests/test_combat_history_integration_v016.gd: PASS ==

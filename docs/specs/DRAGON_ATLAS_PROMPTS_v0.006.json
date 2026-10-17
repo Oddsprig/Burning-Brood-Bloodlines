@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "mode": "built-in image_gen",
+  "asset": "six articulated part atlases; no flat body image used by fighting renderer",
+  "base_prompt": "Use case: stylized-concept\nAsset type: SINGLE production sprite PART ATLAS, four columns by four rows, 2048x2048 square RGBA with a truly TRANSPARENT background. These separated animal parts will be assembled and animated by a game rig, not displayed as a whole illustration.\nReference animal: the supplied original Spirewing wyvern sprite. Preserve its detailed organic silver/charcoal scales, natural sculpted musculature, long neck, predatory head, curved dark brown horns, wing membrane leather and pale polished gem-like claws/fang tips. This is a living animal, not crystalline or metallic armour.\nImportant composition: sixteen separate isolated parts, exactly ONE part per equal square cell; no part crosses a cell boundary, no overlaps between cells, at least 10% empty transparent padding around each part. The grid is INVISIBLE: no drawn lines, borders, text, labels or numbers. No full assembled dragon anywhere.\nRead cells in left-to-right rows. Follow this exact inventory:\nROW 1:\nCell1: torso only: right-facing lean dragon ribcage and muscular shoulder/flank, no head, neck, tail, limbs or wings. Side view, top back smooth clear saddle patch, rear hips left and front chest right.\nCell2: long curved S-shaped scaly NECK only, broad connection base at lower left, narrower upper connection at upper right. No head, no horns, no torso.\nCell3: UPPER HEAD only, facing right, sharp amber eye, organic eyebrow and cheeks, same swept curved brown horns, upper muzzle and upper fangs. Exclude lower jaw and neck. Upper mouth open boundary below.\nCell4: LOWER JAW only, facing right, curved scaled jawbone with several pale mineralized fang tips and lower lip. Hinge left and chin/muzzle right. No upper head or neck.\nROW 2:\nCell5: whole tapering curved tail only, broad scale-covered base on RIGHT, long curve curling left to thin tip; no body/legs. Organic dorsal spines along tail; no crystals.\nCell6: NEAR WING UPPER ARM only, organic scale-covered shoulder muscle tapering toward elbow, oriented from upper left to lower right, bare broad shoulder overlap at upper left and elbow overlap at lower right. No separate walking front leg.\nCell7: NEAR WING FOREARM AND FOLDED FINGER MEMBRANE only, coherent bat-like wing section from elbow at upper right down to thumb/wrist at lower right; long slim finger bones and pleated leathery wing web fold back toward left. Include small polished pale thumb claw at lower right. No torso or upper arm.\nCell8: FAR WING UPPER ARM only, same organic wing upper arm as cell6, slightly darker, upper-left shoulder to lower-right elbow.\nROW 3:\nCell9: FAR WING FOREARM AND FOLDED MEMBRANE only, same folded section as cell7, slightly darker, far-side wing.\nCell10: NEAR HIND THIGH only, powerful scale-covered haunch tapering from hip at upper left to knee at lower right. No shin or toes.\nCell11: NEAR HIND SHIN only, organic slender digitigrade lower leg from knee at upper right to hock/ankle at lower left, natural taper, no thigh, no foot/toes.\nCell12: NEAR HIND FOOT only, narrow ankle stem at upper left leading to a right-pointing splayed reptilian foot with exactly three substantial curved pale mineral-faceted claws. No upper leg.\nROW 4:\nCell13: FAR HIND THIGH only, matching cell10, slightly darker.\nCell14: FAR HIND SHIN only, matching cell11, slightly darker.\nCell15: FAR HIND FOOT only, matching cell12, slightly darker, three curved claws.\nCell16: one isolated curved pale gemstone-like claw on a short organic scaled thumb base, for natural-weapon detail and detachable claw rendering; no wing/leg.\nQuality: beautifully textured, richly shaded hand-painted GAME SPRITE anatomy, consistent diffuse light from upper left, natural cool charcoal-grey and silvery living scales, darker gray wing membranes, warm brown keratin horns. Polished mineral faceting only claws and teeth. Ends cleanly overlap adjacent rig parts, no gore in this clean atlas. Avoid anything schematic, flat polygons, cartoon, plastic, robot hinges, cute style, jewellery-covered body. No cast shadows or fog/backdrop; transparency everywhere outside the sixteen isolated parts.\n",
+  "forms": [
+    [
+      "spirewing",
+      "A lean powerful wyvern with a long sweeping S-curved neck, narrow refined predatory head, elongated curved natural horns and tall narrow folded wings. Slim muscular chest and athletic digitigrade hind legs. Long tapering whip tail."
+    ],
+    [
+      "broadmantle",
+      "A heavy wide-chested wyvern with powerful short muscular neck, broad predatory reptilian head, swept curved natural horns, broad folded wings and thick tapering tail. Massive organic haunches and strong digitigrade hind legs."
+    ],
+    [
+      "reedrunner",
+      "An elongated low-bodied wyvern with sleek elongated head and neck, long tapering tail, slim agile digitigrade hind legs and longer lean back. Folded wing fingers sweep low along the flank."
+    ],
+    [
+      "ironcrest",
+      "A compact stocky wyvern with short deep torso, stout neck, powerful short broad jaw and high organic keratin horn crest above its head. Compact folded wings and muscular sturdy digitigrade hind legs."
+    ],
+    [
+      "stormkeel",
+      "A barrel-bodied wyvern with deep keeled chest, broad muscular wing roots, robust neck and strong broad head, thick shoulder muscles and sturdy digitigrade hind legs, broad folded wings."
+    ],
+    [
+      "duskfin",
+      "A smooth slender wyvern with an elegant muscular neck, narrow predatory head, organic swept ear fins, swept folded wings and a long finned tail with thin leathery web between tail spines. Athletic slim digitigrade hind legs."
+    ]
+  ],
+  "cell_order": [
+    "torso",
+    "neck",
+    "head",
+    "jaw",
+    "tail",
+    "wing_upper_r",
+    "wing_lower_r",
+    "wing_upper_l",
+    "wing_lower_l",
+    "leg_upper_r",
+    "leg_lower_r",
+    "foot_r",
+    "leg_upper_l",
+    "leg_lower_l",
+    "foot_l",
+    "claw"
+  ],
+  "status": "REJECTED fitted part route. Preserved reference only; no atlas is active in game."
+}

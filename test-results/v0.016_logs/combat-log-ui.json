@@ -1,0 +1,273 @@
+{
+	"captures": [
+		{
+			"capture_us": 27543,
+			"page": -1,
+			"participant": -1,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v016-ui-render/final03/combat_log_1280x720_results_closed.png",
+			"rows": 0,
+			"sha256": "dac5bfbf37540d3b20fd98918e37a758deda787e4283adb2093d581d9266e6d3",
+			"size": [
+				1280,
+				720
+			],
+			"state": "results_closed"
+		},
+		{
+			"capture_us": 26674,
+			"page": 0,
+			"participant": -1,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v016-ui-render/final03/combat_log_1280x720_results_log_first.png",
+			"rows": 18,
+			"sha256": "dde5a27dc507a5898e4affbeb5aba950a7a8ef1167ace4e4858c368ee9f3b3f6",
+			"size": [
+				1280,
+				720
+			],
+			"state": "results_log_first"
+		},
+		{
+			"capture_us": 31100,
+			"page": 0,
+			"participant": 3,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v016-ui-render/final03/combat_log_1280x720_results_log_fallen.png",
+			"rows": 18,
+			"sha256": "104ac54a3c31a2bc6759329b20be7304fd5c6c2d72461a7fcd23ce4b00511fe7",
+			"size": [
+				1280,
+				720
+			],
+			"state": "results_log_fallen"
+		},
+		{
+			"capture_us": 26639,
+			"page": 0,
+			"participant": -1,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v016-ui-render/final03/combat_log_1280x720_results_log_tissue.png",
+			"rows": 18,
+			"sha256": "0b0e946980fc6acf1bc3245afe54a9d99d1179facb813e264076d488b1d2a8c3",
+			"size": [
+				1280,
+				720
+			],
+			"state": "results_log_tissue"
+		},
+		{
+			"capture_us": 30591,
+			"page": 0,
+			"participant": 3,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v016-ui-render/final03/combat_log_1280x720_battle_paused_log.png",
+			"rows": 18,
+			"sha256": "a58d3f5feb02fe0b62827f44a287b709b615b72ee13f6b333031fc26754356df",
+			"size": [
+				1280,
+				720
+			],
+			"state": "battle_paused_log"
+		},
+		{
+			"capture_us": 47844,
+			"page": -1,
+			"participant": -1,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v016-ui-render/final03/combat_log_1920x1080_results_closed.png",
+			"rows": 0,
+			"sha256": "f63f6fc909ed24d27721259725bb4f03604f585644e58727413b43ed0ade9319",
+			"size": [
+				1920,
+				1080
+			],
+			"state": "results_closed"
+		},
+		{
+			"capture_us": 50072,
+			"page": 0,
+			"participant": -1,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v016-ui-render/final03/combat_log_1920x1080_results_log_first.png",
+			"rows": 18,
+			"sha256": "a57fb58e846af8cf3a167a419e5a4edc6788598e77001d3b46f444cac5ed40a5",
+			"size": [
+				1920,
+				1080
+			],
+			"state": "results_log_first"
+		},
+		{
+			"capture_us": 48878,
+			"page": 0,
+			"participant": 3,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v016-ui-render/final03/combat_log_1920x1080_results_log_fallen.png",
+			"rows": 18,
+			"sha256": "cee973f780628398aebbcb78788a9ae15396d8daabd87722e9e9e47197daec76",
+			"size": [
+				1920,
+				1080
+			],
+			"state": "results_log_fallen"
+		},
+		{
+			"capture_us": 50525,
+			"page": 0,
+			"participant": -1,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v016-ui-render/final03/combat_log_1920x1080_results_log_tissue.png",
+			"rows": 18,
+			"sha256": "b8aa3f98c221d1bb2139032a67e9723e5bfdb4b286628ed3ece4703182090d10",
+			"size": [
+				1920,
+				1080
+			],
+			"state": "results_log_tissue"
+		},
+		{
+			"capture_us": 50868,
+			"page": 0,
+			"participant": 3,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v016-ui-render/final03/combat_log_1920x1080_battle_paused_log.png",
+			"rows": 18,
+			"sha256": "180001e3d4f3d26b5536a18c46e44eacfdfc7c20b87af7843199addbe9e427f3",
+			"size": [
+				1920,
+				1080
+			],
+			"state": "battle_paused_log"
+		},
+		{
+			"capture_us": 76051,
+			"page": -1,
+			"participant": -1,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v016-ui-render/final03/combat_log_2560x1440_results_closed.png",
+			"rows": 0,
+			"sha256": "1a8619b53aa8ac7db7e575629acc9b7d7a69ff735ac928c57231d06e1e81169e",
+			"size": [
+				2560,
+				1440
+			],
+			"state": "results_closed"
+		},
+		{
+			"capture_us": 77521,
+			"page": 0,
+			"participant": -1,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v016-ui-render/final03/combat_log_2560x1440_results_log_first.png",
+			"rows": 18,
+			"sha256": "c436119c0e90da75d7559752f9e361c8ae7e6184e1f8a49e4746ef01a943cdbd",
+			"size": [
+				2560,
+				1440
+			],
+			"state": "results_log_first"
+		},
+		{
+			"capture_us": 77527,
+			"page": 0,
+			"participant": 3,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v016-ui-render/final03/combat_log_2560x1440_results_log_fallen.png",
+			"rows": 18,
+			"sha256": "1557954b1b4a365b02b902c2502d49e4efa48b0c93d9c0d3f540b6a9953466f0",
+			"size": [
+				2560,
+				1440
+			],
+			"state": "results_log_fallen"
+		},
+		{
+			"capture_us": 84026,
+			"page": 0,
+			"participant": -1,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v016-ui-render/final03/combat_log_2560x1440_results_log_tissue.png",
+			"rows": 18,
+			"sha256": "6f4fc46ad54eccfa4976537d1c46e8931e3a8dfefeaf471f71cf60c666f3d28f",
+			"size": [
+				2560,
+				1440
+			],
+			"state": "results_log_tissue"
+		},
+		{
+			"capture_us": 81145,
+			"page": 0,
+			"participant": 3,
+			"path": "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v016-ui-render/final03/combat_log_2560x1440_battle_paused_log.png",
+			"rows": 18,
+			"sha256": "1d50c8865f8ac6c58cc9f2da8e7ca18be1a9a320fe70824a5160f3fbe91c3a15",
+			"size": [
+				2560,
+				1440
+			],
+			"state": "battle_paused_log"
+		}
+	],
+	"checks": 249,
+	"desktop_fit_cases": 15,
+	"duration_us": 5988291,
+	"failures": 0,
+	"native_fixture": "Four real native fighters/strikes; 600 detached outcome indexed stress; native 200/200 results",
+	"no_focus": true,
+	"no_phone_qa": true,
+	"offscreen": true,
+	"page_size": 18,
+	"performance_panel": true,
+	"sizes": [
+		[
+			1280,
+			720
+		],
+		[
+			1920,
+			1080
+		],
+		[
+			2560,
+			1440
+		]
+	],
+	"timings": [
+		{
+			"build_us": 232132,
+			"size": [
+				1280,
+				720
+			],
+			"state": "results_closed"
+		},
+		{
+			"open_us": 11382,
+			"size": [
+				1280,
+				720
+			],
+			"state": "results_log_first"
+		},
+		{
+			"build_us": 146029,
+			"size": [
+				1920,
+				1080
+			],
+			"state": "results_closed"
+		},
+		{
+			"open_us": 11454,
+			"size": [
+				1920,
+				1080
+			],
+			"state": "results_log_first"
+		},
+		{
+			"build_us": 146294,
+			"size": [
+				2560,
+				1440
+			],
+			"state": "results_closed"
+		},
+		{
+			"open_us": 10872,
+			"size": [
+				2560,
+				1440
+			],
+			"state": "results_log_first"
+		}
+	]
+}

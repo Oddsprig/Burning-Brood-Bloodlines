@@ -1,0 +1,69 @@
+BURNING BROOD: BLOODLINES v0.017
+Updated: 2026-10-11 | funded army raising and real home returns
+
+START
+Use Burning Brood Bloodlines v0.017 on your actual Desktop (green dragon/crown).
+It opens Desktop/Burning_Brood_Bloodlines_v0.017. For another extracted copy,
+run Install_Desktop.cmd, or Launch_Bloodlines.cmd with game/ and runtime/ beside
+it. Official Windows64 Godot4.7.2 is bundled; first launch prepares quietly.
+Use a fresh Normal world with1 history day. Choose its existing city/ruling house.
+Saves use the separate Bloodlines user-data folder; tests use private paths.
+
+THIS VERSION
+A new campaign and house selection leave your private field army UNRAISED.
+There are no free100 people,75000 army coins, invented equipment or provisions.
+Public city guards and militia are separate real forces. Your ruler portrait
+remains near the map's lower left; Army opens the new army management screen.
+
+At your actual home settlement, fund the army from your house's real private
+purse. Review how many ADDITIONAL people can depart, actual available equipment,
+food/signing costs and three days of total field wages. Confirm the review to
+raise those real people. A quote/cancel spends nothing. Capacity is200 TOTAL,
+with up to8 real officers. A shortage gives an honest partial muster and receipt.
+No automatic transfer from house, city or realm treasuries occurs.
+
+Return to the actual home settlement and stand down. The same people, bodies,
+wounds, family identities and private equipment stay recorded at home. Borrowed
+city kit returns to its actual armory; living residents rejoin civilian work
+once and stop drawing field wages. Re-raising retains their physical identity.
+Dismissal follows the same home return. Native aging, sickness and death still
+apply. Private equipment of natural deaths remains in saved household-linked
+estate custody; management of those estates is a later action, not a market sale.
+Remote records cannot move your company home or authorize a remote return.
+
+RETAINED GAMEPLAY
+House/army/city/realm funds have separate owners. Businesses/land/herds belong
+to tracked families; common folk provide most work and their pooled wealth pays
+real local taxes and tribute. Native material/tissue/body/wound/blood battles,
+100-200-person forces, feudal allegiance and defection remain authoritative.
+Automatic battle slow motion defaults OFF (Esc/Settings -> Gameplay to enable).
+Paused/end Combat log records the full fight, with18-row pages, character filters
+and native damage details. Results show compact casualties and expandable detail.
+Standing fighting officers rally assigned fleeing followers on BOTH sides;
+death/incapacity/withdrawal removes support. Reading logs never reruns combat.
+The right performance panel shows frame/FPS, calculation times, jobs and memory.
+Army interface cost and Army management stage are now included.
+
+Copper Oath v0.053 released humanoid races, genders, hair/beards, weapons and
+armour remain exact. Dragons/eggs keep individual gem types, owners, care and
+growth; organic sprites have gem-coloured horns/teeth/claws. Head/jaw movement,
+blood/mangling and saddle handles remain; full gait/riders/battles are later.
+Background monsters remain suspended. Bronze smiths recycle counted inputs.
+
+READ ONLY WHAT YOU NEED
+docs/DEV_NOTES.txt: current decisions and retained technical lessons.
+docs/ROADMAP.txt: scoped version map;17 first, then18 without a stop.
+docs/FOLDER_PLAN.txt: folder ownership; docs/specialists/: retained helper briefs.
+test-results/: dated actual TXT results and preserved full diagnostics.
+game/: one editable native source tree. docs/history/: previous active notes.
+releases/: Windows packages, source/release manifests and delivery receipts.
+
+LIMITS / NEXT
+60FPS everywhere and long-session leak freedom remain goals. Generation, save
+capture holds and dense combat still have measured costs; see current results.
+No phone export or cross-version save compatibility work is claimed.
+v018 follows with readable records, bundled fonts and House -> Laws.
+v019 owns settlement/map -> local house -> Customize; v020 salvage buyer receipts.
+Dragon bonds start v021 after performance/playability checks. Older Desktop
+folders/icons and immutable packages remain preserved.
+

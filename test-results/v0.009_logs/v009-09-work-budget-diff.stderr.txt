@@ -1,0 +1,4 @@
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+FAIL work budget: complete native save state matches synchronous job order, population, money, items, care and RNG
+FAIL work budget: empty retry is pure

@@ -1,0 +1,16 @@
+{
+  "Run": "v007-04-humanoid-catalogue",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v007-source-verification/game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_humanoid_interface.gd",
+    "--capture-dir=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v007-native-previews",
+    "--watchdog=45"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 3.729
+}

@@ -1,0 +1,106 @@
+BURNING BROOD: BLOODLINES - ACTIVE DEVELOPMENT NOTES
+Updated: 2026-10-11 | v0.013 + v0.014 combined battle usability build
+
+ENTRY / DELIVERY
+One native Godot4.7.2 game tree; original fork Copper Oath v0.046.
+Branch dev/burning-brood. v0.012 source5e4890f/delivery68e1839 is delivered.
+Current pass combines v013+v014 into one v0.014 Desktop release, per user; verified.
+Read START_HERE.txt, this file and ROADMAP.txt first; specifications only as needed.
+Original handoff is immutable under docs/handoff/original/. Never modify or launch
+Copper Oath. Previous active notes are archived under docs/history/.
+Every release needs its own actual Desktop folder and branded versioned shortcut
+using Bloodlines.ico,0. Verify ZIP, installed files, target and actual shell icon.
+A ZIP alone is incomplete. Preserve previous versions; never touch player input,
+foreground or saves. Test worlds, full snapshots and screenshots stay private.
+
+LOCKED GAME DIRECTION
+Original CK3/AGOT-style feudal dynasty game with army/economy/dragons/riders and
+native DF-style physical combat: materials, tissues, body parts, wounds and blood.
+Humans/dwarves use male-preference primogeniture with daughter fallback; elves
+use eldest-child succession; orcs keep native strength contests. Laws owns the UI.
+Each settlement belongs to its faction's lord/liege/sovereign hierarchy; real
+loyalty, intrigue and defection alter allegiance and offices.
+Common folk are the majority in race/work/age/sex/private-wealth pools.10-20
+tracked families per town own businesses, land and herds; common folk do most
+work. Owned common wealth pays tax to the local ruling family and tribute upward.
+House/town/faction/army money stays distinct; never invent duplicate populations,
+coin or combat. Mobilized100-200-person forces draw real people/food/kit once.
+Bronze smiths recycle counted copper/tin inputs; stop new copper/tin gear when
+bronze is available. Background monsters remain temporarily suspended.
+Selection will be settlement -> visible map location -> local house -> Customize
+House. Ruler portrait stays near lower left. Phone export is far later; preserve
+both orientations but no routine phone QA. Copper v0.053 native character/weapon/
+armour art remains authoritative for all humanoid races/genders/hair/beards.
+
+RETAINED PERFORMANCE FOUNDATION
+Delivered v0.012: consistent saves and native reference ownership. Frozen v011 spends
+over1s(Normal) or2.8s(Large) building an entire save on the main thread. Retiring a
+large worker callable can also destroy its plain tree on the main thread.
+SaveSnapshot captures native ordered plain records in cooperative6ms slices while
+campaign mutations are held. Game/Perf/camera/status keep processing; mutable HUD
+and map travel actions wait. Saving world status explains the hold. Restore prior
+pause state after capture, then encode/write/release the detached tree on a worker.
+One capture/writer plus one coalesced dirty request; no live Unit/Item on a worker.
+Instance IDs, not saved UIDs, identify record memoization. Copy all packed arrays.
+Real-world memo reuse may be zero; do not claim it reduced actual capture CPU.
+Startup waits for complete history/dynasty initialization before any save publishes.
+Shutdown/replacement explicitly drain; wait_save may intentionally block. Keep
+open/write/rename receipts and preserve the prior complete file on failure.
+Clear old pending/results/deployment references on replacement and spent results
+after Continue. Bounded explicit owner scans retain only plain counters; panel
+refreshes never traverse the world. Partial scans are labelled lower bounds.
+Engine tracked bytes, externally sampled OS private/working-set bytes and cache/
+terrain RGBA or geometry payloads are different measures. Owner counts are not an
+allocator estimate. Diagnostic JSON readback temporarily owns another large tree;
+its memory footer is not the live campaign footprint. Warm caches may stay owned.
+Measured fidelity, frame/hold costs and native lifecycle limits belong in the dated
+v012 results TXT. This does not prove long-session leak freedom or60FPS everywhere.
+Retain v011 native job backpressure, read-local indexes and exact terrain batches;
+native calendar also holds while real queued work settles. Show both holds honestly.
+
+CURRENT SCOPE / NEXT PASSES
+User requested v013 and v014 together; one v0.014 delivery. Implemented event slow
+motion OFF by default with persistent Esc/ordinary Settings -> Gameplay option;
+turning OFF cancels active slow/nudge and preserves playback speed/pause. Compact
+both-side casualty/loot/officer summary; fallen/wounded/lessons/loot details closed
+by default and built in bounded pages on demand. Reading cannot mutate bodies,
+coins, RNG, gear or apply growth again. Full-fight log remains the next v015 scope.
+Pure summary uses actual native body/status and instance IDs; health categories
+partition each side, retreat overlaps living survivors. Fighter state/names/fled
+metadata is additive; native archery/growth still executes once. Closed lists own
+no hidden rows;18 per page, one open section; actual resource cleanup verified.
+Initial400-person wounded summary still costs up to~0.24s; detail opening under9ms
+in this fixture. Five final native screenshots reviewed,15 rendered fit states.
+Then v015 whole-fight paused/end
+combat log and character filter; v016 officers rally their own fleeing men on both
+sides; v017 real funded army raising/stand-down without automatic starting army;
+v018 readable records/fonts/Laws; v019 map/local-house selection/customize;
+v020 accountable salvage buyer/stock/payment. Dragon bonds begin v021 only after
+performance/playability gates. Details and acceptance live in ROADMAP.txt.
+Do not implement these later passes inside a performance repair.
+
+DRAGON ASSET CONTRACT
+Living scaled/skinned wyverns with two hind legs and wings as forelimbs; gem type
+is separate from individual name. Gem hardness plus size/strength/bite/geometry
+are distinct. Horns/teeth/claws follow gem colour, including sapphire blue horns.
+Keep source proportions and cut positions; body keeps wings/legs/tail. Only head/
+upper neck and jaw move separately. Mangled limbs stay attached and get localized
+blood; neck separation removes head/jaw; teeth/claw tips can fly off. Rider holds
+saddle handles; no head rope. Compact portraits allowed. Tooth cleanup is deferred.
+
+FOLDER / CONTEXT PLAN
+Full map: docs/FOLDER_PLAN.txt. game/ is the sole live source; runtime/ is bundled
+engine; docs/ holds small active notes, specs, immutable handoff and archived history.
+Keep stable specialist briefs in docs/specialists/; retain specialized helpers and
+teach verified findings there. test-results/ holds dated concise TXT and selected
+full logs. releases/ holds immutable ZIP/SHA/manifests. Chat work/ holds scratch,
+generated worlds/snapshots/screenshots and never enters the ZIP. No .godot/.git/save
+payloads. Large unused art stays in Desktop/ASSET/Burning_Brood/ preserved entries.
+
+VERIFYING / SPECIALISTS
+Run focused checks and actual rendered fresh one-day worlds serially, privately,
+hidden/no-focus and BelowNormal. Full logs matter; failed/skipped/inherited runs
+must never be counted as current passes. No old-save compatibility testing.
+Root integrates and owns delivery. Stable GPT-6.1 Sol high roles: dynasty_economy,
+population_economy, combat_dragons and interface_release. Assign bounded file scopes;
+no helper engines, commits or Desktop mutations unless explicitly coordinated.

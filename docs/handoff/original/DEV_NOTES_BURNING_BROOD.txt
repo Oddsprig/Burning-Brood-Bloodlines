@@ -1,0 +1,57 @@
+BURNING BROOD: BLOODLINES - CURRENT DEVELOPMENT RULES
+Working title. These current user preferences override older source notes.
+
+VERSION SAVES
+Save compatibility between development versions is not required.
+New builds can start fresh. Do not spend resources on old-save loading,
+cross-version compatibility, migration or launcher save-copy tests unless the
+user explicitly requests that work. Preserve existing player files.
+The new game needs a separate user-data directory; never import Copper Oath
+saves automatically. Short current-build save checks may be appropriate when
+implementing that build's own persistence; this is not migration work.
+
+TESTING AND THE USER'S DEVICE
+Run short checks for breakage by default. No long campaign tests, multi-hour
+queues or broad benchmark campaigns without an explicit user request.
+Use existing commands where suitable; build focused commands when needed.
+Record actual run scope/results/time/source in a writable Benchmarks folder
+with TXT reports. Keep failed, stopped, skipped and older-source runs distinct.
+Never touch the mouse, keyboard or foreground. No visible automated player
+windows. Use hidden/headless isolated engines serially, at low priority.
+Do not rerun tests just because preparing documentation or copying source.
+
+PROJECT SEPARATION
+Copper Oath v0.046 remains the immutable inherited game baseline.
+Develop this game in its own folder and repository/branch, suggested
+dev/burning-brood. Do not commit to Copper Oath master or silently change its
+existing release. Give this copy its own app title, versions, data directory,
+launcher, icon, docs and roadmap. Preserve engine resource IDs during copying.
+A source snapshot is included; implementation has not started in this handoff.
+
+SYSTEM OWNERSHIP
+Extend the native economy, population, diplomacy, army and combat systems.
+Avoid a second ledger, parallel population, fake court people, duplicate market
+or separate dragon battle engine. Political records reference actual people.
+Do not merge city treasury with household money. Every real transfer has an
+actual payer, recipient and conserved quantity. No free armies or conjured
+dragon feed. Troops and casualties must reconcile with civilian households.
+All gameplay fixes and rules are general for every town/family; named examples
+are for reproduction/display only. There is no dogs work or dogs retesting.
+
+PEOPLE AND SPECIALISTS
+Descendants do not automatically become recruits or dragon riders.
+Preserve actual kinship and event histories.
+Reuse specialists by their role and improve their briefs across versions.
+The user's preferred helpers are GPT-6.1 Sol at high reasoning, with complex
+integration/design handled by the primary agent. All work passes through the
+primary agent. Do not create new version-themed names for the same speciality.
+
+ART AND UI
+Preserve existing animation names, timing, frames, anchors, weapon grips,
+equipment/body-part layers and injury rendering during art replacements.
+Before EACH replacement, export the old source/rendered asset and metadata to
+the user's Desktop asset archive, in a distinct versioned entry. Settle the
+exact archive folder when that replacement work starts; do not overwrite it.
+Green/purple/dark theme; legible cards/tables and short primary text.
+Data readers remain pure and show actual simulation state.
+The UI concept's named people and numbers are illustrative, not seeded rules.

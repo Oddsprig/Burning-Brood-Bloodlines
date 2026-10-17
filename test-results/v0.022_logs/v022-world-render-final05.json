@@ -1,0 +1,25 @@
+{
+  "Run": "v022-world-render-final05",
+  "Arguments": [
+    "--position",
+    "-20000,-20000",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v022-candidate-final04\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/diag_dragon_world_v022.gd",
+    "--watchdog=135",
+    "--report-dir=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v022-world-render/final05"
+  ],
+  "Project": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v022-candidate-final04\\game",
+  "Engine": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\outputs\\Burning_Brood_Bloodlines\\runtime\\Godot_v4.7.2-stable_win64.exe",
+  "DataRoot": "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\isolated-engine-data\\v022-world-render-final05",
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 60.873,
+  "BelowNormal": true,
+  "Headless": false,
+  "NoFocusProjectSetting": true,
+  "HiddenLaunch": true,
+  "Result": "PASS"
+}

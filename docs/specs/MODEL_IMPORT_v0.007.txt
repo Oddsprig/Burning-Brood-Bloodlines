@@ -1,0 +1,50 @@
+BURNING BROOD v0.007 - COMPLETE COPPER OATH v0.053 HUMANOID MODEL IMPORT
+Updated: 2026-10-10
+
+SOURCE
+Released Desktop/Copper_Oath_v0.053, commit:
+fd43a0b34a33ba86fb2496011a129ee642750e9c
+Every imported file was verified against the immutable released source hash
+record in Desktop/ASSET/Copper_Oath/Art_redesign/Helmet_variety_v0.053_2026-10-10.
+Exact lengths/SHA256 and archive-before-replacement receipt: accompanying JSON.
+Copper Oath was read only; never modified or launched.
+
+COMPLETE SET
+Human, high elf, moon elf, dark elf, dwarf, orc, goblin and troll units and
+portraits share released native drawing code. Includes every supported male
+and female face/body/hair variation, Original/Refined women, both Orc forms,
+eight male beard styles and expanded eleven-skin/eight-hair Orc palettes.
+All weapon classes, bows, shields, armour, clothing and helmet drawing paths,
+icons and definitions are source-exact. Filenames were not used to infer
+equivalence: source hashes and item definitions were compared and copied.
+All original Bloodlines resource UID bytes remain intact.
+
+NATIVE EQUIPMENT DEPENDENCIES
+Moon glaive now uses the released one-handed axe-class crescent blade:
+reach70, length0.45m, balance0.10m, gyration0.24m and actual matching mass/attacks.
+Glaive dancers train its real axe skill. The old polearm definition distorted
+its grip and pose despite having the current drawing module.
+Closed helm is an additional native item, with its released face/tooth coverage,
+mass/material/slot. Common metal smith pools include it exactly once. Every
+other pre-existing weapon and armour template remains equivalent to v006.
+Helmets use actual metal and maker provenance; foreign wearers keep maker style.
+No duplicate equipment/production/combat resolver is introduced.
+
+BLOODLINES ADAPTER
+Only ruler portrait_spec gains a display adapter: an actual registered company
+or warband Unit supplies saved look, sex, age and worn/maker-marked equipment.
+UID/home/family/race must agree. Household-only rulers use their stable person
+seed, including female/beard selectors, without allocating a combat Unit.
+Portrait, Paperdoll, PartyIcon, Outfit and other drawing dependencies share the
+released art. Native heights, feet/hand anchors, rig, timing, wounds and mounted
+unit fit remain; dwarf's released smaller visual head has aligned wound mapping.
+
+PRESERVATION / VERIFICATION
+Before replacement, 1040 current source/render/metadata files were verified in
+Desktop/Burning_Brood_Asset_Archive/v0.007/v0.006_before_Copper_v0.053.
+Archive manifest SHA256:
+4645ea93e37f1c00f70417b4833dbc4c7532734049c74fef93ceab1600b01986
+Actual short runs, full logs, native previews and package/Desktop readbacks
+are recorded in test-results/v0.007_2026-10-10_results.txt and delivery receipts.
+No phone QA, old-save migration or large battle/campaign benchmark this pass.
+Dragon art and the user's deferred dragon-portrait tooth cleanup are unchanged.

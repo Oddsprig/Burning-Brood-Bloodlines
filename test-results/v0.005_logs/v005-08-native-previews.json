@@ -1,0 +1,23 @@
+{
+  "Run": "v005-08-native-previews",
+  "Arguments": [
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v005-verification\\game",
+    "--wid",
+    "19464436",
+    "--single-window",
+    "--resolution",
+    "1280x720",
+    "--position",
+    "-32000,-32000",
+    "--rendering-method",
+    "gl_compatibility",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/capture_v005_dragons.gd",
+    "--watchdog=18"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 5.726
+}

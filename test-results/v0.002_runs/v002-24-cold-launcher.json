@@ -1,0 +1,14 @@
+{
+  "Run": "v002-24-cold-launcher",
+  "Seconds": 8.156,
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Arguments": [
+    "bundled launcher",
+    "PrepareOnly",
+    "fresh folder with spaces",
+    "private user paths"
+  ],
+  "CacheAndMarker": true,
+  "InteractiveLaunch": false
+}

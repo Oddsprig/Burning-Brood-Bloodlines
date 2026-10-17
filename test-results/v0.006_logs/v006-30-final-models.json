@@ -1,0 +1,15 @@
+{
+  "Run": "v006-30-final-models",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "work/v006-source-verification/game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_dragon_models.gd",
+    "--watchdog=45"
+  ],
+  "ExitCode": -1,
+  "StoppedAtTimeout": true,
+  "Seconds": 50.021
+}

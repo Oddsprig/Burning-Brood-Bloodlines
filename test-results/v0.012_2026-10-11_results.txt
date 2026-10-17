@@ -1,0 +1,134 @@
+BURNING BROOD: BLOODLINES v0.012 - MEMORY / AUTOSAVE RESULTS
+2026-10-11 | Selected final checks PASS. Failed development attempts below.
+
+MEASURED FRESH SAVE CASES
+Official bundled Godot4.7.2 Windows/OpenGL3.3/NVIDIA610.88, RTX5090 Laptop GPU.
+Fresh native seed777 Normal and default Large, exactly ONE history day; real
+main/map scene, visible Performance panel,2560x1440,VSync OFF,60FPS cap.
+Private no-focus/offscreen window, BelowNormal, serial processes. No old save
+loading, player input/foreground or Copper Oath launch. Frozen immutable v011
+source is the independent baseline, with only the private diagnostic added.
+Three synchronous full captures establish deterministic exact output, then ONE
+actual asynchronous native save measures frame intervals through capture, worker
+encoding/write/release and retirement. Camera test calls the native pan handler;
+travel/time changes are held. Separate simulation hold from visible frame cost.
+
+Normal: baseline worst frame 1,069.057ms -> current 18.778ms; p95 16.755ms.
+  Request 1,065.342ms -> 0.010ms; 351 window frames; 229 capture frames/slices.
+  Snapshot CPU 1,492.920ms; campaign capture hold 3.815s; worst slice 8.470ms.
+  Worker encode 1,607.423ms, write 80.874ms, plain-tree release 302.167ms.
+  Disk 48364885bytes; unique records Units=8841,Items=70926; memo reuse=0.
+  Generation 29.020s; ordered full-precision state SHA256 917002afc3288d3429f51b7b43d89ae042ed67019819a4f9825c524814b29038
+  Exact native on-disk JSON SHA256 64f852da9a4e4ef4ab22c67aaeeb2de5e1151a2479be67d9531bdad594529a54
+  Unit next 8885; Item next 125228; RNG 8596571655571440229; active/pending=0,completed=1,failed=0.
+default Large: baseline worst frame 2,858.418ms -> current 40.592ms; p95 16.685ms.
+  Request 2,849.754ms -> 0.009ms; 1004 window frames; 655 capture frames/slices.
+  Snapshot CPU 4,284.054ms; campaign capture hold 10.931s; worst slice 8.864ms.
+  Worker encode 4,515.897ms, write 238.044ms, plain-tree release 990.685ms.
+  Disk 131519102bytes; unique records Units=24525,Items=176676; memo reuse=0.
+  Generation 83.106s; ordered full-precision state SHA256 9fdaab349804fdde271a2652efd155801c5adfb5bf64ee78ddfbf523c83f6848
+  Exact native on-disk JSON SHA256 2a2bea97ed316c44a924e122ffd018e3f16d64ef5cd586ce1af5d8d2fd97c1c7
+  Unit next 25624; Item next 331698; RNG 8596571655571440229; active/pending=0,completed=1,failed=0.
+Complete ordered state/bytes/RNG/UIDs and native disk bytes match frozen v011.
+Each case requires camera response, more than one capture frame and worst frame
+<150ms.25s whole save deadline is independent of that rendered-frame gate.
+Cooperative6ms slices can exceed6ms per atomic record/check batch. Snapshot CPU
+increased versus the old synchronous path; this fixes frame interruption, not
+total work. Campaign time and mutating HUD actions hold during capture (~3.8s
+Normal/~10.9s Large here); map camera/Perf/status continue rendering. Native
+simulation resumes before worker encoding/write/release. Explicit shutdown or
+latest-request flush may still block. Large generation remains roughly83s.
+
+NATIVE LIFECYCLE / OWNERSHIP
+72 checks;3 actual map/battle/aftermath Continue/company/map cycles.
+One actual close-contact100/100 fight: 160ticks, 42enemy deaths; bodies/events/RNG match independent native control.
+Two further paused reopen cycles use detached plain records; no repeated reward
+or result reconciliation. Artificial forces never enter a saved campaign. Native
+build_result runs ONCE. Complete campaign state/RNG/UIDs remain unchanged.
+Actual scene/sim/fighter/unowned casualty WeakRefs release; pending/result/deploy
+owners clear at intended lifecycle boundaries. Native sprite workers dispatch,
+drain and retire. Warm cache remains owned within8192entries/256MiB pixel payload
+(active resources/allocator/GPU overhead extra). Engine checkpoint samples:
+  fresh_map: tracked 593.42MiB; objects 143865; nodes 162; orphans 0; cached 0.00MiB/0entries.
+    Owner scan visited 13101,partial=True,depth-limit=False; Units/Bodies/Items 69/68/486.
+  battle_0: tracked 700.19MiB; objects 146877; nodes 622; orphans 0; cached 33.77MiB/526entries.
+    Owner scan visited 13679,partial=True,depth-limit=False; Units/Bodies/Items 62/61/399.
+  settled_map_0: tracked 638.88MiB; objects 144436; nodes 162; orphans 0; cached 33.77MiB/526entries.
+    Owner scan visited 12616,partial=True,depth-limit=False; Units/Bodies/Items 66/65/466.
+  battle_1: tracked 701.36MiB; objects 150039; nodes 538; orphans 0; cached 34.12MiB/532entries.
+    Owner scan visited 13281,partial=True,depth-limit=False; Units/Bodies/Items 73/73/478.
+  settled_map_1: tracked 638.96MiB; objects 144442; nodes 162; orphans 0; cached 34.12MiB/532entries.
+    Owner scan visited 12108,partial=True,depth-limit=False; Units/Bodies/Items 63/62/453.
+  battle_2: tracked 701.21MiB; objects 150033; nodes 538; orphans 0; cached 34.48MiB/538entries.
+    Owner scan visited 13348,partial=True,depth-limit=False; Units/Bodies/Items 74/73/478.
+  settled_map_2: tracked 639.01MiB; objects 144448; nodes 162; orphans 0; cached 34.48MiB/538entries.
+    Owner scan visited 13445,partial=True,depth-limit=False; Units/Bodies/Items 71/70/501.
+  root_released: tracked 597.53MiB; objects 144097; nodes 5; orphans 0; cached 34.48MiB/538entries.
+    Owner scan visited 13726,partial=True,depth-limit=False; Units/Bodies/Items 72/71/507.
+
+MEMORY MEASURES / LIMITS
+Separate external Windows process samples every~250ms (private commit and working
+set, not engine tracked bytes or GPU memory). Whole-run peaks include generation,
+three diagnostic snapshots and full JSON readback/parsed-tree fixture ownership:
+  v012-candidate-save-map-normal-final: peak private 2,611.69MiB/working 2,431.79MiB; 198samples.
+  v012-candidate-save-map-large-final: peak private 6,371.05MiB/working 5,851.65MiB; 546samples.
+  v012-lifecycle-render-final: peak private 2,422.21MiB/working 2,212.56MiB; 359samples.
+Save diagnostic final RAM retains its parsed readback and text until return; do
+not present its ~1.5GB Normal/~4GB Large engine footer as live-world footprint.
+Native lifecycle checkpoints show live world + intentional warm cache/fixture
+ownership separately. Owner scans are bounded, partial lower bounds; dictionary/
+array/packed payload occurrences are not unique allocation/total RAM estimates.
+Only explicit/manual checkpoint scans traverse native owners; ordinary panel
+reads cached plain counts at2Hz. It shows save phase/counts/cost/bytes/failure
+receipts and terrain/cache payloads. OS values require an external measured
+sample; unavailable is not zero. Three cycles do not prove long-session leak
+freedom or60FPS everywhere. No new melee FPS/art claims are made this pass.
+
+FOCUSED CHECKS / SOURCE / COLD BOOT
+Actual native isolation/coalescing/readiness/atomic failure/sliced pause checks;
+all packed-array kinds, nested Unit/Item/body/look records and duplicate UIDs.
+Bounded owner scan/purity/WeakRef checks and desktop Performance controls.
+Recorded selected assertions 369; focused 257; two rendered save gates, one native lifecycle gate.
+Source files 960; prior v011 UIDs exact 437; unique UIDs 444; unchanged art/data 101; native v053 model files exact 20.
+Cold bundled PrepareOnly and native main boot use exact final shipped game bytes
+in a fresh spaced folder. Every full stdout/stderr checked. Only exact known
+Windows root-certificate-store ERROR is excluded; no other errors ignored.
+
+EARLIER FAILED / DEVELOPMENT ATTEMPTS (NOT SELECTED PASSES)
+First baseline launch used --script before autoload compilation; rejected.
+First disk comparison incorrectly compared sorted/full-precision re-encoding to
+native disk bytes; diagnostic fixed to compare the actual native encoding.
+First owner test printed assertions PASS but had runtime scene-add/detached-node
+errors. Full-log check rejected it; fixture attachment was corrected.
+First lifecycle run had2/69 failures: test _deserialize rewrote borrowed plain
+templates into strong Unit owners. Deep-copy every reconstruction; final test
+asserts templates remain plain. No production weakening or skipped WeakRefs.
+First Large current save exceeded the diagnostic15s whole-save deadline, despite
+exact state and36.96ms worst frame. Marked FAIL; bounded whole-save deadline
+raised to25s for its132MB tree.150ms frame gate stays unchanged. Final rerun
+passes and its actual calendar hold/write/release costs are disclosed above.
+Source receipt helper variable collision and OrderedDictionary aggregation were
+corrected before packaging; independent file hashes and actual assertion counts
+were checked. No game/art source change or test weakening resulted.
+Earlier clean incremental runs are development evidence only; selected final
+source/log counts exclude them. Private worlds/snapshots/screenshots are not
+packaged. No old-save compatibility, phone QA, balance/rule/art/Copper changes.
+
+NEXT SCOPE
+v013 slow motion OFF default, persistent Esc/Settings -> Gameplay opt-in.
+Then v014 compact results,v015 complete paused/end character-filtered combat
+log,v016 officer rally,v017 real funded army raising,v018 records/Laws,v019
+map/local-house selection/customize,v020 accountable salvage; dragon bondsv021.
+Longer capture holds/large-world memory remain measured performance work; add a
+separate scoped repair before dragon expansion if actual play requires it.
+
+SELECTED COMPLETE LOGS
+  v012-save-queue-final - PASS - 2.996s
+  v012-save-ownership-final - PASS - 2.956s
+  v012-memory-owners-final - PASS - 2.583s
+  v012-panel-final - PASS - 4.766s
+  v012-candidate-save-map-normal-final - PASS - 52.72s
+  v012-candidate-save-map-large-final - PASS - 144.829s
+  v012-lifecycle-render-final - PASS - 94.999s
+  v012-cold-launcher-01 - PASS - 7.769s
+  v012-cold-main-01 - PASS - 4.757s

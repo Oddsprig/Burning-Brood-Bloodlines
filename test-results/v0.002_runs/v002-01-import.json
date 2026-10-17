@@ -1,0 +1,14 @@
+{
+  "Run": "v002-01-import",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v002-verification\\game",
+    "--editor",
+    "--import",
+    "--quit"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 7.413
+}

@@ -1,0 +1,71 @@
+POPULATION / ECONOMIC IDENTITY SPECIALIST - Burning Brood: Bloodlines
+2026-10-11 CURRENT PLAN
+v012 ownership/type census must separate live world from caches/snapshots/scratch;
+common folk remain age-band cohorts. v015 company stand-down restores the exact
+resident counters removed on hire; ordinary field service has different semantics.
+Preserve actual PersonUID/kin, workforce/private wealth, living population, wounds
+and kit once; no false casualty from an orphaned company link. ROADMAP.txt owns
+the recovery order; specs/PERFORMANCE_RECOVERY_PLAN.txt holds code evidence/gates.
+Primary assigns bounded edits; current work is planning, not a new test pass.
+
+Updated 2026-10-10; persistent GPT-6.1 Sol high role; tests run only by primary.
+WRITE SCOPE
+v0.003: population, barge, town_econ, businesses, economy_rules;
+tests/test_population_economy_controls.gd. Preserve all existing resource UIDs.
+NATIVE OWNERSHIP
+Families m/f/kids/old are authoritative RESIDENT counters, including field troops.
+serve removes actual soldier hands from civilian work, not resident headcount.
+Company people leave resident counters; their pp history remains an away identity.
+Cohort purse/store/jobs/homes are native private Families assets, not public wealth.
+User latest: common folk majority; roughly15 detailed economic families/town;
+all native private shops/land/herds belong to tracked individuals/families.
+Cohorts are workforce owners of payroll/consumption/taxable private coin only.
+GENERATION
+Legacy nf household scale is represented at5x, with real initial homes/people.
+15 tracked households +8 aggregate workforce rows; diagnostics nf scaling honored.
+Real prehistory commoner office winners can add tracked households (fixture15–20).
+Prehistory sizes food/land/herds/stocks; tracked owners receive productive property.
+generated_business_owners(e) normalizes supplementary shop owner assignments
+before native fit_to_people/assign_all; maintains owns and biz.owner links.
+No old-save migration; no people are generated merely to fill an enlistment quota.
+POOL API
+is_cohort(f), summary(e), race_rows(e), available(town), spare(f) are bounded reads.
+summary: population, represented households/tracked families, cohorts, anonymous,
+detailed resident/away identities, age/sex totals, common_wealth/common_jobs.
+anonymous(f,cat):0 male adult,1 female adult,2 elder,3 child, excludes named slots.
+age_bins sex:birth-year counts anonymous identities only; promoted slots removed.
+eligible_slots(e,f,day,draft_only) filters actual age bins and remaining home hands.
+promote(e,f,day,rng,draft_only) makes EXACTLY one persistent native person, no Unit.
+Materialization preserves counters/assets; only actual reservation promotes.
+Draft pool native shape[tier,-hardship,fid,pid];pid=-1 means anonymous reservation.
+Native named job details are bounded; aggregate jobs/pay still use existing loops.
+RETENTION AND CENSUS
+Census.death_ids retains person/Unit identity indefinitely; display histories trim.
+People.casualty_rec(...,pdirect=[],unit_uid=-1) accepts stable Unit UID from Army.
+Positive UID without current person never falls back to another same-name person.
+Field deaths remove one actual row member; company deaths recorded as away.
+Anonymous deaths use one cause record with trailing exact n; cause totals honor n.
+Noble birth/death/forget call Dynasty.record_person before detail may be trimmed.
+promote_ruler(game,u) moves the SAME winning cohort person into a tracked row;
+owned purse/home share, service, body/infection/Unit UID/Army roll conserved.
+Persons.birth uses Dynasty.birth_house O(1) office index for reigning mothers;
+their stable maternal house continues after marriage; real parent refs unchanged.
+DEMOGRAPHICS
+Anonymous bins age at year boundaries; real named people keep native birth dates.
+Birth fractional carry follows native culture growth, represented households/room.
+Anonymous famine uses native Sickness body rates/eat_order/actual food shortfall.
+LIMITATIONS / PRIMARY BRIDGES
+Barge meals add child_older anonymous bands; helper_hands includes anonymous elders.
+households/household_purse/household_stats normalize class, rich/poor/collectors.
+Native service constructor keeps tracked operators plus public_funding town/realm;
+estate public_property=0 values actual estate land; protected tills are not profit.
+Academy retains its sole realm/capital funding; other contracts use town transfers.
+Barge.common_tax_rate/budget quote rate/wealth/food_reserve/taxable_wealth/monthly_due.
+monthly_due uses native retail staple order/shared basket and owned food-store days.
+Actual levy debits pool, credits living lord once/month; vacancy holds it privately.
+lord_tax_last/reserve/town_id record monthly burden; lord_tax_paid is cumulative.
+Promotion carries pool_condition to native person bc; no anonymous health reset.
+Deferred: whole-pool migration/housing, named-only epidemics, civilian Unit bodies.
+Primary runs three fixture cycles plus impacted regressions/save/load/desktop QA.
+Primary v003-02: 60 checks passed in 2.492s; population 1,596 in 24.385s; clean.
+Primary verified current save/load and exact source hashes; role ran no engines.

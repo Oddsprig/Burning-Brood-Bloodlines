@@ -1,0 +1,20 @@
+{
+  "Run": "v010-02-baseline-render100",
+  "Arguments": [
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v010-baseline\\game",
+    "--position",
+    "-20000,-20000",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/diag_battle_render_v010.gd",
+    "--watchdog=50",
+    "--count=100",
+    "--enemies=100",
+    "--seconds=12",
+    "--report=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v010-baseline-render100.json"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 46.017
+}

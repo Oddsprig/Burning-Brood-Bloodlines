@@ -1,0 +1,87 @@
+{
+  "_note": "Per-faction armor sets. slot: body|helm|legs|hands|feet|shield|clothing. layer order outside-in: cover > armor > over > under. coverage = % chance a strike to that part meets this item (DF-style). rigid: true = plate/lamellar (absorbs most blunt force), false = mail/scale (transmits blunt force through). thickness in mm. Mass = cm3 * material density. Metal armor is copper or tin in the first build; clothing is linen or leather. Shields: block = block chance bonus, size cm3 (also sets mass). Values DF-inspired and tuned.",
+  "common": {
+    "closed_helm":   {"name": "closed helm", "slot": "helm", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 380, "sprite": "closed",
+      "coverage": {"head": 95, "eye_l": 75, "eye_r": 75, "eyelid_l": 75, "eyelid_r": 75, "nose": 95, "mouth": 95, "tongue": 95, "cheek_l": 95, "cheek_r": 95, "lip_u": 95, "lip_l": 95, "neck": 30, "tooth_uf1": 95, "tooth_uf2": 95, "tooth_uf3": 95, "tooth_uf4": 95, "tooth_uf5": 95, "tooth_uf6": 95, "tooth_lf1": 95, "tooth_lf2": 95, "tooth_lf3": 95, "tooth_lf4": 95, "tooth_lf5": 95, "tooth_lf6": 95, "tooth_urb1": 95, "tooth_urb2": 95, "tooth_urb3": 95, "tooth_urb4": 95, "tooth_lrb1": 95, "tooth_lrb2": 95, "tooth_lrb3": 95, "tooth_lrb4": 95, "tooth_ulb1": 95, "tooth_ulb2": 95, "tooth_ulb3": 95, "tooth_ulb4": 95, "tooth_llb1": 95, "tooth_llb2": 95, "tooth_llb3": 95, "tooth_llb4": 95}},
+    "tunic":         {"name": "tunic", "slot": "clothing", "layer": "under", "materials": ["linen"], "rigid": false, "thickness": 1, "cm3": 600, "sprite": "tunic",
+      "coverage": {"torso_upper": 100, "torso_lower": 100, "arm_upper_l": 100, "arm_upper_r": 100}},
+    "trousers":      {"name": "trousers", "slot": "legs_under", "layer": "under", "materials": ["linen"], "rigid": false, "thickness": 1, "cm3": 500, "sprite": "",
+      "coverage": {"torso_lower": 60, "leg_upper_l": 100, "leg_upper_r": 100, "leg_lower_l": 100, "leg_lower_r": 100}},
+    "shoes":         {"name": "shoes", "slot": "feet", "layer": "over", "materials": ["leather"], "rigid": false, "thickness": 2, "cm3": 300, "sprite": "",
+      "coverage": {"foot_l": 100, "foot_r": 100}},
+    "gambeson":      {"name": "gambeson", "slot": "clothing", "layer": "under", "materials": ["linen"], "rigid": false, "padded": true, "thickness": 8, "cm3": 1800, "sprite": "tunic",
+      "coverage": {"torso_upper": 100, "torso_lower": 90, "arm_upper_l": 100, "arm_upper_r": 100}, "_note": "padded (survey O7): poor vs cuts, damps blunt force that reaches it"}
+  },
+  "middle": {
+    "mail_shirt":    {"name": "mail shirt", "slot": "body", "layer": "armor", "materials": ["copper", "tin"], "rigid": false, "thickness": 2, "cm3": 900, "sprite": "mail",
+      "coverage": {"torso_upper": 100, "torso_lower": 80, "arm_upper_l": 60, "arm_upper_r": 60}},
+    "nasal_helm":    {"name": "nasal helm", "slot": "helm", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 220, "sprite": "nasal",
+      "coverage": {"head": 75, "eye_l": 20, "eye_r": 20}},
+    "mail_coif":     {"name": "mail coif", "slot": "helm", "layer": "armor", "materials": ["copper", "tin"], "rigid": false, "thickness": 2, "cm3": 250, "sprite": "coif",
+      "coverage": {"head": 70, "neck": 100}},
+    "splint_greaves":{"name": "splint greaves", "slot": "legs", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 260, "sprite": "",
+      "coverage": {"leg_lower_l": 80, "leg_lower_r": 80}},
+    "kite_shield":   {"name": "kite shield", "slot": "shield", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 450, "block": 1.0, "sprite": "kite",
+      "coverage": {}}
+  },
+  "northern": {
+    "mail_byrnie":   {"name": "mail byrnie", "slot": "body", "layer": "armor", "materials": ["copper", "tin"], "rigid": false, "thickness": 2, "cm3": 700, "sprite": "byrnie",
+      "coverage": {"torso_upper": 100, "torso_lower": 60, "arm_upper_l": 40, "arm_upper_r": 40}},
+    "spangen_helm":  {"name": "spangenhelm", "slot": "helm", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 230, "sprite": "spangen",
+      "coverage": {"head": 80, "eye_l": 40, "eye_r": 40}},
+    "arm_rings":     {"name": "arm rings", "slot": "hands", "layer": "over", "materials": ["copper", "tin"], "rigid": true, "thickness": 3, "cm3": 80, "sprite": "",
+      "coverage": {"arm_lower_l": 30, "arm_lower_r": 30}},
+    "round_shield":  {"name": "round shield", "slot": "shield", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 420, "block": 1.1, "sprite": "round",
+      "coverage": {}}
+  },
+  "orc": {
+    "scrap_plates":  {"name": "scrap plates", "slot": "body", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 3, "cm3": 800, "sprite": "scrap",
+      "coverage": {"torso_upper": 65, "torso_lower": 40, "arm_upper_l": 20, "arm_upper_r": 30}},
+    "skull_cap":     {"name": "skull cap", "slot": "helm", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 3, "cm3": 200, "sprite": "skullcap",
+      "coverage": {"head": 55}},
+    "crude_bracers": {"name": "crude bracers", "slot": "hands", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 3, "cm3": 160, "sprite": "",
+      "coverage": {"arm_lower_l": 80, "arm_lower_r": 80}},
+    "slab_shield":   {"name": "slab shield", "slot": "shield", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 3, "cm3": 550, "block": 0.8, "sprite": "slab",
+      "coverage": {}}
+  },
+  "goblin": {
+    "scale_vest":    {"name": "scale vest", "slot": "body", "layer": "armor", "materials": ["copper", "tin"], "rigid": false, "semi_rigid": true, "thickness": 2, "cm3": 400, "sprite": "scale",
+      "coverage": {"torso_upper": 90, "torso_lower": 50}},
+    "pot_helm":      {"name": "pot helm", "slot": "helm", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 130, "sprite": "pot",
+      "coverage": {"head": 65}},
+    "buckler":       {"name": "buckler", "slot": "shield", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 160, "block": 0.6, "sprite": "buckler",
+      "coverage": {}}
+  },
+  "moon_elf": {
+    "lamellar_cuirass": {"name": "lamellar cuirass", "slot": "body", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 650, "sprite": "lamellar",
+      "coverage": {"torso_upper": 95, "torso_lower": 75}},
+    "crescent_helm": {"name": "crescent helm", "slot": "helm", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 200, "sprite": "crescent",
+      "coverage": {"head": 85, "neck": 30, "eye_l": 30, "eye_r": 30}},
+    "vambraces":     {"name": "vambraces", "slot": "hands", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 120, "sprite": "",
+      "coverage": {"arm_lower_l": 90, "arm_lower_r": 90}},
+    "moon_greaves":  {"name": "moon greaves", "slot": "legs", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 200, "sprite": "",
+      "coverage": {"leg_lower_l": 90, "leg_lower_r": 90}}
+  },
+  "dwarf": {
+    "dwarf_mail":    {"name": "dwarven mail", "slot": "body", "layer": "armor", "materials": ["copper", "tin"], "rigid": false, "thickness": 3, "cm3": 1100, "sprite": "mail",
+      "coverage": {"torso_upper": 100, "torso_lower": 95, "arm_upper_l": 80, "arm_upper_r": 80, "leg_upper_l": 30, "leg_upper_r": 30}},
+    "dwarf_helm":    {"name": "dwarven helm", "slot": "helm", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 3, "cm3": 280, "sprite": "nasal",
+      "coverage": {"head": 85, "eye_l": 30, "eye_r": 30, "neck": 20}},
+    "dwarf_greaves": {"name": "dwarven greaves", "slot": "legs", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 3, "cm3": 300, "sprite": "",
+      "coverage": {"leg_lower_l": 90, "leg_lower_r": 90}},
+    "dwarf_gauntlets": {"name": "dwarven gauntlets", "slot": "hands", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 160, "sprite": "",
+      "coverage": {"arm_lower_l": 85, "arm_lower_r": 85, "hand_l": 70, "hand_r": 70}},
+    "dwarf_shield":  {"name": "dwarven round shield", "slot": "shield", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 3, "cm3": 480, "block": 1.1, "sprite": "round",
+      "coverage": {}}
+  },
+  "eastern": {
+    "steppe_lamellar": {"name": "steppe lamellar coat", "slot": "body", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 750, "sprite": "lamellar",
+      "coverage": {"torso_upper": 95, "torso_lower": 85, "arm_upper_l": 40, "arm_upper_r": 40, "leg_upper_l": 30, "leg_upper_r": 30}},
+    "steppe_helm":   {"name": "spired helm", "slot": "helm", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 230, "sprite": "spangen",
+      "coverage": {"head": 80, "neck": 25}},
+    "steppe_bracers": {"name": "steppe bracers", "slot": "hands", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 110, "sprite": "",
+      "coverage": {"arm_lower_l": 85, "arm_lower_r": 85}},
+    "steppe_shield": {"name": "small round shield", "slot": "shield", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 300, "block": 0.85, "sprite": "round",
+      "coverage": {}}
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "Run": "v009-06-test_performance_panel",
+  "Arguments": [
+    "--headless",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v009-source-verification\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=tests/test_performance_panel.gd",
+    "--watchdog=48"
+  ],
+  "ExitCode": 1,
+  "StoppedAtTimeout": false,
+  "Seconds": 3.884
+}

@@ -1,0 +1,21 @@
+{
+  "Run": "v018-records-render-01",
+  "Arguments": [
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-10-10\\you\\work\\v018-candidate-final01\\game",
+    "--resolution",
+    "2560x1440",
+    "--position",
+    "-20000,-20000",
+    "--max-fps",
+    "60",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_records_ui_v018.gd",
+    "--watchdog=60",
+    "--report-dir=C:/Users/bligh/Documents/Codex/2026-10-10/you/work/v018-ui-render/final01"
+  ],
+  "ExitCode": 0,
+  "StoppedAtTimeout": false,
+  "Seconds": 11.421
+}

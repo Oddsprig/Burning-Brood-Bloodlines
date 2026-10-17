@@ -1,0 +1,27 @@
+BURNING BROOD: BLOODLINES - PREPARATION VERIFICATION
+Date: 2026-10-10 | Scope: source integrity and folder setup
+Source: Copper Oath v0.046 / 1c676972da7b5778a5a2ee50b423756663395ced
+Local baseline: eb1a8a666f22325b974f1953ef91737075c935d5
+Working branch: dev/burning-brood
+
+All 785 inherited source files compared against the original manifest.
+783 remain exact; two intentional changes:
+- game/project.godot: own title, version 0.001-dev, separate custom user-data
+  directory Burning Brood Bloodlines. Engine behavior has not been tested.
+- .gitignore: completed releases excluded from source history.
+Missing files: 0. Unexpected source differences: 0.
+Copied baseline source archive SHA256 matches the original manifest.
+
+Nine required setup files found. Three stable specialist briefs saved:
+dynasty-economy.txt 44 lines; combat-dragons.txt 45; interface-release.txt 45.
+Active folder structure: game/, docs/, test-results/, releases/.
+Pasted handoff exactly matches the handoff package's original TXT.
+Inherited-source difference check found no whitespace errors.
+
+Result: PASS for preparation integrity/structure only.
+Duration: 0.740 seconds for source/artifact verification; containing command
+took 1.80 seconds including version-control and folder inspection.
+Engine runs: 0. Gameplay tests: NOT RUN.
+Short game checks belong to implementation; none were rerun for copying/notes.
+v0.001 gameplay, runtime branding, launcher/icon and orientation behavior
+remain unimplemented/unverified. No playable release is claimed.

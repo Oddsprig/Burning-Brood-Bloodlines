@@ -1,0 +1,9 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Combat journal checkpoint: immutable native records complete
+Combat journal checkpoint:10000 outcomes/indexed pages complete
+Combat journal checkpoint: explicit write failure/recent tail complete
+Combat journal checkpoint: read/capture failure/ownership complete
+Combat journal checkpoint: exact native copy/buffered indexes complete
+Combat journal v016: 90 assertions; failures=0
+== res://tests/test_combat_journal_v016.gd: PASS ==

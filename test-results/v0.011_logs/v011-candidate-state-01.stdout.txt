@@ -1,0 +1,4 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+campaign state day4.0 counts{"arms_town":23,"army":21,"army_fight":22,"army_misc":3,"army_rk":34,"army_sweep":3,"army_tree":21,"bday":69,"caravan":7,"census_t":69,"coin":3,"dragon_care":3,"econ":69,"fam":69,"fam2":69,"feudal":3,"fturn":1,"herds":10,"militia":10,"plots_t":10,"sick":102,"sick_w":3,"tmonth":3,"tturn":9,"wed":2} failures1
+== res://tests/diag_campaign_state_v011.gd: FAIL (1) ==
