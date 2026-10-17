@@ -6,6 +6,7 @@ extends RefCounted
 ## prisoners. Each army's morale (and its officers' nerve) decides when it breaks and quits the field.
 ## State lives in Game.pending_battle["rounds"] between rounds (the battle scene reloads for each round).
 const ROUND := 100
+static var round_size := ROUND   # men a side in one round (DevTools.set_round_size: small rounds for fast tests)
 const START_MORALE := 70.0
 const BREAK_MORALE := 25.0
 const BREAK_LOSS := 0.6       # an army that has lost this share of its starting men is beaten
@@ -14,7 +15,7 @@ const REMUSTER_DAYS := 5.0    # a beaten army regroups at its owner's seat this 
 
 ## True when this battle is big enough to be fought in rounds.
 static func wanted(side0: Array, side1: Array) -> bool:
-	return side0.size() > ROUND or side1.size() > ROUND
+	return side0.size() > round_size or side1.size() > round_size
 
 static func active(game) -> bool:
 	return not (game.pending_battle.get("rounds", {}) as Dictionary).is_empty()
@@ -59,7 +60,7 @@ static func _pick_round(game) -> void:
 		var ready := fit(game, st["pool"][side], st["captives"][side])
 		var rested := ready.filter(func(u): return not (st["last_fought"][side] as Array).has(u))
 		var tired := ready.filter(func(u): return (st["last_fought"][side] as Array).has(u))
-		picks[side] = (rested + tired).slice(0, ROUND)
+		picks[side] = (rested + tired).slice(0, round_size)
 	game.pending_battle["round_side0"] = picks[0]
 	game.pending_battle["enemy"] = picks[1]
 	game.pending_battle["seed"] = int(game.pending_battle.get("seed", 1)) + 7919

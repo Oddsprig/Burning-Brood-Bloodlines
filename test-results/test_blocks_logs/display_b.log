@@ -1,0 +1,210 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.
+     at: set_use_vsync (platform/linuxbsd/x11/gl_manager_x11.cpp:372)
+OpenGL API 4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4 - Compatibility - Using Device: Mesa - llvmpipe (LLVM 20.1.2, 256 bits)
+ALSA lib confmisc.c:855:(parse_card) cannot find card '0'
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_card_inum returned error: No such file or directory
+ALSA lib confmisc.c:422:(snd_func_concat) error evaluating strings
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+ALSA lib confmisc.c:1342:(snd_func_refer) error evaluating name
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+ALSA lib conf.c:5731:(snd_config_expand) Evaluate error: No such file or directory
+ALSA lib pcm.c:2721:(snd_pcm_open_noupdate) Unknown PCM default
+ERROR: Condition "status < 0" is true. Returning: ERR_CANT_OPEN
+   at: init_output_device (drivers/alsa/audio_driver_alsa.cpp:97)
+WARNING: All audio drivers failed, falling back to the dummy driver.
+     at: initialize (servers/audio/audio_server.cpp:258)
+
+dev: loaded the start world in 8455 ms
+rounds: enlist Ulf Longshank true Ulf Longshank rides with the army as an officer.
+rounds: quote true Raise 14 of 14 requested; actual manpower, weapons, meals and army funds limit the muster. planned 14
+rounds: medics 3
+rounds: raised 15
+rounds: enemy 100
+rounds: round 1 winner 1 fought [10, 10] dead [7, 0] wounded [1, 2] captured [0, 0] fled [2, 0] morale [0.0, 28.4] left [4, 98] household 3
+rounds: most kills by one man in the battle 2 kill histogram { 1: 3, 2: 2 } raised [{ "name": "Ruzga Bonechewer", "house": "Bonechewer", "by": "orc_horde", "day": 1.0, "deed": "slaying Ulf Longshank and 1 kills" }]
+rounds: winner 1 rounds 1 summary Company falls back to Wexbury to remuster
+rounds: prisoners 0 captives 0
+Rounds test: 12 checks, 0 failures
+== res://tests/claude_rounds.gd: PASS ==
+dev: loaded the start world in 2560 ms
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1519)
+     GDScript backtrace (most recent call first):
+         [0] _fit (res://ui/court.gd:488)
+         [1] _refresh (res://ui/court.gd:95)
+         [2] _ready (res://ui/court.gd:20)
+         [3] show_screen (res://main.gd:63)
+         [4] goto (res://core/game.gd:75)
+         [5] run (res://tests/claude_prisoners_ui_v033.gd:100)
+         [6] frames (res://tests/claude_prisoners_ui_v033.gd:18)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1519)
+     GDScript backtrace (most recent call first):
+         [0] _fit (res://ui/court.gd:488)
+         [1] _refresh (res://ui/court.gd:95)
+         [2] _ready (res://ui/court.gd:20)
+         [3] show_screen (res://main.gd:63)
+         [4] goto (res://core/game.gd:75)
+         [5] run (res://tests/claude_prisoners_ui_v033.gd:100)
+         [6] frames (res://tests/claude_prisoners_ui_v033.gd:18)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1519)
+     GDScript backtrace (most recent call first):
+         [0] _fit (res://ui/court.gd:488)
+         [1] _notification (res://ui/court.gd:493)
+         [2] _refresh (res://ui/court.gd:95)
+         [3] _ready (res://ui/court.gd:20)
+         [4] show_screen (res://main.gd:63)
+         [5] goto (res://core/game.gd:75)
+         [6] run (res://tests/claude_prisoners_ui_v033.gd:100)
+         [7] frames (res://tests/claude_prisoners_ui_v033.gd:18)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1519)
+     GDScript backtrace (most recent call first):
+         [0] _fit (res://ui/court.gd:488)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1519)
+     GDScript backtrace (most recent call first):
+         [0] _fit (res://ui/court.gd:488)
+         [1] _fit (res://ui/court.gd:488)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1519)
+     GDScript backtrace (most recent call first):
+         [0] _fit (res://ui/court.gd:488)
+         [1] _notification (res://ui/court.gd:493)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1519)
+     GDScript backtrace (most recent call first):
+         [0] _fit (res://ui/court.gd:488)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1519)
+     GDScript backtrace (most recent call first):
+         [0] _fit (res://ui/court.gd:488)
+         [1] _refresh (res://ui/court.gd:95)
+         [2] <anonymous lambda> (res://ui/court.gd:286)
+         [3] run (res://tests/claude_prisoners_ui_v033.gd:122)
+         [4] frames (res://tests/claude_prisoners_ui_v033.gd:18)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1519)
+     GDScript backtrace (most recent call first):
+         [0] _fit (res://ui/court.gd:488)
+         [1] _refresh (res://ui/court.gd:95)
+         [2] <anonymous lambda> (res://ui/court.gd:286)
+         [3] run (res://tests/claude_prisoners_ui_v033.gd:122)
+         [4] frames (res://tests/claude_prisoners_ui_v033.gd:18)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1519)
+     GDScript backtrace (most recent call first):
+         [0] _fit (res://ui/court.gd:488)
+         [1] _notification (res://ui/court.gd:493)
+         [2] _refresh (res://ui/court.gd:95)
+         [3] <anonymous lambda> (res://ui/court.gd:286)
+         [4] run (res://tests/claude_prisoners_ui_v033.gd:122)
+         [5] frames (res://tests/claude_prisoners_ui_v033.gd:18)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1519)
+     GDScript backtrace (most recent call first):
+         [0] _fit (res://ui/court.gd:488)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1519)
+     GDScript backtrace (most recent call first):
+         [0] _fit (res://ui/court.gd:488)
+         [1] _fit (res://ui/court.gd:488)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1519)
+     GDScript backtrace (most recent call first):
+         [0] _fit (res://ui/court.gd:488)
+         [1] _notification (res://ui/court.gd:493)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1519)
+     GDScript backtrace (most recent call first):
+         [0] _fit (res://ui/court.gd:488)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1519)
+     GDScript backtrace (most recent call first):
+         [0] _fit (res://ui/court.gd:488)
+         [1] _refresh (res://ui/court.gd:95)
+         [2] <anonymous lambda> (res://ui/court.gd:286)
+         [3] run (res://tests/claude_prisoners_ui_v033.gd:137)
+         [4] frames (res://tests/claude_prisoners_ui_v033.gd:18)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1519)
+     GDScript backtrace (most recent call first):
+         [0] _fit (res://ui/court.gd:488)
+         [1] _refresh (res://ui/court.gd:95)
+         [2] <anonymous lambda> (res://ui/court.gd:286)
+         [3] run (res://tests/claude_prisoners_ui_v033.gd:137)
+         [4] frames (res://tests/claude_prisoners_ui_v033.gd:18)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1519)
+     GDScript backtrace (most recent call first):
+         [0] _fit (res://ui/court.gd:488)
+         [1] _notification (res://ui/court.gd:493)
+         [2] _refresh (res://ui/court.gd:95)
+         [3] <anonymous lambda> (res://ui/court.gd:286)
+         [4] run (res://tests/claude_prisoners_ui_v033.gd:137)
+         [5] frames (res://tests/claude_prisoners_ui_v033.gd:18)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1519)
+     GDScript backtrace (most recent call first):
+         [0] _fit (res://ui/court.gd:488)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1519)
+     GDScript backtrace (most recent call first):
+         [0] _fit (res://ui/court.gd:488)
+         [1] _fit (res://ui/court.gd:488)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1519)
+     GDScript backtrace (most recent call first):
+         [0] _fit (res://ui/court.gd:488)
+         [1] _notification (res://ui/court.gd:493)
+WARNING: Nodes with non-equal opposite anchors will have their size overridden after _ready(). 
+If you want to set size, change the anchors or consider using set_deferred().
+     at: _set_size (scene/gui/control.cpp:1519)
+     GDScript backtrace (most recent call first):
+         [0] _fit (res://ui/court.gd:488)
+prisoners_ui033: battle winner 0 downed losers 1 taken 1 captured [0, 1]
+prisoners_ui033: 17 checks, 0 failures
+== res://tests/claude_prisoners_ui_v033.gd: PASS ==
+dev: loaded the start world in 2704 ms
+ok   house with a dragon chosen
+ok   army funded from the real house purse
+ok   raised 12 real residents
+ok   2 bonded dragon(s) march with the army
+ok   foreign town with a same-faction neighbour within 400 px exists
+ok   siege preview at Froststad: Storm the walls; a victory brings the settlement into your realm. 15 defenders hold Froststad against your 12. The Clans Of The Northern Fells is not at war with you: attacking will make them an enemy.
+ok   siege started
+ok   siege: battle screen opened
+ok   assaulted town fears dragons (20.0)
+ok   neighbouring town fears dragons (6.0)
+ok   defection candidate Kolvik still foreign
+ok   defection candidate Kolvik is not its realm's seat after the siege
+ok   candidate set to loyalty 25, fear 90 of the player's faction
+ok   Kolvik defected to the player's faction out of fear of dragons
+dragonfear: 14 checks, 0 failures
+== res://tests/claude_dragonfear.gd: PASS ==
+== block display_b: 3 tests, 0 failing ==
+  claude_rounds.gd PASS (17 s)
+  claude_prisoners_ui_v033.gd PASS (18 s)
+  claude_dragonfear.gd PASS (13 s)

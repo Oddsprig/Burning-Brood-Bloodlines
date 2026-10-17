@@ -175,6 +175,11 @@ Read the original handoff or inherited specifications only as needed.
   loads the saved start world (start_world) and puts the game straight into a
   state (raise_army, due_birth, egg_almost_hatched, sack, famine, outbreak ...).
   Add a tool when a test would otherwise wait for days or fight big battles.
+- TEST BLOCKS (user rule, 2026-10-17): tests that can share one run do, to cut
+  game restarts (runner `--block=<name>` from game/tests/blocks.json, or
+  `--tests=a.gd,b.gd`). A WHOLE BLOCK must finish in under 60 s, with a 180 s
+  hard cap. When a block would pass 60 s, split it or cut its tests down. The
+  runner resets shared state between tests (reset_between); add new statics there.
 - No old-save compatibility work or long benchmarks unless requested.
 - User direction (2026-10-17): every test runs on the smallest world (Normal) with a
   one-day world history; those are also the game's defaults (WorldGen.WORLD_SIZE,

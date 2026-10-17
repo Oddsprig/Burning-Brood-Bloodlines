@@ -52,13 +52,23 @@ The full local history before v0.032 stays on the user's PC.
   later-game states up with DevTools instead of simulating days or fighting big battles.
 - Run a test: `godot --path game --rendering-method gl_compatibility res://tests/runner.tscn -- --test=res://tests/<file>.gd`
   (add `--headless` where no display is available; screenshot tests need a display).
-- Main checks: `claude_campaign.gd`, `claude_rounds.gd`, `claude_marriage.gd`, `claude_diplomacy_v030.gd`, `claude_markers_v031.gd`, `claude_intrigue_v032.gd`, `claude_prisoners_v033.gd`, `claude_prisoners_ui_v033.gd`, `claude_population_v034.gd`, `claude_population_ui_v034.gd`, `claude_creatures_v035.gd`, `claude_creatures_ui_v035.gd`, `claude_refit.gd`, `claude_dragonfear.gd`.
+- **Test blocks (user rule 2026-10-17): tests that can share one run do, to cut game restarts, and a whole block must finish
+  in under 60 s (180 s hard cap).** `-- --block=<name>` runs a block from `game/tests/blocks.json` in one Godot process;
+  `-- --tests=a.gd,b.gd` runs an ad-hoc list. Between tests the runner frees the last test's scenes and resets the shared
+  state (`reset_between` in tests/runner.gd); add any new static a test changes there. Blocks (2026-10-17 timings):
+  `headless` 49 s (population, prisoners, intrigue, creatures; run with `--headless`), `display_a` 49 s (campaign, markers,
+  refit), `display_b` 54 s (rounds, prisoners_ui, dragonfear), `display_c` 44 s (population_ui, creatures_ui, diplomacy,
+  marriage). Run blocks one at a time. Keep each block under 60 s when adding a test: put it in the block with room, or start
+  a new block.
+- Main checks (all in the blocks above): `claude_campaign.gd`, `claude_rounds.gd`, `claude_marriage.gd`, `claude_diplomacy_v030.gd`, `claude_markers_v031.gd`, `claude_intrigue_v032.gd`, `claude_prisoners_v033.gd`, `claude_prisoners_ui_v033.gd`, `claude_population_v034.gd`, `claude_population_ui_v034.gd`, `claude_creatures_v035.gd`, `claude_creatures_ui_v035.gd`, `claude_refit.gd`, `claude_dragonfear.gd`.
+- Big-battle rounds are tested with `DevTools.set_round_size(10)` (a 10-a-side round instead of the game's 100), so
+  `claude_rounds.gd` proves the rounds with about 15 a side.
 - Population balance: `tests/diag_population_v034.gd --days=N` prints people, sickness cases/deaths, moves and job timings (a diagnostic, not a pass/fail check; run it only when needed).
 - In a Linux cloud container: download the Godot 4.7.2 Linux build and run display tests with `xvfb-run -a -s "-screen 0 1920x1080x24"`
   (main.tscn tests wait for drawn frames and hang under `--headless`). `claude_intrigue_v032.gd`, `claude_prisoners_v033.gd`, `claude_population_v034.gd` run headless.
 - `tests/runner.gd` counts every runtime script error (a `SCRIPT ERROR` line in the log) as a failure, so a test that dies on one prints `FAIL (n)` and exits non-zero.
   The aborted `run()` loses its own failure count, so read the log for the cause. (Up to v0.034 the runner printed PASS on script errors and logs were searched by hand.)
-- Results for each version go in `test-results/` (v0.033 and v0.034: `test-results/v0.03N_2026-10-17_results.txt`).
+- Results for each version go in `test-results/` (v0.033 to v0.035: `test-results/v0.03N_2026-10-17_results.txt`; the block timings: `test-results/test_blocks_2026-10-17_results.txt`).
 - Known older failures that predate this work: `test_econ_army.gd` draft-pool checks, phone-size layout checks in `test_dynasty_ui.gd`.
 
 ## Helpers

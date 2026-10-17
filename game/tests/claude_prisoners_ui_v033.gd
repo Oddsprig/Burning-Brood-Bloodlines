@@ -145,7 +145,7 @@ func run(tree: SceneTree) -> int:
 	check(not wb.is_empty() and not Game.deployed_units().is_empty(), "a band and an army remain for a real small battle")
 	if not wb.is_empty() and not Game.deployed_units().is_empty() and (wb["units"] as Array).size() <= BattleRounds.ROUND:
 		var before := [Prisoners.captives(Game).size(), Prisoners.held(Game).size()]
-		Game.start_battle({"enemy": (wb["units"] as Array).duplicate(), "allies": [], "warband_id": band_id, "seed": 31, "terrain": "grassland", "map": "small"})
+		Game.start_battle({"enemy": (wb["units"] as Array).slice(0, 10), "allies": [], "warband_id": band_id, "seed": 31, "terrain": "grassland", "map": "small"})   # 10 of the band: fast
 		await frames(tree, 8)
 		var b: Node = main.current
 		check(b != null and "sim" in b and not BattleRounds.active(Game), "a small battle is one clash")

@@ -1,0 +1,25 @@
+{
+	"_note": "Test blocks for tests/runner.gd (--block=<name>): each block runs in ONE Godot process and the whole block must finish in under 60 s (180 s hard cap; user rule 2026-10-17). 'headless' runs with --headless; 'display_*' need a display (xvfb-run in a Linux container). Run blocks one at a time.",
+	"headless": [
+		"res://tests/claude_population_v034.gd",
+		"res://tests/claude_prisoners_v033.gd",
+		"res://tests/claude_intrigue_v032.gd",
+		"res://tests/claude_creatures_v035.gd"
+	],
+	"display_a": [
+		"res://tests/claude_campaign.gd",
+		"res://tests/claude_markers_v031.gd",
+		"res://tests/claude_refit.gd"
+	],
+	"display_b": [
+		"res://tests/claude_rounds.gd",
+		"res://tests/claude_prisoners_ui_v033.gd",
+		"res://tests/claude_dragonfear.gd"
+	],
+	"display_c": [
+		"res://tests/claude_population_ui_v034.gd",
+		"res://tests/claude_creatures_ui_v035.gd",
+		"res://tests/claude_diplomacy_v030.gd",
+		"res://tests/claude_marriage.gd"
+	]
+}

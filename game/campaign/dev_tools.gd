@@ -75,6 +75,11 @@ static func raise_army(game, tid: String, n: int) -> int:
 	Mobilization.muster(game, tid, n, quote["review"])
 	return game.company.size() - before
 
+## Battles go in rounds of n a side (BattleRounds.round_size; the game's is 100): a round battle with a few men.
+## Put it back with set_round_size(BattleRounds.ROUND).
+static func set_round_size(n: int) -> void:
+	BattleRounds.round_size = maxi(2, n)
+
 ## ------------------------------------------------------------------ time-skips through the game's own state
 ## A woman of a family carries a child due in `days` (the native Persons.childbearing pregnancy record); it is born
 ## at the family's next weekly turn on or after that day.

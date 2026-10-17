@@ -1,6 +1,7 @@
 extends RefCounted
-## Round-based battles through main.tscn: a raised army of just over 100 against a real enemy band padded to 110, one round.
-## Each round must field at most 100 a side; wounded sit out; prisoners change hands; the loser goes home.
+## Round-based battles through main.tscn: a raised army of just over one round against a real enemy band padded to just over one round,
+## one round. Each round must field at most round_size a side; wounded sit out; prisoners change hands; the loser goes home.
+## Test time budget: DevTools.set_round_size(10) makes a round 10 a side (the game's is 100), so the armies are ~14 a side.
 ## -- --test=res://tests/claude_rounds.gd [--out=<dir>] [--size=WxH]
 var fails := 0
 var checks := 0
@@ -38,6 +39,8 @@ func run(tree: SceneTree) -> int:
 	if not await DevTools.start_world(tree, "user://claude_rounds-test.json"):
 		printerr("FAIL: the start world did not load")
 		return 1
+	DevTools.set_round_size(10)
+	var want := BattleRounds.round_size + 4   # just over one round a side: the battle goes in rounds
 	# The most populous ruling house.
 	var best := ""; var best_pop := 0
 	for tid in Game.world["towns"]:
@@ -59,9 +62,9 @@ func run(tree: SceneTree) -> int:
 		print("rounds: enlist ", row.get("name", ""), " ", er.get("ok", false), " ", er.get("reason", ""))
 		if er.get("ok", false): riders += 1
 	check(riders > 0, "family members can ride with the army")
-	var quote := Mobilization.quote(Game, best, 110)   # just over one round's 100: the battle goes in rounds
+	var quote := Mobilization.quote(Game, best, want)
 	print("rounds: quote ", quote.get("ok", false), " ", quote.get("reason", ""), " planned ", quote.get("planned", 0))
-	if quote.get("ok", false): Mobilization.muster(Game, best, 110, quote["review"])
+	if quote.get("ok", false): Mobilization.muster(Game, best, want, quote["review"])
 	var raised := Game.company.size()
 	var made := 0
 	for u in Game.company:
@@ -70,7 +73,7 @@ func run(tree: SceneTree) -> int:
 	print("rounds: medics ", made)
 	check(made > 0 and Game.deployed_units().size() == raised - made, "medics stay out of the fighting")
 	print("rounds: raised ", raised)
-	check(raised > 100, "more than one round's worth raised (%d)" % raised)
+	check(raised - made > BattleRounds.round_size, "more than one round's worth raised (%d)" % raised)
 	# A real enemy band, padded with that faction's own troops.
 	var enemy_id := ""
 	for key in Game.world["warbands"]:
@@ -81,14 +84,14 @@ func run(tree: SceneTree) -> int:
 	if enemy_id == "": return 1
 	var wb: Dictionary = Game.world["warbands"][enemy_id]
 	var rng := RandomNumberGenerator.new(); rng.seed = 77
-	var extra: Array = Factory.make_warband(rng, str(wb["faction"]), maxi(0, 110 - (wb["units"] as Array).size()))
+	var extra: Array = Factory.make_warband(rng, str(wb["faction"]), maxi(0, want - (wb["units"] as Array).size()))
 	for u in extra: u.home_town = str(wb.get("home", ""))
 	(wb["units"] as Array).append_array(extra)
 	var enemy_total := (wb["units"] as Array).size()
 	print("rounds: enemy ", enemy_total)
-	Game.start_battle({"enemy": (wb["units"] as Array).duplicate(), "allies": [], "warband_id": enemy_id, "seed": 31, "terrain": "grassland", "map": "large"})
+	Game.start_battle({"enemy": (wb["units"] as Array).duplicate(), "allies": [], "warband_id": enemy_id, "seed": 31, "terrain": "grassland", "map": "small"})
 	await frames(tree, 10)
-	check(BattleRounds.active(Game), "a large battle is fought in rounds")
+	check(BattleRounds.active(Game), "a battle bigger than one round is fought in rounds")
 	if BattleRounds.active(Game):   # one round proves the rounds: both armies start just above breaking, so the round's loser breaks
 		Game.pending_battle["rounds"]["morale"] = [BattleRounds.BREAK_MORALE + 1.0, BattleRounds.BREAK_MORALE + 1.0]
 	var rounds_seen := 0
@@ -127,8 +130,8 @@ func run(tree: SceneTree) -> int:
 	var hist := {}
 	for n in kl: top = maxi(top, int(n)); hist[int(n)] = int(hist.get(int(n), 0)) + 1
 	print("rounds: most kills by one man in the battle ", top, " kill histogram ", hist, " raised ", Game.world.get("ennoble", {}).get("raised", []))
-	check(rounds_seen >= 1 and int(Game.last_result.get("battle_summary", {}).get("start", [0, 0])[0]) > 100, "a battle of %d rounds over more than 100 a side" % rounds_seen)
-	check(max_side[0] <= BattleRounds.ROUND and max_side[1] <= BattleRounds.ROUND, "no round fields more than 100 a side (%s)" % str(max_side))
+	check(rounds_seen >= 1 and int(Game.last_result.get("battle_summary", {}).get("start", [0, 0])[0]) > BattleRounds.round_size, "a battle of %d rounds over more than one round a side" % rounds_seen)
+	check(max_side[0] <= BattleRounds.round_size and max_side[1] <= BattleRounds.round_size, "no round fields more than one round a side (%s)" % str(max_side))
 	var r: Dictionary = Game.last_result
 	print("rounds: winner ", r.get("winner", -9), " rounds ", (r.get("rounds", []) as Array).size(), " summary ", r.get("battle_summary", {}).get("retreat", ""))
 	check(not r.is_empty() and r.has("battle_summary"), "the battle result carries its own summary")

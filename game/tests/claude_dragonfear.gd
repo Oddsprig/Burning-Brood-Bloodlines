@@ -56,10 +56,10 @@ func run(tree: SceneTree) -> int:
 	Game.location = tid
 	var purse0 := float(Feudal._payer(Game).get("purse", 0.0))
 	var fund := Mobilization.fund(Game, int(floor(purse0 * 0.6)))
-	var quote := Mobilization.quote(Game, tid, 40)   # small: the siege stays a one-clash battle
+	var quote := Mobilization.quote(Game, tid, 12)   # small and fast (test time budget): the siege stays a one-clash battle
 	check(fund.get("ok", false) and quote.get("ok", false), "army funded from the real house purse")
-	Mobilization.muster(Game, tid, 40, quote.get("review", {}))
-	check(Game.company.size() >= 20, "raised %d real residents" % Game.company.size())
+	Mobilization.muster(Game, tid, 12, quote.get("review", {}))
+	check(Game.company.size() >= 8, "raised %d real residents" % Game.company.size())
 	var marched := 0
 	for dragon: Dictionary in Dragons.records(Game):
 		var uid := str(dragon["id"])

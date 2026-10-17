@@ -1,0 +1,38 @@
+BURNING BROOD: BLOODLINES - CLAUDE EDITION v0.035: TEST BLOCKS
+Test results, 2026-10-17. Claude Code cloud session (Linux container).
+
+WHAT CHANGED (user rule 2026-10-17: tests that can share one run do, and a whole block takes under 60 s, 180 s hard cap)
+  tests/runner.gd runs several tests in ONE Godot process: -- --block=<name> (tests/blocks.json) or -- --tests=a.gd,b.gd.
+  Between tests it frees the last test's scenes and resets the shared state tests change (reset_between). Each test keeps
+  its own 180 s watchdog and its own script-error count; the block ends with a summary line.
+  Cut-down tests (same checks, smaller setups):
+    claude_rounds.gd       DevTools.set_round_size(10): 10-a-side rounds instead of the game's 100, so about 15 a side
+                           proves the rounds (was 110 v 110: 91 s; now 17 s in its block)
+    claude_campaign.gd     army of 12 instead of 40 (41 s -> 36 s, including the block's first world load)
+    claude_dragonfear.gd   army of 12 instead of 40 (28 s -> 13 s)
+    claude_prisoners_ui_v033.gd  the real battle fights 10 of the enemy band (38 s -> 18 s)
+  BattleRounds.round_size (static, default ROUND = 100) is what the game uses for a round; only DevTools changes it.
+
+ENVIRONMENT
+Godot 4.7.2.stable.official.ed1daf0bf, Linux x86_64, GL compatibility renderer; display blocks on xvfb (Mesa software
+GL), the headless block with --headless. Every test starts from the saved small start world (DevTools.start_world:
+Normal, one-day history). One engine at a time, nice 10. Source: branch claude/v0.035-creature-review.
+
+BLOCKS - one run each on the final tree (wall time = the whole process, engine start to exit)
+  headless   49 s  exit 0  claude_population_v034 48/0 (14 s), claude_prisoners_v033 67/0 (8 s),
+                           claude_intrigue_v032 64/0 (7 s), claude_creatures_v035 9/0 (15 s)
+  display_a  49 s  exit 0  claude_campaign 21/0 (36 s), claude_markers_v031 54/0 (3 s), claude_refit 9/0 (4 s)
+  display_b  54 s  exit 0  claude_rounds 12/0 (17 s), claude_prisoners_ui_v033 17/0 (18 s), claude_dragonfear 14/0 (13 s)
+  display_c  44 s  exit 0  claude_population_ui_v034 10/0 (10 s), claude_creatures_ui_v035 8/0 (10 s),
+                           claude_diplomacy_v030 50/0 (9 s), claude_marriage 15/0 (10 s)
+  (checks/failures per test). All fourteen main checks pass; no SCRIPT ERROR lines; every block under 60 s.
+  All four blocks: 196 s in four processes (the same tests one per process took about 7 minutes on v0.035).
+
+NOTES
+  The first test in a block pays the engine's first world load (about 8 s); later tests load it in about 2.5 s.
+  claude_rounds: this one 10-a-side round took no prisoners (captured [0, 0]), so its two captive-record checks had
+  nothing to check (12 checks, was 14). Prisoners from a real battle are checked by claude_prisoners_ui_v033 (a real
+  small battle takes exactly the loser's downed men) and by claude_prisoners_v033.
+  An "ERR_CANT_OPEN" line under xvfb is the container's missing sound device (ALSA), not a test error.
+  Not tested here: the Windows build, a Desktop install, phone sizes, old-save compatibility.
+  Logs: test-results/test_blocks_logs/.
