@@ -953,16 +953,19 @@ static func _pool_day(game, t: Dictionary, e: Dictionary, b: Dictionary, d: int,
 			var rate := (cond + town + home) * float(tf["rm"][i])
 			if rate <= 0.0: continue
 			var free := 1.0 - minf(1.0, float(_pool_immune(f, dis, float(d))) / float(total))
-			var src := "cond:" + cond_words(e, f, r, room, cloth)
-			if town > cond and town >= home: src = "town:caught from the town's sick in %s" % t["name"]
-			elif home > cond: src = "home:their own households"
+			var src := ""   # where it began: worked out only when a first case needs it
 			for group in POOL_GROUPS:
 				var bnd: String = POOL_GROUPS[group]
 				var s := maxf(0.0, float(people[group]) - float(pool_sick(f, dis, bnd))) * free
 				if s < 1.0: continue
 				var catch := float(r["catch"][bnd]) * (1.0 + BODY_CATCH * (1.0 - float(bc.get(group, 1.0))))
 				var n := mini(int(s), _poisson(rng, s * rate * catch * float(span)))
-				if n > 0: _pool_infect(e, b, f, dis, bnd, group, n, d, rng, src)
+				if n <= 0: continue
+				if src == "":
+					src = "cond:" + cond_words(e, f, r, room, cloth)
+					if town > cond and town >= home: src = "town:caught from the town's sick in %s" % t["name"]
+					elif home > cond: src = "home:their own households"
+				_pool_infect(e, b, f, dis, bnd, group, n, d, rng, src)
 
 ## v0.034: a disease takes hold in a town of your realm (OUTBREAK open cases): one campaign log line per outbreak;
 ## the outbreak is over when its last case ends.
@@ -981,27 +984,52 @@ static func _outbreak_news(game, t: Dictionary, b: Dictionary, d: int) -> void:
 	if seen.is_empty(): b.erase("outbreak")
 	else: b["outbreak"] = seen
 
-static func _pool_infect(_e: Dictionary, b: Dictionary, f: Dictionary, dis: String, bnd: String, group: String, n: int, d: int, rng: RandomNumberGenerator, src: String) -> void:
+static func _pool_infect(e: Dictionary, b: Dictionary, f: Dictionary, dis: String, bnd: String, group: String, n: int, d: int, rng: RandomNumberGenerator, src: String) -> void:
 	var r := row(dis)
 	var on := d + rng.randi_range(int(r["inc"][0]), int(r["inc"][1]))
 	var sd := rng.randi_range(int(r["sick"][0]), int(r["sick"][1]))
 	var bc := float(f.get("pool_condition", {}).get(group, 1.0))
 	var q := minf(0.9, float(r["death"][bnd]) * (1.0 + BODY_DEATH * (1.0 - bc)))
-	var p := 1.0 - pow(1.0 - q, float(sd))   # the daily risk over his sick days (as _death_day)
-	var die := 0
-	if n <= 40:
-		for k in n:
-			if rng.randf() < p: die += 1
-	else:
-		die = clampi(int(round(rng.randfn(n * p, sqrt(n * p * (1.0 - p))))), 0, n)
+	# Remedies as the register buys them (_buy_remedy): the herbalist's real stock, the row's coin, two weeks of
+	# grain kept back; a remedied case is sick remedy.days as long at remedy.death the daily risk.
+	var R: Dictionary = data()["remedy"]
+	var cured := _pool_remedies(e, f, n)
+	var sd2 := maxi(1, int(ceilf(float(sd) * float(R["days"]))))
 	if not f.has("psk"): f["psk"] = []
-	f["psk"].append([dis, bnd, n, die, on + maxi(1, sd / 2), on + sd, false])
+	if cured > 0:
+		var die2 := _pool_deaths(rng, cured, 1.0 - pow(1.0 - q * float(R["death"]), float(sd2)))
+		f["psk"].append([dis, bnd, cured, die2, on + maxi(1, sd2 / 2), on + sd2, false])
+	if n > cured:
+		var die := _pool_deaths(rng, n - cured, 1.0 - pow(1.0 - q, float(sd)))   # the daily risk over the sick days (as _death_day)
+		f["psk"].append([dis, bnd, n - cured, die, on + maxi(1, sd / 2), on + sd, false])
 	var was := int(b["act"].get(dis, 0))
 	b["act"][dis] = was + n
 	b["cases"][dis] = int(b["cases"].get(dis, 0)) + n
 	for k in mini(n, 200): (b["new"] as Array).append([d, dis])
 	_yr_n(b, float(d), 0, n)
 	if was == 0: b["first"][dis] = [d, origin_text(src, float(d))]
+
+static func _pool_deaths(rng: RandomNumberGenerator, n: int, p: float) -> int:
+	if n <= 40:
+		var die := 0
+		for k in n:
+			if rng.randf() < p: die += 1
+		return die
+	return clampi(int(round(rng.randfn(n * p, sqrt(n * p * (1.0 - p))))), 0, n)
+
+## Remedies a cohort row buys for n new cases (TownEcon.family_buy: the herbalist's stock, coin to its till).
+static func _pool_remedies(e: Dictionary, f: Dictionary, n: int) -> int:
+	if int(e.get("stock", {}).get("remedy", 0)) <= 0: return 0
+	var R: Dictionary = data()["remedy"]
+	var price := float(e["price"].get("remedy", Goods.table().get("remedy", {}).get("price", 3.0 * TownEcon.COIN)))
+	var reserve := float(Families.people(f)) * 2.0 * float(R["reserve_days"]) * float(e["price"].get("grain", 0.5 * TownEcon.COIN))
+	var can := mini(n, int(floor((float(f["purse"]) - reserve) / maxf(0.01, price))))
+	if can <= 0: return 0
+	var got := TownEcon.family_buy(e, f, "remedy", can)
+	if got <= 0: return 0
+	e["hh"]["remedy"] = int(e["hh"].get("remedy", 0)) - got
+	TownEcon.led(e, "used", "remedy", got)
+	return got
 
 ## Cases due: their dead leave the row through the one population death path; the recovered become immune.
 static func _pool_resolve(e: Dictionary, b: Dictionary, f: Dictionary, d: int, rng: RandomNumberGenerator) -> void:

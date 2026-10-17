@@ -55,8 +55,15 @@ static func _crowded_households(e: Dictionary, f: Dictionary) -> int:
 	var per := float(people) / float(Population.households(f))
 	return int(floor((float(people) - room) / maxf(1.0, per)))
 
+static var worst_us := 0   # perf: the slowest weekly job (one map frame)
+
 ## Weekly (TownEcon queue "migrate"): every town under a push sends some of its common households away.
 static func weekly(game, day: float) -> void:
+	var t0 := Time.get_ticks_usec()
+	_weekly(game, day)
+	worst_us = maxi(worst_us, Time.get_ticks_usec() - t0)
+
+static func _weekly(game, day: float) -> void:
 	var w: Dictionary = game.world
 	var st := state(w)
 	if int(day) <= int(st["day"]): return

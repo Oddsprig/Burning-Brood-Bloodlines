@@ -21,6 +21,7 @@ func run(tree: SceneTree) -> int:
 	for choice: Dictionary in Dynasty.choices(Game):
 		if bool(HouseOnboarding.begin(Game, str(choice["town_id"]), str(choice["household_uid"])).get("ok", false)): break
 	_print("start", 0)
+	Sickness.prof_on = true; Sickness.job_worst = 0; Migration.worst_us = 0
 	var t0 := Time.get_ticks_usec()
 	var worst := 0
 	for i in days:
@@ -28,7 +29,8 @@ func run(tree: SceneTree) -> int:
 		Game.advance_time(1.0, false, 0, 0)
 		worst = maxi(worst, Time.get_ticks_usec() - d0)
 		if (i + 1) % 60 == 0: _print("day %d" % (i + 1), 0)
-	print("diag034: %d days in %.1f s, worst day %.0f ms" % [days, float(Time.get_ticks_usec() - t0) / 1e6, float(worst) / 1000.0])
+	print("diag034: %d days in %.1f s, worst day %.0f ms; worst sickness job %.1f ms, sickness total %.1f s; worst migration week %.1f ms" % [days, float(Time.get_ticks_usec() - t0) / 1e6, float(worst) / 1000.0,
+		float(Sickness.job_worst) / 1000.0, float(Sickness.us) / 1e6, float(Migration.worst_us) / 1000.0])
 	Game.wait_save()
 	return 0
 

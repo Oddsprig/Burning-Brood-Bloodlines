@@ -190,11 +190,11 @@ func run(tree: SceneTree) -> int:
 	var big_week := false; var logged := 0
 	for i in 4:
 		var left_before := int(es["stats"].get("left_war", 0))
-		var log0: int = (w["log"] as Array).size()
+		w["log"] = []   # the campaign log keeps only its last 30 lines: read just this week's
 		Migration.weekly(Game, Game.day + float(i * 7))
 		var week := int(es["stats"].get("left_war", 0)) - left_before
 		if week >= Migration.LOG_AT: big_week = true
-		for line in (w["log"] as Array).slice(log0):
+		for line in (w["log"] as Array):
 			if str(line).contains("War drove") and str(line).contains(String(src["name"])): logged += 1
 		check(week < Migration.LOG_AT or logged > 0, "a week's departures are logged when %d or more leave (week %d: %d)" % [Migration.LOG_AT, i, week])
 		logged = 0
