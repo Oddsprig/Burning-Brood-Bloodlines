@@ -16,6 +16,7 @@ var slider: HSlider
 var span_lbl: Label
 var est: Label
 var steppe_check: CheckButton
+var creatures_check: CheckButton
 var house_cap_spin: SpinBox
 var sick_slider: HSlider
 var sick_lbl: Label
@@ -96,6 +97,14 @@ func _ready() -> void:
 	steppe_check.custom_minimum_size = Vector2(80, UiKit.TAP)
 	steppe_check.focus_mode = Control.FOCUS_NONE
 	v.add_child(steppe_check)
+	creatures_check = CheckButton.new()
+	creatures_check.name = "CreaturesEnabled"
+	creatures_check.text = "Creatures and lairs (wolves, bears and worse roam the wilds)"
+	creatures_check.tooltip_text = "On: creature lairs and roaming packs on the map; they fight your army, towns' militia and travellers. Off: no creatures."
+	creatures_check.button_pressed = bool(Game.settings.get("creatures_enabled", true))
+	creatures_check.custom_minimum_size = Vector2(80, UiKit.TAP)
+	creatures_check.focus_mode = Control.FOCUS_NONE
+	v.add_child(creatures_check)
 	var cap_row := UiKit.hbox(10); v.add_child(cap_row)
 	var cap_l := UiKit.label("Most noble houses alive at once (0 = the starting houses plus 60)", "", true)
 	cap_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -190,6 +199,8 @@ func _apply() -> void:
 	Game.settings["steppe_enabled"] = steppe_check.button_pressed
 	Game.settings["house_cap"] = int(house_cap_spin.value)
 	Game.settings["sickness_deadliness"] = deadliness()
+	Game.settings["creatures_enabled"] = creatures_check.button_pressed
+	Monsters.new_world_creatures = creatures_check.button_pressed
 	Sickness.new_world_deadliness = deadliness()
 	CampaignWorld.presim_span_days = history_days
 

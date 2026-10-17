@@ -20,11 +20,17 @@ const MONSTER_KINDS := ["beasts", "den"]
 const NO_CLASH := ["militia", "beasts", "den", "camp"]   # resolved by Militia.tick, not CampaignWorld._warband_clashes
 const PACK_SPEED := 0.75     # x WARBAND_SPEED while roaming
 const SIGHT_LAIR := 300.0    # px: lairs the company passes this close become known
-## Temporary v0.002 campaign suspension. Creature data/body combat remains available for later milestones.
-const CAMPAIGN_CREATURES_ENABLED := false
+## Creatures on the campaign map (lairs, packs, dens) - suspended since v0.002, reviewed in v0.035: now a per-world
+## choice (the New Bloodline screen), kept in the world as "creatures_enabled". Older saves were generated without
+## lairs and keep them off. Set at world creation and load (use_world).
+static var new_world_creatures := true   # what the next new world uses (the New Bloodline screen sets it)
+static var creatures_on := false
+
+static func use_world(w: Dictionary) -> void:
+	creatures_on = bool(w.get("creatures_enabled", false))
 
 static func campaign_creatures_enabled() -> bool:
-	return CAMPAIGN_CREATURES_ENABLED
+	return creatures_on
 
 static func creature_units(units: Array) -> bool:
 	var checked := {}

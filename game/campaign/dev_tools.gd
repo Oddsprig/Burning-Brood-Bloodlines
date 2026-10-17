@@ -13,14 +13,16 @@ const WORLD_VERSION := 1
 const WORLD_DIR := "user://fixtures"
 const WORLD_SEED := 4242
 
-static func world_path() -> String:
-	return "%s/world_%s_v%d.json" % [WORLD_DIR, str(ProjectSettings.get_setting("application/config/version", "dev")), WORLD_VERSION]
+static func world_path(creatures: bool = false) -> String:
+	return "%s/world%s_%s_v%d.json" % [WORLD_DIR, "_creatures" if creatures else "", str(ProjectSettings.get_setting("application/config/version", "dev")), WORLD_VERSION]
 
 ## Loads the start world (making and saving it the first time). Later saves go to save_path. False if it failed.
-static func start_world(tree: SceneTree, save_path: String) -> bool:
+## creatures: the world with creatures on the map (lairs, packs, dens); the default world has none.
+static func start_world(tree: SceneTree, save_path: String, creatures: bool = false) -> bool:
 	Game.wait_save()
-	var file := world_path()
+	var file := world_path(creatures)
 	WorldGen.gen_size = "normal"; CampaignWorld.presim_span_days = 1
+	Monsters.new_world_creatures = creatures
 	if not FileAccess.file_exists(file):
 		var t0 := Time.get_ticks_msec()
 		var generation := Game.new_game_begin(WORLD_SEED)

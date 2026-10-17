@@ -1,6 +1,6 @@
 # Burning Brood: Bloodlines (Claude Edition) - cloud handoff
 
-Current version: **v0.034** (in-game label `0.034-claude`, game/project.godot `config/version`).
+Current version: **v0.035** (in-game label `0.035-claude`, game/project.godot `config/version`).
 This repository started as a single snapshot of v0.032; v0.033 and v0.034 were built in the cloud on top of it,
 each on its own branch (`claude/v0.033-prisoner-ransom`, `claude/v0.034-migration-housing-illness`, stacked).
 The full local history before v0.032 stays on the user's PC.
@@ -27,14 +27,16 @@ The full local history before v0.032 stays on the user's PC.
   Details and known limits: DEV_NOTES_CLAUDE_EDITION.txt, section V0.033.
 - v0.034 population migration, housing and illness: the common folk (cohort rows, most of the population) fall sick
   at the register's per-person rates and buy remedies; their households leave towns under war, famine or crowding
-  (campaign/migration.gd); Population screen card; outbreak and migration log lines. Section V0.034 of the dev notes.
+  (campaign/migration.gd); Population screen card; outbreak and migration log lines; New Bloodline sickness deadliness
+  slider. Section V0.034 of the dev notes.
+- v0.035 creature review: creatures (lairs, packs, dens), suspended since v0.002, are back on the map as a per-world
+  New Bloodline choice ("Creatures and lairs", on by default; older saves keep them off). Section V0.035 of the dev notes.
 - Also built outside the numbered list: court and marriage, interface pass, 100 v 100 battle rounds, armies to 1000, house-only officers and noble call-up, house arms pool, ennoblement, medics and battle aftermath.
 
 ## Next, in order (not started)
 0. Main checks are inside the test time budget (done 2026-10-17 with DevTools): eleven under a minute, `claude_rounds` 97 s
    (one real 100 v 100 round). New checks start from `DevTools.start_world` and set states up with DevTools.
-1. **v0.035 creature review** - next job (creatures are switched off by `Monsters.CAMPAIGN_CREATURES_ENABLED`).
-2. v0.036 dragon portrait fangs.
+1. **v0.036 dragon portrait fangs** - next job.
 
 ## Running and testing
 - **Every test uses the smallest world (Normal) with a one-day world history** (user direction 2026-10-17). These are
@@ -50,7 +52,7 @@ The full local history before v0.032 stays on the user's PC.
   later-game states up with DevTools instead of simulating days or fighting big battles.
 - Run a test: `godot --path game --rendering-method gl_compatibility res://tests/runner.tscn -- --test=res://tests/<file>.gd`
   (add `--headless` where no display is available; screenshot tests need a display).
-- Main checks: `claude_campaign.gd`, `claude_rounds.gd`, `claude_marriage.gd`, `claude_diplomacy_v030.gd`, `claude_markers_v031.gd`, `claude_intrigue_v032.gd`, `claude_prisoners_v033.gd`, `claude_prisoners_ui_v033.gd`, `claude_population_v034.gd`, `claude_population_ui_v034.gd`, `claude_refit.gd`, `claude_dragonfear.gd`.
+- Main checks: `claude_campaign.gd`, `claude_rounds.gd`, `claude_marriage.gd`, `claude_diplomacy_v030.gd`, `claude_markers_v031.gd`, `claude_intrigue_v032.gd`, `claude_prisoners_v033.gd`, `claude_prisoners_ui_v033.gd`, `claude_population_v034.gd`, `claude_population_ui_v034.gd`, `claude_creatures_v035.gd`, `claude_creatures_ui_v035.gd`, `claude_refit.gd`, `claude_dragonfear.gd`.
 - Population balance: `tests/diag_population_v034.gd --days=N` prints people, sickness cases/deaths, moves and job timings (a diagnostic, not a pass/fail check; run it only when needed).
 - In a Linux cloud container: download the Godot 4.7.2 Linux build and run display tests with `xvfb-run -a -s "-screen 0 1920x1080x24"`
   (main.tscn tests wait for drawn frames and hang under `--headless`). `claude_intrigue_v032.gd`, `claude_prisoners_v033.gd`, `claude_population_v034.gd` run headless.

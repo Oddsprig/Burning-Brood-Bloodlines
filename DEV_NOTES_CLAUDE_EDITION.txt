@@ -306,3 +306,20 @@ Barge.maybe_flee hunger flight, Barge.move_in wage pull) unchanged.
   is aggregate) and prisoners do not fall sick; migration pulls only by push
   (no wage pull for cohorts; tracked families keep Barge.move_in); refugees
   arrive at once (no road); AI realms do not react to refugees.
+
+V0.035 CREATURE REVIEW (2026-10-17, cloud session)
+- Creatures on the campaign map (lairs, beast packs, dens) were suspended since
+  v0.002 (Monsters.CAMPAIGN_CREATURES_ENABLED = false). Reviewed by turning them
+  on: a Normal world gets 9 lairs with a pack each (13 after a week), a week runs
+  without script errors at the usual day cost, a pack fought through the real
+  battle scene (CampaignWorld.engage: lair terrain) ends with an aftermath and
+  the pack's dead removed, and save/load keeps the choice. No creature code
+  needed fixing.
+- Now a per-world choice: Monsters.creatures_on (campaign_creatures_enabled())
+  is set from the world's "creatures_enabled" at creation and load
+  (Monsters.use_world); New Bloodline "Creatures and lairs" switch, on by
+  default, remembered in Game.settings.creatures_enabled. Older saves have no
+  lairs and keep creatures off.
+- Tests: claude_creatures_v035.gd (headless) and claude_creatures_ui_v035.gd
+  (display) start from DevTools.start_world(..., creatures = true), a second
+  saved start world. The other main checks keep the creature-free start world.

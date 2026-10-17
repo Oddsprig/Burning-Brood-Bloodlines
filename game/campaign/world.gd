@@ -74,6 +74,8 @@ static func generate_begin(game, _rng_unused: RandomNumberGenerator) -> Dictiona
 	w["steppe_enabled"] = WorldGen.steppe_enabled
 	w["sickness_deadliness"] = Sickness.new_world_deadliness   # the New Campaign slider
 	Sickness.use_world_deadliness(w)
+	w["creatures_enabled"] = Monsters.new_world_creatures   # v0.035: the New Bloodline choice
+	Monsters.use_world(w)
 	if WorldGen.TF != 1.0:
 		w["size"] = WorldGen.gen_size; w["tf"] = WorldGen.TF   # world size (the normal map saves neither: as before)
 	generation_parts_total_usec = 0
@@ -1778,6 +1780,7 @@ static func after_load(game) -> void:
 	Intrigue.after_load(game)
 	Prisoners.after_load(game)
 	Sickness.use_world_deadliness(w)
+	Monsters.use_world(w)
 	Migration.after_load(game)
 
 static func _fix_contract(c: Dictionary) -> void:
