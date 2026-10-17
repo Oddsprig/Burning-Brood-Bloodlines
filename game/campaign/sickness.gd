@@ -907,6 +907,15 @@ static func pool_sick(f: Dictionary, dis: String = "", bnd: String = "") -> int:
 			n += int(c[2]) - (int(c[3]) if bool(c[6]) else 0)
 	return n
 
+static func _pool_open(f: Dictionary) -> Dictionary:
+	var out := {}
+	for c in f.get("psk", []):
+		var n := int(c[2]) - (int(c[3]) if bool(c[6]) else 0)
+		out[String(c[0])] = int(out.get(String(c[0]), 0)) + n
+		var k := String(c[0]) + "|" + String(c[1])
+		out[k] = int(out.get(k, 0)) + n
+	return out
+
 static func _pool_immune(f: Dictionary, dis: String, day: float) -> int:
 	var im: Array = f.get("pim", {}).get(dis, [])
 	if im.is_empty(): return 0
@@ -943,11 +952,12 @@ static func _pool_day(game, t: Dictionary, e: Dictionary, b: Dictionary, d: int,
 		if total <= 0: continue
 		var mates := maxf(0.0, float(Families.people(f)) / float(Population.households(f)) - 1.0)
 		var bc: Dictionary = f.get("pool_condition", {})
+		var open := _pool_open(f)   # the row's open cases by disease and by "disease|band", counted once
 		for i in ids.size():
 			var dis: String = ids[i]
 			var r := row(dis)
 			var town := float(r.get("town", 0.0)) * float(act.get(dis, 0)) * float(tf["sf"][i]) / pop
-			var home := float(r.get("home", 0.0)) * float(tf["sf"][i]) * float(pool_sick(f, dis)) * mates / float(total)
+			var home := float(r.get("home", 0.0)) * float(tf["sf"][i]) * float(open.get(dis, 0)) * mates / float(total)
 			var cond := float(tf["T"][i])
 			if cond > 0.0: cond *= cond_k(e, f, r, room, cloth)
 			var rate := (cond + town + home) * float(tf["rm"][i])
@@ -956,7 +966,7 @@ static func _pool_day(game, t: Dictionary, e: Dictionary, b: Dictionary, d: int,
 			var src := ""   # where it began: worked out only when a first case needs it
 			for group in POOL_GROUPS:
 				var bnd: String = POOL_GROUPS[group]
-				var s := maxf(0.0, float(people[group]) - float(pool_sick(f, dis, bnd))) * free
+				var s := maxf(0.0, float(people[group]) - float(open.get(dis + "|" + bnd, 0))) * free
 				if s < 1.0: continue
 				var catch := float(r["catch"][bnd]) * (1.0 + BODY_CATCH * (1.0 - float(bc.get(group, 1.0))))
 				var n := mini(int(s), _poisson(rng, s * rate * catch * float(span)))
