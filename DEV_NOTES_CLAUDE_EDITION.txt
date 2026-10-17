@@ -228,3 +228,56 @@ V0.033 PRISONER RANSOM AND EXCHANGE (2026-10-17, cloud session)
 - Cloud testing: Godot 4.7.2 Linux build with xvfb-run; tests/runner.gd prints
   PASS when a test dies on a script error (the aborted run returns 0), so
   read the log for "SCRIPT ERROR" as well as the PASS line.
+
+V0.034 POPULATION MIGRATION, HOUSING AND ILLNESS (2026-10-17, cloud session)
+Scope: the common folk (cohort rows, about 93% of the people) get what the
+tracked families already had - sickness and migration - and the player sees it.
+Tracked families keep their own native paths (Sickness register cases,
+Barge.maybe_flee hunger flight, Barge.move_in wage pull) unchanged.
+- Sickness (campaign/sickness.gd, section "the common folk"): cohort cases are
+  counts in f.psk [[dis, band, n, die_n, die_day, end_day, died]], rolled once
+  per town run (job part 1, or part 0 when called directly) at the register's
+  per-person rates: town conditions T x the row's own K (Sickness.cond_k:
+  crowding, poorhouse, hunger, cold) + the town's shedding sick + household
+  mates (disease "home" rate x the row's own sick x household size), x catch by
+  age band and body condition (pool_condition) x race. They count in the town
+  book (act, cases, new, yr, first), so the Sickness tab, caravans and the
+  register see them. Death: each case dies with the disease's daily risk over
+  its sick days; deaths go through Population.kill_slots (new optional detail
+  = the disease; census cause "sickness"). Remedies are bought as the register
+  does (TownEcon.family_buy from the herbalist's stock, two weeks of grain kept
+  back): half the daily risk, 70% of the sick days. Recovered = immune counts
+  (f.pim {dis: [count, until]}). A gone row's open cases leave the counters.
+  Outbreak news: a disease reaching 10 open cases in a town of your realm logs
+  one line per outbreak (Sickness._outbreak_news).
+- Migration (campaign/migration.gd, class Migration): weekly TownEcon job
+  "migrate" (day % 7 == 5). Push, strongest first: war (Migration.note_attack
+  from an AI sack, a sacked war assault, your raid or siege win; 30 days; or
+  DragonFear >= 50), hunger (famine stage 2+, the tracked flight rate per
+  household), crowd (people > homes x room x 1.25, no empty estate house and no
+  market home). Households leave by Poisson draws (war 4%/week, crowd 25% of the
+  crowded-out a week); one household always stays. Destination: same race, the
+  realm or a trade-pact/allied realm (Barge._refuge's rule), not itself at war
+  or in famine, with a cohort row of that race; crowded-out people need empty
+  town houses. move_households carries the share of age bins, coin and
+  household stores (goods between town pools); hunger/war leave homes to the
+  estate; arrivals buy empty estate houses at shelter.estate_home into the
+  treasury, else they are crowded in. Census moves both ways (reasons war,
+  hunger, crowd; stats left_<why>). Barge.maybe_flee and move_in now skip cohort
+  rows (before, a whole cohort could flee as one family row).
+- Log: each week, everyone leaving a town of your realm (and refugees arriving
+  from other realms) is one line when 20 or more move.
+- Population screen: "Health, homes and movement" card (Migration.report):
+  why people are leaving, sick now by disease, sickness deaths this year,
+  households vs homes, without a home of their own, empty town houses, left and
+  arrived this season by reason. Shelter.state_line words "debt" and "moved".
+- Balance (180 days, Normal world seed 4242, see test-results v0.034): sickness
+  becomes the main cause of death - the native disease rates were already harsh
+  for named people (about 12% a year died of sickness) and now apply to
+  everyone. Data to tune: data/sickness.json (base, death, home, town per
+  disease) and remedy. Common folk catch less often per person than named people
+  and die at a similar rate per case.
+- Known limits: cohort sickness does not leave workers bed-ridden (their work
+  is aggregate) and prisoners do not fall sick; migration pulls only by push
+  (no wage pull for cohorts; tracked families keep Barge.move_in); refugees
+  arrive at once (no road); AI realms do not react to refugees.

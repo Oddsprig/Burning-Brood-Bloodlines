@@ -62,6 +62,17 @@ one of yours - they will not hand back a noble for a common soldier.
 Prices: soldier 6, officer 20, noble 60, ruler 150 coins. Freed people of
 yours come home as reserves with their own wounds and kit.
 
+SICKNESS, HOMES AND MOVING
+Everyone can fall sick, the common folk as well as the named families:
+crowded, hungry and cold homes, the season and the town's own sick spread
+disease, and herbalists' remedies help those who can pay. Common households
+leave a town that was sacked, raided or taken (or lives in dragon fear), one
+in famine, or one so crowded that no house can be had; they go to a town of
+their own people in the realm or an ally, and buy empty town houses there if
+they can. A town's Population screen shows the sick, homes and households,
+and who came and went this season; your realm's outbreaks and big moves
+appear in the campaign log.
+
 BATTLE
 Battles are automatic: your fighters act on their own and you watch and
 inspect. Use pause, 1x, 2x, 4x or Skip to control the pace, and read

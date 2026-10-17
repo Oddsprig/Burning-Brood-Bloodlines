@@ -259,7 +259,7 @@ v0.029 equipment refits and balance: levies get armour.
 v0.030 dynasty alliances and diplomacy.
 v0.031 intrigue: plots, schemes and assassinations.
 v0.032 prisoner ransom and exchange - DELIVERED (Claude Edition) as v0.033; HANDOFF_CLOUD.md holds the Claude Edition numbering.
-v0.033 population migration, housing and illness.
+v0.033 population migration, housing and illness - DELIVERED (Claude Edition) as v0.034; HANDOFF_CLOUD.md holds the Claude Edition numbering.
 v0.034 creature review.
 v0.035 dragon portrait fangs.
 Also delivered outside the numbered list (Claude Edition): court and marriage, interface pass, 100 v 100 battle rounds, armies to 1000, house officers and noble call-up, house arms pool, ennoblement, medics and aftermath.
