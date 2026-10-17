@@ -409,7 +409,10 @@ func _test_death_causes() -> void:
 				hist = true
 		check(hist, "family history lacks %s's death" % nm)
 		check(Persons.by_pid(f, pid).is_empty(), "%s still in the register" % nm)
-	check(int(e["pop"]) == pop0 - dead.size(), "population %d -> %d after %d deaths" % [pop0, int(e["pop"]), dead.size()])
+	var anon := 0   # v0.034: the common folk can die of sickness in these days too (census rows without a person)
+	for r in census:
+		if int(r[1]) == -1 and float(r[0]) > day and r.size() > 10: anon += int(r[10])
+	check(int(e["pop"]) == pop0 - dead.size() - anon, "population %d -> %d after %d deaths (+%d common folk)" % [pop0, int(e["pop"]), dead.size(), anon])
 	for r in census:
 		check(String(r[5]) in Census.CAUSES and String(r[5]) != "", "a census death without a cause: %s" % str(r))
 

@@ -887,8 +887,10 @@ static func town_day(game, t: Dictionary, d: int, part: int = 0) -> void:
 # ================================================================== the common folk (v0.034)
 ## Anonymous residents of a cohort row (campaign/population.gd) have no person records, so their sickness is kept as
 ## counts, at the register's per-person rates: the town's conditions (T) x the row's own home factor K (crowding, the
-## poorhouse, hunger, cold), the town's shedding sick, and household-mates (home rate x the row's own sick x the
-## household size). Their cases count in the town's book (act, cases, new, yr, first) like anyone's, so they show on
+## poorhouse, hunger, cold) and the town's shedding sick; then, as the register's _household does, each new case's own
+## housemates (household size - 1) each catch it with 1 - exp(-home x catch x shedding days) - one round, inside
+## those households only (a household's chain ends there, so household spread never seeds fresh households). Their
+## cases count in the town's book (act, cases, new, yr, first) like anyone's, so they show on
 ## the Sickness tab and spread to the register and along caravans. Each case dies with the disease's daily risk over
 ## its sick days (body condition included); deaths go through Population.kill_slots (census cause "sickness", detail
 ## the disease). The recovered are immune as counts. No remedies or bed-ridden staff (their work is aggregate).
@@ -950,32 +952,39 @@ static func _pool_day(game, t: Dictionary, e: Dictionary, b: Dictionary, d: int,
 		var people := _pool_people(f)
 		var total := int(people["workers"]) + int(people["children"]) + int(people["elders"])
 		if total <= 0: continue
-		var mates := maxf(0.0, float(Families.people(f)) / float(Population.households(f)) - 1.0)
+		var mates := maxf(0.0, float(Families.people(f)) / float(Population.households(f)) - 1.0)   # housemates per person
 		var bc: Dictionary = f.get("pool_condition", {})
 		var open := _pool_open(f)   # the row's open cases by disease and by "disease|band", counted once
 		for i in ids.size():
 			var dis: String = ids[i]
 			var r := row(dis)
 			var town := float(r.get("town", 0.0)) * float(act.get(dis, 0)) * float(tf["sf"][i]) / pop
-			var home := float(r.get("home", 0.0)) * float(tf["sf"][i]) * float(open.get(dis, 0)) * mates / float(total)
 			var cond := float(tf["T"][i])
 			if cond > 0.0: cond *= cond_k(e, f, r, room, cloth)
-			var rate := (cond + town + home) * float(tf["rm"][i])
+			var rate := (cond + town) * float(tf["rm"][i])
 			if rate <= 0.0: continue
 			var free := 1.0 - minf(1.0, float(_pool_immune(f, dis, float(d))) / float(total))
 			var src := ""   # where it began: worked out only when a first case needs it
+			var left := {}   # susceptible people per group after this run's outside cases
+			var catches := {}
+			var first := 0
 			for group in POOL_GROUPS:
 				var bnd: String = POOL_GROUPS[group]
 				var s := maxf(0.0, float(people[group]) - float(open.get(dis + "|" + bnd, 0))) * free
-				if s < 1.0: continue
 				var catch := float(r["catch"][bnd]) * (1.0 + BODY_CATCH * (1.0 - float(bc.get(group, 1.0))))
+				catches[group] = catch
+				left[group] = s
+				if s < 1.0: continue
 				var n := mini(int(s), _poisson(rng, s * rate * catch * float(span)))
 				if n <= 0: continue
 				if src == "":
 					src = "cond:" + cond_words(e, f, r, room, cloth)
-					if town > cond and town >= home: src = "town:caught from the town's sick in %s" % t["name"]
-					elif home > cond: src = "home:their own households"
+					if town > cond: src = "town:caught from the town's sick in %s" % t["name"]
 				_pool_infect(e, b, f, dis, bnd, group, n, d, rng, src)
+				left[group] = s - float(n)
+				first += n
+			if first > 0 and float(r.get("home", 0.0)) > 0.0 and mates > 0.0:
+				_pool_household(e, b, f, dis, r, first, mates, left, catches, float(tf["rm"][i]), d, rng)
 
 ## v0.034: a disease takes hold in a town of your realm (OUTBREAK open cases): one campaign log line per outbreak;
 ## the outbreak is over when its last case ends.
@@ -994,9 +1003,27 @@ static func _outbreak_news(game, t: Dictionary, b: Dictionary, d: int) -> void:
 	if seen.is_empty(): b.erase("outbreak")
 	else: b["outbreak"] = seen
 
-static func _pool_infect(e: Dictionary, b: Dictionary, f: Dictionary, dis: String, bnd: String, group: String, n: int, d: int, rng: RandomNumberGenerator, src: String) -> void:
+## One round of household spread from `first` new cases: each has `mates` housemates, a share of them still
+## susceptible (left / all people), each caught with 1 - exp(-home x race x catch x shedding days) as in _household;
+## they fall sick during the first cases' shedding days and pass it on no further at home.
+static func _pool_household(e: Dictionary, b: Dictionary, f: Dictionary, dis: String, r: Dictionary, first: int, mates: float, left: Dictionary, catches: Dictionary, rm: float, d: int, rng: RandomNumberGenerator) -> void:
+	var inc := (float(r["inc"][0]) + float(r["inc"][1])) * 0.5
+	var sk := (float(r["sick"][0]) + float(r["sick"][1])) * 0.5
+	var shed := sk + inc * float(r.get("shed", 0.5))   # days a case passes it on (from shedding to the end)
+	var all := 0.0
+	for group in left: all += maxf(0.0, float(left[group]))
+	all = maxf(1.0, all + float(first))
+	var delay := int(round(inc * (1.0 - float(r.get("shed", 0.5))) + shed * 0.5))
+	for group in POOL_GROUPS:
+		var s := float(left.get(group, 0.0))
+		if s < 1.0: continue
+		var P := 1.0 - exp(-float(r["home"]) * rm * float(catches[group]) * shed)
+		var m := mini(int(s), _poisson(rng, float(first) * mates * (s / all) * P))
+		if m > 0: _pool_infect(e, b, f, dis, POOL_GROUPS[group], group, m, d, rng, "home:their own households", delay)
+
+static func _pool_infect(e: Dictionary, b: Dictionary, f: Dictionary, dis: String, bnd: String, group: String, n: int, d: int, rng: RandomNumberGenerator, src: String, delay: int = 0) -> void:
 	var r := row(dis)
-	var on := d + rng.randi_range(int(r["inc"][0]), int(r["inc"][1]))
+	var on := d + delay + rng.randi_range(int(r["inc"][0]), int(r["inc"][1]))
 	var sd := rng.randi_range(int(r["sick"][0]), int(r["sick"][1]))
 	var bc := float(f.get("pool_condition", {}).get(group, 1.0))
 	var q := minf(0.9, float(r["death"][bnd]) * (1.0 + BODY_DEATH * (1.0 - bc)))
@@ -1015,7 +1042,7 @@ static func _pool_infect(e: Dictionary, b: Dictionary, f: Dictionary, dis: Strin
 	var was := int(b["act"].get(dis, 0))
 	b["act"][dis] = was + n
 	b["cases"][dis] = int(b["cases"].get(dis, 0)) + n
-	for k in mini(n, 200): (b["new"] as Array).append([d, dis])
+	(b["new"] as Array).append([d, dis, n])   # one entry for the batch (readers add x[2], 1 for a register case)
 	_yr_n(b, float(d), 0, n)
 	if was == 0: b["first"][dis] = [d, origin_text(src, float(d))]
 
@@ -2277,7 +2304,9 @@ static func town_summary(town: Dictionary) -> Dictionary:
 	for d in Census._book(e)["deaths"]:
 		if float(d[0]) >= _season_start(day) and String(d[5]) in ["sickness", "starved"]:
 			ds += 1
-	return {"sick_now": sick.size(), "bed_now": bed, "new_week": (b["new"] as Array).size(), "deaths_season": ds,
+	var new_week := 0
+	for x in b["new"]: new_week += int(x[2]) if (x as Array).size() > 2 else 1
+	return {"sick_now": sick.size(), "bed_now": bed, "new_week": new_week, "deaths_season": ds,
 		"share": float(sick.size()) / maxf(1.0, float(e["pop"])), "h60": (b["h60"] as Array).duplicate()}
 
 ## Disease rows: [{id, name, sick_now, new_week, deaths_season, trend (rising / falling / steady), origin}].
@@ -2292,7 +2321,7 @@ static func disease_rows(town: Dictionary) -> Array:
 		now[String(s[2][C_DIS])] = int(now.get(String(s[2][C_DIS]), 0)) + 1
 	var nw := {}
 	for x in b["new"]:
-		nw[String(x[1])] = int(nw.get(String(x[1]), 0)) + 1
+		nw[String(x[1])] = int(nw.get(String(x[1]), 0)) + (int(x[2]) if (x as Array).size() > 2 else 1)
 	var dd := {}
 	for d in Census._book(e)["deaths"]:
 		if float(d[0]) >= _season_start(day) and String(d[5]) == "sickness":

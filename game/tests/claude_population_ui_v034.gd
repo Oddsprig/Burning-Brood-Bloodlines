@@ -61,7 +61,7 @@ func run(tree: SceneTree) -> int:
 	Sickness.book(e)["act"]["flux"] = int(Sickness.book(e)["act"].get("flux", 0)) + 12
 	Game.goto("population", {"town_id": seat, "back": "map"})
 	await frames(tree, 8)
-	var card := main.current.find_child("HealthHomesMovement", true, false)
+	var card: Node = main.current.find_child("HealthHomesMovement", true, false)
 	check(card != null, "the Population screen has a health, homes and movement card")
 	if card == null: return fails
 	var words := text_of(card)
