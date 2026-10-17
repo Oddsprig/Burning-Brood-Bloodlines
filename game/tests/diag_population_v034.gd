@@ -22,6 +22,7 @@ func run(tree: SceneTree) -> int:
 		if bool(HouseOnboarding.begin(Game, str(choice["town_id"]), str(choice["household_uid"])).get("ok", false)): break
 	_print("start", 0)
 	Sickness.prof_on = true; Sickness.job_worst = 0; Migration.worst_us = 0
+	Sickness.prof_parts = OS.get_cmdline_user_args().has("--parts"); Sickness.prof = {}
 	var t0 := Time.get_ticks_usec()
 	var worst := 0
 	for i in days:
@@ -31,6 +32,11 @@ func run(tree: SceneTree) -> int:
 		if (i + 1) % 60 == 0: _print("day %d" % (i + 1), 0)
 	print("diag034: %d days in %.1f s, worst day %.0f ms; worst sickness job %.1f ms, sickness total %.1f s; worst migration week %.1f ms" % [days, float(Time.get_ticks_usec() - t0) / 1e6, float(worst) / 1000.0,
 		float(Sickness.job_worst) / 1000.0, float(Sickness.us) / 1e6, float(Migration.worst_us) / 1000.0])
+	if Sickness.prof_parts:
+		var parts: Array = []
+		for k in Sickness.prof: if not String(k).begins_with("#"): parts.append([String(k), int(Sickness.prof[k])])
+		parts.sort_custom(func(a, b): return int(a[1]) > int(b[1]))
+		print("diag034 parts (ms over the run): ", parts.slice(0, 12).map(func(x): return "%s %.0f" % [x[0], float(x[1]) / 1000.0]))
 	Game.wait_save()
 	return 0
 

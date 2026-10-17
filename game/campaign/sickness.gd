@@ -947,7 +947,9 @@ static func _pool_day(game, t: Dictionary, e: Dictionary, b: Dictionary, d: int,
 	var cloth := float(tf["cloth"])
 	for f in e["fams"]:
 		if not Population.is_cohort(f): continue
+		var tp := Time.get_ticks_usec() if prof_parts else 0
 		if f.has("psk"): _pool_resolve(e, b, f, d, rng)
+		if prof_parts: tp = _pf("pools resolve", tp)
 		if f.get("gone", false): continue
 		var people := _pool_people(f)
 		var total := int(people["workers"]) + int(people["children"]) + int(people["elders"])
@@ -985,6 +987,7 @@ static func _pool_day(game, t: Dictionary, e: Dictionary, b: Dictionary, d: int,
 				first += n
 			if first > 0 and float(r.get("home", 0.0)) > 0.0 and mates > 0.0:
 				_pool_household(e, b, f, dis, r, first, mates, left, catches, float(tf["rm"][i]), d, rng)
+		if prof_parts: _pf("pools roll", tp)
 
 ## v0.034: a disease takes hold in a town of your realm (OUTBREAK open cases): one campaign log line per outbreak;
 ## the outbreak is over when its last case ends.
@@ -1100,8 +1103,10 @@ static func _pool_resolve(e: Dictionary, b: Dictionary, f: Dictionary, d: int, r
 	if keep.is_empty(): f.erase("psk")
 	else: f["psk"] = keep
 	if died > 0 and not gone:
+		var tr := Time.get_ticks_usec() if prof_parts else 0
 		if Families.people(f) <= 0: Families.extinct(e, f, float(d))
 		else: Families.reassign(e, f)
+		if prof_parts: _pf("pools reassign", tr)
 
 ## k of the row's anonymous residents of one age band die (bins picked by their size); returns how many died.
 static func _pool_kill(e: Dictionary, f: Dictionary, bnd: String, k: int, day: float, dis: String, rng: RandomNumberGenerator) -> int:
