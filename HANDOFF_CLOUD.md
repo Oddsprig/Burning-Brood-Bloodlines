@@ -27,13 +27,21 @@ The full local history before v0.032 stays on the user's PC.
 - Also built outside the numbered list: court and marriage, interface pass, 100 v 100 battle rounds, armies to 1000, house-only officers and noble call-up, house arms pool, ennoblement, medics and battle aftermath.
 
 ## Next, in order (not started)
+0. **Before v0.035: bring the main checks inside the test time budget** (see Running and testing). Give later-game tests
+   saved-game fixtures to load instead of generating and simulating a Normal world each run. Cloud times on 2026-10-17
+   (slow container): `claude_campaign` 409 s, `claude_marriage` 325 s, `claude_rounds` 322 s, `claude_prisoners_v033` 148 s,
+   `claude_diplomacy_v030` 88 s, `claude_markers_v031` 87 s, `claude_intrigue_v032` 53 s; the other five were not timed.
 1. **v0.035 creature review** - next job (creatures are switched off by `Monsters.CAMPAIGN_CREATURES_ENABLED`).
 2. v0.036 dragon portrait fangs.
 
 ## Running and testing
 - Godot **4.7.2** (stable), GL compatibility renderer. The Windows runtime is not in this repo; get Godot 4.7.2 for your platform.
 - Import once: `godot --headless --path game --import`
-- Run a test: `godot --path game --rendering-method gl_compatibility res://tests/runner.tscn -- --test=res://tests/<file>.gd --watchdog=700`
+- **Test time budget (user rule): every test run aims for under 1 minute and must finish within 3 minutes**, unless the user asks
+  otherwise. Design tests to fit: load saved-game fixtures for later-game states, use small worlds and the fewest days and battles
+  that prove the change, and run only the tests the change touches. Never run long multi-test passes. The runner's default
+  watchdog is 180 s; do not raise it to make a slow test pass, cut the test down.
+- Run a test: `godot --path game --rendering-method gl_compatibility res://tests/runner.tscn -- --test=res://tests/<file>.gd`
   (add `--headless` where no display is available; screenshot tests need a display).
 - Main checks: `claude_campaign.gd`, `claude_rounds.gd`, `claude_marriage.gd`, `claude_diplomacy_v030.gd`, `claude_markers_v031.gd`, `claude_intrigue_v032.gd`, `claude_prisoners_v033.gd`, `claude_prisoners_ui_v033.gd`, `claude_population_v034.gd`, `claude_population_ui_v034.gd`, `claude_refit.gd`, `claude_dragonfear.gd`.
 - Population balance: `tests/diag_population_v034.gd --days=180` prints people, sickness cases/deaths, moves and job timings (a diagnostic, not a pass/fail check).

@@ -7,7 +7,8 @@ extends Node
 ## A runtime script error aborts the function it happens in and the awaited run() still returns 0,
 ## so every "SCRIPT ERROR" logged during the run is counted as a failure.
 ## A script that fails to compile, or a run that dies on a runtime error, would otherwise leave Godot
-## running forever: a watchdog quits with 124 after --watchdog=<seconds> (default 280).
+## running forever: a watchdog quits with 124 after --watchdog=<seconds> (default 180: the test time budget is
+## under 1 minute, 3 minutes at most).
 
 ## Counts the errors Godot logs as script errors (runtime errors such as "Invalid access to property
 ## or key"). Errors can be logged from any thread.
@@ -37,7 +38,7 @@ func _ready() -> void:
 	Game.SETTINGS_PATH = "user://test_settings_%d.json" % OS.get_process_id()
 	Game.load_settings()
 	var path := ""
-	var watchdog := 280.0
+	var watchdog := 180.0
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--test="):
 			path = a.substr(7)

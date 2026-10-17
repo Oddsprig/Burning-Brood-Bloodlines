@@ -125,7 +125,12 @@ Branding: Claude Edition title, window name, icon (BloodlinesClaude.ico),
 HOW TO TEST (tests are scenes: game/tests/runner.tscn)
   runtime\Godot_v4.7.2-stable_win64.exe --path game --rendering-method
     gl_compatibility res://tests/runner.tscn -- --test=res://tests/<file>.gd
-    --watchdog=<seconds> [extra args]
+    [--watchdog=<seconds>] [extra args]
+  TEST TIME BUDGET (user rule, 2026-10-17): each test run aims for under 1
+  minute and must finish within 3 minutes unless the user asks otherwise.
+  Later-game tests load saved-game fixtures instead of generating and
+  simulating a world each run. Default watchdog 180 s; cut a slow test down,
+  do not raise its watchdog.
   claude_campaign.gd  integrated campaign through main.tscn (--out=dir saves
                       screenshots)
   claude_bench.gd     honest benchmark (--size=WxH --secs --map-secs
