@@ -1,0 +1,59 @@
+BURNING BROOD: BLOODLINES - CLAUDE EDITION v0.033 (prisoner ransom and exchange)
+Test results, 2026-10-17. Built and tested in a Claude Code cloud session (Linux container).
+
+ENVIRONMENT
+Godot 4.7.2.stable.official.ed1daf0bf, Linux x86_64 build, GL compatibility renderer.
+Display tests ran on a virtual display: xvfb-run -a -s "-screen 0 1920x1080x24" (Mesa software GL).
+Headless runs are marked. Each test ran alone, one engine at a time.
+Source: this commit (v0.033) on top of 6210641 (v0.032 snapshot).
+Not tested here: the Windows build, a Desktop install, phone sizes, old-save compatibility.
+
+BASELINE - untouched v0.032 (6210641), same container
+  claude_intrigue_v032.gd    64 checks, 0 failures (headless)
+  claude_rounds.gd           17 checks, 0 failures
+  claude_campaign.gd         21 checks, 0 failures
+  claude_marriage.gd         14 checks, 0 failures
+  claude_diplomacy_v030.gd   50 checks, 0 failures
+  claude_markers_v031.gd     54 checks, 0 failures
+  claude_refit.gd             9 checks, 0 failures
+  claude_dragonfear.gd       14 checks, 0 failures
+  No SCRIPT ERROR lines in any baseline log.
+
+V0.033 - FINAL TREE (all on the virtual display)
+  claude_prisoners_v033.gd    67 checks, 0 failures          38s  exit 0, script errors 0
+  claude_prisoners_ui_v033.gd 17 checks, 0 failures         103s  exit 0, script errors 0
+  claude_intrigue_v032.gd     64 checks, 0 failures          53s  exit 0, script errors 0
+  claude_rounds.gd            21 checks, 0 failures         231s  exit 0, script errors 0  (17 + 4 new Unit checks)
+  claude_campaign.gd          21 checks, 0 failures         202s  exit 0, script errors 0
+  claude_marriage.gd          14 checks, 0 failures         208s  exit 0, script errors 0
+  claude_diplomacy_v030.gd    50 checks, 0 failures          30s  exit 0, script errors 0
+  claude_markers_v031.gd      54 checks, 0 failures          31s  exit 0, script errors 0
+  claude_refit.gd             9 checks, 0 failures           33s  exit 0, script errors 0
+  claude_dragonfear.gd        14 checks, 0 failures          88s  exit 0, script errors 0
+  All ten in one serial pass on the final tree; logs and screenshots in test-results/v0.033_logs/.
+  The UI test's real one-clash battle: the enemy won; 1 of your men lay downed and exactly 1 was taken.
+
+NEW TESTS
+tests/claude_prisoners_v033.gd - real generated world (seed 4242), the most populous ruling seat:
+  capture through BattleRounds.take_one_clash (win, loss, draw, raid/siege defenders not taken);
+  weekly Persons.sweep / Army.sweep and the family sync keep held people alive and counted;
+  eight days pass; ransom (coin from their realm to your house purse once, standing, the man
+  home with his family, off his realm's roll); a realm without coin is refused with no change;
+  a noble is not traded for a soldier; a changed review is rejected; save/load keeps both lists
+  and the held body (blood level); noble-for-noble exchange (both home, no coin or standing);
+  paying a ransom (short purse refused; coin to the captor once; home as a reserve, counted
+  at home); release (standing once per realm per day); death in captivity drops and logs the
+  record; an enemy prisoner whose register row moved stays held; a pre-v0.033 record cannot be
+  bargained for.
+  Mutation check: with the Persons.live_uids fix removed, 6 checks fail (captive dead after the
+  sweep, register row lost, family count, prisoners lost within a week).
+tests/claude_prisoners_ui_v033.gd - through main.tscn: Court lists the realm, Bargain opens the
+  window, the Ransom and Pay ransom buttons complete real bargains, the Court notice reports it;
+  then a real one-clash battle through the battle scene takes exactly the loser's downed men and
+  the results screen says "Taken prisoner".
+tests/claude_rounds.gd - now also checks that every prisoner and captive record from a real
+  round battle keeps its actual Unit.
+
+NOTE ON THE RUNNER
+tests/runner.gd prints "PASS" when a test stops on a runtime script error (the aborted run
+returns 0). Every log above was also searched for "SCRIPT ERROR"; the counts are listed.
