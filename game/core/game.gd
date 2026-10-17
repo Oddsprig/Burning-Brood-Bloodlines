@@ -300,6 +300,7 @@ func finish_battle(result: Dictionary) -> void:
 		var acc := {}
 		Ennoble.tally(self, result, [], acc)
 		result["raised"] = Ennoble.grant(self, int(result.get("winner", -1)), acc)   # a great deed: raised to the nobility
+		BattleRounds.take_one_clash(self, result)   # v0.033: the downed of the beaten side are taken prisoner
 	var loot := 0
 	var salvage_records: Array = []
 	var dead_names := []

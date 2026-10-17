@@ -133,6 +133,14 @@ func _build_overview(parent: Control) -> void:
 	important.add_theme_font_size_override("font_size", 17)
 	important.add_theme_color_override("font_color", UiTheme.BRASS)
 	box.add_child(important)
+	# v0.033: men downed on a field the other side holds are taken (BattleRounds); bargain for them at Court.
+	var taken: Array = result.get("captured", result.get("battle_summary", {}).get("captured", []))
+	if taken.size() == 2 and int(taken[0]) + int(taken[1]) > 0:
+		var prisoners := UiKit.label("Taken prisoner: %d of yours · %d of theirs. Ransom or exchange them at Court." % [int(taken[0]), int(taken[1])], "", true)
+		prisoners.name = "ResultsPrisoners"
+		prisoners.add_theme_font_size_override("font_size", 17)
+		prisoners.add_theme_color_override("font_color", UiTheme.BRASS)
+		box.add_child(prisoners)
 
 func _build_section(parent: Control, key: String, tabs: Control) -> void:
 	var box := UiKit.vbox(6)

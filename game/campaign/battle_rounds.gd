@@ -239,6 +239,8 @@ static func final_result(game, last: Dictionary) -> Dictionary:
 	return r
 
 ## Captives change hands: the player's taken men leave the company; the enemy's taken men leave their band.
+## v0.033: each record keeps the actual Unit (body, wounds, kit) for ransom and exchange (campaign/prisoners.gd),
+## and an enemy soldier's service role so his family takes him back when he is freed.
 static func _take_prisoners(game, st: Dictionary) -> void:
 	var w: Dictionary = game.world
 	if not w.has("prisoners"): w["prisoners"] = []
@@ -246,19 +248,52 @@ static func _take_prisoners(game, st: Dictionary) -> void:
 	var enemy_faction := ""
 	var wb: Dictionary = w.get("warbands", {}).get(str(game.pending_battle.get("warband_id", "")), {})
 	if not wb.is_empty(): enemy_faction = str(wb.get("faction", ""))
+	var taken := [0, 0]
 	for u in st["captives"][0]:
-		if u.dead: continue
+		if u.dead or Prisoners.captive_unit(game, u.uid) != null: continue
 		(w["captives"] as Array).append({"uid": u.uid, "name": u.name, "home_town": u.home_town, "family": u.family,
-			"held_by": enemy_faction, "day": float(game.day), "household": is_household(game, u)})
+			"held_by": enemy_faction, "day": float(game.day), "household": is_household(game, u), "unit": u})
 		game.company.erase(u)
 		game.squads.erase(u.uid)
 		_note_captured(game, u, enemy_faction)
+		taken[0] += 1
 	for u in st["captives"][1]:
-		if u.dead: continue
+		if u.dead or not Prisoners._find(w["prisoners"], u.uid).is_empty(): continue
+		var roll: Array = Army.state(w)["roll"].get(str(u.uid), [])
+		var p := _person(game, u)
+		var role := str(roll[2]) if roll.size() > 2 else (str(p[4]) if not p.is_empty() else "army")
 		(w["prisoners"] as Array).append({"uid": u.uid, "name": u.name, "faction": u.faction, "home_town": u.home_town,
-			"family": u.family, "day": float(game.day), "noble": is_household(game, u)})
+			"family": u.family, "day": float(game.day), "noble": is_household(game, u), "unit": u, "role": role})
 		if not wb.is_empty(): (wb["units"] as Array).erase(u)
+		taken[1] += 1
+	if taken[1] > 0: CampaignWorld.log_event(game, "Your army took %d prisoner%s. Bargain for them at Court." % [taken[1], "" if taken[1] == 1 else "s"])
+	if taken[0] > 0: CampaignWorld.log_event(game, "%d of your people were taken prisoner by %s." % [taken[0], CampaignWorld.faction_the(enemy_faction)])
 	game.invalidate_deploy()
+
+## v0.033: a one-clash battle (100 or fewer a side) takes prisoners by the same rule as a round: men downed on a
+## field the other side holds. Only your company's men and the beaten field band's own men can be taken (a town's
+## guards and militia, caravans and creatures are not). Their kit stays with them (not in the loot).
+static func take_one_clash(game, result: Dictionary) -> void:
+	var w := int(result.get("winner", -1))
+	if w < 0 or game.world.is_empty(): return
+	var wb: Dictionary = game.world.get("warbands", {}).get(str(game.pending_battle.get("warband_id", "")), {})
+	var field_band: bool = not wb.is_empty() and Army.is_people_band(wb) and str(wb.get("kind", "")) not in ["militia", "guard", "town"] \
+		and not game.pending_battle.has("assault")
+	var units: Array = result.get("fighter_units", [])
+	var states: Array = result.get("fighter_states", [])
+	var taken := [[], []]
+	for i in units.size():
+		var u = units[i]
+		if not u is Unit or u.dead or DragonCombat.is_dragon_unit(game, u) or u.race_def().get("creature", false): continue
+		var s := str(states[i]) if i < states.size() else ""
+		if s != "unconscious" and s != "prone": continue
+		var side := 0 if game.company.has(u) else (1 if field_band and (wb["units"] as Array).has(u) else -1)
+		if side < 0 or side == w: continue
+		taken[side].append(u)
+	if taken[0].is_empty() and taken[1].is_empty(): return
+	result["captured"] = [taken[0].size(), taken[1].size()]
+	result["enemy_units"] = (result.get("enemy_units", []) as Array).filter(func(u): return not taken[1].has(u))
+	_take_prisoners(game, {"captives": taken})
 
 ## The family keeps the memory: the person is held, not dead; their register row says so.
 static func _note_captured(game, u: Unit, held_by: String) -> void:

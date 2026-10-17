@@ -578,20 +578,25 @@ static func stand_down_quote(game, town_id: String = "") -> Dictionary:
 		"review": {"town_id": town_id, "day": game.day, "rows": rows, "ruler_uid": str(game.world.get("player_house", {}).get("ruler_uid", "")),
 			"payer": str(game.world.get("player_house", {}).get("household_uid", ""))}}
 
-static func _return(game, u: Unit) -> bool:
+## from: "company" (standing down) or "captive" (v0.033: freed by ransom or exchange, campaign/prisoners.gd).
+static func _return(game, u: Unit, from: String = "company") -> bool:
 	var a: Dictionary = _address(game, u)
-	if a.is_empty() or not game.company.has(u) or u.dead or str(a["person"][4]) != "company": return false
+	var held: bool = game.company.has(u) if from == "company" else Prisoners.captive_unit(game, u.uid) == u
+	if a.is_empty() or not held or u.dead or str(a["person"][4]) != from: return false
 	if not Families.restore_returned(a["econ"], a["family"]): return false
 	var entry: Dictionary = _entry(game, u, a); var p: Array = a["person"]; var f: Dictionary = a["family"]; var e: Dictionary = a["econ"]
+	if from != "company": reserves(game).append(u)   # borrowed kit is found on its holder
 	_return_loans(game, entry)
 	entry["wage"] = u.wage; u.wage = 0; u.unpaid_days = 0; u.squad = -1
-	game.company.erase(u); reserves(game).append(u)
+	game.company.erase(u)
+	if not reserves(game).has(u): reserves(game).append(u)
 	p[4] = "reserve"; p[5] = u.uid; var category := _category(p)
 	f[category] = int(f[category]) + 1; e["pop"] = int(e["pop"]) + 1
 	if category in ["m", "f"]: e["adults"] = int(e["adults"]) + 1
 	if not f.has("player_reserve_uids"): f["player_reserve_uids"] = {}
 	f["player_reserve_uids"][str(u.uid)] = true
-	Persons.log_life(p, float(game.day), "serve", "reserve"); Census.record_move(e, int(p[0]), "in", "", float(game.day), "stood down from the house army")
+	Persons.log_life(p, float(game.day), "serve", "reserve")
+	Census.record_move(e, int(p[0]), "in", "", float(game.day), "stood down from the house army" if from == "company" else "came home from captivity")
 	Families.reassign(e, f)
 	return true
 
@@ -642,6 +647,13 @@ static func register_company(game, u: Unit) -> bool:
 ## Caller owns the desertion decision; this only transfers the exact enlistment.
 static func return_home(game, u: Unit) -> bool:
 	if not _return(game, u): return false
+	command_plan(game); game.invalidate_deploy(); Diplomacy.roster_changed(game)
+	return true
+
+## v0.033: a captive freed by ransom or exchange comes home as a reserve: the same Unit/body and enlistment.
+## The caller (Prisoners) removes the captivity record afterwards.
+static func return_freed(game, u: Unit) -> bool:
+	if not _return(game, u, "captive"): return false
 	command_plan(game); game.invalidate_deploy(); Diplomacy.roster_changed(game)
 	return true
 

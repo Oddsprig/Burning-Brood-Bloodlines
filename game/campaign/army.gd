@@ -381,6 +381,8 @@ static func release(game, u: Unit, why: String, force: String = "") -> void:
 	if why == "deserted":
 		Families.event(f, "deserted", [u.name, force], float(game.day))
 		Families.add_hist(f, "%s came home from %s, unpaid." % [u.name, force], float(game.day))
+	elif why in ["ransomed", "released", "exchanged"]:   # v0.033 (campaign/prisoners.gd)
+		Families.add_hist(f, "%s came home, %s from captivity." % [u.name, why], float(game.day))
 	else:
 		Families.add_hist(f, "%s came home after a lost fight." % u.name, float(game.day))
 
@@ -510,6 +512,8 @@ static func sweep(game) -> void:
 			if not u.dead:
 				here[str(u.uid)] = true
 	for u in CampaignWorld.mustering_units(w):   # world size: a force still being raised (its men are not dead)
+		here[str(u.uid)] = true
+	for u in Prisoners.units(game):   # v0.033: a soldier held prisoner stays on his realm's roll until freed
 		here[str(u.uid)] = true
 	var roll: Dictionary = state(w)["roll"]
 	for k in roll.keys():

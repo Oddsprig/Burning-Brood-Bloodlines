@@ -1201,9 +1201,11 @@ static func leave_town(e: Dictionary, f: Dictionary, day: float) -> void:
 ## to the estate; its stores stay in the town); the remaining cash goes to the faction's coffer.
 static func living_company_member(e: Dictionary, f: Dictionary) -> bool:
 	for p in f.get("pp", []):
-		if str(p[4]) != "company" or int(p[5]) < 0: continue
+		if not str(p[4]) in ["company", "captive"] or int(p[5]) < 0: continue
 		var u: Unit = Persons._unit(int(p[5]))
-		if u == null or u.dead or not Game.company.has(u): continue
+		if u == null or u.dead: continue
+		# v0.033: a member held captive (campaign/prisoners.gd) is alive and can still come home
+		if not (Game.company.has(u) if str(p[4]) == "company" else Prisoners.captive_unit(Game, u.uid) == u): continue
 		var town: Dictionary = Game.world.get("towns", {}).get(u.home_town, {})
 		if not is_same(town.get("econ", {}), e) or not is_same(People.fam_of(town, u.family), f): continue
 		if is_same(Persons.by_uid(f, u.uid), p) and ServiceIdentity.unit_person(e, f, p, u): return true

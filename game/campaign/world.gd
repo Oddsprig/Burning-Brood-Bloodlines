@@ -1773,6 +1773,7 @@ static func after_load(game) -> void:
 	DragonCombat.after_load(game)
 	Dragons.after_load(game)
 	Intrigue.after_load(game)
+	Prisoners.after_load(game)
 
 static func _fix_contract(c: Dictionary) -> void:
 	for k in ["pay", "size"]:

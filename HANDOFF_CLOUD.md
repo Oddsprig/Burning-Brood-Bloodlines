@@ -1,7 +1,8 @@
 # Burning Brood: Bloodlines (Claude Edition) - cloud handoff
 
-Current version: **v0.032** (in-game label `0.032-claude`, game/project.godot `config/version`).
-This repository is a single snapshot of v0.032; the full local history stays on the user's PC.
+Current version: **v0.033** (in-game label `0.033-claude`, game/project.godot `config/version`).
+This repository started as a single snapshot of v0.032; v0.033 was built in the cloud on top of it.
+The full local history before v0.032 stays on the user's PC.
 
 ## Version numbering (follow exactly)
 - The roadmap is `docs/ROADMAP.txt`. One feature per version, steps of 0.001 (v0.033, v0.034, ...).
@@ -16,20 +17,26 @@ This repository is a single snapshot of v0.032; the full local history stays on 
 - v0.030 dynasty alliances and diplomacy: marriage ties lift standing; alliance, non-aggression pact, break alliance; allies join wars.
 - v0.031 army markers (realm-coloured headcount badges, march lines), army card (commander, troops, objective), objectives, travel 35% slower and slower for big armies.
 - v0.032 intrigue: assassinate, sway, fabricate claim; AI houses plot against the player.
+- v0.033 prisoner ransom and exchange (campaign/prisoners.gd, Court -> Prisoners): ransom, release, pay ransom,
+  exchange one for one; battles of every size take prisoners; held prisoners no longer die in the weekly sweep.
+  Details and known limits: DEV_NOTES_CLAUDE_EDITION.txt, section V0.033.
 - Also built outside the numbered list: court and marriage, interface pass, 100 v 100 battle rounds, armies to 1000, house-only officers and noble call-up, house arms pool, ennoblement, medics and battle aftermath.
 
 ## Next, in order (not started)
-1. **v0.033 prisoner ransom and exchange** - next job. Build on `world["prisoners"]` / `world["captives"]` from `game/campaign/battle_rounds.gd` (`_take_prisoners`, `_note_captured`).
-2. v0.034 population migration, housing and illness.
-3. v0.035 creature review (creatures are switched off by `Monsters.CAMPAIGN_CREATURES_ENABLED`).
-4. v0.036 dragon portrait fangs.
+1. **v0.034 population migration, housing and illness** - next job.
+2. v0.035 creature review (creatures are switched off by `Monsters.CAMPAIGN_CREATURES_ENABLED`).
+3. v0.036 dragon portrait fangs.
 
 ## Running and testing
 - Godot **4.7.2** (stable), GL compatibility renderer. The Windows runtime is not in this repo; get Godot 4.7.2 for your platform.
 - Import once: `godot --headless --path game --import`
 - Run a test: `godot --path game --rendering-method gl_compatibility res://tests/runner.tscn -- --test=res://tests/<file>.gd --watchdog=700`
   (add `--headless` where no display is available; screenshot tests need a display).
-- Main checks: `claude_campaign.gd`, `claude_rounds.gd`, `claude_marriage.gd`, `claude_diplomacy_v030.gd`, `claude_markers_v031.gd`, `claude_intrigue_v032.gd`, `claude_refit.gd`, `claude_dragonfear.gd`.
+- Main checks: `claude_campaign.gd`, `claude_rounds.gd`, `claude_marriage.gd`, `claude_diplomacy_v030.gd`, `claude_markers_v031.gd`, `claude_intrigue_v032.gd`, `claude_prisoners_v033.gd`, `claude_prisoners_ui_v033.gd`, `claude_refit.gd`, `claude_dragonfear.gd`.
+- In a Linux cloud container: download the Godot 4.7.2 Linux build and run display tests with `xvfb-run -a -s "-screen 0 1920x1080x24"`
+  (main.tscn tests wait for drawn frames and hang under `--headless`). `claude_intrigue_v032.gd` and `claude_prisoners_v033.gd` run headless.
+- `tests/runner.gd` prints PASS when a test dies on a script error, so also check each log for `SCRIPT ERROR`.
+- Results for each version go in `test-results/` (v0.033: `test-results/v0.033_2026-10-17_results.txt`).
 - Known older failures that predate this work: `test_econ_army.gd` draft-pool checks, phone-size layout checks in `test_dynasty_ui.gd`.
 
 ## Helpers

@@ -258,7 +258,7 @@ v0.028 finish feudal consequences: fear of dragons.
 v0.029 equipment refits and balance: levies get armour.
 v0.030 dynasty alliances and diplomacy.
 v0.031 intrigue: plots, schemes and assassinations.
-v0.032 prisoner ransom and exchange.
+v0.032 prisoner ransom and exchange - DELIVERED (Claude Edition) as v0.033; HANDOFF_CLOUD.md holds the Claude Edition numbering.
 v0.033 population migration, housing and illness.
 v0.034 creature review.
 v0.035 dragon portrait fangs.

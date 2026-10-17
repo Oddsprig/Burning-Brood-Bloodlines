@@ -61,6 +61,9 @@ static func _living(game, town_id: String, f: Dictionary, p: Array) -> bool:
 	if String(f.get("moved", "")) == "" and String(p[4]) == "company":
 		for u in game.company:
 			if not u.dead and u.uid == int(p[5]) and u.home_town == town_id and u.family == int(f["id"]): return true
+	if String(f.get("moved", "")) == "" and String(p[4]) == "captive":   # v0.033: held captive, still alive
+		var held: Unit = Prisoners.captive_unit(game, int(p[5]))
+		return held != null and held.home_town == town_id and held.family == int(f["id"])
 	return false
 
 ## Locate by stable identity; remembered/departed records are never live people.

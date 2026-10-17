@@ -147,6 +147,9 @@ func run(tree: SceneTree) -> int:
 		check(Game.company.filter(func(u): return not u.dead).is_empty(), "the beaten army's survivors went home to remuster")
 	for c in Game.world.get("captives", []):
 		check(not Game.company.any(func(u): return u.uid == int(c["uid"])), "a captive is no longer in the company")
+		check(c.get("unit") is Unit and int(c["unit"].uid) == int(c["uid"]), "v0.033: a captive record keeps the actual Unit for ransom")
+	for c in Game.world.get("prisoners", []):
+		check(c.get("unit") is Unit and int(c["unit"].uid) == int(c["uid"]), "v0.033: a prisoner record keeps the actual Unit for ransom")
 	print("rounds: prisoners ", (Game.world.get("prisoners", []) as Array).size(), " captives ", (Game.world.get("captives", []) as Array).size())
 	await frames(tree, 10)
 	await shot(tree, "aftermath")

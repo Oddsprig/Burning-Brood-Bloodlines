@@ -50,6 +50,18 @@ spouse's house becomes an ally: rival realms warm to you, vassals keep faith,
 and if they rule a settlement your house gains a claim there - besiege it
 and the town accepts you as rightful. A refusal costs a little standing.
 
+PRISONERS AND RANSOM
+Men left downed on a field the other side holds are taken prisoner, in
+battles of every size (not a town's guards in a raid or siege). The battle
+results say how many. At Court, Prisoners lists each realm: press Bargain.
+For their people you hold: Ransom (their house or realm pays your house
+purse) or Release (free). Either raises your standing with that realm,
+once a day. For your people
+they hold: Pay ransom from your house purse, or Exchange one of theirs for
+one of yours - they will not hand back a noble for a common soldier.
+Prices: soldier 6, officer 20, noble 60, ruler 150 coins. Freed people of
+yours come home as reserves with their own wounds and kit.
+
 BATTLE
 Battles are automatic: your fighters act on their own and you watch and
 inspect. Use pause, 1x, 2x, 4x or Skip to control the pace, and read

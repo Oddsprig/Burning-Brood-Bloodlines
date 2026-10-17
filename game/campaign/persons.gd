@@ -22,7 +22,7 @@ extends RefCounted
 ##   "company"  hired by the player's company (left the family row's counts; the family keeps his record)
 ##   "militia", "caravan", "army", "bandit", "deserter"  in service (counted in the row and in f.serve)
 
-const AWAY := ["company"]   # states not counted in the family row
+const AWAY := ["company", "captive"]   # states not counted in the family row (v0.033: a captive is held away, not at home)
 const SERVICE_WORDS := {"reserve": "militia reserve, working at home", "guard": "a professional town guard", "": "at home", "hire": "for hire at the tavern", "company": "with your company", "militia": "in the militia",
 	"caravan": "with a caravan", "army": "with the army", "bandit": "with an outlaw band", "deserter": "a deserter"}
 const SP := 8
@@ -1010,6 +1010,8 @@ static func live_uids(game) -> Dictionary:
 		if u is Unit and not u.dead: out[u.uid] = true
 	for u: Unit in Mobilization.reserves(game):
 		if not u.dead: out[u.uid] = true
+	for u: Unit in Prisoners.units(game):   # v0.033: held prisoners on both sides are alive, not lost with a force
+		out[u.uid] = true
 	return out
 
 ## Weekly: a person whose unit is gone from every force and pool without word (killed in an AI clash, a
@@ -1346,7 +1348,7 @@ static func _unit(uid: int) -> Unit:
 				return u
 	var reserve: Unit = Mobilization.reserve_unit(Game, uid)
 	if reserve != null: return reserve
-	return null
+	return Prisoners.captive_unit(Game, uid)
 
 ## "Doran Blackmere (man, 31; head of the family): cattle herder on the family herd (family land, no wage)"
 ## "Ivo Blackmere (man, 24; Doran's son): tax collector's man at the town tax office, 21 gold a week"

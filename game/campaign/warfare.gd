@@ -266,6 +266,7 @@ static func daily(game, days: int) -> void:
 	for d in days:
 		Marriage.daily(game)
 		Intrigue.daily(game, int(game.day) - days + d + 1)
+		Prisoners.daily(game, int(game.day) - days + d + 1)
 	if not game.world.has("dragons"): return
 	for row: Dictionary in game.world["dragons"].get("records", {}).values():
 		if not bool(row.get("campaign_march", {}).get("enabled", false)): continue

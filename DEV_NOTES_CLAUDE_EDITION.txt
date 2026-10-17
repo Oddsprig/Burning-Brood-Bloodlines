@@ -179,3 +179,52 @@ ROUND-BASED BATTLES AND INTERFACE PASS 2 (2026-10-16)
   50 a week. The battle field never holds more than 100 a side.
 - Known gaps: prisoners are recorded but there is no ransom or exchange
   screen yet; captured enemy nobles are not yet offered for ransom.
+  (Closed in v0.033, below.)
+
+V0.033 PRISONER RANSOM AND EXCHANGE (2026-10-17, cloud session)
+- campaign/prisoners.gd (class Prisoners). world["prisoners"] (theirs you hold)
+  and world["captives"] (yours they hold) records now keep the actual Unit
+  ("unit") and, for enemy soldiers, their service role ("role"). Actions use
+  preview -> review -> confirm like Intrigue: ransom (their noble's house
+  purse, else their realm treasury, pays your house purse; Diplomacy.on_ransom
+  +2), release (Diplomacy.on_release +2; each standing gain once per realm per
+  day, so a mass release is one gesture), pay (your house purse -> captor's
+  realm treasury), exchange (one for one, same realm; the prisoner you give
+  must be worth at least the captive you get). Prices by kind: soldier 6,
+  officer 20, noble 60, ruler 150 coins. Noble = of a house that holds a seat
+  (econ.head.house_uid) or named in battle; every family has a founding house
+  uid, so HOUSE_UID alone does not mean noble. Coin moves, never created.
+- Freed enemy soldiers go home through Army.release (kit to the home armory,
+  family takes him back); freed people of yours return through
+  Mobilization.return_freed (the stand-down path with from = "captive": same
+  Unit/body, reserve, counts and census move back). Hired men without a family
+  record rejoin the company.
+- Bugs fixed that killed prisoners before v0.033: the weekly Persons.sweep and
+  Army.sweep took any unit missing from every force for dead (captives died a
+  week after capture); Persons.AWAY lacked "captive", so the daily family sync
+  counted a captive at home and could forget a real person at home. Held units
+  are now in Persons.live_uids, Army.sweep, Persons._unit; "captive" is AWAY;
+  Families.living_company_member and Dynasty._living treat a held captive as a
+  living member (no extinction of a family whose member is held).
+- Prisoners.daily drops a record when the held body is dead, or (your people
+  only, whose families cannot move while one is held) when the register row is
+  gone. An enemy family may move; its man stays held until he dies or is freed.
+- One-clash battles (100 or fewer a side) now take prisoners by the round rule
+  (BattleRounds.take_one_clash, called in Game.finish_battle): only your
+  company's men and the beaten field band's own men; not raids/sieges (town
+  guards/militia), caravans or creatures. Their kit is not looted.
+- Court -> Prisoners panel (one line per realm, Bargain window with Ransom /
+  Release / Pay ransom / Exchange, Ransom all / Release all); the battle
+  results show "Taken prisoner: N of yours · N of theirs". Bargaining waits for
+  an in-flight save (same gate as Mobilization).
+- Known limits: prisoners do not heal, eat or cost upkeep while held; AI
+  realms never offer or demand ransom on their own and never free your people;
+  there is no execution or sale (Diplomacy.on_execute / on_sell_to_slavers
+  remain unused). Records from before v0.033 have no Unit and cannot be
+  bargained for (the old sweep had usually killed them already).
+- Tests: tests/claude_prisoners_v033.gd (headless, 64 checks) and
+  tests/claude_prisoners_ui_v033.gd (display, 17 checks: Court buttons and a
+  real one-clash battle). claude_rounds.gd checks records keep their Unit.
+- Cloud testing: Godot 4.7.2 Linux build with xvfb-run; tests/runner.gd prints
+  PASS when a test dies on a script error (the aborted run returns 0), so
+  read the log for "SCRIPT ERROR" as well as the PASS line.

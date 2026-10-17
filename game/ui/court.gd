@@ -95,6 +95,7 @@ func _refresh() -> void:
 	body.add_child(tree_view)
 	body.add_child(_politics_strip())
 	body.add_child(_plots_panel())
+	body.add_child(_prisoners_panel())
 
 ## One line that says what matters now.
 func _direction(data: Dictionary) -> Control:
@@ -193,6 +194,116 @@ func _open_scheme(uid: String, kind: String) -> void:
 			UiKit.close_modal(v)
 			if result.get("ok", false): Game.save_game_async()
 			_refresh(), "", 200))
+	footer.add_child(UiKit.button("Cancel", func(): UiKit.close_modal(v), "Row", 120))
+
+# ------------------------------------------------------------------ prisoners (v0.033)
+const PRISONER_ROWS := 40   # rows listed per side in one realm's window; the rest are counted
+
+## One line per realm: what you hold of theirs and what they hold of yours, with the latest bargains.
+func _prisoners_panel() -> Control:
+	var panel := UiKit.panel("Inset")
+	var box := UiKit.vbox(6); panel.add_child(box)
+	box.add_child(UiKit.label("Prisoners", "H2"))
+	var held := Prisoners.held(Game)
+	var caps := Prisoners.captives(Game)
+	if held.is_empty() and caps.is_empty():
+		box.add_child(UiKit.label("No prisoners on either side. Men downed on a field the other side holds are taken prisoner.", "Muted", true))
+	var realms: Array = []
+	for rec: Dictionary in held:
+		if not realms.has(str(rec.get("faction", ""))): realms.append(str(rec.get("faction", "")))
+	for rec: Dictionary in caps:
+		if not realms.has(str(rec.get("held_by", ""))): realms.append(str(rec.get("held_by", "")))
+	for fid: String in realms:
+		var ours := held.filter(func(r): return str(r.get("faction", "")) == fid).size()
+		var theirs := caps.filter(func(r): return str(r.get("held_by", "")) == fid).size()
+		var line := UiKit.hbox(8); box.add_child(line)
+		var l := UiKit.label("%s: you hold %d of theirs; they hold %d of yours." % [CampaignWorld.faction_name(fid), ours, theirs], "", true)
+		l.size_flags_horizontal = SIZE_EXPAND_FILL
+		line.add_child(l)
+		line.add_child(UiKit.button("Bargain", func(): _open_prisoners(fid), "Row", 140))
+	var history: Array = Prisoners.state(Game)["log"]
+	for entry: Dictionary in history.slice(maxi(0, history.size() - 3)):
+		box.add_child(UiKit.label(str(entry["text"]), "Muted", true))
+	return panel
+
+func _prisoner_line(r: Dictionary) -> String:
+	var hurt := " (%s)" % r["health"] if str(r["health"]) in ["should rest", "cannot fight"] else ""
+	if bool(r["legacy"]): return "%s, %s — record only, taken before ransoms were kept" % [r["name"], r["kind_text"]]
+	return "%s, %s%s — worth %d coins, held %d days" % [r["name"], r["kind_text"], hurt, Prisoners._coins(int(r["price"])), int(r["days"])]
+
+func _open_prisoners(fid: String) -> void:
+	var v := UiKit.modal(self, "Prisoners: %s" % CampaignWorld.faction_name(fid), 980)
+	v.add_child(UiKit.label("Ransoms move real coin between your house purse and their house or realm. An exchange trades one for one: they give back no one worth more than the prisoner you return.", "Muted", true))
+	var sc := UiKit.scroll(); sc.custom_minimum_size = Vector2(0, 480); v.add_child(sc)
+	var rows := UiKit.vbox(8); rows.size_flags_horizontal = SIZE_EXPAND_FILL; sc.add_child(rows)
+	var caps := Prisoners.captives(Game).filter(func(r): return str(r.get("held_by", "")) == fid)
+	var held := Prisoners.held(Game).filter(func(r): return str(r.get("faction", "")) == fid)
+	var seats := Prisoners.ruling(Game)
+	rows.add_child(UiKit.label("Your people they hold (%d)" % caps.size(), "H2"))
+	if caps.is_empty(): rows.add_child(UiKit.label("None.", "Muted", true))
+	for rec: Dictionary in caps.slice(0, PRISONER_ROWS):
+		var r := Prisoners.row(Game, rec, true, seats)
+		var line := UiKit.hbox(8); rows.add_child(line)
+		var l := UiKit.label(_prisoner_line(r), "", true); l.size_flags_horizontal = SIZE_EXPAND_FILL; line.add_child(l)
+		if bool(r["legacy"]): continue
+		var uid := int(r["uid"])
+		line.add_child(UiKit.button("Pay ransom", func(): _bargain(v, "pay", uid), "Row", 160))
+		var pick := Prisoners.exchange_pick(Game, uid, seats)
+		if pick >= 0: line.add_child(UiKit.button("Exchange", func(): _bargain(v, "exchange", uid, pick), "Row", 140))
+	if caps.size() > PRISONER_ROWS: rows.add_child(UiKit.label("and %d more" % (caps.size() - PRISONER_ROWS), "Muted", true))
+	rows.add_child(UiKit.label("Their people you hold (%d)" % held.size(), "H2"))
+	if held.is_empty(): rows.add_child(UiKit.label("None.", "Muted", true))
+	for rec: Dictionary in held.slice(0, PRISONER_ROWS):
+		var r := Prisoners.row(Game, rec, false, seats)
+		var line := UiKit.hbox(8); rows.add_child(line)
+		var l := UiKit.label(_prisoner_line(r), "", true); l.size_flags_horizontal = SIZE_EXPAND_FILL; line.add_child(l)
+		if bool(r["legacy"]): continue
+		var uid := int(r["uid"])
+		line.add_child(UiKit.button("Ransom", func(): _bargain(v, "ransom", uid), "Row", 130))
+		line.add_child(UiKit.button("Release", func(): _bargain(v, "release", uid), "Row", 130))
+	if held.size() > PRISONER_ROWS: rows.add_child(UiKit.label("and %d more" % (held.size() - PRISONER_ROWS), "Muted", true))
+	var footer := UiKit.hbox(8); v.add_child(footer)
+	if held.size() > 1:
+		footer.add_child(UiKit.button("Ransom all", func(): _bargain_all(v, fid, "ransom"), "Row", 160))
+		footer.add_child(UiKit.button("Release all", func(): _bargain_all(v, fid, "release"), "Row", 160))
+	footer.add_child(UiKit.spacer())
+	footer.add_child(UiKit.button("Close", func(): UiKit.close_modal(v), "Row", 120))
+
+## Review one bargain, then confirm it.
+func _bargain(parent: Control, action: String, uid: int, other: int = -1) -> void:
+	var offer := Prisoners.preview(Game, action, uid, other)
+	var titles := {"ransom": "Ransom", "release": "Release", "pay": "Pay ransom", "exchange": "Exchange"}
+	var v := UiKit.modal(self, "%s: %s" % [titles.get(action, action), str(offer.get("name", "?"))], 720)
+	v.add_child(UiKit.label(str(offer.get("text", "")), "" if offer.get("ok", false) else "Muted", true))
+	var footer := UiKit.hbox(8); v.add_child(footer)
+	footer.add_child(UiKit.spacer())
+	if offer.get("ok", false):
+		footer.add_child(UiKit.button("Confirm", func():
+			var result := Prisoners.confirm(Game, action, uid, other, offer["review"])
+			notice = str(result.get("text", ""))
+			UiKit.close_modal(v); UiKit.close_modal(parent)
+			if result.get("ok", false): Game.save_game_async()
+			_refresh(), "", 160))
+	footer.add_child(UiKit.button("Cancel", func(): UiKit.close_modal(v), "Row", 120))
+
+## Every prisoner of one realm, one bargain at a time (each pays from whoever can still afford it).
+func _bargain_all(parent: Control, fid: String, action: String) -> void:
+	var uids: Array = Prisoners.held(Game).filter(func(r): return str(r.get("faction", "")) == fid and r.get("unit") is Unit).map(func(r): return int(r["uid"]))
+	var v := UiKit.modal(self, "%s all: %s" % ["Ransom" if action == "ransom" else "Release", CampaignWorld.faction_name(fid)], 720)
+	v.add_child(UiKit.label(("Offer each of the %d prisoners for ransom; those their house or realm cannot pay for stay with you." if action == "ransom"
+		else "Free all %d prisoners. Standing with their realm rises once.") % uids.size(), "", true))
+	var footer := UiKit.hbox(8); v.add_child(footer)
+	footer.add_child(UiKit.spacer())
+	footer.add_child(UiKit.button("Confirm", func():
+		var done := 0; var coin := 0
+		for uid: int in uids:
+			var offer := Prisoners.preview(Game, action, uid)
+			if offer.get("ok", false) and Prisoners.confirm(Game, action, uid, -1, offer["review"]).get("ok", false):
+				done += 1; coin += int(offer.get("price", 0))
+		notice = ("Ransomed %d of %d for %d coins." % [done, uids.size(), Prisoners._coins(coin)]) if action == "ransom" else ("Released %d prisoners." % done)
+		UiKit.close_modal(v); UiKit.close_modal(parent)
+		if done > 0: Game.save_game_async()
+		_refresh(), "", 160))
 	footer.add_child(UiKit.button("Cancel", func(): UiKit.close_modal(v), "Row", 120))
 
 # ------------------------------------------------------------------ person panel
