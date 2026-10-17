@@ -1,0 +1,43 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.
+     at: set_use_vsync (platform/linuxbsd/x11/gl_manager_x11.cpp:372)
+OpenGL API 4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4 - Compatibility - Using Device: Mesa - llvmpipe (LLVM 20.1.2, 256 bits)
+ALSA lib confmisc.c:855:(parse_card) cannot find card '0'
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_card_inum returned error: No such file or directory
+ALSA lib confmisc.c:422:(snd_func_concat) error evaluating strings
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+ALSA lib confmisc.c:1342:(snd_func_refer) error evaluating name
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+ALSA lib conf.c:5731:(snd_config_expand) Evaluate error: No such file or directory
+ALSA lib pcm.c:2721:(snd_pcm_open_noupdate) Unknown PCM default
+ERROR: Condition "status < 0" is true. Returning: ERR_CANT_OPEN
+   at: init_output_device (drivers/alsa/audio_driver_alsa.cpp:97)
+WARNING: All audio drivers failed, falling back to the dummy driver.
+     at: initialize (servers/audio/audio_server.cpp:258)
+
+dev: loaded the start world in 8279 ms
+party (1356.0, 330.0) town (1356.0, 300.0) target (1356.0, 300.0)
+campaign report: {"ambitions":5,"days":{"ms_total":1677.592,"worst_day_ms":1386.866},"load_ms":2066.49,"raid":{"battle_ms":5449.788,"defenders":14,"outcome":"Your army raided Kolvik: 5148 coins carried off, 19343 grain burned, 14 residents killed. Its people blame their lord.","town":"Kolvik","winner":0},"save_ms":3773.583,"siege":{"battle_ms":6016.483,"defenders":25,"outcome":"Frostvik has fallen! It now swears to The Holds of the Iron Deep. Its people resent the conquest.","town":"Frostvik","winner":0},"world_ms":0.0}
+  ok   fresh campaign starts with no raised army
+  ok   house with a dragon chosen
+  ok   army funded from the real house purse (Transfer real house coin into the company wallet for native recruiting, food and wages. / Raise 40 of 40 requested; actual manpower, weapons, meals and army funds limit the muster.)
+  ok   raised 40 real residents
+  ok   2 bonded dragon(s) march with the army
+  ok   ambition 'Take the Saddle' completed by a real bond
+  ok   foreign settlements exist
+  ok   siege preview at Frostvik: Storm the walls; a victory brings the settlement into your realm. 25 defenders hold Frostvik against your 40. The Clans Of The Northern Fells is not at war with you: attacking will make them an enemy.
+  ok   siege started
+  ok   siege: battle screen opened
+  ok   siege: aftermath opened (6016 ms)
+  ok   won siege transfers the settlement to your realm
+  ok   raid preview at Kolvik: Plunder its treasury, households and granary. 14 defenders hold Kolvik against your 37. The Clans Of The Northern Fells is not at war with you: attacking will make them an enemy.
+  ok   raid started
+  ok   raid: battle screen opened
+  ok   raid: aftermath opened (5450 ms)
+  ok   won raid carried off real coin (43954 -> 224971)
+  ok   campaign days advanced (1.0 -> 2.0)
+  ok   23 egg(s) hatched after incubation (23 eggs before)
+  ok   save reloads
+  ok   campaign state identical after reload {"ambitions":4,"company":35,"conquests":1,"day":2.0,"gold":221328,"towns":23}
+Claude campaign test: 21 checks, 0 failures
+== res://tests/claude_campaign.gd: PASS ==

@@ -1,0 +1,9 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+dev: loaded the start world in 7298 ms
+prisoners033: quote true Raise 12 of 12 requested; actual manpower, weapons, meals and army funds limit the muster. planned 12
+prisoners033: muster Raised 12 of 12 requested.
+prisoners033: company 15 registered 15
+prisoners033: kinds common common common
+prisoners033: 67 checks, 0 failures
+== res://tests/claude_prisoners_v033.gd: PASS ==

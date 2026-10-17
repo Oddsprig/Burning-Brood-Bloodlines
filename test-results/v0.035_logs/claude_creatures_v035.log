@@ -1,0 +1,8 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+dev: made the start world user://fixtures/world_creatures_0.035-claude_v1.json in 18625 ms
+dev: loaded the start world in 2267 ms
+creatures035: 9 lairs, 9 creature bands (["beasts", "beasts", "beasts", "beasts", "beasts", "beasts", "beasts", "beasts", "beasts"])
+creatures035: 7 days in 8898 ms (worst day 1710 ms); 13 lairs, 13 creature bands after
+creatures035: 9 checks, 0 failures
+== res://tests/claude_creatures_v035.gd: PASS ==

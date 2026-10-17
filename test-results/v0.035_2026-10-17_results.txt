@@ -1,0 +1,34 @@
+BURNING BROOD: BLOODLINES - CLAUDE EDITION v0.035 (creature review)
+Test results, 2026-10-17. Built and tested in a Claude Code cloud session (Linux container).
+
+ENVIRONMENT
+Godot 4.7.2.stable.official.ed1daf0bf, Linux x86_64, GL compatibility renderer; display tests on xvfb (Mesa
+software GL), the rest headless. Each test starts from a saved small start world (DevTools.start_world: Normal,
+seed 4242, one-day history); the creature tests use the start world made with creatures on. One engine at a time.
+Source: branch claude/v0.035-creature-review, on top of v0.034. Not tested here: the Windows build, a Desktop
+install, phone sizes, old-save compatibility.
+
+MAIN CHECKS - one serial pass on the final tree (both start worlds were remade once for the new version)
+  claude_creatures_v035.gd     9 checks, 0 failures        40s  exit 0, script errors 0
+  claude_creatures_ui_v035.gd  8 checks, 0 failures        22s  exit 0, script errors 0
+  claude_population_v034.gd    48 checks, 0 failures       32s  exit 0, script errors 0
+  claude_prisoners_v033.gd     67 checks, 0 failures       18s  exit 0, script errors 0
+  claude_intrigue_v032.gd      64 checks, 0 failures       18s  exit 0, script errors 0
+  claude_population_ui_v034.gd 10 checks, 0 failures       15s  exit 0, script errors 0
+  claude_prisoners_ui_v033.gd  17 checks, 0 failures       38s  exit 0, script errors 0
+  claude_diplomacy_v030.gd     50 checks, 0 failures       19s  exit 0, script errors 0
+  claude_markers_v031.gd       54 checks, 0 failures       15s  exit 0, script errors 0
+  claude_refit.gd              9 checks, 0 failures        15s  exit 0, script errors 0
+  claude_dragonfear.gd         14 checks, 0 failures       28s  exit 0, script errors 0
+  claude_marriage.gd           15 checks, 0 failures       21s  exit 0, script errors 0
+  claude_campaign.gd           21 checks, 0 failures       41s  exit 0, script errors 0
+  claude_rounds.gd             14 checks, 0 failures       91s  exit 0, script errors 0
+  All pass, no SCRIPT ERROR lines; every check under a minute except claude_rounds (one real 100 v 100 round).
+
+THE REVIEW (what turning creatures on showed)
+  World with creatures on: 9 lairs, each with a beast pack (wolves); 13 lairs and packs after a week.
+  A week of campaign time: no script errors; about 1.2 s a day (worst 1.7 s), the usual cost.
+  A real fight (CampaignWorld.engage, lair terrain, the battle scene): 4 men against 7 wolves; the company won,
+  3 wolves dead, the rest fled; the aftermath opened; the pack's dead are not kept. Screenshots in v0.035_logs.
+  Save/load keeps the world's choice; a world from before v0.035 keeps creatures off.
+  No creature code needed fixing.
