@@ -97,6 +97,7 @@ static func resolve(game, tid: String, kind: String, won: bool, result: Dictiona
 		return out
 	if kind == "raid": out.merge(_plunder(game, tid))
 	else: out.merge(_conquer(game, tid))
+	Migration.note_attack(w, tid, float(game.day))   # v0.034: raided or taken, its people fear for their lives
 	result["assault_outcome"] = out
 	CampaignWorld.log_event(game, str(out.get("text", "")))
 	game.changed.emit()

@@ -1206,6 +1206,7 @@ static func _assault_arrives(game, wid: String) -> void:
 	# the town falls to the raid
 	town["wealth"] = maxi(1, int(town["wealth"]) - 1)
 	Diplomacy.on_town_attacked(w, town["faction"], wb["faction"], true)   # diplomacy: sacked -25
+	Migration.note_attack(w, String(town["id"]), float(game.day))   # v0.034: its people fear for their lives
 	log_event(game, "%s was sacked by %s." % [town["name"], faction_the(wb["faction"])])
 	var c: Dictionary = game.contract
 	if c.get("target_id", "") == wid:
@@ -1774,6 +1775,7 @@ static func after_load(game) -> void:
 	Dragons.after_load(game)
 	Intrigue.after_load(game)
 	Prisoners.after_load(game)
+	Migration.after_load(game)
 
 static func _fix_contract(c: Dictionary) -> void:
 	for k in ["pay", "size"]:

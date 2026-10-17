@@ -608,7 +608,8 @@ static func output_mult(stage: int) -> float:
 ## Hungry families flee (0.4% x (stage - 1) a day) to a real town of their faction or a friendly one, with their purse
 ## and goods. Returns true when the family left.
 static func maybe_flee(game, town: Dictionary, e: Dictionary, f: Dictionary, stage: int, days: float, rng: RandomNumberGenerator, day: float) -> bool:
-	if stage < 2 or Families.serving(f) > 0 or _away(f):
+	# v0.034: a cohort row is many households; some of them leave each week (Migration), never the whole row at once
+	if stage < 2 or Population.is_cohort(f) or Families.serving(f) > 0 or _away(f):
 		return false
 	var p := float(B()["movers"]["flight"]) * float(stage - 1)
 	if rng.randf() >= 1.0 - pow(1.0 - p, days):
@@ -837,7 +838,7 @@ static func move_in(game, day: float) -> void:
 				for f in (es["fams"] as Array).duplicate():
 					if n <= 0:
 						break
-					if f["gone"] or f.has("estate") or Families.acres(f) > 0 or Families.heads(f) > 0 or not (f["owns"] as Array).is_empty() \
+					if f["gone"] or f.has("estate") or Population.is_cohort(f) or Families.acres(f) > 0 or Families.heads(f) > 0 or not (f["owns"] as Array).is_empty() \
 							or Families.serving(f) > 0 or _away(f) or int(f.get("cls", 0)) > 0 or float(f.get("debt", 0.0)) > 0.0:
 						continue
 					if int(f.get("idle", 0)) <= 0 and int(f.get("hungry", 0)) <= 0:

@@ -331,7 +331,7 @@ static func turn(e: Dictionary, f: Dictionary, day: float, days: float) -> void:
 	if Families.people(f) <= 0: Families.extinct(e, f, day)
 	elif Families.people(f) != population_before or Families.adults(f) != adults_before: Families.reassign(e, f)
 
-static func kill_slots(e: Dictionary, f: Dictionary, key: String, n: int, day: float, cause: String) -> void:
+static func kill_slots(e: Dictionary, f: Dictionary, key: String, n: int, day: float, cause: String, detail: String = "anonymous residents") -> void:
 	var cat := bin_category(e, f, key, day)
 	n = mini(n, int(f["age_bins"].get(key, 0)))
 	if n <= 0: return
@@ -341,4 +341,4 @@ static func kill_slots(e: Dictionary, f: Dictionary, key: String, n: int, day: f
 	e["pop"] -= n
 	if cat < 2: e["adults"] -= n
 	e["stats"]["deaths"] = int(e["stats"].get("deaths", 0)) + n
-	Census.record_population_deaths(e, int(f["id"]), n, day, cause, "anonymous residents")
+	Census.record_population_deaths(e, int(f["id"]), n, day, cause, detail)

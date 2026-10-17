@@ -853,6 +853,9 @@ static func town_day(game, t: Dictionary, d: int, part: int = 0) -> void:
 	if part == 0:
 		_roll_town(game, t, e, b, d, rng, span)
 		if prof_on: t0 = _pf("roll", t0)
+		_pool_day(game, t, e, b, d, rng, span)   # v0.034: the common folk (cohort rows), as counts
+		if prof_on: t0 = _pf("pools", t0)
+		_outbreak_news(game, t, b, d)
 	# counters for the screen: 60 days of open cases, 8 days per disease, the week's new cases (one entry per day
 	# covered)
 	var act: Dictionary = b["act"]
@@ -879,6 +882,180 @@ static func town_day(game, t: Dictionary, d: int, part: int = 0) -> void:
 	var nw: Array = b["new"]
 	while not nw.is_empty() and int(nw[0][0]) <= d - 7:
 		nw.pop_front()
+
+# ================================================================== the common folk (v0.034)
+## Anonymous residents of a cohort row (campaign/population.gd) have no person records, so their sickness is kept as
+## counts, at the register's per-person rates: the town's conditions (T) x the row's own home factor K (crowding, the
+## poorhouse, hunger, cold), the town's shedding sick, and household-mates (home rate x the row's own sick x the
+## household size). Their cases count in the town's book (act, cases, new, yr, first) like anyone's, so they show on
+## the Sickness tab and spread to the register and along caravans. Each case dies with the disease's daily risk over
+## its sick days (body condition included); deaths go through Population.kill_slots (census cause "sickness", detail
+## the disease). The recovered are immune as counts. No remedies or bed-ridden staff (their work is aggregate).
+## f.psk: [[dis, band, n, die_n, die_day, end_day, died], ...]; f.pim: {dis: [count, until]}.
+const POOL_GROUPS := {"workers": "adult", "children": "child", "elders": "elder"}
+
+static func _pool_people(f: Dictionary) -> Dictionary:
+	return {"workers": Population.anonymous(f, 0) + Population.anonymous(f, 1), "children": Population.anonymous(f, 3),
+		"elders": Population.anonymous(f, 2)}
+
+## Open cases of a cohort row (one disease, one age band, or all).
+static func pool_sick(f: Dictionary, dis: String = "", bnd: String = "") -> int:
+	var n := 0
+	for c in f.get("psk", []):
+		if (dis == "" or String(c[0]) == dis) and (bnd == "" or String(c[1]) == bnd):
+			n += int(c[2]) - (int(c[3]) if bool(c[6]) else 0)
+	return n
+
+static func _pool_immune(f: Dictionary, dis: String, day: float) -> int:
+	var im: Array = f.get("pim", {}).get(dis, [])
+	if im.is_empty(): return 0
+	if float(im[1]) <= day:
+		f["pim"].erase(dis)
+		if (f["pim"] as Dictionary).is_empty(): f.erase("pim")
+		return 0
+	return int(im[0])
+
+static func _yr_n(b: Dictionary, day: float, slot: int, n: int) -> void:
+	if n <= 0: return
+	_yr(b, day, slot)
+	b["yr"][str(Calendar.year(day))][slot] = int(b["yr"][str(Calendar.year(day))][slot]) + n - 1
+
+static func _act_less(b: Dictionary, dis: String, n: int) -> void:
+	if n <= 0: return
+	var left := int(b["act"].get(dis, 0)) - n
+	if left > 0: b["act"][dis] = left
+	else: b["act"].erase(dis)
+
+## One town run (part 0 of town_day): the cohorts' cases due end or kill, then new cases over the run's days.
+static func _pool_day(game, t: Dictionary, e: Dictionary, b: Dictionary, d: int, rng: RandomNumberGenerator, span: int) -> void:
+	var tf := _tf(e, b, d)
+	var pop := maxf(1.0, float(e["pop"]))
+	var act: Dictionary = b["act"]
+	var room := float(tf["room"])
+	var cloth := float(tf["cloth"])
+	for f in e["fams"]:
+		if not Population.is_cohort(f): continue
+		if f.has("psk"): _pool_resolve(e, b, f, d, rng)
+		if f.get("gone", false): continue
+		var people := _pool_people(f)
+		var total := int(people["workers"]) + int(people["children"]) + int(people["elders"])
+		if total <= 0: continue
+		var mates := maxf(0.0, float(Families.people(f)) / float(Population.households(f)) - 1.0)
+		var bc: Dictionary = f.get("pool_condition", {})
+		for i in ids.size():
+			var dis: String = ids[i]
+			var r := row(dis)
+			var town := float(r.get("town", 0.0)) * float(act.get(dis, 0)) * float(tf["sf"][i]) / pop
+			var home := float(r.get("home", 0.0)) * float(tf["sf"][i]) * float(pool_sick(f, dis)) * mates / float(total)
+			var cond := float(tf["T"][i])
+			if cond > 0.0: cond *= cond_k(e, f, r, room, cloth)
+			var rate := (cond + town + home) * float(tf["rm"][i])
+			if rate <= 0.0: continue
+			var free := 1.0 - minf(1.0, float(_pool_immune(f, dis, float(d))) / float(total))
+			var src := "cond:" + cond_words(e, f, r, room, cloth)
+			if town > cond and town >= home: src = "town:caught from the town's sick in %s" % t["name"]
+			elif home > cond: src = "home:their own households"
+			for group in POOL_GROUPS:
+				var bnd: String = POOL_GROUPS[group]
+				var s := maxf(0.0, float(people[group]) - float(pool_sick(f, dis, bnd))) * free
+				if s < 1.0: continue
+				var catch := float(r["catch"][bnd]) * (1.0 + BODY_CATCH * (1.0 - float(bc.get(group, 1.0))))
+				var n := mini(int(s), _poisson(rng, s * rate * catch * float(span)))
+				if n > 0: _pool_infect(e, b, f, dis, bnd, group, n, d, rng, src)
+
+## v0.034: a disease takes hold in a town of your realm (OUTBREAK open cases): one campaign log line per outbreak;
+## the outbreak is over when its last case ends.
+const OUTBREAK := 10
+
+static func _outbreak_news(game, t: Dictionary, b: Dictionary, d: int) -> void:
+	var seen: Dictionary = b.get("outbreak", {})
+	for dis in seen.keys():
+		if int(b["act"].get(dis, 0)) <= 0: seen.erase(dis)
+	var mine := Diplomacy.player_realm(game.world)
+	if mine != "" and String(t.get("faction", "")) == mine:
+		for dis in b["act"]:
+			if int(b["act"][dis]) >= OUTBREAK and not seen.has(dis):
+				seen[dis] = d
+				CampaignWorld.log_event(game, "Sickness: %s has taken hold in %s (%d sick)." % [dname(dis), t["name"], int(b["act"][dis])])
+	if seen.is_empty(): b.erase("outbreak")
+	else: b["outbreak"] = seen
+
+static func _pool_infect(_e: Dictionary, b: Dictionary, f: Dictionary, dis: String, bnd: String, group: String, n: int, d: int, rng: RandomNumberGenerator, src: String) -> void:
+	var r := row(dis)
+	var on := d + rng.randi_range(int(r["inc"][0]), int(r["inc"][1]))
+	var sd := rng.randi_range(int(r["sick"][0]), int(r["sick"][1]))
+	var bc := float(f.get("pool_condition", {}).get(group, 1.0))
+	var q := minf(0.9, float(r["death"][bnd]) * (1.0 + BODY_DEATH * (1.0 - bc)))
+	var p := 1.0 - pow(1.0 - q, float(sd))   # the daily risk over his sick days (as _death_day)
+	var die := 0
+	if n <= 40:
+		for k in n:
+			if rng.randf() < p: die += 1
+	else:
+		die = clampi(int(round(rng.randfn(n * p, sqrt(n * p * (1.0 - p))))), 0, n)
+	if not f.has("psk"): f["psk"] = []
+	f["psk"].append([dis, bnd, n, die, on + maxi(1, sd / 2), on + sd, false])
+	var was := int(b["act"].get(dis, 0))
+	b["act"][dis] = was + n
+	b["cases"][dis] = int(b["cases"].get(dis, 0)) + n
+	for k in mini(n, 200): (b["new"] as Array).append([d, dis])
+	_yr_n(b, float(d), 0, n)
+	if was == 0: b["first"][dis] = [d, origin_text(src, float(d))]
+
+## Cases due: their dead leave the row through the one population death path; the recovered become immune.
+static func _pool_resolve(e: Dictionary, b: Dictionary, f: Dictionary, d: int, rng: RandomNumberGenerator) -> void:
+	var keep: Array = []
+	var died := 0
+	var gone := bool(f.get("gone", false))
+	for c in f["psk"]:
+		var dis := String(c[0])
+		if gone:   # the row died out or left: its open cases leave the town's counters
+			_act_less(b, dis, int(c[2]) - (int(c[3]) if bool(c[6]) else 0))
+			continue
+		if not bool(c[6]) and int(c[4]) <= d:
+			c[6] = true
+			var killed := _pool_kill(e, f, String(c[1]), int(c[3]), float(c[4]), dis, rng)
+			_act_less(b, dis, int(c[3]))
+			if killed > 0:
+				b["deaths"][dname(dis)] = int(b["deaths"].get(dname(dis), 0)) + killed
+				_yr_n(b, float(c[4]), 1, killed)
+				died += killed
+		if int(c[5]) <= d:
+			var well := int(c[2]) - int(c[3])
+			_act_less(b, dis, well)
+			var imm := float(row(dis).get("immune", 0))
+			if imm != 0.0 and well > 0:
+				if not f.has("pim"): f["pim"] = {}
+				var until := NONE if imm < 0.0 else float(c[5]) + imm * year_days()
+				var had: Array = f["pim"].get(dis, [0, 0.0])
+				f["pim"][dis] = [int(had[0]) + well, maxf(float(had[1]), until)]
+			continue
+		keep.append(c)
+	if keep.is_empty(): f.erase("psk")
+	else: f["psk"] = keep
+	if died > 0 and not gone:
+		if Families.people(f) <= 0: Families.extinct(e, f, float(d))
+		else: Families.reassign(e, f)
+
+## k of the row's anonymous residents of one age band die (bins picked by their size); returns how many died.
+static func _pool_kill(e: Dictionary, f: Dictionary, bnd: String, k: int, day: float, dis: String, rng: RandomNumberGenerator) -> int:
+	var want: Array = {"adult": [0, 1], "child": [3], "elder": [2]}[bnd]
+	var killed := 0
+	for i in k:
+		var keys: Array = []
+		var tot := 0
+		for key in f.get("age_bins", {}):
+			if want.has(Population.bin_category(e, f, String(key), day)):
+				keys.append(key); tot += int(f["age_bins"][key])
+		if tot <= 0: break
+		var x := rng.randi() % tot
+		for key in keys:
+			x -= int(f["age_bins"][key])
+			if x < 0:
+				Population.kill_slots(e, f, String(key), 1, day, "sickness", dname(dis))
+				killed += 1
+				break
+	return killed
 
 ## New cases from the household's conditions and from the town's sick (thinned Poisson over the register).
 ## span: the days this run covers (the per person-day rates x span; each case dated on one of those days).

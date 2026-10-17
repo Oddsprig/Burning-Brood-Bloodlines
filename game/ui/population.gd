@@ -70,6 +70,7 @@ func _refresh() -> void:
 	_fact("All savings", UiKit.compact_coins(float(population_summary.get("private_wealth", 0))), "Private savings of every household.")
 	_fact("Families", str(int(population_summary.get("tracked_families", 0))), "Families in the register.")
 	_fact("Folk groups", str(int(population_summary.get("cohorts", 0))), "")
+	body.add_child(_health_card())
 	if not budget.is_empty():
 		var service := UiKit.panel("Card")
 		body.add_child(service)
@@ -107,6 +108,28 @@ func _refresh() -> void:
 		panel.tooltip_text = "%d common folk, %d named, %d away in service, %d families in the register. Savings %.2f coins." % [int(row.get("anonymous", 0)), int(row.get("detailed", 0)), int(row.get("away", 0)), int(row.get("tracked_families", 0)), float(row.get("common_wealth", 0))]
 		panel.mouse_filter = MOUSE_FILTER_PASS
 	_fit()
+
+## v0.034: sickness, homes and who came and went this season (Migration.report).
+func _health_card() -> Control:
+	var r := Migration.report(Game, town_id)
+	var card := UiKit.panel("Card")
+	card.name = "HealthHomesMovement"
+	var words := UiKit.vbox(6)
+	card.add_child(words)
+	words.add_child(UiKit.label("Health, homes and movement", "H2", true))
+	if r.is_empty(): return card
+	var push := String(r["push"])
+	if push != "":
+		var why: String = {"war": "fear of war", "hunger": "hunger", "crowd": "crowding, with no house to be had"}[push]
+		words.add_child(UiKit.label("Common households are leaving for other towns, driven by %s." % why, "Bad", true))
+	var top: Array = []
+	for row: Array in (r["diseases"] as Array).slice(0, 3): top.append("%s %d" % [row[0], int(row[1])])
+	words.add_child(UiKit.label("Sick now: %d%s · died of sickness this year: %d" % [int(r["sick"]), (" (" + ", ".join(PackedStringArray(top)) + ")") if not top.is_empty() else "", int(r["sick_deaths"])], "", true))
+	words.add_child(UiKit.label("%s households in %s homes (room for %d each) · %s without a home of their own · %d empty town houses" % [UiKit.thousands(int(r["households"])), UiKit.thousands(int(r["homes"])), int(r["room"]), UiKit.thousands(int(r["unhoused"])), int(r["empty_homes"])], "", true))
+	words.add_child(UiKit.label("This season: left %s · arrived %s" % [Migration.whys(r["left"]), Migration.whys(r["arrived"])], "Muted", true))
+	card.tooltip_text = "The common folk catch the same diseases as the named families. Households leave towns at war, in famine, or too crowded with no house to buy, for a town of their own people with room."
+	card.mouse_filter = MOUSE_FILTER_PASS
+	return card
 
 func _grid() -> GridContainer:
 	var g := GridContainer.new()

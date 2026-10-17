@@ -783,6 +783,7 @@ static func war_assault_arrives(game, wid: String) -> void:
 	Army.survived(wb)   # economy spec 2: a battle survived
 	if sacked:
 		Army.on_sack(w, town, wb["faction"])   # economy spec 2: the raiders carry a share of the treasury home
+		Migration.note_attack(w, String(town["id"]), float(game.day))   # v0.034: its people fear for their lives
 		town["wealth"] = maxi(1, int(town["wealth"]) - 1)
 		add_war_losses(w, town["faction"], wb["faction"], mil / 2 + n / 4)
 		CampaignWorld.log_event(game, "%s was sacked by %s." % [town["name"], CampaignWorld.faction_the(wb["faction"])])

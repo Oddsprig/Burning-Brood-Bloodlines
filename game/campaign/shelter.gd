@@ -360,7 +360,7 @@ static func state_line(e: Dictionary, f: Dictionary) -> String:
 	if not hl.is_empty():
 		since = " since the %s of year %d" % [Calendar.season(float(hl["d"])), Calendar.year(float(hl["d"]))]
 	var how: String = {"head": "The %s took their house" % e.get("head", {}).get("title", "head"), "ruin": "Their house fell to ruin",
-		"evicted": "Evicted for unpaid rent"}.get(String(hl.get("how", "")), "Homeless")
+		"evicted": "Evicted for unpaid rent", "debt": "Their house was sold for debt", "moved": "Came to town with no house to go to"}.get(String(hl.get("how", "")), "Homeless")
 	var where := ""
 	if f.get("shel", false):
 		where = "living in the town poorhouse%s" % (" on bone broth" if f.get("broth", false) else ", buying what food they can")

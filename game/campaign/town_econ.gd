@@ -235,6 +235,8 @@ static func queue_day(w: Dictionary, d: int) -> void:
 	work.append(["coin", d])   # barge: the coin pass (drain, mints, melting, the price level, coin shortage)
 	if d % 30 == 15:
 		work.append(["movein", d])   # barge part 4 section 6: towns with empty homes and better wages draw families
+	if d % 7 == 5:
+		work.append(["migrate", d])   # v0.034: common households leave towns under war, hunger or crowding
 
 ## Runs one queued economy job. Returns false if the job is not an economy job.
 static func do_job(game, job: Array) -> bool:
@@ -264,6 +266,8 @@ static func do_job(game, job: Array) -> bool:
 			Barge.coin_day(game, int(job[1]))
 		"movein":
 			Barge.move_in(game, float(job[1]))
+		"migrate":
+			Migration.weekly(game, float(job[1]))
 		"wed":
 			if w["towns"].has(job[1]) and has_econ(w["towns"][job[1]]):
 				Persons.marriages(w["towns"][job[1]]["econ"], float(job[2]))
