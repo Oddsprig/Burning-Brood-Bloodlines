@@ -166,6 +166,14 @@ Read the original handoff or inherited specifications only as needed.
   one-day world history; those are also the game's defaults (WorldGen.WORLD_SIZE,
   CampaignWorld.PRESIM_DEFAULT_DAYS). Do not spend time on bigger worlds or longer
   histories unless the user asks.
+- TEST TIME RULE (user, 2026-10-17; applies unless the user asks otherwise): each test
+  must finish in under 1 minute; 3 minutes is the absolute cap. Design tests for it:
+  start from the shared saved world (tests/fixture.gd, TestFixture.start) instead of
+  generating a world; set up later-game states directly (or from a saved fixture)
+  instead of simulating weeks or months; fight the smallest battle that proves the
+  point; prefer headless logic tests over rendered ones. No long diagnostics or
+  benchmarks, no repeated full-suite runs: run the tests the change touches, then
+  the main checks once. Usage spent on tests must stay a small part of a version.
 - Never touch the mouse, keyboard or foreground. Copper Oath source/archives may
   be read to import the authorized models; never modify or launch Copper Oath.
 - Before replacing art, preserve its source/render/metadata in a unique entry

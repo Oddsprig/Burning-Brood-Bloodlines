@@ -31,6 +31,10 @@ The full local history before v0.032 stays on the user's PC.
 2. v0.036 dragon portrait fangs.
 
 ## Running and testing
+- **TEST TIME RULE (user, 2026-10-17, unless the user asks otherwise): each test under 1 minute, 3 minutes is the cap.**
+  Start tests from the shared saved world (`tests/fixture.gd`, `TestFixture.start`), set later-game states up directly
+  instead of simulating weeks, fight the smallest battle that proves the point, prefer headless logic tests, and run
+  only the tests a change touches plus the main checks once. No long diagnostics or benchmarks.
 - **Every test uses the smallest world (Normal) with a one-day world history** (user direction 2026-10-17). These are
   also the game's defaults: `WorldGen.WORLD_SIZE = "normal"`, `CampaignWorld.PRESIM_DEFAULT_DAYS = 1`. Don't spend time
   on bigger worlds or longer histories unless asked.
