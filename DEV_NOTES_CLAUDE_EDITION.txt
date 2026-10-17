@@ -238,9 +238,12 @@ Barge.maybe_flee hunger flight, Barge.move_in wage pull) unchanged.
   counts in f.psk [[dis, band, n, die_n, die_day, end_day, died]], rolled once
   per town run (job part 1, or part 0 when called directly) at the register's
   per-person rates: town conditions T x the row's own K (Sickness.cond_k:
-  crowding, poorhouse, hunger, cold) + the town's shedding sick + household
-  mates (disease "home" rate x the row's own sick x household size), x catch by
-  age band and body condition (pool_condition) x race. They count in the town
+  crowding, poorhouse, hunger, cold) + the town's shedding sick, x catch by age
+  band and body condition (pool_condition) x race. Then one round of household
+  spread as the register's _household: each new case's housemates (household
+  size - 1) each catch it with 1 - exp(-home x catch x shedding days), and those
+  cases spread no further at home (a first build let household spread seed
+  fresh households endlessly: a reproduction number above 1 everywhere). They count in the town
   book (act, cases, new, yr, first), so the Sickness tab, caravans and the
   register see them. Death: each case dies with the disease's daily risk over
   its sick days; deaths go through Population.kill_slots (new optional detail
@@ -276,7 +279,10 @@ Barge.maybe_flee hunger flight, Barge.move_in wage pull) unchanged.
   for named people (about 12% a year died of sickness) and now apply to
   everyone. Data to tune: data/sickness.json (base, death, home, town per
   disease) and remedy. Common folk catch less often per person than named people
-  and die at a similar rate per case.
+  and die more often per case (about 3.7% against 1.3% over 60 days: fewer
+  remedies). Pox (lifelong immunity, the deadliest per case) can sweep a town.
+  Speed: the common-folk pass is most of sickness time but about 1-2 ms per town
+  job; total sickness about the v0.033 cost in a normal world.
 - Known limits: cohort sickness does not leave workers bed-ridden (their work
   is aggregate) and prisoners do not fall sick; migration pulls only by push
   (no wage pull for cohorts; tracked families keep Barge.move_in); refugees
