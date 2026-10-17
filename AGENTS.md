@@ -161,6 +161,14 @@ Read the original handoff or inherited specifications only as needed.
   and visual checks for performance/UI changes; do not touch player foreground.
   Record actual results, duration and source in `test-results/*.txt`.
   Never mark skipped, failed, stopped or inherited tests as current passes.
+- TEST TIME BUDGET (user rule, 2026-10-17): every test run aims for under 1
+  minute and must finish within 3 minutes, unless the user asks otherwise.
+  Design tests and test setup to fit: later-game tests start from saved-game
+  fixtures (save points made once and loaded) instead of generating and
+  simulating a world each time; use small worlds and the fewest days/battles
+  that prove the change. Run only the tests the change touches, never a full
+  multi-hour suite. The runner's default watchdog is 180 s; a test that needs
+  more is a badly designed test and must be cut down, not given more time.
 - No old-save compatibility work or long benchmarks unless requested.
 - User direction (2026-10-17): every test runs on the smallest world (Normal) with a
   one-day world history; those are also the game's defaults (WorldGen.WORLD_SIZE,

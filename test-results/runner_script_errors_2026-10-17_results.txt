@@ -1,0 +1,44 @@
+BURNING BROOD: BLOODLINES - CLAUDE EDITION: test runner counts script errors
+Test results, 2026-10-17. Claude Code cloud session (Linux container, 4 cores).
+
+ENVIRONMENT
+Godot 4.7.2.stable.official.ed1daf0bf, Linux x86_64 build, GL compatibility renderer.
+Display tests on xvfb-run -a -s "-screen 0 1920x1080x24" (Mesa llvmpipe). One engine at a time.
+Source: tests/runner.gd change on top of 22c7a8d (v0.034 branch tip).
+
+CHANGE
+tests/runner.gd registers a Logger (OS.add_logger) that counts errors of type
+Logger.ERROR_TYPE_SCRIPT (the "SCRIPT ERROR" lines) and adds them to the failure
+total. Plain push_error / engine "ERROR:" lines are not counted. Default watchdog
+lowered from 280 s to 180 s (test time budget: under 1 minute, 3 minutes at most).
+
+DELIBERATELY BROKEN TEMPORARY TESTS (deleted afterwards), headless
+                                         old runner        new runner
+  1 passing check, await, missing key    PASS, exit 0      FAIL (1), exit 1
+  1 passing check, no await, missing key PASS, exit 0      FAIL (1), exit 1
+  1 failed check, await, missing key     -                 FAIL (1), exit 1  (the aborted run loses its own count)
+  clean test with a push_error           -                 PASS, exit 0
+  never finishes (--watchdog=5)          -                 exit 124
+  After the 180 s default change: missing-key test FAIL (1), exit 1, 15 s.
+
+MAIN CHECKS (new runner, --watchdog=700, serial)
+  claude_campaign.gd         PASS  exit 0  409 s  script errors 0
+  claude_rounds.gd           PASS  exit 0  322 s  script errors 0
+  claude_marriage.gd         PASS  exit 0  325 s  script errors 0
+  claude_diplomacy_v030.gd   PASS  exit 0   88 s  script errors 0
+  claude_markers_v031.gd     PASS  exit 0   87 s  script errors 0
+  claude_intrigue_v032.gd    PASS  exit 0   53 s  script errors 0
+  claude_prisoners_v033.gd   PASS  exit 0  148 s  script errors 0
+  NOT RUN (pass stopped on the user's direction, test time budget):
+  claude_prisoners_ui_v033.gd, claude_population_v034.gd, claude_population_ui_v034.gd,
+  claude_refit.gd, claude_dragonfear.gd.
+
+  An earlier pass in the same container timed out: claude_campaign (exit 124, 799 s; its
+  siege battle did not finish within the test's own 120 s) and claude_rounds (exit 124,
+  750 s; round 1 identical to v0.033). Neither log had a SCRIPT ERROR or any other error
+  line, so the new Logger was never called. Old/new A/B on claude_diplomacy_v030, same
+  tree: new 134 s, old 66 s, old 68 s, new 35 s, all PASS. Container speed varied about
+  4x, independent of the runner; both slow tests passed on the rerun above.
+
+  Six of the seven timed checks exceed the 1 minute aim and three exceed 3 minutes: they need
+  saved-game fixtures (HANDOFF_CLOUD.md, Next item 0).
