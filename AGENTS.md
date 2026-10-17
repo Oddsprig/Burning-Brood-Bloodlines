@@ -162,6 +162,10 @@ Read the original handoff or inherited specifications only as needed.
   Record actual results, duration and source in `test-results/*.txt`.
   Never mark skipped, failed, stopped or inherited tests as current passes.
 - No old-save compatibility work or long benchmarks unless requested.
+- User direction (2026-10-17): every test runs on the smallest world (Normal) with a
+  one-day world history; those are also the game's defaults (WorldGen.WORLD_SIZE,
+  CampaignWorld.PRESIM_DEFAULT_DAYS). Do not spend time on bigger worlds or longer
+  histories unless the user asks.
 - Never touch the mouse, keyboard or foreground. Copper Oath source/archives may
   be read to import the authorized models; never modify or launch Copper Oath.
 - Before replacing art, preserve its source/render/metadata in a unique entry

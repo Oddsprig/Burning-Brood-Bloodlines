@@ -1850,14 +1850,16 @@ static func _do_work(game, rng: RandomNumberGenerator, budgeted: bool = false) -
 ## then presim_finish. The company sits outside it: no wages, food, healing or travel, no contact (on_time with
 ## in_town = true). Deterministic per seed: each day is exactly one on_time(1 day). Old saves never run it.
 ## The length is the player's choice on the New Campaign screen (ui/newgame.gd), one day to 100 years;
-## PRESIM_YEARS is the default. The chosen length is stored in the world (presim.total, days) at the first step.
+## PRESIM_DEFAULT_DAYS is the default (2026-10-17: one day, the setting every test uses; PRESIM_YEARS stays the
+## integer-year callers' figure). The chosen length is stored in the world (presim.total, days) at the first step.
 const PRESIM_YEARS := 5
+const PRESIM_DEFAULT_DAYS := 1
 const PRESIM_YEARS_MIN := 1
 const PRESIM_YEARS_MAX := 100
 const PRESIM_YEAR_DAYS := 4 * Calendar.DAYS_PER_SEASON
 const PRESIM_DAYS_MIN := 1
 const PRESIM_DAYS_MAX := PRESIM_YEARS_MAX * PRESIM_YEAR_DAYS
-static var presim_span_days: int = PRESIM_YEARS * PRESIM_YEAR_DAYS:
+static var presim_span_days: int = PRESIM_DEFAULT_DAYS:
 	set(value):
 		presim_span_days = clampi(value, PRESIM_DAYS_MIN, PRESIM_DAYS_MAX)
 # Compatibility for existing integer-year callers and diagnostics. Short histories

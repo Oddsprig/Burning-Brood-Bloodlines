@@ -33,7 +33,7 @@ static var gen_stretch := STRETCH   # what the next new world uses (tests and di
 ## 12:55: "have both be toggleable for world size/simulation span"); tests and diagnostics set it too.
 ## ms_day: measured wall ms per simulated day of the years before (laptop, 120-day years; DEV_NOTES "World size"):
 ## the New Campaign screen's startup estimate. Normal and large over five years, huge over year 1 only.
-const WORLD_SIZE := "large"   # Douglas 2026-10-06: Large is the default (normal and huge still in SIZES)
+const WORLD_SIZE := "normal"   # 2026-10-17: the smallest world is the default (and every test's world); large and huge still in SIZES
 const SIZES := {
 	"normal": {"stretch": 1.5, "label": "Normal", "towns": "15 towns", "ms_day": 89.0},   # 150 x 96 cells, 3,600 x 2,304 px
 	"large": {"stretch": 2.6, "label": "Large", "towns": "about 45 towns", "ms_day": 249.0},   # 260 x 166 cells, 6,240 x 3,984 px (a large Battle Brothers map)

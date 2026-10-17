@@ -31,12 +31,15 @@ The full local history before v0.032 stays on the user's PC.
 2. v0.036 dragon portrait fangs.
 
 ## Running and testing
+- **Every test uses the smallest world (Normal) with a one-day world history** (user direction 2026-10-17). These are
+  also the game's defaults: `WorldGen.WORLD_SIZE = "normal"`, `CampaignWorld.PRESIM_DEFAULT_DAYS = 1`. Don't spend time
+  on bigger worlds or longer histories unless asked.
 - Godot **4.7.2** (stable), GL compatibility renderer. The Windows runtime is not in this repo; get Godot 4.7.2 for your platform.
 - Import once: `godot --headless --path game --import`
 - Run a test: `godot --path game --rendering-method gl_compatibility res://tests/runner.tscn -- --test=res://tests/<file>.gd --watchdog=700`
   (add `--headless` where no display is available; screenshot tests need a display).
 - Main checks: `claude_campaign.gd`, `claude_rounds.gd`, `claude_marriage.gd`, `claude_diplomacy_v030.gd`, `claude_markers_v031.gd`, `claude_intrigue_v032.gd`, `claude_prisoners_v033.gd`, `claude_prisoners_ui_v033.gd`, `claude_population_v034.gd`, `claude_population_ui_v034.gd`, `claude_refit.gd`, `claude_dragonfear.gd`.
-- Population balance: `tests/diag_population_v034.gd --days=180` prints people, sickness cases/deaths, moves and job timings (a diagnostic, not a pass/fail check).
+- Population balance: `tests/diag_population_v034.gd --days=N` prints people, sickness cases/deaths, moves and job timings (a diagnostic, not a pass/fail check; run it only when needed).
 - In a Linux cloud container: download the Godot 4.7.2 Linux build and run display tests with `xvfb-run -a -s "-screen 0 1920x1080x24"`
   (main.tscn tests wait for drawn frames and hang under `--headless`). `claude_intrigue_v032.gd`, `claude_prisoners_v033.gd`, `claude_population_v034.gd` run headless.
 - `tests/runner.gd` prints PASS when a test dies on a script error, so also check each log for `SCRIPT ERROR`.

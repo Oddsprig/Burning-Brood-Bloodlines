@@ -9,7 +9,7 @@ const PRESETS := [[1, "1 day"], [7, "1 week"], [30, "1 month"],
 	[120, "1 year"], [600, "5 years"], [2400, "20 years"], [12000, "100 years"]]
 
 var size_key := WorldGen.WORLD_SIZE
-var history_days := CampaignWorld.PRESIM_YEARS * CampaignWorld.PRESIM_YEAR_DAYS
+var history_days := CampaignWorld.PRESIM_DEFAULT_DAYS
 var size_row: HFlowContainer
 var size_info: Label
 var slider: HSlider
