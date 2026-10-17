@@ -132,6 +132,12 @@ HOW TO TEST (tests are scenes: game/tests/runner.tscn)
                       --battle-only)
   claude_tour.gd      screenshot tour of every main screen and a battle
 Run --headless --import once after changing class_name scripts.
+Exit code = failed checks + runtime script errors (capped at 125). A Logger in
+  runner.gd counts the "SCRIPT ERROR" lines: such an error aborts the test
+  function and its awaited run() returns 0, so before this the runner printed
+  PASS. Checks failed before the error are lost with that return value. Plain
+  push_error / engine "ERROR:" lines are not counted. 124 = watchdog; 2 or 3 =
+  no --test, or a test that cannot load, has no run() or returns no count.
 
 KNOWN LIMITS (honest)
 - Dense battles (400 people + 2 dragons, 2560x1440) average about 55 FPS:
@@ -225,9 +231,11 @@ V0.033 PRISONER RANSOM AND EXCHANGE (2026-10-17, cloud session)
 - Tests: tests/claude_prisoners_v033.gd (headless, 64 checks) and
   tests/claude_prisoners_ui_v033.gd (display, 17 checks: Court buttons and a
   real one-clash battle). claude_rounds.gd checks records keep their Unit.
-- Cloud testing: Godot 4.7.2 Linux build with xvfb-run; tests/runner.gd prints
-  PASS when a test dies on a script error (the aborted run returns 0), so
-  read the log for "SCRIPT ERROR" as well as the PASS line.
+- Cloud testing: Godot 4.7.2 Linux build with xvfb-run. tests/runner.gd now
+  counts each runtime script error as a failure (FAIL, non-zero exit; see HOW
+  TO TEST). At v0.033 it still printed PASS when a test died on a script error
+  (the aborted run returns 0), so those logs were also searched for
+  "SCRIPT ERROR".
 
 V0.034 POPULATION MIGRATION, HOUSING AND ILLNESS (2026-10-17, cloud session)
 Scope: the common folk (cohort rows, about 93% of the people) get what the

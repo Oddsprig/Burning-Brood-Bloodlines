@@ -39,7 +39,8 @@ The full local history before v0.032 stays on the user's PC.
 - Population balance: `tests/diag_population_v034.gd --days=180` prints people, sickness cases/deaths, moves and job timings (a diagnostic, not a pass/fail check).
 - In a Linux cloud container: download the Godot 4.7.2 Linux build and run display tests with `xvfb-run -a -s "-screen 0 1920x1080x24"`
   (main.tscn tests wait for drawn frames and hang under `--headless`). `claude_intrigue_v032.gd`, `claude_prisoners_v033.gd`, `claude_population_v034.gd` run headless.
-- `tests/runner.gd` prints PASS when a test dies on a script error, so also check each log for `SCRIPT ERROR`.
+- `tests/runner.gd` counts every runtime script error (a `SCRIPT ERROR` line in the log) as a failure, so a test that dies on one prints `FAIL (n)` and exits non-zero.
+  The aborted `run()` loses its own failure count, so read the log for the cause. (Up to v0.034 the runner printed PASS on script errors and logs were searched by hand.)
 - Results for each version go in `test-results/` (v0.033 and v0.034: `test-results/v0.03N_2026-10-17_results.txt`).
 - Known older failures that predate this work: `test_econ_army.gd` draft-pool checks, phone-size layout checks in `test_dynasty_ui.gd`.
 
