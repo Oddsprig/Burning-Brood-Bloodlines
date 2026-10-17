@@ -5,6 +5,10 @@ This repository started as a single snapshot of v0.032; v0.033 and v0.034 were b
 each on its own branch (`claude/v0.033-prisoner-ransom`, `claude/v0.034-migration-housing-illness`, stacked).
 The full local history before v0.032 stays on the user's PC.
 
+## Branches
+- `main` holds the latest verified version (user rule: fast-forward and push `main` when a version's checks pass).
+  Work happens on a branch per version, stacked, then `main` moves up to it.
+
 ## Version numbering (follow exactly)
 - The roadmap is `docs/ROADMAP.txt`. One feature per version, steps of 0.001 (v0.033, v0.034, ...).
 - No 1.x or other labels. Never change a version number or the in-game label unless the user says so.

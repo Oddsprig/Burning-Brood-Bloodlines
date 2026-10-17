@@ -63,7 +63,9 @@ Prices: soldier 6, officer 20, noble 60, ruler 150 coins. Freed people of
 yours come home as reserves with their own wounds and kit.
 
 SICKNESS, HOMES AND MOVING
-Everyone can fall sick, the common folk as well as the named families:
+Everyone can fall sick, the common folk as well as the named families
+(how deadly sickness is: the Sickness slider on the New Bloodline screen,
+0% - never kills - to 200%, 100% as designed):
 crowded, hungry and cold homes, the season and the town's own sick spread
 disease, and herbalists' remedies help those who can pay. Common households
 leave a town that was sacked, raided or taken (or lives in dragon fear), one

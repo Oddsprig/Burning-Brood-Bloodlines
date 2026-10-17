@@ -17,6 +17,8 @@ var span_lbl: Label
 var est: Label
 var steppe_check: CheckButton
 var house_cap_spin: SpinBox
+var sick_slider: HSlider
+var sick_lbl: Label
 
 func _ready() -> void:
 	theme = UiTheme.get_theme()
@@ -103,6 +105,24 @@ func _ready() -> void:
 	house_cap_spin = SpinBox.new(); house_cap_spin.min_value = 0; house_cap_spin.max_value = 5000; house_cap_spin.step = 10
 	house_cap_spin.value = int(Game.settings.get("house_cap", 0)); house_cap_spin.custom_minimum_size = Vector2(140, UiKit.TAP)
 	cap_row.add_child(house_cap_spin)
+	# ------------------------------------------------------------------ sickness (v0.034)
+	v.add_child(UiKit.label("Sickness", "H2"))
+	var sick_row := UiKit.hbox(10); v.add_child(sick_row)
+	sick_lbl = UiKit.label("", "", false)
+	sick_lbl.custom_minimum_size.x = 300
+	sick_row.add_child(sick_lbl)
+	sick_slider = HSlider.new()
+	sick_slider.name = "SicknessDeadliness"
+	sick_slider.min_value = 0; sick_slider.max_value = Sickness.DEADLINESS_STEPS.size() - 1; sick_slider.step = 1
+	var chosen := Sickness.DEADLINESS_STEPS.find(float(Game.settings.get("sickness_deadliness", 1.0)))
+	sick_slider.value = chosen if chosen >= 0 else Sickness.DEADLINESS_STEPS.find(1.0)
+	sick_slider.tooltip_text = "How deadly sickness is: each sick person's daily risk of dying x this. How often people fall sick does not change."
+	sick_slider.custom_minimum_size = Vector2(80, UiKit.TAP)
+	sick_slider.focus_mode = Control.FOCUS_NONE
+	UiKit.expand(sick_slider)
+	sick_slider.value_changed.connect(func(_x: float): _sick_text())
+	sick_row.add_child(sick_slider)
+	_sick_text()
 	# ------------------------------------------------------------------ the estimate and Begin
 	v.add_child(HSeparator.new())
 	est = UiKit.label("", "", true)
@@ -156,12 +176,25 @@ func _refresh() -> void:
 	est.text = "Startup will build a %s world and simulate %s. Larger worlds and longer histories take longer." % [
 		String(WorldGen.SIZES[size_key]["label"]).to_lower(), CampaignWorld.presim_span_text(history_days)]
 
-func _begin() -> void:
+func deadliness() -> float:
+	return float(Sickness.DEADLINESS_STEPS[clampi(int(sick_slider.value), 0, Sickness.DEADLINESS_STEPS.size() - 1)])
+
+func _sick_text() -> void:
+	var x := deadliness()
+	sick_lbl.text = "Deadliness: %d%%%s" % [int(round(x * 100.0)), "  (as designed)" if x == 1.0 else ("  (sickness never kills)" if x == 0.0 else "")]
+
+## The chosen options for the next new world (Create world applies them, then builds it).
+func _apply() -> void:
 	WorldGen.gen_size = size_key
 	WorldGen.steppe_enabled = steppe_check.button_pressed
 	Game.settings["steppe_enabled"] = steppe_check.button_pressed
 	Game.settings["house_cap"] = int(house_cap_spin.value)
+	Game.settings["sickness_deadliness"] = deadliness()
+	Sickness.new_world_deadliness = deadliness()
 	CampaignWorld.presim_span_days = history_days
+
+func _begin() -> void:
+	_apply()
 	Game.goto("presim", {"new_world": true})   # visible generation, the years before, then the map
 
 func _back() -> void:

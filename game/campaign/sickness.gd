@@ -73,6 +73,14 @@ static var U_FOC := -0.10
 static var CATCH: Dictionary = {}   # disease -> catch by person kind [adult, elder, child]
 static var BODY_CATCH := 2.0
 static var BODY_DEATH := 2.0
+## The world's sickness deadliness (New Campaign slider, kept in the world as "sickness_deadliness"): every case's
+## daily death risk x this. 1 = the rates as designed; 0 = sickness never kills. Set at world creation and load.
+const DEADLINESS_STEPS := [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
+static var new_world_deadliness := 1.0   # what the next new world uses (the New Campaign screen sets it)
+static var deadliness := 1.0
+
+static func use_world_deadliness(w: Dictionary) -> void:
+	deadliness = clampf(float(w.get("sickness_deadliness", 1.0)), 0.0, 2.0)
 
 ## Perf gate and tests: time spent in sickness (us) since the last reset when prof_on; every new case logged.
 static var prof_on := false
@@ -451,7 +459,7 @@ static func _infect(game, t: Dictionary, f: Dictionary, p: Array, dis: String, d
 	var sd := float(rng.randi_range(int(r["sick"][0]), int(r["sick"][1])))
 	var on := day + inc
 	var end := on + sd
-	var q := minf(0.9, float(r["death"][band(p)]) * _bc_death(f, key))
+	var q := minf(0.9, float(r["death"][band(p)]) * _bc_death(f, key) * deadliness)
 	var uu := rng.randf()
 	var die := _death_day(on, end, q, uu)
 	var bed := 1 if rng.randf() < float(r["bed"]) else 0
@@ -1029,7 +1037,7 @@ static func _pool_infect(e: Dictionary, b: Dictionary, f: Dictionary, dis: Strin
 	var on := d + delay + rng.randi_range(int(r["inc"][0]), int(r["inc"][1]))
 	var sd := rng.randi_range(int(r["sick"][0]), int(r["sick"][1]))
 	var bc := float(f.get("pool_condition", {}).get(group, 1.0))
-	var q := minf(0.9, float(r["death"][bnd]) * (1.0 + BODY_DEATH * (1.0 - bc)))
+	var q := minf(0.9, float(r["death"][bnd]) * (1.0 + BODY_DEATH * (1.0 - bc)) * deadliness)
 	# Remedies as the register buys them (_buy_remedy): the herbalist's real stock, the row's coin, two weeks of
 	# grain kept back; a remedied case is sick remedy.days as long at remedy.death the daily risk.
 	var R: Dictionary = data()["remedy"]

@@ -146,6 +146,8 @@ Read the original handoff or inherited specifications only as needed.
   Coordinate one engine run at a time; root integrates fixes and owns delivery.
   See `docs/specialists/bounded-qa.txt`.
 - Primary agent integrates changes and owns the current roadmap/dev notes.
+- Keep `main` up to date (user, 2026-10-17): when a version's checks pass, fast-forward
+  `main` to it and push, so the next session starts from the latest game.
 - Every delivered version must be installed in its own folder on the user's
   actual Desktop, with a versioned Desktop shortcut using Bloodlines.ico,0.
   Resolve Windows Desktop; verify installed hashes, shortcut target and shell icon.

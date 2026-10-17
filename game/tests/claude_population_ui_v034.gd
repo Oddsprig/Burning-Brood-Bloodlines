@@ -68,6 +68,21 @@ func run(tree: SceneTree) -> int:
 	if out != "":
 		await frames(tree, 4)
 		tree.root.get_texture().get_image().save_png(out.path_join("population_health.png"))
+	# The New Campaign screen's sickness deadliness slider (100% by default, applied to the next world).
+	Game.settings.erase("sickness_deadliness")
+	Game.goto("newgame", {"back": "map"})
+	await frames(tree, 6)
+	var ng: Node = main.current
+	var sl: HSlider = ng.find_child("SicknessDeadliness", true, false)
+	check(sl != null and text_of(ng).contains("Deadliness: 100%"), "New Campaign shows a sickness deadliness slider at 100%")
+	if sl != null:
+		sl.value = Sickness.DEADLINESS_STEPS.find(0.5)
+		await frames(tree, 2)
+		check(text_of(ng).contains("Deadliness: 50%"), "moving the slider updates its label")
+		ng._apply()
+		check(is_equal_approx(Sickness.new_world_deadliness, 0.5) and is_equal_approx(float(Game.settings["sickness_deadliness"]), 0.5), "Create world takes the chosen deadliness")
+		if out != "": tree.root.get_texture().get_image().save_png(out.path_join("newgame_sickness.png"))
+	Sickness.new_world_deadliness = 1.0; Game.settings.erase("sickness_deadliness")
 	Game.wait_save()
 	print("population_ui034: %d checks, %d failures" % [checks, fails])
 	return fails

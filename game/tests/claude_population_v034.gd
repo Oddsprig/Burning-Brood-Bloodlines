@@ -42,6 +42,12 @@ func _census_sick(e: Dictionary, detail: String) -> int:
 		if String(row[5]) == "sickness" and String(row[6]) == detail and int(row[1]) == -1: n += int(row[10])
 	return n
 
+## Drops the test batch again (its cases leave the town's count).
+func _act0_fix(e: Dictionary, row: Dictionary) -> void:
+	var c: Array = row["psk"].pop_back()
+	Sickness._act_less(e["sk"], String(c[0]), int(c[2]))
+	if (row["psk"] as Array).is_empty(): row.erase("psk")
+
 func _goods(e: Dictionary) -> int:
 	var n := 0
 	for g in Families.HOUSEHOLD_FOOD + ["beer", "wine", "wood"]: n += int(e["hh"].get(g, 0))
@@ -115,6 +121,13 @@ func run(tree: SceneTree) -> int:
 	for f in e["fams"]:
 		if Population.is_cohort(f): flux_left += Sickness.pool_sick(f, "flux")
 	check(flux_left == 0, "no common case of the flux stays open")
+	# The New Campaign deadliness slider: 0% means sickness never kills (the same deadly flux, a fresh batch).
+	Sickness.deadliness = 0.0
+	var zero_rng := RandomNumberGenerator.new(); zero_rng.seed = 7
+	Sickness._pool_infect(e, b, row, "flux", "adult", "workers", 30, d, zero_rng, "cond:test")
+	check(int(row["psk"][-1][3]) == 0, "at 0% deadliness no case dies (%d of 30)" % int(row["psk"][-1][3]))
+	_act0_fix(e, row)
+	Sickness.deadliness = 1.0
 	for k in saved: flux[k] = saved[k]
 	b.erase("tf")
 	# Immunity as counts: a disease that leaves the recovered immune.
@@ -227,11 +240,14 @@ func run(tree: SceneTree) -> int:
 	# --- Save and load keep the war memory and the open common cases.
 	Migration.note_attack(w, String(src["id"]), Game.day)
 	row["psk"] = [["flux", "adult", 3, 1, d + 100, d + 110, false]]
+	w["sickness_deadliness"] = 0.5
 	Game.save_game(); Game.wait_save()
 	Game.world = {}; Game.rep = {}
 	check(Game.load_game(), "real save reloads")
 	w = Game.world
 	check(Migration.push(Game, w["towns"][String(src["id"])], Game.day) == "war", "the memory of war survives a reload")
+	check(is_equal_approx(Sickness.deadliness, 0.5), "the world's sickness deadliness survives a reload (%.2f)" % Sickness.deadliness)
+	Sickness.deadliness = 1.0
 	var row2 := {}
 	for f in w["towns"][seat]["econ"]["fams"]:
 		if f.has("psk"): row2 = f

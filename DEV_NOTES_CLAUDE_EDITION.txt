@@ -296,6 +296,12 @@ Barge.maybe_flee hunger flight, Barge.move_in wage pull) unchanged.
   remedies). Pox (lifelong immunity, the deadliest per case) can sweep a town.
   Speed: the common-folk pass is most of sickness time but about 1-2 ms per town
   job; total sickness about the v0.033 cost in a normal world.
+- Sickness deadliness (user request): New Bloodline screen slider 0-200% in 25%
+  steps (Sickness.DEADLINESS_STEPS), default 100%, remembered in
+  Game.settings.sickness_deadliness. Each new world stores its value
+  (world.sickness_deadliness; older saves read 100%); Sickness.deadliness
+  multiplies every case's daily death risk (register and common folk). How often
+  people fall sick does not change.
 - Known limits: cohort sickness does not leave workers bed-ridden (their work
   is aggregate) and prisoners do not fall sick; migration pulls only by push
   (no wage pull for cohorts; tracked families keep Barge.move_in); refugees
