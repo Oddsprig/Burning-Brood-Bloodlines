@@ -141,18 +141,20 @@ func run(tree: SceneTree) -> int:
 	Game.goto("map"); await frames(tree, 2)
 	Game.location = tid; Game.world["party"]["pos"] = Game.world["towns"][tid]["pos"]
 	var worst := 0.0
-	for d in 3:
+	var hatched := 0
+	for d in 5:   # until the next day DragonCare settles
 		var s := Time.get_ticks_usec()
 		Game.advance_time(1.0, false, 0, 0)
 		while not Game.world.get("work", []).is_empty():
 			CampaignWorld.work_slice(Game, 20000); await tree.process_frame
 		worst = maxf(worst, float(Time.get_ticks_usec() - s) / 1000.0)
 		await tree.process_frame
-	var hatched := 0
-	for row: Dictionary in Dragons.records(Game):
-		for e in row.get("history", []):
-			if e is Dictionary and str(e.get("kind", "")) == "hatched": hatched += 1
-	check(Game.day >= day0 + 2.0, "3 campaign days advanced (%.1f -> %.1f)" % [day0, Game.day])
+		hatched = 0
+		for row: Dictionary in Dragons.records(Game):
+			for e in row.get("history", []):
+				if e is Dictionary and str(e.get("kind", "")) == "hatched": hatched += 1
+		if hatched > 0: break
+	check(Game.day >= day0 + 1.0, "campaign days advanced (%.1f -> %.1f)" % [day0, Game.day])
 	check(hatched >= 1, "%d egg(s) hatched after incubation (%d eggs before)" % [hatched, eggs_before])
 	report["days"] = {"ms_total": float(Time.get_ticks_usec() - t1) / 1000.0, "worst_day_ms": worst}
 	# Save and reload.

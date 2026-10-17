@@ -27,10 +27,8 @@ The full local history before v0.032 stays on the user's PC.
 - Also built outside the numbered list: court and marriage, interface pass, 100 v 100 battle rounds, armies to 1000, house-only officers and noble call-up, house arms pool, ennoblement, medics and battle aftermath.
 
 ## Next, in order (not started)
-0. **Before v0.035: bring the main checks inside the test time budget** (see Running and testing). Give later-game tests
-   saved-game fixtures to load instead of generating and simulating a Normal world each run. Cloud times on 2026-10-17
-   (slow container): `claude_campaign` 409 s, `claude_marriage` 325 s, `claude_rounds` 322 s, `claude_prisoners_v033` 148 s,
-   `claude_diplomacy_v030` 88 s, `claude_markers_v031` 87 s, `claude_intrigue_v032` 53 s; the other five were not timed.
+0. Main checks are inside the test time budget (done 2026-10-17 with DevTools): eleven under a minute, `claude_rounds` 97 s
+   (one real 100 v 100 round). New checks start from `DevTools.start_world` and set states up with DevTools.
 1. **v0.035 creature review** - next job (creatures are switched off by `Monsters.CAMPAIGN_CREATURES_ENABLED`).
 2. v0.036 dragon portrait fangs.
 

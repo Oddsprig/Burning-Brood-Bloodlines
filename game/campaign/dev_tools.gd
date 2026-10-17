@@ -86,11 +86,12 @@ static func due_birth(game, mother_uid: String, father_uid: String, days: float 
 	f["preg"].append([int(mo["person"][0]), float(game.day) + days, father_pid])
 	return true
 
-## An egg one day of good care from hatching (DragonLife's incubation count).
+## An egg a hair short of hatching (DragonLife's incubation count): it hatches on the next day DragonCare settles,
+## whatever its care (each settled day adds at least 0.25), unless its health is below DragonLife's floor.
 static func egg_almost_hatched(game, egg_id: String) -> bool:
-	var row: Dictionary = Dragons.get_record(game, egg_id)
+	var row: Dictionary = game.world.get("dragons", {}).get("records", {}).get(egg_id, {})   # the live record (Dragons.get_record copies)
 	if row.is_empty() or str(row.get("stage", "")) != "egg": return false
-	row["incubation"] = float(DragonLife.HATCH_DAYS) - 0.5
+	row["incubation"] = float(DragonLife.HATCH_DAYS) - 0.01
 	return true
 
 ## Runs n whole campaign days with every queued job finished (keep n small: a day is a full world update).

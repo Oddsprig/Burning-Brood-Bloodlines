@@ -1,0 +1,83 @@
+BURNING BROOD: BLOODLINES - CLAUDE EDITION v0.034 (population migration, housing and illness)
+Test results, 2026-10-17. Built and tested in a Claude Code cloud session (Linux container).
+
+ENVIRONMENT
+Godot 4.7.2.stable.official.ed1daf0bf, Linux x86_64 build, GL compatibility renderer.
+Display tests on a virtual display: xvfb-run -a -s "-screen 0 1920x1080x24" (Mesa software GL).
+Every test and diagnostic: the smallest world (Normal, seed 4242) with a one-day history (user direction;
+now also the game's default). One engine at a time.
+Source: branch claude/v0.034-migration-housing-illness, on top of v0.033 (c4c7f59).
+Not tested here: the Windows build, a Desktop install, phone sizes, old-save compatibility.
+
+V0.034 - FINAL TREE (main checks, one serial pass)
+  All twelve, one serial pass on the final tree, each started from the saved small world (DevTools.start_world)
+  and set up with developer tools (TEST TIME RULE). Times on this cloud container; previous times in brackets
+  (generating a world per test and simulating long stretches):
+  claude_population_v034.gd     46 checks, 0 failures   18 s  headless  (31 s)
+  claude_population_ui_v034.gd   7 checks, 0 failures   13 s  display   (37 s)
+  claude_prisoners_v033.gd      67 checks, 0 failures   18 s  headless  (31 s)
+  claude_prisoners_ui_v033.gd   17 checks, 0 failures   39 s  display   (59 s)
+  claude_intrigue_v032.gd       64 checks, 0 failures   18 s  headless  (30 s)
+  claude_diplomacy_v030.gd      50 checks, 0 failures   18 s  display   (29 s)
+  claude_markers_v031.gd        54 checks, 0 failures   15 s  display   (32 s)
+  claude_refit.gd                9 checks, 0 failures   16 s  display   (31 s)
+  claude_dragonfear.gd          14 checks, 0 failures   27 s  display   (90 s; army 40, was 200)
+  claude_marriage.gd            15 checks, 0 failures   19 s  display   (214 s; a birth set due, was up to 400 days)
+  claude_campaign.gd            21 checks, 0 failures   42 s  display   (198 s; army 40 and an egg set to hatch, was 200
+                                                                         and 50 days; rerun after fixing the egg tool)
+  claude_rounds.gd              14 checks, 0 failures   97 s  display   (205 s; one round of just over 100 a side, was
+                                                                         300 v 250 over two rounds; one real 100 v 100
+                                                                         round is the floor of this check)
+  No SCRIPT ERROR lines. Exit codes 0. The runner now fails on script errors and stops a test at 180 s.
+
+OLDER TESTS TOUCHING THESE SYSTEMS (not main checks), v0.034 against v0.033 in the same container,
+both trees on the new small default world
+  test_barge.gd      v0.033: FAIL (23)   v0.034: FAIL (23)   identical failure lines: older failures
+  test_sickness.gd   v0.033: FAIL (4)    v0.034 final: FAIL (4), the same four:
+                     "hunger killed more in the richer half", "no company man with a register record",
+                     and the two speed gates (mean day, worst single job). Speed in this stress world
+                     (20 towns x 150 families, 120 days): v0.033 mean 13.0 ms / worst job 12.2 ms;
+                     v0.034 mean 143.8 ms / worst job 92.1 ms (131,461 cases against 3,669: the
+                     common folk now fall sick). Its gate was already failing on v0.033.
+  On the way, v0.034 first failed two more test_sickness checks; both were fixed:
+    - "crowded, hungry, cold vs comfortable" A/B (wanted 1.5x): household spread of the common folk seeded
+      fresh households endlessly. Fixed to end inside the household, as the register's _household does;
+      the A/B is now 5,547 against 2,424 cases (2.3x).
+    - "population after N deaths": the test assumed only its own six deaths in a 19-day window; it now
+      also counts the common folk's sickness deaths from the census in that window.
+
+POPULATION BALANCE - tests/diag_population_v034.gd (a diagnostic, not a pass/fail check)
+  60 days, final build:   people 61,990 (v0.033: 62,758), sickness cases 24,238 (2,085), sickness deaths 841 (28),
+                          sickness time 3.8 s (about 63 ms a day), worst sickness job 49.6 ms, worst migration
+                          week 0.9 ms.
+  30 days, final build, by part: the common-folk pass 615 ms (rolling 331, resolving 222, of which
+                          reassigning after deaths 158); the rest of sickness about 200 ms.
+  180 days, measured on an earlier v0.034 build (with remedies; before the household fix, which barely
+  changed the normal world: 60-day deaths 865 -> 841):
+                          people 56,392 (v0.033: 59,411), sickness deaths 5,221 (247),
+                          left for hunger 10,451 (v0.033: 3,828 - whole cohort rows), for crowding 1,788.
+  Reading: the disease rates are the native ones (data/sickness.json), already harsh for named people;
+  applied to the common folk (about 93% of people) sickness becomes the main cause of death. Common folk
+  catch less often per person than named people and die more often per case (fewer remedies).
+  Pox (lifelong immunity, deadliest per case) can now sweep a town.
+
+NEW TESTS
+tests/claude_population_v034.gd (headless) - real world, the most populous seat:
+  the flux made common and deadly through the real town run: common cases open, count in the town book,
+  kill nobody that day; the population report counts every open case; every common case ends; deaths reach
+  the census with the disease named; age bins match residents; the town's open count never goes negative;
+  pox survivors are immune as counts; a gone row's cases leave the count.
+  Migration: refugees go to a town of their own race; a sacked town is under the push of war; nobody flees
+  into a town at war; ten households move with their people, coin and stores conserved (goods between town
+  pools); age bins match; left_war and both census moves recorded; one household always stays; four weeks of
+  war empty the rows by degrees and big weeks are logged; famine pushes; a whole cohort never flees through
+  the tracked rule; a crowded town with no house pushes people to towns with empty houses, which they buy at
+  the estate price into the treasury, coin conserved; save/load keeps the war memory and open common cases;
+  the homeless line says why.
+tests/claude_population_ui_v034.gd (display) - through main.tscn: the Population screen's "Health, homes and
+  movement" card says people are leaving and why, lists the sick by disease, homes and households, and who
+  came and went (screenshot in test-results/v0.034_logs/).
+
+NOTE ON THE RUNNER
+tests/runner.gd prints "PASS" when a test stops on a runtime script error. Every log above was also searched
+for "SCRIPT ERROR"; counts listed. A suggested task to fix the runner was queued for the user.
