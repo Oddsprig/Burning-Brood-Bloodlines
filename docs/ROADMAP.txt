@@ -262,7 +262,7 @@ v0.032 intrigue: plots, schemes and assassinations - DELIVERED (Claude Edition).
 v0.033 prisoner ransom and exchange - DELIVERED (Claude Edition).
 v0.034 population migration, housing and illness - DELIVERED (Claude Edition).
 v0.035 creature review - DELIVERED (Claude Edition): creatures back on the map, a New Bloodline choice.
-v0.036 dragon portrait fangs - NEXT.
+v0.036 dragon portrait fangs - DELIVERED (Claude Edition): fangs sit in the jaw, gem-coloured with a dark outline.
 Also delivered outside the numbered list (Claude Edition): court and marriage, interface pass, 100 v 100 battle rounds, armies to 1000, house officers and noble call-up, house arms pool, ennoblement, medics and aftermath.
 
 LOCKED FOUNDATIONS / LATER SMALL PASSES

@@ -8,6 +8,8 @@ static var _assets: Dictionary = {}
 static var _tints: Dictionary = {}
 static var _tint_order: Array[String] = []
 const TINT_CACHE_LIMIT := 18
+## Pixels painted by the last jaw-fang pass. portrait_for copies this onto image meta "fang_pixels".
+static var fang_pixels_drawn: int = 0
 
 static func _entry(group: String, id: String) -> Dictionary:
 	for row: Dictionary in Dragons.catalogs().get(group, []):
@@ -47,7 +49,9 @@ static func draw(cv: PixelCanvas, row: Dictionary, pose: String = "idle", origin
 	var result: Dictionary = model(row, pose, progress, state)
 	if not bool(result["valid"]) or pixels_per_unit <= 0: return result
 	DragonRigArt.draw_model(cv, result, origin, pixels_per_unit, int(row.get("appearance_seed", 0)))
-	return _canvas_model(result, origin, pixels_per_unit)
+	var out: Dictionary = _canvas_model(result, origin, pixels_per_unit)
+	_draw_canvas_fangs(cv, out, row)
+	return out
 
 ## Live CanvasItem rendering: cached part textures, no per-frame software image.
 ## Returned sockets match draw(), in this item's canvas pixel coordinates.
@@ -220,7 +224,9 @@ static func _tint(source: Color, at: Vector2, asset: Dictionary, base: Color, ac
 		horn.a = source.a
 		return horn
 	for area: Rect2 in asset["gems"]:
-		if area.has_point(at) and luminance > 0.63 and source.s < 0.24:
+		if not area.has_point(at): continue
+		if area.position.y < 360.0 and at.y > area.position.y + 18.0: continue
+		if luminance > 0.63 and source.s < 0.24:
 			var weapon: Color = base.lerp(accent, clampf(luminance * luminance, 0, 1))
 			weapon = weapon.lightened(maxf(0, luminance - 0.72) * 0.55)
 			weapon.a = source.a
@@ -235,6 +241,168 @@ static func _tint(source: Color, at: Vector2, asset: Dictionary, base: Color, ac
 	elif gem_id in ["opal", "pearl", "diamond", "moonstone"]: brightness = luminance * 0.96; saturation = clampf(base.s * 0.55, 0.05, 0.23)
 	var color: Color = Color.from_hsv(base.h, saturation, clampf(brightness, 0, 1), source.a)
 	return color
+
+static func fang_palette(gem_id: String) -> Dictionary:
+	var gem: Dictionary = _entry("gems", gem_id)
+	if gem.is_empty(): return {}
+	var base: Color = Color(String(gem["base"]))
+	var accent: Color = Color(String(gem["accent"]))
+	var shade := base.lerp(accent, 0.16)
+	var fill := base.lerp(accent, 0.34)
+	var glint := base.lerp(accent, 0.52)
+	var outline := Color(clampf(base.r * 0.18, 0.02, 0.18), clampf(base.g * 0.18, 0.02, 0.18), clampf(base.b * 0.20, 0.03, 0.20), 1.0)
+	return {"base": base, "accent": accent, "shade": shade, "fill": fill, "glint": glint, "outline": outline}
+
+static func paint_fang_row_image(img: Image, start: Vector2, end: Vector2, pal: Dictionary) -> Rect2i:
+	fang_pixels_drawn = 0
+	if img == null or pal.is_empty(): return Rect2i()
+	var w: int = img.get_width(); var h: int = img.get_height()
+	if w < 1 or h < 1: return Rect2i()
+	var x0 := start.x; var y0 := start.y; var x1 := end.x; var y1 := end.y
+	var span := maxf(1.0, x1 - x0)
+	var outline: Color = pal["outline"]
+	var shade: Color = pal["shade"]
+	var glint: Color = pal["glint"]
+	var slots: Array = [[0.22, -3.2, 3.2, 2.9], [0.44, -3.4, 3.4, 3.1], [0.66, -3.6, 3.8, 3.4], [0.86, -3.6, 3.8, 3.3]]
+	for slot: Array in slots:
+		if slot.size() < 4: continue
+		var u: float = float(slot[0]); var dy_top: float = float(slot[1]); var dy_tip: float = float(slot[2]); var root_hw: float = float(slot[3])
+		var cx := lerpf(x0, x1, u)
+		var px_min := clampi(floori(cx - root_hw - 2.0), 0, w - 1)
+		var px_max := clampi(ceili(cx + root_hw + 3.0), 0, w - 1)
+		for px in range(px_min, px_max + 1):
+			var jy := y0 + (y1 - y0) * ((float(px) - x0) / span)
+			var py_min := clampi(floori(jy + dy_top - 1.0), 0, h - 1)
+			var py_max := clampi(ceili(jy + dy_tip + 1.0), 0, h - 1)
+			for py in range(py_min, py_max + 1):
+				var dy := float(py) - jy
+				if dy < dy_top or dy > dy_tip: continue
+				var v := (dy - dy_top) / maxf(0.5, dy_tip - dy_top)
+				var dx := float(px) - (cx + (dy - dy_top) * 0.14)
+				var hw := root_hw * (1.0 - 0.66 * v)
+				if absf(dx) > hw: continue
+				if v < 0.16 or v > 0.84 or absf(dx) > hw - 1.15:
+					img.set_pixel(px, py, outline)
+				else:
+					var ridge := 1.0 - absf(dx) / maxf(0.8, hw - 1.15)
+					var t := clampf(0.22 + 0.56 * ridge + 0.14 * (1.0 - v), 0.0, 1.0)
+					img.set_pixel(px, py, shade.lerp(glint, t))
+				fang_pixels_drawn += 1
+	var xa := clampi(floori(lerpf(x0, x1, 0.15)), 0, w - 1)
+	var xb := clampi(ceili(lerpf(x0, x1, 0.92)), 0, w)
+	var ya := clampi(floori(minf(lerpf(y0, y1, 0.15), lerpf(y0, y1, 0.92)) - 4.0), 0, h - 1)
+	var yb := clampi(ceili(maxf(lerpf(y0, y1, 0.15), lerpf(y0, y1, 0.92)) + 4.0), 0, h)
+	return Rect2i(xa, ya, maxi(1, xb - xa), maxi(1, yb - ya))
+
+static func _draw_canvas_fangs(cv: PixelCanvas, model_data: Dictionary, row: Dictionary) -> void:
+	fang_pixels_drawn = 0
+	if cv == null or cv.w < 1 or cv.h < 1: return
+	var state: Dictionary = model_data.get("state", {})
+	var lost: Array = state.get("lost", [])
+	if "head" in lost or "neck" in lost: return
+	var pal: Dictionary = fang_palette(String(row.get("gem_id", "")))
+	if pal.is_empty(): return
+	var source: Dictionary = DragonRigArt._source(row)
+	if source.is_empty(): return
+	var entry: Dictionary = source.get("entry", {})
+	var anatomy: Dictionary = entry.get("anatomical_regions", {})
+	var jaw_def: Dictionary = anatomy.get("jaw", {})
+	var polys: Array = jaw_def.get("polygons", [])
+	if polys.is_empty() or not polys[0] is Array: return
+	var poly: Array = polys[0]
+	if poly.size() < 3 or not poly[1] is Array or not poly[2] is Array: return
+	var edge_a: Array = poly[1]
+	var edge_b: Array = poly[2]
+	if edge_a.size() < 2 or edge_b.size() < 2: return
+	var jaw_reg: Dictionary = {}
+	for reg: Dictionary in model_data.get("regions", []):
+		if String(reg.get("id", "")) == "jaw": jaw_reg = reg; break
+	if jaw_reg.is_empty() or not jaw_reg.get("source_rect") is Rect2i: return
+	var p1 := Vector2(float(edge_a[0]), float(edge_a[1]))
+	var p2 := Vector2(float(edge_b[0]), float(edge_b[1]))
+	var source_rect: Rect2i = jaw_reg["source_rect"]
+	var offset := Vector2(source_rect.position)
+	var xf: Transform2D = jaw_reg["xf"]
+	var start: Vector2 = xf * (p1.lerp(p2, 0.28) - offset)
+	var end: Vector2 = xf * (p1.lerp(p2, 0.88) - offset)
+	var dist := start.distance_to(end)
+	if dist < 10.0: return
+	var scale := clampf(dist / 42.0, 0.35, 1.5)
+	var span := maxf(1.0, end.x - start.x)
+	var outline: Color = pal["outline"]
+	var shade: Color = pal["shade"]
+	var glint: Color = pal["glint"]
+	# Clean any protruding fang tip below the jaw cleft on the lower jaw before painting jaw-line fangs.
+	for px in range(clampi(floori(lerpf(start.x, end.x, 0.45)), 0, cv.w - 1), clampi(ceili(end.x + 2.0), 0, cv.w - 1) + 1):
+		var jy := start.y + (end.y - start.y) * ((float(px) - start.x) / span)
+		var ref_x := clampi(floori(lerpf(start.x, end.x, 0.20)) + posmod(px, 6), 0, cv.w - 1)
+		var ref_jy := start.y + (end.y - start.y) * ((float(ref_x) - start.x) / span)
+		for dy_step in range(roundi(4.0 * scale), roundi(16.0 * scale) + 1):
+			var py := clampi(roundi(jy) + dy_step, 0, cv.h - 1)
+			var ref_py := clampi(roundi(ref_jy) + dy_step, 0, cv.h - 1)
+			var ref_col := cv.get_px(ref_x, ref_py)
+			if cv.get_px(px, py).a > 0.5 and ref_col.a > 0.5:
+				cv.set_px(px, py, ref_col)
+	var slots: Array = [[0.22, -3.2, 3.2, 2.8], [0.44, -3.4, 3.4, 3.0], [0.66, -3.6, 3.6, 3.2], [0.86, -3.6, 3.6, 3.1]]
+	for slot: Array in slots:
+		if slot.size() < 4: continue
+		var u: float = float(slot[0]); var dy_top: float = float(slot[1]) * scale; var dy_tip: float = float(slot[2]) * scale; var root_hw: float = maxf(1.8, float(slot[3]) * scale)
+		var cx := lerpf(start.x, end.x, u)
+		for px in range(clampi(floori(cx - root_hw - 2.0), 0, cv.w - 1), clampi(ceili(cx + root_hw + 2.0), 0, cv.w - 1) + 1):
+			var jy := start.y + (end.y - start.y) * ((float(px) - start.x) / span)
+			for py in range(clampi(floori(jy + dy_top - 1.0), 0, cv.h - 1), clampi(ceili(jy + dy_tip + 1.0), 0, cv.h - 1) + 1):
+				var dy := float(py) - jy
+				if dy < dy_top or dy > dy_tip: continue
+				var v := (dy - dy_top) / maxf(0.5, dy_tip - dy_top)
+				var dx := float(px) - (cx + (dy - dy_top) * 0.14)
+				var hw := root_hw * (1.0 - 0.66 * v)
+				if absf(dx) > hw: continue
+				if v < 0.18 or v > 0.82 or absf(dx) > hw - 1.05:
+					cv.set_px(px, py, outline)
+				else:
+					var ridge := 1.0 - absf(dx) / maxf(0.6, hw - 1.05)
+					var t := clampf(0.22 + 0.56 * ridge + 0.14 * (1.0 - v), 0.0, 1.0)
+					cv.set_px(px, py, shade.lerp(glint, t))
+				fang_pixels_drawn += 1
+	var xa := clampi(floori(lerpf(start.x, end.x, 0.15)), 0, cv.w - 1)
+	var xb := clampi(ceili(lerpf(start.x, end.x, 0.92)), 0, cv.w)
+	var ya := clampi(floori(minf(start.y, end.y) - 4.0 * scale), 0, cv.h - 1)
+	var yb := clampi(ceili(maxf(start.y, end.y) + 4.0 * scale), 0, cv.h)
+	model_data["jaw_fang_rect"] = Rect2i(xa, ya, maxi(1, xb - xa), maxi(1, yb - ya))
+	model_data["fang_pixels"] = fang_pixels_drawn
+
+static func portrait_jaw_rect(row: Dictionary, pose: String = "idle", progress: float = 0.0, state: Dictionary = {}) -> Rect2i:
+	const SIDE := 384
+	var info: Dictionary = model(row, pose, progress, state)
+	if not bool(info["valid"]): return Rect2i()
+	var bounds: Rect2 = info["head_crop"]
+	if bounds.size.x <= 0 or bounds.size.y <= 0: return Rect2i()
+	var raster: float = minf((SIDE - 24.0) / bounds.size.x, (SIDE - 24.0) / bounds.size.y)
+	var origin: Vector2 = Vector2(SIDE, SIDE) * 0.5 - bounds.get_center() * raster
+	var out: Dictionary = _canvas_model(info, origin, raster)
+	var source: Dictionary = DragonRigArt._source(row)
+	var polys: Array = source.get("entry", {}).get("anatomical_regions", {}).get("jaw", {}).get("polygons", [])
+	for reg: Dictionary in out.get("regions", []):
+		if String(reg.get("id", "")) == "jaw" and not polys.is_empty() and polys[0] is Array:
+			var poly: Array = polys[0]
+			if poly.size() < 3 or not poly[1] is Array or not poly[2] is Array: return Rect2i()
+			var edge_a: Array = poly[1]
+			var edge_b: Array = poly[2]
+			if edge_a.size() < 2 or edge_b.size() < 2: return Rect2i()
+			var p1 := Vector2(float(edge_a[0]), float(edge_a[1]))
+			var p2 := Vector2(float(edge_b[0]), float(edge_b[1]))
+			var source_rect: Rect2i = reg["source_rect"] as Rect2i
+			var offset := Vector2(source_rect.position)
+			var xf: Transform2D = reg["xf"]
+			var start: Vector2 = xf * (p1.lerp(p2, 0.28) - offset)
+			var end: Vector2 = xf * (p1.lerp(p2, 0.88) - offset)
+			var scale := clampf(start.distance_to(end) / 42.0, 0.35, 1.5)
+			var xa := clampi(floori(lerpf(start.x, end.x, 0.15)), 0, SIDE - 1)
+			var xb := clampi(ceili(lerpf(start.x, end.x, 0.92)), 0, SIDE)
+			var ya := clampi(floori(minf(start.y, end.y) - 4.0 * scale), 0, SIDE - 1)
+			var yb := clampi(ceili(maxf(start.y, end.y) + 4.0 * scale), 0, SIDE)
+			return Rect2i(xa, ya, maxi(1, xb - xa), maxi(1, yb - ya))
+	return Rect2i()
 
 static func framing(row: Dictionary, pose: String = "idle", image_size: Vector2i = IMAGE_SIZE, progress: float = 0.0, state: Dictionary = {}) -> Dictionary:
 	var info: Dictionary = model(row, pose, progress, state)
@@ -252,16 +420,20 @@ static func image_for(row: Dictionary, pose: String = "idle", progress: float = 
 
 static func portrait_for(row: Dictionary, pose: String = "idle", progress: float = 0.0, state: Dictionary = {}) -> Image:
 	const SIDE := 384
+	fang_pixels_drawn = 0
 	var cv: PixelCanvas = PixelCanvas.new(SIDE, SIDE)
 	var info: Dictionary = model(row, pose, progress, state)
-	if not bool(info["valid"]): return cv.to_image()
-	var bounds: Rect2 = info["head_crop"]
-	if bounds.size.x <= 0 or bounds.size.y <= 0:
-		push_error("Dragon rig portrait crop is empty for " + String(row.get("morph_id", ""))); return cv.to_image()
-	var raster: float = minf((SIDE - 24.0) / bounds.size.x, (SIDE - 24.0) / bounds.size.y)
-	var origin: Vector2 = Vector2(SIDE, SIDE) * 0.5 - bounds.get_center() * raster
-	draw(cv, row, pose, origin, raster, progress, state)
-	return cv.to_image()
+	if bool(info["valid"]):
+		var bounds: Rect2 = info["head_crop"]
+		if bounds.size.x <= 0 or bounds.size.y <= 0:
+			push_error("Dragon rig portrait crop is empty for " + String(row.get("morph_id", "")))
+		else:
+			var raster: float = minf((SIDE - 24.0) / bounds.size.x, (SIDE - 24.0) / bounds.size.y)
+			var origin: Vector2 = Vector2(SIDE, SIDE) * 0.5 - bounds.get_center() * raster
+			draw(cv, row, pose, origin, raster, progress, state)
+	var image: Image = cv.to_image()
+	image.set_meta("fang_pixels", fang_pixels_drawn)
+	return image
 
 static func piece_for(row: Dictionary, part_id: String, pose: String = "idle", progress: float = 0.0, state: Dictionary = {}) -> Image:
 	var cv: PixelCanvas = PixelCanvas.new(384, 384)
