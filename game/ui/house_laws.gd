@@ -36,6 +36,8 @@ static func law_name(law: String) -> String:
 	match law:
 		"male_preference": return "Sons' lines first"
 		"absolute": return "Eldest child's line"
+		"elective": return "Elective (the house's adults choose the most able)"
+		"seniority": return "Seniority (eldest living member)"
 		"strength": return "Strength contests"
 		"household_head": return "Household head"
 		_: return "Local succession custom"
@@ -44,9 +46,19 @@ static func description(law: String) -> String:
 	match law:
 		"male_preference": return "The eldest son's line comes first, followed by younger sons' lines and then daughters' lines. A deceased child's descendants keep that branch's place."
 		"absolute": return "The eldest child's line comes first, regardless of sex. A deceased child's descendants keep that branch's place before younger children."
+		"elective": return "The house's living adults choose the most able among them."
+		"seniority": return "The eldest living member of the house comes next."
 		"strength": return "Rulers follow the realm's strength contests. No hereditary heir is named."
 		"household_head": return "This family's leader follows its existing household register. The realm's rulers still follow strength contests."
 		_: return "This settlement follows its existing local succession custom. No hereditary heir is named by this view."
+
+static func choice_line(law: String) -> String:
+	match law:
+		"male_preference": return "The eldest son's line comes first, then younger sons' lines, then daughters' lines."
+		"absolute": return "The eldest child's line comes first, regardless of sex."
+		"elective": return "Living adults of the house are ranked by ability."
+		"seniority": return "The eldest living adult in the house comes next."
+		_: return description(law)
 
 func _ready() -> void:
 	town_id = str(Game.screen_params.get("town_id", Dynasty.selected(Game).get("town_id", "")))
@@ -98,14 +110,22 @@ func _refresh() -> void:
 		body.add_child(UiKit.label("Choose an existing house to view its laws.", "Muted", true)); return
 	if notice != "": body.add_child(UiKit.label(notice, "Muted", true))
 	var words := _card("", "LawsRuleCard")
-	var name_label := UiKit.label("Succession: " + law_name(str(data["law"])), "H2", true)
+	var status: Dictionary = Dynasty.law_status(Game, town_id)
+	var law_id: String = str(data["law"])
+	var name_label := UiKit.label("Succession: " + law_name(law_id), "H2", true)
 	name_label.name = "LawsPolicy"
 	name_label.mouse_filter = MOUSE_FILTER_PASS
-	name_label.tooltip_text = description(str(data["law"]))
-	if data["law"] in ["male_preference", "absolute"]:
+	name_label.tooltip_text = description(law_id)
+	if law_id in ["male_preference", "absolute"]:
 		name_label.tooltip_text += "\n\nA minor may inherit. A recorded regent serves during the minority. If descendants are exhausted, the next eligible branch follows real family kin."
-	name_label.tooltip_text += "\n\nCurrent laws are read-only."
+	if bool(status.get("is_orc", false)) or law_id == "strength":
+		name_label.tooltip_text += "\n\nThe law is strength."
+	elif bool(status.get("locked", false)):
+		name_label.tooltip_text += "\n\n" + str(status.get("lock_text", ""))
+	else:
+		name_label.tooltip_text += "\n\nA change adds 10 grievance in your towns and locks succession for 5 years."
 	words.add_child(name_label)
+	_add_change_control(words, status, law_id)
 	people_row = UiKit.hbox(12)
 	people_row.size_flags_horizontal = SIZE_EXPAND_FILL
 	body.add_child(people_row)
@@ -164,3 +184,73 @@ func _person_record(uid: String) -> void:
 
 func _back() -> void:
 	Game.goto(back, back_params.duplicate(true))
+
+func _add_change_control(words: VBoxContainer, status: Dictionary, law_id: String) -> void:
+	if bool(status.get("is_orc", false)) or law_id == "strength":
+		var strength := UiKit.label("The law is strength.", "Muted", true)
+		strength.name = "LawsStrength"
+		words.add_child(strength)
+		return
+	var change := UiKit.button("Change law", _open_law_list, "Row")
+	change.name = "LawsChangeButton"
+	change.size_flags_horizontal = SIZE_SHRINK_BEGIN
+	change.disabled = not bool(status.get("can_change", false))
+	words.add_child(change)
+	if bool(status.get("locked", false)):
+		var lock_text: String = str(status.get("lock_text", ""))
+		if lock_text == "": lock_text = "Next change possible in year %d" % int(status.get("next_year", 0))
+		var lock_label := UiKit.label(lock_text, "Muted", true)
+		lock_label.name = "LawsLock"
+		words.add_child(lock_label)
+
+func _open_law_list() -> void:
+	var status: Dictionary = Dynasty.law_status(Game, town_id)
+	if not bool(status.get("can_change", false)):
+		notice = str(status.get("reason", "Succession law cannot be changed."))
+		_refresh()
+		return
+	var v := UiKit.modal(self, "Change succession law", 720)
+	v.add_child(UiKit.label("Each change adds 10 grievance in your towns and locks the law for 5 years.", "Muted", true))
+	for law_v in Dynasty.SUCCESSION_LAWS:
+		_add_law_choice(v, str(law_v))
+	var cancel := UiKit.button("Cancel", func(): UiKit.close_modal(v), "", 160)
+	cancel.name = "LawsCancel"
+	v.add_child(cancel)
+
+func _add_law_choice(v: Node, law_id: String) -> void:
+	var title := UiKit.label(law_name(law_id), "H2", true)
+	title.name = "LawsChoice_" + law_id
+	v.add_child(title)
+	var line := UiKit.label(choice_line(law_id) + " +10 grievance in your towns, 5-year lock.", "Small", true)
+	line.name = "LawsChoiceLine_" + law_id
+	v.add_child(line)
+	var current: bool = law_id == str(data.get("law", ""))
+	var choose := UiKit.button("In force" if current else "Choose", _choose_law.bind(law_id, v), "Row")
+	choose.name = "LawsChoose_" + law_id
+	choose.disabled = current
+	choose.size_flags_horizontal = SIZE_SHRINK_BEGIN
+	v.add_child(choose)
+
+func _choose_law(law_id: String, v: Node = null) -> void:
+	if law_id == str(data.get("law", "")): return
+	if v != null: UiKit.close_modal(v)
+	_confirm_law(law_id)
+
+func _confirm_law(law_id: String) -> void:
+	var preview: Dictionary = Dynasty.change_law_preview(Game, law_id, town_id)
+	if not bool(preview.get("ok", false)):
+		notice = str(preview.get("reason", "This succession law cannot be changed."))
+		_refresh()
+		return
+	var heir_v: Variant = preview.get("heir", {})
+	var heir_name := ""
+	if heir_v is Dictionary: heir_name = str((heir_v as Dictionary).get("name", ""))
+	var text := "%s\n%s\n+10 grievance in your towns, 5-year lock (until year %d)." % [law_name(law_id), choice_line(law_id), int(preview.get("unlock_year", 0))]
+	if heir_name != "": text += "\nNext in line: %s." % heir_name
+	elif str(preview.get("warning", "")) != "": text += "\n" + str(preview.get("warning", "")) + "."
+	UiKit.confirm(self, text, "Confirm change", _apply_law.bind(law_id))
+
+func _apply_law(law_id: String) -> void:
+	var result: Dictionary = Dynasty.change_law(Game, law_id, town_id)
+	notice = str(result.get("reason", ""))
+	_refresh()

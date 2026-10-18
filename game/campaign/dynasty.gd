@@ -4,6 +4,9 @@ extends RefCounted
 ## accounts. Local PIDs/household indices remain the economic system's keys.
 ## v0.001 uses birth-house affiliation, retained through marriage/migration.
 ## Political offices may succeed; their native economic owners remain separate.
+const SUCCESSION_LAWS := ["male_preference", "absolute", "elective", "seniority"]
+const LAW_LOCK_YEARS := 5
+const LAW_GRIEVANCE := 10.0
 
 static func _eligible(e: Dictionary, f: Dictionary, day: float) -> Array:
 	var head := Persons.head_of(f)
@@ -38,6 +41,12 @@ static func bind_head(town: Dictionary) -> void:
 ## below never generate identities, appoint rulers, settle claims or move coin.
 static func prepare_world(game) -> void:
 	var w: Dictionary = game.world
+	if w.has("laws") and w["laws"] is Dictionary:
+		var laws_dict: Dictionary = w["laws"]
+		for h_uid in laws_dict:
+			var lrow: Variant = laws_dict[h_uid]
+			if lrow is Dictionary and (lrow as Dictionary).has("changed_day"):
+				(lrow as Dictionary)["changed_day"] = int((lrow as Dictionary)["changed_day"])
 	for tid in w.get("towns", {}):
 		var town: Dictionary = w["towns"][tid]
 		var e: Dictionary = town.get("econ", {})
@@ -374,13 +383,108 @@ static func _index_world(game) -> void:
 							"race": race, "mother_uid": str(p[Persons.MOTHER_UID]) if size > Persons.MOTHER_UID else str(old.get("mother_uid", "")),
 							"father_uid": str(p[Persons.FATHER_UID]) if size > Persons.FATHER_UID else str(old.get("father_uid", "")), "alive": live}
 
-static func law(game, town_id: String) -> String:
+static func default_law(game, town_id: String) -> String:
 	var e: Dictionary = game.world.get("towns", {}).get(town_id, {}).get("econ", {})
 	match Persons.race_of(e):
 		"human", "dwarf": return "male_preference"
 		"elf", "moon_elf", "high_elf", "wood_elf": return "absolute"
 		"orc": return "strength"
 	return "native_" + str(TownEcon.culture_of(e).get("rank_rule", "renown")) if not e.is_empty() else "vacant"
+
+static func _house_law(game, house_uid: String) -> String:
+	if house_uid == "": return ""
+	var laws: Variant = game.world.get("laws", {})
+	if not (laws is Dictionary): return ""
+	var row: Variant = (laws as Dictionary).get(house_uid, {})
+	if row is Dictionary:
+		var s: String = str((row as Dictionary).get("succession", ""))
+		if s in SUCCESSION_LAWS: return s
+	elif row is String and str(row) in SUCCESSION_LAWS:
+		return str(row)
+	return ""
+
+static func law(game, town_id: String) -> String:
+	var def: String = default_law(game, town_id)
+	if def in ["strength", "vacant"]: return def
+	var e: Dictionary = game.world.get("towns", {}).get(town_id, {}).get("econ", {})
+	var house_uid: String = str(e.get("head", {}).get("house_uid", ""))
+	var player: Dictionary = game.world.get("player_house", {})
+	var player_house: String = str(player.get("house_uid", ""))
+	if house_uid == "" and str(player.get("town_id", "")) == town_id and holds_office(game):
+		house_uid = player_house
+	if house_uid != "":
+		var custom: String = _house_law(game, house_uid)
+		if custom != "": return custom
+	return def
+
+static func _ability_score(game, e: Dictionary, f: Dictionary, p: Array, row: Dictionary, u: Unit = null) -> float:
+	if u == null: u = bound_unit(game, row)
+	var score: float = 0.0
+	if u != null and not u.dead:
+		score += CampaignWorld.unit_power(u) * 100.0
+		score += float(u.attr("REC") + u.attr("WIL")) / 200.0
+		for mv in u.mind.values(): score += float(mv) / 500.0
+		score += u.renown + float(u.rank) * 20.0 + float(u.kills * 2 + u.battles)
+	var jobs: Dictionary = Persons.work(e, f) if not e.is_empty() and not f.is_empty() else {}
+	var job: Dictionary = jobs.get(int(p[0]), {})
+	score += minf(6.0, float(job.get("wage", 0.0)) * 0.02) + (5.0 if bool(job.get("keeper", false)) else 0.0)
+	score += float(int(Persons.g(p, Persons.LEG, 0))) * 25.0
+	if int(p[6]) == 0: score += 20.0 # p[6] is kind (0 adult / 1 elder), not sex (p[2]).
+	score += float((absi(int(p[0])) * 37 + absi(int(p[1])) * 13) % 41)
+	return score
+
+static func ability_of(game, person_or_uid: Variant) -> float:
+	var uid: String = str((person_or_uid as Dictionary).get("person_uid", "")) if person_or_uid is Dictionary else str(person_or_uid)
+	var loc: Dictionary = _person(game, uid)
+	if loc.is_empty(): return 0.0
+	var row: Dictionary = _row(loc, float(game.day))
+	return _ability_score(game, loc["econ"], loc["family"], loc["person"], row)
+
+static func _house_adult_heirs(game, uid: String, house: String, policy: String) -> Array:
+	if house == "" or not policy in ["elective", "seniority"]: return []
+	var candidates: Array = []
+	var seen: Dictionary = {uid: true} if uid != "" else {}
+	var day: float = float(game.day)
+	var town_ids: Array = game.world.get("towns", {}).keys()
+	town_ids.sort()
+	for tid_v in town_ids:
+		var tid: String = str(tid_v)
+		var town: Dictionary = game.world["towns"][tid]
+		var e: Dictionary = town.get("econ", {})
+		if e.is_empty(): continue
+		var race: String = Persons.race_of(e)
+		var adult_age: int = int(People.ages(race)["adult"])
+		for f in e.get("fams", []):
+			for p in f.get("pp", []) + f.get("kp", []):
+				var puid: String = str(Persons.g(p, Persons.PERSON_UID, ""))
+				if puid == "" or seen.has(puid) or str(Persons.g(p, Persons.HOUSE_UID, "")) != house: continue
+				if not _living(game, tid, f, p): continue
+				var age: int = Persons.age_of(p, day)
+				if age < adult_age: continue
+				var loc: Dictionary = {"town": town, "econ": e, "family": f, "person": p, "alive": true}
+				var row: Dictionary = _row(loc, day)
+				var u: Unit = bound_unit(game, row)
+				if u != null and u.dead: continue
+				seen[puid] = true
+				var score: float = _ability_score(game, e, f, p, row, u)
+				row["ability"] = score
+				candidates.append({"row": row, "born": float(p[3]), "age": age, "ability": score, "uid": puid})
+	if candidates.is_empty():
+		return _lineage_query(game, uid, house, "absolute", {})
+	if policy == "seniority":
+		candidates.sort_custom(func(a, b):
+			if int(a["age"]) != int(b["age"]): return int(a["age"]) > int(b["age"])
+			if float(a["born"]) != float(b["born"]): return float(a["born"]) < float(b["born"])
+			return str(a["uid"]) < str(b["uid"]))
+	else:
+		candidates.sort_custom(func(a, b):
+			if not is_equal_approx(float(a["ability"]), float(b["ability"])): return float(a["ability"]) > float(b["ability"])
+			if float(a["born"]) != float(b["born"]): return float(a["born"]) < float(b["born"])
+			return str(a["uid"]) < str(b["uid"]))
+	var out: Array = []
+	for c in candidates:
+		out.append((c as Dictionary)["row"])
+	return out
 
 ## Query-local indexes retain native references; no read cache survives a call.
 static func _child_index(nodes: Dictionary, house: String, policy: String) -> Dictionary:
@@ -448,6 +552,7 @@ static func _lineage_heirs(game, uid: String, house: String, policy: String) -> 
 	return _lineage_query(game, uid, house, policy, {})
 
 static func _lineage_query(game, uid: String, house: String, policy: String, query: Dictionary) -> Array:
+	if policy in ["elective", "seniority"]: return _house_adult_heirs(game, uid, house, policy)
 	if not policy in ["male_preference", "absolute"]: return []
 	var nodes: Dictionary = game.world.get("dynasty", {}).get("kin", {})
 	if not nodes.has(uid): return []
@@ -529,6 +634,10 @@ static func leadership_law(game) -> String:
 	if holds_office(game): return law(game, str(state.get("town_id", "")))
 	var owner: Dictionary = game.world.get("dynasty", {}).get("kin", {}).get(str(state.get("ruler_uid", "")), {})
 	var race := str(owner.get("race", state.get("ruler_race", "")))
+	var tid: String = str(state.get("town_id", ""))
+	if race != "orc" and default_law(game, tid) != "strength":
+		var custom: String = _house_law(game, str(state.get("house_uid", "")))
+		if custom != "": return custom
 	match race:
 		"human", "dwarf": return "male_preference"
 		"elf", "moon_elf", "high_elf", "wood_elf": return "absolute"
@@ -539,7 +648,7 @@ static func selected_heir(game) -> Dictionary:
 	if state.is_empty(): return {}
 	if holds_office(game): return heir(game, str(state.get("town_id", "")))
 	var policy := leadership_law(game)
-	if policy in ["male_preference", "absolute"]:
+	if policy in SUCCESSION_LAWS:
 		var rows: Array = _lineage_heirs(game, str(state.get("ruler_uid", "")), str(state.get("house_uid", "")), policy)
 		return rows[0] if not rows.is_empty() else {}
 	var home: Dictionary = _household(game, str(state.get("household_uid", "")))
@@ -551,6 +660,122 @@ static func selected_heir(game) -> Dictionary:
 	var p: Array = Persons.head_of(view)
 	if p.is_empty(): return {}
 	return _row({"town": home["town"], "econ": home["town"]["econ"], "family": f, "person": p, "alive": true}, float(game.day), "House leader")
+
+static func heir_for_law(game, town_id: String, policy: String) -> Dictionary:
+	var state: Dictionary = game.world.get("player_house", {})
+	var household_view: bool = str(state.get("town_id", "")) == town_id and not holds_office(game)
+	var h: Dictionary = game.world.get("towns", {}).get(town_id, {}).get("econ", {}).get("head", {})
+	var uid: String = str(state.get("ruler_uid", "")) if household_view or str(h.get("person_uid", "")) == "" else str(h.get("person_uid", ""))
+	var house: String = str(state.get("house_uid", "")) if household_view or str(h.get("house_uid", "")) == "" else str(h.get("house_uid", ""))
+	var rows: Array = _lineage_heirs(game, uid, house, policy)
+	return rows[0] if not rows.is_empty() else {}
+
+static func player_towns(game) -> Array:
+	var state: Dictionary = game.world.get("player_house", {})
+	if state.is_empty(): return []
+	var house_uid: String = str(state.get("house_uid", ""))
+	var home_tid: String = str(state.get("town_id", ""))
+	var office: bool = holds_office(game)
+	var out: Array = []
+	var towns_dict: Dictionary = game.world.get("feudal", {}).get("towns", {})
+	var ids: Array = towns_dict.keys()
+	ids.sort()
+	for tid_v in ids:
+		var tid: String = str(tid_v)
+		if default_law(game, tid) == "strength": continue
+		var head_house: String = str(game.world.get("towns", {}).get(tid, {}).get("econ", {}).get("head", {}).get("house_uid", ""))
+		if (tid == home_tid and office) or (house_uid != "" and head_house == house_uid) or Feudal.can_act(game, tid):
+			out.append(tid)
+	return out
+
+static func law_lock_days() -> int:
+	return int(round(float(LAW_LOCK_YEARS) * People.year_days()))
+
+static func law_status(game, town_id: String = "") -> Dictionary:
+	var state: Dictionary = game.world.get("player_house", {})
+	var house_uid: String = str(state.get("house_uid", ""))
+	var home_tid: String = str(state.get("town_id", ""))
+	var check_tid: String = town_id if town_id != "" else home_tid
+	var town: Dictionary = game.world.get("towns", {}).get(check_tid, {})
+	var e: Dictionary = town.get("econ", {})
+	var head_house: String = str(e.get("head", {}).get("house_uid", ""))
+	var is_player_house: bool = not state.is_empty() and house_uid != "" and (check_tid == "" or check_tid == home_tid or head_house == house_uid)
+	var race: String = Persons.race_of(e) if not e.is_empty() else str(state.get("ruler_race", ""))
+	var is_orc: bool = race == "orc" or str(state.get("ruler_race", "")) == "orc" or default_law(game, check_tid) == "strength"
+	var laws_all: Variant = game.world.get("laws", {})
+	var rec: Dictionary = {}
+	if laws_all is Dictionary and (laws_all as Dictionary).get(house_uid) is Dictionary:
+		rec = (laws_all as Dictionary)[house_uid]
+	var has_changed: bool = rec.has("changed_day") and int(rec.get("changed_day", -1)) >= 0
+	var changed_day: int = int(rec.get("changed_day", -1)) if has_changed else -1
+	var lock_days: int = law_lock_days()
+	var unlock_day: int = changed_day + lock_days if has_changed else 0
+	var current_day: int = int(floor(float(game.day)))
+	var locked: bool = is_player_house and not is_orc and has_changed and current_day < unlock_day
+	var next_year: int = Calendar.year(float(unlock_day)) if locked else Calendar.year(float(game.day))
+	var lock_text: String = "Next change possible in year %d" % next_year if locked else ""
+	var current_law: String = leadership_law(game) if (check_tid == home_tid and not holds_office(game)) else law(game, check_tid)
+	var can_change: bool = is_player_house and not is_orc and not locked
+	var reason: String = ""
+	if state.is_empty() or house_uid == "":
+		reason = "Choose a house before changing succession law."
+	elif not is_player_house:
+		reason = "Only your own house's succession law can be changed."
+	elif is_orc:
+		reason = "Orc realms follow strength contests and cannot change succession law."
+	elif locked:
+		reason = lock_text
+	return {"ok": can_change, "can_change": can_change, "is_player_house": is_player_house, "is_orc": is_orc,
+		"locked": locked, "changed_day": changed_day, "unlock_day": unlock_day, "next_year": next_year,
+		"lock_text": lock_text, "house_uid": house_uid, "town_id": check_tid, "law": current_law, "reason": reason}
+
+static func change_law_preview(game, new_law: String, town_id: String = "") -> Dictionary:
+	var st: Dictionary = law_status(game, town_id)
+	if not new_law in SUCCESSION_LAWS:
+		return {"ok": false, "reason": "Choose a valid succession law.", "law": new_law}
+	if not bool(st["can_change"]):
+		return {"ok": false, "reason": str(st["reason"]), "law": new_law, "locked": bool(st["locked"]), "next_year": int(st["next_year"])}
+	if str(st["law"]) == new_law:
+		return {"ok": false, "reason": "This succession law is already in force.", "law": new_law}
+	var tid: String = str(st["town_id"])
+	var next_heir: Dictionary = heir_for_law(game, tid, new_law)
+	var unlock_year: int = Calendar.year(float(int(floor(float(game.day))) + law_lock_days()))
+	var warning: String = "No adult heir under this law" if next_heir.is_empty() else ""
+	var reason: String = "Change succession law (+10 grievance in your towns; locked for 5 years)."
+	if warning != "": reason += " " + warning + "."
+	return {"ok": true, "reason": reason, "warning": warning,
+		"law": new_law, "previous_law": str(st["law"]), "house_uid": str(st["house_uid"]), "town_id": tid,
+		"grievance": LAW_GRIEVANCE, "unlock_year": unlock_year, "heir": next_heir}
+
+static func change_law(game, new_law: String, town_id: String = "") -> Dictionary:
+	var preview: Dictionary = change_law_preview(game, new_law, town_id)
+	if not bool(preview.get("ok", false)): return preview
+	var house_uid: String = str(preview["house_uid"])
+	var day: int = int(floor(float(game.day)))
+	if not game.world.has("laws") or not (game.world["laws"] is Dictionary):
+		game.world["laws"] = {}
+	game.world["laws"][house_uid] = {"succession": new_law, "changed_day": day}
+	Feudal.prepare_world(game)
+	var affected: Array = []
+	for tid_v in player_towns(game):
+		var tid: String = str(tid_v)
+		if default_law(game, tid) == "strength": continue
+		var row: Dictionary = game.world.get("feudal", {}).get("towns", {}).get(tid, {})
+		if not row.is_empty():
+			row["grievance"] = clampf(float(row.get("grievance", 0.0)) + LAW_GRIEVANCE, 0.0, 100.0)
+			affected.append(tid)
+	var seat_tid: String = str(game.world.get("player_house", {}).get("town_id", ""))
+	var house_name: String = str(selected(game).get("house_name", "House"))
+	Feudal._history(game, seat_tid, "House %s changed succession law to %s (+10 grievance)." % [house_name, new_law])
+	var tid_check: String = str(preview["town_id"])
+	var new_heir: Dictionary = heir(game, tid_check) if holds_office(game) else selected_heir(game)
+	game.changed.emit()
+	return {"ok": true, "reason": "Succession law changed.", "law": new_law, "changed_day": day,
+		"house_uid": house_uid, "towns": affected, "heir": new_heir,
+		"next_year": Calendar.year(float(day + law_lock_days()))}
+
+static func set_law(game, new_law: String, town_id: String = "") -> Dictionary:
+	return change_law(game, new_law, town_id)
 
 static func selected_office(game) -> Dictionary:
 	var state: Dictionary = game.world.get("player_house", {})
@@ -638,7 +863,7 @@ static func succession_day(game) -> void:
 		var h: Dictionary = town.get("econ", {}).get("head", {})
 		if h.is_empty() or not _person(game, str(h.get("person_uid", ""))).is_empty(): continue
 		var policy := law(game, str(tid))
-		if policy in ["male_preference", "absolute"]:
+		if policy in SUCCESSION_LAWS:
 			var next := heir(game, str(tid))
 			if not next.is_empty() and appoint(game, str(tid), str(next["person_uid"])):
 				CampaignWorld.log_event(game, "%s inherited the rule of %s." % [next["name"], town["name"]])
@@ -677,4 +902,3 @@ static func _house_succession(game) -> void:
 		state["native_house_name"] = str(current["family"].get("name", state.get("native_house_name", "House")))
 		state["house_name"] = str(state.get("customization", {}).get("display_name", state["native_house_name"]))
 		state["holds_office"] = holds_office(game, current)
-
