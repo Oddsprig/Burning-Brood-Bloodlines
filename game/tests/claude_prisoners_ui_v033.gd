@@ -15,7 +15,7 @@ func check(ok: bool, what: String) -> void:
 func frames(tree: SceneTree, n: int = 3) -> void:
 	for i in n:
 		await tree.process_frame
-		await RenderingServer.frame_post_draw
+		if DisplayServer.get_name() != "headless": await RenderingServer.frame_post_draw
 
 func shot(tree: SceneTree, name: String) -> void:
 	if out == "": return

@@ -133,6 +133,7 @@ func reset_between(keep: Array) -> void:
 	Sickness.prof_on = false; Sickness.prof_parts = false
 	Monsters.new_world_creatures = true
 	BattleRounds.round_size = BattleRounds.ROUND
+	BattleTactics._pending_picks = ["", ""]
 	WorldGen.gen_size = WorldGen.WORLD_SIZE
 	CampaignWorld.presim_span_days = CampaignWorld.PRESIM_DEFAULT_DAYS
 	var root := get_tree().root

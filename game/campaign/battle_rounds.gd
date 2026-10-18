@@ -21,11 +21,15 @@ static func active(game) -> bool:
 	return not (game.pending_battle.get("rounds", {}) as Dictionary).is_empty()
 
 ## Sets up the pools and the first round's two units. side0: the player's whole force (company, allies, dragons).
+## Round 1 defaults side 0's tactical order to "hold" (unless BattleTactics.choose was called before begin),
+## since RoundSummary opens between rounds; the player's chosen order then carries over until changed.
 static func begin(game, side0: Array, side1: Array) -> void:
+	var def_side: int = BattleTactics.defender_side(game)
 	var st := {"pool": [side0.duplicate(), side1.duplicate()], "round": 0, "morale": [START_MORALE, START_MORALE],
 		"start": [side0.size(), side1.size()], "dead": [0, 0], "wounded": [0, 0], "captured": [0, 0], "fled": [0, 0],
 		"captives": [[], []], "fought": {}, "household": {}, "log": [], "broke": -1, "winner": -1, "over": false,
-		"last_fought": [[], []], "commander": [_commander(game, side0, true), _commander(game, side1, false)]}
+		"last_fought": [[], []], "commander": [_commander(game, side0, true), _commander(game, side1, false)],
+		"defender_side": def_side}
 	game.pending_battle["rounds"] = st
 	_pick_round(game)
 
@@ -65,6 +69,7 @@ static func _pick_round(game) -> void:
 	game.pending_battle["enemy"] = picks[1]
 	game.pending_battle["seed"] = int(game.pending_battle.get("seed", 1)) + 7919
 	st["last_fought"] = picks
+	BattleTactics.setup_round(game, st)
 
 static func _household_uid(game) -> String:
 	return str(game.world.get("player_house", {}).get("house_uid", ""))
@@ -99,6 +104,7 @@ static func after_round(game, r: Dictionary) -> Dictionary:
 	var w := int(r.get("winner", -1))
 	var d := {"round": int(st["round"]), "winner": w, "names": r.get("side_names", ["Your army", "Enemy"]),
 		"fought": [0, 0], "dead": [0, 0], "wounded": [0, 0], "captured": [0, 0], "fled": [0, 0], "household": []}
+	BattleTactics.finish_round(game, st, d)
 	if not st.has("deeds"): st["deeds"] = {}
 	Ennoble.tally(game, r, st["commander"], st["deeds"])
 	var officers_lost := [0, 0]
@@ -221,6 +227,7 @@ static func _seat_name(game, wid: String) -> String:
 ## the last round's journal and growth. Prisoners leave their side here.
 static func final_result(game, last: Dictionary) -> Dictionary:
 	var st: Dictionary = game.pending_battle["rounds"]
+	BattleTactics.clear_pending(game)
 	var r := last.duplicate()
 	r["winner"] = int(st["winner"])
 	var p: Array = []; var en: Array = []; var fallen: Array = []; var fled: Array = []
@@ -312,6 +319,7 @@ static func _note_captured(game, u: Unit, held_by: String) -> void:
 ## that must remuster before it can march. Player: survivors return to their homes as reserves (raise them again
 ## in Muster) and the party stands at the house seat. AI band: it is moved to its home town and rests.
 static func retreat_player(game) -> void:
+	BattleTactics.clear_pending(game)
 	var w: Dictionary = game.world
 	for u in game.company.duplicate():
 		if not u.dead and not DragonCombat.is_dragon_unit(game, u):

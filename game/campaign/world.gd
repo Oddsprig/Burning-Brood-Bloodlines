@@ -1076,7 +1076,8 @@ static func _warband_clashes(game, t: float, rng: RandomNumberGenerator) -> void
 		pb += WarAI.pack_power(w, b, a["id"], [ids[i], ids[j]])
 		# Rounds (campaign/clash_rounds.gd): 100 v 100 until one army's morale or numbers break.
 		var na := (a["units"] as Array).size(); var nb := (b["units"] as Array).size()
-		var cr := ClashRounds.resolve(na, nb, pa / maxf(1.0, float(na)), pb / maxf(1.0, float(nb)), _officer_count(a), _officer_count(b), rng)
+		var cr := ClashRounds.resolve(na, nb, pa / maxf(1.0, float(na)), pb / maxf(1.0, float(nb)), _officer_count(a), _officer_count(b), rng,
+			70.0, 70.0, terrain_at(w, a["pos"]), BattleTactics.commander_tactician(game, a["units"], 0), BattleTactics.commander_tactician(game, b["units"], 1))
 		var win := a if str(cr["winner"]) == "a" else b
 		var lose := b if win == a else a
 		var wrep: Dictionary = cr["a"] if win == a else cr["b"]

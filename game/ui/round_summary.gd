@@ -57,6 +57,8 @@ static func round_panel(d: Dictionary, on_next: Callable, battle_over: bool) -> 
 		line.add_theme_color_override("font_color", UiTheme.BAD if broke == 0 else UiTheme.GOOD)
 		v.add_child(line)
 
+	_tactics_section(v, d, battle_over)
+
 	v.add_child(_centred_button("Battle summary" if battle_over else "Next round", func() -> void:
 		if on_next.is_valid():
 			on_next.call()))
@@ -253,6 +255,133 @@ static func _fate_colour(fate: String) -> Color:
 			return UiTheme.BRASS
 		_:
 			return UiTheme.INK_SOFT  # fled and anything unknown
+
+
+## Last round's tactics, the outcome note, and (when the battle continues) one order button per tactic for the next round.
+static func _tactics_section(v: VBoxContainer, d: Dictionary, battle_over: bool = false) -> void:
+	var tactics: Variant = d.get("tactics", [])
+	if tactics is Array and (tactics as Array).size() >= 2:
+		var face0 := _tactic_face(str((tactics as Array)[0]))
+		var face1 := _tactic_face(str((tactics as Array)[1]))
+		var last := UiKit.label("You: %s  -  Them: %s" % [face0, face1], "", true)
+		last.name = "TacticLast"
+		last.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		last.add_theme_font_size_override("font_size", 22)
+		last.add_theme_color_override("font_color", UiTheme.LIGHT)
+		v.add_child(last)
+	var note := str(d.get("tactic_note", ""))
+	if note != "":
+		var nl := UiKit.label(note, "", true)
+		nl.name = "TacticNote"
+		nl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		nl.add_theme_font_size_override("font_size", 20)
+		nl.add_theme_color_override("font_color", UiTheme.INK_SOFT)
+		v.add_child(nl)
+	if battle_over:
+		return
+	v.add_child(HSeparator.new())
+	var head := UiKit.label("Orders for the next round", "H2")
+	head.name = "TacticOrders"
+	head.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	head.add_theme_font_size_override("font_size", 24)
+	head.add_theme_color_override("font_color", UiTheme.BRASS)
+	v.add_child(head)
+	var row := UiKit.flow(8)
+	row.name = "TacticOrdersRow"
+	var terrain := _battle_terrain()
+	var current := _current_order(d)
+	var buttons: Array = []
+	for key in BattleTactics.ORDER:
+		row.add_child(_tactic_column(String(key), terrain, current, buttons))
+	v.add_child(row)
+
+
+static func _tactic_column(tactic: String, terrain: String, current: String, buttons: Array) -> VBoxContainer:
+	var hint := _terrain_hint(terrain, tactic)
+	var face := _tactic_face(tactic)
+	var desc := BattleTactics.description(tactic)
+	var col := UiKit.vbox(4)
+	col.custom_minimum_size.x = 168
+	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var caption := face if hint == "" else "%s\n%s" % [face, hint]
+	var b := UiKit.button(caption, _press_tactic.bind(tactic, buttons), "RowOn" if tactic == current else "Row", 160)
+	b.name = "TacticButton_" + tactic
+	b.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	b.add_theme_font_size_override("font_size", 16)
+	if hint != "":
+		b.custom_minimum_size.y = 84
+	b.tooltip_text = desc if hint == "" else "%s\n%s" % [desc, hint]
+	var dl := UiKit.label(desc, "Muted", true)
+	dl.name = "TacticDesc_" + tactic
+	dl.custom_minimum_size.x = 160
+	dl.add_theme_font_size_override("font_size", 15)
+	dl.add_theme_color_override("font_color", UiTheme.INK_SOFT)
+	col.add_child(b)
+	col.add_child(dl)
+	buttons.append(b)
+	return col
+
+
+static func _press_tactic(tactic: String, buttons: Array) -> void:
+	BattleTactics.choose(Game, 0, tactic)
+	for node in buttons:
+		var b := node as Button
+		if b == null:
+			continue
+		b.theme_type_variation = "RowOn" if b.name == "TacticButton_" + tactic else "Row"
+
+
+static func _tactic_face(key: String) -> String:
+	var row: Dictionary = BattleTactics.TACTICS.get(key, {})
+	var label := str(row.get("label", ""))
+	if label == "":
+		label = key
+	if label == "":
+		return key
+	return label.substr(0, 1).to_upper() + label.substr(1)
+
+
+static func _terrain_hint(terrain: String, tactic: String) -> String:
+	var def_side: int = BattleTactics.defender_side(Game)
+	var m := BattleTactics.terrain_mod(terrain, tactic, 0, def_side)
+	if m > 0.0:
+		return "favoured here"
+	if m < 0.0:
+		return "unfavoured here"
+	return ""
+
+
+static func _battle_terrain() -> String:
+	var pb: Dictionary = Game.pending_battle
+	var rounds: Variant = pb.get("rounds", {})
+	if rounds is Dictionary:
+		var from_rounds := str((rounds as Dictionary).get("terrain", ""))
+		if from_rounds != "":
+			return from_rounds
+	var from_pb := str(pb.get("terrain", ""))
+	return from_pb if from_pb != "" else "plains"
+
+
+static func _current_order(d: Dictionary = {}) -> String:
+	var pb: Dictionary = Game.pending_battle
+	var pick := _first_tactic(pb.get("next_tactic", []))
+	var rounds: Variant = pb.get("rounds", {})
+	if pick == "" and rounds is Dictionary:
+		pick = _first_tactic((rounds as Dictionary).get("next_tactic", []))
+	if pick == "" and not BattleTactics._pending_picks.is_empty():
+		pick = str(BattleTactics._pending_picks[0])
+	if pick == "" and rounds is Dictionary:
+		pick = _first_tactic((rounds as Dictionary).get("last_tactics", []))
+	if pick == "":
+		pick = _first_tactic(d.get("tactics", []))
+	return pick if BattleTactics.TACTICS.has(pick) else "hold"
+
+
+static func _first_tactic(v: Variant) -> String:
+	if v is Array and not (v as Array).is_empty():
+		return str((v as Array)[0])
+	return ""
 
 
 static func _centred_button(text: String, cb: Callable) -> CenterContainer:

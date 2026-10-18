@@ -11,30 +11,44 @@ const BREAK_MORALE: float = 25.0
 
 ## Resolves a battle using only the supplied RNG for randomness.
 static func resolve(a_n: int, b_n: int, a_pow: float, b_pow: float, a_officers: int, b_officers: int,
-		rng: RandomNumberGenerator, a_morale: float = 70.0, b_morale: float = 70.0) -> Dictionary:
+		rng: RandomNumberGenerator, a_morale: float = 70.0, b_morale: float = 70.0,
+		terrain: String = "plains", a_tactician: int = 0, b_tactician: int = 0) -> Dictionary:
 	var a: Dictionary = _army(a_n, a_officers, a_morale)
 	var b: Dictionary = _army(b_n, b_officers, b_morale)
 	var a_power: float = a_pow if a_pow > 0.0 else 1.0
 	var b_power: float = b_pow if b_pow > 0.0 else 1.0
 	var rounds: int = 0
 	var battle_log: Array[Dictionary] = []
+	var round_state: Dictionary = {"round": 0, "terrain": terrain, "seed": int(rng.seed),
+		"tactician": [a_tactician, b_tactician], "log": battle_log}
 	while rounds < MAX_ROUNDS and not _broken(a) and not _broken(b):
 		rounds += 1
+		round_state["round"] = rounds
+		var t0: String = BattleTactics.ai_pick(round_state, 0, rounds)
+		var t1: String = BattleTactics.ai_pick(round_state, 1, rounds)
+		round_state["tactics"] = [t0, t1]
+		var mods: Dictionary = BattleTactics.modifiers(round_state, round_state)
+		var m0: Dictionary = mods["side0"]
+		var m1: Dictionary = mods["side1"]
+		var a_eff_pow: float = a_power * (float(m0["attack"]) + float(m0["defence"])) * 0.5
+		var b_eff_pow: float = b_power * (float(m1["attack"]) + float(m1["defence"])) * 0.5
 		var a_in: int = mini(ROUND, int(a["fit"]))
 		var b_in: int = mini(ROUND, int(b["fit"]))
 		# Normalize powers before squaring to avoid overflowing combat strengths.
-		var power_scale: float = maxf(a_power, b_power)
-		var a_strength: float = float(a_in) * (a_power / power_scale)
-		var b_strength: float = float(b_in) * (b_power / power_scale)
+		var power_scale: float = maxf(a_eff_pow, b_eff_pow)
+		var a_strength: float = float(a_in) * (a_eff_pow / power_scale)
+		var b_strength: float = float(b_in) * (b_eff_pow / power_scale)
 		var a_squared: float = a_strength * a_strength
 		var b_squared: float = b_strength * b_strength
 		var p: float = a_squared / maxf(0.0001, a_squared + b_squared)
 		var a_won: bool = rng.randf() < p
-		var a_losses: int = _roll_losses(a_in, a_power, b_power, a_won, rng)
-		var b_losses: int = _roll_losses(b_in, b_power, a_power, not a_won, rng)
-		var a_result: Dictionary = _apply_losses(a, a_in, a_losses, a_won, rng)
-		var b_result: Dictionary = _apply_losses(b, b_in, b_losses, not a_won, rng)
+		var a_losses: int = _roll_losses(a_in, a_power * float(m0["defence"]), b_power * float(m1["attack"]), a_won, rng)
+		var b_losses: int = _roll_losses(b_in, b_power * float(m1["defence"]), a_power * float(m0["attack"]), not a_won, rng)
+		var a_result: Dictionary = _apply_losses(a, a_in, a_losses, a_won, rng, float(m0["morale"]))
+		var b_result: Dictionary = _apply_losses(b, b_in, b_losses, not a_won, rng, float(m1["morale"]))
+		var note: String = BattleTactics.outcome_note(t0, t1, 0 if a_won else 1, false)
 		battle_log.append({"round": rounds, "a_in": a_in, "b_in": b_in, "winner": "a" if a_won else "b",
+			"tactics": [t0, t1], "tactic_note": note,
 			"a_dead": a_result["dead"], "a_wounded": a_result["wounded"], "a_captured": a_result["captured"],
 			"b_dead": b_result["dead"], "b_wounded": b_result["wounded"], "b_captured": b_result["captured"],
 			"a_morale": a["morale"], "b_morale": b["morale"]})
@@ -73,7 +87,7 @@ static func _roll_losses(sent: int, own_power: float, enemy_power: float, won: b
 
 
 ## Removes casualties from fit men, samples officer losses, and updates morale.
-static func _apply_losses(army: Dictionary, sent: int, losses: int, won: bool, rng: RandomNumberGenerator) -> Dictionary:
+static func _apply_losses(army: Dictionary, sent: int, losses: int, won: bool, rng: RandomNumberGenerator, morale_mult: float = 1.0) -> Dictionary:
 	var casualties: int = clampi(losses, 0, mini(sent, int(army["fit"])))
 	var dead: int = clampi(roundi(float(casualties) * 0.40), 0, casualties)
 	var captured: int = 0
@@ -99,6 +113,7 @@ static func _apply_losses(army: Dictionary, sent: int, losses: int, won: bool, r
 		morale_delta = 4.0 - 10.0 * loss_share - 5.0 * float(officers_lost)
 	else:
 		morale_delta = -12.0 - 30.0 * loss_share - 8.0 * float(officers_lost)
+	morale_delta += (morale_mult - 1.0) * 12.0
 	army["morale"] = clampf(float(army["morale"]) + morale_delta, 0.0, 100.0)
 	return {"dead": dead, "wounded": wounded, "captured": captured}
 
