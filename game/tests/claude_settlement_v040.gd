@@ -85,7 +85,8 @@ func run(tree: SceneTree) -> int:
 	check(not bool(poor_prev.get("ok", true)) and str(poor_prev.get("reason", "")) == "no_funds", "rejects when payer purse < cost")
 
 	# 4. start_preview and start for player-ruled town (granary Lv.1)
-	payer["purse"] = 5000.0
+	var test_purse: float = float(Settlement.cost_for_level("granary", 1) + Settlement.cost_for_level("housing", 1) + 1000)
+	payer["purse"] = test_purse
 	var cap_before: int = Settlement.food_capacity(town)
 	var prev: Dictionary = Settlement.start_preview(Game, seat, "granary")
 	var expected_cost: int = int(prev.get("cost", 0))
@@ -94,7 +95,7 @@ func run(tree: SceneTree) -> int:
 
 	var started: Dictionary = Settlement.start(Game, seat, "granary", prev)
 	check(bool(started.get("ok", false)), "start succeeds for granary Lv.1")
-	check(is_equal_approx(float(payer.get("purse", 0.0)), 5000.0 - float(expected_cost)), "start deducts cost from player payer purse")
+	check(is_equal_approx(float(payer.get("purse", 0.0)), test_purse - float(expected_cost)), "start deducts cost from player payer purse")
 	var active_projects: Array = e.get("projects", [])
 	check(active_projects.size() == 1, "project added to town econ.projects")
 
@@ -160,7 +161,7 @@ func run(tree: SceneTree) -> int:
 	var ai_projects: Array = ai_e["projects"]
 	ai_projects.clear()
 	ai_e["ai_project_day"] = -999
-	ai_e["treasury"] = 2000.0
+	ai_e["treasury"] = maxf(Settlement.AI_RICH_TREASURY, float(Settlement.cost_for_level("walls", 1)))
 	cur_day += 35
 	Settlement.daily(Game, cur_day)
 	var ai_projects_after: Array = ai_e["projects"]
@@ -174,7 +175,7 @@ func run(tree: SceneTree) -> int:
 		var ap: Dictionary = ai_projects_after[0]
 		ap["days_left"] = 4.0
 		ap["target_level"] = 1.0
-		ap["cost"] = 120.0
+		ap["cost"] = float(Settlement.cost_for_level("granary", 1))
 	Settlement.after_load(Game)
 	check(typeof(b_dict["granary"]) == TYPE_INT and int(b_dict["granary"]) == 2, "after_load casts building level to int and preserves state")
 	check(typeof(food["stock"]) == TYPE_INT and int(food["stock"]) == 321, "after_load casts food.stock to int and preserves state")

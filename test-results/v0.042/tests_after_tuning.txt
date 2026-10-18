@@ -1,0 +1,30 @@
+== claude_balance_v042
+
+balance042: tactics_max_eff_edge_skill10=0.30
+balance042: 14 checks, 0 failures
+== res://tests/claude_balance_v042.gd: PASS ==
+== claude_tactics_v041
+tactics041: 60 checks, 0 failures
+== res://tests/claude_tactics_v041.gd: PASS ==
+== claude_tactics_ui_v041
+tactics ui v041: 28 checks, 0 failures
+== res://tests/claude_tactics_ui_v041.gd: PASS ==
+== claude_settlement_v040
+settlement040: 39 checks, 0 failures
+== res://tests/claude_settlement_v040.gd: PASS ==
+== claude_settlement_ui_v040
+settlement_ui_v040: 40 checks, 0 failures
+== res://tests/claude_settlement_ui_v040.gd: PASS ==
+== claude_population_v034
+population034: 48 checks, 0 failures
+== res://tests/claude_population_v034.gd: PASS ==
+== claude_rounds
+Rounds test: 14 checks, 0 failures
+== res://tests/claude_rounds.gd: PASS ==
+== claude_campaign
+Claude campaign test: 21 checks, 0 failures
+== res://tests/claude_campaign.gd: PASS ==
+
+
+
+[exited with code 0]

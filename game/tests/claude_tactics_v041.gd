@@ -90,11 +90,24 @@ func run(tree: SceneTree) -> int:
 	var p2: String = BattleTactics.ai_pick(st_det, 1, 1)
 	check(p1 == p2 and BattleTactics.TACTICS.has(p1), "ai_pick is deterministic for a given seed and round")
 
+	# Round 1 has no enemy last tactic, so ai_pick's weight is max(0.10, 1 + terrain_mod * 4).
+	# Compare those terrain weights directly, then confirm picks over a larger sample.
+	var plains_mobile_w: float = 0.0
+	var marsh_mobile_w: float = 0.0
+	var marsh_def_w: float = 0.0
+	var plains_def_w: float = 0.0
+	for tactic_name in ["charge", "flank"]:
+		plains_mobile_w += maxf(0.10, 1.0 + BattleTactics.terrain_mod("plains", tactic_name, 1, 1) * 4.0)
+		marsh_mobile_w += maxf(0.10, 1.0 + BattleTactics.terrain_mod("marsh", tactic_name, 1, 1) * 4.0)
+	for tactic_name in ["hold", "skirmish"]:
+		marsh_def_w += maxf(0.10, 1.0 + BattleTactics.terrain_mod("marsh", tactic_name, 1, 1) * 4.0)
+		plains_def_w += maxf(0.10, 1.0 + BattleTactics.terrain_mod("plains", tactic_name, 1, 1) * 4.0)
 	var plains_mobile: int = 0
 	var marsh_mobile: int = 0
 	var marsh_defensive: int = 0
 	var plains_defensive: int = 0
-	for s in range(1, 81):
+	var samples: int = 600
+	for s in range(1, samples + 1):
 		var tp: String = BattleTactics.ai_pick({"terrain": "plains", "seed": s * 97, "log": []}, 1, 1)
 		var tm: String = BattleTactics.ai_pick({"terrain": "marsh", "seed": s * 97, "log": []}, 1, 1)
 		if tp in ["charge", "flank"]:
@@ -105,9 +118,9 @@ func run(tree: SceneTree) -> int:
 			marsh_defensive += 1
 		if tp in ["hold", "skirmish"]:
 			plains_defensive += 1
-	check(plains_mobile > marsh_mobile and marsh_defensive > plains_defensive,
-		"ai_pick weights tactics by terrain (plains mobile=%d vs marsh=%d; marsh hold/skirmish=%d vs plains=%d)" % [
-			plains_mobile, marsh_mobile, marsh_defensive, plains_defensive])
+	check(plains_mobile_w > marsh_mobile_w and marsh_def_w > plains_def_w and plains_mobile > marsh_mobile and marsh_defensive > plains_defensive,
+		"ai_pick weights tactics by terrain (plains mobile w=%.2f vs marsh w=%.2f; marsh hold/skirmish w=%.2f vs plains w=%.2f; samples plains mobile=%d vs marsh=%d; marsh hold/skirmish=%d vs plains=%d)" % [
+			plains_mobile_w, marsh_mobile_w, marsh_def_w, plains_def_w, plains_mobile, marsh_mobile, marsh_defensive, plains_defensive])
 
 	var vs_charge_counters: int = 0
 	var vs_hold_counters: int = 0
@@ -123,11 +136,11 @@ func run(tree: SceneTree) -> int:
 	check(vs_charge_counters > 25 and vs_hold_counters > 25,
 		"ai_pick adapts to enemy's last tactic (vs charge=%d, vs hold=%d)" % [vs_charge_counters, vs_hold_counters])
 
-	# 5. Modifiers bounds and commander tactician scaling (0..+50%).
+	# 5. Modifiers bounds and commander tactician scaling (0..MAX_TACTICIAN_BONUS).
 	check(is_equal_approx(BattleTactics.tactician_bonus(0), 0.0), "tactician 0 gives +0% bonus")
-	check(is_equal_approx(BattleTactics.tactician_bonus(5), 0.25), "tactician 5 gives +25% bonus")
-	check(is_equal_approx(BattleTactics.tactician_bonus(10), 0.50), "tactician 10 gives +50% bonus")
-	check(is_equal_approx(BattleTactics.tactician_bonus(15), 0.50), "tactician bonus is capped at +50%")
+	check(is_equal_approx(BattleTactics.tactician_bonus(5), BattleTactics.MAX_TACTICIAN_BONUS * 0.5), "tactician 5 gives half max bonus")
+	check(is_equal_approx(BattleTactics.tactician_bonus(10), BattleTactics.MAX_TACTICIAN_BONUS), "tactician 10 gives max bonus")
+	check(is_equal_approx(BattleTactics.tactician_bonus(15), BattleTactics.MAX_TACTICIAN_BONUS), "tactician bonus is capped at MAX_TACTICIAN_BONUS")
 
 	var rng_u := RandomNumberGenerator.new()
 	rng_u.seed = 42

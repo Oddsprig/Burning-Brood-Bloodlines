@@ -53,12 +53,12 @@ const TERRAIN_MODS: Dictionary = {
 	"plains": {"charge": 0.06, "hold": -0.02, "flank": 0.06, "skirmish": 0.0, "feint": 0.02},
 	"badlands": {"charge": 0.04, "hold": 0.0, "flank": 0.05, "skirmish": 0.02, "feint": 0.02},
 	"road": {"charge": 0.05, "hold": 0.0, "flank": 0.04, "skirmish": 0.0, "feint": 0.02},
-	"forest": {"charge": -0.06, "hold": 0.06, "flank": -0.04, "skirmish": 0.06, "feint": 0.03},
-	"silverwood": {"charge": -0.06, "hold": 0.06, "flank": -0.04, "skirmish": 0.06, "feint": 0.03},
+	"forest": {"charge": -0.03, "hold": 0.06, "flank": -0.04, "skirmish": 0.06, "feint": 0.03},
+	"silverwood": {"charge": -0.03, "hold": 0.06, "flank": -0.04, "skirmish": 0.06, "feint": 0.03},
 	"marsh": {"charge": -0.08, "hold": 0.06, "flank": -0.06, "skirmish": 0.06, "feint": 0.02},
 	"mud": {"charge": -0.07, "hold": 0.05, "flank": -0.05, "skirmish": 0.05, "feint": 0.01},
-	"hills": {"charge": -0.05, "hold": 0.03, "flank": -0.02, "skirmish": 0.03, "feint": 0.02},
-	"mountains": {"charge": -0.06, "hold": 0.04, "flank": -0.03, "skirmish": 0.03, "feint": 0.02},
+	"hills": {"charge": -0.03, "hold": 0.01, "flank": -0.02, "skirmish": 0.03, "feint": 0.02},
+	"mountains": {"charge": -0.03, "hold": 0.02, "flank": -0.03, "skirmish": 0.03, "feint": 0.02},
 }
 const HILLS_DEFENDER_HOLD: float = 0.06
 
@@ -73,7 +73,8 @@ const PROFILE: Dictionary = {
 
 const MIN_MULT: float = 0.75
 const MAX_MULT: float = 1.35
-const MAX_TACTICIAN_BONUS: float = 0.50
+const MAX_TACTICIAN_BONUS: float = 0.25
+const MAX_EFF_EDGE: float = 0.30
 
 static var _pending_picks: Array[String] = ["", ""]
 static var _pending_epoch: int = -1
@@ -235,13 +236,19 @@ static func _on_screen_changed(screen_name: String) -> void:
 			apply_sim(cur.sim, mods)
 
 
-## Commander tactician bonus in [0.0, 0.50] (0..+50% scaling of the tactic edge).
+## Commander tactician bonus in [0.0, 0.25] (0..+25% scaling of the tactic edge).
 static func tactician_bonus(skill_level: int) -> float:
-	return clampf(float(maxi(0, skill_level)) * 0.05, 0.0, MAX_TACTICIAN_BONUS)
+	return clampf(float(maxi(0, skill_level)) * 0.025, 0.0, MAX_TACTICIAN_BONUS)
 
 
 static func tactician_scale(skill_level: int) -> float:
 	return 1.0 + tactician_bonus(skill_level)
+
+
+static func effective_edge(raw_edge: float, tactician_skill: int) -> float:
+	var scale: float = tactician_scale(tactician_skill)
+	var eff: float = raw_edge * scale if raw_edge >= 0.0 else raw_edge / scale
+	return clampf(eff, -MAX_EFF_EDGE, MAX_EFF_EDGE)
 
 
 ## Best tactician skill among the side's house officers/leaders in that round.
@@ -322,9 +329,9 @@ static func ai_pick(game, side: int, round_index: int) -> String:
 	var weights: Array[float] = []
 	var total: float = 0.0
 	for t in ORDER:
-		var w: float = 1.0 + terrain_mod(terrain, t, s, def_side) * 6.0
+		var w: float = 1.0 + terrain_mod(terrain, t, s, def_side) * 4.0
 		if enemy_last != "" and TACTICS.has(enemy_last):
-			w += counter_mod(t, enemy_last) * 4.5
+			w += counter_mod(t, enemy_last) * 1.8
 		w = maxf(0.10, w)
 		weights.append(w)
 		total += w
@@ -364,11 +371,11 @@ static func _side_mods(my_tactic: String, enemy_tactic: String, terrain: String,
 	var foe: String = valid(enemy_tactic)
 	var prof: Dictionary = PROFILE.get(t, PROFILE["hold"])
 	var c_edge: float = counter_mod(t, foe)
-	var t_edge: float = terrain_mod(terrain, t, side, def_side)
+	var eff_def: int = -1 if (t == "hold" and foe == "hold") else def_side
+	var t_edge: float = terrain_mod(terrain, t, side, eff_def)
 	var raw_edge: float = c_edge + t_edge
 	var scale: float = tactician_scale(tactician_skill)
-	var skill_Bonus: float = tactician_bonus(tactician_skill) * 0.12
-	var eff_edge: float = (raw_edge * scale if raw_edge >= 0.0 else raw_edge / scale) + skill_Bonus
+	var eff_edge: float = effective_edge(raw_edge, tactician_skill)
 	var prof_scale: float = 1.0 + 0.5 * (scale - 1.0)
 	var att_bias: float = float(prof["attack"]) * (prof_scale if float(prof["attack"]) >= 0.0 else 1.0)
 	var def_bias: float = float(prof["defence"]) * (prof_scale if float(prof["defence"]) >= 0.0 else 1.0)

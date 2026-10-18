@@ -11,6 +11,9 @@ const TEMPLE_GRIEVANCE_DROP: float = 0.05
 const AI_COOLDOWN_DAYS: int = 30
 const AI_RICH_TREASURY: float = 500.0
 const AI_RICH_PURSE: float = 2500.0
+## Quarters of People.year_days(), in Calendar order: spring, summer, autumn, winter.
+## Applied to the flat daily yield so a granary, not a daily surplus, carries a town through winter.
+const HARVEST_SEASON_MULT: Array[float] = [0.8, 1.2, 1.6, 0.2]
 
 const KEYS: Array[String] = ["granary", "housing", "market", "walls", "temple"]
 
@@ -18,35 +21,35 @@ const CATALOG: Dictionary = {
 	"granary": {
 		"key": "granary",
 		"name": "Granary",
-		"base_cost": 120,
+		"base_cost": 1200,
 		"base_days": 6,
 		"desc": "Raises town food storage capacity."
 	},
 	"housing": {
 		"key": "housing",
 		"name": "Housing",
-		"base_cost": 140,
+		"base_cost": 1400,
 		"base_days": 7,
 		"desc": "Expands household room capacity and eases crowding."
 	},
 	"market": {
 		"key": "market",
 		"name": "Market",
-		"base_cost": 160,
+		"base_cost": 1600,
 		"base_days": 8,
 		"desc": "Increases town trade and tax income."
 	},
 	"walls": {
 		"key": "walls",
 		"name": "Walls",
-		"base_cost": 200,
+		"base_cost": 2000,
 		"base_days": 10,
 		"desc": "Provides a siege defence bonus."
 	},
 	"temple": {
 		"key": "temple",
 		"name": "Temple",
-		"base_cost": 150,
+		"base_cost": 1500,
 		"base_days": 7,
 		"desc": "Lowers local sickness and feudal grievance."
 	}
@@ -282,7 +285,23 @@ static func start(game, town_id: String, key: String, review: Dictionary = {}) -
 	check["project"] = proj
 	return check
 
-static func daily_harvest(town_or_econ: Dictionary) -> int:
+## Season index 0..3 from game.day (or an explicit day): each quarter of People.year_days().
+static func harvest_season_index(day: float) -> int:
+	var year_len: float = maxf(4.0, People.year_days())
+	var quarter: float = year_len / 4.0
+	var wrapped: float = fposmod(day, year_len)
+	return clampi(int(floor(wrapped / quarter)), 0, 3)
+
+static func harvest_season_mult(day: float) -> float:
+	return HARVEST_SEASON_MULT[harvest_season_index(day)]
+
+static func _harvest_day(day: float = -1.0) -> float:
+	if day >= 0.0:
+		return day
+	return float(Game.day)
+
+## Flat daily yield before the seasonal multiplier.
+static func _base_daily_harvest(town_or_econ: Dictionary) -> int:
 	var e: Dictionary = _econ_of(town_or_econ)
 	var wacres: Dictionary = e["wacres"] if e.get("wacres") is Dictionary else {}
 	var land: Dictionary = e["land"] if e.get("land") is Dictionary else {}
@@ -295,12 +314,19 @@ static func daily_harvest(town_or_econ: Dictionary) -> int:
 		if hv is int or hv is float:
 			herd_total += float(hv)
 	var pop: int = _pop_of(town_or_econ)
-	var raw: float = grain_acres * 0.35 + fruit_acres * 0.25 + herd_total * 0.15
+	var raw: float = (grain_acres * 0.35 + fruit_acres * 0.25 + herd_total * 0.15) * 0.22
 	if raw <= 0.0:
 		if pop <= 0:
 			return 0
 		raw = float(pop) * 0.12
 	return maxi(1, int(round(raw)))
+
+## Seasonal harvest. `day` defaults to Game.day. Winter is a fraction of the flat yield.
+static func daily_harvest(town_or_econ: Dictionary, day: float = -1.0) -> int:
+	var base: int = _base_daily_harvest(town_or_econ)
+	if base <= 0:
+		return 0
+	return maxi(0, int(round(float(base) * harvest_season_mult(_harvest_day(day)))))
 
 static func daily_consumption(town_or_econ: Dictionary) -> int:
 	var pop: int = _pop_of(town_or_econ)
@@ -308,14 +334,14 @@ static func daily_consumption(town_or_econ: Dictionary) -> int:
 		return 0
 	return maxi(1, int(ceil(float(pop) * 0.08)))
 
-static func update_food(town_or_econ: Dictionary) -> void:
+static func update_food(town_or_econ: Dictionary, day: float = -1.0) -> void:
 	var e: Dictionary = ensure_town(town_or_econ)
 	var food: Dictionary = e["food"]
 	var cap: int = _calc_food_capacity(town_or_econ)
 	food["capacity"] = cap
 	var cur_stock: int = int(_num(food.get("stock", 0), 0.0))
 	var last_stock: int = int(_num(food.get("last_stock", cur_stock), float(cur_stock)))
-	var harvest: int = daily_harvest(town_or_econ)
+	var harvest: int = daily_harvest(town_or_econ, day)
 	var cons: int = daily_consumption(town_or_econ)
 	var net: int = harvest - cons
 	var new_stock: int = cur_stock
@@ -485,7 +511,7 @@ static func daily(game, day: int = -1) -> void:
 		var town: Dictionary = t
 		ensure_town(town)
 		_advance_projects(game, town)
-		update_food(town)
+		update_food(town, float(d))
 		_apply_daily_effects(game, town)
 		_maybe_ai_start(game, town, d)
 

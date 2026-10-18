@@ -268,6 +268,7 @@ v0.038 dragon hatching and breeding - DELIVERED (Claude Edition): choose a mate 
 v0.039 character designer - DELIVERED (Claude Edition): a "Design your ruler" new-game step for first name, portrait look and a starting focus.
 v0.040 broader settlement sim - DELIVERED (Claude Edition): town building projects (granary, housing, market, walls, temple), food stores that drive famine, a town Buildings tab.
 v0.041 tactical battle systems - DELIVERED (Claude Edition): orders before each battle round (charge, hold, flank, skirmish, feint) with counters, terrain and commander skill.
+v0.042 balance pass - DELIVERED (Claude Edition): measured and tuned buildings (x10 cost), seasonal harvests so granaries matter, softer AI counter-picks and capped tactic edges.
 Also delivered outside the numbered list (Claude Edition): court and marriage, interface pass, 100 v 100 battle rounds, armies to 1000, house officers and noble call-up, house arms pool, ennoblement, medics and aftermath.
 
 LOCKED FOUNDATIONS / LATER SMALL PASSES
