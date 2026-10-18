@@ -34,12 +34,27 @@ static func daily(game, day: int) -> void:
 	_breed(game, registry, day)
 	if born: DragonCombat.prepare_world(game)   # bodies for new hatchlings; existing bodies are never replaced
 
+static func _has_keeper(game, row: Dictionary) -> bool:
+	var town_id: String = str(row.get("location_town_id", ""))
+	if town_id == "": return false
+	var cuid: String = str(row.get("custodian_person_uid", ""))
+	if cuid == "":
+		cuid = str(row.get("owner_person_uid", ""))
+	if cuid == "": return false
+	var keeper: Dictionary = Dragons._person(game, cuid)
+	if keeper.is_empty() or not Dragons._present(keeper, town_id): return false
+	return true
+
 static func _incubate(game, row: Dictionary, day: int) -> bool:
 	var care: Dictionary = row.get("care", {})
-	var ratio := float(care.get("last", {}).get("care_ratio", 1.0))
-	var health := float(care.get("health", 1.0))
+	var last: Dictionary = care.get("last", {})
+	var ratio: float = float(last.get("care_ratio", 1.0))
+	var health: float = float(care.get("health", 1.0))
 	if health < 0.3: return false
-	row["incubation"] = float(row.get("incubation", 0.0)) + clampf(ratio, 0.25, 1.0)
+	var keeper_ok: bool = _has_keeper(game, row)
+	var care_step: float = clampf(ratio, 0.25, 1.0)
+	var speed: float = 1.0 if keeper_ok else 0.5
+	row["incubation"] = float(row.get("incubation", 0.0)) + care_step * speed
 	if float(row["incubation"]) < HATCH_DAYS: return false
 	var key := str(row["id"]) + ":hatch"
 	var seed_value := Dragons._seed(game, key)
@@ -50,18 +65,27 @@ static func _incubate(game, row: Dictionary, day: int) -> bool:
 	row["size_class"] = "small"
 	row["growth_points"] = 0.0
 	row.erase("incubation")
-	Dragons._history(game, row, "hatched", {"day": day})
+	var mother_uid: String = str(row.get("mother_uid", ""))
+	var father_uid: String = str(row.get("father_uid", ""))
+	var mother_name: String = str(Dragons.get_record(game, mother_uid).get("name", "")) if mother_uid != "" else ""
+	var father_name: String = str(Dragons.get_record(game, father_uid).get("name", "")) if father_uid != "" else ""
+	var parent_note := "%s & %s" % [mother_name if mother_name != "" else mother_uid, father_name if father_name != "" else father_uid]
+	Dragons._history(game, row, "hatched", {"day": day, "mother_uid": mother_uid, "father_uid": father_uid,
+		"mother_name": mother_name, "father_name": father_name, "parents": parent_note})
 	_announce(game, row, "The %s has hatched! A %s hatchling, %s, has broken from the shell." % [
 		Dragons.type_label(row).replace(" Dragon", " egg"), "female" if row["sex"] == "female" else "male", row["name"]])
 	return true
 
 static func _breed(game, registry: Dictionary, day: int) -> void:
+	DragonBreeding.breed_chosen_pairs(game, registry, day)
+	var player_house: String = str(game.world.get("player_house", {}).get("house_uid", ""))
 	var roosts := {}   # town|house -> {female: [], male: []}
 	var per_house := {}
 	for row: Dictionary in registry.values():
 		if not bool(row.get("alive", false)): continue
 		var house := str(row.get("owner_house_uid", ""))
 		per_house[house] = int(per_house.get(house, 0)) + 1
+		if player_house != "" and house == player_house: continue
 		if str(row.get("stage", "")) != "adult": continue
 		if float(row.get("care", {}).get("health", 0.0)) < 0.7: continue
 		if row.get("campaign_march", {}).get("enabled", false): continue
@@ -84,16 +108,9 @@ static func _breed(game, registry: Dictionary, day: int) -> void:
 		var owner := Dragons._person(game, str(mother.get("owner_person_uid", "")))
 		if owner.is_empty(): continue
 		mother["last_clutch_day"] = day
-		var gems: Array = Dragons.catalogs()["gems"]
-		var parent_gem := str(mother["gem_id"]) if roll < BREED_CHANCE * 0.5 else str(father["gem_id"])
-		var palette := 0
-		for i in gems.size():
-			if str(gems[i]["id"]) == parent_gem: palette = i
-		var egg: Dictionary = Dragons._make(game, "egg", town_id, owner, "%s:clutch:%d" % [mother["id"], day], palette, "unknown",
-			str(mother["id"]), str(father["id"]), str(mother.get("bloodline_uid", "")))
-		egg["laid_day"] = float(day)
-		egg["incubation"] = 0.0
-		Dragons._history(game, mother, "clutch", {"egg_uid": egg["id"]})
+		var egg: Dictionary = DragonBreeding.spawn_egg(game, mother, father, day, 0)
+		if egg.is_empty(): continue
+		per_house[house] = int(per_house.get(house, 0)) + 1
 		_announce(game, egg, "%s and %s have produced a clutch: a %s at %s." % [mother.get("name", "?"), father.get("name", "?"),
 			egg.get("name", "dragon egg"), game.world.get("towns", {}).get(town_id, {}).get("name", "their roost")])
 

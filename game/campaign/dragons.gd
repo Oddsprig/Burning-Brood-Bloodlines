@@ -52,6 +52,9 @@ static func type_label(row: Dictionary) -> String:
 	return (str(gem["name"]) if not gem.is_empty() else "Unknown") + suffix
 
 static func _variation(row: Dictionary, channel: String) -> float:
+	var stored: Variant = row.get("variation", {})
+	if stored is Dictionary and (stored as Dictionary).has(channel):
+		return float((stored as Dictionary)[channel])
 	# Independent stored-seed channels; neither gem/name nor campaign RNG is involved.
 	var seed_value := int(hash([int(row.get("appearance_seed", 0)), "physique", channel])) & 0x7fffffff
 	return 0.9 + float(seed_value % 201) / 1000.0
@@ -215,7 +218,7 @@ static func _make(game, stage: String, town_id: String, owner: Dictionary, key: 
 ## Any existing registry is retained, even an empty one: no saved identity regeneration.
 static func init_world(game) -> void:
 	if game.world.has("dragons"): return
-	game.world["dragons"] = {"schema": 1, "next_id": 1, "records": {}, "initialized": true}
+	game.world["dragons"] = {"schema": 1, "next_id": 1, "records": {}, "pairs": {}, "initialized": true}
 	var valid := {}; var towns: Dictionary = game.world.get("towns", {})
 	var town_ids: Array = towns.keys(); town_ids.sort()
 	for tid in town_ids:
@@ -250,14 +253,20 @@ static func init_world(game) -> void:
 static func after_load(game) -> void:
 	if not game.world.has("dragons"): return
 	var state := _state(game)
-	for field in ["schema", "next_id"]:
+	for field in ["schema", "next_id", "life_day"]:
 		if state.has(field): state[field] = int(state[field])
 	for row in state.get("records", {}).values():
 		if row.has("appearance_seed"): row["appearance_seed"] = int(row["appearance_seed"])
+		if row.has("last_clutch_day"): row["last_clutch_day"] = int(row["last_clutch_day"])
+		if row.has("variation") and row["variation"] is Dictionary:
+			var vmap: Dictionary = row["variation"]
+			for ch in vmap.keys():
+				vmap[ch] = float(vmap[ch])
 		for entry in row.get("history", []):
 			if entry.has("appearance_seed"): entry["appearance_seed"] = int(entry["appearance_seed"])
 	reconcile(game)
 	DragonCare.after_load(game)
+	DragonBreeding.after_load(game)
 
 ## Explicit post-succession/death boundary. Legal kin inherit assets independently
 ## of location/custody/current title; missing lawful heirs leave prior refs unclaimed.

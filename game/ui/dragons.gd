@@ -22,6 +22,7 @@ var model_zoom: bool = false
 var model_play: bool = false
 const BOND_PAGE_SIZE := 8
 var _bond_picker: Dictionary = {}
+var _mate_list: Node = null
 
 func _ready() -> void:
 	Perf.set_stage("Dragon holdings")
@@ -51,6 +52,7 @@ func _queue_refresh() -> void:
 
 func _exit_tree() -> void:
 	_bond_picker.clear()
+	_mate_list = null
 
 func _context() -> Dictionary:
 	return {"back": back, "back_params": back_params, "dragon_uid": detail_uid, "holdings": holdings}
@@ -136,6 +138,7 @@ func _roster_card(row: Dictionary) -> void:
 		var doing := UiKit.label("Marching with your army" if marching else ("Defending %s" % _town_name(String(row.get("location_town_id","")))) if defending else "At rest in %s" % _town_name(String(row.get("location_town_id",""))), "Small", true)
 		if marching: doing.add_theme_color_override("font_color", UiTheme.WARN)
 		content.add_child(doing)
+	_breeding_bits(content, row)
 	content.add_child(UiKit.button("Open", _open_dragon.bind(String(row.get("id", ""))), "Row"))
 
 static func _catalog_name(group: String, id: String) -> String:
@@ -233,6 +236,7 @@ func _detail(row: Dictionary) -> void:
 	body.add_child(UiKit.label(String(row.get("name", "Dragon")), "H2", true))
 	_bond_panel(row)
 	_combat_panel(row)
+	_breeding_panel(row)
 	var visual := DragonCard.new()
 	visual.custom_minimum_size = Vector2(0, 230)
 	visual.set_record(row)
@@ -318,6 +322,152 @@ func _combat_panel(row: Dictionary) -> void:
 		_queue_refresh(),"Row"); go.name = "DragonMarch"
 	go.disabled = not (bool(march.get("marching",false)) or bool(march.get("can_march",false))); go.tooltip_text = String(march.get("reason",""))
 	controls.add_child(go)
+
+func _player_adult(row: Dictionary) -> bool:
+	if String(row.get("stage", "")) != "adult" or not bool(row.get("alive", false)): return false
+	var house := String(Game.world.get("player_house", {}).get("house_uid", ""))
+	return house != "" and String(row.get("owner_house_uid", "")) == house
+
+func pair_status_text(row: Dictionary) -> String:
+	var partner := String(row.get("paired_with_uid", ""))
+	if partner == "": return ""
+	var mate: Dictionary = Dragons.get_record(Game, partner)
+	var name := String(mate.get("name", ""))
+	if name == "" or not bool(mate.get("alive", false)): return ""
+	var mother_uid := String(row.get("id", "")) if String(row.get("sex", "")) == "female" else partner
+	var entry: Dictionary = DragonBreeding.pairs(Game).get(mother_uid, {})
+	if entry.is_empty(): return "Paired with %s" % name
+	var due := int(entry.get("due_day", 0))
+	if int(entry.get("clutches", 0)) > 0 and due > int(Game.day) + 20:
+		return "Paired with %s; resting after a clutch until day %d" % [name, due]
+	return "Paired with %s; a clutch is expected around day %d" % [name, due]
+
+func parent_line(row: Dictionary) -> String:
+	if String(row.get("stage", "")) != "egg": return ""
+	var mother_name := String(Dragons.get_record(Game, String(row.get("mother_uid", ""))).get("name", ""))
+	var father_name := String(Dragons.get_record(Game, String(row.get("father_uid", ""))).get("name", ""))
+	if mother_name == "" or father_name == "": return ""
+	return "Mother: %s, Father: %s" % [mother_name, father_name]
+
+func _breeding_panel(row: Dictionary) -> void:
+	if pair_status_text(row) == "" and parent_line(row) == "" and not _player_adult(row): return
+	var panel := UiKit.panel("Card"); panel.name = "DragonBreedingPanel"; body.add_child(panel)
+	var facts := UiKit.vbox(4); panel.add_child(facts)
+	_breeding_bits(facts, row)
+
+func _breeding_bits(box: Node, row: Dictionary) -> void:
+	var paired := pair_status_text(row)
+	if paired != "":
+		var status := UiKit.label(paired, "", true); status.name = "DragonPairStatus"; box.add_child(status)
+	var parents := parent_line(row)
+	if parents != "":
+		var line := UiKit.label(parents, "Muted", true); line.name = "DragonParentLine"; box.add_child(line)
+	if _player_adult(row):
+		var button := UiKit.button("Choose a mate", _open_mate_list.bind(String(row.get("id", ""))), "Row")
+		button.name = "DragonPairButton"
+		box.add_child(button)
+
+func _open_mate_list(uid: String) -> void:
+	_close_mate_list()
+	var row: Dictionary = Dragons.get_record(Game, uid)
+	if row.is_empty(): return
+	var sex := String(row.get("sex", ""))
+	var want := "male" if sex == "female" else ("female" if sex == "male" else "")
+	var town := String(row.get("location_town_id", ""))
+	var modal := UiKit.modal(self, "Choose a mate", 700); modal.name = "DragonMateList"
+	modal.add_child(UiKit.label("Opposite-sex adults at %s." % _town_name(town), "Small", true))
+	var scroll := UiKit.scroll(); scroll.custom_minimum_size.y = 240; modal.add_child(scroll)
+	var rows := UiKit.vbox(6); rows.size_flags_horizontal = SIZE_EXPAND_FILL; scroll.add_child(rows)
+	var found := false
+	for other: Dictionary in Dragons.records(Game):
+		var other_id := String(other.get("id", ""))
+		if other_id == "" or other_id == uid: continue
+		if String(other.get("stage", "")) != "adult" or String(other.get("sex", "")) != want: continue
+		if String(other.get("location_town_id", "")) != town: continue
+		var mother_uid := uid if sex == "female" else other_id
+		var father_uid := other_id if sex == "female" else uid
+		var preview: Dictionary = DragonBreeding.pair_preview(Game, mother_uid, father_uid)
+		var ok := bool(preview.get("ok", false))
+		var reason := String(preview.get("reason", preview.get("message", "")))
+		var block := UiKit.vbox(2); block.size_flags_horizontal = SIZE_EXPAND_FILL; rows.add_child(block)
+		var choice := UiKit.button(String(other.get("name", "Dragon")), _pick_mate.bind(mother_uid, father_uid), "Row")
+		choice.name = "DragonMateChoice"
+		choice.set_meta("mate_uid", other_id)
+		choice.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		choice.tooltip_text = reason
+		choice.disabled = not ok
+		if not ok: block.modulate = Color(0.68, 0.68, 0.68)
+		block.add_child(choice)
+		if not ok:
+			var why := UiKit.label(reason, "Muted", true); why.name = "DragonMateReason"; why.set_meta("mate_uid", other_id); block.add_child(why)
+		found = true
+	if not found: rows.add_child(UiKit.label("No opposite-sex adult shares this roost.", "Muted", true))
+	var cancel := UiKit.button("Cancel", _close_mate_list, "Row", 100); cancel.name = "DragonMateCancel"; modal.add_child(cancel)
+	_mate_list = modal
+
+func _close_mate_list() -> void:
+	if _mate_list == null or not is_instance_valid(_mate_list):
+		_mate_list = null
+		return
+	var modal := _mate_list
+	_mate_list = null
+	UiKit.close_modal(modal)
+
+func _pick_mate(mother_uid: String, father_uid: String) -> void:
+	_close_mate_list()
+	var preview: Dictionary = DragonBreeding.pair_preview(Game, mother_uid, father_uid)
+	if not bool(preview.get("ok", false)):
+		notice = String(preview.get("reason", "This pair cannot breed."))
+		_queue_refresh()
+		return
+	_show_pair_confirm(mother_uid, father_uid, preview)
+
+func _clutch_estimate_text(preview: Dictionary) -> String:
+	return "Clutch estimate: %d (between %d and %d), within %d days." % [int(preview.get("clutch_estimate", 0)), int(preview.get("clutch_min", 1)), int(preview.get("clutch_max", 1)), int(preview.get("lay_days", 0))]
+
+func _traits_preview_text(preview: Dictionary) -> String:
+	var traits: Dictionary = preview.get("traits_preview", {})
+	var gem_names: Array[String] = []
+	for gem_id in traits.get("possible_gems", []):
+		gem_names.append(_catalog_name("gems", String(gem_id)))
+	var morph_names: Array[String] = []
+	for morph_id in traits.get("possible_morphs", []):
+		morph_names.append(_catalog_name("morphs", String(morph_id)))
+	var gems := "unknown"
+	if not gem_names.is_empty():
+		gems = " or ".join(gem_names)
+	var forms := "unknown"
+	if not morph_names.is_empty():
+		forms = " or ".join(morph_names)
+	var rare := int(round(float(traits.get("rare_gem_chance", 0.0)) * 100.0))
+	var lines: Array[String] = ["Traits preview: gems %s; body forms %s; rare gem chance %d%%." % [gems, forms, rare]]
+	var avg: Dictionary = traits.get("variation_average", {})
+	var bits: Array[String] = []
+	for channel in DragonBreeding.VARIATION_CHANNELS:
+		var key := String(channel)
+		if avg.has(key):
+			bits.append("%s %.2f" % [key.replace("_", " "), float(avg[key])])
+	if not bits.is_empty():
+		lines.append("Variation averages: " + ", ".join(bits) + ".")
+	return "\n".join(lines)
+
+func _show_pair_confirm(mother_uid: String, father_uid: String, preview: Dictionary) -> void:
+	var modal := UiKit.modal(self, "Confirm breeding pair", 680); modal.name = "DragonPairReview"
+	var clutch := UiKit.label(_clutch_estimate_text(preview), "", true); clutch.name = "DragonClutchEstimate"; modal.add_child(clutch)
+	var traits := UiKit.label(_traits_preview_text(preview), "", true); traits.name = "DragonTraitsPreview"; modal.add_child(traits)
+	var footer := UiKit.hbox(8); modal.add_child(footer)
+	var cancel := UiKit.button("Cancel", func(): UiKit.close_modal(modal), "Row", 100); cancel.name = "DragonPairCancel"; footer.add_child(cancel)
+	footer.add_child(UiKit.spacer())
+	var confirm := UiKit.button("Confirm", func(): UiKit.close_modal(modal); _apply_pair(mother_uid, father_uid, preview), "", 140)
+	confirm.name = "DragonPairConfirm"; footer.add_child(confirm)
+
+func _apply_pair(mother_uid: String, father_uid: String, review: Dictionary) -> void:
+	var result: Dictionary = DragonBreeding.pair(Game, mother_uid, father_uid, review)
+	notice = String(result.get("message", result.get("reason", "")))
+	if bool(result.get("ok", false)):
+		Game.changed.emit()
+		Game.save_game_async()
+	_queue_refresh()
 
 func _request_combat(uid: String, enabled: bool) -> void:
 	var review: Dictionary = DragonCombat.participation_preview(Game,uid,enabled)
