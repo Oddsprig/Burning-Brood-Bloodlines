@@ -144,12 +144,14 @@ func run(scene_tree: SceneTree) -> int:
 		check(fingerprint() == before,"all selection/search/page/customization previews preserve native world/body/funds/RNG/UIDs")
 		fit_check(fit,viewport,page,dimensions,"customize"); await capture(viewport,page,dimensions,"customize")
 		page.next_stage(); await settle()
-		check(page.stage == 3 and page.next_button.text == "Begin" and page.custom["display_name"] == "River Lantern","explicit review normalizes display name and exposes Begin")
+		check(page.stage == 3 and page.find_child("DesignFirstName",true,false) != null,"Design your ruler sits between customization and review")
+		page.next_stage(); await settle()
+		check(page.stage == 4 and page.next_button.text == "Begin" and page.custom["display_name"] == "River Lantern","explicit review normalizes display name and exposes Begin")
 		check(page.review["house"]["leader_uid"] == ordinary["leader_uid"],"review freezes the actual stable person UID")
 		check(fingerprint() == before and Game.world.get("player_house",{}).is_empty() and Game.company.is_empty(),"Review does not begin or raise a free army")
 		fit_check(fit,viewport,page,dimensions,"review"); await capture(viewport,page,dimensions,"review")
 		page.previous_stage(); await settle()
-		check(page.stage == 2 and page.review.is_empty() and fingerprint() == before,"Back cancels review without committing native state")
+		check(page.stage == 3 and page.review.is_empty() and fingerprint() == before,"Back cancels review without committing native state")
 		page.next_stage(); await settle()
 		var family: Dictionary = RecData.fam(town["econ"],int(ordinary["family_id"]))
 		var pp: Array = family["pp"]
@@ -162,6 +164,13 @@ func run(scene_tree: SceneTree) -> int:
 		page.select_house(String(ordinary["household_uid"])); page.next_stage(); await settle()
 		page.update_customization({"display_name":"River Lantern","emblem":"leaf","primary_color":"#294A76","secondary_color":"#E4C47D"})
 		page.next_stage(); await settle()
+		page.next_stage(); await settle()
+		var leader_person: Array = []
+		for person in pp:
+			if str(Persons.g(person,Persons.PERSON_UID,"")) == String(ordinary["leader_uid"]): leader_person = person
+		var name_before := String(leader_person[7]) if leader_person.size() > 7 else ""
+		var head: Dictionary = town["econ"].get("head",{})
+		var head_before := String(head.get("name",""))
 		var native_econ: String = JSON.stringify(Game.world["towns"],"",true,true)
 		var money: float = Barge.holdings(Game); var population: int = fixture.population(); var unit_counter: int = Unit._next_uid; var item_counter: int = Item._next_uid; var rng: int = Game.rng.state
 		var begun: Dictionary = page.begin_review(); Game.wait_save(); await settle()
@@ -169,7 +178,13 @@ func run(scene_tree: SceneTree) -> int:
 		check(Game.world["player_house"]["household_uid"] == ordinary["household_uid"] and Game.world["player_house"]["ruler_uid"] == ordinary["leader_uid"],"Begin selects actual reviewed household/person")
 		check(Game.world["player_house"]["customization"] == page.review["customization"] and family["name"] == ordinary["native_house_name"],"saved presentation never renames native property owner")
 		check(Game.company.is_empty() and Game.gold == 0 and fixture.population() == population and is_equal_approx(Barge.holdings(Game),money),"Begin preserves unraised army and native people/accounts")
-		check(JSON.stringify(Game.world["towns"],"",true,true) == native_econ and Unit._next_uid == unit_counter and Item._next_uid == item_counter and Game.rng.state == rng,"Begin preserves native town/item/body/model state and RNG/UIDs")
+		var name_after := String(leader_person[7]) if leader_person.size() > 7 else ""
+		var head_after := String(head.get("name",""))
+		if leader_person.size() > 7: leader_person[7] = name_before
+		head["name"] = head_before
+		check(JSON.stringify(Game.world["towns"],"",true,true) == native_econ and Unit._next_uid == unit_counter and Item._next_uid == item_counter and Game.rng.state == rng,"Begin preserves native town/item/body/model state and RNG/UIDs aside from the designed ruler name")
+		if leader_person.size() > 7: leader_person[7] = name_after
+		head["name"] = head_after
 		check(Game.location == tid and Game.world["party"]["pos"] == town["pos"],"only explicit Begin puts existing party at actual chosen settlement")
 		viewport.queue_free(); page = null; viewport = null; performance = null; layer = null; ordinary = {}; ruling = {}; town = {}; family = {}; pp = []; click = null; await settle()
 	Game.wait_save()

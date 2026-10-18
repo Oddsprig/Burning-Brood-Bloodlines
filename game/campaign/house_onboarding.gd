@@ -74,7 +74,7 @@ static func settlements(game) -> Array:
 
 static func customization(custom: Dictionary, native_name: String) -> Dictionary:
 	for key in custom:
-		if not key in ["display_name", "emblem", "primary_color", "secondary_color"]: return {"ok": false, "reason": "Only display name, emblem and banner colours can be customized."}
+		if not key in ["display_name", "emblem", "primary_color", "secondary_color", "design"]: return {"ok": false, "reason": "Only display name, emblem and banner colours can be customized."}
 	var display := str(custom.get("display_name", native_name))
 	var normalized := ""
 	for i in display.length():
@@ -102,6 +102,10 @@ static func preview(game, town_id: String, household_uid: String, custom: Dictio
 	if row.is_empty(): return {"ok": false, "reason": "This local house no longer has an eligible registered leader."}
 	var normalized: Dictionary = customization(custom, str(row["native_house_name"]))
 	if not normalized["ok"]: return normalized
+	if custom.has("design"):
+		if not (custom["design"] is Dictionary): return {"ok": false, "reason": "Character design must be a dictionary."}
+		var dp: Dictionary = CharacterDesign.preview(game, str(row["leader_uid"]), custom["design"])
+		if not bool(dp.get("ok", false)): return dp
 	var person: Dictionary = Dynasty.person(game, str(row["leader_uid"]))
 	var display: Dictionary = normalized["customization"]
 	var rights := "This household rules the settlement. Its title and current authority remain in force." if row["holds_office"] else "Your household keeps its property and wealth. Selection grants no town lordship, levy, public armory or treasury authority."
@@ -126,6 +130,10 @@ static func begin(game, town_id: String, household_uid: String, custom: Dictiona
 		"ruler_name": row["leader_name"], "ruler_sex": row["leader_sex"], "ruler_race": row["leader_race"], "title": row["title"],
 		"selection_kind": row["selection_kind"], "leadership_mode": row["leadership_mode"], "holds_office": row["holds_office"],
 		"customization": out["customization"].duplicate(true)}
+	if custom.has("design") and custom["design"] is Dictionary:
+		var applied: Dictionary = CharacterDesign.apply(game, str(row["leader_uid"]), custom["design"])
+		if not bool(applied.get("ok", false)): game.world.erase("player_house"); return applied
+		out["portrait_spec"] = Dynasty.portrait_for(game, Dynasty.person(game, str(row["leader_uid"])), out["customization"])
 	var pos: Vector2 = town["pos"]
 	party["pos"] = CampaignWorld.nearest_passable(game.world, pos) if str(game.world.get("terrain", "")) != "" else pos
 	party["target"] = party["pos"]; party["path"] = []; party["dest_town"] = ""; party["arrived"] = ""; party["waiting"] = false

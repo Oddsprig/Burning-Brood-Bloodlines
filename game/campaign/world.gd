@@ -1778,6 +1778,7 @@ static func after_load(game) -> void:
 	DragonCombat.after_load(game)
 	Dragons.after_load(game)
 	Intrigue.after_load(game)
+	CharacterDesign.after_load(game)
 	Prisoners.after_load(game)
 	Sickness.use_world_deadliness(w)
 	Monsters.use_world(w)

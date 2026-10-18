@@ -265,6 +265,7 @@ v0.035 creature review - DELIVERED (Claude Edition): creatures back on the map, 
 v0.036 dragon portrait fangs - DELIVERED (Claude Edition): fangs sit in the jaw, gem-coloured with a dark outline.
 v0.037 editable inheritance laws - DELIVERED (Claude Edition): change your house succession (sons first, eldest child, elective, seniority); +10 grievance and a 5-year lock.
 v0.038 dragon hatching and breeding - DELIVERED (Claude Edition): choose a mate pair, 1-3 egg clutches, eggs inherit gem, form and build from both parents; keeperless eggs hatch slowly.
+v0.039 character designer - DELIVERED (Claude Edition): a "Design your ruler" new-game step for first name, portrait look and a starting focus.
 Also delivered outside the numbered list (Claude Edition): court and marriage, interface pass, 100 v 100 battle rounds, armies to 1000, house officers and noble call-up, house arms pool, ennoblement, medics and aftermath.
 
 LOCKED FOUNDATIONS / LATER SMALL PASSES

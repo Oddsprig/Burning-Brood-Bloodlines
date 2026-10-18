@@ -281,6 +281,11 @@ static func portrait_for(game, r: Dictionary, custom: Dictionary = {}) -> Dictio
 		spec["female_set"] = FigurePainter.female_variant(spec)
 	elif bool(spec.get("beard", false)) and race in ["human", "orc", "dwarf"]:
 		spec["beard_style"] = FigurePainter.beard_style(spec)
+	CharacterDesign.merge_into_spec(spec, CharacterDesign.look_for(game, str(r.get("person_uid", ""))))
+	if int(r.get("sex", 0)) == 1:
+		spec["beard"] = false
+	elif bool(spec.get("beard", false)) and race in ["human", "orc", "dwarf"]:
+		spec["beard_style"] = FigurePainter.beard_style(spec)
 	spec["dead"] = not bool(r.get("alive", false)); spec["role"] = "ruler"
 	for entry in [["primary_color", "prim"], ["secondary_color", "sec"]]:
 		var color := str(custom.get(entry[0], ""))
