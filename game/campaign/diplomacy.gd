@@ -758,7 +758,8 @@ static func launch_assault(game, att: String, tid: String, rng: RandomNumberGene
 static func assault_defence(game, town: Dictionary) -> int:
 	var tid := String(town.get("id", ""))
 	var guards := TownDefence.guards(game, tid).filter(func(u): return not u.dead).size()
-	return guards + (0 if TownDefence.defence_policy(game, town) == "stand_down" else Militia.units_of(game, tid).size())
+	var base: int = guards + (0 if TownDefence.defence_policy(game, town) == "stand_down" else Militia.units_of(game, tid).size())
+	return int(ceil(float(base) * (1.0 + Settlement.siege_bonus(town))))
 
 ## A war band reaches its target town: the defenders hold or the town is sacked (no player battle).
 static func war_assault_arrives(game, wid: String) -> void:

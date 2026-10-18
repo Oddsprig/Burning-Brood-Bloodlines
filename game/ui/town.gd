@@ -1,6 +1,6 @@
 extends Control
 ## Town screen (Game.location = town id; data in Game.world.towns[id], world contract).
-## Tabs: Market, Recruits, Healer, Contracts. Company button; Leave returns to the map.
+## Tabs: Market, Recruits, Healer, Contracts, Buildings. Company button; Leave returns to the map.
 
 var tab: String = "Market"
 var page: VBoxContainer
@@ -125,10 +125,11 @@ func refresh() -> void:
 	UiKit.clear(tabs_box)
 	var t := town()
 	_refresh_summary(t)
-	tabs_box.add_child(UiKit.tab_strip(["Market", "Provisions", "Recruits", "Healer", "Contracts", "Town", "Politics", "Population", "Records"], tab, show_tab))
+	tabs_box.add_child(UiKit.tab_strip(["Market", "Provisions", "Recruits", "Healer", "Contracts", "Town", "Buildings", "Politics", "Population", "Records"], tab, show_tab))
 	UiKit.clear(page)
 	match tab:
 		"Town": page.add_child(TownEconTab.build(self, t))   # economy spec 12 (ui/town_econ_tab.gd)
+		"Buildings": page.add_child(TownBuildingsTab.build(self, t))
 		"Provisions": page.add_child(_provisions(t))
 		"Recruits": page.add_child(_recruits(t))
 		"Healer": page.add_child(_healer(t))

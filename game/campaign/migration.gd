@@ -40,16 +40,22 @@ static func push(game, t: Dictionary, day: float) -> String:
 	var hit := int(state(game.world)["attacked"].get(tid, -999999))
 	if float(hit) + WAR_DAYS > day or DragonFear.fear(game, tid) >= FEAR_AT: return "war"
 	var e: Dictionary = t["econ"]
-	if int(e.get("fstage", 0)) >= 2: return "hunger"
+	if int(e.get("fstage", 0)) >= 2 or bool(e.get("famine", false)): return "hunger"
 	if int(e["fams"][0]["homes"]) <= 0 and int(e.get("stock", {}).get("home", 0)) <= 0:
 		for f in e["fams"]:
 			if _crowded_households(e, f) > 0: return "crowd"
 	return ""
 
+static func housing_capacity(e: Dictionary, f: Dictionary = {}) -> float:
+	var base: float = 0.0
+	if not f.is_empty() and f.has("homes"):
+		base = float(f["homes"]) * float(TownEcon.culture_of(e)["home"]["room"]) * (0.6 + 0.4 * float(f.get("cond", 1.0)))
+	return base * (1.0 + 0.1 * float(Settlement.building_level(e, "housing")))
+
 ## Households of a cohort row that its homes cannot hold (people over homes x room x CROWD).
 static func _crowded_households(e: Dictionary, f: Dictionary) -> int:
 	if not Population.is_cohort(f) or f.get("gone", false): return 0
-	var room := float(f["homes"]) * float(TownEcon.culture_of(e)["home"]["room"]) * (0.6 + 0.4 * float(f.get("cond", 1.0)))
+	var room: float = housing_capacity(e, f)
 	var people := Families.people(f)
 	if float(people) <= room * CROWD: return 0
 	var per := float(people) / float(Population.households(f))
@@ -118,7 +124,8 @@ static func _leavers(e: Dictionary, f: Dictionary, why: String, rng: RandomNumbe
 	match why:
 		"war": lam = float(hh) * WAR_SHARE
 		"hunger":
-			var p := float(Barge.B()["movers"]["flight"]) * float(int(e.get("fstage", 0)) - 1)
+			var stage: int = maxi(int(e.get("fstage", 0)), 2 if bool(e.get("famine", false)) else 0)
+			var p := float(Barge.B()["movers"]["flight"]) * float(stage - 1)
 			lam = float(hh) * (1.0 - pow(1.0 - clampf(p, 0.0, 1.0), 7.0))
 		"crowd": lam = float(_crowded_households(e, f)) * CROWD_SHARE
 	return mini(hh - 1, Sickness._poisson(rng, lam))

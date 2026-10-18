@@ -180,6 +180,7 @@ static func _generate_part(game, run: Dictionary) -> bool:
 						if not Population.is_cohort(f) and not f.get("estate", false) and not f.get("gone", false): Families.reassign(town["econ"], f)
 			Dynasty.prepare_world(game)
 			Feudal.prepare_world(game)
+			Settlement.after_load(game)
 			w["rng_state"] = str(grng.state)
 			return true
 	run["phase"] = phase + 1
@@ -1594,6 +1595,7 @@ static func _daily(game, d: int, rng: RandomNumberGenerator) -> void:
 	p0 = _dprof("monsters", p0)
 	Contracts.daily_check(game)
 	Diplomacy.daily(game, d)   # diplomacy: one step per day, after the economy/day tick (weekly rolls inside)
+	Settlement.daily(game, d)
 	p0 = _dprof("diplomacy", p0)
 	var sids: Array = w["towns"].keys()
 	sids.sort()   # as Plots.daily picks its towns
@@ -1783,6 +1785,7 @@ static func after_load(game) -> void:
 	Sickness.use_world_deadliness(w)
 	Monsters.use_world(w)
 	Migration.after_load(game)
+	Settlement.after_load(game)
 
 static func _fix_contract(c: Dictionary) -> void:
 	for k in ["pay", "size"]:
