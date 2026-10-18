@@ -1,0 +1,76 @@
+﻿Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+DIAG note: claude_balance_v042 uses Game.advance_time(1, true) until 60s wall, then a partial tick (TownEcon.queue_day/do_job + Settlement.daily + Feudal.daily) and forces player Settlement.start every 30 days. It never grants coin.
+DIAG note: this run is Game.advance_time(1, false) plus a full work drain, no builds forced, no coin granted.
+dev: loaded the start world in 4320 ms
+DIAG start player Undergate tier=sovereign liege= vassals=1 pop=3719 mktLv=0 purse=87292 hh=1 tre=200989 lord_tax=0 tax_in=0
+DIAG start ai1 Thragbash tier=sovereign liege= vassals=2 pop=4194 mktLv=0 purse=4045 hh=1 tre=218749 lord_tax=0 tax_in=0
+DIAG start ai2 Skragwarren tier=county liege=t18 vassals=4 pop=4162 mktLv=0 purse=87817 hh=1 tre=203772 lord_tax=0 tax_in=0
+DIAG start ai3 Grubburrow tier=sovereign liege= vassals=3 pop=4115 mktLv=0 purse=136955 hh=1 tre=213966 lord_tax=0 tax_in=0
+DIAG d=10 WORLD days=11 hold_d=-2753051 cast_d=85400 melt_d=2042100 drain_d=769151 unledgered=-27200 mkt_bonus_all=0 lord_tax_all=350612 ms=8111
+DIAG d=10 player purse=686411 (599119) tre=52761 (-148228) tax=0 trib_in=2573 trib_out=0 mkt=0 care=604455 projP=0 pres=1201001 | taxT=0 mtax=20394 tcoin=0 mil=4410 fac=7552 levy=0 works=0 pub=34853 projT=0 drain=1052 tres=-120756
+DIAG d=10 ai1 purse=0 (-4045) tre=49711 (-169038) tax=20012 trib_in=4843 trib_out=0 mkt=0 care=0 projP=0 pres=-28899 | taxT=11992 mtax=13370 tcoin=2910 mil=3420 fac=3703 levy=0 works=0 pub=11273 projT=1200 drain=967 tres=-176746
+DIAG d=10 ai2 purse=203840 (116024) tre=196153 (-7619) tax=67860 trib_in=17078 trib_out=1290 mkt=0 care=100 projP=0 pres=32476 | taxT=13929 mtax=8076 tcoin=0 mil=2440 fac=6262 levy=0 works=0 pub=913 projT=1200 drain=1246 tres=-17563
+DIAG d=10 ai3 purse=176678 (39723) tre=148849 (-65118) tax=0 trib_in=12437 trib_out=0 mkt=0 care=10420 projP=0 pres=37706 | taxT=0 mtax=13093 tcoin=4181 mil=2440 fac=8684 levy=0 works=0 pub=11492 projT=1200 drain=1305 tres=-57270
+DIAG d=20 WORLD days=21 hold_d=-4316983 cast_d=665400 melt_d=3424000 drain_d=1531183 unledgered=-27200 mkt_bonus_all=0 lord_tax_all=677634 ms=16285
+DIAG d=20 player purse=692313 (5902) tre=29773 (-22988) tax=0 trib_in=7333 trib_out=0 mkt=0 care=136685 projP=0 pres=135254 | taxT=0 mtax=37933 tcoin=0 mil=0 fac=0 levy=0 works=0 pub=47895 projT=0 drain=207 tres=-12819
+DIAG d=20 ai1 purse=0 (0) tre=36421 (-13290) tax=0 trib_in=0 trib_out=0 mkt=0 care=0 projP=0 pres=0 | taxT=0 mtax=9674 tcoin=1975 mil=3180 fac=0 levy=0 works=0 pub=8815 projT=0 drain=294 tres=-12649
+DIAG d=20 ai2 purse=136548 (-67292) tre=151276 (-44877) tax=0 trib_in=31730 trib_out=1569 mkt=0 care=109 projP=0 pres=-97345 | taxT=0 mtax=10223 tcoin=0 mil=1220 fac=477 levy=0 works=0 pub=12496 projT=0 drain=1274 tres=-39633
+DIAG d=20 ai3 purse=262998 (86320) tre=99416 (-49432) tax=50010 trib_in=26663 trib_out=0 mkt=0 care=832 projP=0 pres=10478 | taxT=15096 mtax=6543 tcoin=2707 mil=2135 fac=0 levy=0 works=0 pub=9267 projT=0 drain=894 tres=-61483
+DIAG d=30 WORLD days=31 hold_d=-5760100 cast_d=1045400 melt_d=4438600 drain_d=2339700 unledgered=-27200 mkt_bonus_all=0 lord_tax_all=1260211 ms=24846
+DIAG d=30 player purse=932801 (240488) tre=17428 (-12345) tax=122970 trib_in=9501 trib_out=0 mkt=0 care=147506 projP=0 pres=255523 | taxT=14737 mtax=16431 tcoin=0 mil=2125 fac=0 levy=0 works=0 pub=14198 projT=0 drain=323 tres=-26868
+DIAG d=30 ai1 purse=0 (0) tre=12056 (-24365) tax=0 trib_in=0 trib_out=0 mkt=0 care=0 projP=0 pres=0 | taxT=0 mtax=25393 tcoin=15554 mil=0 fac=0 levy=0 works=0 pub=15025 projT=0 drain=141 tres=-50147
+DIAG d=30 ai2 purse=8360 (-128188) tre=48573 (-102703) tax=0 trib_in=35293 trib_out=240 mkt=0 care=118 projP=0 pres=-163122 | taxT=0 mtax=19284 tcoin=0 mil=1220 fac=0 levy=0 works=0 pub=27159 projT=0 drain=438 tres=-93170
+DIAG d=30 ai3 purse=407612 (144614) tre=83453 (-15963) tax=0 trib_in=29564 trib_out=0 mkt=0 care=974 projP=0 pres=116025 | taxT=0 mtax=9248 tcoin=16933 mil=2440 fac=0 levy=14211 works=0 pub=12880 projT=0 drain=689 tres=-11924
+DIAG d=40 WORLD days=41 hold_d=-6854742 cast_d=1525400 melt_d=5242600 drain_d=3079542 unledgered=-58000 mkt_bonus_all=0 lord_tax_all=1865022 ms=36302
+DIAG d=40 player purse=945584 (12783) tre=61 (-17366) tax=0 trib_in=10185 trib_out=0 mkt=0 care=144331 projP=0 pres=146929 | taxT=0 mtax=18162 tcoin=0 mil=0 fac=0 levy=0 works=0 pub=4283 projT=0 drain=73 tres=-31173
+DIAG d=40 ai1 purse=0 (0) tre=24161 (12105) tax=0 trib_in=0 trib_out=0 mkt=0 care=0 projP=0 pres=0 | taxT=13342 mtax=16733 tcoin=12267 mil=0 fac=0 levy=0 works=0 pub=8207 projT=1400 drain=103 tres=-20526
+DIAG d=40 ai2 purse=179025 (170665) tre=14307 (-34266) tax=156662 trib_in=36299 trib_out=430 mkt=0 care=109 projP=0 pres=-21759 | taxT=15782 mtax=10888 tcoin=0 mil=0 fac=0 levy=0 works=0 pub=12272 projT=1400 drain=240 tres=-47024
+DIAG d=40 ai3 purse=494871 (87259) tre=29237 (-54216) tax=0 trib_in=30090 trib_out=0 mkt=0 care=986 projP=0 pres=58155 | taxT=0 mtax=21001 tcoin=21747 mil=2440 fac=0 levy=2081 works=0 pub=26158 projT=1400 drain=460 tres=-64425
+DIAG d=50 WORLD days=51 hold_d=-7821187 cast_d=1985400 melt_d=5853500 drain_d=3895087 unledgered=-58000 mkt_bonus_all=0 lord_tax_all=2577329 ms=46389
+DIAG d=50 player purse=927055 (-18529) tre=15989 (15928) tax=0 trib_in=11892 trib_out=0 mkt=0 care=158684 projP=0 pres=128263 | taxT=0 mtax=33960 tcoin=0 mil=0 fac=0 levy=0 works=0 pub=5067 projT=0 drain=36 tres=-12928
+DIAG d=50 ai1 purse=0 (0) tre=0 (-24161) tax=0 trib_in=0 trib_out=0 mkt=0 care=0 projP=0 pres=0 | taxT=0 mtax=19817 tcoin=6396 mil=0 fac=0 levy=0 works=0 pub=9866 projT=0 drain=124 tres=-40384
+DIAG d=50 ai2 purse=4762 (-174263) tre=22974 (8667) tax=0 trib_in=38279 trib_out=823 mkt=0 care=3297 projP=0 pres=-208423 | taxT=0 mtax=20947 tcoin=0 mil=0 fac=0 levy=5 works=0 pub=26950 projT=0 drain=263 tres=14938
+DIAG d=50 ai3 purse=678877 (184006) tre=50151 (20914) tax=78916 trib_in=31905 trib_out=0 mkt=0 care=889 projP=0 pres=74074 | taxT=16130 mtax=10764 tcoin=14007 mil=1220 fac=0 levy=0 works=0 pub=9171 projT=0 drain=239 tres=-9357
+DIAG d=60 WORLD days=61 hold_d=-8763916 cast_d=2265400 melt_d=6318600 drain_d=4652716 unledgered=-58000 mkt_bonus_all=0 lord_tax_all=3283632 ms=55731
+DIAG d=60 player purse=1114844 (187789) tre=28199 (12210) tax=71719 trib_in=12613 trib_out=0 mkt=0 care=166914 projP=0 pres=270371 | taxT=9858 mtax=16693 tcoin=0 mil=1945 fac=0 levy=0 works=0 pub=0 projT=0 drain=239 tres=-12157
+DIAG d=60 ai1 purse=0 (0) tre=10316 (10316) tax=0 trib_in=0 trib_out=0 mkt=0 care=0 projP=0 pres=0 | taxT=0 mtax=31013 tcoin=5802 mil=0 fac=0 levy=0 works=0 pub=12866 projT=0 drain=45 tres=-13588
+DIAG d=60 ai2 purse=17715 (12953) tre=30709 (7735) tax=0 trib_in=39233 trib_out=119 mkt=0 care=1644 projP=0 pres=-24517 | taxT=0 mtax=10824 tcoin=0 mil=0 fac=0 levy=0 works=0 pub=6654 projT=0 drain=115 tres=3681
+DIAG d=60 ai3 purse=743437 (64560) tre=25668 (-24482) tax=0 trib_in=31669 trib_out=0 mkt=0 care=874 projP=0 pres=33765 | taxT=0 mtax=18943 tcoin=6177 mil=0 fac=0 levy=0 works=0 pub=11764 projT=0 drain=148 tres=-37691
+DIAG d=70 WORLD days=71 hold_d=-9898428 cast_d=2365400 melt_d=6753200 drain_d=5418751 unledgered=-91876 mkt_bonus_all=1434 lord_tax_all=4044646 ms=64832
+DIAG d=70 player purse=1070014 (-44830) tre=11406 (-16793) tax=0 trib_in=12675 trib_out=0 mkt=0 care=175734 projP=0 pres=118229 | taxT=0 mtax=32749 tcoin=0 mil=0 fac=0 levy=0 works=0 pub=0 projT=0 drain=199 tres=-49343
+DIAG d=70 ai1 purse=0 (0) tre=105036 (94720) tax=0 trib_in=0 trib_out=0 mkt=110 care=0 projP=0 pres=-110 | taxT=9218 mtax=16535 tcoin=7194 mil=0 fac=0 levy=0 works=0 pub=0 projT=1600 drain=381 tres=63755
+DIAG d=70 ai2 purse=185748 (168033) tre=20850 (-9860) tax=159935 trib_in=39881 trib_out=469 mkt=71 care=2759 projP=0 pres=-28627 | taxT=18283 mtax=20718 tcoin=0 mil=0 fac=0 levy=0 works=0 pub=12709 projT=1600 drain=93 tres=-34458
+DIAG d=70 ai3 purse=772343 (28906) tre=2691 (-22977) tax=0 trib_in=33010 trib_out=0 mkt=69 care=40296 projP=0 pres=36124 | taxT=0 mtax=10309 tcoin=10825 mil=0 fac=0 levy=0 works=0 pub=6503 projT=1600 drain=114 tres=-35895
+DIAG d=80 WORLD days=81 hold_d=-10819425 cast_d=2429400 melt_d=6970500 drain_d=6192886 unledgered=-85439 mkt_bonus_all=8392 lord_tax_all=4485922 ms=73906
+DIAG d=80 player purse=1173150 (103135) tre=4834 (-6572) tax=0 trib_in=11859 trib_out=0 mkt=0 care=178461 projP=0 pres=269737 | taxT=0 mtax=15879 tcoin=0 mil=0 fac=0 levy=0 works=0 pub=0 projT=0 drain=80 tres=-22371
+DIAG d=80 ai1 purse=0 (0) tre=27178 (-77858) tax=0 trib_in=0 trib_out=0 mkt=521 care=0 projP=0 pres=-521 | taxT=0 mtax=29653 tcoin=6793 mil=3430 fac=0 levy=0 works=0 pub=27981 projT=0 drain=444 tres=-82449
+DIAG d=80 ai2 purse=93697 (-92051) tre=14403 (-6447) tax=0 trib_in=40201 trib_out=1030 mkt=327 care=3845 projP=0 pres=-127703 | taxT=0 mtax=9159 tcoin=0 mil=0 fac=0 levy=0 works=0 pub=6155 projT=0 drain=216 tres=-9235
+DIAG d=80 ai3 purse=900638 (128295) tre=31580 (28890) tax=79593 trib_in=35042 trib_out=0 mkt=346 care=3527 projP=0 pres=16841 | taxT=16080 mtax=20400 tcoin=6521 mil=0 fac=0 levy=0 works=0 pub=0 projT=0 drain=110 tres=-14001
+DIAG d=90 WORLD days=91 hold_d=-11593048 cast_d=2429400 melt_d=7023500 drain_d=6919964 unledgered=-78984 mkt_bonus_all=15174 lord_tax_all=4978634 ms=83078
+DIAG d=90 player purse=1261370 (88220) tre=50637 (45803) tax=41050 trib_in=11600 trib_out=0 mkt=0 care=107884 projP=0 pres=143454 | taxT=8516 mtax=27306 tcoin=0 mil=1865 fac=0 levy=0 works=0 pub=0 projT=0 drain=267 tres=12113
+DIAG d=90 ai1 purse=19935 (19935) tre=591 (-26587) tax=0 trib_in=5148 trib_out=0 mkt=466 care=0 projP=0 pres=14322 | taxT=0 mtax=13842 tcoin=4655 mil=0 fac=0 levy=0 works=0 pub=7831 projT=0 drain=113 tres=-37139
+DIAG d=90 ai2 purse=91015 (-2683) tre=17570 (3167) tax=0 trib_in=40009 trib_out=836 mkt=312 care=2010 projP=0 pres=-40159 | taxT=0 mtax=9514 tcoin=0 mil=0 fac=0 levy=0 works=0 pub=6516 projT=0 drain=89 tres=258
+DIAG d=90 ai3 purse=948234 (47596) tre=9726 (-21854) tax=0 trib_in=35434 trib_out=0 mkt=334 care=1369 projP=0 pres=13196 | taxT=0 mtax=10046 tcoin=6887 mil=0 fac=0 levy=0 works=0 pub=0 projT=0 drain=141 tres=-38646
+DIAG d=100 WORLD days=101 hold_d=-12489191 cast_d=2429400 melt_d=7087700 drain_d=7714331 unledgered=-116560 mkt_bonus_all=21598 lord_tax_all=5629089 ms=91190
+DIAG d=100 player purse=1820450 (559080) tre=0 (-50637) tax=0 trib_in=12941 trib_out=0 mkt=0 care=58482 projP=0 pres=604622 | taxT=0 mtax=8087 tcoin=0 mil=0 fac=0 levy=0 works=0 pub=0 projT=0 drain=201 tres=-58524
+DIAG d=100 ai1 purse=1211 (-18724) tre=16867 (16276) tax=65820 trib_in=12034 trib_out=0 mkt=430 care=0 projP=2000 pres=-95007 | taxT=21893 mtax=22925 tcoin=2712 mil=1645 fac=0 levy=0 works=0 pub=8262 projT=0 drain=207 tres=-21140
+DIAG d=100 ai2 purse=68207 (-22808) tre=13224 (-4346) tax=60936 trib_in=39275 trib_out=333 mkt=336 care=2885 projP=0 pres=-120137 | taxT=7888 mtax=20505 tcoin=0 mil=0 fac=0 levy=0 works=0 pub=6131 projT=2000 drain=34 tres=-24575
+DIAG d=100 ai3 purse=990848 (42614) tre=57240 (47514) tax=0 trib_in=34376 trib_out=0 mkt=323 care=1037 projP=0 pres=8953 | taxT=0 mtax=9435 tcoin=3663 mil=1075 fac=0 levy=0 works=0 pub=0 projT=2000 drain=260 tres=37752
+DIAG d=110 WORLD days=111 hold_d=-13272659 cast_d=2449400 melt_d=7205200 drain_d=8406220 unledgered=-110639 mkt_bonus_all=27520 lord_tax_all=6086333 ms=98644
+DIAG d=110 player purse=2030579 (210129) tre=0 (0) tax=0 trib_in=15859 trib_out=0 mkt=0 care=58930 projP=0 pres=253201 | taxT=0 mtax=7610 tcoin=0 mil=0 fac=0 levy=0 works=0 pub=0 projT=0 drain=11 tres=-7599
+DIAG d=110 ai1 purse=4386 (3175) tre=3866 (-13000) tax=0 trib_in=11154 trib_out=0 mkt=350 care=0 projP=0 pres=-8330 | taxT=0 mtax=10697 tcoin=2039 mil=0 fac=0 levy=0 works=0 pub=0 projT=0 drain=83 tres=-25653
+DIAG d=110 ai2 purse=20540 (-47667) tre=19121 (5897) tax=0 trib_in=37994 trib_out=423 mkt=329 care=2826 projP=0 pres=-82740 | taxT=0 mtax=9248 tcoin=0 mil=0 fac=0 levy=0 works=0 pub=0 projT=0 drain=101 tres=-3250
+DIAG d=110 ai3 purse=1056356 (65508) tre=18243 (-38997) tax=25982 trib_in=35514 trib_out=0 mkt=335 care=904 projP=0 pres=4581 | taxT=6890 mtax=20453 tcoin=2632 mil=1215 fac=0 levy=0 works=0 pub=0 projT=0 drain=328 tres=-67430
+DIAG stop budget at day step 112
+DIAG FINAL days=112
+DIAG d=112 player_TOTAL purse=2062992 (1975700) tre=38293 (-162696) tax=279075 trib_in=122477 trib_out=0 mkt=0 care=1950326 projP=0 pres=3524473 | taxT=42452 mtax=241958 tcoin=0 mil=10345 fac=7552 levy=0 works=0 pub=106296 projT=0 drain=2699 tres=-320214
+DIAG TOP player purse_residual=3524473 dragon_care=-1950326 lord_tax_to_purse=279075 market_tax_to_treasury=241958 tribute_in=122477 
+DIAG d=112 ai1_TOTAL purse=5669 (1625) tre=3773 (-214976) tax=85832 trib_in=35306 trib_out=0 mkt=1949 care=0 projP=2000 pres=-119461 | taxT=56445 mtax=209650 tcoin=69134 mil=11675 fac=3703 levy=0 works=0 pub=110127 projT=4200 drain=2908 tres=-417593
+DIAG TOP ai1 market_tax_to_treasury=209650 purse_residual=-119461 public_till_topup=-110127 lord_tax_to_purse=85832 harvest_tribute_to_treasury=69134 
+DIAG d=112 ai2_TOTAL purse=27762 (-60054) tre=13282 (-190490) tax=445393 trib_in=402335 trib_out=7606 mkt=1436 care=20500 projP=0 pres=-881112 | taxT=55883 mtax=162258 tcoin=0 mil=4880 fac=6739 levy=5 works=0 pub=117953 projT=6200 drain=4136 tres=-268717
+DIAG TOP ai2 purse_residual=-881112 lord_tax_to_purse=445393 tribute_in=402335 market_tax_to_treasury=162258 public_till_topup=-117953 
+DIAG d=112 ai3_TOTAL purse=1063730 (926776) tre=16878 (-197088) tax=234502 trib_in=342730 trib_out=0 mkt=1475 care=62298 projP=0 pres=410366 | taxT=54197 mtax=150236 tcoin=99174 mil=12965 fac=8684 levy=16292 works=0 pub=87235 projT=6200 drain=4715 tres=-364605
+DIAG TOP ai3 purse_residual=410366 tribute_in=342730 lord_tax_to_purse=234502 market_tax_to_treasury=150236 harvest_tribute_to_treasury=99174 
+DIAG done
+== res://tests/diag_economy_flow.gd: PASS ==

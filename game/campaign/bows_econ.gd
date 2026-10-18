@@ -201,6 +201,7 @@ static func _armory(game, town: Dictionary, e: Dictionary) -> void:
 				st[k] = int(st[k]) - q; arm[k] = have + q; remaining -= q
 				var cost := float(q) * p
 				budget -= cost; e["treasury"] = float(e["treasury"]) - cost
+				ArmsTrade.note_arms_spend(e, cost)
 				mkt["till"] = float(mkt["till"]) + cost
 				e["stats"]["sales"] = float(e["stats"]["sales"]) + cost
 				TownEcon.led(e, "used", k, q)
@@ -387,6 +388,7 @@ static func fill_quivers(town: Dictionary, units: Array) -> void:
 			st[k] = int(st[k]) - t
 			u.quiver[k] = int(u.quiver.get(k, 0)) + t
 			e["treasury"] = float(e["treasury"]) - float(t) * p
+			ArmsTrade.note_arms_spend(e, float(t) * p)
 			mkt["till"] = float(mkt["till"]) + float(t) * p
 			e["stats"]["sales"] = float(e["stats"]["sales"]) + float(t) * p
 			TownEcon.led(e, "used", k, t)

@@ -846,7 +846,10 @@ static func turn(game, town: Dictionary, e: Dictionary, f: Dictionary, day: floa
 		f["income_parts"]["casual work"] = float(f["purse"]) - casual_before   # homeless families' casual work (day labour, portering ...)
 	var owns: Array = f["owns"]
 	if not owns.is_empty():
+		var seen_biz := {}
 		for bid in owns:
+			if seen_biz.has(int(bid)): continue   # one owner turn (one take) per business a week
+			seen_biz[int(bid)] = true
 			var owner_before := float(f["purse"])
 			Businesses.owner_turn(e, f, biz[int(bid)], days)
 			var change := float(f["purse"]) - owner_before
@@ -856,6 +859,7 @@ static func turn(game, town: Dictionary, e: Dictionary, f: Dictionary, day: floa
 	for part in f["income_parts"]: f["income_parts"][part] *= 7.0 / days
 	f.erase("farm_funding_pending")
 	_harvest_share(e, f, day, days)
+	_ruler_to_seat(game, town, e, f)
 	var _pt := Time.get_ticks_usec() if TownEcon.prof_on else 0
 	if TownEcon.prof_on: TownEcon._prof("f_income", _p0)
 	# ---------------------------------------------------------------- stores run down (the pool was eaten daily)
@@ -983,6 +987,36 @@ static func turn(game, town: Dictionary, e: Dictionary, f: Dictionary, day: floa
 ## invent harvest from today's acres, yield or work since a previous turn.
 static func _harvest_share(e: Dictionary, f: Dictionary, _day: float, _days: float) -> void:
 	HarvestClaims.reserve_food(e, f)
+
+## Economy pass: the seat's estate tax, tribute and the house's own land and trades all land in the ruling household's
+## purse, while the town's guards, levies, public tills and works are paid from its treasury. A native (AI) ruling
+## house keeps a working purse of RULER_KEEP x COIN x (town size + 1) and each week puts RULER_SURPLUS_SHARE of what
+## it holds above that into its seat's treasury, the same transfer as the player's "fund garrison" decree (one debit,
+## one credit), never filling the treasury above RULER_TREASURY_CAP x COIN x (size + 1). The player's house is never
+## moved: the player funds his treasury himself. (Before: AI purses rose 6-50x in 87 days while treasuries ran dry.)
+const RULER_KEEP := 1000.0
+const RULER_SURPLUS_SHARE := 0.5
+const RULER_TREASURY_CAP := 3000.0
+
+static func _ruler_to_seat(game, town: Dictionary, e: Dictionary, f: Dictionary) -> void:
+	if game == null or Population.is_cohort(f) or not e.has("treasury"):
+		return
+	var scale := TownEcon.COIN * float(int(town.get("size", 0)) + 1)
+	var spare := float(f["purse"]) - RULER_KEEP * scale
+	var room := RULER_TREASURY_CAP * scale - float(e["treasury"])
+	if spare <= 0.0 or room <= 0.0:
+		return
+	var uid := str(f.get("household_uid", ""))
+	if uid == "" or uid == str(game.world.get("player_house", {}).get("household_uid", "")):
+		return
+	var lord: Dictionary = Feudal.tax_recipient(game, str(town.get("id", "")))
+	if str(lord.get("household_uid", "")) != uid:
+		return
+	var give := minf(spare * RULER_SURPLUS_SHARE, room)
+	f["purse"] = float(f["purse"]) - give
+	e["treasury"] = float(e["treasury"]) + give
+	if e.has("stats"):
+		e["stats"]["house_funding"] = float(e["stats"].get("house_funding", 0.0)) + give
 
 static func _pay_rent(e: Dictionary, f: Dictionary, days: float, day: float) -> void:
 	var lid := int(f["landlord"])

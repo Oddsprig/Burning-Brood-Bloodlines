@@ -380,9 +380,10 @@ static func econ_daily(game, town: Dictionary, e: Dictionary, day: int = -1, eve
 	var bought := 0
 	var budget := 0.0
 	if not short.is_empty():
-		# v0.014: the arms bill comes out of the treasury above what the garrison's pay needs (arms_reserve), not a
-		# tenth of whatever is in the chest; what it cannot pay goes on the month's budget (Barge.treasury_month)
-		budget = maxf(0.0, float(e["treasury"]) - arms_reserve(game, town, e))
+		# The arms bill stays above the treasury's whole short line (arms_reserve). One
+		# look spends at most a tenth of that excess, so a restock cannot empty the chest.
+		var excess := maxf(0.0, float(e["treasury"]) - arms_reserve(game, town, e))
+		budget = excess * 0.10
 		var shop: Array = town.get("shop", [])
 		var mkt: Dictionary = e["biz"][int(e["mkt"])]
 		var i := 0
@@ -398,6 +399,7 @@ static func econ_daily(game, town: Dictionary, e: Dictionary, day: int = -1, eve
 					budget -= p
 					bought += 1
 					e["treasury"] = float(e["treasury"]) - p
+					note_arms_spend(e, p)
 					mkt["till"] = float(mkt["till"]) + p
 					e["stats"]["sales"] = float(e["stats"]["sales"]) + p
 					have[c] = int(have.get(c, 0)) + 1
@@ -470,13 +472,19 @@ static func shortage_class(short: Dictionary, offered: String) -> String:
 		if int(short[c]) > 0 and cls_role(String(c)) == cls_role(offered): return String(c)
 	return ""
 
-## v0.014: what the head holds back from the arms bill: the garrison's pay comes first (Army.pay_town pays only
-## above a quarter of the treasury's short line, plus the militia's wages until the head's next look).
+## What the head holds back from the arms bill: the treasury's whole short line, plus the militia's wages until
+## the next look. Army.pay_town still pays above its own quarter of that line.
 static func arms_reserve(game, town: Dictionary, e: Dictionary) -> float:
-	var r := float(Barge.treasury_lines(e)["short"]) * 0.25
+	var r := float(Barge.treasury_lines(e)["short"])
 	if game != null:
 		r += Army.town_bill(game, town) * float(ARMORY_EVERY)
 	return r
+
+## Coin the treasury paid for arms (diagnostic column; not a second balance).
+static func note_arms_spend(e: Dictionary, paid: float) -> void:
+	if paid <= 0.0 or not e.get("stats") is Dictionary:
+		return
+	e["stats"]["arms_spend"] = float(e["stats"].get("arms_spend", 0.0)) + paid
 
 const LOG_MAX := 8
 ## The town's armory log (e.arms_log, the newest LOG_MAX lines; the town screen shows it under the armory): why its
@@ -619,6 +627,7 @@ static func order_buy(game, town: Dictionary, e: Dictionary, it: Item, p: float,
 	if float(e["treasury"]) - p < reserve:
 		return false
 	e["treasury"] = float(e["treasury"]) - p
+	note_arms_spend(e, p)
 	armory(town).append(it)
 	if game != null and forge_pass != null:
 		var have: Dictionary = forge_pass["have"]

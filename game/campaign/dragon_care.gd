@@ -6,6 +6,9 @@ const FEED_MASS_SHARE := 0.008
 const FOOD_UNIT_KG := 0.4
 const FAMILY_RESERVE_DAYS := 7.0
 const TOWN_RESERVE_DAYS := 3.0
+## One dragon may spend at most this share of the household purse in a day, after the food reserve.
+## A short ration still moves health by the usual food and shelter ratios.
+const CARE_PURSE_SHARE := 0.012
 const MEAT := ["fresh_meat", "meat"]
 const HUMAN_FOOD := ["grain", "fruit", "meat", "fresh_meat"]
 
@@ -88,7 +91,7 @@ static func _quote(game, row: Dictionary, day: int, context: Dictionary) -> Dict
 	var valid := bool(context["ok"]) and bool(profile.get("valid", false)) and bool(metrics.get("valid", false))
 	var purse := maxf(0.0, float(f.get("purse", 0.0)))
 	var reserve := _reserve(context["owner_econ"], f, day) if not f.is_empty() else 0.0
-	var budget := maxf(0.0, purse - reserve)
+	var budget := minf(maxf(0.0, purse - reserve), purse * CARE_PURSE_SHARE)
 	var result := {"health": health, "growth_points": float(metrics.get("growth_points", 0)),
 		"last_day": int(care.get("last_day", floor(game.day))), "payer_name": str(f.get("name", "Unavailable household")),
 		"payer_household_uid": str(f.get("household_uid", "")), "payer_purse": purse, "spendable": budget,

@@ -74,10 +74,21 @@ static func generate(_w: Dictionary, town: Dictionary, e: Dictionary, D: Diction
 		return 1.5 if spec_biz.has(type) else 1.0
 	# market first (the town's merchants)
 	var m: Dictionary = _row(e, "market", next_owner.call(), 2 + size, D)
-	m["till"] = pop * 2.2 * 18.0 * TownEcon.COIN   # coins (the old gold float x20)
 	e["mkt"] = m["id"]
 	# fuel and food beyond the fields
 	var wood_day := homes * float(D["needs"]["firewood_home"]) * float(clim["firewood"]) * 1.05 * 1.5 + 6.0
+	# Operating float is about the market's reserve (~2.5 weeks of what it pays
+	# producers). The old pop * 2.2 * 18 * COIN float sat far above that reserve
+	# and the weekly take swept it into the owning family's purse.
+	var mix: Dictionary = D["needs"]["food_mix"]
+	var food_px := 0.0
+	for g in mix:
+		food_px += float(mix[g]) * float(D["goods"][g]["price"])
+	var day_buy := pop * float(D["needs"]["food"]) * food_px
+	day_buy += ad * float(D["needs"]["drink_adult"]) * float(D["goods"]["beer"]["price"])
+	day_buy += wood_day * float(D["goods"]["wood"]["price"])
+	day_buy *= float(D["market"]["buy_share"])
+	m["till"] = day_buy * 7.0 * 2.5
 	add.call("woodcutter", maxi(1, int(ceil(wood_day / 13.0 * sm.call("woodcutter")))), 8)
 	if terr["forest"] or e["climate"] == "cold":
 		add.call("hunter", clampi(2 + int(terr.get("forest_cells", 0)) / 10, 1, 6), 6)
@@ -578,6 +589,9 @@ static func _books(b: Dictionary, w: int, mkt: Dictionary, u0: float, u1: float,
 		# (v0.014: the keeper counts when he is really there and working: b.kw)
 		var staff := float(w + int(b.get("kw", 0)))
 		b["p1"] = profit   # yesterday's profit: barge part 3 section 5 hires when it "made over a day's wage yesterday"
+		# Economy pass: the real profit since the keeper's last turn (his take and his own money in are not profit:
+		# t_paid adds back what left the till as takes and wages, less his injections). owner_turn draws on this.
+		b["p_acc"] = float(b.get("p_acc", 0.0)) + profit
 		if profit < -0.3 * staff * wage or a14 < -0.25 * wage:
 			ld += 1
 		else:
@@ -910,8 +924,8 @@ static func _recipes(e: Dictionary, D: Dictionary, b: Dictionary, T: Dictionary,
 
 ## A target for actual operating cash, separate from accrued/future wages.
 ## No output, input, person, payment or price is changed by this quote. The
-## owner may cover only part of this target under the existing half-purse cap;
-## actual production and hiring still require their own real cash checks.
+## owner may cover only part of this target under the weekly funding cap
+## (owner_fund_room); actual production and hiring still require their own real cash checks.
 static func operating_cash(e: Dictionary, b: Dictionary, reserved: float) -> float:
 	# Payroll-only callers/older incomplete books have no verifiable recipe quote.
 	for key in ["stock", "price", "culture", "biz"]:
@@ -1272,6 +1286,27 @@ static func town_inherits(b: Dictionary) -> void:
 		b["cap"] = 0
 		b["closed"] = true
 
+## Economy pass: what an owner may put into his businesses. A household moves at most OWNER_FUND_SHARE of its purse
+## (as it stood at its last weekly turn, above a 5-coin floor) into all its businesses together in a week, farm
+## included, and only toward a real working-capital gap. (Before: half the purse at every owner turn and all but
+## 5 coins into a farm; a ruling house poured 1.25 M into its rows in 87 days and its purse fell from 88 k to 7 k.)
+## A row that cannot be kept funded pays short, and its hands leave by the ordinary unpaid rules.
+const OWNER_FUND_SHARE := 0.1
+## The keeper's draw: this share of the real profit the books saw since his last turn (sales - inputs - upkeep -
+## wages earned), never a share of the till. The rest stays as working capital (it funds hiring: owner_turn).
+const OWNER_PROFIT_SHARE := 0.5
+
+static func owner_fund_room(f: Dictionary) -> float:
+	var keep := 5.0 * TownEcon.COIN
+	var wk := int(floor(float(f.get("last", 0.0))))
+	if int(f.get("fund_wk", -1000000)) != wk:
+		f["fund_wk"] = wk
+		f["fund_left"] = maxf(0.0, float(f.get("purse", 0.0)) - keep) * OWNER_FUND_SHARE
+	return maxf(0.0, minf(float(f["fund_left"]), float(f.get("purse", 0.0)) - keep))
+
+static func _fund_used(f: Dictionary, amount: float) -> void:
+	f["fund_left"] = maxf(0.0, float(f.get("fund_left", 0.0)) - amount)
+
 ## Move the existing owner's coins into the existing farm reserve. Funding is
 ## separate from the weekly books and cannot pay or erase earned wage claims.
 static func fund_farm(f: Dictionary, b: Dictionary) -> float:
@@ -1279,11 +1314,15 @@ static func fund_farm(f: Dictionary, b: Dictionary) -> float:
 		return 0.0
 	var owed := maxf(0.0, float(b.get("owed", 0.0)))
 	var need := owed + float(maxi(int(b["workers"]), int(b["cap"]))) * float(b["wage"]) * 8.0
-	var inj := minf(maxf(0.0, need - float(b["till"])), maxf(0.0, float(f["purse"]) - 5.0 * TownEcon.COIN))
+	var gap := maxf(0.0, need - float(b["till"]))
+	if gap <= 0.0:
+		return 0.0
+	var inj := minf(gap, owner_fund_room(f))
 	if inj > 0.0:
 		b["till"] = float(b["till"]) + inj
 		f["purse"] = float(f["purse"]) - inj
 		b["t_paid"] = float(b.get("t_paid", 0.0)) - inj
+		_fund_used(f, inj)
 	return inj
 
 ## The owner's weekly look at a business: take profit above a reserve, put money in when the till runs dry,
@@ -1325,16 +1364,33 @@ static func owner_turn(e: Dictionary, f: Dictionary, b: Dictionary, days: float 
 	if b["type"] != "market": funded_need += operating_cash(e, b, funded_need)
 	# Batch capital must not become the owner's take before slow work completes.
 	reserve = maxf(reserve, funded_need)
+	# Economy pass: a private keeper draws OWNER_PROFIT_SHARE of the profit his books saw since his last turn, never
+	# more than the till holds above its reserve. (Before: 44% a week of whatever the till held above the reserve,
+	# so coin paid in by the armory, a full order book or his own earlier funding went to his purse as "profit".)
+	var profit_seen := float(b.get("p_acc", 0.0))
+	b["p_acc"] = 0.0
 	if float(b["till"]) > reserve:
 		var take := (float(b["till"]) - reserve) * (1.0 - pow(1.0 - float(BB["take_share"]), 7.0))
+		if String(b["type"]) != "market":
+			take = minf(float(b["till"]) - reserve, maxf(0.0, profit_seen) * OWNER_PROFIT_SHARE)
 		b["till"] = float(b["till"]) - take
-		f["purse"] = float(f["purse"]) + take
+		# The town market is the public exchange. Profit above its reserve returns
+		# to the treasury. Dragon care, households and the town pay that till, and
+		# a private keeper's purse was keeping the coin. A book with no treasury
+		# (a bare owner-turn check) still pays the family that holds the row.
+		if String(b["type"]) == "market" and e.has("treasury"):
+			e["treasury"] = float(e["treasury"]) + take
+		else:
+			f["purse"] = float(f["purse"]) + take
 		b["t_paid"] = float(b.get("t_paid", 0.0)) + take
 	elif float(b["till"]) < funded_need and float(f["purse"]) > 20.0 * TownEcon.COIN:
-		var inj2 := minf(funded_need - float(b["till"]), float(f["purse"]) * 0.5)
-		b["till"] = float(b["till"]) + inj2
-		f["purse"] = float(f["purse"]) - inj2
-		b["t_paid"] = float(b.get("t_paid", 0.0)) - inj2
+		# Only the working-capital gap, and only within the household's weekly funding room (owner_fund_room).
+		var inj2 := minf(funded_need - float(b["till"]), owner_fund_room(f))
+		if inj2 > 0.0:
+			b["till"] = float(b["till"]) + inj2
+			f["purse"] = float(f["purse"]) - inj2
+			b["t_paid"] = float(b.get("t_paid", 0.0)) - inj2
+			_fund_used(f, inj2)
 	var st: String = b["state"]
 	# v0.014: no ceiling on one shop's places. The old 14 assumed a town had several shops of a trade; with one shop
 	# per trade, more demand is more places in it (the growth rules below still decide when it takes one on).
