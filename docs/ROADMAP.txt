@@ -1,5 +1,5 @@
 BURNING BROOD: BLOODLINES - ACTIVE VERSION MAP
-Updated: 2026-10-17 | v0.020/v0.021/v0.022 delivered; v0.023-v0.027 DELIVERED (Claude Edition); next planned v0.028.
+Updated: 2026-10-18 | v0.020/v0.021/v0.022 delivered; v0.023-v0.027 DELIVERED (Claude Edition); next planned v0.028.
 
 STATUS AND ORDER
 v0.010/v0.011/v0.012/v0.014/v0.016/v0.017/v0.018/v0.019 were delivered historically.
@@ -256,12 +256,13 @@ v0.026 raid - DELIVERED (Claude Edition).
 v0.027 siege - DELIVERED (Claude Edition).
 v0.028 finish feudal consequences: fear of dragons.
 v0.029 equipment refits and balance: levies get armour.
-v0.030 dynasty alliances and diplomacy.
-v0.031 intrigue: plots, schemes and assassinations.
-v0.032 prisoner ransom and exchange - DELIVERED (Claude Edition) as v0.033; HANDOFF_CLOUD.md holds the Claude Edition numbering.
-v0.033 population migration, housing and illness - DELIVERED (Claude Edition) as v0.034; HANDOFF_CLOUD.md holds the Claude Edition numbering.
-v0.034 creature review - DELIVERED (Claude Edition) as v0.035: creatures back on the map, a New Bloodline choice.
-v0.035 dragon portrait fangs.
+v0.030 dynasty alliances and diplomacy - DELIVERED (Claude Edition).
+v0.031 army markers, slower travel and army objectives - DELIVERED (Claude Edition).
+v0.032 intrigue: plots, schemes and assassinations - DELIVERED (Claude Edition).
+v0.033 prisoner ransom and exchange - DELIVERED (Claude Edition).
+v0.034 population migration, housing and illness - DELIVERED (Claude Edition).
+v0.035 creature review - DELIVERED (Claude Edition): creatures back on the map, a New Bloodline choice.
+v0.036 dragon portrait fangs - NEXT.
 Also delivered outside the numbered list (Claude Edition): court and marriage, interface pass, 100 v 100 battle rounds, armies to 1000, house officers and noble call-up, house arms pool, ennoblement, medics and aftermath.
 
 LOCKED FOUNDATIONS / LATER SMALL PASSES
