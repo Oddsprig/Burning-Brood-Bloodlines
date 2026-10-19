@@ -568,20 +568,26 @@ static func land_moved(e: Dictionary, a: Dictionary, b: Dictionary, crop: String
 
 ## Native transfer order, also used for cheap rejection bounds on purchases.
 static func move_candidates(P: Dictionary, fid: int, ci: int) -> Array:
-	var mine := []
-	for i in count(P):
-		if int(P["own"][i]) == fid and int(P["sub"][i]) == ci and LAND_USES.has(int(P["use"][i])):
-			mine.append(i)
+	var mine: Array = []
+	if bool(P.get("_crop_work_plots_valid", false)) and int(P.get("crop_count", -1)) == count(P) and P.has("crop_work_plots") and ci >= 0 and ci < P["crops"].size():
+		for i in P["crop_work_plots"].get(str(fid), {}).get(String(P["crops"][ci]), []): mine.append(int(i))
+	else:
+		for i in count(P):
+			if int(P["own"][i]) == fid and int(P["sub"][i]) == ci and LAND_USES.has(int(P["use"][i])):
+				mine.append(i)
 	mine.sort_custom(func(x, y): return int(P["ac"][x]) > int(P["ac"][y]) if int(P["ac"][x]) != int(P["ac"][y]) else x < y)
 	return mine
 
-## Exact physical purchase preview through the existing boundary/split code.
-## Copy only plots and crops: no cash, creditors, wages or harvest ownership are
-## settled, copied back, or touched while choosing an affordable quantity.
-static func purchase_work(e: Dictionary, a: Dictionary, b: Dictionary, crop: String, n: int) -> Dictionary:
+## Exact physical work preview. Prepared books visit only the two holdings;
+## new splits reuse native grid placement. No cash, creditors, wages or harvest
+## ownership are settled, copied back, or touched while choosing a quantity.
+static func purchase_work(e: Dictionary, a: Dictionary, b: Dictionary, crop: String, n: int, candidates: Array = []) -> Dictionary:
 	var P: Dictionary = e.get("plots", {})
 	if P.is_empty():
 		return {"acres": Families.acres(b) + n, "active": Families.acres(b) + n, "fallow": 0.0}
+	if bool(P.get("_crop_work_plots_valid", false)) and int(a["id"]) != int(b["id"]) and int(P.get("crop_year", -999)) == Calendar.year(float(e.get("day", 0))) and int(P.get("crop_count", -1)) == count(P) and P.has("crop_work_plots") and P.has("crop_work_acres"):
+		return _purchase_indexed(e, a, b, crop, n, candidates)
+	# Unprepared books retain the original pure preview, without warming live data.
 	var preview := {"plots": P.duplicate(true), "crops": e.get("crops", {}).duplicate(true),
 		"day": e.get("day", 0), "culture": e["culture"], "climate": e["climate"], "head": e.get("head", {})}
 	land_moved(preview, a, b, crop, n)
@@ -592,6 +598,74 @@ static func purchase_work(e: Dictionary, a: Dictionary, b: Dictionary, crop: Str
 		active += float(rows[good]["active"])
 		fallow += float(rows[good]["fallow"])
 	return {"acres": active + fallow, "active": active, "fallow": fallow}
+
+## Match land_moved's whole-plot order and its buyer/donor boundary precedence.
+## No histories, harvest accounts or unrelated owners are copied or rebuilt.
+static func _purchase_indexed(e: Dictionary, a: Dictionary, b: Dictionary, crop: String, n: int, candidates: Array) -> Dictionary:
+	var P: Dictionary = e["plots"]
+	var active: float = 0.0
+	var fallow: float = 0.0
+	for row in P["crop_work_acres"].get(str(int(b["id"])), {}).values():
+		active += float(row["active"])
+		fallow += float(row["fallow"])
+	var mine: Array = candidates if not candidates.is_empty() else move_candidates(P, int(a["id"]), (P["crops"] as Array).find(crop))
+	var owned: Array = P["crop_work_plots"].get(str(int(b["id"])), {}).get(crop, []).duplicate()
+	var left: Array = []
+	var rem: int = n
+	for i in mine:
+		var ac: int = int(P["ac"][i])
+		if rem > 0 and ac <= rem:
+			rem -= ac
+			owned.append(i)
+			if String(P["variety"][i]) == "fallow": fallow += ac
+			else: active += ac
+		else:
+			left.append(i)
+	if rem > 0:
+		var g: int = -1
+		for i in left:
+			if int(P["ac"][i]) > rem and (g < 0 or int(P["ac"][i]) < int(P["ac"][g])):
+				g = int(i)
+		if g >= 0:
+			var q: int = _purchase_part(P, owned, rem, g)
+			var variety: String
+			if q >= 0:
+				variety = String(P["variety"][q])
+			elif _purchase_part(P, left, int(P["ac"][g]) - rem, g) >= 0:
+				variety = String(P["variety"][g])
+			else:
+				variety = _purchase_split_variety(e, P, crop, g)
+			if variety == "fallow": fallow += rem
+			else: active += rem
+	return {"acres": active + fallow, "active": active, "fallow": fallow}
+
+## Same nearest-plot and ascending-id tie rule as _part_plot, over known owners.
+static func _purchase_part(P: Dictionary, candidates: Array, add: int, g: int) -> int:
+	var best: int = -1
+	var bd: float = 1.0e9
+	var gp: Vector2 = Vector2(P["x"][g], P["y"][g])
+	for candidate in candidates:
+		var i: int = int(candidate)
+		if i == g or int(P["ac"][i]) + add > ACRES: continue
+		var d: float = gp.distance_squared_to(Vector2(P["x"][i], P["y"][i]))
+		if d < bd or (d == bd and best >= 0 and i < best):
+			bd = d
+			best = i
+	return best
+
+## Only a new cereal plot's coordinates affect its work. Use the native room/
+## growth search on private geometry; all existing rotation phases stay fixed.
+static func _purchase_split_variety(e: Dictionary, P: Dictionary, crop: String, g: int) -> String:
+	if crop != "grain": return String(e.get("crops", {}).get(crop, crop))
+	var geometry: Dictionary = {"gw": P["gw"], "gh": P["gh"], "g": P["g"].duplicate(),
+		"x": P["x"].duplicate(), "y": P["y"].duplicate(), "use": P["use"]}
+	var cell: int = _make_room(geometry, g)
+	if cell < 0: cell = _free_cell_near(geometry, int(geometry["x"][g]), int(geometry["y"][g]))
+	var x: int = cell % int(geometry["gw"])
+	var y: int = cell / int(geometry["gw"])
+	var soil: String = ["loam", "light", "heavy"][posmod(x + 2 * y, 3)]
+	var phase: int = posmod(x + y, 4) + Calendar.year(float(e.get("day", 0)))
+	return CropRotation.choose_crop(Persons.race_of(e), String(e.get("climate", "temperate")), soil, phase)
 
 ## [plot owner text, short words for a part, words for the gainer] for a land move.
 static func _why(e: Dictionary, a: Dictionary, b: Dictionary) -> Array:
@@ -877,6 +951,8 @@ static func work_clearing(e: Dictionary, P: Dictionary, worker_days: float, day:
 	e["wacres"][crop] = float(e["wacres"].get(crop, 0.0)) + float(acres) * float(est.get("worked", 0.0))
 	e["territory"] = int(e.get("territory", 0)) + acres
 	TownEcon.town_hist(e, "The public works cleared %d acres of felled wood for the plough." % acres, day)
+	# This in-place land conversion leaves crop_count unchanged until its usual rebuild.
+	P["_crop_work_plots_valid"] = false
 	_dirty(P)
 
 # ================================================================== weekly match: homes, yards, grazing, heirs

@@ -334,8 +334,11 @@ static func sell_for_payroll(e: Dictionary, f: Dictionary, farm: Dictionary) -> 
 		var base: float = maxf(0.01, float(D["goods"].get(crop, {}).get("price", 1.0)))
 		var unit: float = float(D["land"]["acre_price"]) * maxf(0.01, float(e["price"].get(crop, base))) / base
 		var limit: int = mini(int(ceil(float(f["land"][crop]) * 0.25)), int(ceil(gap / unit)))
+		if limit <= 0: continue
 		for buyer in buyers:
 			var afford: int = maxi(0, int(floor((float(buyer["purse"]) - 40.0 * TownEcon.COIN) / unit)))
+			# Sorted current purses: every remaining buyer is also unable to pay.
+			if afford <= 0: break
 			var n: int = TownEcon._purchase_acres(e, f, buyer, String(crop), mini(limit, afford))
 			if n <= 0: continue
 			Families.move_land(e, f, buyer, String(crop), n)

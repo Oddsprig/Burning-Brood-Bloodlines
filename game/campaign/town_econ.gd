@@ -1204,15 +1204,18 @@ static func _purchase_acres(e: Dictionary, a: Dictionary, b: Dictionary, crop: S
 	# worked denominator or the actual purchase's required work.
 	if upkeep > 0.0:
 		limit = mini(limit, int(floor(maxf(0.0, budget - herd) / upkeep + 0.000000001)) - nominal)
+	if limit <= 0: return 0
 	var P: Dictionary = e.get("plots", {})
 	var mine := []
 	if not P.is_empty():
 		mine = Plots.move_candidates(P, int(a["id"]), (P["crops"] as Array).find(crop))
+	var ox_quotes: Dictionary = {0: {"heads": 0, "hands": 0.0}}
 	# Ox rounding, full plots and partial boundaries make work non-monotone in
 	# the quantity. Search descending; cheap lower bounds avoid oversized copies.
 	for n in range(limit, 0, -1):
 		var mo := Families.land_oxen(a, n)
-		var ox_work := Herds.move_work(e, int(a["id"]), "oxen", mo)
+		if not ox_quotes.has(mo): ox_quotes[mo] = Herds.move_work(e, int(a["id"]), "oxen", mo)
+		var ox_work: Dictionary = ox_quotes[mo]
 		if int(ox_work["heads"]) != mo: continue
 		var target: Dictionary = b.duplicate()
 		# The physical move writes an explicit buyer ox count whenever the
@@ -1231,7 +1234,7 @@ static func _purchase_acres(e: Dictionary, a: Dictionary, b: Dictionary, crop: S
 			minimum_active += n
 		var lower := Families._cultivation_hands(target, minimum_active) + (float(nominal + n) - minimum_active) * upkeep + herd + float(ox_work["hands"])
 		if lower > budget + 0.000000001: continue
-		var work := Plots.purchase_work(e, a, b, crop, n)
+		var work := Plots.purchase_work(e, a, b, crop, n, mine)
 		if absf(float(work["acres"]) - float(nominal + n)) > 0.000000001: continue
 		var need := Families._cultivation_hands(target, float(work["active"])) + float(work["fallow"]) * upkeep + herd + float(ox_work["hands"])
 		if need <= budget + 0.000000001: return n

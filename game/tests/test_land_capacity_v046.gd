@@ -205,6 +205,26 @@ func configure(town: Dictionary, original: Dictionary, mode: String, draft: Stri
 	WageClaims.accrue_day(e, int(e["day"]) + 1)
 	return [e, f]
 
+## Retain the original physical preview as an independent oracle for the fast
+## owner-index path, including small splits and whole-plus-part transfers.
+func preview_equivalence(e: Dictionary, a: Dictionary, b: Dictionary) -> void:
+	var P: Dictionary = e["plots"]
+	var before: Dictionary = P.duplicate(true)
+	for n in [1, 4, 5, 6, 9, 11]:
+		if n > int(a["land"].get("grain", 0)): continue
+		var fast: Dictionary = Plots.purchase_work(e, a, b, "grain", n)
+		check(P == before, "purchase preview leaves live plots and indices untouched")
+		var control: Dictionary = {"plots": P.duplicate(true), "crops": e["crops"].duplicate(true),
+			"day": e["day"], "culture": e["culture"], "climate": e["climate"], "head": e.get("head", {})}
+		Plots.land_moved(control, a, b, "grain", n)
+		var active: float = 0.0
+		var fallow: float = 0.0
+		for row in CropRotation.work_acres(control, b).values():
+			active += float(row["active"])
+			fallow += float(row["fallow"])
+		check(fast == {"acres": active + fallow, "active": active, "fallow": fallow},
+			"indexed preview matches native boundaries and split rotation: %s %d" % [e["culture"], n])
+
 func sales(town: Dictionary, original: Dictionary, mode: String, draft: String = "none", fallow: bool = false) -> void:
 	var setup := configure(town, original, mode, draft, fallow)
 	if setup.is_empty(): return
@@ -212,6 +232,7 @@ func sales(town: Dictionary, original: Dictionary, mode: String, draft: String =
 	var e: Dictionary = setup[0]
 	var f: Dictionary = setup[1]
 	var label := "%s %s %s %s" % [e["culture"], mode, draft, "fallow" if fallow else "active"]
+	if mode == "free" and draft == "none": preview_equivalence(e, e["fams"][0], f)
 	var old_property := property(e)
 	var old_people := people(e)
 	var old_lots := lots(e)

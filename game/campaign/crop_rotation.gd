@@ -60,7 +60,7 @@ static func ensure(e: Dictionary, P: Dictionary, day: float) -> void:
 		P["soil"].append(["loam", "light", "heavy"][posmod(int(P["x"][i]) + 2 * int(P["y"][i]), 3)])
 		P["rotation_phase"].append(posmod(int(P["x"][i]) + int(P["y"][i]), 4))
 	var year := Calendar.year(day)
-	if int(P.get("crop_year", -999)) == year and int(P.get("crop_count", -1)) == n and P.has("crop_work_acres"): return
+	if int(P.get("crop_year", -999)) == year and int(P.get("crop_count", -1)) == n and P.has("crop_work_acres") and P.has("crop_work_plots"): return
 	var climate := String(e.get("climate", "temperate"))
 	var race := Persons.race_of(e)
 	var counts := {}
@@ -80,14 +80,20 @@ static func ensure(e: Dictionary, P: Dictionary, day: float) -> void:
 	var yields := {}
 	var names := {}
 	var work := {}
-	# Build both read-only indices in one plot walk; quantities and accumulation order are unchanged.
+	var plots: Dictionary = {}
+	# Build read-only indices together; purchase previews need only the two owners.
 	for i in n:
 		if not int(P["use"][i]) in Plots.LAND_USES: continue
 		var fid := str(int(P["own"][i]))
 		var v := String(P["variety"][i])
 		var good := String(P["crops"][int(P["sub"][i])])
-		if not work.has(fid): work[fid] = {}
-		if not work[fid].has(good): work[fid][good] = {"active": 0.0, "fallow": 0.0}
+		if not work.has(fid):
+			work[fid] = {}
+			plots[fid] = {}
+		if not work[fid].has(good):
+			work[fid][good] = {"active": 0.0, "fallow": 0.0}
+			plots[fid][good] = []
+		plots[fid][good].append(i)
 		var task := "fallow" if v == "fallow" else "active"
 		work[fid][good][task] += float(P["ac"][i])
 		if int(P["use"][i]) == Plots.FIELD and String(P["crops"][int(P["sub"][i])]) == "grain":
@@ -101,9 +107,11 @@ static func ensure(e: Dictionary, P: Dictionary, day: float) -> void:
 	P["crop_names"] = names
 	P["crop_yields"] = yields
 	P["crop_work_acres"] = work
+	P["crop_work_plots"] = plots
 	e["crop_mix"] = counts
 	e["crops"]["grain"] = "mixed crops"
 	Plots._dirty(P)
+	P["_crop_work_plots_valid"] = true
 
 ## Real active and fallow acres by good, from the same physical owner/rotation
 ## index as harvest attribution. Older plot books rebuild this derived index;
