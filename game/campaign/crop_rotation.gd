@@ -53,29 +53,16 @@ static func ensure(e: Dictionary, P: Dictionary, day: float) -> void:
 	var n := Plots.count(P)
 	if not P.has("variety"):
 		P["variety"] = []; P["soil"] = []; P["rotation_phase"] = []
-	while P["variety"].size() < n:
-		var i: int = P["variety"].size()
-		P["variety"].append("")
-		# Soil texture belongs to the generated plot, independent of names and household IDs.
-		P["soil"].append(["loam", "light", "heavy"][posmod(int(P["x"][i]) + 2 * int(P["y"][i]), 3)])
-		P["rotation_phase"].append(posmod(int(P["x"][i]) + int(P["y"][i]), 4))
 	var year := Calendar.year(day)
-	if int(P.get("crop_year", -999)) == year and int(P.get("crop_count", -1)) == n and P.has("crop_work_acres") and P.has("crop_work_plots"): return
+	if P["variety"].size() == n and int(P.get("crop_year", -999)) == year and int(P.get("crop_count", -1)) == n and P.has("crop_work_acres") and P.has("crop_work_plots"): return
 	var climate := String(e.get("climate", "temperate"))
 	var race := Persons.race_of(e)
 	var counts := {}
 	for i in n:
-		if not int(P["use"][i]) in Plots.LAND_USES: P["variety"][i] = ""; continue
-		var good := String(P["crops"][int(P["sub"][i])])
-		if good != "grain":
-			P["variety"][i] = String(e["crops"].get(good, good))
-			continue
-		var previous := String(P["variety"][i])
-		var phase := posmod(int(P["rotation_phase"][i]) + year, 4)
-		var best := choose_crop(race, climate, String(P["soil"][i]), phase)
-		P["variety"][i] = best
-		counts[best] = float(counts.get(best, 0)) + float(P["ac"][i])
-		if previous != "" and previous != best: Plots._hist(P, i, day, "Rotated from %s to %s." % [previous, best])
+		_ensure_plot(e, P, i, year, race, climate, day)
+		if int(P["use"][i]) in Plots.LAND_USES and String(P["crops"][int(P["sub"][i])]) == "grain":
+			var best := String(P["variety"][i])
+			counts[best] = float(counts.get(best, 0)) + float(P["ac"][i])
 	P["crop_year"] = year; P["crop_count"] = n
 	var yields := {}
 	var names := {}
@@ -112,6 +99,128 @@ static func ensure(e: Dictionary, P: Dictionary, day: float) -> void:
 	e["crops"]["grain"] = "mixed crops"
 	Plots._dirty(P)
 	P["_crop_work_plots_valid"] = true
+
+## Shared per-plot soil, rotation_phase, and variety rule used by ensure() and split moves.
+static func _ensure_plot(e: Dictionary, P: Dictionary, i: int, year: int, race: String, climate: String, day: float) -> void:
+	if not P.has("variety"):
+		P["variety"] = []; P["soil"] = []; P["rotation_phase"] = []
+	while P["variety"].size() <= i:
+		var k: int = P["variety"].size()
+		P["variety"].append("")
+		# Soil texture belongs to the generated plot, independent of names and household IDs.
+		P["soil"].append(["loam", "light", "heavy"][posmod(int(P["x"][k]) + 2 * int(P["y"][k]), 3)])
+		P["rotation_phase"].append(posmod(int(P["x"][k]) + int(P["y"][k]), 4))
+	if not int(P["use"][i]) in Plots.LAND_USES:
+		P["variety"][i] = ""
+		return
+	var good := String(P["crops"][int(P["sub"][i])])
+	if good != "grain":
+		P["variety"][i] = String(e["crops"].get(good, good))
+		return
+	var previous := String(P["variety"][i])
+	var phase := posmod(int(P["rotation_phase"][i]) + year, 4)
+	var best := choose_crop(race, climate, String(P["soil"][i]), phase)
+	P["variety"][i] = best
+	if previous != "" and previous != best:
+		Plots._hist(P, i, day, "Rotated from %s to %s." % [previous, best])
+
+## Shifts grain variety acres in e["crop_mix"] when acres move between plots.
+static func _move_mix_acres(e: Dictionary, P: Dictionary, from_plot: int, to_plot: int, acres: int) -> void:
+	if acres <= 0 or not e.has("crop_mix"): return
+	if not int(P["use"][from_plot]) in Plots.LAND_USES: return
+	if String(P["crops"][int(P["sub"][from_plot])]) != "grain": return
+	var mix: Dictionary = e["crop_mix"]
+	var vf := String(P["variety"][from_plot])
+	var vt := String(P["variety"][to_plot])
+	mix[vf] = float(mix.get(vf, 0)) - float(acres)
+	mix[vt] = float(mix.get(vt, 0)) + float(acres)
+
+## Per-owner derived crop rows in ascending plot order from candidate indices, matching ensure().
+static func _owner_index(P: Dictionary, fid_str: String, candidates = null) -> Array:
+	var fid := int(fid_str)
+	var n := Plots.count(P)
+	var idxs: Array = []
+	if candidates == null:
+		for i in n:
+			if int(P["own"][i]) == fid and int(P["use"][i]) in Plots.LAND_USES:
+				idxs.append(i)
+	else:
+		for raw in candidates:
+			var i := int(raw)
+			if i >= 0 and i < n and int(P["own"][i]) == fid and int(P["use"][i]) in Plots.LAND_USES:
+				idxs.append(i)
+		idxs.sort()
+	var work_row := {}
+	var plots_row := {}
+	var yields_row = null
+	var names_row = null
+	var prev := -1
+	for idx in idxs:
+		var i := int(idx)
+		if i == prev: continue
+		prev = i
+		var v := String(P["variety"][i])
+		var good := String(P["crops"][int(P["sub"][i])])
+		if not work_row.has(good):
+			work_row[good] = {"active": 0.0, "fallow": 0.0}
+			plots_row[good] = []
+		plots_row[good].append(i)
+		var task := "fallow" if v == "fallow" else "active"
+		work_row[good][task] += float(P["ac"][i])
+		if int(P["use"][i]) == Plots.FIELD and good == "grain":
+			if yields_row == null: yields_row = [0.0, 0.0, 0.0]
+			yields_row[0] += float(P["ac"][i])
+			yields_row[1] += float(P["ac"][i]) * soil_yield(v, String(P["soil"][i]))
+			if ROWS.get(v, {}).get("group", "") == "cereal": yields_row[2] += float(P["ac"][i])
+		if v == "" or v == "fallow": continue
+		if names_row == null: names_row = {}
+		names_row[v] = float(names_row.get(v, 0)) + float(P["ac"][i])
+	return [work_row, plots_row, yields_row, names_row]
+
+## Incrementally refreshes derived indices for fids over their prior plots and touched indices.
+static func reindex_owners(e: Dictionary, P: Dictionary, fids: Array, touched: Array = []) -> bool:
+	if P.is_empty(): return false
+	var n := Plots.count(P)
+	var year := Calendar.year(float(e.get("day", 0)))
+	var cc := int(P.get("crop_count", -1))
+	if not bool(P.get("_crop_work_plots_valid", false)) or int(P.get("crop_year", -999)) != year or cc < 0 or cc > n:
+		return false
+	if not P.has("crop_work_acres") or not P.has("crop_work_plots") or not P.has("crop_yields") or not P.has("crop_names"):
+		return false
+	if not P.has("variety") or P["variety"].size() != n or not P.has("soil") or P["soil"].size() != n or not P.has("rotation_phase") or P["rotation_phase"].size() != n:
+		return false
+	var work: Dictionary = P["crop_work_acres"]
+	var plots: Dictionary = P["crop_work_plots"]
+	var yields: Dictionary = P["crop_yields"]
+	var names: Dictionary = P["crop_names"]
+	var candidates: Array = []
+	var seen_fids := {}
+	for fid in fids:
+		var fid_str := str(int(fid))
+		if seen_fids.has(fid_str): continue
+		seen_fids[fid_str] = true
+		var by_good: Dictionary = plots.get(fid_str, {})
+		for good in by_good:
+			candidates.append_array(by_good[good])
+	candidates.append_array(touched)
+	var seen := {}
+	for fid in fids:
+		var fid_str := str(int(fid))
+		if seen.has(fid_str): continue
+		seen[fid_str] = true
+		var row := _owner_index(P, fid_str, candidates)
+		if (row[0] as Dictionary).is_empty():
+			work.erase(fid_str)
+			plots.erase(fid_str)
+		else:
+			work[fid_str] = row[0]
+			plots[fid_str] = row[1]
+		if row[2] == null: yields.erase(fid_str)
+		else: yields[fid_str] = row[2]
+		if row[3] == null: names.erase(fid_str)
+		else: names[fid_str] = row[3]
+	P["crop_count"] = n
+	return true
 
 ## Real active and fallow acres by good, from the same physical owner/rotation
 ## index as harvest attribution. Older plot books rebuild this derived index;

@@ -526,6 +526,10 @@ static func land_moved(e: Dictionary, a: Dictionary, b: Dictionary, crop: String
 	var fa := int(a["id"]); var fb := int(b["id"])
 	var ci := _crop_index(P, crop)
 	var day := float(e.get("day", 0))
+	var year := Calendar.year(day)
+	var n0 := count(P)
+	var cache_ok: bool = bool(P.get("_crop_work_plots_valid", false)) and int(P.get("crop_year", -999)) == year and int(P.get("crop_count", -1)) == n0 and P.has("crop_work_acres") and P.has("crop_work_plots") and P.has("crop_yields") and P.has("crop_names") and P.has("variety") and P["variety"].size() == n0 and P.has("soil") and P["soil"].size() == n0 and P.has("rotation_phase") and P["rotation_phase"].size() == n0 and e.has("crop_mix")
+	var touched: Array = []
 	var why := _why(e, a, b)
 	var mine := move_candidates(P, fa, ci)
 	var rem := n
@@ -534,6 +538,7 @@ static func land_moved(e: Dictionary, a: Dictionary, b: Dictionary, crop: String
 		if rem > 0 and int(P["ac"][i]) <= rem:
 			rem -= int(P["ac"][i])
 			_give(P, e, i, fb, why, day)
+			touched.append(i)
 		else:
 			left.append(i)
 	if rem > 0:
@@ -543,13 +548,17 @@ static func land_moved(e: Dictionary, a: Dictionary, b: Dictionary, crop: String
 				g = i
 		if g < 0:
 			P["drift"] = int(P.get("drift", 0)) + rem   # fewer plots than acres: the weekly check mends it
+			cache_ok = false
 		else:
+			touched.append(g)
 			var q := _part_plot(P, fb, ci, rem, g)
 			if q >= 0:
 				P["ac"][g] = int(P["ac"][g]) - rem
 				P["ac"][q] = int(P["ac"][q]) + rem
 				_hist(P, g, day, "%d acres off its edge %s." % [rem, why[1]])
 				_hist(P, q, day, "%d acres added to it from the next plot, %s, for %d coins." % [rem, why[1], rem * int(why[3])])
+				touched.append(q)
+				if cache_ok: CropRotation._move_mix_acres(e, P, g, q, rem)
 			else:
 				var extra := int(P["ac"][g]) - rem
 				var q2 := _part_plot(P, fa, ci, extra, g)
@@ -558,12 +567,19 @@ static func land_moved(e: Dictionary, a: Dictionary, b: Dictionary, crop: String
 					P["ac"][q2] = int(P["ac"][q2]) + extra
 					_give(P, e, g, fb, why, day)
 					_hist(P, q2, day, "%d acres kept back from the plot next to it" % extra)
+					touched.append(q2)
+					if cache_ok: CropRotation._move_mix_acres(e, P, g, q2, extra)
 				else:
 					P["ac"][g] = extra
 					var np := _split(P, g, rem)
 					_give(P, e, np, fb, why, day)
 					_hist(P, g, day, "%d acres split off it, %s." % [rem, why[1]])
-	P["crop_count"] = -1
+					touched.append(np)
+					if cache_ok:
+						CropRotation._ensure_plot(e, P, np, year, Persons.race_of(e), String(e.get("climate", "temperate")), day)
+						CropRotation._move_mix_acres(e, P, g, np, rem)
+	if not (cache_ok and CropRotation.reindex_owners(e, P, [fa, fb], touched)):
+		P["crop_count"] = -1
 	_dirty(P)
 
 ## Native transfer order, also used for cheap rejection bounds on purchases.
