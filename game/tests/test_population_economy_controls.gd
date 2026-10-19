@@ -120,10 +120,19 @@ func public_contract() -> void:
 	check(near(float(buyer["purse"]), buyer_cash), "private operator neither skims nor replaces protected public capital")
 	var wage_paid := WageClaims.pay_family(e, workers)
 	check(near(float(wage_paid[0]), 150.0) and near(float(collector["owed"]), 0.0) and near(coin(e), before), "ownership change preserves original workforce claim and payment conservation")
-	var estate := Businesses._row(e, "estate", -1, 0, TownEcon.data())
+	var estate := Businesses._row(e, "estate", -1, 1, TownEcon.data())
+	estate["till"] = 0.0; estate["wage"] = Barge.day_wage(e) * 0.6
 	e["fams"][0]["land"] = {"grain": 100}
 	check(int(estate["public_property"]) == 0 and int(estate["owner"]) > 0, "estate operator and actual land owner remain distinct")
-	check(near(EconomyRules.wage_limit(e, estate, 1000000.0), EconomyRules.farm_hand_value(e, e["fams"][0])), "public estate wage valuation reads its real productive property")
+	var day_w: float = Barge.day_wage(e)
+	var old_grain_p: float = float(e["price"]["grain"])
+	e["price"]["grain"] = 30.0
+	var prop_val: float = EconomyRules.farm_hand_value(e, e["fams"][0])
+	var op_val: float = EconomyRules.farm_hand_value(e, e["fams"][int(estate["owner"])])
+	Businesses.bid_day(e)
+	check(op_val == 0.0 and near(float(estate.get("revenue_hand", -1.0)), prop_val) and float(estate["wage"]) >= minf(prop_val * 0.9, day_w * 1.8) - 0.001 and float(estate["wage"]) > day_w * 0.6 and float(estate["wage"]) <= day_w * 1.8 + 0.001 and near(EconomyRules.wage_limit(e, estate, 0.0), day_w * 0.6) and near(EconomyRules.wage_limit(e, estate, 1000000.0), day_w * 1.8) and Businesses.takeable(estate, e) == 0, "public estate wage valuation reads its real productive property")
+	e["price"]["grain"] = old_grain_p
+	estate["cap"] = 0
 	var academy := Businesses._row(e, "academy", -1, 1, TownEcon.data()); academy["till"] = 0.0
 	var academy_before := float(academy["till"])
 	TownEcon.fund_public_services(e)

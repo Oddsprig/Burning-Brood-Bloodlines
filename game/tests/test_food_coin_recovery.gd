@@ -109,11 +109,26 @@ func run(_tree: SceneTree) -> int:
 	e["biz"][0]["workers"] = 0; e["biz"][0]["kw"] = 1
 	Barge.coin_town(game, town, e)
 	check(float(game.world["coin"]["cast"]) > cast, "working keeper still mints after paid minters leave")
-	f = Families._blank(1); f["land"] = {"grain": 8}; f["ox"] = -1
-	e = {"culture": "middle", "day": 0, "climate": "temperate", "price": {"grain": 1.0}}
-	var annual: float = 0.0
-	for season in 4:
-		annual += Families.seasonal_need_hands(f, float(season * Calendar.DAYS_PER_SEASON), e) / 4.0
-	var net: float = 8.0 * 200.0 * float(TownEcon.data()["market"]["broker_share"]) * (1.0 - float(TownEcon.data()["tax"]["grain_share"])) / EconGen.YEAR_DAYS
-	check(absf(EconomyRules.farm_hand_value(e, f) * annual - net) < 0.00001, "annual seasonal payroll fits actual net farm sales")
+	f = Families._blank(1); f["m"] = 1; f["land"] = {"grain": 8}; f["ox"] = -1; f["purse"] = 0.0
+	var fb: Dictionary = {"id": 0, "type": "farm", "owner": 1, "closed": false, "cap": 2, "workers": 1,
+		"wage": 100.0, "till": 0.0, "owed": 50.0, "wage_review_day": -7}
+	f["farm"] = 0
+	e = {"culture": "middle", "day": 0, "climate": "temperate", "price": {"grain": 1.0},
+		"fams": [Families.make_estate({}), f], "biz": [fb], "farm_till": 0.0, "barn": {}}
+	var day_w: float = Barge.day_wage(e)
+	var hand_val: float = EconomyRules.farm_hand_value(e, f)
+	check(absf(hand_val - 8.0 * 200.0 / EconGen.YEAR_DAYS) < 0.00001 and hand_val < day_w * 0.6, "low crop revenue per hand is below the adult wage floor")
+	check(absf(EconomyRules.wage_limit(e, fb, hand_val) - day_w * 0.6) < 0.00001 and absf(EconomyRules.wage_limit(e, fb, 10000.0) - day_w * 1.8) < 0.00001, "farm wage stays within the adult labour band instead of capping at crop revenue")
+	Businesses.bid_day(e)
+	var raised_wage: float = float(fb["wage"])
+	check(raised_wage > 100.0 and raised_wage <= day_w * 1.8 + 0.00001, "short-staffed farm raises its weekly wage offer within the band")
+	check(Businesses.takeable(fb, e) == 0, "affordability limits hiring when the farm lacks takeable cash or surplus grain")
+	var need_reserve: float = float(fb["owed"]) + float(maxi(int(fb["workers"]), int(fb["cap"]))) * raised_wage * 8.0
+	var gross_sale: float = need_reserve + 250.0
+	var surplus: float = Families.receive_harvest(e, f, gross_sale)
+	check(absf(float(fb["till"]) - need_reserve) < 0.00001 and absf(surplus - 250.0) < 0.00001 and absf(float(f["purse"]) - 250.0) < 0.00001, "payroll reserve is funded from harvest receipts before owner profit")
+	check(Businesses.takeable(fb, e) == 1, "funded payroll reserve reopens hiring for the vacant farm place")
+	fb["workers"] = 3; fb["cap"] = 2; e["day"] = 7
+	Businesses.bid_day(e)
+	check(float(fb["wage"]) < raised_wage and float(fb["wage"]) >= day_w * 0.6 - 0.00001, "overstaffed ordinary employer lowers its weekly wage offer within the band")
 	return fails

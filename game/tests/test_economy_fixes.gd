@@ -53,10 +53,34 @@ func run(_tree: SceneTree) -> int:
 			check(absf(Barge.holdings(Game) - before) < 0.01, "food purchase conserves coins")
 			check(n >= 0 and n <= 1, "food purchase cannot exceed requested amount")
 			household["purse"] -= 1000
+			var day_w: float = Barge.day_wage(e)
 			for b in e["biz"]:
 				if b["type"] in ["farm", "estate"]:
-					var wage := EconomyRules.wage_limit(e, b, 10000)
-					check(wage <= float(b["revenue_hand"]) + 0.01, "farm wage cannot exceed revenue per hand")
+					var lo: float = EconomyRules.wage_limit(e, b, 0.0)
+					var hi: float = EconomyRules.wage_limit(e, b, 10000.0)
+					var cur: float = EconomyRules.wage_limit(e, b, float(b["wage"]))
+					check(absf(lo - day_w * 0.6) < 0.01 and absf(hi - day_w * 1.8) < 0.01 and cur >= lo - 0.01 and cur <= hi + 0.01, "farm wage stays within the adult labour band")
+				elif EconomyRules.skilled_work(b):
+					var table: Dictionary = TownEcon.data()["businesses"][b["type"]]
+					var premium: float = maxf(1.15, float(table["wage"]) / float(Barge.B()["labour"]["base"]))
+					var slo: float = EconomyRules.wage_limit(e, b, 0.0)
+					var shi: float = EconomyRules.wage_limit(e, b, 10000.0)
+					var scur: float = EconomyRules.wage_limit(e, b, float(b["wage"]))
+					check(absf(slo - day_w * premium) < 0.01 and absf(shi - day_w * premium * 1.8) < 0.01 and scur >= slo - 0.01 and scur <= shi + 0.01, "skilled wage stays within its premium band")
+			var probe_fam: Dictionary = Families._blank(0)
+			probe_fam["land"] = {"grain": 16}
+			var probe_farm: Dictionary = {"id": 0, "type": "farm", "owner": 0, "closed": false, "cap": 4, "workers": 1,
+				"wage": day_w, "till": 0.0, "owed": 0.0, "wage_review_day": -7}
+			probe_fam["farm"] = 0
+			var probe_e: Dictionary = {"culture": e["culture"], "climate": e["climate"], "day": 0, "dwage": day_w,
+				"price": e["price"].duplicate(), "fams": [probe_fam], "biz": [probe_farm], "barn": {}}
+			Businesses.bid_day(probe_e)
+			var raised_w: float = float(probe_farm["wage"])
+			check(raised_w > day_w and raised_w <= day_w * 1.8 + 0.01 and absf(float(probe_farm.get("revenue_hand", -1.0)) - EconomyRules.farm_hand_value(probe_e, probe_fam)) < 0.01, "short-staffed farm raises its offer within the band and records hand value")
+			check(Businesses.takeable(probe_farm, probe_e) == 0, "affordability limits farm hiring rather than capping wage")
+			probe_farm["workers"] = 5; probe_farm["cap"] = 4; probe_e["day"] = 7
+			Businesses.bid_day(probe_e)
+			check(float(probe_farm["wage"]) < raised_w and float(probe_farm["wage"]) >= day_w * 0.6 - 0.01, "overstaffed ordinary business lowers its wage offer within the band")
 			var grain_before := int(e["stock"].get("grain", 0))
 			var price_before := float(e["price"]["grain"])
 			e["stock"]["grain"] = int(float(e["need"].get("grain", 1)) * 10) + 100
