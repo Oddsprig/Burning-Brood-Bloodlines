@@ -1,0 +1,26 @@
+FAST year=2 step=weekly player_purse=19318.18 player_hoard=105000.00 player_income=-260194.09 ai_alive=21 ai_purse_med=19676.29 ai_purse_min=4.87 ai_purse_max=173949.23 ai_income_med=94235.85 treasury_med=1513977.07 holdings=93577727.70 houses_alive=22
+FAST checkpoint year=2 complete=true day=241/241 checkpoint_written=true elapsed_ms=46742 path=user://econ_fast/checkpoint_year_2.save
+FAST year=3 step=weekly player_purse=2219.76 player_hoard=60000.00 player_income=-323.24 ai_alive=21 ai_purse_med=2085.18 ai_purse_min=3.20 ai_purse_max=54729.46 ai_income_med=44861.13 treasury_med=1528532.70 holdings=85514899.76 houses_alive=22
+FAST checkpoint year=3 complete=true day=361/361 checkpoint_written=true elapsed_ms=41828 path=user://econ_fast/checkpoint_year_3.save
+FAST year=4 step=weekly player_purse=154.61 player_hoard=20000.00 player_income=299.19 ai_alive=20 ai_purse_med=1359.86 ai_purse_min=4.80 ai_purse_max=58344.38 ai_income_med=28426.28 treasury_med=1311336.75 holdings=78119233.52 houses_alive=21
+FAST checkpoint year=4 complete=true day=481/481 checkpoint_written=true elapsed_ms=39672 path=user://econ_fast/checkpoint_year_4.save
+FAST year=5 step=weekly player_purse=522.22 player_hoard=0.00 player_income=321.68 ai_alive=19 ai_purse_med=515.03 ai_purse_min=4.80 ai_purse_max=63921.31 ai_income_med=13933.29 treasury_med=1265458.17 holdings=71652989.30 houses_alive=20
+FAST checkpoint year=5 complete=true day=601/601 checkpoint_written=true elapsed_ms=40973 path=user://econ_fast/checkpoint_year_5.save
+FAST year=6 step=weekly player_purse=2695.96 player_hoard=0.00 player_income=9535.81 ai_alive=19 ai_purse_med=1059.24 ai_purse_min=4.80 ai_purse_max=47459.62 ai_income_med=8261.31 treasury_med=1179550.65 holdings=65722593.28 houses_alive=20
+FAST checkpoint year=6 complete=true day=721/721 checkpoint_written=true elapsed_ms=42501 path=user://econ_fast/checkpoint_year_6.save
+FAST year=7 step=weekly player_purse=78.67 player_hoard=0.00 player_income=8940.68 ai_alive=18 ai_purse_med=1094.37 ai_purse_min=4.80 ai_purse_max=20873.06 ai_income_med=5433.70 treasury_med=987844.85 holdings=60282979.24 houses_alive=19
+FAST checkpoint year=7 complete=true day=841/841 checkpoint_written=true elapsed_ms=45940 path=user://econ_fast/checkpoint_year_7.save
+FAST year=8 step=weekly player_purse=56.73 player_hoard=0.00 player_income=3137.21 ai_alive=18 ai_purse_med=1875.56 ai_purse_min=4.80 ai_purse_max=23259.00 ai_income_med=3531.90 treasury_med=885997.99 holdings=55294015.35 houses_alive=19
+FAST checkpoint year=8 complete=true day=961/961 checkpoint_written=true elapsed_ms=46272 path=user://econ_fast/checkpoint_year_8.save
+FAST year=9 step=weekly player_purse=31.62 player_hoard=0.00 player_income=7777.66 ai_alive=18 ai_purse_med=1445.93 ai_purse_min=5.80 ai_purse_max=14405.54 ai_income_med=3519.69 treasury_med=739417.69 holdings=50717909.62 houses_alive=19
+FAST checkpoint year=9 complete=true day=1081/1081 checkpoint_written=true elapsed_ms=47586 path=user://econ_fast/checkpoint_year_9.save
+FAST stopped year=10 day_in_year=105/120 day=1186 target_day=1201 completed_year=9 elapsed_s=52.53 checkpoint=user://econ_fast/checkpoint_year_9_b.save
+FAST checkpoint year=9 complete=false day=1186/1201 checkpoint_written=true elapsed_ms=52535 path=user://econ_fast/checkpoint_year_9_b.save
+FAST year=10 step=weekly player_purse=2.08 player_hoard=0.00 player_income=2676.92 ai_alive=16 ai_purse_med=1404.87 ai_purse_min=4.80 ai_purse_max=8492.29 ai_income_med=2394.75 treasury_med=645971.00 holdings=46521277.60 houses_alive=17
+FAST stopped year=11 day_in_year=70/120 day=1271 target_day=1321 completed_year=10 elapsed_s=51.69 checkpoint=user://econ_fast/checkpoint_year_10.save
+FAST checkpoint year=10 complete=false day=1271/1321 checkpoint_written=true elapsed_ms=51689 path=user://econ_fast/checkpoint_year_10.save
+FAST year=11 step=weekly player_purse=54.03 player_hoard=0.00 player_income=-90.46 ai_alive=15 ai_purse_med=1076.68 ai_purse_min=4.80 ai_purse_max=8725.29 ai_income_med=1996.82 treasury_med=568291.49 holdings=42672062.62 houses_alive=16
+FAST stopped year=12 day_in_year=35/120 day=1356 target_day=1441 completed_year=11 elapsed_s=52.59 checkpoint=user://econ_fast/checkpoint_year_11.save
+FAST checkpoint year=11 complete=false day=1356/1441 checkpoint_written=true elapsed_ms=52591 path=user://econ_fast/checkpoint_year_11.save
+
+[exited with code 0]

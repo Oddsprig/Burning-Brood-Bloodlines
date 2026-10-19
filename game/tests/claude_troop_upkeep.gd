@@ -22,6 +22,21 @@ func _finish() -> int:
 func _near(a: float, b: float) -> bool:
 	return absf(a - b) < 0.05
 
+func _seed_income(f: Dictionary, day_now: float, yearly_income: float, final_purse: float = -1.0) -> void:
+	var end_purse: float = final_purse if final_purse >= 0.0 else float(f.get("purse", 0.0))
+	var yr_days: float = float(EconGen.YEAR_DAYS)
+	f.erase("house_budget")
+	f["debt"] = float(f.get("debt", 0.0))
+	var start_day: float = day_now - yr_days
+	f["purse"] = end_purse - yearly_income
+	HouseUpkeep.observe_income(f, start_day)
+	var steps: int = 12
+	for i in range(1, steps + 1):
+		var d: float = start_day + yr_days * float(i) / float(steps)
+		f["purse"] = end_purse - yearly_income + yearly_income * float(i) / float(steps)
+		HouseUpkeep.observe_income(f, d)
+	f["purse"] = end_purse
+
 func _smith_tills(e: Dictionary) -> float:
 	var n: float = 0.0
 	for b in e.get("biz", []):
@@ -87,10 +102,19 @@ func run(tree: SceneTree) -> int:
 	check(uid != "" and TroopUpkeep._rules(e, f), "the seat head is the ruling household")
 	if uid == "":
 		return _finish()
+
+	var start_purse: float = maxf(180000.0, float(f.get("purse", 0.0)))
+	var per_man: float = TroopUpkeep.wage_week(e) + TroopUpkeep.keep_week(e)
+	var target_men: int = maxi(10, int(floor(1000000.0 * HouseUpkeep.TROOP_SHARE / TroopUpkeep.WEEKS_YEAR / maxf(1.0, per_man))))
+	var rich_income: float = (float(target_men) + 0.75) * per_man * TroopUpkeep.WEEKS_YEAR / HouseUpkeep.TROOP_SHARE
+
+	_seed_income(f, float(Game.day), 250000.0, start_purse)
+	var poor_year: float = TroopUpkeep.expected_yearly_cost(Game, uid)
+	_seed_income(f, float(Game.day), rich_income, start_purse)
 	var year: float = TroopUpkeep.expected_yearly_cost(Game, uid)
 	var purse_now: float = float(f.get("purse", 0.0))
 	print("troops yearly %.0f at purse %.0f" % [year, purse_now])
-	check(year > 50000.0 and year < 1200000.0, "expected yearly cost is a real sink under a million-coin income (%.0f)" % year)
+	check(year > poor_year and poor_year > 0.0 and year > 50000.0 and year <= rich_income * HouseUpkeep.TROOP_SHARE + 1.0, "expected yearly cost scales with income and is a real sink within TROOP_SHARE (%.0f -> %.0f)" % [poor_year, year])
 
 	var gold0: int = int(Game.gold)
 	var daily0: int = int(Game.daily_wages())
@@ -158,7 +182,8 @@ func run(tree: SceneTree) -> int:
 		left = next_n
 		spins += 1
 	check(left == 0, "an unpaid house is left with no retinue")
-	f["purse"] = 180000.0
+	Game.day = float(Game.day) + 8.0
+	_seed_income(f, float(Game.day), rich_income, 180000.0)
 	_drain()
 	Game.location = seat
 
@@ -214,10 +239,13 @@ func run(tree: SceneTree) -> int:
 	check(float(worn.get("repair_paid", 0.0)) == 0.0 and _near(holds_b, Barge.holdings(Game)), "repair waits until the army is home")
 	Game.location = seat
 	Game.world["party"]["pos"] = home_pos
+	Game.day = float(Game.day) + 8.0
+	var ph_loc: Dictionary = Dynasty._household(Game, str(Game.world.get("player_house", {}).get("household_uid", "")))
+	var ph_fam: Dictionary = ph_loc["family"]
+	_seed_income(ph_fam, float(Game.day), rich_income, maxf(180000.0, float(ph_fam.get("purse", 0.0))))
 	var smith_b: float = _smith_tills(e)
 	var holds_r: float = Barge.holdings(Game)
-	var ph_loc: Dictionary = Dynasty._household(Game, str(Game.world.get("player_house", {}).get("household_uid", "")))
-	var fixed: Dictionary = TroopUpkeep.weekly(Game, ph_loc["town"], ph_loc["town"]["econ"], ph_loc["family"])
+	var fixed: Dictionary = TroopUpkeep.weekly(Game, ph_loc["town"], ph_loc["town"]["econ"], ph_fam)
 	check(float(fixed.get("repair_paid", 0.0)) > 0.0 and body_item.wear == 0 and hand_item.wear == 0, "home repair pays the smith and restores the kit (%.0f)" % float(fixed.get("repair_paid", 0.0)))
 	check(_near(smith_b + float(fixed.get("repair_paid", 0.0)) + float(fixed.get("maintenance_paid", 0.0)), _smith_tills(e)), "repair coins landed in the smith's till")
 	check(_near(holds_r, Barge.holdings(Game)), "repair conserves coin")

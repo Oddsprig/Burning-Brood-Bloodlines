@@ -713,10 +713,17 @@ static func marriages(e: Dictionary, day: float, most: int = -1) -> int:
 		# home stayed single, 30-60 women a year. She marries and moves to her husband's house; a house left with no
 		# grown-up at work falls to the hardship rules like any other: casual work, the poorhouse, the coping ladder.)
 		for p in f["pp"]:
-			if int(p[6]) != 0 or String(p[4]) != "" or (p as Array).size() < SIZE or String(p[7]) != "":
+			# A promoted noble retains his Unit's full-name override and local
+			# militia/reserve service. Neither makes a resident groom absent.
+			# Brides keep the existing eligibility/movement rules below.
+			var home_groom: bool = is_house and int(p[2]) == 0 and String(p[4]) in AT_HOME
+			if int(p[6]) != 0 or (String(p[4]) != "" and not home_groom) or (p as Array).size() < SIZE or (String(p[7]) != "" and not home_groom):
 				continue
 			if not by_pid(f, int(p[SP])).is_empty():
 				continue
+			if home_groom:
+				var spouse_uid: String = str(g(p, SPOUSE_UID, ""))
+				if spouse_uid != "" and not Dynasty._person(Game, spouse_uid).is_empty(): continue
 			var age := (day - float(p[3])) / yd
 			if int(p[2]) == 0 and age >= A + 2.0:
 				men.append([f, p, age, is_house])

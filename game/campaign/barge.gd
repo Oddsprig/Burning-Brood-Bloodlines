@@ -1063,10 +1063,17 @@ static func mint_day(game, t: Dictionary, e: Dictionary) -> void:
 		return
 	var lines := treasury_lines(e)
 	var tr := float(e["treasury"])
-	if tr >= float(lines["full"]):
+	# A lower public-spending target must not restart minting merely because
+	# its surplus was just paid out as an allowance.
+	var ceiling: float = minf(float(lines["full"]), float(e.get("stats", {}).get("treasury_target", lines["full"])))
+	if tr >= ceiling:
 		b["state"] = "idle"
 		return
 	var day_k := (float(C["mint_day_short"]) if tr < float(lines["short"]) else float(C["mint_day"])) / 1000.0 * staff
+	day_k = minf(day_k, maxf(0.0, ceiling - tr) / 1000.0)
+	if day_k < 0.1:
+		b["state"] = "idle"
+		return
 	var st: Dictionary = e["stock"]
 	var mkt: Dictionary = e["biz"][int(e["mkt"])]
 	var L := ledger(game.world)
@@ -1204,6 +1211,38 @@ static func treasury_lines(e: Dictionary) -> Dictionary:
 	var T: Dictionary = B()["treasury"]
 	var k := maxf(1.0, float(e.get("pop0", e.get("pop", 1)))) / float(T["per"])
 	return {"start": float(T["start"]) * k, "short": float(T["short"]) * k, "full": float(T["full"]) * k}
+
+## One year of ordinary public payroll plus due kit and wage claims. Surplus-funded
+## works are discretionary, so exclude them from the target to avoid a ratchet.
+static func treasury_target(game, town: Dictionary, e: Dictionary) -> float:
+	var daily: float = Army.town_bill(game, town)
+	var due: float = maxf(0.0, float(e.get("garrison_owed", 0.0))) + maxf(0.0, float(e.get("arms_due", 0.0)))
+	for business: Dictionary in e.get("biz", []):
+		if not TownEcon._town_funded(business) or business.get("closed", false): continue
+		due += maxf(0.0, float(business.get("owed", 0.0)))
+		if str(business.get("type", "")) != "works":
+			daily += float(business.get("workers", 0)) * float(business.get("wage", 0.0))
+	return maxf(float(treasury_lines(e)["short"]), daily * float(EconGen.YEAR_DAYS)) + due
+
+
+static func release_surplus(game, town: Dictionary, e: Dictionary) -> void:
+	var target: float = treasury_target(game, town, e)
+	var surplus: float = maxf(0.0, float(e.get("treasury", 0.0)) - target)
+	e["stats"]["treasury_target"] = target
+	if surplus <= 0.0: return
+	# An allowance is distinct from tax; tax still credits the actual local ruler.
+	# A vacant seat funds local households instead. One debit, one equal credit.
+	_repay_forced(e, target)
+	surplus = maxf(0.0, float(e["treasury"]) - target)
+	var ruler: Dictionary = Feudal.tax_recipient(game, str(town["id"]))
+	e["treasury"] = float(e["treasury"]) - surplus
+	if ruler.is_empty():
+		HouseUpkeep._pay_town_folk(e, {}, surplus)
+	else:
+		ruler["purse"] = float(ruler.get("purse", 0.0)) + surplus
+		e["stats"]["allowance_uid"] = str(ruler.get("household_uid", ""))
+		e["stats"]["allowance_total"] = float(e["stats"].get("allowance_total", 0.0)) + surplus
+
 
 ## The ruler's temper from his traits (rolled at world gen): "greedy", "steady", "merciful".
 static func temper(e: Dictionary) -> String:
@@ -1364,12 +1403,13 @@ static func _forced_loan(e: Dictionary, day: float) -> void:
 		f["forced"] = float(f.get("forced", 0.0)) + take
 		Families.add_hist(f, "The %s took a forced loan of %d coins." % [e.get("head", {}).get("title", "head"), int(take)], day)
 
-static func _repay_forced(e: Dictionary) -> void:
+static func _repay_forced(e: Dictionary, reserve: float = -1.0) -> void:
+	if reserve < 0.0: reserve = float(treasury_lines(e)["full"])
 	for f in e["fams"]:
 		var owed := float(f.get("forced", 0.0))
 		if owed <= 0.0 or f["gone"]:
 			continue
-		var pay := minf(owed, maxf(0.0, float(e["treasury"]) - treasury_lines(e)["full"]))
+		var pay := minf(owed, maxf(0.0, float(e["treasury"]) - reserve))
 		if pay <= 0.0:
 			return
 		e["treasury"] = float(e["treasury"]) - pay

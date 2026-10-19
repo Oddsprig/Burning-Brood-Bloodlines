@@ -1,0 +1,27 @@
+FAST note step=weekly year_days=120 from_year=1 to_year=1 origin=1 day=1 towns=23 families=552
+FAST stopped year=1 day_in_year=112/120 day=113 target_day=121 completed_year=0 elapsed_s=52.20 checkpoint=user://econ_fast_resize1/checkpoint_year_0.save
+FAST note step=weekly year_days=120 from_year=2 to_year=2 origin=1 day=113 towns=23 families=552
+FAST year=1 step=weekly player_purse=1052771.49 player_hoard=4000.00 player_income=890874.61 ai_alive=22 ai_purse_med=796568.51 ai_purse_min=279032.00 ai_purse_max=1727057.63 ai_income_med=80324.35 treasury_med=200538.18 holdings=102404199.92 houses_alive=23
+FAST year=2 step=weekly player_purse=1411019.31 player_hoard=6000.00 player_income=-896880.67 ai_alive=22 ai_purse_med=1036392.24 ai_purse_min=378501.45 ai_purse_max=1583695.30 ai_income_med=-459973.47 treasury_med=157017.19 holdings=93502343.32 houses_alive=23
+FAST note step=weekly year_days=120 from_year=3 to_year=3 origin=1 day=241 towns=23 families=578
+FAST year=3 step=weekly player_purse=566476.08 player_hoard=6000.00 player_income=-991192.94 ai_alive=22 ai_purse_med=992162.74 ai_purse_min=209769.58 ai_purse_max=3745014.04 ai_income_med=-294909.28 treasury_med=103234.47 holdings=85390617.95 houses_alive=23
+FAST note step=weekly year_days=120 from_year=4 to_year=4 origin=1 day=361 towns=23 families=600
+FAST year=4 step=weekly player_purse=653047.03 player_hoard=6000.00 player_income=152327.58 ai_alive=21 ai_purse_med=1145309.38 ai_purse_min=157030.37 ai_purse_max=2913202.78 ai_income_med=54131.94 treasury_med=95031.25 holdings=78006367.62 houses_alive=22
+FAST note step=weekly year_days=120 from_year=5 to_year=5 origin=1 day=481 towns=23 families=607
+FAST year=5 step=weekly player_purse=739749.32 player_hoard=6000.00 player_income=177624.98 ai_alive=21 ai_purse_med=926112.19 ai_purse_min=11019.73 ai_purse_max=2586267.83 ai_income_med=104724.68 treasury_med=88047.49 holdings=71556119.93 houses_alive=22
+FAST note step=weekly year_days=120 from_year=6 to_year=6 origin=1 day=601 towns=23 families=611
+FAST year=6 step=weekly player_purse=709782.02 player_hoard=6000.00 player_income=50610.55 ai_alive=21 ai_purse_med=933826.78 ai_purse_min=40594.34 ai_purse_max=2256234.37 ai_income_med=58899.07 treasury_med=84459.31 holdings=65639459.49 houses_alive=22
+FAST note step=weekly year_days=120 from_year=7 to_year=7 origin=1 day=721 towns=23 families=615
+FAST year=7 step=weekly player_purse=646799.96 player_hoard=6000.00 player_income=5916.17 ai_alive=19 ai_purse_med=963363.58 ai_purse_min=59811.70 ai_purse_max=1936266.87 ai_income_med=51815.91 treasury_med=80330.53 holdings=60210586.84 houses_alive=20
+FAST note step=weekly year_days=120 from_year=8 to_year=8 origin=1 day=841 towns=23 families=621
+FAST year=8 step=weekly player_purse=587525.63 player_hoard=6000.00 player_income=-3240.56 ai_alive=19 ai_purse_med=933483.49 ai_purse_min=1711.97 ai_purse_max=1693470.57 ai_income_med=49687.29 treasury_med=75928.11 holdings=55230535.54 houses_alive=20
+FAST note step=weekly year_days=120 from_year=9 to_year=9 origin=1 day=961 towns=23 families=625
+FAST year=9 step=weekly player_purse=496414.07 player_hoard=6000.00 player_income=-42339.20 ai_alive=19 ai_purse_med=861197.34 ai_purse_min=1867.94 ai_purse_max=1610531.82 ai_income_med=38285.67 treasury_med=74856.13 holdings=50661341.73 houses_alive=20
+FAST note step=weekly year_days=120 from_year=10 to_year=10 origin=1 day=1081 towns=23 families=627
+FAST year=10 step=weekly player_purse=461787.84 player_hoard=6000.00 player_income=15032.09 ai_alive=19 ai_purse_med=755685.57 ai_purse_min=13120.36 ai_purse_max=1056211.69 ai_income_med=21362.95 treasury_med=89281.58 holdings=46471463.75 houses_alive=20
+FAST note step=weekly year_days=120 from_year=11 to_year=11 origin=1 day=1201 towns=23 families=635
+FAST year=11 step=weekly player_purse=422752.82 player_hoard=6000.00 player_income=13379.82 ai_alive=19 ai_purse_med=616883.06 ai_purse_min=7572.32 ai_purse_max=1058802.39 ai_income_med=13800.47 treasury_med=79122.14 holdings=42628371.21 houses_alive=20
+FAST note step=weekly year_days=120 from_year=12 to_year=12 origin=1 day=1321 towns=23 families=641
+FAST stopped year=12 day_in_year=112/120 day=1433 target_day=1441 completed_year=11 elapsed_s=53.84 checkpoint=user://econ_fast_resize1/checkpoint_year_11_b.save
+
+[exited with code 0]

@@ -25,8 +25,7 @@ static func _folk(town: Dictionary, uid: String) -> Array:
 	return out
 
 static func _income(f: Dictionary) -> float:
-	# Native f.inc is NET coin income normalized to seven days (families.gd:858).
-	return maxf(0.0, float(f.get("inc", 0.0))) * 120.0 / 7.0
+	return HouseUpkeep.recent_income(f)
 
 static func safe_keep(game, uid: String) -> int:
 	var loc: Dictionary = _loc(game, uid)
@@ -45,8 +44,10 @@ static func expected_yearly_cost(game, uid: String) -> int:
 	var loc: Dictionary = _loc(game, uid)
 	if loc.is_empty(): return 0
 	var f: Dictionary = loc["family"]
-	var surplus: float = maxf(0.0, float(f.get("purse", 0.0)) - safe_keep(game, uid))
-	return int(floor(_income(f) * 0.55 + surplus * 0.90))
+	return int(floor(_income(f) * HouseUpkeep.COURT_SHARE))
+
+static func _event_base(town: Dictionary, kind: String) -> int:
+	return maxi(1, int(ceil(float(BASE[kind]) * HouseUpkeep.service_scale(town.get("econ", {})))))
 
 static func _matching(game, uid: String, gem: String) -> bool:
 	for d: Dictionary in game.world.get("dragons", {}).get("records", {}).values():
@@ -150,8 +151,9 @@ static func preview(game, uid: String, kind: String, args: Dictionary = {}) -> D
 		effects = {"category": category, "gem_id": gem, "quantity": quantity, "unit_cost": int(TREASURE[category])}
 	else:
 		if not BASE.has(kind): out["reason"] = "Unknown court event."; return out
-		cost = maxi(int(BASE[kind]), int(args.get("amount", BASE[kind])))
-		var scale: float = minf(4.0, sqrt(float(cost) / float(BASE[kind])))
+		var base: int = _event_base(town, kind)
+		cost = maxi(base, int(args.get("amount", base)))
+		var scale: float = minf(4.0, sqrt(float(cost) / float(base)))
 		effects = {"prestige": (1.0 if kind == "feast" else 6.0) * scale}
 		if kind == "feast": effects["opinion"] = 3.0 * scale
 		if kind == "wedding":
@@ -209,6 +211,7 @@ static func hold(game, uid: String, kind: String, args: Dictionary = {}, review:
 	var town: Dictionary = loc["town"]
 	var st: Dictionary = _state(f)
 	var cost: int = int(quote["cost"])
+	HouseUpkeep.book_spending(f, float(cost))
 	var fx: Dictionary = quote["effects"]
 	if kind == "gift":
 		var target: Dictionary = _loc(game, str(fx["to_house"]))
@@ -285,6 +288,8 @@ static func sell_hoard(game, uid: String, treasure_id: String, quantity: int = 1
 		var paid: int = price * n
 		buyer["till"] = float(buyer["till"]) - paid
 		f["purse"] = float(f.get("purse", 0.0)) + paid
+		# Reselling existing treasure is asset liquidation, not recurring income.
+		HouseUpkeep.book_spending(f, -float(paid))
 		row["quantity"] = int(row["quantity"]) - n
 		if int(row["quantity"]) == 0: f["hoard"].erase(row)
 		_refresh(game, uid, f)
@@ -347,7 +352,7 @@ static func weekly(game, town: Dictionary, e: Dictionary, f: Dictionary) -> void
 		return
 	if float(f.get("debt", 0.0)) > 0.0: return
 	var budget: int = mini(int(floor(float(f["purse"]) - keep)), int(floor(expected_yearly_cost(game, uid) * 7.0 / 120.0)))
-	if budget < int(BASE["feast"]): return
+	if budget < _event_base(town, "feast"): return
 	var wealth: float = float(f["purse"])
 	var held: int = 0
 	for row: Dictionary in hoard_view(game, uid): held += int(row["value"])
@@ -363,11 +368,12 @@ static func weekly(game, town: Dictionary, e: Dictionary, f: Dictionary) -> void
 			var args: Dictionary = {"category": category, "quantity": n, "gem_id": gem}
 			var result: Dictionary = hold(game, uid, "treasure", args, preview(game, uid, "treasure", args))
 			if result.get("ok", false): budget -= int(result["cost"])
+	if budget < _event_base(town, "feast"): return
 	var kind: String = "feast"
-	if not _wedding(game, uid, {}).is_empty() and budget >= 50000: kind = "wedding"
-	elif budget >= 120000 and int(week) % 4 == 0: kind = "monument"
-	elif budget >= 12000 and int(game.day) - int(st.get("victory_day", -999)) in range(0, 8): kind = "parade"
-	elif budget >= 15000 and week % 4 == 2: kind = "display"
+	if not _wedding(game, uid, {}).is_empty() and budget >= _event_base(town, "wedding"): kind = "wedding"
+	elif budget >= _event_base(town, "monument") and int(week) % 4 == 0: kind = "monument"
+	elif budget >= _event_base(town, "parade") and int(game.day) - int(st.get("victory_day", -999)) in range(0, 8): kind = "parade"
+	elif budget >= _event_base(town, "display") and week % 4 == 2: kind = "display"
 	elif budget >= 5000 and week % 4 == 3:
 		for t: Dictionary in game.world.get("towns", {}).values():
 			var recipient: Dictionary = Feudal.tax_recipient(game, str(t["id"]))

@@ -882,6 +882,20 @@ static func succession_day(game) -> void:
 				if score > power and not Persons.by_uid(People.fam_of(town, u.family), u.uid).is_empty(): best = u; power = score
 			if best != null:
 				appoint_unit(game, str(tid), best)
+		elif policy.begins_with("native_"):
+			# Goblin native_cunning was advertised but never handled: every dead
+			# holder left a permanent vacancy. Use the existing cultural rank rule
+			# on real local militia, and the existing promotion/appointment path.
+			var native_best: Unit = null
+			var native_score: float = -INF
+			var rule: String = policy.trim_prefix("native_")
+			var candidates: Array = Militia.units_of(game, str(tid)).duplicate()
+			candidates.sort_custom(func(a, b): return a.uid < b.uid)
+			for u: Unit in candidates:
+				if u.dead: continue
+				var value: float = RankRules.score(game, rule, u, str(town.get("faction", "")))
+				if value > native_score: native_best = u; native_score = value
+			if native_best != null: appoint_unit(game, str(tid), native_best)
 	_house_succession(game)
 	Perf.record_us("Office succession", Time.get_ticks_usec() - office_started)
 

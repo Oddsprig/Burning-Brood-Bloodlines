@@ -860,6 +860,7 @@ static func turn(game, town: Dictionary, e: Dictionary, f: Dictionary, day: floa
 	f.erase("farm_funding_pending")
 	_harvest_share(e, f, day, days)
 	if game != null:   # economy pass coin sinks: household staff and improvements, the house retinue and its kit, court events
+		HouseUpkeep.observe_income(f, day)
 		HouseUpkeep.weekly(game, town, e, f)
 		TroopUpkeep.weekly(game, town, e, f)
 		CourtEvents.weekly(game, town, e, f)
@@ -996,18 +997,17 @@ static func _harvest_share(e: Dictionary, f: Dictionary, _day: float, _days: flo
 ## purse, while the town's guards, levies, public tills and works are paid from its treasury. A native (AI) ruling
 ## house keeps a working purse of RULER_KEEP x COIN x (town size + 1) and each week puts RULER_SURPLUS_SHARE of what
 ## it holds above that into its seat's treasury, the same transfer as the player's "fund garrison" decree (one debit,
-## one credit), never filling the treasury above RULER_TREASURY_CAP x COIN x (size + 1). The player's house is never
+## one credit), never filling the treasury above its public spending target. The player's house is never
 ## moved: the player funds his treasury himself. (Before: AI purses rose 6-50x in 87 days while treasuries ran dry.)
 const RULER_KEEP := 1000.0
 const RULER_SURPLUS_SHARE := 0.5
-const RULER_TREASURY_CAP := 3000.0
 
 static func _ruler_to_seat(game, town: Dictionary, e: Dictionary, f: Dictionary) -> void:
 	if game == null or Population.is_cohort(f) or not e.has("treasury"):
 		return
 	var scale := TownEcon.COIN * float(int(town.get("size", 0)) + 1)
-	var spare := float(f["purse"]) - RULER_KEEP * scale
-	var room := RULER_TREASURY_CAP * scale - float(e["treasury"])
+	var spare: float = minf(float(f["purse"]) - RULER_KEEP * scale, HouseUpkeep.spend_room(e, f))
+	var room: float = Barge.treasury_target(game, town, e) - float(e["treasury"])
 	if spare <= 0.0 or room <= 0.0:
 		return
 	var uid := str(f.get("household_uid", ""))
@@ -1016,7 +1016,8 @@ static func _ruler_to_seat(game, town: Dictionary, e: Dictionary, f: Dictionary)
 	var lord: Dictionary = Feudal.tax_recipient(game, str(town.get("id", "")))
 	if str(lord.get("household_uid", "")) != uid:
 		return
-	var give := minf(spare * RULER_SURPLUS_SHARE, room)
+	var give: float = minf(minf(spare * RULER_SURPLUS_SHARE, room), HouseUpkeep.recent_income(f) * 0.10 / HouseUpkeep.weeks_per_year())
+	HouseUpkeep.book_spending(f, give)
 	f["purse"] = float(f["purse"]) - give
 	e["treasury"] = float(e["treasury"]) + give
 	if e.has("stats"):

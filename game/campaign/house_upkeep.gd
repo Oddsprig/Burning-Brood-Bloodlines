@@ -2,10 +2,10 @@ class_name HouseUpkeep
 extends RefCounted
 ## Economy pass (coin sinks, part A): ruling and noble house upkeep.
 ##
-## Ruling houses earn ~1M coin/year (seasonal land rent, town-estate share, tax share, farm till)
-## against an ~87k starting purse. This module adds two coin-conserving household sinks:
+## Costs follow each house's trailing-year disposable receipts, including actual local taxes.
+## This module adds two coin-conserving household sinks:
 ##   1) Household staff wages: staff tier (1..5) grows with house wealth and seat rank/prestige;
-##      weekly wages are paid from f["purse"] to the town's real common-folk cohorts / working
+##      budgeted part-time wages are paid from f["purse"] to real common-folk cohorts / working
 ##      families in e["fams"]. A house cannot drop below MIN_TIER (1); if f["purse"] cannot cover
 ##      its tier's weekly wage, the tier steps down with a small prestige loss instead of going
 ##      negative.
@@ -18,6 +18,15 @@ extends RefCounted
 ##      raises its staff tier only from surplus above a safe keep (>= 8 weeks of upkeep), at most
 ##      one purchase per 30-day month, and never into debt.
 
+# Shares of disposable income AFTER native food, funding, tax, tribute and dragon care.
+# Recurring 55% + capital 10% + optional treasury funding 10% leaves at least 25%.
+const STAFF_SHARE: float = 0.15
+const IMPROVEMENT_SHARE: float = 0.10
+const TROOP_SHARE: float = 0.20
+const COURT_SHARE: float = 0.10
+const CAPITAL_SHARE: float = 0.10
+const SERVICE_SCALE: float = 0.25
+
 const MIN_TIER: int = 1
 const MAX_TIER: int = 5
 const SAFE_KEEP_WEEKS: float = 8.0
@@ -25,13 +34,9 @@ const AI_BUY_COOLDOWN_DAYS: int = 30
 const PRESTIGE_STEP_DOWN_LOSS: float = 5.0
 const BASE_PRESTIGE: float = 25.0
 
-## Weekly wages are multiples of 700 so yearly totals over EconGen.YEAR_DAYS (120 days = 120/7 weeks)
-## are exact round numbers:
-##   Tier 1:  1,400/wk ->  24,000/yr
-##   Tier 2:  4,200/wk ->  72,000/yr
-##   Tier 3:  9,800/wk -> 168,000/yr
-##   Tier 4: 18,900/wk -> 324,000/yr
-##   Tier 5: 28,000/wk -> 480,000/yr
+## Nominal staff schedules; multiply by service_scale(e), then cap at STAFF_SHARE.
+## At 100/day, full schedules cost 350/1,050/2,450/4,725/7,000 per week.
+## A house contracts fewer hours when even tier 1 exceeds its income budget.
 const STAFF_TIERS: Array = [
 	{
 		"tier": 1,
@@ -89,11 +94,9 @@ const IMPROVEMENT_ORDER: Array = [
 	"gardens"
 ]
 
-## Weekly upkeeps are multiples of 70 so yearly totals over 120/7 weeks are exact integers.
-## Across all 6 improvements:
-##   All Level 1:  3,290/wk ->  56,400/yr
-##   All Level 2:  6,650/wk -> 114,000/yr
-##   All Level 3: 13,300/wk -> 228,000/yr
+## Nominal maintenance schedules; actual work scales with local wages and income.
+## At 100/day, all level 1/2/3 cost 14,100/28,500/57,000 per 120-day year
+## before the IMPROVEMENT_SHARE cap. Unfunded work grants no bonuses.
 const IMPROVEMENTS: Dictionary = {
 	"manor_hall": {
 		"key": "manor_hall",
@@ -288,6 +291,92 @@ static func weeks_per_year() -> float:
 	return float(EconGen.YEAR_DAYS) / 7.0
 
 
+## Sample real cash less debt, adding back only this pass's discretionary payments.
+## Keep signed losses, prorate the boundary week, and use a full 120-day denominator
+## even during startup: neither starting cash nor one good week is annual income.
+static func observe_income(f: Dictionary, day: float) -> void:
+	if Population.is_cohort(f) or f.get("estate", false) or f.get("gone", false): return
+	var balance: float = float(f.get("purse", 0.0)) - float(f.get("debt", 0.0))
+	if not f.has("house_budget"):
+		f["house_budget"] = {"day": day, "balance": balance, "spent": 0.0, "yearly": 0.0, "history": [], "capital": []}
+		return
+	var b: Dictionary = f["house_budget"]
+	var prior: float = float(b["day"])
+	if day <= prior: return
+	var rows: Array = b["history"]
+	rows.append([prior, day, balance - float(b["balance"]) + float(b["spent"])])
+	var cutoff: float = day - float(EconGen.YEAR_DAYS)
+	var keep: Array = []
+	var income: float = 0.0
+	for row: Array in rows:
+		if float(row[1]) <= cutoff: continue
+		keep.append(row)
+		income += float(row[2]) * (float(row[1]) - maxf(cutoff, float(row[0]))) / maxf(1.0, float(row[1]) - float(row[0]))
+	b["history"] = keep
+	b["yearly"] = maxf(0.0, income)
+	b["day"] = day; b["balance"] = balance; b["spent"] = 0.0
+	var capital: Array = []
+	for row: Array in b["capital"]:
+		if float(row[0]) > cutoff: capital.append(row)
+	b["capital"] = capital
+
+
+static func recent_income(f: Dictionary) -> float:
+	return maxf(0.0, float(f.get("house_budget", {}).get("yearly", 0.0)))
+
+
+static func book_spending(f: Dictionary, amount: float) -> void:
+	if f.has("house_budget"):
+		f["house_budget"]["spent"] = float(f["house_budget"].get("spent", 0.0)) + amount
+
+
+static func capital_room(f: Dictionary) -> float:
+	var spent: float = 0.0
+	for row: Array in f.get("house_budget", {}).get("capital", []): spent += float(row[1])
+	return maxf(0.0, recent_income(f) * CAPITAL_SHARE - spent)
+
+
+static func book_capital(f: Dictionary, amount: float, day: float) -> void:
+	book_spending(f, amount)
+	if f.has("house_budget"): f["house_budget"]["capital"].append([day, amount])
+
+
+static func troop_room(f: Dictionary, day: float) -> float:
+	var spent: float = 0.0
+	for row: Array in f.get("house_budget", {}).get("troops", []):
+		if float(row[0]) > day - 7.0: spent += float(row[1])
+	return maxf(0.0, recent_income(f) * TROOP_SHARE / weeks_per_year() - spent)
+
+
+static func book_troops(f: Dictionary, amount: float, day: float) -> void:
+	book_spending(f, amount)
+	if not f.has("house_budget"): return
+	var keep: Array = []
+	for row: Array in f["house_budget"].get("troops", []):
+		if float(row[0]) > day - 7.0: keep.append(row)
+	keep.append([day, amount])
+	f["house_budget"]["troops"] = keep
+
+
+static func spend_room(e: Dictionary, f: Dictionary) -> float:
+	var food: float = EconomyRules.essential_food_cost(e, float(Families.daily_rates(e, f)["food"]) * 30.0)
+	return maxf(0.0, float(f.get("purse", 0.0)) - food - Barge.day_wage(e) * 28.0 - maxf(0.0, float(f.get("debt", 0.0))))
+
+
+static func service_scale(e: Dictionary) -> float:
+	# Barge already uses real ldem/lsup, idle workers, shortages and prosperity;
+	# Migration uses that same wage to attract workers. Do not apply scarcity twice.
+	return SERVICE_SCALE * Barge.day_wage(e) / 100.0
+
+
+static func staff_cost(e: Dictionary, f: Dictionary, tier: int) -> float:
+	return minf(tier_cost(tier) * service_scale(e), recent_income(f) * STAFF_SHARE / weeks_per_year())
+
+
+static func improvement_cost(e: Dictionary, f: Dictionary) -> float:
+	return minf(_improvements_weekly_upkeep(f) * service_scale(e), recent_income(f) * IMPROVEMENT_SHARE / weeks_per_year())
+
+
 static func catalog() -> Dictionary:
 	return IMPROVEMENTS
 
@@ -460,10 +549,12 @@ static func _refresh_effects(f: Dictionary) -> Dictionary:
 	var up: Dictionary = f.get("upkeep", {})
 	var tier: int = clampi(int(up.get("tier", MIN_TIER)), MIN_TIER, MAX_TIER)
 	var t_eff: Dictionary = tier_spec(tier)["effects"]
-	var prestige_yr: float = float(t_eff.get("prestige_per_year", 0.0))
-	var opinion: int = int(t_eff.get("opinion", 0))
-	var health: float = float(t_eff.get("health", 0.0))
-	var skill: int = int(t_eff.get("skill", 0))
+	var staff: float = float(up.get("staff_share", 0.0))
+	var maintenance: float = float(up.get("maintenance_share", 0.0))
+	var prestige_yr: float = float(t_eff.get("prestige_per_year", 0.0)) * staff
+	var opinion: float = float(t_eff.get("opinion", 0)) * staff
+	var health: float = float(t_eff.get("health", 0.0)) * staff
+	var skill: float = float(t_eff.get("skill", 0)) * staff
 	for k in IMPROVEMENT_ORDER:
 		var key: String = String(k)
 		var lvl: int = _imp_level(f, key)
@@ -472,20 +563,20 @@ static func _refresh_effects(f: Dictionary) -> Dictionary:
 		var levels: Array = IMPROVEMENTS[key]["levels"]
 		var lspec: Dictionary = levels[clampi(lvl, 1, levels.size()) - 1]
 		var ieff: Dictionary = lspec["effects"]
-		prestige_yr += float(ieff.get("prestige_per_year", 0.0))
-		opinion += int(ieff.get("opinion", 0))
-		health += float(ieff.get("health", 0.0))
-		skill += int(ieff.get("skill", 0))
+		prestige_yr += float(ieff.get("prestige_per_year", 0.0)) * maintenance
+		opinion += float(ieff.get("opinion", 0.0)) * maintenance
+		health += float(ieff.get("health", 0.0)) * maintenance
+		skill += float(ieff.get("skill", 0.0)) * maintenance
 	var eff: Dictionary = {
 		"prestige_per_year": snappedf(prestige_yr, 0.01),
-		"opinion": opinion,
+		"opinion": int(floor(opinion)),
 		"health": snappedf(health, 0.001),
-		"skill": skill
+		"skill": int(floor(skill))
 	}
 	if not up.is_empty():
-		up["opinion_bonus"] = opinion
+		up["opinion_bonus"] = eff["opinion"]
 		up["health_bonus"] = eff["health"]
-		up["skill_bonus"] = skill
+		up["skill_bonus"] = eff["skill"]
 		up["effects"] = eff
 	return eff
 
@@ -528,7 +619,7 @@ static func _pay_town_folk(e: Dictionary, payer: Dictionary, amount: float) -> A
 	var out: Array = []
 	for i in recipients.size():
 		var rf: Dictionary = recipients[i]
-		var share: float = amount - paid_so_far if i == recipients.size() - 1 else snappedf(amount * float(weights[i]) / maxf(1.0, total_w), 0.01)
+		var share: float = amount - paid_so_far if i == recipients.size() - 1 else minf(amount - paid_so_far, snappedf(amount * float(weights[i]) / maxf(1.0, total_w), 0.01))
 		if share < 0.0:
 			share = 0.0
 		if i == recipients.size() - 1:
@@ -607,15 +698,15 @@ static func improvement_preview(game, household_uid: String, key: String) -> Dic
 			"materials": {},
 			"stock": {},
 			"shortfalls": {},
-			"weekly_upkeep": _improvement_weekly_upkeep_for(key, cur_level),
-			"yearly_upkeep": _improvement_weekly_upkeep_for(key, cur_level) * weeks_per_year(),
+			"weekly_upkeep": _improvement_weekly_upkeep_for(key, cur_level) * service_scale(e),
+			"yearly_upkeep": _improvement_weekly_upkeep_for(key, cur_level) * service_scale(e) * weeks_per_year(),
 			"build_weeks": 0,
 			"effects": (levels[max_lvl - 1] as Dictionary)["effects"].duplicate(true),
 			"review": {}
 		}
 	var next_lvl: int = cur_level + 1
 	var lspec: Dictionary = levels[next_lvl - 1]
-	var coin_cost: float = float(lspec["coin_cost"])
+	var coin_cost: float = float(lspec["coin_cost"]) * service_scale(e)
 	var mats_req: Dictionary = lspec["materials"]
 	var st: Dictionary = e.get("stock", {})
 	var mats_out: Dictionary = {}
@@ -639,7 +730,7 @@ static func improvement_preview(game, household_uid: String, key: String) -> Dic
 	var purse: float = float(f.get("purse", 0.0))
 	var can_afford: bool = purse >= total_cost
 	var stock_ok: bool = shortfalls.is_empty() or any_stocked
-	var weekly_up: float = float(lspec["weekly_upkeep"])
+	var weekly_up: float = float(lspec["weekly_upkeep"]) * service_scale(e)
 	var reason: String = "Ready to build %s (Level %d)." % [str(spec["name"]), next_lvl]
 	if not can_afford:
 		reason = "Insufficient household purse (need %.2f coins, have %.2f)." % [total_cost, purse]
@@ -729,6 +820,7 @@ static func start_improvement(game, household_uid: String, key: String, review: 
 	if coin_cost > 0.0:
 		f["purse"] = float(f["purse"]) - coin_cost
 		labor_recipients = _pay_town_folk(e, f, coin_cost)
+	book_capital(f, total_cost, float(game.day))
 	# 3. Record the improvement on f["improvements"] and refresh f["upkeep"] effects
 	var next_lvl: int = int(prev["next_level"])
 	var build_weeks: int = int(prev["build_weeks"])
@@ -787,7 +879,7 @@ static func set_staff_tier(game, household_uid: String, target_tier: int) -> Dic
 	var max_t: int = _max_tier_for_house(game, town, e, f)
 	var clamped: int = clampi(target_tier, MIN_TIER, max_t)
 	var old_tier: int = int(up.get("tier", MIN_TIER))
-	if clamped > old_tier and float(f.get("purse", 0.0)) < tier_cost(clamped):
+	if clamped > old_tier and tier_cost(clamped) * service_scale(e) > recent_income(f) * STAFF_SHARE / weeks_per_year():
 		return {"ok": false, "reason": "Insufficient household purse to support %s." % str(tier_spec(clamped)["name"])}
 	up["tier"] = clamped
 	var eff: Dictionary = _refresh_effects(f)
@@ -796,7 +888,7 @@ static func set_staff_tier(game, household_uid: String, target_tier: int) -> Dic
 		"old_tier": old_tier,
 		"tier": clamped,
 		"tier_name": str(tier_spec(clamped)["name"]),
-		"weekly_wage": tier_cost(clamped),
+		"weekly_wage": staff_cost(e, f, clamped),
 		"effects": eff
 	}
 
@@ -830,19 +922,21 @@ static func weekly(game, town: Dictionary, e: Dictionary, f: Dictionary) -> Dict
 	# 2. Staff wages with automatic step-down when poor (never below MIN_TIER, purse never < 0)
 	var tier_before: int = clampi(int(up.get("tier", MIN_TIER)), MIN_TIER, MAX_TIER)
 	var tier_now: int = tier_before
-	var wage_due: float = tier_cost(tier_now)
+	var staff_budget: float = recent_income(f) * STAFF_SHARE / weeks_per_year()
+	var room: float = spend_room(e, f)
+	while tier_now > MIN_TIER and tier_cost(tier_now) * service_scale(e) > minf(staff_budget, room):
+		tier_now -= 1
+	up["tier"] = tier_now
 	var purse_now: float = maxf(0.0, float(f.get("purse", 0.0)))
-	var stepped_down: bool = false
-	var wage_short: bool = purse_now < wage_due
-	if wage_short:
-		if tier_now > MIN_TIER:
-			tier_now -= 1
-			up["tier"] = tier_now
-			up["step_downs"] = int(up.get("step_downs", 0)) + 1
-			stepped_down = true
+	var stepped_down: bool = tier_now < tier_before
+	var wage_due: float = staff_cost(e, f, tier_now)
+	var wage_short: bool = room < wage_due
+	if stepped_down or wage_short:
+		up["step_downs"] = int(up.get("step_downs", 0)) + tier_before - tier_now
 		up["prestige"] = maxf(0.0, snappedf(float(up.get("prestige", BASE_PRESTIGE)) - PRESTIGE_STEP_DOWN_LOSS, 0.01))
-		wage_due = tier_cost(tier_now)
-	var wage_paid: float = minf(purse_now, wage_due)
+	var wage_paid: float = minf(spend_room(e, f), wage_due)
+	book_spending(f, wage_paid)
+	up["staff_share"] = wage_paid / maxf(0.01, tier_cost(tier_now) * service_scale(e))
 	if wage_paid > 0.0:
 		f["purse"] = purse_now - wage_paid
 		_pay_town_folk(e, f, wage_paid)
@@ -851,9 +945,11 @@ static func weekly(game, town: Dictionary, e: Dictionary, f: Dictionary) -> Dict
 	up["last_wage_paid"] = wage_paid
 	up["total_wages_paid"] = float(up.get("total_wages_paid", 0.0)) + wage_paid
 	# 3. Ongoing weekly improvement upkeep (also paid to town folk, capped by remaining purse so purse >= 0)
-	var imp_due: float = _improvements_weekly_upkeep(f)
+	var imp_due: float = improvement_cost(e, f)
 	var purse_after_wage: float = maxf(0.0, float(f.get("purse", 0.0)))
-	var imp_paid: float = minf(purse_after_wage, imp_due)
+	var imp_paid: float = minf(spend_room(e, f), imp_due)
+	book_spending(f, imp_paid)
+	up["maintenance_share"] = imp_paid / maxf(0.01, _improvements_weekly_upkeep(f) * service_scale(e))
 	if imp_paid > 0.0:
 		f["purse"] = purse_after_wage - imp_paid
 		_pay_town_folk(e, f, imp_paid)
@@ -897,7 +993,7 @@ static func _maybe_ai_purchase(game, town: Dictionary, e: Dictionary, f: Diction
 	var cur_tier: int = int(up.get("tier", MIN_TIER))
 	var max_tier: int = _max_tier_for_house(game, town, e, f)
 	var cur_imp_upkeep: float = _improvements_weekly_upkeep(f)
-	var cur_weekly: float = tier_cost(cur_tier) + cur_imp_upkeep
+	var cur_weekly: float = staff_cost(e, f, cur_tier) + improvement_cost(e, f)
 	var purse: float = float(f.get("purse", 0.0))
 	if purse <= SAFE_KEEP_WEEKS * cur_weekly:
 		return {"acted": false, "reason": "below_safe_keep"}
@@ -929,8 +1025,13 @@ static func _ai_try_buy_improvement(game, uid: String, f: Dictionary, up: Dictio
 		if not bool(prev.get("ok", false)):
 			continue
 		var cost: float = float(prev["total_cost"])
+		if cost > capital_room(f): continue
 		var old_key_up: float = _improvement_weekly_upkeep_for(key, int(prev["current_level"]))
-		var new_weekly: float = tier_cost(cur_tier) + cur_imp_upkeep - old_key_up + float(prev["weekly_upkeep"])
+		var home: Dictionary = _resolve_household(game, uid)
+		var econ: Dictionary = home["town"]["econ"]
+		var new_imp: float = (cur_imp_upkeep - old_key_up) * service_scale(econ) + float(prev["weekly_upkeep"])
+		if new_imp > recent_income(f) * IMPROVEMENT_SHARE / weeks_per_year(): continue
+		var new_weekly: float = staff_cost(econ, f, cur_tier) + new_imp
 		var keep_needed: float = SAFE_KEEP_WEEKS * new_weekly
 		if purse - cost < keep_needed:
 			continue
@@ -961,8 +1062,10 @@ static func _ai_try_raise_tier(e: Dictionary, f: Dictionary, up: Dictionary, cur
 	if cur_tier >= max_tier:
 		return {"acted": false}
 	var next_tier: int = cur_tier + 1
-	var new_weekly: float = tier_cost(next_tier) + cur_imp_upkeep
-	var signing_fee: float = maxf(0.0, tier_cost(next_tier) - tier_cost(cur_tier))
+	var new_weekly: float = (tier_cost(next_tier) + cur_imp_upkeep) * service_scale(e)
+	if tier_cost(next_tier) * service_scale(e) > recent_income(f) * STAFF_SHARE / weeks_per_year(): return {"acted": false}
+	var signing_fee: float = maxf(0.0, tier_cost(next_tier) - tier_cost(cur_tier)) * service_scale(e)
+	if signing_fee > capital_room(f): return {"acted": false}
 	var keep_needed: float = SAFE_KEEP_WEEKS * new_weekly
 	var purse: float = float(f.get("purse", 0.0))
 	if purse - signing_fee < keep_needed:
@@ -970,6 +1073,7 @@ static func _ai_try_raise_tier(e: Dictionary, f: Dictionary, up: Dictionary, cur
 	if signing_fee > 0.0:
 		f["purse"] = purse - signing_fee
 		_pay_town_folk(e, f, signing_fee)
+		book_capital(f, signing_fee, float(day_now))
 	up["tier"] = next_tier
 	up["last_ai_buy_day"] = day_now
 	up["ai_purchases"] = int(up.get("ai_purchases", 0)) + 1
@@ -987,15 +1091,17 @@ static func _ai_try_raise_tier(e: Dictionary, f: Dictionary, up: Dictionary, cur
 
 
 ## Sizing helper: returns current and expected yearly upkeep for `household_uid`, plus reference
-## benchmarks for a ~1M/yr ruling house.
+## benchmarks at 100/day; actual charges also obey each house's income caps.
 static func expected_yearly_cost(game, household_uid: String = "") -> Dictionary:
 	var yr_weeks: float = weeks_per_year()
 	var hit: Dictionary = _resolve_household(game, household_uid)
 	var cur_tier: int = 2
-	var cur_weekly_wage: float = tier_cost(cur_tier)
+	var cur_weekly_wage: float = 0.0
 	var cur_weekly_imp: float = 0.0
 	var tid: String = ""
 	var rank: int = 1
+	var income: float = 0.0
+	var wage_scale: float = SERVICE_SCALE
 	if not hit.is_empty():
 		var town: Dictionary = hit["town"]
 		var e: Dictionary = town.get("econ", {})
@@ -1003,21 +1109,20 @@ static func expected_yearly_cost(game, household_uid: String = "") -> Dictionary
 		var up: Dictionary = ensure(game, town, e, f)
 		tid = str(town.get("id", ""))
 		rank = _seat_rank(game, town)
+		income = recent_income(f)
+		wage_scale = service_scale(e)
 		cur_tier = int(up.get("tier", MIN_TIER))
-		cur_weekly_wage = tier_cost(cur_tier)
-		cur_weekly_imp = _improvements_weekly_upkeep(f)
+		cur_weekly_wage = staff_cost(e, f, cur_tier)
+		cur_weekly_imp = improvement_cost(e, f)
 	var cur_weekly_total: float = cur_weekly_wage + cur_weekly_imp
 	var cur_yearly_wages: float = snappedf(cur_weekly_wage * yr_weeks, 0.01)
 	var cur_yearly_imp: float = snappedf(cur_weekly_imp * yr_weeks, 0.01)
 	var cur_yearly_total: float = snappedf(cur_weekly_total * yr_weeks, 0.01)
-	# Target steady-state for a rich ruling house (~1M coin/yr income):
-	# Tier 4 Noble Court (324,000/yr) + Level 2 improvements (114,000/yr) = 438,000/yr recurring
-	# (+ ~180,000/yr annualized build/upgrade sink = ~618,000/yr total);
-	# Tier 5 Grand Sovereign Court (480,000/yr) + Level 3 improvements (228,000/yr) = 708,000/yr recurring.
+	# Targets are constrained by this house's observed disposable income.
 	var target_tier: int = 5 if rank >= 2 else 4
-	var target_yearly_wages: float = snappedf(tier_cost(target_tier) * yr_weeks, 0.01)
-	var target_yearly_imp: float = 228000.0 if target_tier >= 5 else 114000.0
-	var target_yearly_build: float = 180000.0
+	var target_yearly_wages: float = minf(tier_cost(target_tier) * wage_scale * yr_weeks, income * STAFF_SHARE)
+	var target_yearly_imp: float = minf((228000.0 if target_tier >= 5 else 114000.0) * wage_scale, income * IMPROVEMENT_SHARE)
+	var target_yearly_build: float = income * CAPITAL_SHARE
 	var target_yearly_total: float = target_yearly_wages + target_yearly_imp
 	return {
 		"ok": not hit.is_empty(),
@@ -1031,15 +1136,16 @@ static func expected_yearly_cost(game, household_uid: String = "") -> Dictionary
 		"yearly_improvements": cur_yearly_imp,
 		"yearly_upkeep": cur_yearly_total,
 		"total": cur_yearly_total,
-		"expected_yearly_cost": cur_yearly_total if cur_yearly_total > 0.0 else target_yearly_total,
+		"expected_yearly_cost": cur_yearly_total,
+		"disposable_income_year": income,
 		"target_tier": target_tier,
 		"target_yearly_wages": target_yearly_wages,
 		"target_yearly_improvements": target_yearly_imp,
 		"target_yearly_upkeep": target_yearly_total,
 		"target_yearly_with_builds": target_yearly_total + target_yearly_build,
-		"ruling_1m_yearly_upkeep": 438000.0,
-		"ruling_1m_max_yearly_upkeep": 708000.0,
-		"ruling_1m_with_upgrades": 618000.0
+		"ruling_1m_yearly_upkeep": 109500.0,
+		"ruling_1m_max_yearly_upkeep": 177000.0,
+		"ruling_1m_with_upgrades": 209500.0
 	}
 
 
@@ -1067,9 +1173,9 @@ static func summary(game, household_uid: String = "") -> Dictionary:
 		"min_tier": MIN_TIER,
 		"max_tier": int(up.get("max_tier", MAX_TIER)),
 		"tier_name": str(tspec["name"]),
-		"weekly_wage": tier_cost(cur_tier),
-		"weekly_improvements": _improvements_weekly_upkeep(f),
-		"weekly_upkeep": tier_cost(cur_tier) + _improvements_weekly_upkeep(f),
+		"weekly_wage": staff_cost(e, f, cur_tier),
+		"weekly_improvements": improvement_cost(e, f),
+		"weekly_upkeep": staff_cost(e, f, cur_tier) + improvement_cost(e, f),
 		"yearly_upkeep": float(sizing["yearly_upkeep"]),
 		"prestige": float(up.get("prestige", BASE_PRESTIGE)),
 		"effects": (up.get("effects", {}) as Dictionary).duplicate(true),

@@ -1,12 +1,12 @@
 extends RefCounted
 ## Feature test for campaign/house_upkeep.gd:
-##   1) Household staff wages charged from f["purse"] and credited to real town folk (coin conserved)
-##   2) Staff tier steps down when poor (with prestige loss, never below MIN_TIER, purse never < 0)
+##   1) Household staff wages scale with observed income, are charged from f["purse"] and credited to real town folk (coin conserved)
+##   2) Staff tier steps down when unaffordable (with prestige loss, never below MIN_TIER, purse never < 0)
 ##   3) Improvement preview/start charges coin + market materials from e["stock"] (coin conserved)
-##   4) AI ruling house buys only from surplus above 8-week keep, at most once per 30 days, never into debt
+##   4) AI ruling house buys only from surplus above 8-week keep and within income share caps, at most once per 30 days, never into debt
 ##   5) Save/load + HouseUpkeep.after_load preserves state and integer types
 
-const SAVE := "user://claude_house_upkeep-test.json"
+const SAVE: String = "user://claude_house_upkeep-test.json"
 
 var checks: int = 0
 var fails: int = 0
@@ -29,6 +29,27 @@ func _folk_purses(e: Dictionary, exclude_f: Dictionary) -> float:
 			continue
 		sum += float(cf.get("purse", 0.0))
 	return sum
+
+
+func _seed_income(f: Dictionary, day_now: float, yearly_income: float, final_purse: float = -1.0) -> void:
+	var end_purse: float = final_purse if final_purse >= 0.0 else float(f.get("purse", 0.0))
+	var yr_days: float = float(EconGen.YEAR_DAYS)
+	f.erase("house_budget")
+	f["debt"] = float(f.get("debt", 0.0))
+	var start_day: float = day_now - yr_days
+	f["purse"] = end_purse - yearly_income
+	HouseUpkeep.observe_income(f, start_day)
+	var steps: int = 12
+	for i in range(1, steps + 1):
+		var d: float = start_day + yr_days * float(i) / float(steps)
+		f["purse"] = end_purse - yearly_income + yearly_income * float(i) / float(steps)
+		HouseUpkeep.observe_income(f, d)
+	f["purse"] = end_purse
+
+
+func _reserve_floor(e: Dictionary, f: Dictionary) -> float:
+	var food: float = EconomyRules.essential_food_cost(e, float(Families.daily_rates(e, f)["food"]) * 30.0)
+	return food + Barge.day_wage(e) * 28.0 + maxf(0.0, float(f.get("debt", 0.0)))
 
 
 func _find_ai_ruling_house(exclude_tid: String) -> Dictionary:
@@ -64,10 +85,23 @@ func run(tree: SceneTree) -> int:
 	var e: Dictionary = town["econ"]
 	var f: Dictionary = hit["family"]
 
-	# ------------------------------------------------------------------ 1. Wages & coin conservation
+	# ------------------------------------------------------------------ 1. Wages, income scaling & coin conservation
 	HouseUpkeep.ensure(Game, town, e, f)
 	f["improvements"] = {}
-	f["purse"] = 100000.0
+	f["debt"] = 0.0
+	f["upkeep"]["tier"] = 1
+
+	_seed_income(f, float(Game.day), 20000.0, 100000.0)
+	var poor_sizing: Dictionary = HouseUpkeep.expected_yearly_cost(Game, uid)
+	var poor_wage_1: float = HouseUpkeep.staff_cost(e, f, 1)
+	var reject_t3: Dictionary = HouseUpkeep.set_staff_tier(Game, uid, 3)
+	_ok(not bool(reject_t3.get("ok", false)), "cannot raise staff tier to 3 when trailing income budget is too small")
+
+	_seed_income(f, float(Game.day), 1000000.0, 100000.0)
+	var rich_sizing: Dictionary = HouseUpkeep.expected_yearly_cost(Game, uid)
+	var rich_wage_1: float = HouseUpkeep.staff_cost(e, f, 1)
+	_ok(float(rich_sizing["target_yearly_upkeep"]) > float(poor_sizing["target_yearly_upkeep"]) and rich_wage_1 > poor_wage_1, "richer income history yields larger upkeep budgets than poorer income history")
+
 	var set_res: Dictionary = HouseUpkeep.set_staff_tier(Game, uid, 3)
 	_ok(bool(set_res.get("ok", false)) and int(f["upkeep"]["tier"]) == 3, "set ruling house staff tier to 3")
 
@@ -75,37 +109,42 @@ func run(tree: SceneTree) -> int:
 	var world_gold_0: float = Barge.holdings(Game)
 	var folk_purse_0: float = _folk_purses(e, f)
 	var house_purse_0: float = float(f["purse"])
-	var expected_wage_3: float = HouseUpkeep.tier_cost(3)
+	var expected_wage_3: float = HouseUpkeep.staff_cost(e, f, 3)
 
 	var w1: Dictionary = HouseUpkeep.weekly(Game, town, e, f)
 	_ok(bool(w1.get("ok", false)), "weekly upkeep ran on ruling house")
-	_ok(absf(float(w1.get("wage_paid", 0.0)) - expected_wage_3) < 0.01, "tier 3 weekly wage charged (%.1f)" % expected_wage_3)
+	_ok(expected_wage_3 > 0.0 and absf(float(w1.get("wage_paid", 0.0)) - expected_wage_3) < 0.01, "tier 3 weekly wage charged (%.1f)" % expected_wage_3)
 	_ok(absf(float(f["purse"]) - (house_purse_0 - expected_wage_3)) < 0.05, "house purse debited by exact weekly wage")
 	_ok(absf(_folk_purses(e, f) - (folk_purse_0 + expected_wage_3)) < 0.05, "town common folk purses credited with exact weekly wage")
 	_ok(absf(TownEcon.town_gold(e) - town_gold_0) < 0.05, "town gold strictly conserved after staff wages")
 	_ok(absf(Barge.holdings(Game) - world_gold_0) < 0.05, "world coin holdings strictly conserved after staff wages")
 
 	# ------------------------------------------------------------------ 2. Tier steps down when poor
-	f["purse"] = 5000.0   # below Tier 3 wage (9800), above Tier 2 wage (4200)
+	var reserve: float = _reserve_floor(e, f)
+	var wage_t2: float = HouseUpkeep.tier_cost(2) * HouseUpkeep.service_scale(e)
+	var wage_t1: float = HouseUpkeep.tier_cost(1) * HouseUpkeep.service_scale(e)
+	f["purse"] = reserve + wage_t2 + 200.0   # spend_room is below Tier 3 wage, above Tier 2 wage
 	var prestige_before: float = float(f["upkeep"]["prestige"])
 	var town_gold_poor0: float = TownEcon.town_gold(e)
 	var w_poor1: Dictionary = HouseUpkeep.weekly(Game, town, e, f)
 	_ok(bool(w_poor1.get("stepped_down", false)) and int(f["upkeep"]["tier"]) == 2, "staff tier stepped down from 3 to 2 when purse could not cover tier 3")
 	_ok(float(f["upkeep"]["prestige"]) < prestige_before, "stepping down staff tier reduced house prestige (%.2f -> %.2f)" % [prestige_before, float(f["upkeep"]["prestige"])])
-	_ok(float(f["purse"]) >= 0.0 and absf(float(f["purse"]) - 800.0) < 0.05, "stepped-down house paid tier 2 wage without going negative")
+	_ok(float(f["purse"]) >= 0.0 and absf(float(w_poor1.get("wage_paid", 0.0)) - wage_t2) < 0.05, "stepped-down house paid tier 2 wage without going negative")
 	_ok(absf(TownEcon.town_gold(e) - town_gold_poor0) < 0.05, "town gold conserved during tier step-down")
 
-	# Step down again to MIN_TIER (1) with a tiny purse, then verify it never drops below MIN_TIER or goes negative
-	f["purse"] = 250.0
+	# Step down again to MIN_TIER (1) with a small spend_room, then verify it never drops below MIN_TIER or goes negative
+	var partial_room: float = minf(250.0, wage_t1 * 0.5)
+	f["purse"] = reserve + partial_room
 	var w_poor2: Dictionary = HouseUpkeep.weekly(Game, town, e, f)
 	_ok(int(f["upkeep"]["tier"]) == HouseUpkeep.MIN_TIER, "staff tier stepped down to MIN_TIER (1)")
-	_ok(absf(float(f["purse"])) < 0.001 and float(w_poor2.get("wage_paid", 0.0)) == 250.0, "partial wage paid down to 0 purse without going negative")
+	_ok(float(f["purse"]) >= 0.0 and absf(float(w_poor2.get("wage_paid", 0.0)) - partial_room) < 0.05, "partial wage paid down to reserve floor without going negative")
 
+	f["purse"] = 0.0
 	var w_poor3: Dictionary = HouseUpkeep.weekly(Game, town, e, f)
 	_ok(int(f["upkeep"]["tier"]) == HouseUpkeep.MIN_TIER and float(f["purse"]) >= 0.0 and not bool(w_poor3.get("stepped_down", false)), "house at MIN_TIER with 0 purse stays at MIN_TIER and never goes negative")
 
 	# ------------------------------------------------------------------ 3. Improvements preview & start
-	f["purse"] = 250000.0
+	_seed_income(f, float(Game.day), 1000000.0, 250000.0)
 	HouseUpkeep.set_staff_tier(Game, uid, 3)
 	var st: Dictionary = e["stock"]
 	st["wood"] = maxi(int(st.get("wood", 0)), 50)
@@ -140,9 +179,10 @@ func run(tree: SceneTree) -> int:
 	_ok(bool(built2.get("ok", false)) and int(f["improvements"]["manor_hall"]["level"]) == 2, "upgraded manor_hall to level 2")
 	_ok(int(st["iron_bars"]) == iron_0 - int(prev2["materials"]["iron_bars"]) and int(st["furniture"]) == furn_0 - int(prev2["materials"]["furniture"]), "iron_bars and furniture deducted from market stock for level 2")
 
+	HouseUpkeep.weekly(Game, town, e, f)
 	var sizing_1: Dictionary = HouseUpkeep.expected_yearly_cost(Game, uid)
 	_ok(float(sizing_1["yearly_upkeep"]) > float(sizing_0["yearly_upkeep"]), "expected_yearly_cost increased after building manor_hall")
-	_ok(int(f["upkeep"]["opinion_bonus"]) >= 8 and int(f["upkeep"]["skill_bonus"]) >= 2, "improvement opinion and skill bonuses applied to upkeep state")
+	_ok(int(f["upkeep"]["opinion_bonus"]) >= 8 and int(f["upkeep"]["skill_bonus"]) >= 2, "funded improvement opinion and skill bonuses applied to upkeep state")
 
 	# ------------------------------------------------------------------ 4. AI ruling house surplus & cooldown rules
 	var ai_hit: Dictionary = _find_ai_ruling_house(tid)
@@ -152,6 +192,7 @@ func run(tree: SceneTree) -> int:
 	var ai_f: Dictionary = ai_hit["family"]
 	HouseUpkeep.ensure(Game, ai_town, ai_e, ai_f)
 	ai_f["improvements"] = {}
+	ai_f["debt"] = 0.0
 	ai_f["upkeep"]["tier"] = 1
 	ai_f["upkeep"]["ai_purchases"] = 0
 	ai_f["upkeep"]["last_ai_buy_day"] = -100
@@ -160,20 +201,21 @@ func run(tree: SceneTree) -> int:
 	ai_e["stock"]["tools"] = maxi(int(ai_e["stock"].get("tools", 0)), 10)
 
 	# 4a. Below 8-week keep: AI must not buy anything
-	ai_f["purse"] = 9000.0   # after 1400 wage -> 7600 < 8 * 1400 (11200)
 	Game.day = 40.0
+	_seed_income(ai_f, float(Game.day), 1000000.0, 1500.0)
+	ai_f["purse"] = HouseUpkeep.SAFE_KEEP_WEEKS * HouseUpkeep.staff_cost(ai_e, ai_f, 1) * 0.5
 	var ai_w_low: Dictionary = HouseUpkeep.weekly(Game, ai_town, ai_e, ai_f)
 	var ai_act_low: Dictionary = ai_w_low["ai_action"]
 	_ok(not bool(ai_act_low.get("acted", false)) and int(ai_f["upkeep"]["ai_purchases"]) == 0, "AI house does not buy when purse is below 8-week keep")
 	_ok(float(ai_f["purse"]) >= 0.0 and float(ai_f.get("debt", 0.0)) == 0.0, "AI house never goes into debt")
 
 	# 4b. Rich surplus: AI makes at most 1 purchase and retains >= 8 weeks of new upkeep
-	ai_f["purse"] = 150000.0
+	_seed_income(ai_f, float(Game.day), 1000000.0, 150000.0)
 	var ai_gold_0: float = TownEcon.town_gold(ai_e)
 	var ai_w_rich: Dictionary = HouseUpkeep.weekly(Game, ai_town, ai_e, ai_f)
 	var ai_act_rich: Dictionary = ai_w_rich["ai_action"]
 	_ok(bool(ai_act_rich.get("acted", false)) and int(ai_f["upkeep"]["ai_purchases"]) == 1, "AI house with surplus made 1 purchase")
-	var ai_new_weekly: float = HouseUpkeep.tier_cost(int(ai_f["upkeep"]["tier"])) + HouseUpkeep._improvements_weekly_upkeep(ai_f)
+	var ai_new_weekly: float = HouseUpkeep.staff_cost(ai_e, ai_f, int(ai_f["upkeep"]["tier"])) + HouseUpkeep.improvement_cost(ai_e, ai_f)
 	_ok(float(ai_f["purse"]) >= HouseUpkeep.SAFE_KEEP_WEEKS * ai_new_weekly and float(ai_f.get("debt", 0.0)) == 0.0, "AI house kept >= 8 weeks of upkeep after purchase and stayed out of debt")
 	_ok(absf(TownEcon.town_gold(ai_e) - ai_gold_0) < 0.05, "AI house purchase conserved town gold")
 

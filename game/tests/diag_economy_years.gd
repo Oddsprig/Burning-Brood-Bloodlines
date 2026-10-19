@@ -73,6 +73,8 @@ func _snapshot() -> Dictionary:
 		out["taxes"][tid] = {
 			"uid": str(Feudal.tax_recipient(Game, str(tid)).get("household_uid", "")),
 			"tax": float(town.get("econ", {}).get("stats", {}).get("lord_tax", 0.0)),
+			"allowance": float(town.get("econ", {}).get("stats", {}).get("allowance_total", 0.0)),
+			"allowance_uid": str(town.get("econ", {}).get("stats", {}).get("allowance_uid", "")),
 		}
 	return out
 
@@ -110,6 +112,7 @@ func _collect(state: Dictionary, before: Dictionary) -> void:
 		var post_tax: Dictionary = after["taxes"][tid]
 		var pre_tax: Dictionary = before["taxes"].get(tid, post_tax)
 		_add(state, str(pre_tax["uid"]), "lord_tax", maxf(0.0, float(post_tax["tax"]) - float(pre_tax["tax"])))
+		_add(state, str(post_tax["allowance_uid"]), "allowance", maxf(0.0, float(post_tax["allowance"]) - float(pre_tax["allowance"])))
 	var day: int = int(floor(Game.day))
 	for tid in Game.world.get("feudal", {}).get("towns", {}):
 		var row: Dictionary = Game.world["feudal"]["towns"][tid]
@@ -171,7 +174,7 @@ func _report(state: Dictionary, checkpoint: int, ran: int) -> Dictionary:
 		var role: String = "player" if uid == str(Game.world.get("player_house", {}).get("household_uid", "")) else "AI"
 		var income: float = 0.0
 		var bits: Array[String] = []
-		for key in ["land", "business", "lord_tax", "tribute", "wages"]:
+		for key in ["land", "business", "lord_tax", "tribute", "wages", "allowance"]:
 			var amount: float = float(flow.get(key, 0.0)) * scale
 			income += amount
 			bits.append("%s=%s" % [key, _pair(amount, wage)])
@@ -179,14 +182,14 @@ func _report(state: Dictionary, checkpoint: int, ran: int) -> Dictionary:
 			classes[category].append(income / wage)
 		for key in ["staff", "improvements", "builds", "tribute_out", "dragon"]:
 			bits.append("%s_sink=%s" % [key, _pair(float(flow.get(key, 0.0)) * scale, wage)])
-		# Native helper uses 52 weeks. Convert its budget to the game's 120-day year.
-		var troop: float = TroopUpkeep.expected_yearly_cost(Game, uid) * (float(YEAR) / 7.0) / TroopUpkeep.WEEKS_YEAR
+		var troop: float = TroopUpkeep.expected_yearly_cost(Game, uid)
 		var wage_share: float = TroopUpkeep.WAGE_WEEK / (TroopUpkeep.WAGE_WEEK + TroopUpkeep.KEEP_WEEK)
 		bits.append("troop_wages_budget=%s" % _pair(troop * wage_share, wage))
 		bits.append("troop_kit_budget=%s" % _pair(troop * (1.0 - wage_share), wage))
 		var repair: float = float(Game.world.get("troop_upkeep", {}).get("houses", {}).get(uid, {}).get("repair", 0.0))
 		bits.append("troop_repair_due=%s" % _pair(repair, wage))
 		bits.append("court_budget=%s" % _pair(float(CourtEvents.expected_yearly_cost(Game, uid)), wage))
+		bits.append("disposable_year=%s" % _pair(HouseUpkeep.recent_income(f), wage))
 		print("YEARS day=%d %s uid=%s name=%s towns=%d class=%s wage=%.4fc/day wage_town=%s purse=%s hoard=%s treasury=%s income_year=%s %s" % [
 			day, role, uid, JSON.stringify(name), count, category, wage, str(town.get("id", "")),
 			_pair(float(f.get("purse", 0.0)), wage), _pair(wealth - float(f.get("purse", 0.0)), wage),
@@ -205,6 +208,15 @@ func _report(state: Dictionary, checkpoint: int, ran: int) -> Dictionary:
 		var mean: String = "%.2fld" % (total / float(values.size())) if not values.is_empty() else "NA"
 		means.append("%s_n=%d mean_income_year=%s" % [key, values.size(), mean])
 	print("YEARS day=%d classes %s" % [day, " ".join(means)])
+	var extinct: int = 0
+	var vacancies: Array[String] = []
+	for town: Dictionary in Game.world.get("towns", {}).values():
+		for f: Dictionary in town.get("econ", {}).get("fams", []):
+			if not Population.is_cohort(f) and f.get("extinct", false): extinct += 1
+		var tid: String = str(town["id"])
+		if Feudal.tax_recipient(Game, tid).is_empty():
+			vacancies.append("%s:%s:heirs=%d" % [tid, Dynasty.law(Game, tid), Dynasty.heirs(Game, tid).size()])
+	print("YEARS living_households=%d extinct_households=%d vacant_offices=%s" % [Ennoble.house_count(Game), extinct, ",".join(vacancies)])
 	return current
 
 

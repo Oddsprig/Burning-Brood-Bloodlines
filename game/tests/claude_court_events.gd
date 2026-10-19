@@ -9,6 +9,21 @@ func check(ok: bool, label: String) -> void:
 		failures += 1
 		printerr("FAIL court: ", label)
 
+func _seed_income(f: Dictionary, day_now: float, yearly_income: float, final_purse: float = -1.0) -> void:
+	var end_purse: float = final_purse if final_purse >= 0.0 else float(f.get("purse", 0.0))
+	var yr_days: float = float(EconGen.YEAR_DAYS)
+	f.erase("house_budget")
+	f["debt"] = float(f.get("debt", 0.0))
+	var start_day: float = day_now - yr_days
+	f["purse"] = end_purse - yearly_income
+	HouseUpkeep.observe_income(f, start_day)
+	var steps: int = 12
+	for i in range(1, steps + 1):
+		var d: float = start_day + yr_days * float(i) / float(steps)
+		f["purse"] = end_purse - yearly_income + yearly_income * float(i) / float(steps)
+		HouseUpkeep.observe_income(f, d)
+	f["purse"] = end_purse
+
 func spend(uid: String, kind: String, args: Dictionary = {}) -> Dictionary:
 	var before: float = Barge.holdings(Game)
 	var f: Dictionary = Dynasty._household(Game, uid)["family"]
@@ -55,8 +70,9 @@ func run(tree: SceneTree) -> int:
 	var f: Dictionary = loc["family"]
 	var tid: String = str(town["id"])
 	var day0: float = float(Game.day)
-	# Explicit fixture balances; assertions below measure transfers after setup.
-	f["purse"] = 5000000.0; f["inc"] = 1000000.0 * 7.0 / 120.0; f["debt"] = 0.0
+	# Explicit fixture balances and trailing income history; assertions below measure transfers after setup.
+	f["debt"] = 0.0
+	_seed_income(f, day0, 1000000.0, 5000000.0)
 	var market: Dictionary = e["biz"][int(e["mkt"])]
 	market["till"] = 1000000.0
 	var oath: Dictionary = Game.world["feudal"]["towns"][tid]
@@ -168,22 +184,30 @@ func run(tree: SceneTree) -> int:
 	var raised: int = Court.need_coin(Game, uid, 1000, "buying allies")
 	check(raised >= 1000 and is_equal_approx(float(f["purse"]) - purse_before, raised), "need_coin raises actual emergency cash")
 	check(absf(total - Barge.holdings(Game)) < 0.001, "emergency sales conserve coin")
-	# Weekly policy: reserve protection, wealth scaling, debt and idempotency.
+	# Weekly policy: reserve protection, income-share scaling, debt and idempotency.
+	_seed_income(f, float(Game.day), 1000000.0, float(f["purse"]))
 	var keep: int = Court.safe_keep(Game, uid)
 	f["purse"] = float(keep + 3000000)
 	Game.day += 7.0
 	var before: float = float(f["purse"])
+	var weekly_cap: float = float(Court.expected_yearly_cost(Game, uid)) * 7.0 / float(EconGen.YEAR_DAYS)
 	total = Barge.holdings(Game)
 	Court.weekly(Game, town, e, f)
-	check(float(f["purse"]) < before and float(f["purse"]) >= keep, "rich AI spends only surplus")
+	check(float(f["purse"]) < before and float(f["purse"]) >= keep and (before - float(f["purse"])) <= weekly_cap + 1.0, "rich AI spends only surplus within COURT_SHARE of income")
 	check(absf(total - Barge.holdings(Game)) < 0.001, "AI spending conserves coin")
 	before = float(f["purse"])
 	Court.weekly(Game, town, e, f)
 	check(is_equal_approx(before, float(f["purse"])), "weekly spending runs once per week")
-	f["purse"] = float(keep)
-	check(absi(Court.expected_yearly_cost(Game, uid) - 550000) <= 1, "one million net/year baseline budgets 550000/year")
-	f["purse"] = float(keep + 1000000)
-	check(Court.expected_yearly_cost(Game, uid) >= 1450000 - 1, "wealth increases the yearly budget")
+	_seed_income(f, float(Game.day), 1000000.0, float(keep))
+	var expected_1m: int = int(floor(1000000.0 * HouseUpkeep.COURT_SHARE))
+	check(absi(Court.expected_yearly_cost(Game, uid) - expected_1m) <= 1, "one million net/year baseline budgets COURT_SHARE (100000/year)")
+	_seed_income(f, float(Game.day), 2500000.0, float(keep))
+	var rich_yearly: int = Court.expected_yearly_cost(Game, uid)
+	_seed_income(f, float(Game.day), 200000.0, float(keep))
+	var poor_yearly: int = Court.expected_yearly_cost(Game, uid)
+	check(rich_yearly > expected_1m and poor_yearly < expected_1m and poor_yearly > 0, "court yearly budget scales with observed household income")
+	_seed_income(f, float(Game.day), 1000000.0, float(keep))
+	keep = Court.safe_keep(Game, uid)
 	f["purse"] = float(keep - 1000)
 	Game.day += 7.0
 	total = Barge.holdings(Game)

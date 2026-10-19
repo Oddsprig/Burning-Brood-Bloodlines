@@ -1073,7 +1073,7 @@ static func town_turn(game, town: Dictionary, day: int) -> void:
 	# the mint keeps its minters while there are bars to cast (and the treasury is not full) [ours]
 	if e.has("mint_biz"):
 		var mbz: Dictionary = biz[int(e["mint_biz"])]
-		mbz["cap"] = int(Barge.B()["coin"]["minters"]) if Barge.mint_bars(e) and float(e["treasury"]) < float(Barge.treasury_lines(e)["full"]) else 0
+		mbz["cap"] = int(Barge.B()["coin"]["minters"]) if Barge.mint_bars(e) and float(e["treasury"]) < minf(float(Barge.treasury_lines(e)["full"]), float(e["stats"].get("treasury_target", Barge.treasury_lines(e)["full"]))) else 0
 	fund_public_services(e)
 	# These capacity and real treasury transfers run after today's family
 	# batches. Let idle civilians see their funded offers before the recount.
@@ -1130,6 +1130,7 @@ static func town_turn(game, town: Dictionary, day: int) -> void:
 		e["treasury"] = float(e["treasury"]) - spent
 		mkt["till"] = float(mkt["till"]) + spent
 		e["stats"]["works"] = spent
+	Barge.release_surplus(game, town, e)
 	# trade: send a caravan with the surplus where it is wanted
 	_plan_trade(game, town, e, day)
 	# reasons for the week's price moves, then the snapshot the arrows on the town screen compare against

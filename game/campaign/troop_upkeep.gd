@@ -31,9 +31,9 @@ extends RefCounted
 ## treasury garrison and not men on the company roll. Size follows feudal rank plus purse.
 ## Unpaid weeks, men leave. The count never goes below zero.
 
-const WAGE_WEEK: float = 180.0       # coins per retainer per week, from the house purse
+const WAGE_WEEK: float = 700.0       # seven days at the base labour wage; scaled by Barge.day_wage
 const KEEP_WEEK: float = 32.0        # peacetime kit maintenance per retainer per week
-const WEEKS_YEAR: float = 52.0
+const WEEKS_YEAR: float = float(EconGen.YEAR_DAYS) / 7.0
 const WEALTH_STEP: float = 40000.0   # one extra man per this much purse
 const WEALTH_CAP: int = 24
 const MAX_MEN: int = 60
@@ -89,6 +89,12 @@ static func _is_player_house(game, f: Dictionary) -> bool:
 	var f_uid: String = str(f.get("household_uid", ""))
 	return p_uid != "" and f_uid != "" and p_uid == f_uid
 
+static func wage_week(e: Dictionary) -> float:
+	return 7.0 * Barge.day_wage(e)
+
+static func keep_week(e: Dictionary) -> float:
+	return KEEP_WEEK * Barge.day_wage(e) / 100.0
+
 static func _target_n(game, town: Dictionary, f: Dictionary) -> int:
 	var tid: String = str(town.get("id", ""))
 	var tier: String = str(game.world.get("feudal", {}).get("towns", {}).get(tid, {}).get("tier", ""))
@@ -98,7 +104,9 @@ static func _target_n(game, town: Dictionary, f: Dictionary) -> int:
 	elif tier == "village" or int(town.get("size", 1)) < 2:
 		base = BASE_VILLAGE
 	var extra: int = mini(WEALTH_CAP, int(float(f.get("purse", 0.0)) / WEALTH_STEP))
-	return mini(MAX_MEN, maxi(0, base + extra))
+	var e: Dictionary = town.get("econ", {})
+	var affordable: int = int(floor(HouseUpkeep.recent_income(f) * HouseUpkeep.TROOP_SHARE / WEEKS_YEAR / maxf(1.0, wage_week(e) + keep_week(e))))
+	return mini(affordable, mini(MAX_MEN, maxi(0, base + extra)))
 
 static func _count_men(men: Array) -> int:
 	var n: int = 0
@@ -221,14 +229,14 @@ static func _smith(e: Dictionary) -> Dictionary:
 	return fallback
 
 ## House purse -> market (the household purchase helper) -> smith till. Market nets zero.
-static func _buy_smith(e: Dictionary, f: Dictionary, smith: Dictionary, cost: float) -> float:
+static func _buy_smith(game, e: Dictionary, f: Dictionary, smith: Dictionary, cost: float) -> float:
 	if cost <= 0.0 or smith.is_empty() or f.is_empty() or not e.has("mkt"):
 		return 0.0
 	var biz: Array = e.get("biz", [])
 	var idx: int = int(e.get("mkt", -1))
 	if idx < 0 or idx >= biz.size():
 		return 0.0
-	var afford: float = maxf(0.0, float(f.get("purse", 0.0)) - 1.0)
+	var afford: float = minf(HouseUpkeep.spend_room(e, f), HouseUpkeep.troop_room(f, float(game.day)))
 	var pay: float = minf(cost, afford)
 	if pay <= 0.01:
 		return 0.0
@@ -236,6 +244,7 @@ static func _buy_smith(e: Dictionary, f: Dictionary, smith: Dictionary, cost: fl
 	var mkt: Dictionary = biz[idx]
 	mkt["till"] = float(mkt.get("till", 0.0)) - pay
 	smith["till"] = float(smith.get("till", 0.0)) + pay
+	HouseUpkeep.book_troops(f, pay, float(game.day))
 	return pay
 
 static func _can_repair(game, town: Dictionary) -> bool:
@@ -341,7 +350,7 @@ static func _pay_due(game, town: Dictionary, e: Dictionary, f: Dictionary, row: 
 	var due: float = float(row.get("repair", 0.0))
 	if due <= 0.01 or not _can_repair(game, town):
 		return 0.0
-	var paid: float = _buy_smith(e, f, _smith(e), due)
+	var paid: float = _buy_smith(game, e, f, _smith(e), due)
 	row["repair"] = maxf(0.0, due - paid)
 	if float(row["repair"]) <= 0.5:
 		row["repair"] = 0.0
@@ -374,22 +383,23 @@ static func weekly(game, town: Dictionary, e: Dictionary, f: Dictionary) -> Dict
 	row["target"] = want
 	var unpaid: int = int(row.get("unpaid", 0))
 	var n_now: int = maxi(0, int(row.get("n", 0)))
-	if unpaid == 0 and float(f.get("purse", 0.0)) >= float(want) * WAGE_WEEK:
+	if unpaid == 0 and HouseUpkeep.spend_room(e, f) >= float(want) * wage_week(e):
 		_assign(town, e, row, want)
 	elif unpaid == 0 and n_now > want:
 		_shrink(row, n_now - want)
 	elif n_now > 0 and _count_men(_men_of(row)) <= 0:
 		_assign(town, e, row, n_now)
 	var n: int = maxi(0, int(row.get("n", 0)))
-	var bill: float = float(n) * WAGE_WEEK
+	var bill: float = float(n) * wage_week(e)
 	var credited: Dictionary = {"paid": 0.0, "families": 0}
-	var afford: float = maxf(0.0, float(f.get("purse", 0.0)) - 1.0)
+	var afford: float = minf(HouseUpkeep.spend_room(e, f), HouseUpkeep.troop_room(f, float(game.day)))
 	var wage_pay: float = minf(bill, afford)
 	if wage_pay > 0.0:
 		credited = _credit(game, _men_of(row), wage_pay)
 		var got: float = float(credited.get("paid", 0.0))
 		f["purse"] = float(f.get("purse", 0.0)) - got
 		wage_pay = got
+		HouseUpkeep.book_troops(f, got, float(game.day))
 	if bill > 0.01 and wage_pay + 0.01 < bill and n > 0:
 		var cut: int = maxi(1, int(float(n) / 5.0))
 		_shrink(row, cut)
@@ -401,10 +411,10 @@ static func weekly(game, town: Dictionary, e: Dictionary, f: Dictionary) -> Dict
 	var kit: float = float(row.get("kit", 100.0))
 	if n > 0:
 		kit = maxf(0.0, kit - PEACE_DROP)
-	var keep_bill: float = float(n) * KEEP_WEEK
+	var keep_bill: float = float(n) * keep_week(e)
 	var keep_paid: float = 0.0
 	if keep_bill > 0.0 and _can_repair(game, town):
-		keep_paid = _buy_smith(e, f, _smith(e), keep_bill)
+		keep_paid = _buy_smith(game, e, f, _smith(e), keep_bill)
 		if keep_paid > 0.0:
 			kit = minf(100.0, kit + PEACE_DROP * keep_paid / keep_bill)
 	row["kit"] = kit
@@ -510,4 +520,4 @@ static func expected_yearly_cost(game, household_uid: String) -> float:
 	if town.is_empty() or fam.is_empty() or e.is_empty() or not _rules(e, fam):
 		return 0.0
 	var men: int = _target_n(game, town, fam)
-	return float(men) * (WAGE_WEEK + KEEP_WEEK) * WEEKS_YEAR
+	return float(men) * (wage_week(e) + keep_week(e)) * WEEKS_YEAR
