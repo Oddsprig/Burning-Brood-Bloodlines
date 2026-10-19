@@ -365,6 +365,7 @@ func finish_battle(result: Dictionary) -> void:
 	result["scrap_paid"] = result["scrap_gold"]
 	result["dragon_combat_receipt"] = DragonCombat.on_battle_result(self, result, pending_battle.get("dragon_admission", {}))
 	last_result = result
+	result["gear_wear"] = TroopUpkeep.on_battle_end(self, result)   # economy pass: kit wears in battle, repaired at a smith
 	var W = load("res://campaign/world.gd") if ResourceLoader.exists("res://campaign/world.gd") else null
 	if W != null and W.has_method("on_battle_result"):
 		W.on_battle_result(self, result)

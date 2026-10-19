@@ -1787,6 +1787,9 @@ static func after_load(game) -> void:
 	Monsters.use_world(w)
 	Migration.after_load(game)
 	Settlement.after_load(game)
+	HouseUpkeep.after_load(game)
+	TroopUpkeep.after_load(game)
+	CourtEvents.after_load(game)
 
 static func _fix_contract(c: Dictionary) -> void:
 	for k in ["pay", "size"]:

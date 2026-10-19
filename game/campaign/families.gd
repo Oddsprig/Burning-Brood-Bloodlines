@@ -859,6 +859,10 @@ static func turn(game, town: Dictionary, e: Dictionary, f: Dictionary, day: floa
 	for part in f["income_parts"]: f["income_parts"][part] *= 7.0 / days
 	f.erase("farm_funding_pending")
 	_harvest_share(e, f, day, days)
+	if game != null:   # economy pass coin sinks: household staff and improvements, the house retinue and its kit, court events
+		HouseUpkeep.weekly(game, town, e, f)
+		TroopUpkeep.weekly(game, town, e, f)
+		CourtEvents.weekly(game, town, e, f)
 	_ruler_to_seat(game, town, e, f)
 	var _pt := Time.get_ticks_usec() if TownEcon.prof_on else 0
 	if TownEcon.prof_on: TownEcon._prof("f_income", _p0)

@@ -1061,6 +1061,12 @@ static func on_sack(w: Dictionary, town: Dictionary, att: String) -> void:
 	var e: Dictionary = town["econ"]
 	TownEcon.town_event(e, "sacked", [CampaignWorld.faction_the(att)], float(w.get("last_day", 0)))   # its people remember
 	var take := maxf(0.0, float(e["treasury"])) * float(A()["sack_take"])
+	var lord: Dictionary = Feudal.tax_recipient(Game, str(town.get("id", "")))   # the ruling house's treasure hoard is carried off too
+	if str(lord.get("household_uid", "")) != "":
+		var seized: Array = CourtEvents.seize_hoard(Game, str(lord["household_uid"]), float(A()["sack_take"]))
+		if not seized.is_empty():
+			if not fac.has("loot_hoard"): fac["loot_hoard"] = []
+			(fac["loot_hoard"] as Array).append_array(seized)
 	e["treasury"] = float(e["treasury"]) - take
 	fac["loot"] = float(fac.get("loot", 0.0)) + take
 	TownEcon.gold_out(take)   # out of the town ledgers into the raiders' chest
