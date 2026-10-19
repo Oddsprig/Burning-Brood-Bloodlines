@@ -169,11 +169,21 @@ func _open_targets() -> void:
 		person["spouse"] = Dynasty.person(Game, str(person.get("spouse_uid", "")))
 		person["married"] = bool(person["spouse"].get("alive", false))
 		var node := {"row": person, "rel": "House %s" % choice["house_name"]}
-		rows.add_child(UiKit.button("%s — House %s, %s" % [person["name"], choice["house_name"], choice["town_name"]], func():
-			UiKit.close_modal(v); open_person(node), "Row", 0))
+		var line := UiKit.hbox(8)
+		rows.add_child(line)
+		var open_house := UiKit.button("%s — House %s, %s" % [person["name"], choice["house_name"], choice["town_name"]], func():
+			UiKit.close_modal(v); open_person(node), "Row", 0)
+		open_house.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		line.add_child(open_house)
+		var hoard := UiKit.button("Treasure room", _open_other_treasure.bind(str(choice["household_uid"])), "Row", 190)
+		hoard.name = "TreasureRoomOtherButton"
+		line.add_child(hoard)
 		count += 1
 	if count == 0: rows.add_child(UiKit.label("No other living ruling houses.", "Muted", true))
 	v.add_child(UiKit.button("Close", func(): UiKit.close_modal(v), "Row", 120))
+
+func _open_other_treasure(household_uid: String) -> void:
+	Game.goto("treasure", {"household_uid": household_uid, "read_only": true, "back": "court", "back_params": {"back": str(Game.screen_params.get("back", "map"))}})
 
 func _open_scheme(uid: String, kind: String) -> void:
 	var offer := Intrigue.preview(Game, uid, kind)
@@ -330,6 +340,13 @@ func open_person(node: Dictionary) -> void:
 				UiKit.close_modal(v); _open_scheme(uid, kind), "Row", 0))
 	var footer := UiKit.hbox(8); v.add_child(footer)
 	footer.add_child(UiKit.spacer())
+	var household := str(row.get("household_uid", ""))
+	var player_household := str(Game.world.get("player_house", {}).get("household_uid", ""))
+	if household != "" and household != player_household:
+		var hoard := UiKit.button("Treasure room", func():
+			UiKit.close_modal(v); _open_other_treasure(household), "Row", 180)
+		hoard.name = "TreasureRoomOtherButton"
+		footer.add_child(hoard)
 	if bool(row.get("can_betroth", false)) and not bool(row.get("married_in", false)):
 		footer.add_child(UiKit.button("Find a spouse" if bool(row.get("adult", false)) else "Arrange betrothal", func():
 			UiKit.close_modal(v); _open_matches(uid, str(row.get("name", ""))), "", 220))

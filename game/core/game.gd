@@ -25,6 +25,7 @@ const SCREENS := {
 	"house": "res://ui/house.tscn",
 	"laws": "res://ui/house_laws.tscn",
 	"dragons": "res://ui/dragons.tscn",
+	"treasure": "res://ui/treasure_room.tscn",
 	"politics": "res://ui/politics.tscn",
 	"population": "res://ui/population.tscn",
 	"presim": "res://ui/presim.tscn",   # a new campaign: the years before (campaign/world.gd presim_step)
@@ -481,7 +482,7 @@ func _process(_delta: float) -> void:
 	if _save_pending and _save_task == -1 and _save_ready and _active_screen not in ["battle", "presim", "newgame"]:
 		save_game_async(true)
 		return
-	if not get_tree().paused and _active_screen in ["town", "company", "muster", "house", "laws", "dragons", "politics", "population", "settings", "house_select"] and not world.get("work", []).is_empty():
+	if not get_tree().paused and _active_screen in ["town", "company", "muster", "house", "laws", "dragons", "treasure", "politics", "population", "settings", "house_select"] and not world.get("work", []).is_empty():
 		var started := Time.get_ticks_usec()
 		if CampaignWorld.work_slice(self, 4000) > 0:
 			changed.emit()

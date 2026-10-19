@@ -98,6 +98,9 @@ func _refresh() -> void:
 	actions.add_child(laws)
 	actions.add_child(UiKit.button("Court & marriages", func(): Game.goto("court", {"back": "house"}), "Row"))
 	actions.add_child(UiKit.button("Dragons & eggs", func(): Game.goto("dragons", {"back": "house", "back_params": {"back": back}}), "Row"))
+	var treasure := UiKit.button("Treasure room", func(): Game.goto("treasure", {"back": "house", "back_params": {"back": back}}), "Row")
+	treasure.name = "TreasureRoomButton"
+	actions.add_child(treasure)
 	actions.add_child(UiKit.button("City records", _records.bind(String(selected["town_id"])), "Row"))
 	actions.add_child(UiKit.button("Politics", func(): PoliticsView.open_view("politics", tid, "house"), "Row"))
 	actions.add_child(UiKit.button("Population", func(): PoliticsView.open_view("population", tid, "house"), "Row"))
