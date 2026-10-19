@@ -267,6 +267,7 @@ static func start(game, town_id: String, key: String, review: Dictionary = {}) -
 	payer["purse"] = float(payer.get("purse", 0.0)) - float(cost)
 	var town: Dictionary = _town_by_id(game, town_id)
 	var e: Dictionary = ensure_town(town)
+	HouseUpkeep._pay_town_folk(e, payer, float(cost))
 	var day_now: int = _day_of(game)
 	var proj: Dictionary = {
 		"key": key,
@@ -378,7 +379,10 @@ static func _apply_daily_effects(game, town: Dictionary) -> void:
 		if game != null and game.world is Dictionary and tid != "":
 			var rec: Dictionary = Feudal.tax_recipient(game, tid)
 			if not rec.is_empty():
-				rec["purse"] = _num(rec.get("purse", 0.0), 0.0) + bonus
+				# The market allowance is paid from actual municipal receipts.
+				var paid: float = minf(bonus, maxf(0.0, _num(e.get("treasury", 0.0), 0.0)))
+				e["treasury"] = _num(e.get("treasury", 0.0), 0.0) - paid
+				rec["purse"] = _num(rec.get("purse", 0.0), 0.0) + paid
 	var temple_lvl: int = building_level(e, "temple")
 	if temple_lvl > 0:
 		if game != null and game.world is Dictionary and tid != "":
@@ -468,6 +472,8 @@ static func _maybe_ai_start(game, town: Dictionary, day: int) -> void:
 		funded = true
 	if not funded:
 		return
+	# Construction pays existing local households; it does not erase coin.
+	HouseUpkeep._pay_town_folk(e, rec, float(cost))
 	e["ai_project_day"] = day
 	var proj: Dictionary = {
 		"key": best_key,

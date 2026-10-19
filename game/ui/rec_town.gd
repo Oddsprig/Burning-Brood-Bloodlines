@@ -914,7 +914,7 @@ static func hardship(scr, t: Dictionary, e: Dictionary, v: VBoxContainer) -> voi
 		if not b.get("closed", false):
 			var o := maxi(0, int(b.get("cap", 0)) - int(b.get("workers", 0)))
 			open += o
-			dry += o - Businesses.takeable(b)
+			dry += o - Businesses.takeable(b, e)
 	var c := RecKit.card(v, "Pressure")
 	RecKit.kv(c, "Families going hungry", "%d (%s)" % [n["hungry"], RecKit.pct(n["hungry"], fams.size())])
 	RecKit.kv(c, "Homeless households", "%d, of them destitute %d" % [n["homeless"], n["destitute"]])

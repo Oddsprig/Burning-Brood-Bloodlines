@@ -1,0 +1,20 @@
+BISECT year=2 day=135 population=64745 births=156 deaths=24 starved=18 worked_acres=124027.16 harvest=0 grain_stock=35879 staffed_farms=211 farm_vacant=5158 farm_wage_med=167.69 day_wage_med=107.81
+BISECT year=2 day=156 population=64754 births=306 deaths=165 starved=152 worked_acres=111502.78 harvest=1186785 grain_stock=20177 staffed_farms=315 farm_vacant=16132 farm_wage_med=166.52 day_wage_med=105.80
+BISECT year=2 day=170 population=64212 births=399 deaths=800 starved=783 worked_acres=118785.89 harvest=3585222 grain_stock=64050 staffed_farms=335 farm_vacant=15795 farm_wage_med=183.92 day_wage_med=112.67
+BISECT year=2 day=184 population=64330 births=518 deaths=801 starved=783 worked_acres=102710.83 harvest=5961861 grain_stock=151751 staffed_farms=334 farm_vacant=17197 farm_wage_med=191.68 day_wage_med=112.82
+BISECT year=2 day=198 population=64400 births=614 deaths=827 starved=806 worked_acres=95260.69 harvest=8095054 grain_stock=270180 staffed_farms=329 farm_vacant=18279 farm_wage_med=195.97 day_wage_med=112.07
+BISECT year=2 day=212 population=63921 births=713 deaths=1405 starved=1381 worked_acres=100107.83 harvest=9662195 grain_stock=252829 staffed_farms=169 farm_vacant=8257 farm_wage_med=189.11 day_wage_med=111.27
+BISECT year=3 day=248 population=61332 births=47 deaths=1452 starved=1450 worked_acres=111610.84 harvest=0 grain_stock=43 staffed_farms=209 farm_vacant=3978 farm_wage_med=152.33 day_wage_med=89.12
+BISECT year=3 day=276 population=50897 births=150 deaths=11990 starved=11979 worked_acres=85022.95 harvest=905948 grain_stock=30036 staffed_farms=241 farm_vacant=21726 farm_wage_med=169.61 day_wage_med=108.59
+BISECT year=3 day=297 population=49570 births=269 deaths=13436 starved=13422 worked_acres=99788.28 harvest=3830439 grain_stock=69410 staffed_farms=293 farm_vacant=21835 farm_wage_med=206.73 day_wage_med=122.01
+BISECT year=3 day=311 population=49594 births=376 deaths=13519 starved=13500 worked_acres=99341.11 harvest=5986588 grain_stock=125694 staffed_farms=264 farm_vacant=22353 farm_wage_med=210.13 day_wage_med=119.55
+BISECT year=3 day=325 population=49521 births=484 deaths=13700 starved=13678 worked_acres=89246.72 harvest=8044507 grain_stock=165902 staffed_farms=241 farm_vacant=23067 farm_wage_med=205.61 day_wage_med=119.54
+BISECT year=3 day=346 population=49710 births=676 deaths=13703 starved=13678 worked_acres=110185.01 harvest=8584332 grain_stock=83059 staffed_farms=179 farm_vacant=7511 farm_wage_med=165.46 day_wage_med=97.21
+BISECT year=4 day=375 population=49137 births=88 deaths=680 starved=679 worked_acres=108439.10 harvest=0 grain_stock=16881 staffed_farms=197 farm_vacant=5329 farm_wage_med=161.75 day_wage_med=98.14
+BISECT year=4 day=403 population=45057 births=206 deaths=4878 starved=4873 worked_acres=93112.78 harvest=1668490 grain_stock=37211 staffed_farms=247 farm_vacant=24555 farm_wage_med=207.49 day_wage_med=118.79
+BISECT year=4 day=424 population=44171 births=362 deaths=5920 starved=5911 worked_acres=103647.46 harvest=4756549 grain_stock=142459 staffed_farms=266 farm_vacant=24610 farm_wage_med=211.97 day_wage_med=118.22
+BISECT year=4 day=445 population=44370 births=562 deaths=5921 starved=5911 worked_acres=96731.99 harvest=7869424 grain_stock=181668 staffed_farms=225 farm_vacant=24731 farm_wage_med=209.43 day_wage_med=117.63
+BISECT year=4 day=466 population=44578 births=770 deaths=5921 starved=5911 worked_acres=115239.25 harvest=8441129 grain_stock=91877 staffed_farms=171 farm_vacant=6732 farm_wage_med=162.52 day_wage_med=96.35
+BISECT year=4 day=481 population=44483 births=910 deaths=6156 starved=6110 worked_acres=115058.42 harvest=8441129 grain_stock=39120 staffed_farms=188 farm_vacant=6436 farm_wage_med=161.85 day_wage_med=95.77
+
+[exited with code 0]

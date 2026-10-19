@@ -317,6 +317,37 @@ static func _sell_holding(e: Dictionary, f: Dictionary, kind: String, key: Strin
 	Families.reassign(e, f)
 	return cost
 
+## A cash-starved farm offers at most a quarter of one crop holding per week.
+## Reuse the native purchase preview and physical land/ox/plot transfer.
+## No public bailout: a buyer must own the coin AND have spare labour.
+static func sell_for_payroll(e: Dictionary, f: Dictionary, farm: Dictionary) -> void:
+	var day: int = int(e.get("day", 0))
+	if day - int(farm.get("payroll_sale_day", day - 7)) < 7: return
+	farm["payroll_sale_day"] = day
+	var bill: float = float(maxi(int(farm["workers"]), int(farm["cap"]))) * float(farm["wage"])
+	var gap: float = maxf(0.0, float(farm.get("owed", 0.0)) + bill * 8.0 - float(farm["till"]) - Businesses.farm_kind_value(e, farm))
+	if gap <= 0.0: return
+	var D: Dictionary = TownEcon.data()
+	var buyers: Array = e["fams"].filter(func(b): return int(b["id"]) != int(f["id"]) and not b.get("gone", false) and not b.get("estate", false) and float(b.get("debt", 0.0)) <= 0.0)
+	buyers.sort_custom(func(a, b): return float(a["purse"]) > float(b["purse"]))
+	for crop in f["land"].keys():
+		var base: float = maxf(0.01, float(D["goods"].get(crop, {}).get("price", 1.0)))
+		var unit: float = float(D["land"]["acre_price"]) * maxf(0.01, float(e["price"].get(crop, base))) / base
+		var limit: int = mini(int(ceil(float(f["land"][crop]) * 0.25)), int(ceil(gap / unit)))
+		for buyer in buyers:
+			var afford: int = maxi(0, int(floor((float(buyer["purse"]) - 40.0 * TownEcon.COIN) / unit)))
+			var n: int = TownEcon._purchase_acres(e, f, buyer, String(crop), mini(limit, afford))
+			if n <= 0: continue
+			Families.move_land(e, f, buyer, String(crop), n)
+			var cost: float = float(n) * unit
+			buyer["purse"] = float(buyer["purse"]) - cost
+			f["purse"] = float(f["purse"]) + cost
+			Families.add_hist(f, "Sold %d acres to %s for %d coins to fund the farm's wages." % [n, buyer["name"], int(cost)], float(day))
+			Families.add_hist(buyer, "Bought %d acres from %s for %d coins." % [n, f["name"], int(cost)], float(day))
+			Families.reassign(e, buyer)
+			Families.reassign(e, f)
+			return
+
 ## The house: into the market as a home for sale (the market pays its buying price), else the head takes it at
 ## the estate's price. The family is homeless after.
 static func _sell_house(e: Dictionary, f: Dictionary, ln: Dictionary, day: float, head_title: String) -> void:

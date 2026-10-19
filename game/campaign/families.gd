@@ -348,16 +348,23 @@ static func settle(e: Dictionary, f: Dictionary) -> float:
 		if f.get("estate", false):
 			e["treasury"] = float(e["treasury"]) + pay
 		else:
-			# barge part 4 section 1: where the ruler takes his tribute in coin, his share of what the harvest sold for
-			var ru: Dictionary = e.get("ruler", {})
-			var trib := 0.0
-			if pay > 0.0 and String(ru.get("kind", "")) == "coin":
-				trib = pay * float(ru.get("tribute", 0.0))
-				e["treasury"] = float(e["treasury"]) + trib
-				if e.has("stats"):
-					e["stats"]["tribute_coin"] = float(e["stats"].get("tribute_coin", 0.0)) + trib
-			f["purse"] = float(f["purse"]) + pay - trib
+			receive_harvest(e, f, pay)
 	return pay
+
+## Apply the existing gross harvest tribute once, then payroll before profit.
+## The caller has already debited the real payer or farm_till.
+static func receive_harvest(e: Dictionary, f: Dictionary, pay: float) -> float:
+	var ru: Dictionary = e.get("ruler", {})
+	var trib: float = 0.0
+	if pay > 0.0 and String(ru.get("kind", "")) == "coin":
+		trib = pay * float(ru.get("tribute", 0.0))
+		e["treasury"] = float(e["treasury"]) + trib
+		if e.has("stats"):
+			e["stats"]["tribute_coin"] = float(e["stats"].get("tribute_coin", 0.0)) + trib
+	var net: float = pay - trib
+	var surplus: float = net - Businesses.receive_farm(e, f, net)
+	f["purse"] = float(f["purse"]) + surplus
+	return surplus
 
 ## The existing proportional draft transfer, shared by a purchase preview and
 ## the physical move. Legacy households without an ox count keep their fallback.
@@ -428,16 +435,38 @@ static func refresh_worked(e: Dictionary, f: Dictionary) -> void:
 	var estate: bool = f.get("estate", false)
 	var own := 0 if estate else int(f["hands"])
 	var helpers := 0.0 if estate else minf(need, Barge.helper_hands(e, f, float(e.get("day", 0))))
-	var hired := 0
+	var hired: float = 0.0
 	var bid := int(f.get("farm", -1))
 	if bid >= 0 and bid < (e["biz"] as Array).size():
 		var b: Dictionary = e["biz"][bid]
 		if not b.get("closed", false):
-			hired = int(b["workers"])
+			hired = field_hands(e, b)
 			if not estate:
-				hired = mini(hired, maxi(0, int(ceil(need - float(own) - helpers - 0.3))))
-	var worked := clampf((float(own + hired) + helpers) / need, 0.0, 1.0)
-	set_worked(e, f, worked * (1.0 if estate else Barge.output_mult(int(f.get("hungry", 0)))))
+				hired = minf(hired, float(maxi(0, int(ceil(need - float(own) - helpers - 0.3)))))
+	var own_output: float = 1.0 if estate else Barge.output_mult(int(f.get("hungry", 0)))
+	set_worked(e, f, clampf(((float(own) + helpers) * own_output + hired) / need, 0.0, 1.0))
+
+## The employer's hunger cannot disable another household's workers. Bedridden
+## named employees remain assigned and retain their dated wage accounting.
+static func field_hands(e: Dictionary, b: Dictionary) -> float:
+	var hands: float = float(b["workers"])
+	var day: float = float(e.get("day", 0))
+	var key: String = str(int(b["id"]))
+	for worker in e.get("fams", []):
+		var n: int = int(worker.get("jobs", {}).get(key, 0))
+		if n <= 0: continue
+		var bed: int = 0
+		for c in worker.get("sk", {}).values():
+			if int(c[Sickness.C_BIZ]) == int(b["id"]) and int(c[Sickness.C_BED]) == 1 and day >= float(c[Sickness.C_ON]) and day < Sickness._stop(c): bed += 1
+		hands -= float(n) - float(maxi(0, n - bed)) * Barge.output_mult(int(worker.get("hungry", 0)))
+	return clampf(hands, 0.0, float(b["workers"]))
+
+static func refresh_employers(e: Dictionary, f: Dictionary) -> void:
+	for key in f.get("jobs", {}):
+		var b: Dictionary = e["biz"][int(key)]
+		if b.get("closed", false): continue
+		if String(b["type"]) == "farm": refresh_worked(e, e["fams"][int(b["owner"])])
+		elif String(b["type"]) == "estate": refresh_worked(e, e["fams"][0])
 
 # ================================================================== jobs
 static func set_job(e: Dictionary, f: Dictionary, bid: int, n: int) -> void:
@@ -447,6 +476,7 @@ static func set_job(e: Dictionary, f: Dictionary, bid: int, n: int) -> void:
 		return
 	var b: Dictionary = e["biz"][bid]
 	if n < cur:
+		b["staff_left_day"] = int(e.get("day", 0))
 		WageClaims.pay_business(e, f, b)
 	b["workers"] = maxi(0, int(b["workers"]) + n - cur)
 	e["open_n"] = maxi(0, int(e.get("open_n", 0)) - (n - cur))
@@ -548,7 +578,7 @@ static func reassign(e: Dictionary, f: Dictionary) -> void:
 		var old_cap := int(fb["cap"])
 		fb["cap"] = maxi(0, int(ceil(hneed - float(own) - helpers - 0.3)))
 		if int(fb["cap"]) > old_cap:
-			var funded := Businesses.fund_farm(f, fb)
+			var funded: float = Businesses.fund_farm(f, fb, e)
 			if funded > 0.0:
 				f["farm_funding_pending"] = float(f.get("farm_funding_pending", 0.0)) + funded
 	f["farm_harvest"] = hv
@@ -652,7 +682,7 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 		var b: Dictionary = biz[int(bid)]
 		if b.get("closed", false):
 			continue
-		var open := Businesses.takeable(b)
+		var open := Businesses.takeable(b, e)
 		if open <= 0:
 			continue   # nobody signs on where the till is empty
 		var sc := _pay_score(e, b, known)
@@ -756,7 +786,7 @@ static func _to_trades(e: Dictionary, f: Dictionary, own: int, ad: int, need: fl
 		var b: Dictionary = biz[int(bid)]
 		if String(b["type"]) in field_types or b.get("closed", false):
 			continue
-		var n := Businesses.takeable(b)
+		var n := Businesses.takeable(b, e)
 		if n <= 0:
 			continue
 		var count := mini(n, own)
@@ -778,7 +808,7 @@ static func _to_trades(e: Dictionary, f: Dictionary, own: int, ad: int, need: fl
 static func match_idle(e: Dictionary) -> void:
 	var funded := false
 	for b in e["biz"]:
-		if Businesses.takeable(b) > 0:
+		if Businesses.takeable(b, e) > 0:
 			funded = true; break
 	# Paid casual work uses the same idle adults even when every regular shop
 	# is full. Keep the existing funding and fractional-shift capacity rules.
@@ -975,6 +1005,7 @@ static func turn(game, town: Dictionary, e: Dictionary, f: Dictionary, day: floa
 	Persons.sync(e, f, day)   # the register's person records follow the row (births grown up, the old, the dead)
 	Persons.track_jobs(e, f, day)   # life histories: places taken and left
 	refresh_worked(e, f)   # hunger and helper ages can change without taking a new job
+	refresh_employers(e, f)   # the same is true of the household supplying hired hands
 	if TownEcon.prof_on: _pt = TownEcon._prof("f_sync", _pt)
 	# Capacity can grow at the ordinary seasonal/age reassignment after income
 	# was recorded. Report only the real transfer, once, before restock budgets.
@@ -1055,6 +1086,19 @@ static func _pay_rent(e: Dictionary, f: Dictionary, days: float, day: float) -> 
 ## A hand of the family in a hired place paying less than the best open place in town whose till can pay (v0.014:
 ## he looks again at his turn and moves when it is better: _best_places).
 static func _paid_worse(e: Dictionary, f: Dictionary, biz: Array) -> bool:
+	# Crops can become worth more than an existing town job even with no funded
+	# vacancy. Reconsider own land as well as offers from other employers.
+	var need: float = need_hands(f, e)
+	if need > 0.0 and not f["jobs"].is_empty():
+		var helpers: float = Barge.helper_hands(e, f, float(e.get("day", 0)))
+		var available: int = maxi(0, adults(f) - serving(f) - (f.get("keeps", []) as Array).size())
+		var target: int = mini(available, maxi(0, int(ceil(need - minf(need, helpers) - 0.3))))
+		if int(f["hands"]) < target:
+			var worth: float = land_worth(e, f, need)
+			for k in f["jobs"]:
+				var held: Dictionary = biz[int(k)]
+				if not String(held["type"]) in ["farm", "estate", "works"] and float(held["wage"]) <= worth:
+					return true
 	# Compare today's funded offers, including casual work and paid relatives.
 	# The cached weekly highest offer may have filled, gained funds or changed pay.
 	if f["jobs"].is_empty() and (f.has("hl") or f.get("cj", {}).is_empty()): return false
@@ -1067,7 +1111,7 @@ static func _paid_worse(e: Dictionary, f: Dictionary, biz: Array) -> bool:
 	if not f.has("hl"):
 		for j in f.get("cj", {}): lowest = minf(lowest, Barge.casual_wage(e, j))
 	for b in biz:
-		if Businesses.takeable(b) > 0 and _pay_score(e, b, known) > lowest: return true
+		if Businesses.takeable(b, e) > 0 and _pay_score(e, b, known) > lowest: return true
 	if not f.has("hl"):
 		for j in TownEcon.data()["casual_jobs"]:
 			if Shelter.available_casual(e, String(j)) > 0 and Barge.casual_wage(e, String(j)) > lowest: return true

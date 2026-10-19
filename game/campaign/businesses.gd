@@ -196,11 +196,12 @@ static func free_first(e: Dictionary, pool: Array) -> Array:
 ## The open places of b a hand would sign on for: already earned wages commit their coins before hiring.
 ## Remaining cash must cover the existing two-day reserve for current and new hands. (Before: any till over two days of ONE wage was open for all its places: a farm with 795 coins
 ## and 62 places to fill took on hands it could not pay, then read "can't pay wages".)
-static func takeable(b: Dictionary) -> int:
+static func takeable(b: Dictionary, e: Dictionary = {}) -> int:
 	if b.get("closed", false) or float(b["wage"]) <= 0:
 		return 0
 	var w := maxf(0.01, float(b["wage"]))
-	var available := maxf(0.0, float(b["till"]) - maxf(0.0, float(b.get("owed", 0.0))))
+	var backing: float = float(b["till"]) + farm_kind_value(e, b)
+	var available := maxf(0.0, backing - maxf(0.0, float(b.get("owed", 0.0))))
 	var can := int(floor(available / (2.0 * w))) - int(b["workers"])
 	return maxi(0, mini(int(b["cap"]) - int(b["workers"]), can))
 
@@ -282,7 +283,7 @@ static func refresh_hiring(e: Dictionary) -> void:
 	for bid in ids:
 		var b: Dictionary = e["biz"][int(bid)]
 		open_n += int(b["cap"]) - int(b["workers"])
-		if takeable(b) > 0:
+		if takeable(b, e) > 0:
 			top = maxf(top, float(b["wage"]))
 	e["open_n"] = open_n
 	e["open_top"] = top   # the best pay an open place whose till can pay it offers (a worse-paid hand looks again)
@@ -651,46 +652,40 @@ static func hand_value(e: Dictionary, b: Dictionary) -> Array:
 		best = maxf(best, v * units)
 	return [best, dear]
 
-## Daily (the barge day, after the prices): what a family business pays its hands. Barge part 3: the pay table x
-## PL^0.8 (section 2). A business whose goods are scarce (the dearest over 1.25 x base: section 5's "output is scarce")
-## and that is short of hands bids for them: its pay rises 10% a day (the cottage trades' pace, section 5) until it
-## hires, never over 0.95 x what a hand makes there (hand_value: the cottage trades' members share 95% of the net).
-## With its places filled it holds that pay while its goods stay scarce (never over what a hand makes); when they are
-## scarce no more its pay moves back toward the table 10% a day. (v0.011: pay stood at the table while wood sold at
-## 7 x base and copper bars at 3-5 x, so nobody left the land or the fields for a woodcutter or a smelter.) Field
-## hands, builders and public works follow the day wage (labour_day); town rows (the mint, collectors) keep the table.
+## Read daily, but each employer changes its offer only once per seven days.
+## Vacancies bid pay up; full ordinary jobs without departures test lower pay.
+## Cash limits takeable(), not the wage band. Unworked fields earn no crop.
 static func bid_day(e: Dictionary) -> void:
-	if not e.has("prod"):
-		return
-	var BT: Dictionary = TownEcon.data()["businesses"]
-	var BB: Dictionary = Barge.B()["business"]
-	var scarce := float(BB.get("scarce", 1.25)); var share := float(BB.get("bid_share", 0.95)); var step := float(BB.get("bid_step", 0.1))
-	var m := Barge.wage_mult(e)
-	var biz: Array = e["biz"]
-	for bid in e["prod"]:
-		var b: Dictionary = biz[int(bid)]
-		if b["closed"]:
-			continue
-		var T: Dictionary = BT[b["type"]]
-		if T.get("day", false) or T.get("field", false):
-			continue
-		var base := float(T["wage"]) * m
-		var w := maxf(base, float(b["wage"]))
-		var hv := hand_value(e, b)
-		if float(hv[1]) > scarce:
-			var most := maxf(base, share * float(hv[0]))
-			if int(b["workers"]) < int(b["cap"]):
-				# v0.014: it bids up only with the cash to pay the new pay (barge part 3 section 5: "its output is scarce
-				# and it has cash"): a till that cannot pay two days of it holds its pay. (Before: shops with empty tills
-				# bid to 5-25 x the table - a chandler offering 2,271 a day - that nobody would sign on for.)
-				var up_w := minf(w * (1.0 + step), most)
-				if float(b["till"]) >= up_w * 2.0:
-					w = up_w
-			else:
-				w = minf(w, most)
-		else:
-			w += (base - w) * step
-		b["wage"] = EconomyRules.wage_limit(e, b, maxf(base, w))
+	var day: int = int(e.get("day", 0))
+	for b in e["biz"]:
+		if b.get("closed", false): continue
+		b["wage"] = EconomyRules.wage_limit(e, b, float(b["wage"]))
+		if day - int(b.get("wage_review_day", day - 7)) < 7: continue
+		b["wage_review_day"] = day
+		var cap: int = int(b["cap"])
+		var workers: int = int(b["workers"])
+		var wage: float = float(b["wage"])
+		if workers < cap:
+			var gap: float = float(cap - workers) / float(maxi(1, cap))
+			wage *= 1.08 + 0.08 * gap
+			if String(b["type"]) in ["farm", "estate"]:
+				var fid: int = int(b.get("public_property", maxi(0, int(b["owner"]))))
+				var value: float = EconomyRules.farm_hand_value(e, e["fams"][fid])
+				b["revenue_hand"] = value
+				# Dear crops can win hands back immediately within the adult band.
+				# Low crop value must never force adult pay below that band.
+				wage = maxf(wage, value * 0.9)
+		elif not EconomyRules.skilled_work(b) and cap > 0:
+			if workers > cap:
+				wage *= 0.94
+			elif day - int(b.get("staff_left_day", day - 7)) >= 7:
+				wage *= 0.97
+		b["wage"] = EconomyRules.wage_limit(e, b, wage)
+		if String(b["type"]) == "farm" and int(b["owner"]) >= 0:
+			var owner: Dictionary = e["fams"][int(b["owner"])]
+			var funded: float = fund_farm(owner, b, e)
+			owner["farm_funding_pending"] = float(owner.get("farm_funding_pending", 0.0)) + funded
+	refresh_hiring(e)
 
 ## Barge part 3 section 5 (the cottage trades): a trade whose goods are scarce (over 1.25 x base) and where one more
 ## hand would earn at least the pay table gains a place (weekly here, the owner's turn). (v0.011: a full business grew
@@ -1286,11 +1281,8 @@ static func town_inherits(b: Dictionary) -> void:
 		b["cap"] = 0
 		b["closed"] = true
 
-## Economy pass: what an owner may put into his businesses. A household moves at most OWNER_FUND_SHARE of its purse
-## (as it stood at its last weekly turn, above a 5-coin floor) into all its businesses together in a week, farm
-## included, and only toward a real working-capital gap. (Before: half the purse at every owner turn and all but
-## 5 coins into a farm; a ruling house poured 1.25 M into its rows in 87 days and its purse fell from 88 k to 7 k.)
-## A row that cannot be kept funded pays short, and its hands leave by the ordinary unpaid rules.
+## Harvest receipts fill the farm's earned-wage and eight-day hiring reserve
+## before the owner draws surplus. Discretionary trade funding has its own cap.
 const OWNER_FUND_SHARE := 0.1
 ## The keeper's draw: this share of the real profit the books saw since his last turn (sales - inputs - upkeep -
 ## wages earned), never a share of the till. The rest stays as working capital (it funds hiring: owner_turn).
@@ -1307,9 +1299,38 @@ static func owner_fund_room(f: Dictionary) -> float:
 static func _fund_used(f: Dictionary, amount: float) -> void:
 	f["fund_left"] = maxf(0.0, float(f.get("fund_left", 0.0)) - amount)
 
+## The native farm belongs to this holding; never revive a retired farm row.
+static func farm_of(e: Dictionary, f: Dictionary) -> Dictionary:
+	var bid: int = int(f.get("farm", -1))
+	if bid < 0 or bid >= e.get("biz", []).size(): return {}
+	var b: Dictionary = e["biz"][bid]
+	if b.get("closed", false) or b["type"] != "farm" or int(b["owner"]) != int(f["id"]): return {}
+	return b
+
+## Returns the part of a receipt retained as payroll, not a new coin source.
+static func receive_farm(e: Dictionary, f: Dictionary, amount: float) -> float:
+	var b: Dictionary = farm_of(e, f)
+	if b.is_empty() or amount <= 0.0: return 0.0
+	var need: float = maxf(0.0, float(b.get("owed", 0.0))) + float(maxi(int(b["workers"]), int(b["cap"]))) * float(b["wage"]) * 8.0
+	var retained: float = minf(amount, maxf(0.0, need - float(b["till"])))
+	b["till"] = float(b["till"]) + retained
+	return retained
+
+## Only existing surplus grain backs kind wages. The owner's food reserve
+## and other producers' grain cannot finance these places.
+static func farm_kind_value(e: Dictionary, b: Dictionary) -> float:
+	if e.is_empty() or b.get("type", "") != "farm" or b.get("closed", false): return 0.0
+	var fid: int = int(b.get("owner", -1))
+	if fid < 0 or fid >= e.get("fams", []).size(): return 0.0
+	var f: Dictionary = e["fams"][fid]
+	if f.get("gone", false) or int(f.get("farm", -1)) != int(b["id"]): return 0.0
+	var key: String = "f:%d" % fid
+	var grain: float = maxf(0.0, HarvestClaims.owned(e, key, "grain") - HarvestClaims.owned(e, key, "grain", true))
+	return grain * maxf(0.0, float(e.get("price", {}).get("grain", 0.0)))
+
 ## Move the existing owner's coins into the existing farm reserve. Funding is
 ## separate from the weekly books and cannot pay or erase earned wage claims.
-static func fund_farm(f: Dictionary, b: Dictionary) -> float:
+static func fund_farm(f: Dictionary, b: Dictionary, e: Dictionary = {}) -> float:
 	if b.get("closed", false) or String(b.get("type", "")) != "farm":
 		return 0.0
 	var owed := maxf(0.0, float(b.get("owed", 0.0)))
@@ -1317,12 +1338,18 @@ static func fund_farm(f: Dictionary, b: Dictionary) -> float:
 	var gap := maxf(0.0, need - float(b["till"]))
 	if gap <= 0.0:
 		return 0.0
-	var inj := minf(gap, owner_fund_room(f))
+	var keep: float = 5.0 * TownEcon.COIN
+	if not e.is_empty():
+		var rate: float = float(Families.daily_rates(e, f)["food"])
+		var meals: float = maxf(0.0, 14.0 - float(f["store"]["food"])) * rate
+		keep = maxf(keep, EconomyRules.essential_food_cost(e, meals))
+	# Earned wages take priority even over the owner's discretionary reserve.
+	var priority: float = minf(maxf(0.0, owed - float(b["till"])), maxf(0.0, float(f["purse"])))
+	var inj: float = minf(gap, maxf(priority, maxf(0.0, float(f["purse"]) - keep)))
 	if inj > 0.0:
 		b["till"] = float(b["till"]) + inj
 		f["purse"] = float(f["purse"]) - inj
 		b["t_paid"] = float(b.get("t_paid", 0.0)) - inj
-		_fund_used(f, inj)
 	return inj
 
 ## The owner's weekly look at a business: take profit above a reserve, put money in when the till runs dry,
@@ -1338,7 +1365,9 @@ static func owner_turn(e: Dictionary, f: Dictionary, b: Dictionary, days: float 
 	# operating reserve. They cannot also fund future jobs or an owner's take.
 	var owed := maxf(0.0, float(b.get("owed", 0.0)))
 	if b["type"] == "farm":
-		fund_farm(f, b)
+		fund_farm(f, b, e)
+		Loans.sell_for_payroll(e, f, b)
+		fund_farm(f, b, e)
 		_farm_books(f, b, days)
 		return
 	var BB: Dictionary = Barge.B()["business"]
@@ -1382,6 +1411,8 @@ static func owner_turn(e: Dictionary, f: Dictionary, b: Dictionary, days: float 
 			e["treasury"] = float(e["treasury"]) + take
 		else:
 			f["purse"] = float(f["purse"]) + take
+			var farm: Dictionary = farm_of(e, f)
+			if not farm.is_empty(): fund_farm(f, farm, e)
 		b["t_paid"] = float(b.get("t_paid", 0.0)) + take
 	elif float(b["till"]) < funded_need and float(f["purse"]) > 20.0 * TownEcon.COIN:
 		# Only the working-capital gap, and only within the household's weekly funding room (owner_fund_room).
@@ -1410,8 +1441,8 @@ static func owner_turn(e: Dictionary, f: Dictionary, b: Dictionary, days: float 
 		b["cap"] = int(b["cap"]) - 1
 
 ## v0.014: a farm's books (barge part 3 section 6, the same rule as the trades'), weekly at the owner's turn: a farm
-## row is the family's land with its hired hands, and what the land and herds earn goes to the family's purse (f.lpay,
-## a week's worth: Families.turn), not to the farm's till. Profit a day = the land's earnings a day - the hired hands'
+## row is the family's land with its hired hands. f.lpay includes gross harvest receipts,
+## including the part retained directly for payroll. Profit a day = earnings - the hired hands'
 ## wages; staff = the family's own hands + the hired. The 14-day average and the loss days move a week at a time.
 ## [ours] the weekly step (the farm has no daily pass).
 static func _farm_books(f: Dictionary, b: Dictionary, days: float = 7.0) -> void:

@@ -226,12 +226,32 @@ static func take(e: Dictionary, good: String, n: int, respect_reserves: bool = t
 static func lose(e: Dictionary, good: String, n: int) -> int:
 	return int(take(e, good, n, false)["n"])
 
+## Keep food until the next harvest window, not a rolling extra year. Summer
+## and autumn form one continuous window; while it is in progress, protect the
+## coming winter/spring too. Former landowners keep their existing food rights.
+static func food_reserve_days(e: Dictionary, f: Dictionary) -> float:
+	var seasons: Array = [false, false, false, false]
+	var cuts: Dictionary = TownEcon.data()["land"]["harvest_seasons"]
+	for good in FOOD:
+		if float(f.get("land", {}).get(good, 0.0)) <= 0.0: continue
+		if CropRotation.family_yield(e, f, String(good)) <= 0.0: continue
+		for cut in cuts.get(good, []):
+			if float(cut[1]) > 0.0: seasons[int(cut[0])] = true
+	var day: float = float(e.get("day", 0))
+	var si: int = Calendar.season_index(day)
+	var remaining: int = Calendar.DAYS_PER_SEASON - Calendar.day_of_season(day) + 1
+	for offset in range(1, 5):
+		var next: int = (si + offset) % 4
+		if seasons[next] and not seasons[(next + 3) % 4]:
+			return maxf(7.0, float(remaining + (offset - 1) * Calendar.DAYS_PER_SEASON))
+	return float(EconGen.YEAR_DAYS)
+
 static func reserve_food(e: Dictionary, f: Dictionary) -> void:
 	ensure(e)
 	if not e.has("harvest_book"): return
 	var key := "f:%d" % int(f["id"])
 	var rate := float(Barge.eaters(e, f, float(e.get("day", 0)))[0]) * float(TownEcon.data()["needs"]["food"])
-	var budget := maxf(0.0, (float(EconGen.YEAR_DAYS) - maxf(0.0, float(f["store"]["food"]))) * rate)
+	var budget: float = maxf(0.0, (food_reserve_days(e, f) - maxf(0.0, float(f["store"]["food"]))) * rate)
 	if f.get("gone", false) or f.get("estate", false): budget = 0.0
 	for good in FOOD:
 		var target := minf(budget, owned(e, key, good))
@@ -278,6 +298,16 @@ static func credit(e: Dictionary, shares: Dictionary, value: float) -> void:
 	var payments := _scaled(shares, value)
 	for key in payments:
 		var money := float(payments[key])
+		var fid: int = _family_id(String(key))
+		if fid >= 0 and fid < e.get("fams", []).size():
+			var f: Dictionary = e["fams"][fid]
+			if not f.get("gone", false) and not Businesses.farm_of(e, f).is_empty():
+				# Daily sale cash reaches payroll before the owner's weekly turn.
+				e["farm_till"] = float(e["farm_till"]) - money
+				var surplus: float = Families.receive_harvest(e, f, money)
+				f["harvest_receipts"] = float(f.get("harvest_receipts", 0.0)) + surplus
+				f["harvest_gross"] = float(f.get("harvest_gross", 0.0)) + money
+				continue
 		if key == UNKNOWN: b["unattributed_cash"] = float(b["unattributed_cash"]) + money
 		else: b["cash"][key] = float(b["cash"].get(key, 0.0)) + money
 	pay_departed(e)

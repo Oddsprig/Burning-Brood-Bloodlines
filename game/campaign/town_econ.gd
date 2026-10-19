@@ -508,9 +508,9 @@ static func barge_day(game, town: Dictionary, day: int) -> void:
 	if prof_on: t0 = _prof("prices", t0)
 	Businesses.books_day(e)
 	Businesses.prep_day(e)   # tomorrow's margins and makers' aims from today's prices
-	Businesses.bid_day(e)   # family trades' pay: the table, or a bid for hands when their goods are scarce
 	if prof_on: t0 = _prof("books", t0)
 	Barge.labour_day(e, Calendar.season_index(float(day)))
+	Businesses.bid_day(e)   # retain each offer; review weekly against its own staffing
 	Barge.coin_town(game, town, e)
 	if prof_on: t0 = _prof("labour+coin", t0)
 
@@ -564,6 +564,10 @@ static func _farms(e: Dictionary, D: Dictionary, si: int, clim: Dictionary) -> v
 		# when the last real hand stops. Flooring that residue makes -1 and a
 		# fictitious near-whole carry. Physical production cannot be negative.
 		var produced := maxf(0.0, float(e["wacres"][crop])) * y * toolf / float(Calendar.DAYS_PER_SEASON)
+		# Cumulative harvest-weighted acres: annual harvest / year-end acres is
+		# not a yield when staffing changes between the cuts and winter.
+		if not e["stats"].has("harvest_area"): e["stats"]["harvest_area"] = {}
+		e["stats"]["harvest_area"][crop] = float(e["stats"]["harvest_area"].get(crop, 0.0)) + maxf(0.0, float(e["wacres"][crop])) * cut / float(Calendar.DAYS_PER_SEASON)
 		var amt := produced + previous
 		var n := int(floor(amt))
 		carry[k] = amt - n
@@ -1037,7 +1041,7 @@ static func town_turn(game, town: Dictionary, day: int) -> void:
 			b["cap"] = maxi(1, int(ceil(float(live) / float(T["collector_per"]))))
 			tx["leak"] = float(T["leak_max"]) * (1.0 - minf(1.0, float(b["workers"]) / float(b["cap"])))
 	# (barge part 4 section 1: the month's taxes run as their own job on the town's tax day: "tmonth")
-	Barge.pay_week(e)   # the pay table moves with PL^0.8
+	Barge.pay_week(e)   # guarded employer reviews; never reset offers to a pay table
 	# the market's sales tax (barge: 3% of shop takings)
 	var mtax := minf(float(e["stats"]["sales"]) * float(D["market"]["tax"]), maxf(0.0, float(mkt["till"])))
 	mkt["till"] = float(mkt["till"]) - mtax
@@ -1049,10 +1053,9 @@ static func town_turn(game, town: Dictionary, day: int) -> void:
 	var est: Dictionary = fams[0]
 	Families.settle(e, est)
 	var eb: Dictionary = biz[int(e["estate_biz"])]
-	var need := Families.need_hands(est, e)
 	var seasonal_need := Families.seasonal_need_hands(est, float(day), e)
 	eb["cap"] = maxi(0, int(ceil(seasonal_need - 0.2)))
-	Families.set_worked(e, est, minf(1.0, float(eb["workers"]) / need) if need > 0.0 else 0.0)
+	Families.refresh_worked(e, est)
 	# land and businesses for sale (the land loop: only if no family buys does the town work it)
 	_sell_land(e, D, float(day))
 	_sell_businesses(e, float(day))
@@ -1070,10 +1073,12 @@ static func town_turn(game, town: Dictionary, day: int) -> void:
 		# the posts are day work in the labour market (Barge.labour_day), so the day wage feels them
 		var great := int(maxf(0.0, float(e["treasury"]) - float(lines["full"])) * 0.5 / maxf(1.0, float(wb2["wage"]) * 14.0))
 		wb2["cap"] = maxi(mini(idle + int(wb2["workers"]) + great, afford), 0)
-	# the mint keeps its minters while there are bars to cast (and the treasury is not full) [ours]
+	# Keep the small funded mint crew available. A full municipal chest does
+	# not mean the world has enough coin; absent bars must still generate
+	# input demand in mint_day rather than dismissing the entire crew.
 	if e.has("mint_biz"):
 		var mbz: Dictionary = biz[int(e["mint_biz"])]
-		mbz["cap"] = int(Barge.B()["coin"]["minters"]) if Barge.mint_bars(e) and float(e["treasury"]) < minf(float(Barge.treasury_lines(e)["full"]), float(e["stats"].get("treasury_target", Barge.treasury_lines(e)["full"]))) else 0
+		mbz["cap"] = int(Barge.B()["coin"]["minters"])
 	fund_public_services(e)
 	# These capacity and real treasury transfers run after today's family
 	# batches. Let idle civilians see their funded offers before the recount.

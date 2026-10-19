@@ -144,7 +144,7 @@ static func hardship(scr, t: Dictionary, e: Dictionary, v: VBoxContainer) -> voi
 		if not bool(b.get("closed", false)):
 			var n := maxi(0, int(b.get("cap", 0)) - int(b.get("workers", 0)))
 			openings += n
-			unfunded += n - Businesses.takeable(b)
+			unfunded += n - Businesses.takeable(b, e)
 	var wage: Variant = RecData.day_wage(e)
 	RecKit.grid(v, ["Work and relief", "Current value"], [
 		{"values": ["Paid places open", str(openings)]},

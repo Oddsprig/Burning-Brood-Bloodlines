@@ -69,7 +69,7 @@ static func town_report(game, town: Dictionary) -> Dictionary:
 			continue
 		var typ := String(b["type"])
 		trades[typ] = true
-		business_rows.append({"business": b["id"], "type": typ, "owner": b["owner"], "workers": b["workers"], "keeper": b.get("kw", 0), "cap": b["cap"], "funded_openings": Businesses.takeable(b), "wage": b["wage"], "till": b["till"], "owed": b.get("owed", 0), "state": b.get("state", ""), "blocked_good": b.get("fg", ""), "receipts_per_hand": b.get("net_receipts", []).duplicate(), "revenue_hand": b.get("revenue_hand", 0)})
+		business_rows.append({"business": b["id"], "type": typ, "owner": b["owner"], "workers": b["workers"], "keeper": b.get("kw", 0), "cap": b["cap"], "funded_openings": Businesses.takeable(b, e), "wage": b["wage"], "till": b["till"], "owed": b.get("owed", 0), "state": b.get("state", ""), "blocked_good": b.get("fg", ""), "receipts_per_hand": b.get("net_receipts", []).duplicate(), "revenue_hand": b.get("revenue_hand", 0)})
 		var wage_claims: Dictionary = b.get("wage_claims", {})
 		var claimed := 0.0
 		for fid in wage_claims: claimed += float(wage_claims[fid])

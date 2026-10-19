@@ -97,10 +97,24 @@ static func pay_business(e: Dictionary, f: Dictionary, b: Dictionary) -> Array:
 	target[0][target[1]] = float(target[0].get(target[1], 0.0)) + paid
 	if String(target[1]) == "purse":
 		target[0]["wage_receipts"] = float(target[0].get("wage_receipts", 0.0)) + paid
-	if paid >= due: b["wage_claims"].erase(key)
-	else: b["wage_claims"][key] = due - paid
+	# Kind pay transfers real dated grain rights; no coin or food is created.
+	var kind: float = 0.0
+	if paid < due and b.get("type", "") == "farm" and not b.get("closed", false) and not f.get("gone", false) and int(b.get("owner", -1)) >= 0 and int(b["owner"]) < e.get("fams", []).size():
+		var price: float = maxf(0.0, float(e.get("price", {}).get("grain", 0.0)))
+		if price > 0.0:
+			HarvestClaims.reserve_food(e, e["fams"][int(b["owner"])])
+			var value: float = minf(due - paid, Businesses.farm_kind_value(e, b))
+			if value > 0.0:
+				kind = HarvestClaims.transfer_units(e, "grain", "f:%d" % int(b["owner"]), {"f:%d" % int(f["id"]): 1.0}, value / price) * price
+				HarvestClaims.reserve_food(e, e["fams"][int(b["owner"])])
+				HarvestClaims.reserve_food(e, f)
+				var rate: float = float(Families.daily_rates(e, f)["food"])
+				HarvestClaims.keep_food(e, f, int(ceil(maxf(0.0, 14.0 - float(f["store"]["food"])) * rate)), rate)
+				b["kind_paid"] = float(b.get("kind_paid", 0.0)) + kind
+	if paid + kind >= due: b["wage_claims"].erase(key)
+	else: b["wage_claims"][key] = due - paid - kind
 	_refresh(b)
-	return [paid, due]
+	return [paid + kind, due]
 
 static func pay_family(e: Dictionary, f: Dictionary) -> Array:
 	var paid := 0.0; var short := false; var short_b := {}

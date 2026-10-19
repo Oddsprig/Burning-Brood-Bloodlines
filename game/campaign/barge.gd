@@ -162,7 +162,7 @@ static func add_demand(e: Dictionary, g: String, bought: float, unmet: float, un
 ## or brought in); normal stock = DemandEma x TargetDays; scarcity (clamped 0.2-40): keeping goods (TargetDays / days
 ## of stock)^elasticity, fresh food (demand / (SupplyEma + 0.35 stock))^(1.4 elasticity); target = base x PL x scarcity;
 ## staples together: sqrt(own target x base x PL x (40 / staple days)^0.8); made goods >= 1.05 x their input cost; the
-## price steps 40%/day (fresh) or 22%/day toward the target, +-0.6% noise, clamped to floor and ceiling x PL.
+## Prices step toward the target with noise. Food keeps its floor and scarcity response, without a price ceiling.
 static func update_prices(town: Dictionary, rng: RandomNumberGenerator, every: bool = false) -> void:
 	_init_prices()
 	var e: Dictionary = town["econ"]
@@ -243,7 +243,10 @@ static func update_prices(town: Dictionary, rng: RandomNumberGenerator, every: b
 			stp = 1.0 - (1.0 - stp) * (1.0 - stp)
 		var p1 := p0 + (tgt - p0) * stp
 		p1 *= 1.0 + noise * (rng.randf() * 2.0 - 1.0)
-		price[g] = clampf(p1, _pfloor[i] * base * P, _pceil[i] * base * P)
+		if g in ["grain", "fruit", "meat", "fresh_meat"]:
+			price[g] = maxf(p1, _pfloor[i] * base * P)
+		else:
+			price[g] = clampf(p1, _pfloor[i] * base * P, _pceil[i] * base * P)
 
 ## Staple index of the town: the staple's price over base x PL.
 static func staple_index(e: Dictionary) -> float:
@@ -448,15 +451,13 @@ static func helper_hands(e: Dictionary, f: Dictionary, day: float) -> float:
 ## Daily: labour demand (field hands first: farm rows and the town fields, x2 hands in harvest weeks; builders by
 ## season; porters; public works; trades short of staff) x (1 - 0.3 x coin shortage) over the labourers (adults
 ## doing day labour: idle, casual, field hands, works, builders); day wage = clamp(100 (demand / labourers)^0.3, 55,
-## 140) x PL^0.8. Field hands are paid 1.15 x the day wage, builders and public works the day wage.
+## 140) x PL^0.8. This anchors the bands; employers retain and adjust their own offers weekly.
 static func labour_day(e: Dictionary, si: int) -> void:
 	var L: Dictionary = B()["labour"]
 	if not e.has("idle_n"):
 		recount_week(e)
 	var dem := 0.0; var sup := 0.0
 	var bs := float(L["builder_season"][si])
-	var fw := float(L["field"])
-	var field := []; var dayw := []
 	for b in e["biz"]:
 		var lk: int = b.get("lk", -1)
 		if lk < 0:
@@ -470,11 +471,9 @@ static func labour_day(e: Dictionary, si: int) -> void:
 				# ordinary turns. Count real places once, including filled ones.
 				dem += cap
 				sup += w
-				field.append(b)
 			2:
 				dem += cap * (bs if b["type"] == "builder" else 1.0)
 				sup += w
-				dayw.append(b)
 			0:
 				dem += maxf(0.0, cap - w)
 	var cjc: Dictionary = e.get("cjcap", {})
@@ -489,10 +488,6 @@ static func labour_day(e: Dictionary, si: int) -> void:
 	e["dwage"] = snappedf(wage, 0.01)
 	e["ldem"] = snappedf(dem, 0.1)
 	e["lsup"] = snappedf(sup, 0.1)
-	for b in field:
-		b["wage"] = EconomyRules.wage_limit(e, b, wage * fw)
-	for b in dayw:
-		b["wage"] = wage
 
 ## A business row's place in the labour market (cached on the row as b.lk): 1 field hands (farms, the town's fields),
 ## 2 day work (builders, public works), 0 trades short of staff count as demand, 3 neither (the market, collectors, mint).
@@ -524,24 +519,19 @@ static func recount_week(e: Dictionary) -> void:
 static func day_wage(e: Dictionary) -> float:
 	return float(e.get("dwage", float(B()["labour"]["base"])))
 
-## Weekly: the pay table moves with PL^0.8 (trades, posts, the market, mines; field and day work follow the day wage).
+## Weekly callers share the daily observer's per-employer seven-day guard.
 static func pay_week(e: Dictionary) -> void:
-	var BT: Dictionary = TownEcon.data()["businesses"]
-	var m := wage_mult(e)
-	for b in e["biz"]:
-		var T: Dictionary = BT[b["type"]]
-		if T.get("field", false) or T.get("day", false):
-			continue
-		if int(b["owner"]) >= 0 and b["type"] != "market" and String(b.get("public_funding", "")) == "":
-			continue   # family trades: Businesses.bid_day (daily: the table x PL^0.8, or a bid when their goods are scarce)
-		b["wage"] = EconomyRules.wage_limit(e, b, float(T["wage"]) * m)
+	Businesses.bid_day(e)
 
-## A casual job's wage today: day labour pays the day wage; the others their table pay x PL^0.8.
+## Casual adult work follows local labour conditions. Even the cheapest adult
+## shift pays 0.75 of the day wage: children's existing 0.2 shifts earn 0.15+.
 static func casual_wage(e: Dictionary, j: String) -> float:
 	var cj: Dictionary = TownEcon.data()["casual_jobs"][j]
+	var day: float = day_wage(e)
 	if cj.has("day"):
-		return float(e.get("dwage", 100.0))
-	return float(cj["wage"]) * wage_mult(e)
+		return day
+	var ratio: float = float(cj["wage"]) / float(B()["labour"]["base"])
+	return clampf(day * ratio, day * 0.75, day * 1.8)
 
 # =====================================================================================================
 # famine stages (part 4 section 5) and hunger per family (part 2 section 6)
@@ -877,6 +867,7 @@ static func init_world(game) -> void:
 	var w: Dictionary = game.world
 	var L := ledger(w)
 	L["cast"] = holdings(game)
+	L["target"] = float(L["cast"])
 	L["melted"] = 0.0
 	L["drained"] = 0.0
 	for fid in w.get("factions", {}):
@@ -1048,36 +1039,53 @@ static func metal_per_k(e: Dictionary) -> float:
 		v += float(R[g]) * float(e["price"].get(g, 1.0))
 	return v * (1.0 - float(e.get("debase", 0.0)))
 
-## The mint (a town-owned row with real minters): casts up to 12 x 1,000 coins a day (20 x 1,000 when the treasury is
-## short) x staff share, limited by the bars and charcoal in the market (the treasury buys them at the price, paid out
-## of the coin it casts); the treasury keeps face minus metal. A mint with no bars casts nothing; minting stops when the
-## metal costs more than the coin it makes; a full treasury casts nothing (the head's rule: steady).
+## Replace losses against a fixed opening money supply, not a municipal cash
+## target. Market takes and house funding can fill a treasury while money
+## elsewhere is draining. All mints share this room, so they cannot each
+## replace the same loss. Only mint_day creates actual coin.
+static func mint_room(w: Dictionary) -> float:
+	var L: Dictionary = ledger(w)
+	if not L.has("target"):
+		# Current checkpoints predate target; their cumulative mint receipts
+		# distinguish opening coin from coin cast during play.
+		var opening: float = float(L["cast"])
+		for town: Dictionary in w.get("towns", {}).values():
+			opening -= float(town.get("econ", {}).get("stats", {}).get("cast", 0.0))
+		L["target"] = maxf(0.0, opening)
+	return maxf(0.0, float(L["target"]) - (float(L["cast"]) - float(L["melted"]) - float(L["drained"])))
+
+## The mint uses real staff, bars and charcoal and pays their real market.
+## Casting replaces drained/melted coin, within daily capacity and metal cost.
 static func mint_day(game, t: Dictionary, e: Dictionary) -> void:
 	if not e.has("mint_biz"):
 		return
 	var b: Dictionary = e["biz"][int(e["mint_biz"])]
 	var C: Dictionary = B()["coin"]
-	var staff := float(b["workers"]) / maxf(1.0, float(C["minters"]))
-	if staff <= 0.0 or b.get("closed", false):
+	# The real operator is a working keeper, as in every other production row.
+	# Paid staff may leave for the fields; that does not remove this keeper.
+	var staff: float = float(maxi(0, int(b["workers"]) - int(b.get("sick", 0))) + int(b.get("kw", 0))) / maxf(1.0, float(C["minters"]))
+	if b.get("closed", false):
 		b["state"] = "hands"
 		return
 	var lines := treasury_lines(e)
 	var tr := float(e["treasury"])
-	# A lower public-spending target must not restart minting merely because
-	# its surplus was just paid out as an allowance.
-	var ceiling: float = minf(float(lines["full"]), float(e.get("stats", {}).get("treasury_target", lines["full"])))
-	if tr >= ceiling:
+	var room: float = mint_room(game.world)
+	if room < 100.0:
 		b["state"] = "idle"
 		return
-	var day_k := (float(C["mint_day_short"]) if tr < float(lines["short"]) else float(C["mint_day"])) / 1000.0 * staff
-	day_k = minf(day_k, maxf(0.0, ceiling - tr) / 1000.0)
+	# Keep input orders alive while the crew is vacant. Previously no hands
+	# meant no bar demand; no bars then also prevented the self-paying mint's
+	# staffing reserve. Planning capacity never substitutes for actual labour.
+	var base_k: float = (float(C["mint_day_short"]) if tr < float(lines["short"]) else float(C["mint_day"])) / 1000.0
+	var planned_staff: float = maxf(staff, float(b["cap"]) / maxf(1.0, float(C["minters"])))
+	var day_k: float = minf(base_k * planned_staff, room / 1000.0)
 	if day_k < 0.1:
 		b["state"] = "idle"
 		return
 	var st: Dictionary = e["stock"]
 	var mkt: Dictionary = e["biz"][int(e["mkt"])]
 	var L := ledger(game.world)
-	var left := day_k
+	var left: float = minf(day_k, base_k * staff)
 	var cast := 0.0
 	var dear := false
 	var recs := _mint_recipes(e)
@@ -1116,14 +1124,14 @@ static func mint_day(game, t: Dictionary, e: Dictionary) -> void:
 	var R0: Dictionary = recs[0]
 	for g in R0:
 		var tk := float(took.get(g, 0))
-		var short := maxf(0.0, day_k * float(R0[g]) - tk) if left >= 0.1 else 0.0
+		var short: float = maxf(0.0, day_k * float(R0[g]) - tk) if day_k - cast / 1000.0 >= 0.1 else 0.0
 		add_demand(e, g, tk, 0.0 if dear else short, short if dear else 0.0)
 	for g in took:
 		if not R0.has(g):
 			add_demand(e, g, float(took[g]), 0.0, 0.0)
 	if cast <= 0.0:
-		b["state"] = "inputs"
-		b["why"] = "bars dearer than coin" if dear else "bars"
+		b["state"] = "hands" if staff <= 0.0 else "inputs"
+		b["why"] = "minters" if staff <= 0.0 else ("bars dearer than coin" if dear else "bars")
 		return
 	e["stats"]["cast"] = float(e["stats"].get("cast", 0.0)) + cast
 	b["state"] = "busy"

@@ -40,9 +40,16 @@ func staffing_changes(e: Dictionary) -> void:
 	check(absf(float(e["wacres"]["grain"]) - acres / float(capacity + 1)) < 0.000001, "departure removes exactly its worked acreage")
 	check(float(owner["purse"]) == purse and owner["cum"] == cum and float(e["farm_till"]) == 1234.0, "staff changes do not pay or rewrite past harvest claims")
 	check(float(farm["till"]) == 5000.0 and float(farm["owed"]) == 200.0, "staff changes preserve the existing wage books")
-	owner["hungry"] = 2
+	# Departure above cleared the crew. The hunger shares assume that crew is back:
+	# hired hands at full output, and the owner's own hand scaled by hunger alone.
 	Families.set_job(e, worker, 0, capacity)
-	check(absf(float(owner["worked"]) - Barge.output_mult(2)) < 0.000001, "hired hands still follow the existing hunger output rule")
+	owner["hungry"] = 2
+	Families.refresh_worked(e, owner)
+	check(absf(float(owner["worked"]) - (float(capacity) + Barge.output_mult(2)) / float(capacity + 1)) < 0.000001, "owner hunger affects only the owner's own work")
+	worker["hungry"] = 5
+	Families.refresh_employers(e, worker)
+	check(absf(float(owner["worked"]) - (float(capacity) * Barge.output_mult(5) + Barge.output_mult(2)) / float(capacity + 1)) < 0.000001, "hired household hunger changes its actual field contribution")
+	worker["hungry"] = 0
 	# The same staffing rule applies to fields inherited by the town estate.
 	Families.set_job(e, worker, 0, 0)
 	var estate: Dictionary = e["fams"][0]

@@ -33,6 +33,7 @@ var _year_i: int = 1
 var _year_end: int = 0
 var _completed_year: int = 0
 var _flows: Dictionary = {}
+var _metrics_base: Dictionary = {}
 var _court = null
 var _court_checked: bool = false
 var _prof: Dictionary = {}
@@ -312,6 +313,121 @@ func _coarse(prev: int, end: int) -> void:
 	Game.world["last_day"] = end
 
 
+## Read only: scan existing counters/accounts at year boundaries, never replay days or walk plots.
+## Keep the baseline in checkpoints so partial runs do not lose births, output or coin flows.
+func _metrics_snapshot() -> Dictionary:
+	var w: Dictionary = Game.world
+	var ledger: Dictionary = w.get("coin", {})
+	var out: Dictionary = {
+		"day": int(floor(Game.day)), "population": 0, "population_cached": 0, "births": 0, "deaths": 0,
+		"businesses_open": 0, "businesses_total": 0, "businesses_staffed": 0,
+		"land_acres": 0, "worked_acres": 0.0, "ruler_acres": 0, "harvest": {}, "harvest_area": {},
+		"houses": 0.0, "cohorts": 0.0, "treasuries": 0.0, "tills": 0.0, "farm": 0.0,
+		"other": float(Game.gold), "holdings": Barge.holdings(Game),
+		"cast": float(ledger.get("cast", 0.0)), "melted": float(ledger.get("melted", 0.0)),
+		"drained": float(ledger.get("drained", 0.0)),
+		"ledger_ok": ledger.has("cast") and ledger.has("melted") and ledger.has("drained"),
+		"grain_prices": [], "bread_prices": [], "price_levels": [], "grain_demand_ema": 0.0,
+	}
+	for town: Dictionary in w.get("towns", {}).values():
+		if not TownEcon.has_econ(town):
+			continue
+		var e: Dictionary = town["econ"]
+		var census: Dictionary = e.get("census", {})
+		out["births"] += int(census.get("bt", e.get("stats", {}).get("births", 0)))
+		out["deaths"] += int(census.get("dt", e.get("stats", {}).get("deaths", 0)))
+		out["population_cached"] += int(e.get("pop", 0))
+		out["treasuries"] += float(e.get("treasury", 0.0))
+		out["farm"] += float(e.get("farm_till", 0.0))
+		for f: Dictionary in e.get("fams", []):
+			# town_gold counts ALL purses, including gone rows; do the same for coin only.
+			var sector: String = "treasuries" if f.has("estate") else ("cohorts" if Population.is_cohort(f) else "houses")
+			out[sector] += float(f.get("purse", 0.0))
+			if not f.get("gone", false) and not f.has("estate"):
+				out["population"] += Families.people(f)
+		for b: Dictionary in e.get("biz", []):
+			out["tills"] += float(b.get("till", 0.0))
+			out["businesses_total"] += 1
+			if not b.get("closed", false):
+				out["businesses_open"] += 1
+				if int(b.get("workers", 0)) + int(b.get("kw", 0)) > 0:
+					out["businesses_staffed"] += 1
+		var made: Dictionary = e.get("led", {}).get("made", {})
+		var harvest: Dictionary = out["harvest"]
+		for crop in e.get("land", {}):
+			out["land_acres"] += int(e["land"][crop])
+			harvest[crop] = int(harvest.get(crop, 0)) + int(made.get(crop, 0))
+			out["harvest_area"][crop] = float(out["harvest_area"].get(crop, 0.0)) + float(e.get("stats", {}).get("harvest_area", {}).get(crop, 0.0))
+		for acres in e.get("wacres", {}).values():
+			out["worked_acres"] += float(acres)
+		var prices: Dictionary = e.get("price", {})
+		for good in ["grain", "bread"]:
+			if prices.has(good):
+				(out[good + "_prices"] as Array).append(float(prices[good]))
+		(out["price_levels"] as Array).append(float(e.get("pl", 1.0)))
+		out["grain_demand_ema"] += float(e.get("dem", {}).get("grain", 0.0))
+	for f: Dictionary in _rulers().values():
+		if _family_alive(f):
+			out["ruler_acres"] += Families.acres(f)
+	for fac: Dictionary in w.get("factions", {}).values():
+		out["treasuries"] += float(fac.get("treasury", 0.0))
+		out["other"] += float(fac.get("loot", 0.0))
+	for lair: Dictionary in w.get("lairs", {}).values():
+		out["other"] += float(lair.get("gold", 0.0))
+	for band: Dictionary in w.get("warbands", {}).values():
+		out["other"] += float(band.get("gold", 0.0))
+	return out
+
+
+func _metric_delta(now: Dictionary, key: String) -> float:
+	return float(now.get(key, 0.0)) - float(_metrics_base.get(key, 0.0))
+
+
+func _year_metrics() -> String:
+	var now: Dictionary = _metrics_snapshot()
+	var days: int = int(_metric_delta(now, "day"))
+	var births: int = int(_metric_delta(now, "births"))
+	var deaths: int = int(_metric_delta(now, "deaths"))
+	var population_delta: int = int(_metric_delta(now, "population"))
+	var harvest: Dictionary = {}
+	var harvest_units: int = 0
+	var yields: Dictionary = {}
+	var prior_harvest: Dictionary = _metrics_base.get("harvest", {})
+	for crop in now["harvest"]:
+		harvest[crop] = int(now["harvest"][crop]) - int(prior_harvest.get(crop, 0))
+		harvest_units += int(harvest[crop])
+		var area: float = float(now["harvest_area"].get(crop, 0.0)) - float(_metrics_base.get("harvest_area", {}).get(crop, 0.0))
+		yields[crop] = float(harvest[crop]) / area if area > 0.0 else -1.0
+	var split: float = 0.0
+	for key in ["houses", "cohorts", "treasuries", "tills", "farm", "other"]:
+		split += float(now[key])
+	var grain: Array = now["grain_prices"]
+	var bread: Array = now["bread_prices"]
+	var grain_text: String = "na" if grain.is_empty() else "%.4f" % float(_spread(grain)["med"])
+	var bread_text: String = "na" if bread.is_empty() else "%.4f" % float(_spread(bread)["med"])
+	var coin_text: String = " coin_created_ledger=na coin_destroyed_ledger=na coin_melted=na coin_drained=na coin_unexplained=na coin_ledger_gap=na"
+	if bool(now["ledger_ok"]) and bool(_metrics_base.get("ledger_ok", false)):
+		var created: float = _metric_delta(now, "cast")
+		var melted: float = _metric_delta(now, "melted")
+		var drained: float = _metric_delta(now, "drained")
+		# Positive unexplained = unledgered creation; negative = unledgered destruction.
+		# The annual residual excludes inherited ledger offsets; also expose the absolute gap.
+		coin_text = " coin_created_ledger=%.2f coin_destroyed_ledger=%.2f coin_melted=%.2f coin_drained=%.2f coin_unexplained=%.2f coin_ledger_gap=%.2f" % [
+			created, melted + drained, melted, drained,
+			_metric_delta(now, "holdings") - created + melted + drained,
+			float(now["holdings"]) - float(now["cast"]) + float(now["melted"]) + float(now["drained"])]
+	var text: String = " diag_days=%d diag_full_year=%s population=%d population_delta=%d births=%d deaths=%d population_other_delta=%d pop_count_gap=%d businesses_open=%d businesses_total=%d businesses_staffed=%d land_acres=%d worked_acres=%.2f ruler_acres=%d harvest_units=%d harvest_by_crop=%s grain_price_med=%s bread_price_med=%s bread_markets=%d price_level_med=%.4f grain_demand_ema=%.2f coin_houses=%.2f coin_cohorts=%.2f coin_treasuries=%.2f coin_tills=%.2f coin_farm=%.2f coin_other=%.2f coin_split_gap=%.4f coin_delta=%.2f" % [
+		days, str(days == YEAR_DAYS), int(now["population"]), population_delta, births, deaths,
+		population_delta - births + deaths, int(now["population_cached"]) - int(now["population"]),
+		int(now["businesses_open"]), int(now["businesses_total"]), int(now["businesses_staffed"]),
+		int(now["land_acres"]), float(now["worked_acres"]), int(now["ruler_acres"]), harvest_units, JSON.stringify(harvest),
+		grain_text, bread_text, bread.size(), float(_spread(now["price_levels"])["med"]), float(now["grain_demand_ema"]),
+		float(now["houses"]), float(now["cohorts"]), float(now["treasuries"]), float(now["tills"]), float(now["farm"]), float(now["other"]),
+		float(now["holdings"]) - split, _metric_delta(now, "holdings")]
+	_metrics_base = now
+	return text + coin_text + " harvest_yield_per_worked_acre=" + JSON.stringify(yields)
+
+
 func _print_year(year_i: int) -> void:
 	var rulers: Dictionary = _rulers()
 	var puid: String = str(Game.world.get("player_house", {}).get("household_uid", ""))
@@ -342,10 +458,10 @@ func _print_year(year_i: int) -> void:
 	var tre: Dictionary = _spread(treasuries)
 	var hoard: float = _hoard(puid)
 	var hoard_text: String = "na" if hoard < 0.0 else "%.2f" % hoard
-	print("FAST year=%d step=weekly player_purse=%.2f player_hoard=%s player_income=%.2f ai_alive=%d ai_purse_med=%.2f ai_purse_min=%.2f ai_purse_max=%.2f ai_income_med=%.2f treasury_med=%.2f holdings=%.2f houses_alive=%d" % [
+	print("FAST year=%d step=weekly player_purse=%.2f player_hoard=%s player_income=%.2f ai_alive=%d ai_purse_med=%.2f ai_purse_min=%.2f ai_purse_max=%.2f ai_income_med=%.2f treasury_med=%.2f holdings=%.2f houses_alive=%d%s" % [
 		year_i, float(player.get("purse", 0.0)), hoard_text, _income(puid), ai,
 		float(purse_s["med"]), float(purse_s["min"]), float(purse_s["max"]), float(income_s["med"]),
-		float(tre["med"]), Barge.holdings(Game), alive])
+		float(tre["med"]), Barge.holdings(Game), alive, _year_metrics()])
 	_flows = {}
 
 
@@ -371,6 +487,7 @@ func _save_checkpoint(day: int, target: int) -> void:
 		"year_end": _year_end,
 		"completed_year": _completed_year,
 		"flows": _flows,
+		"metrics_base": _metrics_base,
 	}
 	Game._save_ready = true
 	Game._save_pending = false
@@ -391,6 +508,10 @@ func _save_checkpoint(day: int, target: int) -> void:
 func _simulate(tree: SceneTree, from_year: int, to_year: int) -> void:
 	var target: int = _origin + to_year * YEAR_DAYS
 	var day: int = int(floor(Game.day))
+	if _metrics_base.is_empty():
+		# An older midyear checkpoint can only supply a partial diagnostic interval.
+		_metrics_base = _metrics_snapshot()
+	print("FAST metrics population=resident_rows prices=year_end_town_medians harvest=made_crop_units coin_sectors=houses+cohorts+treasuries+tills+farm+other; estate_purses=treasuries; other=company+faction_loot+lairs+warbands; population_other_delta=migration_or_count_drift")
 	var families: int = 0
 	for key in _ids():
 		var town: Dictionary = Game.world["towns"][key]
@@ -470,6 +591,7 @@ func run(tree: SceneTree) -> int:
 		_year_end = _origin + YEAR_DAYS
 		_completed_year = 0
 		_flows = {}
+		_metrics_base = {}
 	else:
 		var load_path: String = _find_load_path(from_year)
 		if load_path == "":
@@ -489,6 +611,7 @@ func run(tree: SceneTree) -> int:
 		_year_end = int(state.get("year_end", _origin + _year_i * YEAR_DAYS))
 		_completed_year = int(state.get("completed_year", _year_i - 1))
 		_flows = (state.get("flows", {}) as Dictionary).duplicate(true)
+		_metrics_base = (state.get("metrics_base", {}) as Dictionary).duplicate(true)
 		print("FAST loaded path=%s day=%d year=%d" % [load_path, int(floor(Game.day)), _year_i])
 	Game._save_ready = false
 	Game._save_pending = false

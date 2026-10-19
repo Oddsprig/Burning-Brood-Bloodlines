@@ -279,6 +279,14 @@ static func _coin(e: Dictionary, h: Dictionary) -> float:
 	return float(a[0][a[1]])
 
 static func _add_coin(e: Dictionary, h: Dictionary, v: float) -> void:
+	if v > 0.0 and String(h["ow"]) == "f":
+		var f: Dictionary = e["fams"][int(h["oi"])]
+		if not Businesses.farm_of(e, f).is_empty():
+			var surplus: float = v - Businesses.receive_farm(e, f, v)
+			f["purse"] = float(f["purse"]) + surplus
+			f["harvest_receipts"] = float(f.get("harvest_receipts", 0.0)) + surplus
+			f["harvest_gross"] = float(f.get("harvest_gross", 0.0)) + v
+			return
 	var a := _acct(e, h)
 	a[0][a[1]] = float(a[0][a[1]]) + v
 

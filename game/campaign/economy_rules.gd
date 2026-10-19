@@ -2,6 +2,14 @@ class_name EconomyRules
 extends RefCounted
 ## Accounting helpers shared by all households and businesses.
 
+## Emergency meals substitute by price before spending a scarce household purse.
+## The quote and the purchase must use the same order.
+static func food_order(e: Dictionary) -> Array:
+	var goods: Array = ["grain", "fruit", "meat", "fresh_meat"]
+	var prices: Dictionary = e.get("price", {})
+	goods.sort_custom(func(a, b): return float(prices.get(a, INF)) < float(prices.get(b, INF)))
+	return goods
+
 ## Pure quote of the same staple order and retail prices as cover_food.
 ## Barn reserves are private physical stock, not freely purchasable food.
 static func essential_food_cost(e: Dictionary, meals: float) -> float:
@@ -9,7 +17,7 @@ static func essential_food_cost(e: Dictionary, meals: float) -> float:
 	var cost := 0.0
 	var fallback := 0.0
 	var last_available := 0.0
-	for good in ["grain", "fruit", "meat", "fresh_meat"]:
+	for good in food_order(e):
 		var unit := float(e.get("price", {}).get(good, 0.0)) * TownEcon.markup()
 		if unit <= 0.0: continue
 		if fallback <= 0.0: fallback = unit
@@ -56,10 +64,21 @@ static func cover_food(e: Dictionary, f: Dictionary, days: float, day: float) ->
 	var rate := float(Families.daily_rates(e, f)["food"])
 	if rate <= 0: return
 	Families.keep_harvest(e, f, int(ceil(maxf(0.0, days - float(f["store"]["food"])) * rate)), rate)
-	for good in ["grain", "fruit", "meat", "fresh_meat"]:
+	for good in food_order(e):
 		var gap := maxf(0, days - float(f["store"]["food"]))
 		if gap <= 0: break
 		buy_essential(e, f, good, int(ceil(gap * rate)), "food", rate)
+	# A stocked-out shop is still wanted. Record the remaining affordable
+	# order once, after all food substitutions, so zero sales cannot erase
+	# staple demand, lower farm wages and stop the broker restocking barns.
+	var short_meals: float = maxf(0.0, days - float(f["store"]["food"])) * rate
+	if short_meals > 0.0:
+		for good in food_order(e):
+			var unit: float = float(e["price"].get(good, 0.0)) * TownEcon.markup()
+			if unit <= 0.0: continue
+			var affordable: float = minf(short_meals, floorf(maxf(0.0, float(f["purse"])) / unit))
+			Barge.add_demand(e, good, 0.0, affordable, short_meals - affordable)
+			break
 	if float(f["store"]["food"]) >= days or not Herds.has(e): return
 	# Owners choose their least valuable healthy animals first. Every head and yield uses the existing ledger.
 	var choices := []
@@ -110,24 +129,23 @@ static func farm_hand_value(e: Dictionary, f: Dictionary) -> float:
 			revenue += float(f["herd"][animal]) * float(D["herds"][animal][good]) * float(prices.get(good, D["goods"].get(good, {}).get("price", 0)))
 	return maxf(0, revenue / maxf(1, Families.need_hands(f, e)))
 
+## Skilled work keeps a higher band and is not discounted for surplus staff.
+const SKILLED_WORK := ["smelter", "weaponsmith", "armorsmith", "carpenter", "weaver", "tailor",
+	"tanner", "butcher", "salter", "dairy", "chandler", "bowyer", "fletcher", "leatherworker",
+	"brewer", "vintner", "jeweler", "herbalist", "mint", "academy"]
+
+static func skilled_work(b: Dictionary) -> bool:
+	return String(b["type"]) in SKILLED_WORK
+
+## Adult cash wages are a labour-market price, never capped by output value.
+## Revenue and cash determine whether the employer can sustain these places.
 static func wage_limit(e: Dictionary, b: Dictionary, offered: float) -> float:
-	var typ := String(b["type"])
-	var value := offered
-	if typ in ["farm", "estate"]:
-		var fid := int(b.get("public_property", maxi(0, int(b["owner"]))))
-		value = farm_hand_value(e, e["fams"][fid])
-	elif not typ in ["market", "works", "collector", "mint", "academy"]:
-		value = float(Businesses.hand_value(e, b)[0])
-		var receipts: Array = b.get("net_receipts", [])
-		if not receipts.is_empty():
-			var sum := 0.0
-			for v in receipts: sum += float(v)
-			value = maxf(value, sum / receipts.size())
-		# Gear and butcher production use specialised recipes; their realised net receipts supply this figure.
-		elif typ in ["weaponsmith", "armorsmith", "bowyer", "butcher"]:
-			return offered
-	b["revenue_hand"] = value
-	return maxf(0, minf(offered, value))
+	var day: float = Barge.day_wage(e)
+	if skilled_work(b):
+		var table: Dictionary = TownEcon.data()["businesses"][b["type"]]
+		var premium: float = maxf(1.15, float(table["wage"]) / float(Barge.B()["labour"]["base"]))
+		return clampf(offered, day * premium, day * premium * 1.8)
+	return clampf(offered, day * 0.6, day * 1.8)
 
 static func record_receipts(b: Dictionary, before: float, workers: int) -> void:
 	if workers <= 0: return

@@ -70,6 +70,8 @@ func _test_mint_and_melt() -> void:
 	var mb: Dictionary = e["biz"][int(e["mint_biz"])]
 	mb["workers"] = int(mb["cap"])
 	e["treasury"] = Barge.treasury_lines(e)["short"] * 0.5
+	# This isolated mint fixture has an explicit world money deficit.
+	w["coin"]["target"] = float(w["coin"]["cast"]) - float(w["coin"]["melted"]) - float(w["coin"]["drained"]) + 100000.0
 	# no bars: nothing cast
 	e["stock"]["copper_bars"] = 0
 	e["stock"]["tin_bars"] = 0

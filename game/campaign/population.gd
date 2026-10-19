@@ -320,8 +320,18 @@ static func turn(e: Dictionary, f: Dictionary, day: float, days: float) -> void:
 	var order: Array = Sickness.data()["eat_order"].get(String(e.get("culture", "")), Sickness.data()["eat_order"]["_default"])
 	for group in order:
 		var count := int(counts[group])
+		if count <= 0:
+			bc[group] = 1.0
+			continue
 		var fed := minf(food, count) / maxf(1, count); food = maxf(0, food - count)
-		var value := float(bc.get(group, 1)) + float(body["refill"]) * days if short <= 0 else float(bc.get(group, 1)) - float(body["fall"]) * (1.0 if group == "workers" else float(body["weak"])) * (1.0 - fed) * days
+		# Match Sickness._body: a fully fed group recovers even when another
+		# group in the row went short. Otherwise intermittent hunger ratchets
+		# condition down forever, then kill_slots removes the whole age band.
+		var value: float = float(bc.get(group, 1.0))
+		if fed >= 0.999:
+			value += float(body["refill"]) * days
+		else:
+			value -= float(body["fall"]) * (1.0 if group == "workers" else float(body["weak"])) * (1.0 - fed) * days
 		bc[group] = clampf(value, 0, 1)
 		if value <= 0:
 			for key in f["age_bins"].keys():
