@@ -105,11 +105,15 @@ static func _cultivation_hands(f: Dictionary, a: float) -> float:
 		crop = with_ox / aph + (a - with_ox) / float(L["acres_no_ox"])
 	return crop
 
+const EMPTY_CROP_WORK := {"cultivation": 0.0, "fallow": 0.0, "base": 0.0, "harvest": 0.0}
+
 ## Physical fallow still needs upkeep, at the explicit [ours] one-quarter
 ## cultivation allowance, but has no harvest. Draft coverage is shared across
 ## the holding's active acres; crop productivity and the harvest multiplier stay.
 static func crop_work(f: Dictionary, e: Dictionary = {}, day: float = -1.0) -> Dictionary:
 	var rows := CropRotation.work_acres(e, f)
+	if rows.is_empty():
+		return EMPTY_CROP_WORK
 	var active := 0.0; var fallow := 0.0
 	for good in rows:
 		active += float(rows[good]["active"])
@@ -153,11 +157,18 @@ static func seasonal_need_hands(f: Dictionary, day: float, e: Dictionary = {}) -
 ## Compare actual capacity as well as the season marker. This repairs an older
 ## save's already-harvest capacity on its ordinary turn without forced matching.
 static func farm_capacity_stale(e: Dictionary, f: Dictionary) -> bool:
-	var need := need_hands(f, e)
-	if not is_equal_approx(float(f.get("assigned_need", -1.0)), need) or int(f.get("assigned_crop_year", -1)) != Calendar.year(float(e.get("day", 0))):
+	var work := crop_work(f, e)
+	var herd_need := herd_hands(f, e)
+	var need := float(work["base"]) + herd_need
+	return _farm_capacity_stale_with(e, f, work, need, -1.0)
+
+static func _farm_capacity_stale_with(e: Dictionary, f: Dictionary, work: Dictionary, need: float, helpers_in: float = -1.0) -> bool:
+	var day := float(e.get("day", 0))
+	if not is_equal_approx(float(f.get("assigned_need", -1.0)), need) or int(f.get("assigned_crop_year", -1)) != Calendar.year(day):
 		return true
-	var helpers := minf(need, Barge.helper_hands(e, f, float(e.get("day", 0)))) if need > 0.0 else 0.0
-	var gap := seasonal_need_hands(f, float(e.get("day", 0)), e) - float(f.get("hands", 0)) - helpers
+	var helpers := helpers_in if helpers_in >= 0.0 else (minf(need, Barge.helper_hands(e, f, day)) if need > 0.0 else 0.0)
+	var hneed := need + float(work["harvest"]) * (float(Barge.B()["labour"]["harvest_hands"]) - 1.0)
+	var gap := hneed - float(f.get("hands", 0)) - helpers
 	var farm := int(f.get("farm", -1))
 	if farm < 0:
 		return gap > 0.7
@@ -427,6 +438,12 @@ static func refresh_worked(e: Dictionary, f: Dictionary) -> void:
 	if f.get("gone", false):
 		return
 	var need := need_hands(f, e)
+	var helpers := 0.0 if (f.get("estate", false) or need <= 0.0) else minf(need, Barge.helper_hands(e, f, float(e.get("day", 0))))
+	_refresh_worked_with(e, f, need, helpers)
+
+static func _refresh_worked_with(e: Dictionary, f: Dictionary, need: float, helpers: float) -> void:
+	if f.get("gone", false):
+		return
 	f["work_need"] = need
 	f["work_crop_year"] = Calendar.year(float(e.get("day", 0)))
 	if need <= 0.0:
@@ -434,7 +451,6 @@ static func refresh_worked(e: Dictionary, f: Dictionary) -> void:
 		return
 	var estate: bool = f.get("estate", false)
 	var own := 0 if estate else int(f["hands"])
-	var helpers := 0.0 if estate else minf(need, Barge.helper_hands(e, f, float(e.get("day", 0))))
 	var hired: float = 0.0
 	var bid := int(f.get("farm", -1))
 	if bid >= 0 and bid < (e["biz"] as Array).size():
@@ -512,6 +528,9 @@ static func assignments_stale(f: Dictionary) -> bool:
 ## Puts the family's adults to work: own land and herds first, own businesses next, then the best-paying
 ## open places in town; the rest are idle. Leaves employers that have not paid for weeks.
 static func reassign(e: Dictionary, f: Dictionary) -> void:
+	_reassign_with(e, f, {}, -1.0, -1.0)
+
+static func _reassign_with(e: Dictionary, f: Dictionary, work_in: Dictionary, herd_need_in: float, helpers_in: float) -> void:
 	if f.get("estate", false) or f.get("gone", false):
 		return
 	# Places can reopen or gain funding between the weekly market lists. Read the
@@ -522,11 +541,11 @@ static func reassign(e: Dictionary, f: Dictionary) -> void:
 	ad -= _keep(e, f, ad)   # v0.014: a grown-up keeps and works each of the family's shops, before its land
 	# This reassignment changes jobs and cash, not these physical fields/herds.
 	# Reuse the current crop-work calculation for its seasonal capacity below.
-	var work := crop_work(f, e)
-	var herd_need := herd_hands(f, e)
+	var work: Dictionary = work_in if not work_in.is_empty() else crop_work(f, e)
+	var herd_need: float = herd_need_in if herd_need_in >= 0.0 else herd_hands(f, e)
 	var need := float(work["base"]) + herd_need
 	# barge: children 10-14 (0.2 of a hand) and elders (0.15) help on the family's own land first
-	var helpers := minf(need, Barge.helper_hands(e, f, float(e.get("day", 0)))) if need > 0.0 else 0.0
+	var helpers := helpers_in if helpers_in >= 0.0 else (minf(need, Barge.helper_hands(e, f, float(e.get("day", 0)))) if need > 0.0 else 0.0)
 	var own := mini(ad, int(ceil(need - helpers - 0.3))) if need > 0.0 else 0
 	own = maxi(own, 0)
 	if own > 0:
@@ -557,8 +576,10 @@ static func reassign(e: Dictionary, f: Dictionary) -> void:
 			var wv := float(biz[int(k)]["wage"])
 			if wv < ww:
 				ww = wv; worst = k
-		set_job(e, f, int(worst), int(f["jobs"][worst]) - 1)
-		total -= 1
+		var cur_w := int(f["jobs"][worst])
+		var drop := mini(cur_w, total - spare)
+		set_job(e, f, int(worst), cur_w - drop)
+		total -= drop
 	# _keep already assigns the profit-taking keeper. Additional paid relatives
 	# compete for real funded places under the same rules as other staff.
 	total = _best_places(e, f, spare)
@@ -585,7 +606,7 @@ static func reassign(e: Dictionary, f: Dictionary) -> void:
 	f["farm_harvest"] = hv
 	f["assigned_need"] = need
 	f["assigned_crop_year"] = Calendar.year(float(e.get("day", 0)))
-	refresh_worked(e, f)
+	_refresh_worked_with(e, f, need, helpers)
 
 ## v0.014 (town spec 08: "every business is held by a real family member and family"; barge part 3 section 4: "a
 ## family shop counts its keeper"): one grown-up of the family keeps and works each of its open shops (not its farm),
@@ -676,6 +697,7 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 	var known: Dictionary = {}
 	var known_ready: bool = needy
 	var cand: Array = []
+	var cand_total: int = 0
 	var held_total: int = 0
 	var min_held_wage: float = INF
 	for k in f["jobs"]:
@@ -684,13 +706,14 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 			held_total += n
 			min_held_wage = minf(min_held_wage, float(biz[int(k)]["wage"]))
 	var held_ready: bool = held_total == 0
+	var changed: bool = held_total > slots
 	if held_total > slots:
 		if not known_ready:
 			known = _known_trades(e, f)
 			known_ready = true
 			max_mult = 1.0 if known.is_empty() else 1.0 + FIT_BONUS
 		for k in f["jobs"]:
-			_add_cand(cand, slots, _pay_score(e, biz[int(k)], known), int(k), 1, int(f["jobs"][k]))
+			cand_total = _add_cand(cand, cand_total, slots, _pay_score(e, biz[int(k)], known), int(k), 1, int(f["jobs"][k]))
 		held_ready = true
 	var open_ids: Array = e.get("open", [])
 	var open_max: PackedFloat64Array = Businesses.open_suffix_max(e)
@@ -700,7 +723,7 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 		var b: Dictionary = biz[bid]
 		if b.get("closed", false):
 			continue
-		if (cand.size() if held_ready else held_total) >= slots:
+		if (cand_total if held_ready else held_total) >= slots:
 			if not held_ready:
 				if float(b["wage"]) * max_mult <= min_held_wage:
 					if has_suf and open_max[i] * max_mult <= min_held_wage:
@@ -710,10 +733,24 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 					known = _known_trades(e, f)
 					known_ready = true
 					max_mult = 1.0 if known.is_empty() else 1.0 + FIT_BONUS
+					if float(b["wage"]) * max_mult <= min_held_wage:
+						if has_suf and open_max[i] * max_mult <= min_held_wage:
+							break
+						continue
+				var sc0: float = _pay_score(e, b, known)
+				if sc0 <= min_held_wage:
+					continue
+				var open0: int = Businesses.takeable(b, e)
+				if open0 <= 0:
+					continue
 				for k in f["jobs"]:
-					_add_cand(cand, slots, _pay_score(e, biz[int(k)], known), int(k), 1, int(f["jobs"][k]))
+					cand_total = _add_cand(cand, cand_total, slots, _pay_score(e, biz[int(k)], known), int(k), 1, int(f["jobs"][k]))
 				held_ready = true
-			var min_sc: float = float(cand[slots - 1][0])
+				if sc0 > float(cand[-1][0]):
+					cand_total = _add_cand(cand, cand_total, slots, sc0, bid, 0, open0)
+					changed = true
+				continue
+			var min_sc: float = float(cand[-1][0])
 			if has_suf and open_max[i] * max_mult <= min_sc:
 				break
 			if float(b["wage"]) * max_mult <= min_sc:
@@ -723,7 +760,8 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 				continue
 			var open: int = Businesses.takeable(b, e)
 			if open > 0:
-				_add_cand(cand, slots, sc, bid, 0, open)
+				cand_total = _add_cand(cand, cand_total, slots, sc, bid, 0, open)
+				changed = true
 		else:
 			var open: int = Businesses.takeable(b, e)
 			if open <= 0:
@@ -734,9 +772,10 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 				max_mult = 1.0 if known.is_empty() else 1.0 + FIT_BONUS
 			if not held_ready:
 				for k in f["jobs"]:
-					_add_cand(cand, slots, _pay_score(e, biz[int(k)], known), int(k), 1, int(f["jobs"][k]))
+					cand_total = _add_cand(cand, cand_total, slots, _pay_score(e, biz[int(k)], known), int(k), 1, int(f["jobs"][k]))
 				held_ready = true
-			_add_cand(cand, slots, _pay_score(e, b, known), bid, 0, open)
+			cand_total = _add_cand(cand, cand_total, slots, _pay_score(e, b, known), bid, 0, open)
+			changed = true
 	var casual_ids: Array = []
 	var cjcap: Dictionary = e.get("cjcap", {})
 	if not f.has("hl") and not cjcap.is_empty():
@@ -749,6 +788,7 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 		var day_w: float = Barge.day_wage(e)
 		var base_w: float = float(Barge.B()["labour"]["base"])
 		var cust_funds: float = -1.0
+		var cust_exact: bool = false
 		for ci in casual_ids.size():
 			var j: String = String(casual_ids[ci])
 			var used: float = float(cjused.get(j, 0))
@@ -757,20 +797,24 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 				continue
 			var cj: Dictionary = cj_defs[j]
 			var cw: float = day_w if cj.has("day") else clampf(day_w * (float(cj["wage"]) / base_w), day_w * 0.75, day_w * 1.8)
-			if (cand.size() if held_ready else held_total) >= slots:
-				if cw <= (float(cand[slots - 1][0]) if held_ready else min_held_wage):
+			if (cand_total if held_ready else held_total) >= slots:
+				if cw <= (float(cand[-1][0]) if held_ready else min_held_wage):
 					continue
 			var payer: String = String(cj["payer"])
+			var week_w: float = maxf(0.01, cw * 7.0)
 			var funds: float = 0.0
 			if payer == "treasury":
 				funds = float(e.get("treasury", 0))
 			elif payer == "customers":
-				if cust_funds < 0.0:
-					cust_funds = TownSanitation.customer_funds(e)
+				var need_funds: float = (float(places) + used) * week_w
+				if cust_funds < need_funds and not cust_exact:
+					cust_funds = _customer_funds_up_to(e, need_funds)
+					if cust_funds < need_funds:
+						cust_exact = true
 				funds = cust_funds
 			else:
 				funds = float((biz[int(e["mkt"])] as Dictionary)["till"])
-			var available: int = mini(places, maxi(0, int(floor(funds / maxf(0.01, cw * 7.0) - used + 0.00001))))
+			var available: int = mini(places, maxi(0, int(floor(funds / week_w - used + 0.00001))))
 			if available <= 0:
 				continue
 			if not held_ready:
@@ -779,22 +823,24 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 					known_ready = true
 					max_mult = 1.0 if known.is_empty() else 1.0 + FIT_BONUS
 				for k in f["jobs"]:
-					_add_cand(cand, slots, _pay_score(e, biz[int(k)], known), int(k), 1, int(f["jobs"][k]))
+					cand_total = _add_cand(cand, cand_total, slots, _pay_score(e, biz[int(k)], known), int(k), 1, int(f["jobs"][k]))
 				held_ready = true
-				if cand.size() >= slots and cw <= float(cand[slots - 1][0]):
+				if cand_total >= slots and cw <= float(cand[-1][0]):
 					continue
-			_add_cand(cand, slots, cw, -ci - 1, 0, available)
-	if not held_ready:
+			cand_total = _add_cand(cand, cand_total, slots, cw, -ci - 1, 0, available)
+			changed = true
+	if not held_ready or not changed:
 		return held_total
 	var want := {}
 	var casual := {}
 	var casual_total := 0
-	for i in mini(slots, cand.size()):
-		var bid := int(cand[i][1])
+	for entry in cand:
+		var bid := int(entry[1])
+		var n := int(entry[3])
 		if bid < 0:
-			var job := String(casual_ids[-bid - 1]); casual[job] = int(casual.get(job, 0)) + 1; casual_total += 1
+			var job := String(casual_ids[-bid - 1]); casual[job] = int(casual.get(job, 0)) + n; casual_total += n
 		else:
-			var key := str(bid); want[key] = int(want.get(key, 0)) + 1
+			var key := str(bid); want[key] = int(want.get(key, 0)) + n
 	for k in f["jobs"].keys():
 		if not want.has(k):
 			set_job(e, f, int(k), 0)
@@ -805,27 +851,77 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 		for j in casual: e["cjused"][j] = float(e["cjused"].get(j, 0)) + int(casual[j])
 	return job_total(f) + casual_total
 
-## Inserts up to `count` places into `cand`, keeping only the best `slots` (higher score, then held before new, then earlier).
-static func _add_cand(cand: Array, slots: int, sc: float, bid: int, held: int, count: int) -> void:
+## Inserts up to `count` places into `cand` as grouped `[sc, bid, held, n]` runs, keeping only the best `slots`
+## (higher score, then held before new, then earlier). Returns the updated total places in `cand`.
+static func _add_cand(cand: Array, cand_total: int, slots: int, sc: float, bid: int, held: int, count: int) -> int:
 	if count <= 0 or slots <= 0:
-		return
-	var m: int = cand.size()
-	if m >= slots:
-		var last: Array = cand[slots - 1]
+		return cand_total
+	if cand_total >= slots:
+		var last: Array = cand[-1]
 		if sc < float(last[0]) or (sc == float(last[0]) and held <= int(last[2])):
-			return
+			return cand_total
+	var m: int = cand.size()
 	var idx: int = m
+	var before: int = 0
 	for j in m:
 		var cur: Array = cand[j]
 		var csc: float = float(cur[0])
 		if sc > csc or (sc == csc and held > int(cur[2])):
 			idx = j
 			break
-	var take: int = mini(count, slots - idx)
-	for i in take:
-		cand.insert(idx + i, [sc, bid, held])
-	if cand.size() > slots:
-		cand.resize(slots)
+		before += int(cur[3])
+	var take: int = mini(count, slots - before)
+	if take <= 0:
+		return cand_total
+	cand.insert(idx, [sc, bid, held, take])
+	cand_total += take
+	if cand_total > slots:
+		var excess: int = cand_total - slots
+		while excess > 0:
+			var tail: Array = cand[-1]
+			var tc: int = int(tail[3])
+			if tc <= excess:
+				cand.pop_back()
+				excess -= tc
+			else:
+				tail[3] = tc - excess
+				excess = 0
+		cand_total = slots
+	return cand_total
+
+static func _customer_funds_up_to(e: Dictionary, cap_funds: float) -> float:
+	var funds: float = 0.0
+	for b in e["biz"]:
+		if not b.get("closed", false):
+			funds += maxf(0.0, float(b["till"]) - float(b["owed"]))
+			if funds >= cap_funds:
+				return funds
+	var grain_week: float = float(e["price"].get("grain", 1)) * 7.0
+	for f in e["fams"]:
+		if not f.get("gone", false) and not f.get("estate", false):
+			var purse: float = float(f["purse"])
+			if purse > 0.0:
+				funds += maxf(0.0, purse - float(daily_rates(e, f)["food"]) * grain_week)
+				if funds >= cap_funds:
+					return funds
+	return funds
+
+static func _available_casual(e: Dictionary, job: String) -> int:
+	var used: float = float(e.get("cjused", {}).get(job, 0))
+	var places: int = maxi(0, int(floor(float(e.get("cjcap", {}).get(job, 0)) - used + 0.00001)))
+	if places <= 0:
+		return 0
+	var cj: Dictionary = TownEcon.data()["casual_jobs"][job]
+	var week_w: float = maxf(0.01, Barge.casual_wage(e, job) * 7.0)
+	var payer: String = String(cj["payer"])
+	var funds: float = 0.0
+	if payer == "treasury":
+		funds = float(e.get("treasury", 0))
+	elif payer == "customers":
+		funds = _customer_funds_up_to(e, (float(places) + used) * week_w)
+	else:
+		funds = float(e["biz"][int(e["mkt"])]["till"])
+	return mini(places, maxi(0, int(floor(funds / week_w - used + 0.00001))))
 
 static func _pay_score(e: Dictionary, b: Dictionary, known: Dictionary) -> float:
 	var w := float(b["wage"])
@@ -926,7 +1022,7 @@ static func match_idle(e: Dictionary) -> void:
 	# is full. Keep the existing funding and fractional-shift capacity rules.
 	if not funded:
 		for job in e.get("cjcap", {}):
-			if Shelter.available_casual(e, String(job)) > 0:
+			if _available_casual(e, String(job)) > 0:
 				funded = true; break
 	if not funded: return
 	for f in e["fams"]:
@@ -1074,11 +1170,20 @@ static func turn(game, town: Dictionary, e: Dictionary, f: Dictionary, day: floa
 		Shelter.turn(town, e, f, day)
 	if TownEcon.prof_on: _pt = TownEcon._prof("f_stores_homes", _pt)
 	# ---------------------------------------------------------------- work (only when something changed)
-	var harvest_now := float(crop_work(f, e)["harvest"]) > 0.0
-	var farm_season_changed := (not f.has("farm_harvest") or bool(f["farm_harvest"]) != harvest_now) and need_hands(f, e) > 0.0
-	if unpaid > 0 or int(f["idle"]) > 0 or _over_cap(biz, jobs) \
-			or keeps_stale(e, f) or _paid_worse(e, f, biz) or farm_season_changed or assignments_stale(f) or farm_capacity_stale(e, f):
-		reassign(e, f)
+	var do_reassign := unpaid > 0 or int(f["idle"]) > 0 or _over_cap(biz, jobs) or keeps_stale(e, f) or assignments_stale(f)
+	var work: Dictionary = {}
+	var herd_need := -1.0
+	var helpers := -1.0
+	if not do_reassign:
+		work = crop_work(f, e)
+		herd_need = herd_hands(f, e)
+		var need := float(work["base"]) + herd_need
+		helpers = minf(need, Barge.helper_hands(e, f, float(e.get("day", 0)))) if need > 0.0 else 0.0
+		var harvest_now := float(work["harvest"]) > 0.0
+		var farm_season_changed := (not f.has("farm_harvest") or bool(f["farm_harvest"]) != harvest_now) and need > 0.0
+		do_reassign = farm_season_changed or _paid_worse(e, f, biz, need, helpers) or _farm_capacity_stale_with(e, f, work, need, helpers)
+	if do_reassign:
+		_reassign_with(e, f, work, herd_need, helpers)
 	if TownEcon.prof_on: _pt = TownEcon._prof("f_reassign", _pt)
 	# ---------------------------------------------------------------- people: one roll a week for life events;
 	# hungry or crowded families lose people to the road
@@ -1197,12 +1302,12 @@ static func _pay_rent(e: Dictionary, f: Dictionary, days: float, day: float) -> 
 
 ## A hand of the family in a hired place paying less than the best open place in town whose till can pay (v0.014:
 ## he looks again at his turn and moves when it is better: _best_places).
-static func _paid_worse(e: Dictionary, f: Dictionary, biz: Array) -> bool:
+static func _paid_worse(e: Dictionary, f: Dictionary, biz: Array, need_in: float = -1.0, helpers_in: float = -1.0) -> bool:
 	# Crops can become worth more than an existing town job even with no funded
 	# vacancy. Reconsider own land as well as offers from other employers.
-	var need: float = need_hands(f, e)
+	var need: float = need_in if need_in >= 0.0 else need_hands(f, e)
 	if need > 0.0 and not f["jobs"].is_empty():
-		var helpers: float = Barge.helper_hands(e, f, float(e.get("day", 0)))
+		var helpers: float = helpers_in if helpers_in >= 0.0 else Barge.helper_hands(e, f, float(e.get("day", 0)))
 		var available: int = maxi(0, adults(f) - serving(f) - (f.get("keeps", []) as Array).size())
 		var target: int = mini(available, maxi(0, int(ceil(need - minf(need, helpers) - 0.3))))
 		if int(f["hands"]) < target:
@@ -1216,6 +1321,7 @@ static func _paid_worse(e: Dictionary, f: Dictionary, biz: Array) -> bool:
 	if f["jobs"].is_empty() and (f.has("hl") or f.get("cj", {}).is_empty()): return false
 	var needy := int(f.get("hungry", 0)) > 0 or float(f.get("debt", 0.0)) > 0.5
 	var known := {} if needy else _known_trades(e, f)
+	var max_mult := 1.0 if known.is_empty() else 1.0 + FIT_BONUS
 	var lowest := INF
 	for k in f["jobs"]:
 		var b: Dictionary = biz[int(k)]
@@ -1223,10 +1329,14 @@ static func _paid_worse(e: Dictionary, f: Dictionary, biz: Array) -> bool:
 	if not f.has("hl"):
 		for j in f.get("cj", {}): lowest = minf(lowest, Barge.casual_wage(e, j))
 	for b in biz:
-		if Businesses.takeable(b, e) > 0 and _pay_score(e, b, known) > lowest: return true
+		if b.get("closed", false) or int(b["cap"]) <= int(b["workers"]) or float(b["wage"]) * max_mult <= lowest:
+			continue
+		if _pay_score(e, b, known) > lowest and Businesses.takeable(b, e) > 0:
+			return true
 	if not f.has("hl"):
 		for j in TownEcon.data()["casual_jobs"]:
-			if Shelter.available_casual(e, String(j)) > 0 and Barge.casual_wage(e, String(j)) > lowest: return true
+			if Barge.casual_wage(e, String(j)) > lowest and _available_casual(e, String(j)) > 0:
+				return true
 	return false
 
 static func _over_cap(biz: Array, jobs: Dictionary) -> bool:
