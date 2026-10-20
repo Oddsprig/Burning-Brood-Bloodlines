@@ -628,11 +628,10 @@ static func _purchase_indexed(e: Dictionary, a: Dictionary, b: Dictionary, crop:
 		for row in P["crop_work_acres"].get(str(int(b["id"])), {}).values():
 			active += float(row["active"])
 			fallow += float(row["fallow"])
-	if ctx.has("rem_by_n") and ctx.has("min_active"):
+	if ctx.has("rem_by_n") and (ctx.has("s_min_act") or ctx.has("min_active")):
 		var rem_arr: PackedInt32Array = ctx["rem_by_n"]
-		var min_arr: PackedFloat64Array = ctx["min_active"]
 		if n >= 0 and n < rem_arr.size() and rem_arr[n] == 0:
-			var act0: float = min_arr[n]
+			var act0: float = (active + float((ctx["s_min_act"] as PackedFloat64Array)[n])) if ctx.has("s_min_act") else float((ctx["min_active"] as PackedFloat64Array)[n])
 			var fal0: float = fallow + float(n) - (act0 - active)
 			return {"acres": act0 + fal0, "active": act0, "fallow": fal0}
 	var mine: Array = candidates if not candidates.is_empty() else move_candidates(P, int(a["id"]), (P["crops"] as Array).find(crop))

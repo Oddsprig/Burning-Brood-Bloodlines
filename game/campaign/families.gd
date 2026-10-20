@@ -450,6 +450,7 @@ static func refresh_worked(e: Dictionary, f: Dictionary) -> void:
 ## named employees remain assigned and retain their dated wage accounting.
 static func field_hands(e: Dictionary, b: Dictionary) -> float:
 	var hands: float = float(b["workers"])
+	if hands <= 0.0: return 0.0
 	var day: float = float(e.get("day", 0))
 	var key: String = str(int(b["id"]))
 	for worker in e.get("fams", []):
@@ -806,22 +807,25 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 
 ## Inserts up to `count` places into `cand`, keeping only the best `slots` (higher score, then held before new, then earlier).
 static func _add_cand(cand: Array, slots: int, sc: float, bid: int, held: int, count: int) -> void:
-	for _i in count:
-		var m: int = cand.size()
-		if m >= slots:
-			var last: Array = cand[slots - 1]
-			if sc < float(last[0]) or (sc == float(last[0]) and held <= int(last[2])):
-				return
-		var idx: int = m
-		for j in m:
-			var cur: Array = cand[j]
-			var csc: float = float(cur[0])
-			if sc > csc or (sc == csc and held > int(cur[2])):
-				idx = j
-				break
-		cand.insert(idx, [sc, bid, held])
-		if cand.size() > slots:
-			cand.pop_back()
+	if count <= 0 or slots <= 0:
+		return
+	var m: int = cand.size()
+	if m >= slots:
+		var last: Array = cand[slots - 1]
+		if sc < float(last[0]) or (sc == float(last[0]) and held <= int(last[2])):
+			return
+	var idx: int = m
+	for j in m:
+		var cur: Array = cand[j]
+		var csc: float = float(cur[0])
+		if sc > csc or (sc == csc and held > int(cur[2])):
+			idx = j
+			break
+	var take: int = mini(count, slots - idx)
+	for i in take:
+		cand.insert(idx + i, [sc, bid, held])
+	if cand.size() > slots:
+		cand.resize(slots)
 
 static func _pay_score(e: Dictionary, b: Dictionary, known: Dictionary) -> float:
 	var w := float(b["wage"])

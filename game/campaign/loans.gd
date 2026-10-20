@@ -349,11 +349,12 @@ static func sell_for_payroll(e: Dictionary, f: Dictionary, farm: Dictionary) -> 
 		buyers.append(b)
 	if buyers.is_empty(): return
 	buyers.sort_custom(func(a, b): return float(a["purse"]) > float(b["purse"]))
+	var shared: Dictionary = {"buyers": {}}
 	for offer in offers:
 		var crop_s: String = offer[0]
 		var unit: float = offer[1]
 		var limit: int = offer[2]
-		var seller: Dictionary = TownEcon._purchase_seller(e, f, crop_s)
+		var seller: Dictionary = TownEcon._purchase_seller(e, f, crop_s, shared)
 		if not bool(seller["src_ok"]): continue
 		for buyer in buyers:
 			var afford: int = maxi(0, int(floor((float(buyer["purse"]) - keep) / unit)))
