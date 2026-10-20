@@ -1,5 +1,6 @@
 BURNING BROOD: BLOODLINES v0.022
 Updated: 2026-10-12 | native dragon autobattle combat
+PROJECT MAP: Read PROJECT_MAP.md first for the folder/file map, system table and largest files.
 
 DEVELOPER HANDOFF: HANDOFF.txt (2026-10-14) gives exact game locations, verified
 delivery status, read order and next passes. Latest delivered game is still22.

@@ -1,5 +1,6 @@
 # Burning Brood: Bloodlines
 
+Read `PROJECT_MAP.md` first for the folder/file map, system table and largest files.
 Read `HANDOFF.txt` for current locations/status, then `START_HERE.txt`,
 `docs/DEV_NOTES.txt` and `docs/ROADMAP.txt`.
 Read the original handoff or inherited specifications only as needed.
