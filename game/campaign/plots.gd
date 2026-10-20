@@ -597,12 +597,12 @@ static func move_candidates(P: Dictionary, fid: int, ci: int) -> Array:
 ## Exact physical work preview. Prepared books visit only the two holdings;
 ## new splits reuse native grid placement. No cash, creditors, wages or harvest
 ## ownership are settled, copied back, or touched while choosing a quantity.
-static func purchase_work(e: Dictionary, a: Dictionary, b: Dictionary, crop: String, n: int, candidates: Array = []) -> Dictionary:
+static func purchase_work(e: Dictionary, a: Dictionary, b: Dictionary, crop: String, n: int, candidates: Array = [], ctx: Dictionary = {}) -> Dictionary:
 	var P: Dictionary = e.get("plots", {})
 	if P.is_empty():
 		return {"acres": Families.acres(b) + n, "active": Families.acres(b) + n, "fallow": 0.0}
 	if bool(P.get("_crop_work_plots_valid", false)) and int(a["id"]) != int(b["id"]) and int(P.get("crop_year", -999)) == Calendar.year(float(e.get("day", 0))) and int(P.get("crop_count", -1)) == count(P) and P.has("crop_work_plots") and P.has("crop_work_acres"):
-		return _purchase_indexed(e, a, b, crop, n, candidates)
+		return _purchase_indexed(e, a, b, crop, n, candidates, ctx)
 	# Unprepared books retain the original pure preview, without warming live data.
 	var preview := {"plots": P.duplicate(true), "crops": e.get("crops", {}).duplicate(true),
 		"day": e.get("day", 0), "culture": e["culture"], "climate": e["climate"], "head": e.get("head", {})}
@@ -617,13 +617,24 @@ static func purchase_work(e: Dictionary, a: Dictionary, b: Dictionary, crop: Str
 
 ## Match land_moved's whole-plot order and its buyer/donor boundary precedence.
 ## No histories, harvest accounts or unrelated owners are copied or rebuilt.
-static func _purchase_indexed(e: Dictionary, a: Dictionary, b: Dictionary, crop: String, n: int, candidates: Array) -> Dictionary:
+static func _purchase_indexed(e: Dictionary, a: Dictionary, b: Dictionary, crop: String, n: int, candidates: Array, ctx: Dictionary = {}) -> Dictionary:
 	var P: Dictionary = e["plots"]
 	var active: float = 0.0
 	var fallow: float = 0.0
-	for row in P["crop_work_acres"].get(str(int(b["id"])), {}).values():
-		active += float(row["active"])
-		fallow += float(row["fallow"])
+	if ctx.has("b_active") and ctx.has("b_fallow"):
+		active = float(ctx["b_active"])
+		fallow = float(ctx["b_fallow"])
+	else:
+		for row in P["crop_work_acres"].get(str(int(b["id"])), {}).values():
+			active += float(row["active"])
+			fallow += float(row["fallow"])
+	if ctx.has("rem_by_n") and ctx.has("min_active"):
+		var rem_arr: PackedInt32Array = ctx["rem_by_n"]
+		var min_arr: PackedFloat64Array = ctx["min_active"]
+		if n >= 0 and n < rem_arr.size() and rem_arr[n] == 0:
+			var act0: float = min_arr[n]
+			var fal0: float = fallow + float(n) - (act0 - active)
+			return {"acres": act0 + fal0, "active": act0, "fallow": fal0}
 	var mine: Array = candidates if not candidates.is_empty() else move_candidates(P, int(a["id"]), (P["crops"] as Array).find(crop))
 	var owned: Array = P["crop_work_plots"].get(str(int(b["id"])), {}).get(crop, []).duplicate()
 	var left: Array = []
@@ -649,6 +660,11 @@ static func _purchase_indexed(e: Dictionary, a: Dictionary, b: Dictionary, crop:
 				variety = String(P["variety"][q])
 			elif _purchase_part(P, left, int(P["ac"][g]) - rem, g) >= 0:
 				variety = String(P["variety"][g])
+			elif ctx.has("split_var"):
+				var sv: Dictionary = ctx["split_var"]
+				if not sv.has(g):
+					sv[g] = _purchase_split_variety(e, P, crop, g)
+				variety = String(sv[g])
 			else:
 				variety = _purchase_split_variety(e, P, crop, g)
 			if variety == "fallow": fallow += rem

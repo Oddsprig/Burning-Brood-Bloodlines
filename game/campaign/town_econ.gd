@@ -1192,7 +1192,7 @@ static func _purchase_seller(e: Dictionary, a: Dictionary, crop: String) -> Dict
 	var mine: Array = []
 	if not P.is_empty():
 		mine = Plots.move_candidates(P, int(a["id"]), (P["crops"] as Array).find(crop))
-	return {"src_ok": src_ok, "mine": mine, "ox": {0: {"heads": 0, "hands": 0.0}}}
+	return {"src_ok": src_ok, "mine": mine, "ox": {0: {"heads": 0, "hands": 0.0}}, "split_var": {}}
 
 static func _purchase_acres(e: Dictionary, a: Dictionary, b: Dictionary, crop: String, limit: int, seller: Dictionary = {}) -> int:
 	if limit <= 0: return 0
@@ -1226,6 +1226,89 @@ static func _purchase_acres(e: Dictionary, a: Dictionary, b: Dictionary, crop: S
 	elif not P.is_empty():
 		mine = Plots.move_candidates(P, int(a["id"]), (P["crops"] as Array).find(crop))
 	var ox_quotes: Dictionary = seller["ox"] if not seller.is_empty() else {0: {"heads": 0, "hands": 0.0}}
+	var split_var: Dictionary = {}
+	if not seller.is_empty():
+		if not seller.has("split_var"):
+			seller["split_var"] = split_var
+		else:
+			split_var = seller["split_var"]
+	var min_active: PackedFloat64Array = PackedFloat64Array()
+	min_active.resize(limit + 1)
+	var rem_by_n: PackedInt32Array = PackedInt32Array()
+	rem_by_n.resize(limit + 1)
+	if P.is_empty():
+		for n_val in limit + 1:
+			min_active[n_val] = active + float(n_val)
+	else:
+		var m: int = mine.size()
+		var mine_ac: PackedInt32Array
+		var mine_act: PackedFloat64Array
+		var first_ac: int = 0
+		var last_ac: int = 0
+		var tail_start: int = m
+		if not seller.is_empty() and seller.has("mine_ac"):
+			mine_ac = seller["mine_ac"]
+			mine_act = seller["mine_act"]
+			first_ac = int(seller["first_ac"])
+			last_ac = int(seller["last_ac"])
+			tail_start = int(seller["tail_start"])
+		else:
+			mine_ac = PackedInt32Array()
+			mine_act = PackedFloat64Array()
+			mine_ac.resize(m)
+			mine_act.resize(m)
+			for i in m:
+				var pi: int = int(mine[i])
+				var ac_i: int = int(P["ac"][pi])
+				mine_ac[i] = ac_i
+				mine_act[i] = float(ac_i) if String(P["variety"][pi]) != "fallow" else 0.0
+			first_ac = mine_ac[0] if m > 0 else 0
+			last_ac = mine_ac[m - 1] if m > 0 else 0
+			for i in range(m - 1, -1, -1):
+				if mine_ac[i] < first_ac:
+					tail_start = i
+				else:
+					break
+			if not seller.is_empty():
+				seller["mine_ac"] = mine_ac
+				seller["mine_act"] = mine_act
+				seller["first_ac"] = first_ac
+				seller["last_ac"] = last_ac
+				seller["tail_start"] = tail_start
+		var cum_ac: int = 0
+		var cum_act: float = active
+		for k in m:
+			if cum_ac > limit:
+				break
+			var ac: int = mine_ac[k]
+			var hi: int = mini(limit, cum_ac + ac - 1)
+			var j0: int = maxi(k + 1, tail_start)
+			for n_val in range(cum_ac, hi + 1):
+				var v: float = cum_act
+				var rem: int = n_val - cum_ac
+				if rem > 0 and j0 < m and rem >= last_ac:
+					for j in range(j0, m):
+						var acj: int = mine_ac[j]
+						if rem > 0 and acj <= rem:
+							rem -= acj
+							v += mine_act[j]
+				min_active[n_val] = v
+				rem_by_n[n_val] = rem
+			cum_ac += ac
+			cum_act += mine_act[k]
+		for n_val in range(cum_ac, limit + 1):
+			min_active[n_val] = cum_act
+			rem_by_n[n_val] = n_val - cum_ac
+	var donor_ox: bool = int(a.get("ox", -1)) > 0 and Families.acres(a) > 0
+	var base_ox: int = maxi(0, int(b.get("ox", 0)))
+	var target: Dictionary = b.duplicate()
+	var ctx: Dictionary = {
+		"b_active": active,
+		"b_fallow": physical - active,
+		"min_active": min_active,
+		"rem_by_n": rem_by_n,
+		"split_var": split_var,
+	}
 	# Ox rounding, full plots and partial boundaries make work non-monotone in
 	# the quantity. Search descending; cheap lower bounds avoid oversized copies.
 	for n in range(limit, 0, -1):
@@ -1233,24 +1316,14 @@ static func _purchase_acres(e: Dictionary, a: Dictionary, b: Dictionary, crop: S
 		if not ox_quotes.has(mo): ox_quotes[mo] = Herds.move_work(e, int(a["id"]), "oxen", mo)
 		var ox_work: Dictionary = ox_quotes[mo]
 		if int(ox_work["heads"]) != mo: continue
-		var target: Dictionary = b.duplicate()
 		# The physical move writes an explicit buyer ox count whenever the
 		# donor has draft animals, even when this small transfer rounds to zero.
-		if int(a.get("ox", -1)) > 0 and Families.acres(a) > 0:
-			target["ox"] = maxi(0, int(b.get("ox", 0))) + mo
-		var minimum_active := active
-		if not P.is_empty():
-			var rem := n
-			for pi in mine:
-				var ac := int(P["ac"][pi])
-				if rem > 0 and ac <= rem:
-					rem -= ac
-					if String(P["variety"][pi]) != "fallow": minimum_active += ac
-		else:
-			minimum_active += n
+		if donor_ox:
+			target["ox"] = base_ox + mo
+		var minimum_active: float = min_active[n]
 		var lower := Families._cultivation_hands(target, minimum_active) + (float(nominal + n) - minimum_active) * upkeep + herd + float(ox_work["hands"])
 		if lower > budget + 0.000000001: continue
-		var work := Plots.purchase_work(e, a, b, crop, n, mine)
+		var work: Dictionary = Plots.purchase_work(e, a, b, crop, n, mine, ctx)
 		if absf(float(work["acres"]) - float(nominal + n)) > 0.000000001: continue
 		var need := Families._cultivation_hands(target, float(work["active"])) + float(work["fallow"]) * upkeep + herd + float(ox_work["hands"])
 		if need <= budget + 0.000000001: return n
