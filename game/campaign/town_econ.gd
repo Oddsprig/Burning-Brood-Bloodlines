@@ -330,13 +330,16 @@ static func clear_batch(e: Dictionary) -> void:
 			if o.size() > 5:
 				bwant[o[1]] = int(bwant.get(o[1], 0)) + int(o[2])
 	batch_barn = false
+	var bavail := {}
 	if not bwant.is_empty():
+		for g0 in bwant:
+			bavail[g0] = HarvestClaims.available(e, String(g0))
 		var extra := []
 		for o in batch:
 			if o.size() <= 5:
 				continue
 			var g0: String = o[1]
-			var r0 := minf(1.0, float(HarvestClaims.available(e, g0)) / maxf(1.0, float(bwant[g0])))
+			var r0 := minf(1.0, float(bavail[g0]) / maxf(1.0, float(bwant[g0])))
 			var take := int(float(o[2]) * r0)
 			if take < int(o[2]):
 				extra.append([o[0], g0, int(o[2]) - take, o[3], o[4]])
@@ -355,7 +358,8 @@ static func clear_batch(e: Dictionary) -> void:
 		ratio[g] = minf(1.0, float(st.get(g, 0)) / maxf(1.0, float(tot[g])))
 	var bratio := {}
 	for g in btot:
-		bratio[g] = minf(1.0, float(HarvestClaims.available(e, g)) / maxf(1.0, float(btot[g])))
+		var av: int = int(bavail[g]) if bavail.has(g) else HarvestClaims.available(e, String(g))
+		bratio[g] = minf(1.0, float(av) / maxf(1.0, float(btot[g])))
 	var paid := 0.0
 	var mk := markup()
 	var dm := {}   # good -> [bought, unmet, unaffordable] (barge demand)

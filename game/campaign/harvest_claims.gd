@@ -29,7 +29,7 @@ static func owner(h: Dictionary) -> String:
 
 static func _sum(values: Dictionary) -> float:
 	var total := 0.0
-	for v in values.values(): total += maxf(0.0, float(v))
+	for k in values: total += maxf(0.0, float(values[k]))
 	return total
 
 static func _scaled(weights: Dictionary, amount: float) -> Dictionary:
@@ -191,11 +191,16 @@ static func owned_pair(e: Dictionary, key: String, good: String) -> Array:
 
 static func available(e: Dictionary, good: String) -> int:
 	ensure(e)
+	var barn_have := maxi(0, int(e["barn"].get(good, 0)))
+	if barn_have <= 0: return 0
 	var total := 0.0
-	for goods in _book(e).get("balances", {}).values():
-		var row: Array = goods.get(good, [0.0, 0.0])
-		total += maxf(0.0, float(row[0]) - float(row[1]))
-	return mini(maxi(0, int(e["barn"].get(good, 0))), maxi(0, int(floor(total + EPS))))
+	var balances: Dictionary = _book(e).get("balances", {})
+	for key in balances:
+		var goods: Dictionary = balances[key]
+		if goods.has(good):
+			var row: Array = goods[good]
+			total += maxf(0.0, float(row[0]) - float(row[1]))
+	return mini(barn_have, maxi(0, int(floor(total + EPS))))
 
 static func _remove(e: Dictionary, good: String, amount: float, respect_reserves: bool, owner_filter: String, reserved_only: bool = false) -> Dictionary:
 	var out := {}
@@ -252,10 +257,18 @@ static func lose(e: Dictionary, good: String, n: int) -> int:
 static func food_reserve_days(e: Dictionary, f: Dictionary) -> float:
 	var seasons: Array = [false, false, false, false]
 	var cuts: Dictionary = TownEcon.data()["land"]["harvest_seasons"]
+	var land: Dictionary = f.get("land", {})
 	for good in FOOD:
-		if float(f.get("land", {}).get(good, 0.0)) <= 0.0: continue
+		if float(land.get(good, 0.0)) <= 0.0: continue
+		var gcuts: Array = cuts.get(good, [])
+		var need_check := false
+		for cut in gcuts:
+			if float(cut[1]) > 0.0 and not seasons[int(cut[0])]:
+				need_check = true
+				break
+		if not need_check: continue
 		if CropRotation.family_yield(e, f, String(good)) <= 0.0: continue
-		for cut in cuts.get(good, []):
+		for cut in gcuts:
 			if float(cut[1]) > 0.0: seasons[int(cut[0])] = true
 	var day: float = float(e.get("day", 0))
 	var si: int = Calendar.season_index(day)
@@ -269,28 +282,49 @@ static func food_reserve_days(e: Dictionary, f: Dictionary) -> float:
 static func reserve_food(e: Dictionary, f: Dictionary) -> void:
 	ensure(e)
 	if not e.has("harvest_book"): return
+	var b: Dictionary = e["harvest_book"]
+	var balances: Dictionary = b["balances"]
+	if balances.is_empty(): return
 	var key := "f:%d" % int(f["id"])
-	var rate := float(Barge.eaters(e, f, float(e.get("day", 0)))[0]) * float(TownEcon.data()["needs"]["food"])
-	var budget: float = maxf(0.0, (food_reserve_days(e, f) - maxf(0.0, float(f["store"]["food"]))) * rate)
-	if f.get("gone", false) or f.get("estate", false): budget = 0.0
-	for good in FOOD:
-		var target := minf(budget, owned(e, key, good))
-		var delta := target - owned(e, key, good, true)
+	if not balances.has(key): return
+	var fbal: Dictionary = balances[key]
+	var g_pair: Array = fbal.get("grain", ZERO_PAIR)
+	var fr_pair: Array = fbal.get("fruit", ZERO_PAIR)
+	var g_own := float(g_pair[0])
+	var g_res := float(g_pair[1])
+	var fr_own := float(fr_pair[0])
+	var fr_res := float(fr_pair[1])
+	if g_own <= EPS and g_res <= EPS and fr_own <= EPS and fr_res <= EPS: return
+	var budget: float = 0.0
+	if not f.get("gone", false) and not f.get("estate", false) and (g_own > EPS or fr_own > EPS):
+		var rate := float(Barge.eaters(e, f, float(e.get("day", 0)))[0]) * float(TownEcon.data()["needs"]["food"])
+		budget = maxf(0.0, (food_reserve_days(e, f) - maxf(0.0, float(f["store"]["food"]))) * rate)
+	var lots: Dictionary = b["lots"]
+	for i in 2:
+		var good: String = FOOD[i]
+		var own_v := g_own if i == 0 else fr_own
+		var res_v := g_res if i == 0 else fr_res
+		var target := minf(budget, own_v)
+		var delta := target - res_v
 		budget -= target
 		if absf(delta) <= EPS: continue
-		var rows: Array = _book(e)["lots"].get(good, [])
+		var rows: Array = lots.get(good, [])
 		for row in rows:
-			var old := float(row["reserve"].get(key, 0.0))
-			var qty := float(row["shares"].get(key, 0.0))
+			var r_res: Dictionary = row["reserve"]
+			var r_sh: Dictionary = row["shares"]
+			var old := float(r_res.get(key, 0.0))
+			var qty := float(r_sh.get(key, 0.0))
 			var change := minf(delta, maxf(0.0, qty - old)) if delta > 0.0 else -minf(-delta, old)
 			if absf(change) > EPS:
-				row["reserve"][key] = old + change
+				r_res[key] = old + change
 				_adjust(e, key, good, 0.0, change)
 				delta -= change
 			if absf(delta) <= EPS: break
 
 static func reserve_all(e: Dictionary) -> void:
 	ensure(e)
+	if not e.has("harvest_book"): return
+	if (e["harvest_book"]["balances"] as Dictionary).is_empty(): return
 	for f in e.get("fams", []): reserve_food(e, f)
 
 static func keep_food(e: Dictionary, f: Dictionary, meals: int, rate: float) -> int:
