@@ -550,8 +550,10 @@ static func land_moved(e: Dictionary, a: Dictionary, b: Dictionary, crop: String
 			P["drift"] = int(P.get("drift", 0)) + rem   # fewer plots than acres: the weekly check mends it
 			cache_ok = false
 		else:
+			var indexed_plots: bool = bool(P.get("_crop_work_plots_valid", false)) and int(P.get("crop_count", -1)) == n0 and P.has("crop_work_plots") and fa != fb
+			var b_plots: Array = P["crop_work_plots"].get(str(fb), {}).get(crop, []) if indexed_plots else []
+			var q := _purchase_part(P, b_plots if touched.is_empty() else b_plots + touched, rem, g) if indexed_plots else _part_plot(P, fb, ci, rem, g)
 			touched.append(g)
-			var q := _part_plot(P, fb, ci, rem, g)
 			if q >= 0:
 				P["ac"][g] = int(P["ac"][g]) - rem
 				P["ac"][q] = int(P["ac"][q]) + rem
@@ -561,7 +563,7 @@ static func land_moved(e: Dictionary, a: Dictionary, b: Dictionary, crop: String
 				if cache_ok: CropRotation._move_mix_acres(e, P, g, q, rem)
 			else:
 				var extra := int(P["ac"][g]) - rem
-				var q2 := _part_plot(P, fa, ci, extra, g)
+				var q2 := _purchase_part(P, left, extra, g) if fa != fb else _part_plot(P, fa, ci, extra, g)
 				if q2 >= 0:
 					P["ac"][g] = rem
 					P["ac"][q2] = int(P["ac"][q2]) + extra

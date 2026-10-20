@@ -362,7 +362,7 @@ static func sell_for_payroll(e: Dictionary, f: Dictionary, farm: Dictionary) -> 
 			if afford <= 0: break
 			var n: int = TownEcon._purchase_acres(e, f, buyer, crop_s, mini(limit, afford), seller)
 			if n <= 0: continue
-			Families.move_land(e, f, buyer, crop_s, n)
+			Families.move_land(e, f, buyer, crop_s, n, false)
 			var cost: float = float(n) * unit
 			buyer["purse"] = float(buyer["purse"]) - cost
 			f["purse"] = float(f["purse"]) + cost
