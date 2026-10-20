@@ -353,11 +353,13 @@ static func sell_for_payroll(e: Dictionary, f: Dictionary, farm: Dictionary) -> 
 		var crop_s: String = offer[0]
 		var unit: float = offer[1]
 		var limit: int = offer[2]
+		var seller: Dictionary = TownEcon._purchase_seller(e, f, crop_s)
+		if not bool(seller["src_ok"]): continue
 		for buyer in buyers:
 			var afford: int = maxi(0, int(floor((float(buyer["purse"]) - keep) / unit)))
 			# Sorted current purses: every remaining buyer is also unable to pay.
 			if afford <= 0: break
-			var n: int = TownEcon._purchase_acres(e, f, buyer, crop_s, mini(limit, afford))
+			var n: int = TownEcon._purchase_acres(e, f, buyer, crop_s, mini(limit, afford), seller)
 			if n <= 0: continue
 			Families.move_land(e, f, buyer, crop_s, n)
 			var cost: float = float(n) * unit

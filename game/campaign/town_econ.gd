@@ -1183,7 +1183,18 @@ static func fund_public_services(e: Dictionary) -> float:
 			paid += top
 	return paid
 
-static func _purchase_acres(e: Dictionary, a: Dictionary, b: Dictionary, crop: String, limit: int) -> int:
+## Seller-only crop state for _purchase_acres across a buyer loop (source check, plot candidates, lazy ox quotes).
+static func _purchase_seller(e: Dictionary, a: Dictionary, crop: String) -> Dictionary:
+	var source_rows := CropRotation.work_acres(e, a)
+	var source: Dictionary = source_rows.get(crop, {})
+	var src_ok: bool = absf(float(source.get("active", 0)) + float(source.get("fallow", 0)) - float(a["land"].get(crop, 0))) <= 0.000000001
+	var P: Dictionary = e.get("plots", {})
+	var mine: Array = []
+	if not P.is_empty():
+		mine = Plots.move_candidates(P, int(a["id"]), (P["crops"] as Array).find(crop))
+	return {"src_ok": src_ok, "mine": mine, "ox": {0: {"heads": 0, "hands": 0.0}}}
+
+static func _purchase_acres(e: Dictionary, a: Dictionary, b: Dictionary, crop: String, limit: int, seller: Dictionary = {}) -> int:
 	if limit <= 0: return 0
 	var L: Dictionary = data()["land"]
 	var budget := _property_hands(e, b)
@@ -1197,19 +1208,24 @@ static func _purchase_acres(e: Dictionary, a: Dictionary, b: Dictionary, crop: S
 	var upkeep := float(L.get("fallow_upkeep_share", 0.25)) / float(L["acres_per_hand"])
 	var nominal := Families.acres(b)
 	if absf(physical - float(nominal)) > 0.000000001: return 0
-	var source_rows := CropRotation.work_acres(e, a)
-	var source: Dictionary = source_rows.get(crop, {})
-	if absf(float(source.get("active", 0)) + float(source.get("fallow", 0)) - float(a["land"].get(crop, 0))) > 0.000000001: return 0
+	if seller.is_empty():
+		var source_rows := CropRotation.work_acres(e, a)
+		var source: Dictionary = source_rows.get(crop, {})
+		if absf(float(source.get("active", 0)) + float(source.get("fallow", 0)) - float(a["land"].get(crop, 0))) > 0.000000001: return 0
+	elif not bool(seller["src_ok"]):
+		return 0
 	# Optimistic all-fallow work is only a rejection bound, never the reported
 	# worked denominator or the actual purchase's required work.
 	if upkeep > 0.0:
 		limit = mini(limit, int(floor(maxf(0.0, budget - herd) / upkeep + 0.000000001)) - nominal)
 	if limit <= 0: return 0
 	var P: Dictionary = e.get("plots", {})
-	var mine := []
-	if not P.is_empty():
+	var mine: Array = []
+	if not seller.is_empty():
+		mine = seller["mine"]
+	elif not P.is_empty():
 		mine = Plots.move_candidates(P, int(a["id"]), (P["crops"] as Array).find(crop))
-	var ox_quotes: Dictionary = {0: {"heads": 0, "hands": 0.0}}
+	var ox_quotes: Dictionary = seller["ox"] if not seller.is_empty() else {0: {"heads": 0, "hands": 0.0}}
 	# Ox rounding, full plots and partial boundaries make work non-monotone in
 	# the quantity. Search descending; cheap lower bounds avoid oversized copies.
 	for n in range(limit, 0, -1):

@@ -199,11 +199,20 @@ static func free_first(e: Dictionary, pool: Array) -> Array:
 static func takeable(b: Dictionary, e: Dictionary = {}) -> int:
 	if b.get("closed", false) or float(b["wage"]) <= 0:
 		return 0
-	var w := maxf(0.01, float(b["wage"]))
-	var backing: float = float(b["till"]) + farm_kind_value(e, b)
-	var available := maxf(0.0, backing - maxf(0.0, float(b.get("owed", 0.0))))
-	var can := int(floor(available / (2.0 * w))) - int(b["workers"])
-	return maxi(0, mini(int(b["cap"]) - int(b["workers"]), can))
+	var workers: int = int(b["workers"])
+	var vac: int = int(b["cap"]) - workers
+	if vac <= 0:
+		return 0
+	var w: float = maxf(0.01, float(b["wage"]))
+	var owed: float = maxf(0.0, float(b.get("owed", 0.0)))
+	var till: float = float(b["till"])
+	var cash_can: int = int(floor(maxf(0.0, till - owed) / (2.0 * w))) - workers
+	if cash_can >= vac or b.get("type", "") != "farm":
+		return maxi(0, mini(vac, cash_can))
+	var backing: float = till + farm_kind_value(e, b)
+	var available: float = maxf(0.0, backing - owed)
+	var can: int = int(floor(available / (2.0 * w))) - workers
+	return maxi(0, mini(vac, can))
 
 ## Rows that are not production trades: the town's fields, the families' farms, the market, the town's offices.
 const NOT_TRADES := ["farm", "estate", "works", "market", "collector", "mint", "academy"]
@@ -243,14 +252,70 @@ static func fit_to_people(e: Dictionary) -> void:
 		b["till"] = float(b["wage"]) * float(hands) * 14.0
 	e["fit"] = {"free": snappedf(free, 0.1), "want": snappedf(want, 0.1), "k": snappedf(k, 0.001)}
 
+## Runtime-only cache of the last refresh_hiring(e) signature per town dictionary (never saved to disk).
+static var _hiring_cache: Array = []
+
+static func open_suffix_max(e: Dictionary) -> PackedFloat64Array:
+	for i in _hiring_cache.size():
+		var entry: Array = _hiring_cache[i]
+		if is_same(entry[0], e):
+			if is_same(e.get("open"), entry[2]):
+				var open_ids: Array = e["open"]
+				var suf: PackedFloat64Array = entry[4]
+				if open_ids.size() == int(entry[3]) and suf.size() == open_ids.size():
+					return suf
+			return PackedFloat64Array()
+	return PackedFloat64Array()
+
 ## Current vacancies and funded offers. Family matching refreshes this small index;
 ## production indexes and market state still follow the existing daily/weekly passes.
 static func refresh_hiring(e: Dictionary) -> void:
+	var biz: Array = e["biz"]
+	var n: int = biz.size()
+	var sig: PackedFloat64Array = PackedFloat64Array()
+	var open_n: int = 0
+	var top: float = 0.0
+	for i in n:
+		var b: Dictionary = biz[i]
+		if b.get("closed", false): continue
+		var cap: int = int(b["cap"])
+		var workers: int = int(b["workers"])
+		var vac: int = cap - workers
+		if vac <= 0: continue
+		var t: String = String(b["type"])
+		var tc: int = 0 if t == "farm" else (1 if t == "estate" else 2)
+		var wage: float = float(b["wage"])
+		open_n += vac
+		if wage > top and takeable(b, e) > 0:
+			top = wage
+		sig.append(float((int(b["id"]) << 2) | tc))
+		sig.append(float(vac))
+		sig.append(wage)
+	sig.append(float(n))
+	sig.append(top)
+	var hit: int = -1
+	for i in _hiring_cache.size():
+		var entry: Array = _hiring_cache[i]
+		if is_same(entry[0], e):
+			hit = i
+			break
+	if hit > 0:
+		var tmp: Array = _hiring_cache[0]
+		_hiring_cache[0] = _hiring_cache[hit]
+		_hiring_cache[hit] = tmp
+		hit = 0
+	if hit == 0:
+		var entry: Array = _hiring_cache[0]
+		var prev_sig: PackedFloat64Array = entry[1]
+		if prev_sig == sig and is_same(e.get("open"), entry[2]) and (e["open"] as Array).size() == int(entry[3]):
+			e["open_n"] = open_n
+			e["open_top"] = top
+			return
 	var open := []
 	var fields := []
 	# Collect both groups in the same original business order. The non-farm
 	# sort and all tie/order rules below remain unchanged.
-	for b in e["biz"]:
+	for b in biz:
 		if b.get("closed", false) or int(b["cap"]) <= int(b["workers"]): continue
 		if b["type"] == "farm": fields.append(b)
 		else: open.append(b)
@@ -277,16 +342,29 @@ static func refresh_hiring(e: Dictionary) -> void:
 	for b in rest:
 		if float(b["wage"]) <= fw:
 			ids.append(int(b["id"]))
+	var m: int = ids.size()
+	var open_max: PackedFloat64Array = PackedFloat64Array()
+	open_max.resize(m)
+	var cur_max: float = -INF
+	for i in range(m - 1, -1, -1):
+		var b_i: Dictionary = biz[int(ids[i])]
+		var w: float = float(b_i["wage"])
+		if w > cur_max:
+			cur_max = w
+		open_max[i] = cur_max
 	e["open"] = ids
-	var open_n := 0
-	var top := 0.0
-	for bid in ids:
-		var b: Dictionary = e["biz"][int(bid)]
-		open_n += int(b["cap"]) - int(b["workers"])
-		if takeable(b, e) > 0:
-			top = maxf(top, float(b["wage"]))
 	e["open_n"] = open_n
 	e["open_top"] = top   # the best pay an open place whose till can pay it offers (a worse-paid hand looks again)
+	if hit == 0:
+		var entry: Array = _hiring_cache[0]
+		entry[1] = sig
+		entry[2] = ids
+		entry[3] = m
+		entry[4] = open_max
+	else:
+		_hiring_cache.push_front([e, sig, ids, m, open_max])
+		if _hiring_cache.size() > 64:
+			_hiring_cache.pop_back()
 
 static func rebuild_open(e: Dictionary) -> void:
 	refresh_hiring(e)

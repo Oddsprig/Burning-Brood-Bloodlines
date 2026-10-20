@@ -657,6 +657,7 @@ static func keeps_stale(e: Dictionary, f: Dictionary) -> bool:
 ## much more: Douglas 21:14 "unless the job fits their personality more". Town people have no traits or values in
 ## the register, so their past work is the only taste the sim has. A hungry or indebted family weighs pay alone.
 const FIT_BONUS := 0.1
+static var _casual_ids: Array = []
 
 ## v0.014 (Douglas 21:14: "youd think people would be interested in higher paying jobs first"): the family's hired
 ## places, chosen afresh each time it looks: the places it holds now and the open places it could take (whose till
@@ -665,37 +666,125 @@ const FIT_BONUS := 0.1
 ## equal pay he stays). Its own shops are not in this (Families.reassign tops them up first). Only this town's places
 ## (no one walks to another town for a day's work). Returns the family's hands at work in jobs.
 static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
-	var biz: Array = e["biz"]
-	var fid := int(f["id"])
-	var needy := int(f.get("hungry", 0)) > 0 or float(f.get("debt", 0.0)) > 0.5
-	var known := {} if needy else _known_trades(e, f)
-	var cand := []
-	for k in f["jobs"]:
-		var b: Dictionary = biz[int(k)]
-		var held_score := _pay_score(e, b, known)
-		for i in int(f["jobs"][k]):
-			cand.append([held_score, int(k), 1])
-	var slots := spare
+	var slots: int = spare
 	if slots <= 0:
 		return job_total(f)
-	for bid in e.get("open", []):
-		var b: Dictionary = biz[int(bid)]
+	var biz: Array = e["biz"]
+	var needy: bool = int(f.get("hungry", 0)) > 0 or float(f.get("debt", 0.0)) > 0.5
+	var max_mult: float = 1.0 if needy else 1.0 + FIT_BONUS
+	var known: Dictionary = {}
+	var known_ready: bool = needy
+	var cand: Array = []
+	var held_total: int = 0
+	var min_held_wage: float = INF
+	for k in f["jobs"]:
+		var n: int = int(f["jobs"][k])
+		if n > 0:
+			held_total += n
+			min_held_wage = minf(min_held_wage, float(biz[int(k)]["wage"]))
+	var held_ready: bool = held_total == 0
+	if held_total > slots:
+		if not known_ready:
+			known = _known_trades(e, f)
+			known_ready = true
+			max_mult = 1.0 if known.is_empty() else 1.0 + FIT_BONUS
+		for k in f["jobs"]:
+			_add_cand(cand, slots, _pay_score(e, biz[int(k)], known), int(k), 1, int(f["jobs"][k]))
+		held_ready = true
+	var open_ids: Array = e.get("open", [])
+	var open_max: PackedFloat64Array = Businesses.open_suffix_max(e)
+	var has_suf: bool = open_max.size() == open_ids.size()
+	for i in open_ids.size():
+		var bid: int = int(open_ids[i])
+		var b: Dictionary = biz[bid]
 		if b.get("closed", false):
 			continue
-		var open := Businesses.takeable(b, e)
-		if open <= 0:
-			continue   # nobody signs on where the till is empty
-		var sc := _pay_score(e, b, known)
-		for i in mini(open, slots):
-			cand.append([sc, int(bid), 0])
-	var casual_ids: Array = TownEcon.data()["casual_jobs"].keys()
-	casual_ids.sort()
-	if not f.has("hl"):
+		if (cand.size() if held_ready else held_total) >= slots:
+			if not held_ready:
+				if float(b["wage"]) * max_mult <= min_held_wage:
+					if has_suf and open_max[i] * max_mult <= min_held_wage:
+						break
+					continue
+				if not known_ready:
+					known = _known_trades(e, f)
+					known_ready = true
+					max_mult = 1.0 if known.is_empty() else 1.0 + FIT_BONUS
+				for k in f["jobs"]:
+					_add_cand(cand, slots, _pay_score(e, biz[int(k)], known), int(k), 1, int(f["jobs"][k]))
+				held_ready = true
+			var min_sc: float = float(cand[slots - 1][0])
+			if has_suf and open_max[i] * max_mult <= min_sc:
+				break
+			if float(b["wage"]) * max_mult <= min_sc:
+				continue
+			var sc: float = _pay_score(e, b, known)
+			if sc <= min_sc:
+				continue
+			var open: int = Businesses.takeable(b, e)
+			if open > 0:
+				_add_cand(cand, slots, sc, bid, 0, open)
+		else:
+			var open: int = Businesses.takeable(b, e)
+			if open <= 0:
+				continue   # nobody signs on where the till is empty
+			if not known_ready:
+				known = _known_trades(e, f)
+				known_ready = true
+				max_mult = 1.0 if known.is_empty() else 1.0 + FIT_BONUS
+			if not held_ready:
+				for k in f["jobs"]:
+					_add_cand(cand, slots, _pay_score(e, biz[int(k)], known), int(k), 1, int(f["jobs"][k]))
+				held_ready = true
+			_add_cand(cand, slots, _pay_score(e, b, known), bid, 0, open)
+	var casual_ids: Array = []
+	var cjcap: Dictionary = e.get("cjcap", {})
+	if not f.has("hl") and not cjcap.is_empty():
+		var cj_defs: Dictionary = TownEcon.data()["casual_jobs"]
+		if _casual_ids.size() != cj_defs.size():
+			_casual_ids = cj_defs.keys()
+			_casual_ids.sort()
+		casual_ids = _casual_ids
+		var cjused: Dictionary = e.get("cjused", {})
+		var day_w: float = Barge.day_wage(e)
+		var base_w: float = float(Barge.B()["labour"]["base"])
+		var cust_funds: float = -1.0
 		for ci in casual_ids.size():
-			var j := String(casual_ids[ci])
-			var available := Shelter.available_casual(e, j)
-			for n in mini(available, slots): cand.append([Barge.casual_wage(e, j), -ci - 1, 0])
-	cand.sort_custom(func(a, b2): return float(a[0]) > float(b2[0]) if float(a[0]) != float(b2[0]) else int(a[2]) > int(b2[2]))
+			var j: String = String(casual_ids[ci])
+			var used: float = float(cjused.get(j, 0))
+			var places: int = int(floor(float(cjcap.get(j, 0)) - used + 0.00001))
+			if places <= 0:
+				continue
+			var cj: Dictionary = cj_defs[j]
+			var cw: float = day_w if cj.has("day") else clampf(day_w * (float(cj["wage"]) / base_w), day_w * 0.75, day_w * 1.8)
+			if (cand.size() if held_ready else held_total) >= slots:
+				if cw <= (float(cand[slots - 1][0]) if held_ready else min_held_wage):
+					continue
+			var payer: String = String(cj["payer"])
+			var funds: float = 0.0
+			if payer == "treasury":
+				funds = float(e.get("treasury", 0))
+			elif payer == "customers":
+				if cust_funds < 0.0:
+					cust_funds = TownSanitation.customer_funds(e)
+				funds = cust_funds
+			else:
+				funds = float((biz[int(e["mkt"])] as Dictionary)["till"])
+			var available: int = mini(places, maxi(0, int(floor(funds / maxf(0.01, cw * 7.0) - used + 0.00001))))
+			if available <= 0:
+				continue
+			if not held_ready:
+				if not known_ready:
+					known = _known_trades(e, f)
+					known_ready = true
+					max_mult = 1.0 if known.is_empty() else 1.0 + FIT_BONUS
+				for k in f["jobs"]:
+					_add_cand(cand, slots, _pay_score(e, biz[int(k)], known), int(k), 1, int(f["jobs"][k]))
+				held_ready = true
+				if cand.size() >= slots and cw <= float(cand[slots - 1][0]):
+					continue
+			_add_cand(cand, slots, cw, -ci - 1, 0, available)
+	if not held_ready:
+		return held_total
 	var want := {}
 	var casual := {}
 	var casual_total := 0
@@ -714,6 +803,25 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 		f["cj"] = casual
 		for j in casual: e["cjused"][j] = float(e["cjused"].get(j, 0)) + int(casual[j])
 	return job_total(f) + casual_total
+
+## Inserts up to `count` places into `cand`, keeping only the best `slots` (higher score, then held before new, then earlier).
+static func _add_cand(cand: Array, slots: int, sc: float, bid: int, held: int, count: int) -> void:
+	for _i in count:
+		var m: int = cand.size()
+		if m >= slots:
+			var last: Array = cand[slots - 1]
+			if sc < float(last[0]) or (sc == float(last[0]) and held <= int(last[2])):
+				return
+		var idx: int = m
+		for j in m:
+			var cur: Array = cand[j]
+			var csc: float = float(cur[0])
+			if sc > csc or (sc == csc and held > int(cur[2])):
+				idx = j
+				break
+		cand.insert(idx, [sc, bid, held])
+		if cand.size() > slots:
+			cand.pop_back()
 
 static func _pay_score(e: Dictionary, b: Dictionary, known: Dictionary) -> float:
 	var w := float(b["wage"])
