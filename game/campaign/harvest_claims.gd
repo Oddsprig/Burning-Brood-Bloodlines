@@ -7,6 +7,7 @@ extends RefCounted
 const EPS := 0.00000001
 const UNKNOWN := "?"
 const FOOD := ["grain", "fruit"]
+const ZERO_PAIR := [0.0, 0.0]
 
 static func _family_id(key: String) -> int:
 	if not key.begins_with("f:"): return -1
@@ -80,10 +81,14 @@ static func _lot(e: Dictionary, good: String, shares: Dictionary, day: int, sour
 
 static func ensure(e: Dictionary) -> void:
 	if not e.has("barn"): return
-	if e.get("harvest_book") is Dictionary:
-		var existing: Dictionary = e["harvest_book"]
-		for key in ["lots", "carry", "balances", "cash", "legacy_food"]:
-			if not existing.get(key) is Dictionary: existing[key] = {}
+	var hb: Variant = e.get("harvest_book")
+	if hb is Dictionary:
+		var existing: Dictionary = hb
+		if not (existing.get("lots") is Dictionary): existing["lots"] = {}
+		if not (existing.get("carry") is Dictionary): existing["carry"] = {}
+		if not (existing.get("balances") is Dictionary): existing["balances"] = {}
+		if not (existing.get("cash") is Dictionary): existing["cash"] = {}
+		if not (existing.get("legacy_food") is Dictionary): existing["legacy_food"] = {}
 		if not existing.has("version"): existing["version"] = 1
 		if not existing.has("unattributed_cash"): existing["unattributed_cash"] = 0.0
 		return
@@ -168,6 +173,21 @@ static func harvest(e: Dictionary, good: String, channel: String, weights: Dicti
 static func owned(e: Dictionary, key: String, good: String, reserved_only: bool = false) -> float:
 	ensure(e)
 	return float(_book(e).get("balances", {}).get(key, {}).get(good, [0.0, 0.0])[1 if reserved_only else 0])
+
+## Read both balance entries [total, reserved] in one lookup without fallback allocations.
+static func owned_pair(e: Dictionary, key: String, good: String) -> Array:
+	ensure(e)
+	var book: Variant = e.get("harvest_book")
+	if not (book is Dictionary): return ZERO_PAIR
+	var balances: Variant = (book as Dictionary).get("balances")
+	if not (balances is Dictionary): return ZERO_PAIR
+	var goods: Variant = (balances as Dictionary).get(key)
+	if not (goods is Dictionary): return ZERO_PAIR
+	var row: Variant = (goods as Dictionary).get(good)
+	if not (row is Array) or (row as Array).size() < 2: return ZERO_PAIR
+	var pair: Array = row
+	if pair[0] is float and pair[1] is float: return pair
+	return [float(pair[0]), float(pair[1])]
 
 static func available(e: Dictionary, good: String) -> int:
 	ensure(e)

@@ -197,21 +197,24 @@ static func free_first(e: Dictionary, pool: Array) -> Array:
 ## Remaining cash must cover the existing two-day reserve for current and new hands. (Before: any till over two days of ONE wage was open for all its places: a farm with 795 coins
 ## and 62 places to fill took on hands it could not pay, then read "can't pay wages".)
 static func takeable(b: Dictionary, e: Dictionary = {}) -> int:
-	if b.get("closed", false) or float(b["wage"]) <= 0:
+	if b.get("closed", false):
+		return 0
+	var wage: float = float(b["wage"])
+	if wage <= 0.0:
 		return 0
 	var workers: int = int(b["workers"])
 	var vac: int = int(b["cap"]) - workers
 	if vac <= 0:
 		return 0
-	var w: float = maxf(0.01, float(b["wage"]))
+	var two_w: float = 2.0 * maxf(0.01, wage)
 	var owed: float = maxf(0.0, float(b.get("owed", 0.0)))
 	var till: float = float(b["till"])
-	var cash_can: int = int(floor(maxf(0.0, till - owed) / (2.0 * w))) - workers
+	var cash_can: int = int(floor(maxf(0.0, till - owed) / two_w)) - workers
 	if cash_can >= vac or b.get("type", "") != "farm":
 		return maxi(0, mini(vac, cash_can))
 	var backing: float = till + farm_kind_value(e, b)
 	var available: float = maxf(0.0, backing - owed)
-	var can: int = int(floor(available / (2.0 * w))) - workers
+	var can: int = int(floor(available / two_w)) - workers
 	return maxi(0, mini(vac, can))
 
 ## Rows that are not production trades: the town's fields, the families' farms, the market, the town's offices.
@@ -1399,12 +1402,17 @@ static func receive_farm(e: Dictionary, f: Dictionary, amount: float) -> float:
 static func farm_kind_value(e: Dictionary, b: Dictionary) -> float:
 	if e.is_empty() or b.get("type", "") != "farm" or b.get("closed", false): return 0.0
 	var fid: int = int(b.get("owner", -1))
-	if fid < 0 or fid >= e.get("fams", []).size(): return 0.0
-	var f: Dictionary = e["fams"][fid]
+	if fid < 0: return 0.0
+	var fams: Variant = e.get("fams")
+	if not (fams is Array) or fid >= (fams as Array).size(): return 0.0
+	var f: Dictionary = (fams as Array)[fid]
 	if f.get("gone", false) or int(f.get("farm", -1)) != int(b["id"]): return 0.0
-	var key: String = "f:%d" % fid
-	var grain: float = maxf(0.0, HarvestClaims.owned(e, key, "grain") - HarvestClaims.owned(e, key, "grain", true))
-	return grain * maxf(0.0, float(e.get("price", {}).get("grain", 0.0)))
+	var pair: Array = HarvestClaims.owned_pair(e, "f:%d" % fid, "grain")
+	var grain: float = maxf(0.0, float(pair[0]) - float(pair[1]))
+	if grain <= 0.0: return 0.0
+	var prices: Variant = e.get("price")
+	if not (prices is Dictionary): return 0.0
+	return grain * maxf(0.0, float((prices as Dictionary).get("grain", 0.0)))
 
 ## Move the existing owner's coins into the existing farm reserve. Funding is
 ## separate from the weekly books and cannot pay or erase earned wage claims.
