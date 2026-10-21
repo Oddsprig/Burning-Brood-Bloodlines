@@ -457,7 +457,7 @@ func _metrics_snapshot() -> Dictionary:
 		out["deaths"] += int(census.get("dt", stats.get("deaths", 0)))
 		out["starved"] += _town_starved(e, census, stats)
 		out["population_cached"] += int(e.get("pop", 0))
-		out["treasuries"] += float(e.get("treasury", 0.0))
+		out["treasuries"] += float(e.get("treasury", 0.0)) + float(e.get("land_fund", 0.0))
 		out["farm"] += float(e.get("farm_till", 0.0))
 		var stock_var = e.get("stock", {})
 		if stock_var is Dictionary:

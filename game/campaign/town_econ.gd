@@ -235,9 +235,11 @@ static func family_batch(game, town: Dictionary, day: int, half: int = -1) -> vo
 		Families.turn(game, town, e, fams[i], float(day), rng)
 		i += stepn
 	batch_open = false
+	batch_half = half
 	var t0 := Time.get_ticks_usec() if prof_on else 0
 	clear_batch(e)
 	if prof_on: _prof("f_clear_batch", t0)
+	batch_half = -1
 	# An owner's ordinary turn can fund or expand private farm places after
 	# idle civilians have already had their weekly turn. Complete this batch's
 	# actual funded matching without advancing anyone's wages or payday.
@@ -247,6 +249,7 @@ static func family_batch(game, town: Dictionary, day: int, half: int = -1) -> vo
 ## (spec 4: posted family buy orders vs stock); a short good is shared out pro rata.
 static var batch: Array = []
 static var batch_open := false
+static var batch_half := -1
 static var batch_barn := false   # an order on the batch buys straight from the barns
 
 static var _markup := -1.0
@@ -259,6 +262,8 @@ static func markup() -> float:
 ## a price factor for buying straight from the barns (the farms' own harvest: landholders at the broker's 0.75 x P,
 ## field hands' wages in grain at P; the coin goes to the farm till, paid to the owners of the goods).
 static func clear_batch(e: Dictionary) -> void:
+	if batch_half != 0 and not (e.get("land_sell_q", []) as Array).is_empty():
+		Loans.settle_land_sales(e)
 	if batch.is_empty():
 		return
 	HarvestClaims.ensure(e)
@@ -910,13 +915,14 @@ static func town_turn(game, town: Dictionary, day: int) -> void:
 	# the town's own fields: claims to the treasury, hired hands work them
 	var est: Dictionary = fams[0]
 	Families.settle(e, est)
+	# land and businesses for sale (the land loop: only if no family buys does the town work it)
+	Loans.settle_land_buys(e)
+	_sell_land(e, D, float(day))
+	_sell_businesses(e, float(day))
 	var eb: Dictionary = biz[int(e["estate_biz"])]
 	var seasonal_need := Families.seasonal_need_hands(est, float(day), e)
 	eb["cap"] = maxi(0, int(ceil(seasonal_need - 0.2)))
 	Families.refresh_worked(e, est)
-	# land and businesses for sale (the land loop: only if no family buys does the town work it)
-	_sell_land(e, D, float(day))
-	_sell_businesses(e, float(day))
 	# public works: with money above its reserve the head takes on idle hands (walls, roads, wells) [ours]
 	if e.has("works_biz"):
 		var wb2: Dictionary = biz[int(e["works_biz"])]
@@ -1265,6 +1271,15 @@ static func _sell_land(e: Dictionary, D: Dictionary, day: float) -> void:
 	var est: Dictionary = e["fams"][0]
 	if (est["land"] as Dictionary).is_empty() and (est["herd"] as Dictionary).is_empty():
 		return
+	var has_est_land: bool = not (est["herd"] as Dictionary).is_empty()
+	if not has_est_land:
+		var lm: Dictionary = e.get("land_market", {})
+		for crop in est["land"]:
+			if int(est["land"][crop]) > int(lm.get(crop, 0)):
+				has_est_land = true
+				break
+		if not has_est_land:
+			return
 	var L: Dictionary = D["land"]
 	var buyers := []
 	for f in e["fams"]:
@@ -1277,7 +1292,9 @@ static func _sell_land(e: Dictionary, D: Dictionary, day: float) -> void:
 	buyers.sort_custom(func(a, b): return float(a["purse"]) > float(b["purse"]))
 	for f in buyers.slice(0, 5):
 		for crop in est["land"].keys():
-			var want_n := _purchase_acres(e, est, f, String(crop), int(est["land"][crop]))
+			var est_avail := int(est["land"][crop]) - int(e.get("land_market", {}).get(crop, 0))
+			if est_avail <= 0: continue
+			var want_n := _purchase_acres(e, est, f, String(crop), est_avail)
 			if want_n <= 0: continue
 			Families.settle(e, f)
 			var short := float(want_n) * float(L["acre_price"]) - (float(f["purse"]) - 40.0 * COIN)
@@ -1497,6 +1514,8 @@ static func after_load(game) -> void:
 				Persons.upgrade(t["econ"], f)   # older records keep the names they had
 		if not t["econ"].has("territory"):
 			t["econ"]["territory"] = land_total(t["econ"])   # older saves: the land pool as it is now
+		if not t["econ"].has("land_fund"):
+			t["econ"]["land_fund"] = 0.0
 	for fid in w.get("factions", {}):
 		var fac: Dictionary = w["factions"][fid]
 		if not fac.has("treasury"):
@@ -1545,10 +1564,13 @@ static func _fix_ints(e: Dictionary) -> void:
 	# load made occupied cleanup capacity appear available to another worker.
 	var casual_used: Dictionary = e.get("cjused", {})
 	for j in casual_used: casual_used[j] = float(casual_used[j])
-	for k in ["stock", "barn", "hh", "land", "herd"]:
+	for k in ["stock", "barn", "hh", "land", "herd", "land_market"]:
 		var d: Dictionary = e.get(k, {})
 		for g in d:
 			d[g] = int(d[g])
+	var lsq: Array = e.get("land_sell_q", [])
+	for i in lsq.size():
+		lsq[i] = int(lsq[i])
 	e["tax"]["season"] = int(e["tax"]["season"])
 	e["head"]["fam"] = int(e["head"]["fam"])
 	for o in e.get("orders", []):

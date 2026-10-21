@@ -317,60 +317,279 @@ static func _sell_holding(e: Dictionary, f: Dictionary, kind: String, key: Strin
 	Families.reassign(e, f)
 	return cost
 
-## A cash-starved farm offers at most a quarter of one crop holding per week.
-## Reuse the native purchase preview and physical land/ox/plot transfer.
-## No public bailout: a buyer must own the coin AND have spare labour.
+## Town land market (v0.044): a cash-starved farm queues its payroll land sale during the day;
+## the SELL pass settles queued sales to the town (paid from e.land_fund, held as town stock on
+## the estate and tracked in e.land_market), and the BUY pass sells town stock to eligible and
+## interested households (those with both coin above the reserve and spare property hands).
+const LAND_FUND_ACRES := 24.0
+static var last_buyers_checked: Array = []
+
+static func crop_acre_price(e: Dictionary, crop: String, D: Dictionary = {}) -> float:
+	if D.is_empty(): D = TownEcon.data()
+	var base: float = maxf(0.01, float(D["goods"].get(crop, {}).get("price", 1.0)))
+	return float(D["land"]["acre_price"]) * maxf(0.01, float(e.get("price", {}).get(crop, base))) / base
+
+static func _ensure_land_fund(e: Dictionary) -> void:
+	if not e.has("land_fund"):
+		e["land_fund"] = 0.0
+	var D: Dictionary = TownEcon.data()
+	var unit_ref: float = float(D["land"]["acre_price"])
+	var tot_ac: int = 0
+	var tot_val: float = 0.0
+	for crop in e.get("land", {}):
+		var ac: int = int(e["land"][crop])
+		if ac > 0:
+			tot_ac += ac
+			tot_val += float(ac) * crop_acre_price(e, String(crop), D)
+	if tot_ac > 0:
+		unit_ref = maxf(unit_ref, tot_val / float(tot_ac))
+	var want: float = LAND_FUND_ACRES * unit_ref
+	var stock_val: float = 0.0
+	var mkt: Dictionary = e.get("land_market", {})
+	for crop in mkt:
+		stock_val += float(int(mkt[crop])) * crop_acre_price(e, String(crop), D)
+	var gap: float = maxf(0.0, want - (float(e["land_fund"]) + stock_val))
+	if gap <= 0.0:
+		return
+	var seed_coin: float = minf(gap, maxf(0.0, float(e.get("treasury", 0.0)) * 0.25))
+	if seed_coin > 0.0:
+		e["treasury"] = float(e.get("treasury", 0.0)) - seed_coin
+		e["land_fund"] = float(e["land_fund"]) + seed_coin
+
 static func sell_for_payroll(e: Dictionary, f: Dictionary, farm: Dictionary) -> void:
+	if f.get("gone", false) or f.get("estate", false) or farm.is_empty() or farm.get("closed", false): return
 	var day: int = int(e.get("day", 0))
 	if day - int(farm.get("payroll_sale_day", day - 7)) < 7: return
-	farm["payroll_sale_day"] = day
 	var bill: float = float(maxi(int(farm["workers"]), int(farm["cap"]))) * float(farm["wage"])
 	var gap: float = maxf(0.0, float(farm.get("owed", 0.0)) + bill * 8.0 - float(farm["till"]) - Businesses.farm_kind_value(e, farm))
-	if gap <= 0.0: return
+	if gap <= 0.0 or (f.get("land", {}) as Dictionary).is_empty(): return
+	farm["payroll_sale_day"] = day
+	var q: Array = e.get("land_sell_q", [])
+	var fid: int = int(f["id"])
+	if not q.has(fid):
+		q.append(fid)
+	e["land_sell_q"] = q
+
+## SELL pass: queued sellers sell needed acres to the town (paid from e.land_fund at
+## the crop's quoted acre price; held on the town estate and recorded in e.land_market).
+## Reassigns each seller's jobs once per pass and funds its farm payroll reserve.
+static func settle_land_sales(e: Dictionary) -> int:
+	var q: Array = e.get("land_sell_q", [])
+	if q.is_empty(): return 0
+	var sellers: Array = q.duplicate()
+	q.clear()
+	var fams: Array = e.get("fams", [])
+	if fams.is_empty(): return 0
+	_ensure_land_fund(e)
+	if float(e.get("land_fund", 0.0)) <= 0.0:
+		return 0
+	var est: Dictionary = fams[0]
+	var D: Dictionary = TownEcon.data()
+	if not e.has("land_market"): e["land_market"] = {}
+	var mkt: Dictionary = e["land_market"]
+	var day: float = float(e.get("day", 0))
+	var pending: Array = []
+	var rem_want_coin: float = 0.0
+	for fid_v in sellers:
+		var fid: int = int(fid_v)
+		if fid <= 0 or fid >= fams.size(): continue
+		var f: Dictionary = fams[fid]
+		if f.get("gone", false) or f.get("estate", false): continue
+		var farm: Dictionary = Businesses.farm_of(e, f)
+		if farm.is_empty(): continue
+		var funded0: float = Businesses.fund_farm(f, farm, e)
+		if funded0 > 0.0:
+			f["farm_funding_pending"] = float(f.get("farm_funding_pending", 0.0)) + funded0
+		var bill: float = float(maxi(int(farm["workers"]), int(farm["cap"]))) * float(farm["wage"])
+		var gap: float = maxf(0.0, float(farm.get("owed", 0.0)) + bill * 8.0 - float(farm["till"]) - Businesses.farm_kind_value(e, farm))
+		if gap <= 0.0: continue
+		var best_crop: String = ""
+		var best_unit: float = 0.0
+		var best_limit: int = 0
+		var best_val: float = -1.0
+		for crop in f["land"].keys():
+			var avail: int = int(f["land"].get(crop, 0))
+			if avail <= 0: continue
+			var crop_s: String = String(crop)
+			var unit: float = crop_acre_price(e, crop_s, D)
+			var limit: int = mini(avail, mini(int(ceil(float(avail) * 0.25)), int(ceil(gap / unit))))
+			if limit <= 0: continue
+			var val: float = float(avail) * unit
+			if val > best_val:
+				best_val = val
+				best_crop = crop_s
+				best_unit = unit
+				best_limit = limit
+		if best_limit > 0:
+			var seller_want: float = float(best_limit) * best_unit
+			pending.append([f, farm, best_crop, best_unit, best_limit, seller_want])
+			rem_want_coin += seller_want
+	var total_sold: int = 0
+	for item in pending:
+		var f: Dictionary = item[0]
+		var farm: Dictionary = item[1]
+		var crop_s: String = item[2]
+		var unit: float = float(item[3])
+		var limit: int = int(item[4])
+		var seller_want: float = float(item[5])
+		var fund_now: float = maxf(0.0, float(e.get("land_fund", 0.0)))
+		var share_coin: float = fund_now * (seller_want / rem_want_coin) if rem_want_coin > 0.0 else fund_now
+		rem_want_coin = maxf(0.0, rem_want_coin - seller_want)
+		var budget_left: float = fund_now if rem_want_coin <= 0.0 else minf(fund_now, maxf(share_coin, unit))
+		var avail: int = int(f["land"].get(crop_s, 0))
+		var can_pay: int = int(floor(minf(fund_now, budget_left) / unit))
+		var n: int = mini(avail, mini(limit, can_pay))
+		if n <= 0: continue
+		var cost: float = float(n) * unit
+		Families.move_land(e, f, est, crop_s, n)
+		e["land_fund"] = float(e["land_fund"]) - cost
+		f["purse"] = float(f["purse"]) + cost
+		mkt[crop_s] = int(mkt.get(crop_s, 0)) + n
+		Families.add_hist(f, "Sold %d acres to %s for %d coins to fund the farm's wages." % [n, est["name"], int(cost)], day)
+		total_sold += n
+		Families.reassign(e, f)
+		var funded1: float = Businesses.fund_farm(f, farm, e)
+		if funded1 > 0.0:
+			f["farm_funding_pending"] = float(f.get("farm_funding_pending", 0.0)) + funded1
+		var claims: Dictionary = farm.get("wage_claims", {})
+		if not claims.is_empty():
+			var paid_workers: Array = []
+			for wk in claims.keys():
+				var wid: int = int(wk)
+				if wid <= 0 or wid >= fams.size(): continue
+				var wf: Dictionary = fams[wid]
+				if float(wf.get("last", -1.0)) != day: continue
+				var res: Array = WageClaims.pay_business(e, wf, farm)
+				if float(res[0]) > 0.0 and not wf.get("gone", false):
+					if float(res[0]) >= float(res[1]) * 0.95 and int(wf.get("unpaid", 0)) > 0:
+						wf["unpaid"] = maxi(0, int(wf["unpaid"]) - 1)
+					paid_workers.append(wf)
+			if (farm.get("wage_claims", {}) as Dictionary).is_empty():
+				farm.erase("unpaid_d")
+			var funded2: float = Businesses.fund_farm(f, farm, e)
+			if funded2 > 0.0:
+				f["farm_funding_pending"] = float(f.get("farm_funding_pending", 0.0)) + funded2
+			var fkey: String = str(int(farm["id"]))
+			for wf in paid_workers:
+				if float(wf.get("store", {}).get("food", 0.0)) < 7.0:
+					EconomyRules.cover_food(e, wf, 7.0, day)
+				if int(wf.get("jobs", {}).get(fkey, 0)) <= 0:
+					Families.reassign(e, wf)
+		if float(f.get("store", {}).get("food", 0.0)) < 7.0:
+			EconomyRules.cover_food(e, f, 7.0, day)
+	if total_sold > 0:
+		e["land_market_dirty"] = true
+		_sync_estate_work(e, est, day)
+	return total_sold
+
+static func _sync_estate_work(e: Dictionary, est: Dictionary, day: float) -> void:
+	var ebiz: int = int(e.get("estate_biz", -1))
+	var biz: Array = e.get("biz", [])
+	if ebiz >= 0 and ebiz < biz.size():
+		var eb: Dictionary = biz[ebiz]
+		var seasonal_need: float = Families.seasonal_need_hands(est, day, e)
+		eb["cap"] = maxi(0, int(ceil(seasonal_need - 0.2)))
+	Families.refresh_worked(e, est)
+
+static func _cached_need_hands(e: Dictionary, b: Dictionary) -> float:
+	var cy: int = Calendar.year(float(e.get("day", 0)))
+	if int(b.get("work_crop_year", -1)) == cy and b.has("work_need"):
+		return float(b["work_need"])
+	return Families.need_hands(b, e)
+
+## Returns true when a household is eligible AND interested in buying land from the town market:
+## it is a live, non-estate, debt-free household with valid keepers, can afford at least one
+## acre above the 40-coin reserve, and needs land (has spare property hands to work it).
+static func is_interested_buyer(e: Dictionary, b: Dictionary, min_unit: float = 0.0) -> bool:
+	if b.get("gone", false) or b.get("estate", false): return false
+	if float(b.get("debt", 0.0)) > 0.0: return false
 	var D: Dictionary = TownEcon.data()
 	var keep: float = 40.0 * TownEcon.COIN
-	# The crops on offer, in the seller's order: [crop, unit price, acre limit]. Nothing moves before the one sale.
+	var price_floor: float = min_unit if min_unit > 0.0 else float(D["land"]["acre_price"]) * 0.2
+	if maxi(0, int(floor((float(b.get("purse", 0.0)) - keep) / price_floor))) <= 0: return false
+	if Families.keeps_stale(e, b): return false
+	var L: Dictionary = D["land"]
+	var min_hand: float = float(L.get("fallow_upkeep_share", 0.25)) / float(L["acres_per_hand"]) - 0.000001
+	var prop: float = TownEcon._property_hands(e, b)
+	if prop < min_hand: return false
+	return prop - _cached_need_hands(e, b) >= min_hand
+
+## BUY pass: eligible and interested households buy acres from the town land market stock
+## in one batch pass; each buyer's jobs are reassigned once at the end of the pass.
+static func settle_land_buys(e: Dictionary) -> int:
+	last_buyers_checked = []
+	e.erase("land_market_dirty")
+	var mkt: Dictionary = e.get("land_market", {})
+	if mkt.is_empty(): return 0
+	var fams: Array = e.get("fams", [])
+	if fams.is_empty(): return 0
+	var est: Dictionary = fams[0]
+	var D: Dictionary = TownEcon.data()
 	var offers: Array = []
 	var min_unit: float = INF
-	for crop in f["land"].keys():
-		var base: float = maxf(0.01, float(D["goods"].get(crop, {}).get("price", 1.0)))
-		var unit: float = float(D["land"]["acre_price"]) * maxf(0.01, float(e["price"].get(crop, base))) / base
-		var limit: int = mini(int(ceil(float(f["land"][crop]) * 0.25)), int(ceil(gap / unit)))
-		if limit <= 0: continue
-		offers.append([String(crop), unit, limit])
+	for crop in mkt.keys():
+		var crop_s: String = String(crop)
+		var avail: int = mini(int(mkt.get(crop_s, 0)), int(est["land"].get(crop_s, 0)))
+		if avail <= 0:
+			mkt.erase(crop)
+			continue
+		var unit: float = crop_acre_price(e, crop_s, D)
+		offers.append([crop_s, unit])
 		min_unit = minf(min_unit, unit)
-	if offers.is_empty(): return
-	# Buyers that cannot pay for one acre of the cheapest crop are never reached before the break below.
-	var fid: int = int(f["id"])
+	if offers.is_empty(): return 0
+	var keep: float = 40.0 * TownEcon.COIN
 	var buyers: Array = []
-	for b in e["fams"]:
-		if int(b["id"]) == fid or b.get("gone", false) or b.get("estate", false) or float(b.get("debt", 0.0)) > 0.0: continue
-		if maxi(0, int(floor((float(b["purse"]) - keep) / min_unit))) <= 0: continue
+	for b in fams:
+		if not is_interested_buyer(e, b, min_unit): continue
 		buyers.append(b)
-	if buyers.is_empty(): return
+	if buyers.is_empty(): return 0
 	buyers.sort_custom(func(a, b): return float(a["purse"]) > float(b["purse"]))
+	for b in buyers:
+		last_buyers_checked.append(int(b["id"]))
+	var day: float = float(e.get("day", 0))
 	var shared: Dictionary = {"buyers": {}}
+	var reassigned: Dictionary = {}
+	var total_bought: int = 0
 	for offer in offers:
 		var crop_s: String = offer[0]
-		var unit: float = offer[1]
-		var limit: int = offer[2]
-		var seller: Dictionary = TownEcon._purchase_seller(e, f, crop_s, shared)
+		var unit: float = float(offer[1])
+		var avail: int = mini(int(mkt.get(crop_s, 0)), int(est["land"].get(crop_s, 0)))
+		if avail <= 0:
+			mkt.erase(crop_s)
+			continue
+		var seller: Dictionary = TownEcon._purchase_seller(e, est, crop_s, shared)
 		if not bool(seller["src_ok"]): continue
 		for buyer in buyers:
+			avail = mini(int(mkt.get(crop_s, 0)), int(est["land"].get(crop_s, 0)))
+			if avail <= 0: break
 			var afford: int = maxi(0, int(floor((float(buyer["purse"]) - keep) / unit)))
-			# Sorted current purses: every remaining buyer is also unable to pay.
-			if afford <= 0: break
-			var n: int = TownEcon._purchase_acres(e, f, buyer, crop_s, mini(limit, afford), seller)
+			if afford <= 0: continue
+			var n: int = TownEcon._purchase_acres(e, est, buyer, crop_s, mini(avail, afford), seller)
 			if n <= 0: continue
-			Families.move_land(e, f, buyer, crop_s, n)
 			var cost: float = float(n) * unit
+			Families.move_land(e, est, buyer, crop_s, n)
 			buyer["purse"] = float(buyer["purse"]) - cost
-			f["purse"] = float(f["purse"]) + cost
-			Families.add_hist(f, "Sold %d acres to %s for %d coins to fund the farm's wages." % [n, buyer["name"], int(cost)], float(day))
-			Families.add_hist(buyer, "Bought %d acres from %s for %d coins." % [n, f["name"], int(cost)], float(day))
-			Families.reassign(e, buyer)
-			Families.reassign(e, f)
-			return   # one sale per call: the buyer list is never re-sorted
+			e["land_fund"] = float(e.get("land_fund", 0.0)) + cost
+			var left: int = int(mkt.get(crop_s, 0)) - n
+			if left > 0:
+				mkt[crop_s] = left
+			else:
+				mkt.erase(crop_s)
+			Families.add_hist(buyer, "Bought %d acres from %s for %d coins." % [n, est["name"], int(cost)], day)
+			reassigned[int(buyer["id"])] = buyer
+			total_bought += n
+			shared.erase("src_rows")
+			shared.erase("ox")
+			shared.erase("a_ac")
+			(shared["buyers"] as Dictionary).erase(int(buyer["id"]))
+			if mkt.has(crop_s):
+				seller = TownEcon._purchase_seller(e, est, crop_s, shared)
+				if not bool(seller["src_ok"]): break
+	for bid in reassigned:
+		Families.reassign(e, reassigned[bid])
+	if total_bought > 0:
+		_sync_estate_work(e, est, day)
+	return total_bought
 
 ## The house: into the market as a home for sale (the market pays its buying price), else the head takes it at
 ## the estate's price. The family is homeless after.

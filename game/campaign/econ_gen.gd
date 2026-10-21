@@ -372,6 +372,7 @@ static func _opening_stocks(town: Dictionary, e: Dictionary, D: Dictionary, rng:
 	e["barn"] = barn
 	e["granary"] = int(food_day * 8.0)
 	e["farm_till"] = 0.0
+	e["land_fund"] = 0.0
 	# households: each family has laid by some days of food, drink and firewood (its own targets are
 	# needs.family_targets); the goods sit in the town's household pool, summed
 	var hh := {}

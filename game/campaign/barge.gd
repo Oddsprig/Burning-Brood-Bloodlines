@@ -869,7 +869,7 @@ static func before_load(game) -> void:
 		if not t.has("econ") or not (t["econ"] as Dictionary).has("stock"):
 			continue
 		var e: Dictionary = t["econ"]
-		for key in ["treasury", "farm_till"]:
+		for key in ["treasury", "farm_till", "land_fund"]:
 			e[key] = float(e.get(key, 0.0)) * k
 		for g in e.get("price", {}):
 			e["price"][g] = float(e["price"][g]) * k
@@ -934,10 +934,14 @@ static func coin_town(game, t: Dictionary, e: Dictionary) -> void:
 	if tr > 0.0:
 		e["treasury"] = tr * k
 		lost += tr * dr
+	var lf := float(e.get("land_fund", 0.0))
+	if lf > 0.0:
+		e["land_fund"] = lf * k
+		lost += lf * dr
 	drained(game.world, lost)
 	mint_day(game, t, e)
 	melt_day(game, t, e)
-	e["coin_now"] = held + float(e["treasury"]) + float(e["farm_till"]) + float(e.get("purses_n", 0.0))   # (purses: as of the town's weekly turn)
+	e["coin_now"] = held + float(e["treasury"]) + float(e["farm_till"]) + float(e.get("land_fund", 0.0)) + float(e.get("purses_n", 0.0))   # (purses: as of the town's weekly turn)
 
 ## The daily drain on a family's purse over the days since its last turn (0.072% a day), out of the world's coin.
 static func purse_drain(w: Dictionary, f: Dictionary, days: float) -> void:
@@ -955,6 +959,10 @@ static func coin_day(game, d: int) -> void:
 	var lost := 0.0
 	var ids: Array = w["towns"].keys()
 	ids.sort()
+	for tid in ids:
+		var t0: Dictionary = w["towns"][tid]
+		if TownEcon.has_econ(t0) and bool(t0["econ"].get("land_market_dirty", false)):
+			Loans.settle_land_buys(t0["econ"])
 	for fid in w.get("factions", {}):
 		var fac: Dictionary = w["factions"][fid]
 		var ft := float(fac.get("treasury", 0.0))
