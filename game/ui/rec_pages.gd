@@ -373,6 +373,7 @@ static func force(scr, wid: String, box: VBoxContainer) -> void:
 	RecKit.kv(c, "Strength", RecKit.num(CampaignWorld.band_power(units)))
 	if String(wb.get("kind", "")) == "caravan":
 		RecKit.line(c, Caravans.describe(w, wb))
+		caravan_receipt(box, wb.get("receipt", {}))
 	RecKit.kv(c, "Doing", WarAI.mode_text(wb) if wb.has("mode") else String(wb.get("state", "")))
 	var bl := ArmyPanel.band_line(wb)
 	if bl != "":
@@ -390,6 +391,25 @@ static func force(scr, wid: String, box: VBoxContainer) -> void:
 	var rc := RecKit.card(box, "Roster")
 	rc.add_child(RecTable.make([{"k": "rk", "t": "Rank", "num": true}, {"k": "name", "t": "Name"}, {"k": "age", "t": "Age", "num": true},
 		{"k": "renown", "t": "Renown", "num": true}], rows, "rk", false, [], true))
+
+## Shared by the live caravan and the town's bounded history of closed trips.
+static func caravan_receipt(box: VBoxContainer, receipt: Dictionary) -> void:
+	if receipt.is_empty(): return
+	var c := RecKit.card(box, "Caravan receipt", "%s -> %s; %s" % [
+		RecData.tname(String(receipt.get("origin", ""))), RecData.tname(String(receipt.get("destination", ""))),
+		String(receipt.get("status", "out"))])
+	RecKit.kv(c, "Departed", Calendar.text(float(receipt.get("depart_day", 0.0))))
+	var expected: Dictionary = receipt.get("expected", {})
+	var realized: Dictionary = receipt.get("realized", {})
+	var rows := []
+	for entry in [["buy_cost", "Buy cost"], ["sale_value", "Sale value"], ["duties", "Duties"], ["crew", "Crew"], ["lost_coin", "Lost purse"], ["net", "Net"]]:
+		rows.append({"values": [entry[1], _m(float(expected.get(entry[0], 0.0))), _m(float(realized.get(entry[0], 0.0)))]})
+	RecKit.grid(c, ["Coins", "Expected", "Realized"], rows, [1.4, 1, 1])
+	RecKit.line(c, "Crew: the home market pays wages to real households; their existing food budget feeds them. Treasury funds cargo. Expected prices are held at departure.", "Small")
+	if String(receipt.get("unpaid_cargo", "")) != "":
+		RecKit.kv(c, "Unpaid cargo still on the wagons", String(receipt["unpaid_cargo"]))
+	if String(receipt.get("consigned", "")) != "":
+		RecKit.kv(c, "Handed to the home market", String(receipt["consigned"]))
 
 static func remembered(e: Dictionary, f: Dictionary) -> Array:
 	var out := []

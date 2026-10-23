@@ -1029,7 +1029,7 @@ static func import_buys(here: Dictionary, home: Dictionary, wb: Dictionary) -> v
 	var mkt: Dictionary = e["biz"][int(e["mkt"])]
 	for it in picks:
 		var p := Economy.base_value(here, it) * 0.8
-		if float(wb["gold"]) * 0.8 < p:
+		if float(wb["gold"]) * 0.8 < p or Caravans.cargo_weight(wb["cargo"]) + it.mass() > Caravans.CAPACITY_KG:
 			continue
 		(here["shop"] as Array).erase(it)
 		items.append(it)

@@ -225,6 +225,15 @@ static func merchants(scr, tids: Array, v: VBoxContainer, legacy: Callable) -> v
 		{"title": "Coin on road", "value": _m(coins), "note": "Actual caravan purses", "color": UiTheme.COPPER},
 		{"title": "Traded out", "value": _m(traded), "note": "All-time recorded value", "color": UiTheme.BLUE}])
 	RecKit.card(v, "Trade by town", "Select a town for its records. Incoming trade remains in the full row details.").add_child(table)
+	var trips := RecKit.card(v, "Caravan trip receipts", "Expected and realized costs, including unsold cargo. Closed trips are kept in each town's Roads record.")
+	for tid in tids:
+		for wb in RecTown._caravans_of(String(tid)):
+			var wid := String(wb["id"])
+			var receipt: Dictionary = wb.get("receipt", {})
+			if receipt.is_empty(): continue
+			trips.add_child(RecKit.row(RecPages.force_name(wb), _m(float(receipt.get("realized", {}).get("net", 0.0))),
+				"Expected net %s; %s" % [_m(float(receipt.get("expected", {}).get("net", 0.0))), String(wb.get("state", ""))],
+				func(): scr.open_force(wid)))
 	var supply := RecWorld.supply_table(scr, tids, [{"k": "town", "t": "Town", "w": 2}, {"k": "received", "t": "Received"}, {"k": "sent", "t": "Sent"}])
 	RecKit.card(v, "Garrison equipment transfers", "All-time real pieces moved between own-faction armories. Issued kit is separate from reserve stock.").add_child(supply)
 	RecKit.disclosure(v, "Full merchant and supply record", legacy)

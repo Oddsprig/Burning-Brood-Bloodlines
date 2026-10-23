@@ -33,6 +33,39 @@ func _loss_people(w: Dictionary, fid: String) -> Dictionary:
 				people["%s:%d:%d" % [tid, int(f["id"]), int(p[0])]] = true
 	return people
 
+## A speculative trip on this pair loses about 2,200 to a 15-day crew even though the
+## sticker gap is wide. v0.048 stays home unless expected net is positive, so the
+## delivery and raid fixtures open a linen gap that clears that payroll, then the
+## travelling case puts prices and the destination's stock back.
+func _fund_linen(origin: Dictionary, dest: Dictionary) -> Dictionary:
+	var qty := 80
+	var snap := {
+		"on": float(origin["econ"]["need"].get("linen", 0.0)),
+		"op": float(origin["econ"]["price"].get("linen", 0.0)),
+		"os": int(origin["econ"]["stock"].get("linen", 0)),
+		"dn": float(dest["econ"]["need"].get("linen", 0.0)),
+		"dp": float(dest["econ"]["price"].get("linen", 0.0)),
+		"ds": int(dest["econ"]["stock"].get("linen", 0)),
+	}
+	origin["econ"]["need"]["linen"] = 10.0
+	var funded := int(Goods.target(origin, "linen") * 1.1) + qty
+	snap["funded"] = funded
+	origin["econ"]["stock"]["linen"] = funded
+	origin["econ"]["price"]["linen"] = 20.0
+	dest["econ"]["need"]["linen"] = float(qty + 50)
+	dest["econ"]["stock"]["linen"] = 0
+	dest["econ"]["price"]["linen"] = 250.0
+	return snap
+
+func _unfund_linen(origin: Dictionary, dest: Dictionary, snap: Dictionary) -> void:
+	var taken := int(snap["funded"]) - int(origin["econ"]["stock"].get("linen", 0))
+	origin["econ"]["stock"]["linen"] = maxi(0, int(snap["os"]) - taken)
+	origin["econ"]["need"]["linen"] = snap["on"]
+	origin["econ"]["price"]["linen"] = snap["op"]
+	dest["econ"]["need"]["linen"] = snap["dn"]
+	dest["econ"]["price"]["linen"] = snap["dp"]
+	dest["econ"]["stock"]["linen"] = snap["ds"]
+
 ## A town with a trade partner, and the partner.
 func _pair(w: Dictionary) -> Array:
 	var ids: Array = w["towns"].keys(); ids.sort()
@@ -65,12 +98,11 @@ func run(_tree: SceneTree) -> int:
 	check(not pair.is_empty(), "no trade pair")
 	var origin: Dictionary = w["towns"][pair[0]]
 	var dest: Dictionary = w["towns"][pair[1]]
-	origin["econ"]["stock"]["linen"] = 900   # economy: a real surplus at the origin, a want at the destination
-	dest["econ"]["stock"]["linen"] = 0
-	TownEcon.update_prices(origin, 0); TownEcon.update_prices(dest, 0)
+	var linen_snap := _fund_linen(origin, dest)
 	# v0.014: the guards take their kit from the town's armory first, then the stalls: count both together
 	var shop0: int = origin["shop"].size() + ArmsTrade.armory(origin).size()
 	var cid := Caravans.spawn(Game, pair[0], rng, pair[1])
+	_unfund_linen(origin, dest, linen_snap)
 	check(cid != "", "caravan did not spawn")
 	var car: Dictionary = w["warbands"][cid]
 	var cargo: Dictionary = car["cargo"]
@@ -104,6 +136,7 @@ func run(_tree: SceneTree) -> int:
 	print("dest goods: ", Goods.summary(dest), "; linen price ", Goods.price(dest, "linen"))
 	# ---------------------------------------------------------------- destroyed by a hostile band
 	_clear_bands(w)
+	_fund_linen(origin, dest)
 	var c2 := Caravans.spawn(Game, pair[0], rng, pair[1])
 	var dest_shop0: int = dest["shop"].size()
 	var dest_linen := Goods.supply(dest, "linen")
@@ -206,10 +239,7 @@ func run(_tree: SceneTree) -> int:
 	print("escort failure: ", w["log"].slice(-1))
 	# ---------------------------------------------------------------- the player raids a caravan
 	_clear_bands(w)
-	origin["econ"]["stock"]["linen"] = 900   # economy: a real surplus at the origin, a want at the destination
-	dest["econ"]["stock"]["linen"] = 0
-	origin["econ"]["treasury"] = maxf(float(origin["econ"]["treasury"]), 1000.0 * TownEcon.COIN)   # barge: a treasury with coin to fund the merchants' purse
-	TownEcon.update_prices(origin, 0); TownEcon.update_prices(dest, 0)
+	_fund_linen(origin, dest)
 	var rc := Caravans.spawn(Game, pair[0], rng, pair[1])
 	var rcargo: Dictionary = w["warbands"][rc]["cargo"]
 	var r_uids: Array = rcargo["items"].map(func(it): return it.uid)

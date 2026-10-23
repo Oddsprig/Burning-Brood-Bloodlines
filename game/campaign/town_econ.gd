@@ -1366,10 +1366,10 @@ static func _plan_trade(game, town: Dictionary, e: Dictionary, day: int) -> void
 		var o: Dictionary = w["towns"].get(l["id"], {})
 		if not has_econ(o):
 			continue
-		var v := Caravans.trade_value(town, o)
+		var v := Caravans.trade_value(town, o, w)
 		if v > bv:
 			bv = v; best = l["id"]
-	if best != "" and bv > 40.0 * COIN:
+	if best != "" and bv > 0.0:
 		(w["work"] as Array).append(["caravan", town["id"], best])
 
 # ================================================================== weekly faction turn
