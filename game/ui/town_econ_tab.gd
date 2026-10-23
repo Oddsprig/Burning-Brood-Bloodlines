@@ -3,9 +3,9 @@ extends RefCounted
 ## Town screen, "Town" tab (economy spec 1, section 12): days of food, beer, wine and firewood; ore and bars
 ## with days of smithing; wood and stone; the arms stock; businesses with their state; prices with an arrow
 ## and the reason; treasury, tax, wages, population trend; specialties; the head. Tap a family for its record.
-## Read-only view over town.econ (campaign/town_econ.gd); everything here is a tap target >= 48 px.
+## View over town.econ; Orders exposes ruler-authorized purchases. Tap targets >= 48 px.
 
-const SECTIONS := ["Overview", "People", "Work", "Stores", "Land", "Accounts", "Prices", "Research"]
+const SECTIONS := ["Overview", "People", "Work", "Stores", "Land", "Accounts", "Prices", "Orders", "Research"]
 
 static func build(host: Control, t: Dictionary) -> Control:
 	if not TownEcon.has_econ(t):
@@ -79,6 +79,7 @@ static func _render_section(host: Control, t: Dictionary, body: VBoxContainer, s
 		"Land": _land(host, t, body)
 		"Accounts": _accounts(t, body)
 		"Prices": _prices(host, t, body)
+		"Orders": TownOrdersTab.build(host, t, body)
 		"Research": TownResearchTab.build(host, t, body)
 		_: _overview_panel(host, t, body)
 	var scroll := body.get_parent() as ScrollContainer

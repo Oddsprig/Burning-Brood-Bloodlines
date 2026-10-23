@@ -101,6 +101,7 @@ static func treasury(scr, t: Dictionary, e: Dictionary, v: VBoxContainer) -> voi
 		var key := String(pair[0])
 		flows.append({"values": [String(pair[1]), _m(float(stats[key])) if stats.has(key) else RecKit.NT, String(pair[2])]})
 	RecKit.grid(v, ["Account", "Amount", "Period"], flows, [2, 1.5, 1.5])
+	TownOrdersTab.build(scr, t, v)
 	var rows := []
 	for f: Dictionary in RecData.fams(e):
 		if RecData.debt(f) <= 0.5 and not f.has("ln"): continue
