@@ -804,11 +804,19 @@ static func _battle_result(game, result: Dictionary) -> void:
 	else:
 		if wb["kind"] == "caravan":
 			Diplomacy.on_raid(game, fid)   # a beaten-off raid still costs the -12
-		wb["units"] = (wb["units"] as Array).filter(func(u): return not u.dead)
-		if (wb["units"] as Array).is_empty():
-			remove_warband(game, wid)
+		# No guard left to hold the wagons. Deleting the band here skipped the loss
+		# books: a supply order stayed "travelling" and its cargo vanished. Same path
+		# as any destroyed caravan. Nobody living holds the field, so the cargo is
+		# recorded destroyed rather than handed to a winner.
+		var caravan_wiped: bool = wb["kind"] == "caravan" and not (wb["units"] as Array).any(func(u): return u is Unit and not u.dead)
+		if caravan_wiped:
+			Caravans.lost(game, wid, Diplomacy.player_realm(w))
 		else:
-			wb["rest_until"] = game.day + 1.0
+			wb["units"] = (wb["units"] as Array).filter(func(u): return not u.dead)
+			if (wb["units"] as Array).is_empty():
+				remove_warband(game, wid)
+			else:
+				wb["rest_until"] = game.day + 1.0
 		party["safe_until"] = game.day + 1.0
 		party["path"] = []
 		var away: Vector2 = ((party["pos"] as Vector2) - wb["pos"]).normalized()
