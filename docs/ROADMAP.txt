@@ -275,6 +275,7 @@ v0.046 faster campaign days - DELIVERED (Claude Edition): household lookups for 
 v0.047 trade on the map - DELIVERED (Claude Edition): a map toggle (grain, meat, metal) marks each town short, balanced or in surplus and draws caravans carrying that good along their roads; tapping opens the market or caravan records.
 v0.048 caravans with real margins - DELIVERED (Claude Edition): merchants pick trips by net margin after buying spreads, duties and crew wages, skip losing trips, keep an expected-vs-actual receipt, and hold unpaid cargo up to 30 days before consigning it to the home market.
 v0.049 town supply orders - DELIVERED (Claude Edition): rulers order grain, meat or metal with a quantity and spending cap (Town -> Orders); funds are reserved, a caravan delivers, and each order shows ordered, travelling, delivered, blocked or cancelled; AI towns low on food order once a week without dipping into their safety reserve.
+v0.050 counted dragon provisions - DELIVERED (Claude Edition): each dragon is fed once a day at home or on the march; marching dragons eat packed meat (after spoilage, never the soldiers' ration); households set dragon feeding priority (feed first, normal, last); the attack review shows days of dragon meat packed.
 Also delivered outside the numbered list (Claude Edition): court and marriage, interface pass, 100 v 100 battle rounds, armies to 1000, house officers and noble call-up, house arms pool, ennoblement, medics and aftermath.
 
 LOCKED FOUNDATIONS / LATER SMALL PASSES
