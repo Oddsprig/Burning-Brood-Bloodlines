@@ -7,7 +7,7 @@ extends Control
 ## Builders: ui/rec_town.gd (12 town tabs), ui/rec_world.gd (world and faction tabs), ui/rec_pages.gd (pages).
 ## RULE: every number shown reads a real sim field; what the sim lacks reads "not tracked" (listed in DEV_NOTES).
 ##
-## Game.screen_params: {view: "town"|"faction"|"world", id, tab, back}. Default view: the town the company is in,
+## Game.screen_params: {view: "town"|"faction"|"world", id, tab, back, force_id (optional)}. Default view: the town the company is in,
 ## else the last town it visited.
 
 const TOWN_TABS := ["Overview", "Market", "Businesses", "Register", "Land & Homes", "Census", "Treasury", "Hardship",
@@ -122,6 +122,8 @@ func _ready() -> void:
 		open_person(RecData.town(sel),int(person.get("family_id",-1)),int(person.get("pid",-1)))
 	elif p.has("family_id") and p.has("pid") and view == "town":
 		open_person(RecData.town(sel),int(p["family_id"]),int(p["pid"]))
+	elif p.has("force_id"):
+		open_force(String(p["force_id"]))
 
 ## The town the company is in, else the last it visited (the map's "arrived"), else the start town.
 static func default_town() -> String:

@@ -9,6 +9,7 @@ const ZOOM_MIN := 0.45
 const ZOOM_MAX := 2.6
 const DRAG_THRESHOLD := 12.0
 const TOWN_ENTER_DIST := 56.0
+const TRADE_OVERLAY := preload("res://campaign/trade_overlay.gd")
 
 var terrain: Node2D
 var tracks_layer: Node2D   # tracks: noticed tracks + last-seen circle (campaign/map_tracks.gd), static, redraws on change
@@ -22,6 +23,9 @@ var follow := true
 var speed_mult := 1
 var pursue_wid := ""
 var selected := {}       # {"kind": "warband"|"party"|"town", "id": ...}
+
+var trade_good := "off"
+var trade_overlay := TRADE_OVERLAY.new()
 
 # input state
 var _press_pos := Vector2.ZERO
@@ -40,6 +44,8 @@ var lbl_news: Label   # diplomacy ticker
 var lbl_toast: Label
 var btn_wait: Button
 var btn_speed: Button
+var btn_trade: Button
+var lbl_trade: Label
 var info_panel: PanelContainer
 var info_title: Label
 var info_body: Label
@@ -70,6 +76,8 @@ func _ready() -> void:
 	add_child(daylight)
 	daylight.color = Calendar.tint(Game.day)
 	var w: Dictionary = Game.world
+	trade_good = String(Game.screen_params.get("trade_good", "off"))
+	if not TRADE_OVERLAY.MODES.has(trade_good): trade_good = "off"
 	# back from a town: the party stands at the gate
 	if Game.location != "":
 		var t: Dictionary = w["towns"].get(Game.location, {})
@@ -117,7 +125,11 @@ func _ready() -> void:
 	add_child(cam)
 	cam.make_current()
 	cam.position = w["party"]["pos"]
+	trade_overlay.name = "TradeOverlay"
+	trade_overlay.z_index = 2
+	add_child(trade_overlay)
 	_build_hud()
+	_refresh_trade_overlay()
 	Game.changed.connect(func(): _accounts_key = "")
 	tracks_layer.setup(self)   # tracks: tapping the contract line centres the map on the target / last-seen spot
 	_sync_icons()
@@ -166,6 +178,7 @@ func _process_map(delta: float) -> void:
 	cam.position = cam.position.clamp(Vector2.ZERO, Vector2(WorldGen.W, WorldGen.H) * WorldGen.CELL)
 	party_icon.position = party["pos"]
 	_sync_icons()
+	_refresh_trade_overlay()
 	overlay.queue_redraw()
 	_hud_t -= delta
 	# A midnight invalidates native health/account reads. Let the next lighter
@@ -213,6 +226,9 @@ func _draw_overlay() -> void:
 		var token: MapToken = icons[wid]
 		var wb: Dictionary = w["warbands"].get(wid, {})
 		if not token.visible or wb.is_empty() or WarAI.speed_of(wb, float(Game.day)) <= 0.0:
+			continue
+		# Trade draws this consignment's full native road polyline instead.
+		if trade_good != "off" and not trade_overlay._caravan(String(wid)).is_empty():
 			continue
 		var route: Array = wb["path"]
 		overlay.draw_line(wb["pos"], route[-1], Color(token.badge_color, 0.65), 1.25 / cam.zoom.x, true)
@@ -298,6 +314,7 @@ func _tap(p: Vector2) -> void:
 	if w.get("encounter", "") != "":
 		return
 	var z := cam.zoom.x
+	if _trade_tap(p): return
 	# warbands first (map tokens: hit circle r=30 screen px around each token)
 	var best := MapTokens.pick(icons, w["warbands"], p, z)
 	if best != "":
@@ -332,6 +349,26 @@ func _tap(p: Vector2) -> void:
 		follow = true
 	else:
 		toast("The company can't get there.")
+
+func _trade_tap(p: Vector2) -> bool:
+	if trade_good == "off": return false
+	# A newly selected good waits for settled books; it must not issue travel orders.
+	if trade_overlay.day < 0:
+		toast("Updating trade records.")
+		return true
+	var hit: Dictionary = trade_overlay.pick(p)
+	if hit.is_empty(): return false
+	var params := {"back": "map", "back_params": {"trade_good": trade_good}}
+	if hit["kind"] == "town":
+		if not TownEcon.has_econ(Game.world["towns"].get(hit["id"], {})):
+			toast("This town has no market records.")
+			return true
+		params.merge({"view": "town", "id": hit["id"], "tab": "Market"})
+	else:
+		params.merge({"view": "world", "tab": "Goods" if trade_good == "metal" else "Food flows",
+			"force_id": hit["id"]})
+	Game.goto("res://ui/records.tscn", params)
+	return true
 
 func _try_enter(tid: String) -> void:
 	var t: Dictionary = Game.world["towns"].get(tid, {})
@@ -410,6 +447,11 @@ func _build_hud() -> void:
 	lbl_contract.custom_minimum_size.y = 48
 	lbl_contract.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	column.add_child(lbl_contract)
+	lbl_trade = _label(14, UiTheme.BLUE)
+	lbl_trade.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	lbl_trade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lbl_trade.visible = false
+	column.add_child(lbl_trade)
 	lbl_news = _label(15, UiTheme.WARN)
 	lbl_news.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	lbl_news.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -438,6 +480,9 @@ func _build_hud() -> void:
 	navigation.add_child(_button("Ambitions", func(): AmbitionsView.open(modal_host)))
 	navigation.add_child(_button("Help", func(): GuideView.open(modal_host, true)))
 	navigation.add_child(_button("Records", func(): Game.goto("res://ui/records.tscn", {"view": "world", "back": "map"})))
+	btn_trade = _button("Trade: " + trade_good.capitalize(), _cycle_trade)
+	btn_trade.tooltip_text = "Grain; meat (fresh and preserved); metal (ore, bars and scrap). Stock more than 10% above/below the existing market target is surplus/shortage. Metal uses base-price weights for mixed units. Prices are shown relative to base. Figures refresh daily; tap marks for Records."
+	navigation.add_child(btn_trade)
 	navigation.add_child(_button("Save", _on_save))
 	navigation.add_child(_button("Menu", func(): Game.goto("settings", {"back": "map"})))
 	ruler_card = DynastyCard.new()
@@ -603,6 +648,17 @@ func _on_wait() -> void:
 func _on_speed() -> void:
 	speed_mult = {1: 2, 2: 4, 4: 1}[speed_mult]
 	btn_speed.text = "x%d" % speed_mult
+
+func _cycle_trade() -> void:
+	trade_good = TRADE_OVERLAY.MODES[(TRADE_OVERLAY.MODES.find(trade_good) + 1) % TRADE_OVERLAY.MODES.size()]
+	btn_trade.text = "Trade: " + trade_good.capitalize()
+	_refresh_trade_overlay()
+
+func _refresh_trade_overlay() -> void:
+	if not trade_overlay.sync(Game.world, Game.day, trade_good, cam.zoom.x): return
+	lbl_trade.visible = trade_good != "off"
+	lbl_trade.text = "Trade: %s | + surplus  - shortage  = balanced  ? unrecorded | Prices x base | Snapshot day %d" % [
+		trade_good.capitalize(), trade_overlay.day] if trade_overlay.day >= 0 else "Updating trade records."
 
 func _on_center() -> void:
 	follow = true
