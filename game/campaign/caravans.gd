@@ -142,9 +142,13 @@ static func count(w: Dictionary) -> int:
 			n += 1
 	return n
 
-## Trade is planned by each town's weekly turn now (TownEcon._plan_trade); kept for older callers.
-static func daily(_game, _rng: RandomNumberGenerator) -> void:
-	pass
+## Retry unpaid home cargo once a day; parked wagons still count against the caravan limits.
+static func daily(game, _rng: RandomNumberGenerator) -> void:
+	for wid in game.world.get("warbands", {}).keys():
+		var wb: Dictionary = game.world["warbands"][wid]
+		if wb.get("kind", "") == "caravan" and wb.get("state", "") == "unpaid":
+			if _come_home(game, wb):
+				CampaignWorld.remove_warband(game, wid)
 
 # ------------------------------------------------------------------ what to carry
 ## Units of g the origin can spare (above what it needs on hand).
@@ -155,21 +159,99 @@ static func surplus(town: Dictionary, g: String) -> int:
 static func wanted(town: Dictionary, g: String) -> int:
 	return int(Goods.target(town, g) - Goods.supply(town, g))
 
-## Rough gold a trip from origin to dest would make on the margin (town turn picks the best partner).
-static func trade_value(origin: Dictionary, dest: Dictionary) -> float:
-	var v := 0.0
-	for g in Goods.ids():
-		var s := surplus(origin, g)
-		if s <= 0:
-			continue
-		var pd := Goods.price_f(dest, g); var po := Goods.price_f(origin, g)
-		if pd < po * 1.15:
-			continue
-		var q := mini(s, maxi(wanted(dest, g), 0) + 10)
-		var kg := float(Goods.table()[g].get("weight", 1.0))
-		q = mini(q, int(CAPACITY_KG / maxf(0.05, kg)))
-		v += float(q) * (pd - po)
-	return v
+## v0.048: one cash receipt for both the quote and actual settlement.
+static func _totals() -> Dictionary:
+	return {"buy_cost": 0.0, "sale_value": 0.0, "duties": 0.0, "crew": 0.0, "lost_coin": 0.0, "net": 0.0}
+
+static func _add(totals: Dictionary, key: String, amount: float) -> void:
+	if totals.is_empty(): return
+	totals[key] = float(totals.get(key, 0.0)) + amount
+	totals["net"] = float(totals["sale_value"]) - float(totals["buy_cost"]) - float(totals["duties"]) - float(totals["crew"]) - float(totals["lost_coin"])
+
+static func receipt_add(wb: Dictionary, key: String, amount: float) -> void:
+	_add(wb.get("receipt", {}).get("realized", {}), key, amount)
+
+static func trade_purse(town: Dictionary) -> float:
+	if not TownEcon.has_econ(town): return 0.0
+	return minf(maxf(0.0, float(town["econ"]["treasury"])) * PURSE_SHARE, PURSE_MAX)
+
+static func trip_days(pos: Vector2, path: Array) -> float:
+	return CampaignWorld.path_length(pos, path) / (CampaignWorld.WARBAND_SPEED * SPEED) * 2.0 + 2.0
+
+static func cargo_weight(cargo: Dictionary) -> float:
+	var kg := Supplies.weight(cargo.get("goods", {}))
+	for it in cargo.get("items", []):
+		kg += (it as Item).mass()
+	return kg
+
+## Copy only the trade's mutable holders, never the people/Items or the whole world.
+static func _trade_copy(town: Dictionary) -> Dictionary:
+	var out := town.duplicate()
+	out["shop"] = (town.get("shop", []) as Array).duplicate()
+	out["goods"] = (town.get("goods", {}) as Dictionary).duplicate()
+	if TownEcon.has_econ(town):
+		var e: Dictionary = town["econ"].duplicate()
+		for key in ["stock", "stats", "why_hint"]:
+			e[key] = (town["econ"].get(key, {}) as Dictionary).duplicate(true)
+		e["biz"] = (e["biz"] as Array).duplicate()
+		e["biz"][int(e["mkt"])] = (e["biz"][int(e["mkt"])] as Dictionary).duplicate()
+		out["econ"] = e
+	return out
+
+## Settle a whole round trip on detached trade holders at today's prices. In particular, buying spreads,
+## duties, purse/weight limits, return purchases and the buyer's actual till all use the real settlement paths.
+## A private RNG previews the existing cargo/guard/position draws without consuming the caller's stream.
+static func quote_trip(w: Dictionary, origin: Dictionary, dest: Dictionary, rng: RandomNumberGenerator = null,
+		force: bool = false, preset: Dictionary = {}) -> Dictionary:
+	var o := _trade_copy(origin); var d := _trade_copy(dest)
+	var preview := RandomNumberGenerator.new()
+	if rng != null: preview.state = rng.state
+	else: preview.seed = hash([int(w.get("seed", 0)), origin["id"], dest["id"], "caravan_quote"])
+	var funded := trade_purse(o)
+	var cargo := load_cargo(o, d, preview, force, funded) if preset.is_empty() else \
+		{"items": (preset.get("items", []) as Array).duplicate(), "goods": (preset.get("goods", {}) as Dictionary).duplicate(), "gold": funded}
+	var purse := float(cargo["gold"])
+	cargo.erase("gold")
+	var totals := _totals()
+	_add(totals, "buy_cost", funded - purse)
+	var guards := 2 + preview.randi_range(0, 2) + int(origin["wealth"]) / 2
+	var pos: Vector2 = origin["pos"] + Vector2(preview.randf_range(-14, 14), 18)
+	pos = CampaignWorld.nearest_passable(w, pos)
+	var path := way(w, {"pos": pos}, String(origin["id"]), String(dest["id"]))
+	var days := trip_days(pos, path)
+	var crew := People.crew_bill(guards, days) if TownEcon.has_econ(o) else 0.0
+	var ready := not path.is_empty() and (force or not cargo_empty(cargo))
+	if TownEcon.has_econ(o):
+		var market: Dictionary = o["econ"]["biz"][int(o["econ"]["mkt"])]
+		ready = ready and float(market["till"]) >= crew
+		# The same till pays the crew before buying the returning cargo.
+		market["till"] = maxf(0.0, float(market["till"]) - crew)
+	_add(totals, "crew", crew)
+	var kg := cargo_weight(cargo)
+	var wb := {"cargo": cargo, "gold": purse, "receipt": {"realized": totals}}
+	wb["gold"] = float(wb["gold"]) + sell_cargo(d, cargo, String(origin.get("name", "")), totals)
+	buy_return(d, o, wb)
+	sell_cargo(o, cargo, "returning wagons", totals, false)
+	return {"expected": totals, "days": maxf(4.0, days), "cargo_kg": kg, "ready": ready}
+
+## Expected NET coins, including the return leg and its crew, rather than gross price differences.
+static func trade_value(origin: Dictionary, dest: Dictionary, w: Dictionary = {}) -> float:
+	var quote := quote_trip(Game.world if w.is_empty() else w, origin, dest)
+	return float(quote["expected"]["net"]) if quote["ready"] else 0.0
+
+static func _finish_receipt(game, wb: Dictionary, status: String) -> void:
+	if not wb.has("receipt"): return
+	var receipt: Dictionary = wb["receipt"]
+	receipt["status"] = status
+	receipt["day"] = float(game.day)
+	receipt["unpaid_cargo"] = cargo_text(wb.get("cargo", {})) if status == "unpaid" else ""
+	if status == "unpaid": return
+	var home: Dictionary = game.world["towns"].get(wb.get("origin", ""), {})
+	if not TownEcon.has_econ(home): return
+	var history: Array = home["econ"].get("caravan_receipts", [])
+	history.append(receipt.duplicate(true))
+	while history.size() > 32: history.pop_front()
+	home["econ"]["caravan_receipts"] = history
 
 ## Buy real cargo in the origin market with the purse: its surplus where the destination pays more.
 ## Returns {items, goods, gold (purse left)}; the origin's stock and market till change now.
@@ -234,11 +316,12 @@ static func load_cargo(origin: Dictionary, dest: Dictionary, rng: RandomNumberGe
 	# arms trade: first the pieces the destination's armory is short of (and this town is not)
 	for it in ArmsTrade.export_picks(origin, dest, MAX_ITEMS):
 		var pe := Economy.base_value(origin, it) * 0.8
-		if pe > purse:
+		if pe > purse or it.mass() > kg_left:
 			continue
 		shop2.erase(it)
 		items.append(it)
 		purse -= pe
+		kg_left -= it.mass()
 		mkt["till"] = float(mkt["till"]) + pe
 		e["stats"]["trade_out"] = float(e["stats"].get("trade_out", 0.0)) + pe
 	var ni := mini(MAX_ITEMS - items.size(), spare - items.size())
@@ -247,11 +330,12 @@ static func load_cargo(origin: Dictionary, dest: Dictionary, rng: RandomNumberGe
 			break
 		var it: Item = shop2[rng.randi() % shop2.size()]
 		var p := Economy.base_value(origin, it) * 0.8
-		if p > purse:
+		if p > purse or it.mass() > kg_left:
 			continue
 		shop2.erase(it)
 		items.append(it)
 		purse -= p
+		kg_left -= it.mass()
 		mkt["till"] = float(mkt["till"]) + p
 		e["stats"]["trade_out"] = float(e["stats"].get("trade_out", 0.0)) + p
 	return {"items": items, "goods": goods, "gold": purse}
@@ -272,11 +356,10 @@ static func cargo_empty(cargo: Dictionary) -> bool:
 
 ## Sells the cargo into a town's market at its price (the market pays what it can; unsold goods stay on
 ## the wagons). Returns the gold received.
-static func sell_cargo(town: Dictionary, cargo: Dictionary, from_name: String) -> float:
+static func sell_cargo(town: Dictionary, cargo: Dictionary, from_name: String, totals: Dictionary = {}, charge_duty: bool = true) -> float:
 	var got := 0.0
 	if not TownEcon.has_econ(town):
-		unload(town, cargo)
-		return 0.0
+		return 0.0   # no paying market: ownership stays on the wagons
 	var e: Dictionary = town["econ"]
 	var mkt: Dictionary = e["biz"][int(e["mkt"])]
 	var share := float(TownEcon.data()["market"]["buy_share"])
@@ -310,9 +393,11 @@ static func sell_cargo(town: Dictionary, cargo: Dictionary, from_name: String) -
 		(town["shop"] as Array).append(it)
 	e["stats"]["trade_in"] = float(e["stats"].get("trade_in", 0.0)) + got
 	# barge part 4 section 1: duties of 3% on cargo coming in, to the town's treasury out of the merchants' takings
-	var duty := got * DUTY
+	var duty := got * DUTY if charge_duty else 0.0
 	e["treasury"] = float(e["treasury"]) + duty
 	e["stats"]["duties"] = float(e["stats"].get("duties", 0.0)) + duty
+	_add(totals, "sale_value", got)
+	_add(totals, "duties", duty)
 	return got - duty
 
 ## Buys what the home town lacks in this market for the trip home.
@@ -322,9 +407,8 @@ static func buy_return(here: Dictionary, home: Dictionary, wb: Dictionary) -> vo
 	var e: Dictionary = here["econ"]
 	var mkt: Dictionary = e["biz"][int(e["mkt"])]
 	var goods: Dictionary = wb["cargo"]["goods"]
-	var kg_used := 0.0
-	for g in goods:
-		kg_used += float(goods[g]) * float(Goods.table()[g].get("weight", 1.0))
+	var purse_before := float(wb["gold"])
+	var kg_used := cargo_weight(wb["cargo"])
 	var opts := []
 	for g in Goods.ids():
 		var want := wanted(home, g)
@@ -351,6 +435,7 @@ static func buy_return(here: Dictionary, home: Dictionary, wb: Dictionary) -> vo
 		e["stats"]["sales"] = float(e["stats"]["sales"]) + cost
 		kg_used += float(t) * kg
 	ArmsTrade.import_buys(here, home, wb)   # arms trade: pieces the home armory is short of
+	receipt_add(wb, "buy_cost", purse_before - float(wb["gold"]))
 
 ## Put cargo into a town without paying (stand-in towns; a caravan that could not leave puts it back).
 static func unload(town: Dictionary, cargo: Dictionary) -> void:
@@ -389,7 +474,7 @@ static func spawn(game, tid: String, rng: RandomNumberGenerator, dest: String = 
 		muster_head: Array = [], then: Dictionary = {"then": "caravan"}, own_rng: bool = false) -> String:
 	var w: Dictionary = game.world
 	var t: Dictionary = w["towns"].get(tid, {})
-	if t.is_empty():
+	if t.is_empty() or Monsters.suspended_band({"faction": t.get("faction", ""), "kind": "caravan"}):
 		return ""
 	if dest == "":
 		var partners := trade_partners(w, t)
@@ -399,10 +484,15 @@ static func spawn(game, tid: String, rng: RandomNumberGenerator, dest: String = 
 	var d: Dictionary = w["towns"].get(dest, {})
 	if d.is_empty():
 		return ""
+	var quote := quote_trip(w, t, d, rng, escort != "", preset)
+	# Escort jobs/preserved consignments are obligations, rather than speculative trade.
+	if escort == "" and preset.is_empty() and TownEcon.has_econ(t) \
+			and (not quote["ready"] or float(quote["expected"]["net"]) <= 0.0):
+		return ""
 	# the treasury funds the merchants' purse
-	var purse := 0.0
+	var purse := trade_purse(t)
+	var funded := purse
 	if TownEcon.has_econ(t):
-		purse = minf(float(t["econ"]["treasury"]) * PURSE_SHARE, PURSE_MAX)
 		t["econ"]["treasury"] = float(t["econ"]["treasury"]) - purse
 	var cargo := load_cargo(t, d, rng, escort != "", purse) if preset.is_empty() else \
 		{"items": preset.get("items", []), "goods": preset.get("goods", {}), "gold": purse}
@@ -416,6 +506,9 @@ static func spawn(game, tid: String, rng: RandomNumberGenerator, dest: String = 
 	var pos: Vector2 = t["pos"] + Vector2(rng.randf_range(-14, 14), 18)
 	var extra := {"home": tid, "origin": tid, "dest": dest, "leg": "out", "cargo": cargo, "gold": purse, "escort": escort, "away": 0.0,
 		"state": "waiting" if escort != "" else "travel", "depart_day": game.day}
+	extra["receipt"] = {"origin": tid, "destination": dest, "depart_day": float(game.day), "status": "out",
+		"expected": quote["expected"], "realized": _totals(), "trip_days": quote["days"]}
+	receipt_add(extra, "buy_cost", funded - purse)
 	if not muster_head.is_empty():
 		CampaignWorld.muster_start(game, muster_head, t["faction"], pos, guards, "caravan", extra, rng, own_rng, then)
 		return "+"   # mustering: the caravan sails from the muster's last job
@@ -427,18 +520,19 @@ static func spawn(game, tid: String, rng: RandomNumberGenerator, dest: String = 
 ## "" when it did not sail.
 static func sail(game, wid: String, rng: RandomNumberGenerator) -> String:
 	var w: Dictionary = game.world
-	var wb: Dictionary = w["warbands"][wid]
+	var wb: Dictionary = w["warbands"].get(wid, {})
+	if wb.is_empty(): return ""
+	if wb.has("receipt"): wb["receipt"]["id"] = wid
 	var tid := String(wb["origin"])
 	var t: Dictionary = w["towns"][tid]
 	var _t0 := Time.get_ticks_usec()
 	wb["path"] = way(w, wb, tid, String(wb["dest"]))   # world size: by the roads (a grid path only without one)
 	if TownEcon.prof_on: _t0 = TownEcon._prof("cv_path", _t0)
-	var trip := CampaignWorld.path_length(wb["pos"], wb["path"]) / (CampaignWorld.WARBAND_SPEED * SPEED) * 2.0 + 2.0
+	var trip := trip_days(wb["pos"], wb["path"])
 	# economy: the guards are people of the town's families with the town's gear; the owner (the merchants)
 	# must be able to pay the crew for the trip, or nobody signs on and the caravan doesn't sail
 	if (wb["path"] as Array).is_empty() or not People.hire_crew(game, t, wb, rng, trip):
-		_come_home(game, wb)
-		CampaignWorld.remove_warband(game, wid)
+		if _come_home(game, wb): CampaignWorld.remove_warband(game, wid)
 		return ""
 	if TownEcon.prof_on: _t0 = TownEcon._prof("cv_crew", _t0)
 	if TownEcon.has_econ(t):
@@ -483,14 +577,15 @@ static func arrive(game, wid: String) -> void:
 		return
 	var origin: Dictionary = w["towns"].get(wb["origin"], {})
 	if wb.get("leg", "out") == "home":
-		_come_home(game, wb)
-		CampaignWorld.remove_warband(game, wid)
+		if _come_home(game, wb): CampaignWorld.remove_warband(game, wid)
 		return
 	var dest: Dictionary = w["towns"].get(wb["dest"], {})
 	Sickness.caravan_at(game, wb, dest)   # sickness: the crew's diseases meet the town's (carriers, first-case origin)
 	if not dest.is_empty():
-		wb["gold"] = float(wb.get("gold", 0.0)) + sell_cargo(dest, wb["cargo"], origin.get("name", "abroad"))
+		wb["gold"] = float(wb.get("gold", 0.0)) + sell_cargo(dest, wb["cargo"], origin.get("name", "abroad"), wb.get("receipt", {}).get("realized", {}))
 		_carry_knowhow(origin, dest, wb["cargo"])
+		if wb.has("receipt"):
+			wb["receipt"]["unpaid_cargo"] = cargo_text(wb["cargo"]) if not cargo_empty(wb["cargo"]) else ""
 		buy_return(dest, origin, wb)
 	if not origin.is_empty():
 		origin["trade"] = int(origin.get("trade", 0)) + 1
@@ -504,9 +599,10 @@ static func arrive(game, wid: String) -> void:
 		Contracts.complete(game)
 	# turn for home (stand-in towns without an economy: the caravan's work ends here)
 	if origin.is_empty() or not TownEcon.has_econ(origin):
-		CampaignWorld.remove_warband(game, wid)
+		if _come_home(game, wb): CampaignWorld.remove_warband(game, wid)
 		return
 	wb["leg"] = "home"
+	if wb.has("receipt"): wb["receipt"]["status"] = "home"
 	wb["last_dest"] = wb["dest"]
 	wb["dest"] = wb["origin"]
 	wb["state"] = "travel"
@@ -514,35 +610,30 @@ static func arrive(game, wid: String) -> void:
 	wb["path"] = way(w, wb, String(wb["last_dest"]), String(wb["origin"]))   # world size: home by the roads
 	if TownEcon.prof_on: TownEcon._prof("cv_path_home", _t0)
 	if (wb["path"] as Array).is_empty():
-		_come_home(game, wb)
-		CampaignWorld.remove_warband(game, wid)
+		if _come_home(game, wb): CampaignWorld.remove_warband(game, wid)
 
-## Home: goods into the market (the market pays the treasury what it can), gold and unsold gear back.
-static func _come_home(_game, wb: Dictionary) -> void:
-	var w: Dictionary = _game.world
-	ArmsTrade.guards_home(_game, wb)   # arms trade: the guards' kit back into the town's armory
-	People.end_crew(_game, wb)   # the crew go home to their families
-	var home: Dictionary = w["towns"].get(wb.get("origin", ""), {})
-	if home.is_empty():
-		return
+## Home: sell only paid quantities, return the purse to its treasury, and keep unpaid cargo on parked wagons.
+## The home market has never charged the destination's import duty. Crew/kit are returned only once.
+static func _come_home(game, wb: Dictionary) -> bool:
+	var home: Dictionary = game.world["towns"].get(wb.get("origin", ""), {})
+	wb["escort"] = ""
+	if not wb.get("crew_home", false):
+		ArmsTrade.guards_home(game, wb)
+		People.end_crew(game, wb)
+		wb["units"] = []   # returned people must not also remain as guards on parked wagons
+		wb["crew_home"] = true
 	if not TownEcon.has_econ(home):
-		unload(home, wb["cargo"])
-		return
-	var e: Dictionary = home["econ"]
-	var mkt: Dictionary = e["biz"][int(e["mkt"])]
-	var share := float(TownEcon.data()["market"]["buy_share"])
-	var pay := 0.0
-	for g in wb["cargo"].get("goods", {}):
-		pay += float(wb["cargo"]["goods"][g]) * Goods.price_f(home, g) * share
-	for it in wb["cargo"].get("items", []):
-		pay += Economy.base_value(home, it) * float(TownEcon.data()["market"]["arms_buy_share"])
-	pay = minf(pay, maxf(0.0, float(mkt["till"])))
-	unload(home, wb["cargo"])
-	wb["cargo"] = {"items": [], "goods": {}}
-	mkt["till"] = float(mkt["till"]) - pay
-	e["treasury"] = float(e["treasury"]) + pay + float(wb.get("gold", 0.0))
-	e["stats"]["trade_in"] = float(e["stats"].get("trade_in", 0.0)) + pay
+		wb["state"] = "unpaid"
+		_finish_receipt(game, wb, "unpaid")
+		return false
+	var pay := sell_cargo(home, wb["cargo"], "returning wagons", wb.get("receipt", {}).get("realized", {}), false)
+	home["econ"]["treasury"] = float(home["econ"]["treasury"]) + pay + float(wb.get("gold", 0.0))
 	wb["gold"] = 0.0
+	var done := cargo_empty(wb["cargo"])
+	wb["state"] = "unpaid" if not done else "home"
+	wb["path"] = []
+	_finish_receipt(game, wb, "returned" if done else "unpaid")
+	return done
 
 ## Material adoption: merchants from a town that knows bronze better spread a little of it (more if they carry
 ## bronze gear). Never more than the origin knows.
@@ -580,6 +671,8 @@ static func lost(game, wid: String, by_faction: String) -> void:
 			ArmsTrade._legend_found(game, lit, null, wb["pos"])
 	ArmsTrade.field(game, (wb["units"] as Array).filter(func(u): return not u.equip.is_empty()), {}, wb["pos"])   # kit nobody took: left
 	_record_loss(wb, 1.0)
+	receipt_add(wb, "lost_coin", float(wb.get("gold", 0.0)))
+	_finish_receipt(game, wb, "lost")
 	People.end_crew(game, wb, (wb["units"] as Array).duplicate())   # the guards fell; the drivers run home
 	var escorted: bool = wb.get("escort", "") != "" and game.contract.get("id", "") == wb["escort"]
 	CampaignWorld.remove_warband(game, wid)
@@ -644,6 +737,8 @@ static func plunder(game, wid: String, witnesses: bool = false) -> Dictionary:
 		CampaignWorld.change_rep(game, wb["faction"], WITNESS_REP, "Survivors of a raided caravan named the company")
 	var dest: Dictionary = w["towns"].get(wb["dest"], {})
 	CampaignWorld.log_event(game, "The company plundered a caravan bound for %s: %s." % [dest.get("name", "?"), cargo_text(took, float(purse))])
+	receipt_add(wb, "lost_coin", float(wb.get("gold", 0.0)))
+	_finish_receipt(game, wb, "plundered")
 	CampaignWorld.remove_warband(game, wid)
 	if game.contract.get("kind", "") == "arms_raid" and game.contract.get("target_id", "") == wid:
 		Contracts.complete(game)   # arms trade: the rival who hired the raid pays

@@ -696,6 +696,11 @@ static func pay_militia(game, town: Dictionary) -> float:
 	return Army.pay_town(game, town)
 
 # ================================================================== caravan crews
+## The same trip allowance used when signing on. Caravan food retains the native home-food policy
+## (Barge.household_eaters); it is bought by the households receiving these wages, not charged again to the purse.
+static func crew_bill(n_guards: int, trip_days: float) -> float:
+	return (float(n_guards) * GUARD_WAGE + float(DRIVERS) * CREW_WAGE) * maxf(4.0, trip_days)
+
 ## Crew wages for every caravan, from its owner (the home town's merchants: the market till) into the crew's
 ## family purses. Once a day.
 static func pay_crews(game) -> void:
@@ -715,8 +720,10 @@ static func pay_crews(game) -> void:
 			if float(mkt["till"]) < wage:
 				unpaid = true
 				break
-			if pay(town, int(c[0]), wage) > 0.0:
-				mkt["till"] = float(mkt["till"]) - wage
+			var paid := pay(town, int(c[0]), wage)
+			if paid > 0.0:
+				mkt["till"] = float(mkt["till"]) - paid
+				Caravans.receipt_add(wb, "crew", paid)
 		wb["unpaid"] = int(wb.get("unpaid", 0)) + 1 if unpaid else 0
 
 ## A new caravan's crew: guards are the caravan's units (named people of the town's families), plus drivers.
@@ -727,7 +734,7 @@ static func hire_crew(game, town: Dictionary, wb: Dictionary, rng: RandomNumberG
 		return true
 	var mkt: Dictionary = e["biz"][int(e["mkt"])]
 	var n_guards := (wb["units"] as Array).size()
-	var bill := (float(n_guards) * GUARD_WAGE + float(DRIVERS) * CREW_WAGE) * maxf(4.0, trip_days)
+	var bill := crew_bill(n_guards, trip_days)
 	if float(mkt["till"]) < bill:
 		return false   # the owner can't pay: no crew signs on, the caravan doesn't sail
 	var crew := []

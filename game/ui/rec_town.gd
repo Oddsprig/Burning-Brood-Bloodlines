@@ -1069,7 +1069,15 @@ static func roads(scr, t: Dictionary, e: Dictionary, v: VBoxContainer) -> void:
 	var st := RecData.stats(e)
 	RecKit.kv(cc, "Trade sent out (value, all time)", _m(float(st.get("trade_out", 0.0))) if st.has("trade_out") else RecKit.NT)
 	RecKit.kv(cc, "Trade come in (value, all time)", _m(float(st.get("trade_in", 0.0))) if st.has("trade_in") else RecKit.NT)
-	RecKit.nt(cc, "Caravans sent, arrived and robbed this year")
+	var receipts: Array = e.get("caravan_receipts", [])
+	var rc := RecKit.card(v, "Recent caravan receipts", "Last 32 closed trips; active and unpaid trips keep their receipts on the caravan.")
+	if receipts.is_empty(): RecKit.line(rc, "No closed trips recorded.", "Muted")
+	for i in range(receipts.size() - 1, -1, -1):
+		var receipt: Dictionary = receipts[i]
+		RecKit.disclosure(rc, "%s -> %s; %s; net %s" % [
+			RecData.tname(String(receipt.get("origin", ""))), RecData.tname(String(receipt.get("destination", ""))),
+			String(receipt.get("status", "")), _m(float(receipt.get("realized", {}).get("net", 0.0)))],
+			func(body): RecPages.caravan_receipt(body, receipt))
 	var ac := RecKit.card(v, "Garrison supply", "Internal transfers use existing stock every ten days within the same faction.")
 	RecKit.kv(ac, "Equipment received (all time)", str(int(st.get("military_supply_in", 0))))
 	RecKit.kv(ac, "Equipment sent (all time)", str(int(st.get("military_supply_out", 0))))
