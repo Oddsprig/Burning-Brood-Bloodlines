@@ -7,6 +7,27 @@ extends RefCounted
 const SUCCESSION_LAWS := ["male_preference", "absolute", "elective", "seniority"]
 const LAW_LOCK_YEARS := 5
 const LAW_GRIEVANCE := 10.0
+## Lookup cache only. Never written onto the world, so saves stay the same.
+static var _hh_world: Dictionary = {}
+static var _hh_index: Dictionary = {}
+static var _hh_gen: int = 0
+static var _hh_built: int = -1
+
+static func note_households_changed() -> void:
+	_hh_gen += 1
+
+static func _reindex_households(game) -> void:
+	var world: Dictionary = game.world
+	var index := {}
+	for town in world.get("towns", {}).values():
+		for f in town.get("econ", {}).get("fams", []):
+			if f.get("gone", false): continue
+			var id := String(f.get("household_uid", ""))
+			if id == "" or index.has(id): continue
+			index[id] = {"town": town, "family": f}
+	_hh_index = index
+	_hh_world = world
+	_hh_built = _hh_gen
 
 static func _eligible(e: Dictionary, f: Dictionary, day: float) -> Array:
 	var head := Persons.head_of(f)
@@ -101,11 +122,15 @@ static func _person(game, uid: String, remembered: bool = false) -> Dictionary:
 
 static func _household(game, uid: String) -> Dictionary:
 	if uid == "": return {}
-	for town in game.world.get("towns", {}).values():
-		for f in town.get("econ", {}).get("fams", []):
-			if String(f.get("household_uid", "")) == uid and not f.get("gone", false):
-				return {"town": town, "family": f}
-	return {}
+	var world: Dictionary = game.world
+	if _hh_built != _hh_gen or not is_same(_hh_world, world):
+		_reindex_households(game)
+	var hit: Dictionary = _hh_index.get(uid, {})
+	if hit.is_empty() or String(hit["family"].get("household_uid", "")) != uid or hit["family"].get("gone", false):
+		_reindex_households(game)
+		hit = _hh_index.get(uid, {})
+	if hit.is_empty(): return {}
+	return {"town": hit["town"], "family": hit["family"]}
 
 static func _row(loc: Dictionary, day: float, title: String = "") -> Dictionary:
 	if loc.is_empty(): return {}

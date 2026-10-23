@@ -271,6 +271,7 @@ v0.041 tactical battle systems - DELIVERED (Claude Edition): orders before each 
 v0.042 balance pass - DELIVERED (Claude Edition): measured and tuned buildings (x10 cost), seasonal harvests so granaries matter, softer AI counter-picks and capped tactic edges.
 v0.043 economy pass - DELIVERED (Claude Edition): a labour market where people choose paid work, household spending, a treasure room, fixes so noble houses survive, and faster household turns.
 v0.045 town land market - DELIVERED (Claude Edition): farms short of wage money sell land to the town in one daily batch, and only families who want land and can afford it buy from the town once a day; household income step 137 to 44 ms per day.
+v0.046 faster campaign days - DELIVERED (Claude Edition): household lookups for court and upkeep use a cached index instead of scanning every family; household income step about 38% faster, a game day about 15% faster (529 to 451 ms paired on this PC).
 v0.047 trade on the map - DELIVERED (Claude Edition): a map toggle (grain, meat, metal) marks each town short, balanced or in surplus and draws caravans carrying that good along their roads; tapping opens the market or caravan records.
 Also delivered outside the numbered list (Claude Edition): court and marriage, interface pass, 100 v 100 battle rounds, armies to 1000, house officers and noble call-up, house arms pool, ennoblement, medics and aftermath.
 

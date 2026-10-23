@@ -695,6 +695,7 @@ static func move_family(game, from: Dictionary, f: Dictionary, to: Dictionary, w
 	nf["store"] = carried
 	var remap := _renumber(e2, nf)
 	(e2["fams"] as Array).append(nf)
+	Dynasty.note_households_changed()
 	Sickness.family_moved(e, e2, f, nf, remap, day)   # their open cases, immunities and body condition go with them
 	ServiceIdentity.transfer(game, from, to, nf, service["units"])
 	for p in f.get("pp", []):

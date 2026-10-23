@@ -21,6 +21,7 @@ static func identity(e: Dictionary, f: Dictionary) -> void:
 	if scope == "" or f.get("estate", false): return
 	if String(f.get("household_uid", "")) == "":
 		f["household_uid"] = "household:%s:%d" % [scope, int(f["id"])]
+		Dynasty.note_households_changed()
 	if String(f.get("founding_house_uid", "")) == "":
 		f["founding_house_uid"] = "house:%s:%d" % [scope, int(f["id"])]
 
@@ -1499,6 +1500,7 @@ static func leave_town(e: Dictionary, f: Dictionary, day: float) -> void:
 	e["treasury"] = float(e["treasury"]) + left   # coin is never lost off the map: the town takes what nobody claims
 	f["purse"] = 0.0
 	f["gone"] = true
+	Dynasty.note_households_changed()
 	add_hist(f, "The family left town.", day)
 
 ## The house died out (battle, old age, an AI clash): all its property goes to the state, the town's head where
@@ -1522,6 +1524,7 @@ static func restore_returned(e: Dictionary, f: Dictionary) -> bool:
 	if not f.get("gone", false): return true
 	if not f.get("extinct", false) or str(f.get("moved", "")) != "" or not living_company_member(e, f): return false
 	f["gone"] = false
+	Dynasty.note_households_changed()
 	f.erase("extinct"); f.erase("packed"); f.erase("gone_at")
 	return true
 
@@ -1560,6 +1563,7 @@ static func extinct(e: Dictionary, f: Dictionary, day: float) -> void:
 		e["treasury"] = float(e["treasury"]) + cash
 	f["gone"] = true
 	f["extinct"] = true
+	Dynasty.note_households_changed()
 	add_hist(f, "The house died out; its property passed to the %s." % e.get("head", {}).get("title", "head"), day)
 	TownEcon.town_hist(e, "The %s house died out; the %s took its property." % [f["name"], e.get("head", {}).get("title", "head")], day)
 
