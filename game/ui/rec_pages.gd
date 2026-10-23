@@ -408,6 +408,8 @@ static func caravan_receipt(box: VBoxContainer, receipt: Dictionary) -> void:
 	RecKit.line(c, "Crew: the home market pays wages to real households; their existing food budget feeds them. Treasury funds cargo. Expected prices are held at departure.", "Small")
 	if String(receipt.get("unpaid_cargo", "")) != "":
 		RecKit.kv(c, "Unpaid cargo still on the wagons", String(receipt["unpaid_cargo"]))
+	if String(receipt.get("consigned", "")) != "":
+		RecKit.kv(c, "Handed to the home market", String(receipt["consigned"]))
 
 static func remembered(e: Dictionary, f: Dictionary) -> Array:
 	var out := []

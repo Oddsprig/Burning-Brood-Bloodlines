@@ -19,6 +19,18 @@ func family_coin(t: Dictionary) -> float:
 	for f in t["econ"]["fams"]: total += float(f["purse"])
 	return total
 
+func item_uids(w: Dictionary) -> Array:
+	var ids := []
+	for t in w["towns"].values():
+		for it in t.get("shop", []): ids.append(str(it.uid))
+		for it in t.get("armory_items", []): ids.append(str(it.uid))
+	for wb in w["warbands"].values():
+		if wb.get("kind", "") == "caravan":
+			for it in wb.get("cargo", {}).get("items", []): ids.append(str(it.uid))
+	for it in Game.stash: ids.append(str(it.uid))
+	ids.sort()
+	return ids
+
 func goods_total(o: Dictionary, d: Dictionary, good: String = "linen") -> int:
 	var n := TownEcon.town_total(o["econ"], good) + TownEcon.town_total(d["econ"], good)
 	for wb in Game.world["warbands"].values():
@@ -208,5 +220,67 @@ func run(tree: SceneTree) -> int:
 	check(o["shop"].has(item), "paid Item transfers intact to home shop")
 	near(BargeViews.holdings(Game), coins, "funded retry conserves coin")
 	check(goods_total(o, d) == linen, "funded retry conserves goods")
+
+	# An insolvent home market can never buy even one Item. After the wait the wagons leave.
+	configure(o, d)
+	d["econ"]["price"]["linen"] = 1000.0
+	o["econ"]["stock"]["leather"] = 0; o["econ"]["need"]["leather"] = 1000.0; o["econ"]["price"]["leather"] = 1000.0
+	d["econ"]["stock"]["leather"] = 6000; d["econ"]["need"]["leather"] = 10.0; d["econ"]["price"]["leather"] = 10.0
+	var stuck_id := Caravans.spawn(Game, String(o["id"]), rng, String(d["id"]))
+	check(stuck_id != "", "insolvent-home fixture sails before the tills are emptied")
+	if stuck_id == "": return fails
+	wb = w["warbands"][stuck_id]
+	var pool: Array = ArmsTrade.armory(o)
+	if pool.is_empty(): pool = Game.stash
+	check(not pool.is_empty(), "fixture has an existing Item the home market cannot buy")
+	if pool.is_empty(): return fails
+	var stuck_item: Item = pool.pop_back()
+	wb["cargo"]["items"].append(stuck_item)
+	var stuck_goods: Dictionary = wb["cargo"]["goods"].duplicate()
+	check(int(stuck_goods.get("linen", 0)) > 0, "insolvent fixture carries goods as well as the Item")
+	for t in [o, d]:
+		t["econ"]["treasury"] = float(t["econ"]["treasury"]) + float(market(t)["till"])
+		market(t)["till"] = 0.0
+	var buy_price := Economy.base_value(o, stuck_item) * float(TownEcon.data()["market"]["arms_buy_share"])
+	check(buy_price > float(market(o)["till"]), "home till cannot pay for even one Item")
+	wb["pos"] = d["pos"]; Caravans.arrive(Game, stuck_id)
+	wb["pos"] = o["pos"]; Caravans.arrive(Game, stuck_id)
+	var aboard := false
+	for it in wb["cargo"]["items"]:
+		if is_same(it, stuck_item): aboard = true
+	check(w["warbands"].has(stuck_id) and wb["state"] == "unpaid" and wb["crew"].is_empty() and aboard, "insolvent home parks the caravan with the Item still aboard")
+	check(int(wb["cargo"]["goods"].get("linen", 0)) == int(stuck_goods.get("linen", 0)) and not wb["cargo"]["goods"].is_empty(), "insolvent home leaves the outbound goods unpaid")
+	coins = BargeViews.holdings(Game)
+	linen = goods_total(o, d)
+	var leather_stuck := goods_total(o, d, "leather")
+	var held := item_uids(w)
+	var slots := Caravans.count(w)
+	Caravans.daily(Game, rng)
+	check(w["warbands"].has(stuck_id) and int(wb["unpaid_wait"]) == 1, "one unpaid day does not free the slot")
+	var packed := JSON.stringify(Game._serialize(wb))
+	var restored = Game._deserialize(JSON.parse_string(packed))
+	check(int(restored["unpaid_wait"]) == int(wb["unpaid_wait"]), "save/load keeps the unpaid wait counter")
+	wb["unpaid_wait"] = Caravans.UNPAID_WAIT_DAYS - 1
+	Caravans.daily(Game, rng)
+	check(not w["warbands"].has(stuck_id), "the wait consigns the caravan and removes it")
+	check(Caravans.count(w) == slots - 1, "removing the caravan frees its global slot")
+	var handed := false
+	for it in o["shop"]:
+		if is_same(it, stuck_item): handed = true
+	check(handed, "consigned Item is the same piece in the home shop")
+	check(item_uids(w) == held, "consignment keeps every Item identity")
+	check(wb["cargo"]["goods"].is_empty() and wb["cargo"]["items"].is_empty(), "consigned cargo leaves the wagons")
+	check(int(o["econ"]["stock"].get("linen", 0)) >= int(stuck_goods.get("linen", 0)), "consigned goods sit in home market stock")
+	near(BargeViews.holdings(Game), coins, "consignment conserves every coin")
+	check(goods_total(o, d) == linen and goods_total(o, d, "leather") == leather_stuck, "consignment conserves every good")
+	var closed: Dictionary = o["econ"]["caravan_receipts"].back()
+	check(closed["status"] == "consigned" and String(closed.get("consigned", "")) != "" and int(closed.get("unpaid_wait", 0)) == Caravans.UNPAID_WAIT_DAYS, "receipt records the consigned cargo and the wait")
+	for t in [o, d]:
+		var back := minf(200000.0, float(t["econ"]["treasury"]))
+		t["econ"]["treasury"] = float(t["econ"]["treasury"]) - back
+		market(t)["till"] = float(market(t)["till"]) + back
+	w["work"] = []
+	TownEcon._plan_trade(Game, o, o["econ"], int(Game.day))
+	check(w["work"].size() == 1 and w["work"][0][0] == "caravan" and w["work"][0][1] == o["id"], "the home town's caravan slot is free again")
 	check(Time.get_ticks_msec() - started < 60000, "bounded fixture finishes under 60 seconds")
 	return fails

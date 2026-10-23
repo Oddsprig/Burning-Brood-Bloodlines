@@ -24,6 +24,7 @@ const MAX_CARAVANS := 8
 const SPEED := 0.85            # x WARBAND_SPEED; slower than the company
 const ESCORT_RADIUS := 170.0   # px
 const MAX_AWAY := 0.75         # days out of escort range before the contract fails
+const UNPAID_WAIT_DAYS := 30   # daily retries while home cannot pay; then the remainder is consigned and the slot frees
 const MAX_ITEMS := 6
 const MAX_GOODS := 30.0        # per good per caravan without an economy (stand-in towns)
 const CAPACITY_KG := 2500.0    # wagons [ours]
@@ -142,13 +143,24 @@ static func count(w: Dictionary) -> int:
 			n += 1
 	return n
 
-## Retry unpaid home cargo once a day; parked wagons still count against the caravan limits.
+## Retry unpaid home cargo once a day. Parked wagons count against the caravan limits until UNPAID_WAIT_DAYS
+## (unpaid_wait, saved on the warband). Whatever the home market still cannot buy is then consigned into its
+## stock and shop, and the wagons leave.
 static func daily(game, _rng: RandomNumberGenerator) -> void:
 	for wid in game.world.get("warbands", {}).keys():
 		var wb: Dictionary = game.world["warbands"][wid]
-		if wb.get("kind", "") == "caravan" and wb.get("state", "") == "unpaid":
-			if _come_home(game, wb):
-				CampaignWorld.remove_warband(game, wid)
+		if wb.get("kind", "") != "caravan" or wb.get("state", "") != "unpaid":
+			continue
+		if not wb.has("unpaid_wait"):
+			wb["unpaid_wait"] = 0
+		if _come_home(game, wb):
+			CampaignWorld.remove_warband(game, wid)
+			continue
+		wb["unpaid_wait"] = int(wb["unpaid_wait"]) + 1
+		var home: Dictionary = game.world["towns"].get(wb.get("origin", ""), {})
+		if int(wb["unpaid_wait"]) >= UNPAID_WAIT_DAYS and TownEcon.has_econ(home):
+			_consign_unpaid(game, wb)
+			CampaignWorld.remove_warband(game, wid)
 
 # ------------------------------------------------------------------ what to carry
 ## Units of g the origin can spare (above what it needs on hand).
@@ -624,6 +636,8 @@ static func _come_home(game, wb: Dictionary) -> bool:
 		wb["crew_home"] = true
 	if not TownEcon.has_econ(home):
 		wb["state"] = "unpaid"
+		if not wb.has("unpaid_wait"):
+			wb["unpaid_wait"] = 0
 		_finish_receipt(game, wb, "unpaid")
 		return false
 	var pay := sell_cargo(home, wb["cargo"], "returning wagons", wb.get("receipt", {}).get("realized", {}), false)
@@ -631,9 +645,34 @@ static func _come_home(game, wb: Dictionary) -> bool:
 	wb["gold"] = 0.0
 	var done := cargo_empty(wb["cargo"])
 	wb["state"] = "unpaid" if not done else "home"
+	if not done and not wb.has("unpaid_wait"):
+		wb["unpaid_wait"] = 0
 	wb["path"] = []
 	_finish_receipt(game, wb, "returned" if done else "unpaid")
 	return done
+
+## The home market still cannot pay for what is left. Goods go into market stock and Items into the shop
+## (unload: no coins minted or spent). Crew and kit use the same return as a normal homecoming.
+static func _consign_unpaid(game, wb: Dictionary) -> void:
+	var home: Dictionary = game.world["towns"].get(wb.get("origin", ""), {})
+	var cargo: Dictionary = wb.get("cargo", {})
+	var note := cargo_text(cargo)
+	if not wb.get("crew_home", false):
+		ArmsTrade.guards_home(game, wb)
+		People.end_crew(game, wb)
+		wb["units"] = []
+		wb["crew_home"] = true
+	unload(home, cargo)
+	cargo["items"] = []
+	cargo["goods"] = {}
+	if TownEcon.has_econ(home):
+		home["econ"]["treasury"] = float(home["econ"]["treasury"]) + float(wb.get("gold", 0.0))
+	wb["gold"] = 0.0
+	if wb.has("receipt"):
+		wb["receipt"]["consigned"] = note
+		wb["receipt"]["unpaid_wait"] = int(wb.get("unpaid_wait", 0))
+	wb["state"] = "home"
+	_finish_receipt(game, wb, "consigned")
 
 ## Material adoption: merchants from a town that knows bronze better spread a little of it (more if they carry
 ## bronze gear). Never more than the origin knows.
