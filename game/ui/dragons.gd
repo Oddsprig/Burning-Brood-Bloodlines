@@ -6,6 +6,9 @@ var roster: Array = []
 var detail_uid := ""
 var holdings := "house"
 var catalog_open := false
+var roost_open := false
+var roost_uid := ""
+var roost: DragonRoost
 const PAGE := 9
 var page := 0
 var notice := ""
@@ -30,6 +33,8 @@ func _ready() -> void:
 	back_params = Game.screen_params.get("back_params", {}).duplicate(true)
 	detail_uid = String(Game.screen_params.get("dragon_uid", ""))
 	holdings = String(Game.screen_params.get("holdings", "house"))
+	roost_open = bool(Game.screen_params.get("roost", false))
+	roost_uid = str(Game.screen_params.get("roost_uid", ""))
 	var frame := UiKit.screen_frame(self, "Dragons & eggs")
 	var heading: Label = frame["title"]
 	heading.add_theme_font_size_override("font_size", 24)
@@ -53,14 +58,16 @@ func _queue_refresh() -> void:
 func _exit_tree() -> void:
 	_bond_picker.clear()
 	_mate_list = null
+	roost = null
 
 func _context() -> Dictionary:
-	return {"back": back, "back_params": back_params, "dragon_uid": detail_uid, "holdings": holdings}
+	return {"back": back, "back_params": back_params, "dragon_uid": detail_uid, "holdings": holdings, "roost": roost_open, "roost_uid": roost_uid}
 
 func _refresh() -> void:
 	_refresh_pending = false
 	UiKit.clear(body)
 	model_card = null
+	roost = null
 	roster_grid = null; gem_grid = null
 	if notice != "": body.add_child(UiKit.label(notice, "", true))
 	if detail_uid != "":
@@ -71,6 +78,24 @@ func _refresh() -> void:
 		detail_uid = ""
 	var controls := UiKit.flow()
 	body.add_child(controls)
+	for choice in [["List", false], ["Roost", true]]:
+		var button := UiKit.button(str(choice[0]), _set_roost.bind(bool(choice[1])), "Row")
+		button.name = "DragonRoostToggle" if bool(choice[1]) else "DragonListToggle"
+		button.disabled = roost_open == bool(choice[1])
+		controls.add_child(button)
+	if roost_open:
+		var household := str(Dynasty.selected(Game).get("household_uid", ""))
+		roster = []
+		if household != "":
+			for row: Dictionary in Dragons.records(Game):
+				if str(row.get("owner_household_uid", "")) == household: roster.append(row)
+		roost = DragonRoost.new()
+		roost.name = "DragonRoost"
+		body.add_child(roost)
+		roost.selected.connect(func(uid: String): roost_uid = uid)
+		roost.set_records(roster, roost_uid)
+		_fit()
+		return
 	for choice in [["Your house", "house"], ["Your realm", "realm"], ["All holdings", "all"]]:
 		var button := UiKit.button(String(choice[0]), _choose_holdings.bind(String(choice[1])), "Row")
 		button.disabled = holdings == String(choice[1])
@@ -102,8 +127,15 @@ func _refresh() -> void:
 
 func _fit() -> void:
 	var width := get_viewport_rect().size.x
+	if roost != null: roost.custom_minimum_size.y = maxf(320, get_viewport_rect().size.y - 170)
 	if roster_grid != null: roster_grid.columns = 3 if width >= 1100 else (2 if width >= 750 else 1)
 	if gem_grid != null: gem_grid.columns = maxi(1, mini(4, int(maxf(1, width - 32) / 250)))
+
+func _set_roost(value: bool) -> void:
+	if value == roost_open: return
+	roost_open = value
+	detail_uid = ""
+	_refresh()
 
 func _choose_holdings(value: String) -> void:
 	holdings = value; detail_uid = ""; page = 0; _refresh()

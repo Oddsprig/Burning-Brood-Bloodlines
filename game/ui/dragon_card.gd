@@ -18,13 +18,26 @@ var _bounds: Rect2 = Rect2()
 var _model_cache: Dictionary = {}
 ## Rigs shared by every card: reopening the dragons screen reuses them instead of rebuilding 27 rigs.
 static var _shared: Dictionary = {}
-var _rec_key := 0
 
 func _model(p: String, t: float, inj: Dictionary) -> Dictionary:
-	var key := "%d:%s:%.3f:%d" % [_rec_key, p, t, inj.hash()]
+	return cached_model(record, p, t, inj)
+
+static func cached_model(row: Dictionary, p: String = "rest", t: float = 0.0, inj: Dictionary = {}) -> Dictionary:
+	# Care, bonds, identity and fractional growth do not change the source rig.
+	# Physical growth is applied by DragonView.physical_ppu at the drawing boundary.
+	var look := [row.get("gem_id", ""), row.get("morph_id", ""), row.get("size_class", ""), row.get("appearance_seed", 0)]
+	var key := "model:%d:%s:%.3f:%d" % [hash(look), p, t, inj.hash()]
 	if not _shared.has(key):
 		if _shared.size() > 96: _shared.clear()
-		_shared[key] = DragonArt.model(record, p, t, inj)
+		_shared[key] = DragonArt.model(row, p, t, inj)
+	return _shared[key]
+
+static func egg_visual(row: Dictionary) -> Dictionary:
+	var key := "egg:%s:%d" % [str(row.get("gem_id", "ruby")), int(row.get("appearance_seed", 0))]
+	if not _shared.has(key):
+		if _shared.size() > 96: _shared.clear()
+		var image := image_for(row)
+		_shared[key] = {"texture": ImageTexture.create_from_image(image), "source": Rect2(image.get_used_rect())}
 	return _shared[key]
 
 func _init() -> void:
@@ -36,7 +49,6 @@ func _init() -> void:
 
 func set_record(value: Dictionary) -> void:
 	record = value.duplicate(true)
-	_rec_key = record.hash()
 	pose = "idle" if bool(record.get("alive", true)) else "dead"
 	_prepare()
 
@@ -54,7 +66,7 @@ func _prepare() -> void:
 	_texture = null; _rider.clear(); _rider_textures.clear(); _model_cache.clear()
 	if record.is_empty(): set_process(false); queue_redraw(); return
 	if String(record.get("stage", "egg")) == "egg":
-		_texture = ImageTexture.create_from_image(image_for(record))
+		_texture = egg_visual(record)["texture"]
 	elif mode == "concept":
 		_texture = DragonConcepts.texture_for_record(record)
 	elif mode == "portrait":
