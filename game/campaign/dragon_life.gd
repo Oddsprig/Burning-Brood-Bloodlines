@@ -2,7 +2,8 @@ class_name DragonLife
 extends RefCounted
 ## The dragon lifecycle, run once a day after DragonCare has fed and housed every dragon:
 ##   egg      - incubates while it is kept warm and cared for; hatches after HATCH_DAYS of good care.
-##   juvenile - a small hatchling that grows with feeding (DragonGrowth); becomes an adult after MATURE_DAYS.
+##   juvenile - a small hatchling that grows with feeding (DragonGrowth's hatchling -> juvenile ->
+##              adult -> mature curve, capped by that dragon's potential); life stage becomes adult after MATURE_DAYS.
 ##   adult    - can be bonded, ridden to war and breathe; a healthy female and male kept at the same roost
 ##              by the same house may lay a clutch once per BREED_COOLDOWN days.
 ## New eggs and hatchlings are ordinary dragon records with their own identity, owner, custody and history.
@@ -19,6 +20,7 @@ static func daily(game, day: int) -> void:
 	# Only a day that DragonCare actually settled advances the lifecycle (re-runs and quotes change nothing).
 	if not registry.values().any(func(r): return int(r.get("care", {}).get("last_day", -1)) == day and bool(r.get("alive", false))): return
 	state["life_day"] = day
+	DragonGrowth.ensure_all(game)
 	var born := false
 	var ids: Array = registry.keys(); ids.sort()
 	for uid in ids:
@@ -64,6 +66,8 @@ static func _incubate(game, row: Dictionary, day: int) -> bool:
 	row["birth_day"] = float(day)
 	row["size_class"] = "small"
 	row["growth_points"] = 0.0
+	if not DragonGrowth.has_potential(row):
+		DragonGrowth.ensure(row)
 	row.erase("incubation")
 	var mother_uid: String = str(row.get("mother_uid", ""))
 	var father_uid: String = str(row.get("father_uid", ""))

@@ -87,6 +87,8 @@ static func prepare_world(game) -> void:
 	for uid: Variant in ids:
 		var row: Dictionary = state["records"][uid]
 		if not row.has("combat_order"): row["combat_order"] = {"enabled": false}
+		if str(row.get("stage", "")) != "egg":
+			DragonGrowth.ensure(row)
 		if state["combat_units"].has(uid): continue # never replace an existing physical identity
 		if not bool(row.get("alive", false)) or str(row.get("stage", "")) not in ["juvenile", "adult"]: continue
 		var profile: Dictionary = _profile(game, row)
@@ -112,6 +114,9 @@ static func sync_profile(game, uid: String) -> bool:
 	var profile: Dictionary = _profile(game, row)
 	if profile.is_empty(): return false
 	var fraction: float = unit.body.blood / maxf(0.001, unit.body.blood_max)
+	# Growth rescales mass and blood. The injured part map, severed limbs and scar list stay put.
+	var injured: Dictionary = unit.body.parts
+	var marks: Array = unit.body.permanent
 	var learned: int = int(unit.attrs.get("STR", 1000)) - int(unit.attr_base.get("STR", 1000))
 	var old_base: int = int(unit.attr_base.get("STR", 1000))
 	var base: int = int(profile["strength"])
@@ -128,9 +133,14 @@ static func sync_profile(game, uid: String) -> bool:
 	if blood_max != unit.body.blood_max:
 		unit.body.blood_max = blood_max
 		unit.body.blood = maxf(0.0, fraction * blood_max)
+	if not is_same(unit.body.parts, injured):
+		unit.body.parts = injured
+	if unit.body.permanent != marks:
+		unit.body.permanent = marks
 	return true
 
 static func after_load(game) -> void:
+	DragonGrowth.ensure_all(game)
 	var state: Dictionary = _registry(game)
 	for row: Dictionary in state.get("records", {}).values():
 		for key: String in ["combat_unit_uid", "combat_last_care_day", "combat_last_receipt"]:

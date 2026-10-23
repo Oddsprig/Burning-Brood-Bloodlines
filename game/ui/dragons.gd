@@ -188,7 +188,10 @@ static func care_quote_text(row: Dictionary, quote: Dictionary) -> String:
 	if not egg:
 		var growth: float = maxf(0.0, float(quote.get("growth_points", 0.0)))
 		var last_size: int = maxi(0, Dragons.catalogs().get("sizes", []).size() - 1)
-		lines[0] += " · Maximum size reached" if growth >= last_size else " · Growth toward next size: %.2f%%" % (fposmod(growth, 1.0) * 100.0)
+		var cap := float(last_size)
+		if DragonGrowth.has_potential(row):
+			cap = DragonGrowth.read_potential(row)
+		lines[0] += " · Maximum size reached" if growth >= cap - 0.000001 else " · Growth toward next size: %.2f%%" % (fposmod(growth, 1.0) * 100.0)
 	if not bool(row.get("alive", true)):
 		lines.append("No daily feed or upkeep charge.")
 		return "\n".join(lines)
@@ -239,6 +242,9 @@ func _care_panel(row: Dictionary) -> void:
 	var facts: VBoxContainer = UiKit.vbox(6)
 	panel.add_child(facts)
 	facts.add_child(UiKit.label("Care & growth", "H2", true))
+	var shown := DragonGrowth.summary(row, quote)
+	if shown != "":
+		facts.add_child(UiKit.label(shown, "", true))
 	facts.add_child(UiKit.label(care_quote_text(row, quote), "", true))
 	facts.add_child(UiKit.label(care_receipt_text(row, quote.get("last", {})), "Muted", true))
 	if bool(row.get("alive", false)):

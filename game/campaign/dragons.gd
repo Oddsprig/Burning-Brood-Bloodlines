@@ -208,6 +208,7 @@ static func _make(game, stage: String, town_id: String, owner: Dictionary, key: 
 		"rider_person_uid": "", "alive": true, "history": []}
 	_set_owner(row, owner)
 	DragonCare.initialize(row, int(floor(game.day)))
+	DragonGrowth.assign_new(row)
 	# The owner can live elsewhere; custody requires actual co-location.
 	if not _present(owner, town_id): row["custodian_person_uid"] = ""
 	_history(game, row, "registered", {"stage": stage, "owner_person_uid": row["owner_person_uid"]})

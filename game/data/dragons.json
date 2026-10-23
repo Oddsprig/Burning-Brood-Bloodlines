@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "anatomy": {"id": "wyvern", "hind_legs": 2, "forelimbs": "wings", "wings": 2, "separate_front_legs": 0},
-  "note": "Original wyvern identities and authored resting physical profiles, not active combat bodies. Gem type sets fantasy mineralized tooth/claw yield hardness only; not literal jewel teeth or a Mohs-to-stress conversion. Toughness and sharpness remain independent. Colors confer no elemental attacks. Care, growth, bonding and battle binding are later milestones.",
+  "note": "Original wyvern identities and authored resting physical profiles, not active combat bodies. Gem type sets fantasy mineralized tooth/claw yield hardness only; not literal jewel teeth or a Mohs-to-stress conversion. Toughness and sharpness remain independent. Colors confer no elemental attacks. Individual growth potential (v0.052) changes size, mass, strength and tooth/claw geometry only. Gem hardness stays the gem's own value.",
   "proper_names": ["Cinderwake","Ashenmere","Gloamreach","Vespercoil","Brackenfall","Mournspire","Emberloft","Sablehush","Fallowcrest","Rillwarden","Thornwake","Duskmantle","Hearthshadow","Wilderkeel","Oathwing","Shaleheart","Rookhaven","Frostmere","Alderfang","Smolderfen","Cloudriven","Hollowcrest","Brightscar","Veilrunner","Galeshard","Nightreed","Flintwhisper","Briarwake","Wrenstorm","Cairnshade","Dawnrill","Crestwarden","Stillcinder","Fernshadow","Hushedvale","Rainspire","Kindlethorn","Mosskeel","Gravenwing","Starfen","Rivenshale","Ocherwind","Boughbreaker","Hollowwake","Hearthriven","Wistfulcrag","Dunemantle","Thistlecoil","Ridgewhisper","Greyhaven","Siltwarden","Yarrowfall","Highmorrow","Cinderbough","Wickerstorm","Vesperreach","Glimmerfen","Ashrill","Cloudhollow","Fallowwing","Brumeloft","Nightwarden","Galehaven","Rookcinder"],
   "physics": {
     "calibration": "All values are authored game balance values. Material yield/fracture retain native units; hardness_index is 0..100, not Mohs. Native raw contact is projected from cm2 using the explicit authored factor below. Rest estimates have zero skill, fatigue and pain. No armour outcome is decided here.",
@@ -43,5 +43,26 @@
     {"id":"large","name":"Large","physical":{"body_mass_kg":5000,"strength":1300,"linear_scale":2.4}},
     {"id":"huge","name":"Huge","physical":{"body_mass_kg":18000,"strength":1500,"linear_scale":3.8}},
     {"id":"colossal","name":"Colossal","physical":{"body_mass_kg":65000,"strength":1750,"linear_scale":5.7}}
-  ]
+  ],
+  "growth": {
+    "note": "v0.052. Potential is growth points: 0 small, 1 medium, 2 large, 3 huge, 4 colossal. A founder draw lands in the colossal band when hash % founder_colossal_modulus == 0 (default 1 in 20). Saved dragons keep at least their current points, so a load never shrinks them. Nutrition bands read the daily care food ratio.",
+    "colossal_band_min": 4.0,
+    "founder_colossal_modulus": 20,
+    "founder_span_min": 0.85,
+    "founder_span_max": 3.15,
+    "inherit_slack": 0.2,
+    "display_slack": 0.5,
+    "stages": [
+      {"id": "hatchling", "until": 0.25, "rate": 1.0},
+      {"id": "juvenile", "until": 0.55, "rate": 0.85},
+      {"id": "adult", "until": 0.85, "rate": 0.55},
+      {"id": "mature", "until": 1.01, "rate": 0.25}
+    ],
+    "nutrition": {
+      "well_fed_min": 0.95,
+      "starving_below": 0.8,
+      "well_fed_rate": 1.0,
+      "underfed_rate": 0.55
+    }
+  }
 }

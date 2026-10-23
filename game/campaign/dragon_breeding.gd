@@ -245,6 +245,10 @@ static func spawn_egg(game, mother: Dictionary, father: Dictionary, day: int, eg
 	if morph_id != "":
 		egg["morph_id"] = morph_id
 	egg["variation"] = inherited_variation(game, mother, father, key)
+	var inherited := DragonGrowth.inherit(game, mother, father, key)
+	var egg_points := DragonGrowth.current_points(egg)
+	if egg_points < 0.0: egg_points = 0.0
+	egg["growth_potential"] = clampf(maxf(inherited, egg_points), 0.0, DragonGrowth.MAX_POINTS)
 	egg["laid_day"] = float(day)
 	egg["incubation"] = 0.0
 	Dragons._history(game, mother, "clutch", {"egg_uid": egg["id"], "father_uid": str(father["id"]), "day": day})
@@ -310,6 +314,7 @@ static func breed_chosen_pairs(game, registry: Dictionary, day: int) -> Array:
 
 static func after_load(game) -> void:
 	if not game.world.has("dragons"): return
+	DragonGrowth.ensure_all(game)
 	var state: Dictionary = game.world["dragons"]
 	if not state.has("pairs") or not (state["pairs"] is Dictionary):
 		state["pairs"] = {}
