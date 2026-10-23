@@ -206,21 +206,30 @@ static func _nutrition(food: float) -> Dictionary:
 		return {"id": "underfed", "rate": under}
 	return {"id": "well_fed", "rate": full}
 
-static func _next_mark(points: float, cap: float) -> float:
-	if cap <= points:
-		return cap
-	var frac := points / cap
+## A point this close to a stage edge is already inside the next stage. Comparing
+## points/cap < until repeats the same edge when the product rounds a hair low,
+## and the old loop then treated that repeat as "no next mark" and jumped to the cap.
+const MARK_EPS := 0.000000001
+
+## The stage that still has room, and the next boundary strictly ahead of points.
+static func _span(points: float, cap: float) -> Dictionary:
 	var stages: Array = rules().get("stages", [])
+	var rate := 1.0
 	var i := 0
 	while i < stages.size():
 		var stage: Variant = stages[i]
 		i += 1
 		if not stage is Dictionary:
 			continue
+		rate = maxf(0.0, float((stage as Dictionary).get("rate", rate)))
 		var until := float((stage as Dictionary).get("until", 1.01))
-		if frac < until:
-			return minf(cap, until * cap)
-	return cap
+		var edge := minf(cap, until * cap)
+		if edge > points + MARK_EPS:
+			return {"rate": rate, "mark": edge}
+	return {"rate": rate, "mark": cap}
+
+static func _next_mark(points: float, cap: float) -> float:
+	return float(_span(points, cap)["mark"])
 
 static func size_name(class_id: String) -> String:
 	var sizes: Variant = Dragons.catalog_section("sizes")
@@ -319,24 +328,31 @@ static func _advance_curve(row: Dictionary, before: float, days: float, food_rat
 	var after := before
 	var left := days
 	var guard := 0
-	while left > 0.0 and after < cap and guard < 6:
+	# One pass per stage. Each pass spends only the days still left, and stops
+	# on the next boundary. It never snaps to the cap when a boundary repeats.
+	while left > MARK_EPS and after + MARK_EPS < cap and guard < 8:
 		guard += 1
-		var seg_rate := pace * _stage_rate(after, cap) / DAYS_PER_BAND
+		var span := _span(after, cap)
+		var seg_rate := pace * float(span["rate"]) / DAYS_PER_BAND
 		if seg_rate <= 0.0:
 			break
-		var mark := minf(_next_mark(after, cap), cap)
-		if mark <= after:
-			after = cap
+		var mark := minf(float(span["mark"]), cap)
+		var day_step := left * seg_rate
+		if mark <= after + MARK_EPS:
+			after += minf(day_step, maxf(0.0, cap - after))
+			left = 0.0
 			break
-		var days_need := (mark - after) / seg_rate
-		if left + 0.00000001 >= days_need:
-			after = cap if mark >= cap else mark
-			left -= days_need
+		var room := mark - after
+		if day_step + MARK_EPS >= room:
+			after = mark
+			left -= room / seg_rate
+			if left < 0.0:
+				left = 0.0
 			if after >= cap:
 				after = cap
 				break
 		else:
-			after += left * seg_rate
+			after += day_step
 			left = 0.0
 	if after > cap:
 		after = cap

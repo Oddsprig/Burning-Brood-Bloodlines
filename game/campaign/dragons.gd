@@ -209,6 +209,16 @@ static func _make(game, stage: String, town_id: String, owner: Dictionary, key: 
 	_set_owner(row, owner)
 	DragonCare.initialize(row, int(floor(game.day)))
 	DragonGrowth.assign_new(row)
+	# An egg that already names both parents is a clutch, including the eggs
+	# seeded with the founders. Use the same mean ± slack draw as a laid egg.
+	if stage == "egg" and mother_uid != "" and father_uid != "":
+		var mother := get_record(game, mother_uid)
+		var father := get_record(game, father_uid)
+		if not mother.is_empty() and not father.is_empty():
+			var inherited := DragonGrowth.inherit(game, mother, father, key)
+			var egg_points := DragonGrowth.current_points(row)
+			if egg_points < 0.0: egg_points = 0.0
+			row["growth_potential"] = clampf(maxf(inherited, egg_points), 0.0, DragonGrowth.MAX_POINTS)
 	# The owner can live elsewhere; custody requires actual co-location.
 	if not _present(owner, town_id): row["custodian_person_uid"] = ""
 	_history(game, row, "registered", {"stage": stage, "owner_person_uid": row["owner_person_uid"]})

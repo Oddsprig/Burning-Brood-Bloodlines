@@ -64,6 +64,53 @@ func curve_cases() -> void:
 	legacy.erase("growth_points")
 	legacy["size_class"] = legacy_before["size_class"]
 	check(legacy == legacy_before, "legacy growth writes points and size only")
+	boundary_budget()
+
+func boundary_budget() -> void:
+	var replay := adult("dragon:v052:boundary", 2.294, 2.7)
+	replay["size_class"] = "large"
+	var step := DragonGrowth.advance(replay, 1.0, 1.0, 1.0, 1.0)
+	var got := float(replay["growth_points"])
+	var day_max := 1.0 / DragonGrowth.DAYS_PER_BAND
+	var boundary := 0.85 * 2.7
+	var spent := (boundary - 2.294) / (0.55 / DragonGrowth.DAYS_PER_BAND)
+	var expected := boundary + (1.0 - spent) * (0.25 / DragonGrowth.DAYS_PER_BAND)
+	check(is_equal_approx(got, expected) and got < 2.7 and got - 2.294 <= day_max + 0.000001, "the 2.294/2.7 replay grows by about one day's amount (got %s, expected %s)" % [str(got), str(expected)])
+	check(str(step["reason"]) == "grown" and float(step["delta"]) > 0.0 and float(step["delta"]) <= day_max + 0.000001, "the boundary replay is one day of growth, not a jump to potential")
+	var stages: Array = DragonGrowth.rules().get("stages", [])
+	var potentials: Array = [0.5, 1.0, 1.25, 1.7, 2.0, 2.7, 3.15, 3.4, 4.0]
+	var over := false
+	var why := ""
+	var samples := 0
+	for pot_v in potentials:
+		var pot := float(pot_v)
+		var edges: Array = [0.0, pot]
+		for stage_v in stages:
+			if stage_v is Dictionary:
+				edges.append(minf(pot, float((stage_v as Dictionary).get("until", 1.01)) * pot))
+		for edge_v in edges:
+			var edge := float(edge_v)
+			for nudge_v in [-0.001, -0.000001, 0.0, 0.000001, 0.001]:
+				var start := clampf(edge + float(nudge_v), 0.0, pot)
+				if start >= pot - 0.0000001:
+					continue
+				var row := adult("dragon:v052:sweep:%d" % samples, start, pot)
+				row["size_class"] = DragonGrowth.SIZE_IDS[DragonGrowth.band_index(start)]
+				DragonGrowth.advance(row, 1.0, 1.0, 1.0, 1.0)
+				var end := float(row["growth_points"])
+				samples += 1
+				var next_b := pot
+				for stage_v2 in stages:
+					if not stage_v2 is Dictionary:
+						continue
+					var stage_edge := minf(pot, float((stage_v2 as Dictionary).get("until", 1.01)) * pot)
+					if stage_edge > start + 0.000000001 and stage_edge < next_b:
+						next_b = stage_edge
+				if end > pot + 0.0000001 or end + 0.0000001 < start or end - start > day_max + 0.000001 or end > next_b + day_max + 0.000001:
+					over = true
+					if why == "":
+						why = "pot %s start %s end %s next %s" % [str(pot), str(start), str(end), str(next_b)]
+	check(not over and samples > 20, "a sweep across every boundary never grows more than one day's max (%s)" % why)
 
 func founders() -> void:
 	var spec := DragonGrowth.rules()
@@ -156,6 +203,30 @@ func inherit_and_wounds() -> void:
 	var sample: Dictionary = records[records.keys()[0]]
 	var packed: Variant = JSON.parse_string(JSON.stringify(sample))
 	check(packed is Dictionary and is_equal_approx(float((packed as Dictionary)["growth_potential"]), float(sample["growth_potential"])), "potential survives a JSON roundtrip")
+	var saved_dragons: Dictionary = Game.world["dragons"]
+	Game.world.erase("dragons")
+	Dragons.init_world(Game)
+	var parented := 0
+	var stray := false
+	var fresh: Dictionary = Game.world["dragons"]["records"]
+	for uid in fresh.keys():
+		var egg_row: Dictionary = fresh[uid]
+		if str(egg_row.get("stage", "")) != "egg":
+			continue
+		var egg_mother := Dragons.get_record(Game, str(egg_row.get("mother_uid", "")))
+		var egg_father := Dragons.get_record(Game, str(egg_row.get("father_uid", "")))
+		if egg_mother.is_empty() or egg_father.is_empty():
+			continue
+		parented += 1
+		var egg_mean := (DragonGrowth.read_potential(egg_mother) + DragonGrowth.read_potential(egg_father)) * 0.5
+		var egg_pot := float(egg_row.get("growth_potential", -1.0))
+		if absf(egg_pot - egg_mean) > 0.2 + 0.000001:
+			stray = true
+		var born_key := str(egg_row.get("location_town_id", "")) + ":egg"
+		if not is_equal_approx(egg_pot, DragonGrowth.inherit(Game, egg_mother, egg_father, born_key)):
+			stray = true
+	Game.world["dragons"] = saved_dragons
+	check(parented > 0 and not stray, "starting eggs with parents land within ±0.2 of the parents' mean")
 	var mother := {"id": "dragon:v052:mother", "stage": "adult", "alive": true, "size_class": "small", "growth_points": 0.4, "growth_potential": 1.2}
 	var father := {"id": "dragon:v052:father", "stage": "adult", "alive": true, "size_class": "small", "growth_points": 1.0, "growth_potential": 2.8}
 	var seen_min := 99.0
@@ -192,6 +263,14 @@ func inherit_and_wounds() -> void:
 		if not egg.is_empty():
 			check(is_equal_approx(float(egg["growth_potential"]), expected) and float(egg["growth_points"]) == 0.0, "the egg stores the inherited potential and starts ungrown")
 			check(float(egg["growth_potential"]) >= 1.1 - 0.000001 and float(egg["growth_potential"]) <= 2.9 + 0.000001, "the laid egg stays near its parents")
+		var start_key := "v052:starting-egg"
+		var owner := Dragons._person(Game, str(dam["owner_person_uid"]))
+		var started: Dictionary = Dragons._make(Game, "egg", str(dam["location_town_id"]), owner, start_key, 0,
+			"unknown", str(dam["id"]), str(sire["id"]), str(dam.get("bloodline_uid", "")))
+		var start_mean := (DragonGrowth.read_potential(dam) + DragonGrowth.read_potential(sire)) * 0.5
+		var start_pot := float(started.get("growth_potential", -1.0))
+		check(not started.is_empty() and absf(start_pot - start_mean) <= 0.2 + 0.000001, "a starting egg with parents lands within ±0.2 of the parents' mean (got %s, mean %s)" % [str(start_pot), str(start_mean)])
+		check(is_equal_approx(start_pot, DragonGrowth.inherit(Game, dam, sire, start_key)) and float(started.get("growth_points", -1.0)) == 0.0, "a starting egg uses the clutch inheritance hash and starts ungrown")
 	if adults.is_empty():
 		check(false, "no adult to wound")
 		return
