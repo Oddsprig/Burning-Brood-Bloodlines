@@ -76,6 +76,7 @@ const STRESS_MAX := 100.0
 const SPOIL_DAYS := {"meal": 21, "beer": 30, "wine": -1}  # tuned: -1 never spoils
 const BASE_PRICE := {"meal": 3.6, "beer": 6.0, "wine": 20.0}  # coins (the economy's base prices: a grain meal, a mug, a cup)
 const KINDS := ["meal", "beer", "wine"]
+const MEAT_GOODS := ["fresh_meat", "meat"]
 const START_STOCK := {"meal": 200, "beer": 100, "wine": 10}   # ours: about 6 days for the starting company
 
 # ------------------------------------------------------------------ campaign clock and rations
@@ -358,6 +359,73 @@ static func buy_food(game, town: Dictionary, good: String, qty: int) -> String:
 	game.changed.emit()
 	return ""
 
+## Named meat and fresh meat still sitting in the meal lots. Unnamed rations are not meat.
+static func meat_units(game) -> int:
+	var n := 0
+	if not (game.provisions is Dictionary): return 0
+	for lot in game.provisions.get("meal", []):
+		var good := String(lot[2]) if lot.size() > 2 else ""
+		if MEAT_GOODS.has(good): n += int(lot[0])
+	return n
+
+## Meat the day's ration meals would take. Same skip, rotation and oldest-lot order as _serve_meals.
+## Bellies and stock are not changed. A man who eats earlier in the day may be too full for a later tick.
+static func ration_meat_reserve(game) -> int:
+	var men := eaters(game)
+	var n := men.size()
+	if n == 0 or not (game.provisions is Dictionary): return 0
+	var ration := "normal"
+	if game.rations is Dictionary: ration = String(game.rations.get("food", "normal"))
+	var ticks: Array = MEAL_TICKS.get(ration, [0, 2])
+	var belly: Array = []
+	belly.resize(n)
+	for i in n:
+		belly[i] = float((men[i] as Unit).belly)
+	var lots: Array = []
+	for lot in game.provisions.get("meal", []):
+		var good := String(lot[2]) if lot.size() > 2 else ""
+		lots.append([int(lot[0]), good])
+	var rot := 0
+	if game.food_clock is Dictionary: rot = int(game.food_clock.get("rot", 0))
+	var meat := 0
+	for which in [0, 1, 2]:
+		if ticks.has(which):
+			for i in n:
+				var u := posmod(i + rot, n)
+				if float(belly[u]) > SKIP_MEAL_AT: continue
+				if lots.is_empty(): return meat
+				var top: Array = lots[0]
+				top[0] = int(top[0]) - 1
+				if MEAT_GOODS.has(String(top[1])): meat += 1
+				if int(top[0]) <= 0: lots.pop_front()
+				belly[u] = minf(BELLY_MAX, float(belly[u]) + MEAL_BELLY)
+		rot += 1
+	return meat
+
+## Draws qty from the oldest meal lots whose good is listed. Unnamed and other foods stay.
+## Does not create provisions, age lots, or spoil anything. Partial lots keep age, good and name.
+static func take_named(game, goods: Array, qty: int) -> Dictionary:
+	var out := {"taken": 0, "by_good": {}, "lots": [], "spoiled": 0}
+	if qty <= 0 or not (game.provisions is Dictionary) or not game.provisions.has("meal"): return out
+	var lots: Array = game.provisions["meal"]
+	var i := 0
+	while i < lots.size() and int(out["taken"]) < qty:
+		var lot: Array = lots[i]
+		var good := String(lot[2]) if lot.size() > 2 else ""
+		if not goods.has(good):
+			i += 1
+			continue
+		var n := mini(int(lot[0]), qty - int(out["taken"]))
+		var age := int(lot[1])
+		var food_name := String(lot[3]) if lot.size() > 3 else ""
+		lot[0] = int(lot[0]) - n
+		out["taken"] = int(out["taken"]) + n
+		out["by_good"][good] = int(out["by_good"].get(good, 0)) + n
+		(out["lots"] as Array).append({"good": good, "name": food_name, "qty": n, "age": age})
+		if int(lot[0]) <= 0: lots.remove_at(i)
+		else: i += 1
+	return out
+
 ## Takes up to qty from the oldest lots first. Returns how many were taken.
 static func take(game, kind: String, qty: int) -> int:
 	var lots: Array = game.provisions.get(kind, [])
@@ -471,18 +539,30 @@ static func tick_index(t: float) -> int:
 	return best
 
 ## Called from Game.advance_time every time step (map frames). Cheap unless a tick boundary is crossed.
+## Marching dragons eat at each morning boundary, after every earlier tick (including that evening's spoilage).
 static func on_time(game, days: float, in_town: bool) -> void:
 	if game.food_clock.is_empty():
 		game.food_clock = {"next": next_tick_after(game.day - days), "last": game.day - days, "march": 0.0}
 	if not in_town and game.location == "" and not (game.world.get("party", {}).get("path", []) as Array).is_empty():
 		game.food_clock["march"] = float(game.food_clock.get("march", 0.0)) + days
+	var fed_until := int(floor(float(game.day) - days + 0.0000001))
 	var guard := 0
 	while game.day >= float(game.food_clock["next"]) and guard < 400:
 		guard += 1
 		var t := float(game.food_clock["next"])
+		fed_until = _feed_march_until(game, fed_until, t)
 		_drain_to(game, t)
 		do_tick(game, tick_index(t))
 		game.food_clock["next"] = next_tick_after(t)
+	_feed_march_until(game, fed_until, float(game.day))
+
+## Feeds each new morning strictly before the tick at that time, so a one-day jump spoils before it feeds.
+static func _feed_march_until(game, fed_until: int, t: float) -> int:
+	var boundary := int(floor(t + 0.0000001))
+	while fed_until < boundary:
+		fed_until += 1
+		Warfare.feed_march_day(game, fed_until)
+	return fed_until
 
 ## Applies digestion and buzz decay up to time t (no meals). Also used right before a battle.
 static func _drain_to(game, t: float) -> void:
@@ -757,7 +837,7 @@ static func stock_from_save(d) -> Dictionary:
 		for k in KINDS:
 			for lot in d.get(k, []):
 				var saved := [int(lot[0]), int(lot[1])]
-				if k == "meal" and lot.size() > 2 and Goods.FOODS.has(String(lot[2])):
+				if k == "meal" and lot.size() > 2 and (Goods.FOODS.has(String(lot[2])) or String(lot[2]) == "fresh_meat"):
 					saved.append(String(lot[2]))
 					saved.append(String(lot[3]) if lot.size() > 3 else "")
 				out[k].append(saved)
