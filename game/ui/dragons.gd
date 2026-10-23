@@ -543,6 +543,63 @@ func _bond_panel(row: Dictionary) -> void:
 	var release_button := UiKit.button("Release bond",_request_bond.bind(uid,"release",""),"Row"); release_button.name = "DragonReleaseBond"
 	release_button.disabled = not bool(status.get("can_release",false)); release_button.tooltip_text = String(status.get("release_reason","")); controls.add_child(release_button)
 	if not rider.is_empty(): controls.add_child(UiKit.button("Rider's person record",_person_record.bind(String(rider["person_uid"])),"Row"))
+	var approach: Dictionary = DragonBond.approach_status(Game, uid)
+	var approach_label := UiKit.label(str(approach.get("line", "")), "", true)
+	approach_label.name = "DragonApproachStatus"
+	facts.add_child(approach_label)
+	var approach_controls := UiKit.flow()
+	facts.add_child(approach_controls)
+	var approach_button := UiKit.button("Approach", _approach_pressed.bind(uid), "Row")
+	approach_button.name = "DragonApproach"
+	approach_button.disabled = not bool(approach.get("can_approach", false))
+	approach_button.tooltip_text = str(approach.get("reason", ""))
+	approach_controls.add_child(approach_button)
+	var stop_button := UiKit.button("Stop", _stop_approach.bind(uid), "Row")
+	stop_button.name = "DragonApproachStop"
+	stop_button.disabled = not bool(approach.get("can_stop", false))
+	stop_button.tooltip_text = "Stop approaching. Familiarity stays where it is."
+	approach_controls.add_child(stop_button)
+
+func _approach_pressed(uid: String) -> void:
+	var people: Array = DragonBond.approach_candidates(Game, uid)
+	if people.is_empty():
+		notice = str(DragonBond.approach_status(Game, uid).get("reason", "No one can approach this dragon."))
+		_queue_refresh()
+		return
+	if people.size() == 1:
+		_apply_approach(uid, str(people[0].get("person_uid", "")))
+		return
+	var modal := UiKit.modal(self, "Approach the dragon", 640)
+	modal.name = "DragonApproachPicker"
+	modal.add_child(UiKit.label("Choose an adult of this household who is with the dragon.", "Small", true))
+	for person: Dictionary in people:
+		var person_uid := str(person.get("person_uid", ""))
+		var button := UiKit.button("Approach " + str(person.get("name", "this person")), _pick_approach.bind(modal, uid, person_uid), "Row")
+		button.name = "DragonApproachCandidate"
+		modal.add_child(button)
+	var cancel := UiKit.button("Cancel", func(): UiKit.close_modal(modal), "Row", 100)
+	cancel.name = "DragonApproachCancel"
+	modal.add_child(cancel)
+
+func _pick_approach(modal: Node, uid: String, person_uid: String) -> void:
+	UiKit.close_modal(modal)
+	_apply_approach(uid, person_uid)
+
+func _apply_approach(uid: String, person_uid: String) -> void:
+	var result := DragonBond.approach(Game, uid, person_uid)
+	notice = str(result.get("reason", ""))
+	if bool(result.get("ok", false)):
+		Game.changed.emit()
+		Game.save_game_async()
+	_queue_refresh()
+
+func _stop_approach(uid: String) -> void:
+	var result := DragonBond.stop_approach(Game, uid)
+	notice = str(result.get("reason", ""))
+	if bool(result.get("ok", false)):
+		Game.changed.emit()
+		Game.save_game_async()
+	_queue_refresh()
 
 func _open_bond_picker(uid: String) -> void:
 	var status: Dictionary = DragonBond.status(Game,uid)
@@ -687,6 +744,10 @@ static func _history_text(event: Dictionary) -> String:
 		"owner_refs": return "Owner's household record updated."
 		"inherited": return "Inherited by " + _person_name(String(event.get("owner_person_uid", "")))
 		"unclaimed": return "Inheritance remains unclaimed."
+		"approach_started": return "Approach begun: " + _person_name(String(event.get("person_uid", "")))
+		"approach_stopped": return "Approach stopped: " + _person_name(String(event.get("person_uid", "")))
+		"approach_cancelled": return "Approach ended: %s · %s" % [_person_name(String(event.get("person_uid", ""))), String(event.get("reason", "")).replace("_", " ")]
+		"approach_refused": return "Approach refused: " + _person_name(String(event.get("person_uid", "")))
 		"bonded": return "Rider bonded: "+_person_name(String(event.get("rider_person_uid","")))
 		"bond_released": return "Rider bond released: "+_person_name(String(event.get("prior_rider_person_uid","")))
 		"bond_ended": return "Rider bond ended: %s · %s" % [_person_name(String(event.get("prior_rider_person_uid",""))),String(event.get("reason","")).replace("_"," ").capitalize()]

@@ -282,4 +282,5 @@ static func _close_day(game, row: Dictionary, day: int, uid: String, egg: bool, 
 	# Existing native injuries rest once at this scheduled care boundary.
 	# Readers/load never heal, rebuild bodies or advance dragon time.
 	DragonCombat.on_care(game, str(uid), day)
+	DragonBond.approach_day(game, row, day)
 	return true

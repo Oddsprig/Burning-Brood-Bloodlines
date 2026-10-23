@@ -264,6 +264,7 @@ static func after_load(game) -> void:
 				vmap[ch] = float(vmap[ch])
 		for entry in row.get("history", []):
 			if entry.has("appearance_seed"): entry["appearance_seed"] = int(entry["appearance_seed"])
+	DragonBond.after_load(game)
 	reconcile(game)
 	DragonCare.after_load(game)
 	DragonBreeding.after_load(game)
