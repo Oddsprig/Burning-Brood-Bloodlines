@@ -274,6 +274,7 @@ v0.045 town land market - DELIVERED (Claude Edition): farms short of wage money 
 v0.046 faster campaign days - DELIVERED (Claude Edition): household lookups for court and upkeep use a cached index instead of scanning every family; household income step about 38% faster, a game day about 15% faster (529 to 451 ms paired on this PC).
 v0.047 trade on the map - DELIVERED (Claude Edition): a map toggle (grain, meat, metal) marks each town short, balanced or in surplus and draws caravans carrying that good along their roads; tapping opens the market or caravan records.
 v0.048 caravans with real margins - DELIVERED (Claude Edition): merchants pick trips by net margin after buying spreads, duties and crew wages, skip losing trips, keep an expected-vs-actual receipt, and hold unpaid cargo up to 30 days before consigning it to the home market.
+v0.049 town supply orders - DELIVERED (Claude Edition): rulers order grain, meat or metal with a quantity and spending cap (Town -> Orders); funds are reserved, a caravan delivers, and each order shows ordered, travelling, delivered, blocked or cancelled; AI towns low on food order once a week without dipping into their safety reserve.
 Also delivered outside the numbered list (Claude Edition): court and marriage, interface pass, 100 v 100 battle rounds, armies to 1000, house officers and noble call-up, house arms pool, ennoblement, medics and aftermath.
 
 LOCKED FOUNDATIONS / LATER SMALL PASSES
