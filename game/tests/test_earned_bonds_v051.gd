@@ -115,6 +115,28 @@ func settle(uid: String, on_day: int) -> void:
 func familiarity(uid: String) -> float:
 	return float(approach_of(uid).get("familiarity", 0.0))
 
+func plant_approach(uid: String, person_uid: String, fam: float) -> void:
+	var row := live(uid)
+	row["alive"] = true
+	row["stage"] = "adult"
+	row["rider_person_uid"] = ""
+	row["owner_status"] = "claimed"
+	row["owner_household_uid"] = household
+	row.erase("campaign_march")
+	row["approach"] = {
+		"person_uid": person_uid,
+		"familiar_person_uid": person_uid,
+		"familiarity": fam,
+		"cooldown_until": 0,
+		"last_day": int(floor(float(Game.day))),
+		"last_gain": 0.0,
+		"last_reason": "",
+		"keeper": false,
+		"hungry": false,
+		"hurt": false,
+		"present": true,
+	}
+
 func roundtrip() -> void:
 	Game.save_game()
 	check(Game.load_game(), "save reloads")
@@ -265,7 +287,30 @@ func run(tree: SceneTree) -> int:
 	check(str(approach_of(progress_dragon).get("person_uid", "")) == "" and near(familiarity(progress_dragon), stalled), "leaving cancels the approach without a day's gain")
 	sheet(progress_person)[4] = ""
 	check(bool(DragonBond.approach(Game, progress_dragon, progress_person).get("ok", false)), "they can approach again after returning")
+	var owner_uid := str(live(progress_dragon).get("owner_person_uid", ""))
 	var owner_house := str(live(progress_dragon).get("owner_household_uid", ""))
+	var recipient := ""
+	for person_uid in adults:
+		if str(person_uid) != owner_uid:
+			recipient = str(person_uid)
+			break
+	if recipient != "":
+		var gift_review: Dictionary = Dragons.transfer_preview(Game, progress_dragon, recipient)
+		check(bool(gift_review.get("ok", false)), "same-household gift can be reviewed: " + str(gift_review.get("reason", "")))
+		if bool(gift_review.get("ok", false)):
+			var gifted: Dictionary = Dragons.transfer(Game, progress_dragon, recipient, gift_review)
+			check(bool(gifted.get("ok", false)) and str(live(progress_dragon).get("owner_person_uid", "")) == recipient, "gift moves the dragon to another person of the household")
+			check(str(live(progress_dragon).get("owner_household_uid", "")) == owner_house, "the gift stays inside the owning household")
+			DragonBond.reconcile(Game)
+			check(str(approach_of(progress_dragon).get("person_uid", "")) == progress_person, "a same-household gift keeps an eligible approach")
+			var gift_before := familiarity(progress_dragon)
+			day += 1
+			live(progress_dragon)["care"]["health"] = 1.0
+			feed(100000)
+			settle(progress_dragon, day)
+			check(str(approach_of(progress_dragon).get("person_uid", "")) == progress_person and familiarity(progress_dragon) > gift_before, "the next day still raises familiarity after the gift")
+			var back_review: Dictionary = Dragons.transfer_preview(Game, progress_dragon, owner_uid)
+			check(bool(back_review.get("ok", false)) and bool(Dragons.transfer(Game, progress_dragon, owner_uid, back_review).get("ok", false)), "ownership returns to the original person")
 	live(progress_dragon)["owner_household_uid"] = "other-household"
 	DragonBond.reconcile(Game)
 	check(str(approach_of(progress_dragon).get("person_uid", "")) == "", "an ownership change cancels the approach")
@@ -282,6 +327,41 @@ func run(tree: SceneTree) -> int:
 	live(progress_dragon)["alive"] = true
 	if str(approach_of(other_dragon).get("person_uid", "")) != "":
 		DragonBond.stop_approach(Game, other_dragon)
+	# Two dragons approaching one person: load keeps the higher familiarity, and the lower id on a tie.
+	var low_id := progress_dragon if progress_dragon < other_dragon else other_dragon
+	var high_id := other_dragon if low_id == progress_dragon else progress_dragon
+	plant_approach(low_id, progress_person, 10.0)
+	plant_approach(high_id, progress_person, 40.0)
+	roundtrip()
+	check(str(approach_of(high_id).get("person_uid", "")) == progress_person, "load keeps the approach with higher familiarity")
+	check(str(approach_of(low_id).get("person_uid", "")) == "", "load cancels the duplicate approach")
+	var dup_reason := false
+	for event in live(low_id).get("history", []):
+		if event is Dictionary and str(event.get("kind", "")) == "approach_cancelled" and str(event.get("reason", "")) == "duplicate":
+			dup_reason = true
+	check(dup_reason, "the dropped approach records a duplicate cancel")
+	plant_approach(low_id, progress_person, 25.0)
+	plant_approach(high_id, progress_person, 25.0)
+	DragonBond.reconcile(Game)
+	check(str(approach_of(low_id).get("person_uid", "")) == progress_person, "a familiarity tie keeps the lower dragon id")
+	check(str(approach_of(high_id).get("person_uid", "")) == "", "a familiarity tie cancels the higher dragon id")
+	if str(approach_of(low_id).get("person_uid", "")) != "":
+		DragonBond.stop_approach(Game, low_id)
+	check(bool(DragonBond.approach(Game, progress_dragon, progress_person).get("ok", false)), "approach starts before a direct bond elsewhere")
+	var bond_preview: Dictionary = DragonBond.bind_preview(Game, other_dragon, progress_person)
+	check(bool(bond_preview.get("ok", false)), "the approacher can be bound directly to the other dragon: " + str(bond_preview.get("reason", "")))
+	if bool(bond_preview.get("ok", false)):
+		var bonded_now: Dictionary = DragonBond.bind(Game, other_dragon, progress_person, bond_preview)
+		check(bool(bonded_now.get("ok", false)), "direct bind records the other dragon: " + str(bonded_now.get("reason", "")))
+		check(str(approach_of(progress_dragon).get("person_uid", "")) == "", "binding the approacher to another dragon cancels the approach immediately")
+		var released_now: Dictionary = DragonBond.release(Game, other_dragon, DragonBond.release_preview(Game, other_dragon))
+		check(bool(released_now.get("ok", false)), "the direct bond can be released: " + str(released_now.get("reason", "")))
+		check(bool(DragonBond.approach(Game, progress_dragon, progress_person).get("ok", false)), "they can approach again after the bond is released")
+		live(other_dragon)["rider_person_uid"] = progress_person
+		DragonBond.reconcile(Game)
+		check(str(approach_of(progress_dragon).get("person_uid", "")) == "", "reconciliation cancels an approach once the person is bonded")
+		var cleared: Dictionary = DragonBond.release(Game, other_dragon, DragonBond.release_preview(Game, other_dragon))
+		check(bool(cleared.get("ok", false)), "the reconciled bond can be released: " + str(cleared.get("reason", "")))
 	# Refusal and acceptance use the searched pairs. Clear any leftover approach first.
 	for uid in [refuse_dragon, accept_dragon]:
 		if str(approach_of(uid).get("person_uid", "")) != "":
@@ -319,9 +399,17 @@ func run(tree: SceneTree) -> int:
 	check(bool(accept_start.get("ok", false)), "accepting pair can approach: " + str(accept_start.get("reason", "")))
 	if bool(accept_start.get("ok", false)):
 		live(accept_dragon)["approach"]["familiarity"] = DragonBond.FAMILIARITY_CAP - 0.01
+		var saved_location := str(Game.location)
+		var saved_pos: Vector2 = Game.world.get("party", {}).get("pos", Vector2.ZERO)
+		Game.location = ""
+		Game.world["party"]["pos"] = Vector2(4000, 4000)
+		var away_preview: Dictionary = DragonBond.bind_preview(Game, accept_dragon, accept_person)
+		check(not bool(away_preview.get("ok", false)), "a direct bond still waits for the player at the roost")
 		day += 1
 		settle(accept_dragon, day)
-		check(str(live(accept_dragon).get("rider_person_uid", "")) == accept_person, "acceptance writes the rider through the bond")
+		check(str(live(accept_dragon).get("rider_person_uid", "")) == accept_person, "acceptance writes the rider through the bond while the player is away")
+		Game.location = saved_location
+		Game.world["party"]["pos"] = saved_pos
 		check(bool(DragonBond.status(Game, accept_dragon).get("bonded", false)), "the existing bond status sees the new rider")
 		check(str(live(accept_dragon).get("owner_person_uid", "")) == owner_before, "acceptance leaves the owner in place")
 		var bonded := false
@@ -369,5 +457,36 @@ func run(tree: SceneTree) -> int:
 			live(accept_dragon)["care"]["health"] = 1.0
 			settle(accept_dragon, day)
 			check(familiarity(accept_dragon) > march_before and str(approach_of(accept_dragon).get("person_uid", "")) == soldier, "familiarity rises while both are with the army")
+			var march_person := soldier
+			if not DragonBond.will_accept(live(accept_dragon), soldier) and soldier != accept_person:
+				var extra: Dictionary = Mobilization.enlist_household(Game, accept_person)
+				if bool(extra.get("ok", false)):
+					DragonBond.stop_approach(Game, accept_dragon)
+					if not (live(accept_dragon).get("approach") is Dictionary):
+						live(accept_dragon)["approach"] = {}
+					live(accept_dragon)["approach"]["cooldown_until"] = 0
+					live(accept_dragon)["approach"]["person_uid"] = ""
+					var again: Dictionary = DragonBond.approach(Game, accept_dragon, accept_person)
+					if bool(again.get("ok", false)):
+						march_person = accept_person
+					else:
+						check(false, "the accepting person could not approach on the march: " + str(again.get("reason", "")))
+				else:
+					check(false, "the accepting person could not join the march: " + str(extra.get("reason", "")))
+			if DragonBond.will_accept(live(accept_dragon), march_person) and str(approach_of(accept_dragon).get("person_uid", "")) == march_person:
+				live(accept_dragon)["approach"]["familiarity"] = DragonBond.FAMILIARITY_CAP - 0.01
+				var march_location := str(Game.location)
+				var march_pos: Vector2 = Game.world.get("party", {}).get("pos", Vector2.ZERO)
+				Game.location = ""
+				Game.world["party"]["pos"] = Vector2(5000, 5000)
+				check(not bool(DragonBond.bind_preview(Game, accept_dragon, march_person).get("ok", false)), "a direct bond on campaign still waits for the player at the roost")
+				day += 1
+				live(accept_dragon)["care"]["health"] = 1.0
+				settle(accept_dragon, day)
+				check(str(live(accept_dragon).get("rider_person_uid", "")) == march_person, "a marching pair bonds while the player is away from the roost")
+				Game.location = march_location
+				Game.world["party"]["pos"] = march_pos
+			elif str(approach_of(accept_dragon).get("person_uid", "")) == march_person:
+				check(false, "no accepting pair was with the marching dragon")
 	print("Earned bonds v0.051: %d checks, %d fails" % [checks, fails])
 	return fails

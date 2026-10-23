@@ -41,7 +41,7 @@ static func _links(game, person_uid: String) -> Array:
 	ids.sort()
 	return ids
 
-static func _bind_gate(game, row: Dictionary) -> String:
+static func _bind_gate(game, row: Dictionary, skip_player_visit: bool = false) -> String:
 	if game.get("_save_capture") != null: return "Wait for the consistent save snapshot to finish."
 	if row.is_empty(): return "This dragon is unavailable."
 	if not bool(row.get("alive", false)): return "A deceased dragon cannot form a bond."
@@ -52,14 +52,30 @@ static func _bind_gate(game, row: Dictionary) -> String:
 	var town_id: String = str(row.get("location_town_id", ""))
 	if not game.world.get("towns", {}).has(town_id) or not game.world.get("towns", {}).has(str(row.get("estate_town_id", ""))):
 		return "Its estate and current location must be existing settlements."
-	if not Mobilization._here(game, town_id): return "Visit the dragon's recorded settlement before forming a bond."
+	# Earned acceptance already proved the pair is together. Only a direct order waits for the player.
+	if not skip_player_visit and not Mobilization._here(game, town_id): return "Visit the dragon's recorded settlement before forming a bond."
 	return ""
 
-static func _eligibility(game, row: Dictionary, person: Dictionary) -> String:
+static func _eligibility(game, row: Dictionary, person: Dictionary, skip_player_visit: bool = false) -> String:
 	if person.is_empty(): return "Choose a living tracked person with a real household."
 	if not _adult(person): return "This person has not reached their native race's adult age."
-	if not _present(game, person, str(row.get("location_town_id", ""))): return "This person is not actually present at the dragon's settlement."
+	if skip_player_visit:
+		if not _with_dragon(game, person, row): return "This person is not actually with the dragon."
+	elif not _present(game, person, str(row.get("location_town_id", ""))):
+		return "This person is not actually present at the dragon's settlement."
 	if not _links(game, str(person["person_uid"])).is_empty(): return "This person already has a rider bond with another dragon."
+	return ""
+
+## Approach bond rules, apart from co-location. Empty when this person may approach.
+## A gift to another person of the same household keeps them eligible. It fails only
+## when they leave the owning household, the holding is unclaimed, or a bond rule excludes them.
+static func _approach_eligibility(game, row: Dictionary, person: Dictionary) -> String:
+	if person.is_empty(): return "Choose a living tracked person with a real household."
+	if not _adult(person): return "This person has not reached their native race's adult age."
+	if str(row.get("owner_status", "claimed")) != "claimed" or str(person.get("household_uid", "")) == "" or str(person.get("household_uid", "")) != str(row.get("owner_household_uid", "")):
+		return "Only an adult of the owning household may approach this dragon."
+	if not _links(game, str(person.get("person_uid", ""))).is_empty():
+		return "This person already has a rider bond with another dragon."
 	return ""
 
 static func status(game, dragon_uid: String) -> Dictionary:
@@ -92,12 +108,12 @@ static func candidates(game, dragon_uid: String) -> Array:
 		if _present(game, person, str(row["location_town_id"])): out.append(person.duplicate(true))
 	return out
 
-static func bind_preview(game, dragon_uid: String, person_uid: String) -> Dictionary:
+static func bind_preview(game, dragon_uid: String, person_uid: String, skip_player_visit: bool = false) -> Dictionary:
 	var row: Dictionary = Dragons.get_record(game, dragon_uid)
-	var reason: String = _bind_gate(game, row)
+	var reason: String = _bind_gate(game, row, skip_player_visit)
 	if reason != "": return _failure(reason)
 	var person: Dictionary = _person(game, person_uid)
-	reason = _eligibility(game, row, person)
+	reason = _eligibility(game, row, person, skip_player_visit)
 	if reason != "": return _failure(reason)
 	var rights: Dictionary = Dragons.authority(game, row)
 	var message: String = "Bond %s with %s. Ownership, custody and location stay as recorded." % [row.get("name", "this dragon"), person["name"]]
@@ -129,15 +145,37 @@ static func _separate(game, row: Dictionary, reason: String, authority_uid: Stri
 	Dragons._history(game, row, "bond_released" if reason == "released" else "bond_ended",
 		{"prior_rider_person_uid": rider_uid, "reason": reason, "authorized_by_person_uid": authority_uid})
 
-static func bind(game, dragon_uid: String, person_uid: String, review: Dictionary = {}) -> Dictionary:
-	if review.is_empty(): return _failure("Review the proposed rider bond before confirming it.")
-	var fresh: Dictionary = bind_preview(game, dragon_uid, person_uid)
-	if not bool(fresh["ok"]): return fresh
-	if review != fresh: return _failure("The person, ownership, location or dragon changed. Review the bond again.")
+static func _cancel_bonded_approaches(game, dragon_uid: String, person_uid: String, include_pair: bool) -> void:
+	var registry: Dictionary = game.world.get("dragons", {}).get("records", {})
+	var ids: Array = registry.keys()
+	ids.sort()
+	for uid in ids:
+		var pending: Dictionary = registry[uid]
+		var who := str(_approach(pending).get("person_uid", ""))
+		if who == "": continue
+		var same_pair := str(uid) == dragon_uid and who == person_uid
+		if same_pair and not include_pair: continue
+		if str(uid) == dragon_uid or who == person_uid:
+			_end_approach(game, pending, "already_bonded")
+
+static func _commit_bond(game, dragon_uid: String, person_uid: String, authority_uid: String) -> void:
 	var row: Dictionary = game.world["dragons"]["records"][dragon_uid]
 	row["rider_person_uid"] = person_uid
 	row["bond_day"] = float(game.day)
-	Dragons._history(game, row, "bonded", {"rider_person_uid": person_uid, "authorized_by_person_uid": fresh["authority_person_uid"]})
+	Dragons._history(game, row, "bonded", {"rider_person_uid": person_uid, "authorized_by_person_uid": authority_uid})
+	# The completing pair keeps its own closing line. Every other approach on this person or dragon ends now.
+	_cancel_bonded_approaches(game, dragon_uid, person_uid, false)
+
+static func bind(game, dragon_uid: String, person_uid: String, review: Dictionary = {}, skip_player_visit: bool = false) -> Dictionary:
+	if review.is_empty(): return _failure("Review the proposed rider bond before confirming it.")
+	var fresh: Dictionary = bind_preview(game, dragon_uid, person_uid, skip_player_visit)
+	if not bool(fresh["ok"]): return fresh
+	if review != fresh: return _failure("The person, ownership, location or dragon changed. Review the bond again.")
+	_commit_bond(game, dragon_uid, person_uid, str(fresh["authority_person_uid"]))
+	# A direct bond has no acceptance line. End the approach on this pair as well.
+	if not skip_player_visit:
+		_cancel_bonded_approaches(game, dragon_uid, person_uid, true)
+	var row: Dictionary = game.world["dragons"]["records"][dragon_uid]
 	return {"ok": true, "reason": "Rider bond recorded.", "message": "Rider bond recorded.", "record": row.duplicate(true)}
 
 static func release(game, dragon_uid: String, review: Dictionary = {}) -> Dictionary:
@@ -171,6 +209,7 @@ const _CANCEL_TEXT := {
 	"left": "They left the dragon, so the approach ended.",
 	"not_grown": "This dragon can no longer take a rider, so the approach ended.",
 	"stopped": "The approach stopped. Familiarity stays.",
+	"duplicate": "This person is approaching another dragon, so this approach ended.",
 }
 
 static func pace_days(row: Dictionary) -> int:
@@ -250,11 +289,14 @@ static func _approach_cancel_reason(game, row: Dictionary, person_uid: String) -
 	if not bool(row.get("alive", false)): return "dragon_died"
 	if str(row.get("stage", "")) not in ["juvenile", "adult"]: return "not_grown"
 	if str(row.get("rider_person_uid", "")) != "": return "already_bonded"
-	if str(row.get("owner_status", "claimed")) != "claimed": return "ownership"
+	if not _links(game, person_uid).is_empty(): return "already_bonded"
 	var person := _person(game, person_uid)
 	if person.is_empty() or _physical_dead(game, person): return "approacher_died"
-	if str(person.get("household_uid", "")) != str(row.get("owner_household_uid", "")): return "ownership"
 	if not _with_dragon(game, person, row): return "left"
+	# Same-household gifts stay. Lost eligibility under the approach rules cancels.
+	var eligibility := _approach_eligibility(game, row, person)
+	if eligibility == "This person already has a rider bond with another dragon.": return "already_bonded"
+	if eligibility != "": return "ownership"
 	return ""
 
 static func _end_approach(game, row: Dictionary, code: String) -> void:
@@ -279,7 +321,6 @@ static func _live(game, dragon_uid: String) -> Dictionary:
 static func approach_candidates(game, dragon_uid: String) -> Array:
 	var row := Dragons.get_record(game, dragon_uid)
 	if _order_gate(game, row) != "": return []
-	var household := str(row.get("owner_household_uid", ""))
 	var blocked := {}
 	for other in game.world.get("dragons", {}).get("records", {}).values():
 		var rider := str(other.get("rider_person_uid", ""))
@@ -289,8 +330,8 @@ static func approach_candidates(game, dragon_uid: String) -> Array:
 	var out: Array = []
 	for person in Dragons.people(game):
 		var person_uid := str(person.get("person_uid", ""))
-		if str(person.get("household_uid", "")) != household or blocked.has(person_uid): continue
-		if not _adult(person) or _physical_dead(game, person): continue
+		if blocked.has(person_uid) or _physical_dead(game, person): continue
+		if _approach_eligibility(game, row, person) != "": continue
 		if not _with_dragon(game, person, row): continue
 		out.append(person.duplicate(true))
 	return out
@@ -300,11 +341,8 @@ static func approach(game, dragon_uid: String, person_uid: String) -> Dictionary
 	var gate := _order_gate(game, row)
 	if gate != "": return _failure(gate)
 	var person := _person(game, person_uid)
-	if person.is_empty(): return _failure("Choose a living tracked person with a real household.")
-	if not _adult(person): return _failure("This person has not reached their native race's adult age.")
-	if str(person.get("household_uid", "")) != str(row.get("owner_household_uid", "")):
-		return _failure("Only an adult of the owning household may approach this dragon.")
-	if not _links(game, person_uid).is_empty(): return _failure("This person already has a rider bond with another dragon.")
+	var eligibility := _approach_eligibility(game, row, person)
+	if eligibility != "": return _failure(eligibility)
 	if _approaching_dragon(game, person_uid, dragon_uid) != "": return _failure("This person is already approaching another dragon.")
 	if not _with_dragon(game, person, row): return _failure("This person is not actually with the dragon.")
 	var prior := _approach(row)
@@ -363,9 +401,10 @@ static func approach_day(game, row: Dictionary, day: int) -> void:
 	row["approach"] = approach
 	if familiarity >= FAMILIARITY_CAP:
 		if will_accept(row, person_uid):
-			var preview := bind_preview(game, str(row.get("id", "")), person_uid)
+			var dragon_id := str(row.get("id", ""))
+			var preview := bind_preview(game, dragon_id, person_uid, true)
 			if bool(preview.get("ok", false)):
-				var bound := bind(game, str(row.get("id", "")), person_uid, preview)
+				var bound := bind(game, dragon_id, person_uid, preview, true)
 				if bool(bound.get("ok", false)):
 					approach["familiarity"] = FAMILIARITY_CAP
 					approach["person_uid"] = ""
@@ -449,9 +488,35 @@ static func after_load(game) -> void:
 		for flag in ["keeper", "hungry", "hurt", "present"]:
 			approach[flag] = bool(approach.get(flag, false))
 
+## One person approaches one dragon. Higher familiarity wins; a tie keeps the lower dragon id.
+static func _dedupe_approaches(game) -> void:
+	var registry: Dictionary = game.world.get("dragons", {}).get("records", {})
+	var ids: Array = registry.keys()
+	ids.sort()
+	var best_uid := {}
+	var best_fam := {}
+	for uid in ids:
+		var row: Dictionary = registry[uid]
+		var who := str(_approach(row).get("person_uid", ""))
+		if who == "": continue
+		var fam := float(_approach(row).get("familiarity", 0.0))
+		if not best_uid.has(who):
+			best_uid[who] = str(uid)
+			best_fam[who] = fam
+			continue
+		var kept_uid := str(best_uid[who])
+		var kept_fam := float(best_fam[who])
+		var keep_new := fam > kept_fam + 0.0001 or (absf(fam - kept_fam) <= 0.0001 and str(uid) < kept_uid)
+		if keep_new:
+			_end_approach(game, registry[kept_uid], "duplicate")
+			best_uid[who] = str(uid)
+			best_fam[who] = fam
+		else:
+			_end_approach(game, row, "duplicate")
+
 ## Native death/succession/care boundaries only. Absence, travel, ownership and
 ## custody changes do not erase a surviving relationship or assign a successor.
-## An approach is not a bond: death, ownership change and leaving cancel it.
+## An approach is not a bond: death, a new bond, lost eligibility and leaving cancel it.
 static func reconcile(game) -> void:
 	var registry: Dictionary = game.world.get("dragons", {}).get("records", {})
 	var approach_ids: Array = registry.keys()
@@ -462,6 +527,7 @@ static func reconcile(game) -> void:
 		if who == "": continue
 		var why := _approach_cancel_reason(game, pending, who)
 		if why != "": _end_approach(game, pending, why)
+	_dedupe_approaches(game)
 	registry = game.world.get("dragons", {}).get("records", {})
 	var counts: Dictionary = {}
 	for row: Dictionary in registry.values():
