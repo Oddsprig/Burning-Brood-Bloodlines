@@ -95,6 +95,7 @@ func run(tree: SceneTree) -> int:
 		report_file.close()
 	print("campaign state day%.1f counts%s checks%d failures%d" % [Game.day,JSON.stringify(counts),assertions,failures])
 	Game.world.clear()
+	Dynasty.note_households_changed()
 	Game.company.clear()
 	TownEcon.prof_on = false
 	HerdRaids.benchmark_fixed_steps = false

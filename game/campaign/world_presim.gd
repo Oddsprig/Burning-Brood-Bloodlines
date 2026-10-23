@@ -26,6 +26,7 @@ static func generate_begin(game, _rng_unused: RandomNumberGenerator) -> Dictiona
 	HerdRaids.reset()
 	var w: Dictionary = game.world
 	w.clear()
+	Dynasty.note_households_changed()   # in-place clear keeps the dictionary; drop the household index
 	WarAI.new_world()   # caches of the world that was there before (the band grid) go
 	var seed_v := int(game.seed_value)
 	var grng := RandomNumberGenerator.new()

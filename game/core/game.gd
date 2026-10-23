@@ -205,6 +205,7 @@ func new_game_begin(game_seed: int = 0) -> Dictionary:
 	day = 0.0
 	gold = 0 # The selected native household funds a field army explicitly.
 	company.clear(); stash.clear(); squads.clear(); rep.clear(); world.clear()
+	Dynasty.note_households_changed()   # in-place clear keeps the dictionary; drop the household index
 	Unit._next_uid = 1   # a new world numbers its people and things from 1 (same seed = same world, same ids)
 	_release_result_history()
 	contract = {}; location = ""; pending_battle = {}; last_result = {}

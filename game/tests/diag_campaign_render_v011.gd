@@ -228,4 +228,5 @@ func run(tree: SceneTree) -> int:
 	TownEcon.prof_on = false
 	Game.company.clear()
 	Game.world.clear()
+	Dynasty.note_households_changed()
 	return fails

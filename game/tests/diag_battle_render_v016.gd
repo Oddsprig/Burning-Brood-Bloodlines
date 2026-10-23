@@ -124,6 +124,7 @@ func run(tree: SceneTree) -> int:
 	else:
 		Game.company.clear()
 		Game.world.clear()
+		Dynasty.note_households_changed()
 	var world_ms := float(Time.get_ticks_usec() - started) / 1000.0
 	print("render fixture world ready: %.1fms" % world_ms)
 	var fixture_rng := RandomNumberGenerator.new()
@@ -285,5 +286,6 @@ func run(tree: SceneTree) -> int:
 	Game.pending_battle = {}
 	Game.company.clear()
 	Game.world.clear()
+	Dynasty.note_households_changed()
 	Paperdoll.clear_cache()
 	return fails
