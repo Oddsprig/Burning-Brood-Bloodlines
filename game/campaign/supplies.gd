@@ -157,6 +157,37 @@ static func text(got: Dictionary) -> String:
 	if int(got.get("wine", 0)) > 0: parts.append("%d cups of wine" % int(got["wine"]))
 	return ", ".join(PackedStringArray(parts)) if not parts.is_empty() else "nothing"
 
+## Named meat and fresh meat out of the company's packed meals. Age stays on the lot. Nothing spoils here.
+static func draw_dragon_meat(game, qty: int) -> Dictionary:
+	var before := Food.meat_units(game)
+	var drawn: Dictionary = Food.take_named(game, Food.MEAT_GOODS, qty)
+	drawn["before"] = before
+	drawn["after"] = Food.meat_units(game)
+	drawn["spoiled"] = int(drawn.get("spoiled", 0))
+	return drawn
+
+## Days of named meat packed for marching dragons, against the army's store_days horizon. Pure.
+static func dragon_meat_plan(game) -> Dictionary:
+	var need_per_day := 0
+	var dragons := 0
+	for row: Dictionary in game.world.get("dragons", {}).get("records", {}).values():
+		if not bool(row.get("campaign_march", {}).get("enabled", false)): continue
+		if not bool(row.get("alive", false)) or str(row.get("stage", "")) == "egg": continue
+		need_per_day += DragonCare.food_need_units(game, row)
+		dragons += 1
+	var packed := Food.meat_units(game)
+	var days_needed := float(A()["store_days"]) if dragons > 0 else 0.0
+	var days_packed := float(packed) / float(need_per_day) if need_per_day > 0 else 0.0
+	var units_needed := need_per_day * int(A()["store_days"]) if need_per_day > 0 else 0
+	var short := need_per_day > 0 and packed < units_needed
+	var line := "No marching dragon needs packed meat."
+	if dragons > 0:
+		line = "Dragon meat: %.1f days packed, %.0f days needed." % [days_packed, days_needed]
+		if short: line += " Shortfall: the packed meat will not last the march."
+	return {"dragons": dragons, "need_per_day": need_per_day, "packed": packed,
+		"days_packed": days_packed, "days_needed": days_needed, "units_needed": units_needed,
+		"short": short, "line": line}
+
 ## Prehistory stores (world gen, old saves): what the band set out with.
 static func seed_stores(wb: Dictionary) -> void:
 	var n := men(wb)

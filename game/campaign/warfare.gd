@@ -58,7 +58,8 @@ static func preview(game, tid: String, kind: String) -> Dictionary:
 	var what := "Plunder its treasury, households and granary." if kind == "raid" else "Storm the walls; a victory brings the settlement into your realm."
 	if kind == "siege" and Marriage.has_claim(game, tid): what += " Your house holds a marriage claim here: the town will accept you."
 	return {"ok": true, "kind": kind, "town_id": tid, "defenders": defenders.size(), "fit": game.deployed_units().size(),
-		"reason": "%s %d defenders hold %s against your %d.%s" % [what, defenders.size(), town["name"], game.deployed_units().size(), diplomatic]}
+		"reason": "%s %d defenders hold %s against your %d.%s" % [what, defenders.size(), town["name"], game.deployed_units().size(), diplomatic],
+		"dragon_meat": Supplies.dragon_meat_plan(game)}
 
 static func start(game, tid: String, kind: String) -> Dictionary:
 	var p := preview(game, tid, kind)
@@ -200,7 +201,7 @@ static func after_battle(game, result: Dictionary, assault: Dictionary) -> void:
 	Ambitions.check(game)
 
 # ------------------------------------------------------------------ dragons on campaign
-## A bonded adult dragon can march with the raised field army. Its rider rides it; it eats from the army purse.
+## A bonded adult dragon can march with the raised field army. Its rider rides it; it eats packed meat.
 static func march_status(game, uid: String) -> Dictionary:
 	var row: Dictionary = Dragons.get_record(game, uid)
 	var marching := bool(row.get("campaign_march", {}).get("enabled", false))
@@ -210,10 +211,11 @@ static func march_status(game, uid: String) -> Dictionary:
 	if marching:
 		reason = _march_reason(game, row, false)
 		return {"ok": true, "marching": true, "active": reason == "", "can_recall": true,
-			"reason": "Marching with your army." if reason == "" else "Marching, but cannot fight: " + reason, "feed": feed_cost(row)}
+			"reason": "Marching with your army. It eats packed meat." if reason == "" else "Marching, but cannot fight: " + reason, "feed": feed_cost(row)}
 	reason = _march_reason(game, row, true)
+	var meat_day := DragonCare.food_need_units(game, row)
 	return {"ok": true, "marching": false, "can_march": reason == "", "reason": reason if reason != "" else
-		"Can march with the army (feed %s a day from the army purse)." % _coin_text(feed_cost(row)), "feed": feed_cost(row)}
+		"Can march with the army (%d meat a day from the packed stores)." % meat_day, "feed": feed_cost(row)}
 
 static func _coin_text(c: int) -> String:
 	return "%d coins" % int(round(float(c) / Item.COIN))
@@ -262,7 +264,7 @@ static func marching_units(game) -> Array:
 		if unit != null and not out.has(unit): out.append(unit)
 	return out
 
-## Daily: marching dragons eat from the army purse; unfed ones weaken. Recalled automatically when the army stands down.
+## Daily: marching dragons eat packed meat once, through the same care day as home. Recalled when the army stands down.
 static func daily(game, days: int) -> void:
 	for d in days:
 		Marriage.daily(game)
@@ -275,12 +277,7 @@ static func daily(game, days: int) -> void:
 			row.erase("campaign_march")
 			continue
 		for d in days:
-			var cost := feed_cost(row)
-			var care: Dictionary = row.get("care", {})
-			if int(game.gold) >= cost:
-				game.gold = int(game.gold) - cost
-			elif not care.is_empty():
-				care["health"] = maxf(0.0, float(care.get("health", 1.0)) - 0.08)
-				CampaignWorld.log_event(game, "%s goes hungry: the army purse cannot feed it." % row.get("name", "A dragon"))
+			var day := int(floor(float(game.day))) - days + d + 1
+			DragonCare.settle(game, row, day)
 
 

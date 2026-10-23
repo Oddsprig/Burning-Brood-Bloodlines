@@ -206,10 +206,21 @@ static func care_quote_text(row: Dictionary, quote: Dictionary) -> String:
 	lines.append("Shelter supplies (wood): %.2f of %.2f bundles affordable · Estimated cost: %s" % [float(quote.get("upkeep_possible_units", 0.0)), float(quote.get("upkeep_need_units", 0.0)), RecData.money(float(quote.get("upkeep_cost_estimate", 0.0)))])
 	lines.append("Quotes are not payments. Automatic daily care buys locally from this household after protecting its food reserve.")
 	lines.append("Shelter shortages lower egg condition. Care needs a present keeper." if egg else "Healthy growth needs enough feed and care. Food or shelter shortages lower condition.")
+	lines.append(DragonCare.priority_line(str(quote.get("priority", "normal"))))
 	return "\n".join(lines)
 
 static func care_receipt_text(row: Dictionary, receipt: Dictionary) -> String:
 	if receipt.is_empty(): return "No daily care payment recorded yet."
+	if str(receipt.get("source", "market")) == "army":
+		var march_lines: Array[String] = ["Last daily care · Day %d · Meat drawn from the army's packed stores" % int(receipt.get("day", 0))]
+		if String(row.get("stage", "egg")) != "egg":
+			march_lines.append("Meat drawn: %.2f units · Coins spent: %s · Feed achieved: %.0f%%" % [float(receipt.get("food_units", 0.0)), RecData.money(0.0), float(receipt.get("food_ratio", 0.0)) * 100.0])
+		march_lines.append("The march is the shelter. No household coin was spent.")
+		march_lines.append("Condition: %.0f%% → %.0f%%" % [float(receipt.get("health_before", 1.0)) * 100.0, float(receipt.get("health_after", 1.0)) * 100.0])
+		if String(row.get("stage", "egg")) != "egg": march_lines[-1] += " · Grew this day" if float(receipt.get("growth_after", 0.0)) > float(receipt.get("growth_before", 0.0)) else " · No growth this day"
+		var march_reason: String = String(receipt.get("reason", ""))
+		if march_reason != "": march_lines.append(march_reason)
+		return "\n".join(march_lines)
 	var lines: Array[String] = ["Last daily care · Day %d · Paid by %s" % [int(receipt.get("day", 0)), _household_name(String(receipt.get("payer_household_uid", "")))]]
 	if String(row.get("stage", "egg")) != "egg":
 		lines.append("Food bought: %.2f units · Paid: %s · Feed achieved: %.0f%%" % [float(receipt.get("food_units", 0.0)), RecData.money(float(receipt.get("food_cost", 0.0))), float(receipt.get("food_ratio", 0.0)) * 100.0])
@@ -230,6 +241,27 @@ func _care_panel(row: Dictionary) -> void:
 	facts.add_child(UiKit.label("Care & growth", "H2", true))
 	facts.add_child(UiKit.label(care_quote_text(row, quote), "", true))
 	facts.add_child(UiKit.label(care_receipt_text(row, quote.get("last", {})), "Muted", true))
+	if bool(row.get("alive", false)):
+		var priority := str(quote.get("priority", "normal"))
+		var rights := bool(Dragons.authority(Game, row).get("ok", false))
+		var flow := UiKit.flow()
+		facts.add_child(flow)
+		for choice in [["first", "Feed first"], ["normal", "Normal"], ["last", "Last"]]:
+			var key := str(choice[0])
+			var button := UiKit.button(str(choice[1]), _set_feed_priority.bind(str(row.get("id", "")), key), "Row")
+			button.disabled = (not rights) or key == priority
+			button.tooltip_text = DragonCare.priority_line(priority)
+			flow.add_child(button)
+
+func _set_feed_priority(uid: String, priority: String) -> void:
+	var live: Dictionary = Game.world.get("dragons", {}).get("records", {}).get(uid, {})
+	if live.is_empty(): return
+	var result := DragonCare.set_priority(Game, live, priority)
+	notice = str(result.get("reason", ""))
+	if bool(result.get("ok", false)):
+		Game.changed.emit()
+		Game.save_game_async()
+	_queue_refresh()
 
 func _detail(row: Dictionary) -> void:
 	body.add_child(UiKit.button("Back to holdings", func(): detail_uid = ""; _refresh(), "Row"))

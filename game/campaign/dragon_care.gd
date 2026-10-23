@@ -1,7 +1,8 @@
 class_name DragonCare
 extends RefCounted
-## Daily upkeep of the existing records. All goods and coin come from native
-## location markets and the actual owning household; there is no dragon wallet.
+## Daily upkeep of the existing records. At home, goods and coin come from the
+## location market and the owning household. On campaign, meat comes from the
+## army's named packed lots. One last_day guard covers both. There is no dragon wallet.
 const FEED_MASS_SHARE := 0.008
 const FOOD_UNIT_KG := 0.4
 const FAMILY_RESERVE_DAYS := 7.0
@@ -11,6 +12,12 @@ const TOWN_RESERVE_DAYS := 3.0
 const CARE_PURSE_SHARE := 0.012
 const MEAT := ["fresh_meat", "meat"]
 const HUMAN_FOOD := ["grain", "fruit", "meat", "fresh_meat"]
+## Household dragon priority. Every priority keeps the 7-day food floor, the 3-day
+## town reserve and the daily spending cap. Normal and Last hold a longer food-fund
+## gap (10 and 14 days). Feed first spends any coin above the 7-day floor.
+const PRIORITIES := ["first", "normal", "last"]
+const PRIORITY_DAYS := {"first": 7.0, "normal": 10.0, "last": 14.0}
+const PRIORITY_LABEL := {"first": "Feed first", "normal": "Normal", "last": "Last"}
 
 static func initialize(row: Dictionary, day: int) -> void:
 	if not row.has("growth_points"): row["growth_points"] = DragonGrowth.initial_points(row)
@@ -25,6 +32,38 @@ static func after_load(game) -> void:
 		care["health"] = clampf(float(care.get("health", 1.0)), 0.0, 1.0)
 		if care.get("last") is Dictionary and not care["last"].is_empty():
 			care["last"]["day"] = int(care["last"].get("day", care["last_day"]))
+
+static func priority_of(f: Dictionary) -> String:
+	var priority := str(f.get("dragon_feed", "normal"))
+	return priority if PRIORITIES.has(priority) else "normal"
+
+static func hold_days(f: Dictionary) -> float:
+	return float(PRIORITY_DAYS[priority_of(f)])
+
+static func priority_line(priority: String) -> String:
+	var label := str(PRIORITY_LABEL.get(priority if PRIORITIES.has(priority) else "normal", "Normal"))
+	return "Household dragon priority: %s. Feed first uses funds above the 7-day food floor; Normal also holds 10 days of food funds; Last holds 14. The 3-day town reserve and the daily spending cap stay." % label
+
+static func set_priority(game, row: Dictionary, priority: String) -> Dictionary:
+	if not PRIORITIES.has(priority):
+		return {"ok": false, "reason": "Choose feed first, normal or last."}
+	var rights: Dictionary = Dragons.authority(game, row)
+	if not bool(rights.get("ok", false)):
+		return {"ok": false, "reason": str(rights.get("reason", "This household cannot set dragon priority."))}
+	var owner: Dictionary = Dynasty._person(game, str(row.get("owner_person_uid", "")))
+	if owner.is_empty() or not (owner.get("family") is Dictionary):
+		return {"ok": false, "reason": "The owning household is unavailable."}
+	owner["family"]["dragon_feed"] = priority
+	return {"ok": true, "priority": priority, "reason": priority_line(priority)}
+
+static func food_need_units(game, row: Dictionary) -> int:
+	if str(row.get("stage", "")) == "egg" or not bool(row.get("alive", false)):
+		return 0
+	var mass := float(Dragons.physical_profile(game, row).get("body_mass_kg", 0.0))
+	return int(ceil(mass * FEED_MASS_SHARE / FOOD_UNIT_KG)) if mass > 0.0 else 0
+
+static func _on_march(game, row: Dictionary) -> bool:
+	return bool(row.get("campaign_march", {}).get("enabled", false)) and not game.company.is_empty() and bool(row.get("alive", false))
 
 static func _market_ready(e: Dictionary) -> bool:
 	for key in ["stock", "price", "stats", "req", "led"]:
@@ -64,7 +103,7 @@ static func _reserve(e: Dictionary, f: Dictionary, day: int) -> float:
 	var elapsed := maxf(0.0, float(day) - float(f.get("last", day)))
 	var available_days := maxf(0.0, float(f.get("store", {}).get("food", 0.0)) - elapsed)
 	var own_day := e.duplicate(false); own_day["day"] = float(day)
-	var meals := float(Families.daily_rates(own_day, f)["food"]) * maxf(0.0, FAMILY_RESERVE_DAYS - available_days)
+	var meals := float(Families.daily_rates(own_day, f)["food"]) * maxf(0.0, hold_days(f) - available_days)
 	return maxf(1.0, EconomyRules.essential_food_cost(e, meals))
 
 static func _food_headroom(e: Dictionary, day: int) -> int:
@@ -85,7 +124,7 @@ static func _quote(game, row: Dictionary, day: int, context: Dictionary) -> Dict
 	var egg := str(row.get("stage", "")) == "egg"
 	var profile := Dragons.physical_profile(game, row)
 	var mass := float(profile.get("body_mass_kg", 0.0))
-	var need := 0 if egg or not row.get("alive", false) else int(ceil(mass * FEED_MASS_SHARE / FOOD_UNIT_KG))
+	var need := food_need_units(game, row)
 	var upkeep := 0 if not row.get("alive", false) else (1 if egg else 1 + int(floor(maxf(0, float(metrics.get("growth_points", 0))))))
 	var f: Dictionary = context["family"]; var e: Dictionary = context["econ"]
 	var valid := bool(context["ok"]) and bool(profile.get("valid", false)) and bool(metrics.get("valid", false))
@@ -100,7 +139,9 @@ static func _quote(game, row: Dictionary, day: int, context: Dictionary) -> Dict
 		"food_need_units": need, "food_available_units": 0, "food_possible_units": 0,
 		"food_unit_price": 0.0, "feed_cost_estimate": 0.0, "upkeep_need_units": upkeep,
 		"upkeep_possible_units": 0, "upkeep_cost_estimate": 0.0, "last": care.get("last", {}).duplicate(true),
-		"reserve": reserve, "orders": [], "day": day}
+		"reserve": reserve, "orders": [], "day": day,
+		"priority": priority_of(f) if not f.is_empty() else "normal",
+		"hold_days": hold_days(f) if not f.is_empty() else FAMILY_RESERVE_DAYS}
 	for good in MEAT: result["food_available_units"] += maxi(0, int(e.get("stock", {}).get(good, 0)))
 	if not valid:
 		if context["ok"]: result["reason"] = "Unknown physical profile; care is unavailable."
@@ -156,56 +197,89 @@ static func daily(game, day: int) -> void:
 	var ids: Array = registry.keys(); ids.sort()
 	var settled := false
 	for uid in ids:
-		var row: Dictionary = registry[uid]
-		if not row.has("care"):
-			initialize(row, int(floor(game.day)))
-		var care: Dictionary = row["care"]
-		if int(care["last_day"]) >= day or not row.get("alive", false): continue
-		var context_started := Time.get_ticks_usec()
-		var context := _context(game, row)
-		Perf.record_us("Dragon care ownership reads", Time.get_ticks_usec() - context_started)
-		var quote_started := Time.get_ticks_usec()
-		var quote := _quote(game, row, day, context)
-		Perf.record_us("Dragon care quotes", Time.get_ticks_usec() - quote_started)
-		var food_units := 0; var food_cost := 0.0; var upkeep_units := 0; var upkeep_cost := 0.0
-		var consumed := {}
-		if quote["care_active"]:
-			var e: Dictionary = context["econ"]; var f: Dictionary = context["family"]
-			for order: Dictionary in quote["orders"]:
-				var good := str(order["good"]); var quantity := int(order["quantity"]); var cost := float(order["cost"])
-				Barge.add_demand(e, good, quantity, int(order["unmet"]), int(order["unaffordable"]))
-				if quantity <= 0: continue
-				TownEcon.pay_market(e, f, cost)
-				e["stock"][good] = int(e["stock"][good]) - quantity
-				TownEcon.led(e, "used", good, quantity)
-				consumed[good] = quantity
-				if good in MEAT: food_units += quantity; food_cost += cost
-				else: upkeep_units += quantity; upkeep_cost += cost
-		var egg := str(row.get("stage", "")) == "egg"
-		var food_ratio := 1.0 if egg else clampf(float(food_units) / maxf(1, float(quote["food_need_units"])), 0, 1)
-		var care_ratio := clampf(float(upkeep_units) / maxf(1, float(quote["upkeep_need_units"])), 0, 1)
-		var health_before := float(quote["health"])
-		var health := clampf(health_before + 0.005 * minf(food_ratio, care_ratio) - 0.018 * (1.0 - food_ratio) - 0.005 * (1.0 - care_ratio), 0, 1)
-		var growth_before := float(quote["growth_points"])
-		DragonGrowth.advance(row, 1.0, food_ratio, care_ratio, minf(health_before, health))
-		care["last_day"] = day; care["health"] = health
-		settled = true
-		care["last"] = {"day": day, "payer_household_uid": quote["payer_household_uid"],
-			"food_units": food_units, "food_cost": food_cost, "upkeep_units": upkeep_units, "upkeep_cost": upkeep_cost,
-			"goods": consumed, "food_ratio": food_ratio, "care_ratio": care_ratio,
-			"health_before": health_before, "health_after": health, "growth_before": growth_before,
-			"growth_after": float(row.get("growth_points", growth_before)), "reason": quote["reason"]}
-		var shortage := food_ratio < 0.8 or care_ratio < 0.8
-		if shortage != bool(care.get("shortage", false)):
-			_event(row, day, "care_shortage" if shortage else "care_restored", {"reason": quote["reason"]})
-		care["shortage"] = shortage
-		if not egg and str(row.get("stage", "")) == "juvenile" and (float(day) - float(row.get("birth_day", day))) >= DragonLife.MATURE_DAYS:
-			row["stage"] = "adult"; _event(row, day, "matured")
-		if health <= 0.0:
-			row["alive"] = false; care["death_day"] = day
-			_event(row, day, "care_death", {"reason": "Prolonged food or shelter shortage."})
-			DragonBond.reconcile(game)
-		# Existing native injuries rest once at this scheduled care boundary.
-		# Readers/load never heal, rebuild bodies or advance dragon time.
-		DragonCombat.on_care(game, str(uid), day)
+		if settle(game, registry[uid], day, str(uid)): settled = true
 	if settled: DragonLife.daily(game, day)   # hatching, maturing and breeding
+
+## One settlement for this dragon on this day, at home or on the march. A second call the same day does nothing.
+static func settle(game, row: Dictionary, day: int, uid: String = "") -> bool:
+	if not row.has("care"):
+		initialize(row, int(floor(game.day)))
+	var care: Dictionary = row["care"]
+	if int(care["last_day"]) >= day or not row.get("alive", false): return false
+	if uid == "": uid = str(row.get("id", ""))
+	if _on_march(game, row): return _settle_march(game, row, day, uid)
+	return _settle_home(game, row, day, uid)
+
+static func _settle_home(game, row: Dictionary, day: int, uid: String) -> bool:
+	var context_started := Time.get_ticks_usec()
+	var context := _context(game, row)
+	Perf.record_us("Dragon care ownership reads", Time.get_ticks_usec() - context_started)
+	var quote_started := Time.get_ticks_usec()
+	var quote := _quote(game, row, day, context)
+	Perf.record_us("Dragon care quotes", Time.get_ticks_usec() - quote_started)
+	var food_units := 0; var food_cost := 0.0; var upkeep_units := 0; var upkeep_cost := 0.0
+	var consumed := {}
+	if quote["care_active"]:
+		var e: Dictionary = context["econ"]; var f: Dictionary = context["family"]
+		for order: Dictionary in quote["orders"]:
+			var good := str(order["good"]); var quantity := int(order["quantity"]); var cost := float(order["cost"])
+			Barge.add_demand(e, good, quantity, int(order["unmet"]), int(order["unaffordable"]))
+			if quantity <= 0: continue
+			TownEcon.pay_market(e, f, cost)
+			e["stock"][good] = int(e["stock"][good]) - quantity
+			TownEcon.led(e, "used", good, quantity)
+			consumed[good] = quantity
+			if good in MEAT: food_units += quantity; food_cost += cost
+			else: upkeep_units += quantity; upkeep_cost += cost
+	var egg := str(row.get("stage", "")) == "egg"
+	var food_ratio := 1.0 if egg else clampf(float(food_units) / maxf(1, float(quote["food_need_units"])), 0, 1)
+	var care_ratio := clampf(float(upkeep_units) / maxf(1, float(quote["upkeep_need_units"])), 0, 1)
+	var receipt := {"day": day, "payer_household_uid": quote["payer_household_uid"], "source": "market",
+		"food_units": food_units, "food_cost": food_cost, "upkeep_units": upkeep_units, "upkeep_cost": upkeep_cost,
+		"goods": consumed, "food_ratio": food_ratio, "care_ratio": care_ratio,
+		"health_before": float(quote["health"]), "growth_before": float(quote["growth_points"]), "reason": quote["reason"]}
+	return _close_day(game, row, day, uid, egg, food_ratio, care_ratio, receipt)
+
+static func _settle_march(game, row: Dictionary, day: int, uid: String) -> bool:
+	var egg := str(row.get("stage", "")) == "egg"
+	var need := food_need_units(game, row)
+	var drawn := {"taken": 0, "by_good": {}, "lots": [], "spoiled": 0}
+	if need > 0: drawn = Supplies.draw_dragon_meat(game, need)
+	var taken := int(drawn.get("taken", 0))
+	var food_ratio := 1.0 if egg or need <= 0 else clampf(float(taken) / float(need), 0.0, 1.0)
+	var growth_before := float(DragonGrowth.metrics(row).get("growth_points", 0.0))
+	var reason := "The march shelters this egg." if egg else ("Packed meat covers this day's feed." if food_ratio >= 1.0 else "The army's packed meat is short.")
+	var care: Dictionary = row["care"]
+	var receipt := {"day": day, "payer_household_uid": str(row.get("owner_household_uid", "")), "source": "army",
+		"food_units": taken, "food_cost": 0.0, "upkeep_units": 0, "upkeep_cost": 0.0,
+		"goods": drawn.get("by_good", {}), "lots": drawn.get("lots", []), "spoiled": int(drawn.get("spoiled", 0)),
+		"food_ratio": food_ratio, "care_ratio": 1.0,
+		"health_before": clampf(float(care.get("health", 1.0)), 0.0, 1.0), "growth_before": growth_before, "reason": reason}
+	return _close_day(game, row, day, uid, egg, food_ratio, 1.0, receipt)
+
+static func _close_day(game, row: Dictionary, day: int, uid: String, egg: bool, food_ratio: float, care_ratio: float, receipt: Dictionary) -> bool:
+	var care: Dictionary = row["care"]
+	var health_before := float(receipt["health_before"])
+	var growth_before := float(receipt["growth_before"])
+	var health := clampf(health_before + 0.005 * minf(food_ratio, care_ratio) - 0.018 * (1.0 - food_ratio) - 0.005 * (1.0 - care_ratio), 0, 1)
+	DragonGrowth.advance(row, 1.0, food_ratio, care_ratio, minf(health_before, health))
+	care["last_day"] = day; care["health"] = health
+	receipt["health_after"] = health
+	receipt["growth_after"] = float(row.get("growth_points", growth_before))
+	care["last"] = receipt
+	var shortage := food_ratio < 0.8 or care_ratio < 0.8
+	if shortage != bool(care.get("shortage", false)):
+		_event(row, day, "care_shortage" if shortage else "care_restored", {"reason": str(receipt.get("reason", ""))})
+		if str(receipt.get("source", "")) == "army" and shortage:
+			CampaignWorld.log_event(game, "%s goes hungry: the army's packed meat is short." % row.get("name", "A dragon"))
+	care["shortage"] = shortage
+	if not egg and str(row.get("stage", "")) == "juvenile" and (float(day) - float(row.get("birth_day", day))) >= DragonLife.MATURE_DAYS:
+		row["stage"] = "adult"; _event(row, day, "matured")
+	if health <= 0.0:
+		row["alive"] = false; care["death_day"] = day
+		_event(row, day, "care_death", {"reason": "Prolonged food or shelter shortage."})
+		DragonBond.reconcile(game)
+	# Existing native injuries rest once at this scheduled care boundary.
+	# Readers/load never heal, rebuild bodies or advance dragon time.
+	DragonCombat.on_care(game, str(uid), day)
+	return true

@@ -837,6 +837,11 @@ func _assault(tid: String, kind: String) -> void:
 	var town: Dictionary = Game.world["towns"][tid]
 	var modal := UiKit.modal(modal_host, ("Raid " if kind == "raid" else "Besiege ") + str(town["name"]), 620)
 	modal.add_child(UiKit.label(str(p["reason"]), "", true))
+	var meat: Dictionary = p.get("dragon_meat", {})
+	if int(meat.get("dragons", 0)) > 0:
+		var meat_label := UiKit.label(str(meat.get("line", "")), "", true)
+		if bool(meat.get("short", false)): meat_label.add_theme_color_override("font_color", UiTheme.WARN)
+		modal.add_child(meat_label)
 	var note := "Raiding takes coin, burns grain and kills residents; the town's realm will remember." if kind == "raid" else "If your army wins, the settlement swears to your realm. Its defenders hold the walls and never break ranks to chase you."
 	modal.add_child(UiKit.label(note, "Muted", true))
 	var footer := UiKit.hbox(8); modal.add_child(footer)
