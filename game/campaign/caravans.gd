@@ -219,13 +219,14 @@ static func quote_trip(w: Dictionary, origin: Dictionary, dest: Dictionary, rng:
 	var preview := RandomNumberGenerator.new()
 	if rng != null: preview.state = rng.state
 	else: preview.seed = hash([int(w.get("seed", 0)), origin["id"], dest["id"], "caravan_quote"])
-	var funded := trade_purse(o)
+	var supply := preset.has("supply_order_id")
+	var funded := 0.0 if supply else trade_purse(o)
 	var cargo := load_cargo(o, d, preview, force, funded) if preset.is_empty() else \
 		{"items": (preset.get("items", []) as Array).duplicate(), "goods": (preset.get("goods", {}) as Dictionary).duplicate(), "gold": funded}
 	var purse := float(cargo["gold"])
 	cargo.erase("gold")
 	var totals := _totals()
-	_add(totals, "buy_cost", funded - purse)
+	_add(totals, "buy_cost", float(preset.get("supply_cost", 0.0)) if supply else funded - purse)
 	var guards := 2 + preview.randi_range(0, 2) + int(origin["wealth"]) / 2
 	var pos: Vector2 = origin["pos"] + Vector2(preview.randf_range(-14, 14), 18)
 	pos = CampaignWorld.nearest_passable(w, pos)
@@ -235,11 +236,15 @@ static func quote_trip(w: Dictionary, origin: Dictionary, dest: Dictionary, rng:
 	var ready := not path.is_empty() and (force or not cargo_empty(cargo))
 	if TownEcon.has_econ(o):
 		var market: Dictionary = o["econ"]["biz"][int(o["econ"]["mkt"])]
-		ready = ready and float(market["till"]) >= crew
+		# Supply orders pay the supplier's freight before hiring the native crew.
+		if not supply: ready = ready and float(market["till"]) >= crew
 		# The same till pays the crew before buying the returning cargo.
 		market["till"] = maxf(0.0, float(market["till"]) - crew)
 	_add(totals, "crew", crew)
 	var kg := cargo_weight(cargo)
+	if supply:
+		# Prepaid supplies are delivered directly, with no resale or return purchases.
+		return {"expected": totals, "days": maxf(4.0, days), "cargo_kg": kg, "ready": ready}
 	var wb := {"cargo": cargo, "gold": purse, "receipt": {"realized": totals}}
 	wb["gold"] = float(wb["gold"]) + sell_cargo(d, cargo, String(origin.get("name", "")), totals)
 	buy_return(d, o, wb)
@@ -502,7 +507,8 @@ static func spawn(game, tid: String, rng: RandomNumberGenerator, dest: String = 
 			and (not quote["ready"] or float(quote["expected"]["net"]) <= 0.0):
 		return ""
 	# the treasury funds the merchants' purse
-	var purse := trade_purse(t)
+	var supply := preset.has("supply_order_id")
+	var purse := 0.0 if supply else trade_purse(t)
 	var funded := purse
 	if TownEcon.has_econ(t):
 		t["econ"]["treasury"] = float(t["econ"]["treasury"]) - purse
@@ -520,7 +526,12 @@ static func spawn(game, tid: String, rng: RandomNumberGenerator, dest: String = 
 		"state": "waiting" if escort != "" else "travel", "depart_day": game.day}
 	extra["receipt"] = {"origin": tid, "destination": dest, "depart_day": float(game.day), "status": "out",
 		"expected": quote["expected"], "realized": _totals(), "trip_days": quote["days"]}
-	receipt_add(extra, "buy_cost", funded - purse)
+	if supply:
+		extra["supply_order_id"] = str(preset["supply_order_id"])
+		extra["supply_town"] = str(preset["supply_town"])
+		extra["receipt"]["supply_order_id"] = str(preset["supply_order_id"])
+		extra["receipt"]["supply_town"] = str(preset["supply_town"])
+	if not supply: receipt_add(extra, "buy_cost", funded - purse)
 	if not muster_head.is_empty():
 		CampaignWorld.muster_start(game, muster_head, t["faction"], pos, guards, "caravan", extra, rng, own_rng, then)
 		return "+"   # mustering: the caravan sails from the muster's last job
@@ -588,12 +599,16 @@ static func arrive(game, wid: String) -> void:
 	if wb.is_empty():
 		return
 	var origin: Dictionary = w["towns"].get(wb["origin"], {})
+	# Duplicate destination notifications must not also count as arrival home.
+	if wb.has("supply_delivery_pos") and (wb["pos"] as Vector2).is_equal_approx(wb["supply_delivery_pos"]): return
 	if wb.get("leg", "out") == "home":
 		if _come_home(game, wb): CampaignWorld.remove_warband(game, wid)
 		return
 	var dest: Dictionary = w["towns"].get(wb["dest"], {})
 	Sickness.caravan_at(game, wb, dest)   # sickness: the crew's diseases meet the town's (carriers, first-case origin)
-	if not dest.is_empty():
+	if wb.has("supply_order_id"):
+		SupplyOrders.deliver(game, wb)
+	elif not dest.is_empty():
 		wb["gold"] = float(wb.get("gold", 0.0)) + sell_cargo(dest, wb["cargo"], origin.get("name", "abroad"), wb.get("receipt", {}).get("realized", {}))
 		_carry_knowhow(origin, dest, wb["cargo"])
 		if wb.has("receipt"):
@@ -640,6 +655,15 @@ static func _come_home(game, wb: Dictionary) -> bool:
 			wb["unpaid_wait"] = 0
 		_finish_receipt(game, wb, "unpaid")
 		return false
+	if wb.has("supply_order_id"):
+		# A failed sail restores the shared preset; a completed supply trip returns
+		# empty wagons. Neither is a sale to the supplier's own market.
+		unload(home, wb["cargo"])
+		wb["cargo"]["goods"].clear(); wb["cargo"]["items"].clear()
+		home["econ"]["treasury"] = float(home["econ"]["treasury"]) + float(wb.get("gold", 0.0))
+		wb["gold"] = 0.0; wb["state"] = "home"; wb["path"] = []
+		_finish_receipt(game, wb, "supply_returned" if wb.get("receipt", {}).has("supply_paid") else "supply_blocked")
+		return true
 	var pay := sell_cargo(home, wb["cargo"], "returning wagons", wb.get("receipt", {}).get("realized", {}), false)
 	home["econ"]["treasury"] = float(home["econ"]["treasury"]) + pay + float(wb.get("gold", 0.0))
 	wb["gold"] = 0.0
@@ -711,6 +735,7 @@ static func lost(game, wid: String, by_faction: String) -> void:
 	ArmsTrade.field(game, (wb["units"] as Array).filter(func(u): return not u.equip.is_empty()), {}, wb["pos"])   # kit nobody took: left
 	_record_loss(wb, 1.0)
 	receipt_add(wb, "lost_coin", float(wb.get("gold", 0.0)))
+	if wb.has("supply_order_id"): SupplyOrders.lost(game, wb)
 	_finish_receipt(game, wb, "lost")
 	People.end_crew(game, wb, (wb["units"] as Array).duplicate())   # the guards fell; the drivers run home
 	var escorted: bool = wb.get("escort", "") != "" and game.contract.get("id", "") == wb["escort"]
@@ -777,6 +802,7 @@ static func plunder(game, wid: String, witnesses: bool = false) -> Dictionary:
 	var dest: Dictionary = w["towns"].get(wb["dest"], {})
 	CampaignWorld.log_event(game, "The company plundered a caravan bound for %s: %s." % [dest.get("name", "?"), cargo_text(took, float(purse))])
 	receipt_add(wb, "lost_coin", float(wb.get("gold", 0.0)))
+	if wb.has("supply_order_id"): SupplyOrders.lost(game, wb)
 	_finish_receipt(game, wb, "plundered")
 	CampaignWorld.remove_warband(game, wid)
 	if game.contract.get("kind", "") == "arms_raid" and game.contract.get("target_id", "") == wid:

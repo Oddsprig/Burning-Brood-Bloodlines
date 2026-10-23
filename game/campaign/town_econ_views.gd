@@ -191,7 +191,7 @@ static func town_total(e: Dictionary, g: String) -> int:
 
 ## Every coin the town holds: treasury, land fund, tills, purses and unclaimed barn sales.
 static func town_gold(e: Dictionary) -> float:
-	var g := float(e["treasury"]) + float(e["farm_till"]) + float(e.get("land_fund", 0.0))
+	var g := float(e["treasury"]) + float(e["farm_till"]) + float(e.get("land_fund", 0.0)) + SupplyOrders.reserved(e)
 	for b in e["biz"]:
 		g += float(b["till"])
 	for f in e["fams"]:

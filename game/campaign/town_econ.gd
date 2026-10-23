@@ -440,6 +440,7 @@ static func _market_day(game, town: Dictionary, e: Dictionary, day: int) -> void
 	if prof_on: t0 = _prof("bows", t0)
 	Shelter.daily(town, e)   # the poorhouse: broth, firewood and keepers, paid by the treasury
 	Army.pay_town(game, town)   # militia / town guard: rank wages into their family purses (economy spec 2)
+	SupplyOrders.daily(game, town, day)
 	if prof_on: t0 = _prof("shelter+army", t0)
 
 ## The town's barge day (its own work job, right after its market day: the day's books close): the granary (barge
@@ -999,6 +1000,7 @@ static func town_turn(game, town: Dictionary, day: int) -> void:
 		e["treasury"] = float(e["treasury"]) - spent
 		mkt["till"] = float(mkt["till"]) + spent
 		e["stats"]["works"] = spent
+	SupplyOrders.ai_week(game, town, day)
 	Barge.release_surplus(game, town, e)
 	# trade: send a caravan with the surplus where it is wanted
 	_plan_trade(game, town, e, day)
