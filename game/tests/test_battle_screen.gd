@@ -26,7 +26,12 @@ func _check(cond: bool, what: String) -> int:
 	return 0
 
 func _make(tree: SceneTree, enemies: int, s: int, extra: Dictionary = {}) -> Node:
-	Game.new_game(500 + s)
+	var loaded := await DevTools.start_world(tree, Game.SAVE_PATH)
+	assert(loaded, "Normal one-day battle fixture loads")
+	var town := DevTools.choose_house(Game, func(choice: Dictionary):
+		return str(Dynasty.person(Game, str(choice["ruler_uid"])).get("race", "")) == "human")
+	var raised := DevTools.raise_army(Game, town, 2)
+	assert(raised == 2, "two native residents muster for every battle case")
 	var rng := RandomNumberGenerator.new(); rng.seed = s
 	Game.pending_battle = {"enemy": Factory.make_warband(rng, "orc_horde", enemies), "allies": [], "seed": s,
 		"terrain": "forest"}
@@ -41,6 +46,7 @@ func _small_battle(tree: SceneTree) -> int:
 	var fails := 0
 	var b := await _make(tree, 10, 11)
 	var n_player := Game.deployed_units().size()
+	fails += _check(n_player == 2, "two native residents mustered for a real battle")
 	fails += _check(b.sim is BattleSim, "real BattleSim")
 	fails += _check(b.sim.fighters.size() == n_player + 10, "fighter count")
 	fails += _check(b.views.size() == b.sim.fighters.size(), "one view per fighter")
@@ -96,7 +102,7 @@ func _small_battle(tree: SceneTree) -> int:
 	while not b.sim.is_over() and guard < 30000:
 		b.step_ticks(50)
 		guard += 50
-	fails += _check(b.sim.is_over(), "battle ends")
+	fails += _check(b.sim.is_over() and b.sim.tick > 0, "nonempty native battle ends")
 	var severs: int = b.sim.events.filter(func(e): return e["type"] == "sever" and e["part"] != "").size()
 	fails += _check(b.gore_pieces.size() == severs, "one ground decal per sever (%d vs %d)" % [b.gore_pieces.size(), severs])
 	var before: int = b.gore_pieces.size()
@@ -141,7 +147,10 @@ func _large_battle(tree: SceneTree) -> int:
 	b.select(b.views.size() - 1)
 	b.skip_to_end()
 	fails += _check(b.sim.is_over(), "skip reaches the end")
-	b._process(2.0)   # result appears after the delay
+	# Finish the native medic/bleeding phase before expecting its result card.
+	for _frame in b.AFTER_STEPS + 2:
+		b._process(b.AFTER_STEP_SECS)
+		await tree.process_frame
 	fails += _check(b.result_shown, "result after skip")
 	print("large battle: %d ticks, winner %d" % [b.sim.tick, b.sim.winner])
 	Game.main = null

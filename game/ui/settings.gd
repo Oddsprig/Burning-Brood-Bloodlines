@@ -58,10 +58,10 @@ func _build() -> void:
 	for key in choices:
 		var c: Dictionary = choices[key]
 		var opts: Array = c["options"]
-		var cur := String(Game.setting(key))
+		var cur: Variant = Game.setting(key)
 		var idx := 0
 		for i in opts.size():
-			if String(opts[i][0]) == cur:
+			if opts[i][0] == cur:
 				idx = i
 		var row := UiKit.panel("Card")
 		var cv := UiKit.vbox(4)
@@ -73,7 +73,7 @@ func _build() -> void:
 		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		h.add_child(l)
-		var nxt: String = String(opts[(idx + 1) % opts.size()][0])
+		var nxt: Variant = opts[(idx + 1) % opts.size()][0]
 		var b := UiKit.button(String(opts[idx][1]), func():
 			Game.set_setting(key, nxt)
 			_build(), "", 100)

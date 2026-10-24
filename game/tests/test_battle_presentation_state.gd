@@ -22,6 +22,16 @@ func _plain(value: Variant) -> Variant:
 	if value is Item: return _plain(value.to_dict())
 	if value is Unit: return value.uid
 	if value is Fighter: return value.idx
+	if value is CombatJournal:
+		# Separate battles own separate journals. Compare retained native history and
+		# failure state, excluding object IDs, private paths and read-cache counters.
+		var rows: Array = []
+		for page in range(ceili(float(value.count()) / CombatJournal.MAX_PAGE_SIZE)):
+			rows.append_array(value.page(page, -1, CombatJournal.MAX_PAGE_SIZE))
+		var stats: Dictionary = value.stats()
+		return _plain({"participants": value.participants(), "rows": rows,
+			"attempted": stats["attempted"], "dropped": stats["dropped"],
+			"complete": stats["complete"], "errors": stats["errors"], "disposed": stats["disposed"]})
 	if value is Dictionary or value is Array:
 		var code: int = value.hash()
 		for prior: Array in _marshal_cache.get(code, []):
@@ -217,15 +227,20 @@ func _army_case(tree: SceneTree, n: int) -> void:
 	await tree.process_frame
 	var unit_counter: int = Unit._next_uid
 	var item_counter: int = Item._next_uid
+	# Retain the reference hashes, then release its native journal writers before
+	# the presented army spills history. Two 400-person journals exceed Windows'
+	# per-process file-handle budget; running the same fixed ticks serially avoids it.
+	for tick in TICKS: reference.step()
+	var expected_end: Dictionary = _state(reference)
+	reference.combat_journal.dispose()
 	for block in 3:
 		for tick in 8:
-			reference.step()
 			b._do_tick() # Native event presentation on every fixed tick.
 		b._process_battle(0.0) # Three actual paused control/render loops, not 24 raster sweeps.
 		print("Battle presentation state ", label, ": tick ", b.sim.tick)
 		await tree.process_frame
 	var at_end: Dictionary = _state(b.sim)
-	_same(_state(reference), at_end, label + " fixed tick 24")
+	_same(expected_end, at_end, label + " fixed tick 24")
 	check(reference.tick == TICKS and b.sim.tick == TICKS and not b.sim.is_over(), label + " advances only the bounded 24 ticks")
 	check(b.sim.events.any(func(e: Dictionary) -> bool: return e["type"] == "move"), label + " exercised actual native movement")
 	_paused_reads(b)
@@ -249,6 +264,15 @@ func run(tree: SceneTree) -> int:
 	print("Battle presentation state: bounded fixture starting")
 	await tree.process_frame
 	checks = 0; fails = 0
+	var first_journal := CombatJournal.new()
+	var second_journal := CombatJournal.new()
+	var participants := [{"idx": 0, "name": "Native fixture", "side": 0, "unit_uid": 1}]
+	first_journal.setup(participants); second_journal.setup(participants)
+	check(_hash(first_journal) == _hash(second_journal), "equivalent journals compare by native content")
+	second_journal.append({"tick": 0, "k": "hit", "d": {"native": 1}}, 0, -1, "hit")
+	check(_hash(first_journal) != _hash(second_journal), "changed journal history remains detectable")
+	first_journal.dispose(); second_journal.dispose()
+	_marshal_cache.clear()
 	var company: Array = Game.company
 	var pending: Dictionary = Game.pending_battle
 	var world: Dictionary = Game.world

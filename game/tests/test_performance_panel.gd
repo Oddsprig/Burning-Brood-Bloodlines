@@ -36,6 +36,10 @@ func fit_check(fit: RefCounted, viewport: SubViewport, why: String) -> void:
 func run(scene_tree: SceneTree) -> int:
 	tree = scene_tree
 	await tree.process_frame
+	var original_overlay := bool(Game.setting("show_performance"))
+	Game.settings["show_performance"] = false
+	check(UiKit.diagnostics_lane(DESKTOP.x) == 0, "hidden diagnostics reserve no desktop lane")
+	Game.settings["show_performance"] = true
 	var orphan_baseline: int = int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT))
 	var tracker := PerformanceTracker.new()
 	tree.root.add_child(tracker)
@@ -145,5 +149,6 @@ func run(scene_tree: SceneTree) -> int:
 	await settle()
 	if OS.is_debug_build(): check(int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT)) <= orphan_baseline, "persistent panel and tracker leave no orphan nodes")
 	print("Performance panel UI: ", checks, " assertions, ", fit_cases, " desktop fit cases; failures=", fails)
+	Game.settings["show_performance"] = original_overlay
 	tree = null
 	return fails

@@ -1,0 +1,260 @@
+Burning Brood: Bloodlines v0.055 - Clearer battles
+Date: 2026-10-23, America/New_York (UTC log names use 20261024)
+Worktree: C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055
+Branch: claude/v055-sol
+Baseline: 5a9bf28e3fe19988a3ea66572c085aacd1c36d47 (v0.054 Riders share the danger)
+Engine: C:/Users/bligh/Desktop/Burning_Brood_Bloodlines_v0.022/runtime/Godot_v4.7.2-stable_win64.exe
+Engine banner: Godot v4.7.2.stable.official.ed1daf0bf
+
+VERDICT: 14 distinct targeted battle scripts PASS; 0 current battle failures.
+All seven explicitly requested tests passed, plus seven related scripts/cases.
+The ten scripts that print assertion counts report 1978 assertions; other
+scripts report verdicts/fit cases. Earlier failures are not current passes.
+
+Current per-script results (PASS / FAIL; evidence run):
+test_battle_readability_v055         1 / 0  R10 168 checks: terrain/aliases/legend, cue cap, outcome/RNG parity
+test_battle_visual_purity            1 / 0  R10 25 checks
+test_battle_presentation_state       1 / 0  R10 68 checks; 100/100 and 200/200 formations
+test_battle_results_ui_v014          1 / 0  R10 231 assertions, 15 desktop fit cases
+test_battle_screen                  1 / 0  R14 299 / 414 / 24000 native ticks
+test_rider_danger_v054              1 / 0  R11 1079 checks
+test_sim_determinism                1 / 0  R10 same-seed equality; different-seed difference
+test_battle_pace_v014                1 / 0  R10 39 checks
+test_combat_history_integration_v016 1 / 0  R10 75 checks
+test_performance_panel              1 / 0  R10 41 assertions, 7 desktop fit cases
+test_battle_creatures               1 / 0  R12 real residents vs wolves/bear, 24000 native ticks
+test_combat_log_ui_v016             1 / 0  R11 181 assertions, 12 desktop fit cases
+test_memory_lifecycle_v012          1 / 0  R19 71 checks; 3 ownership cycles; 64-tick 100/100 fight, 14 enemy deaths
+test_ui_fit --battle-only           1 / 0  R19 9 inspector/legend cases: 1280x720, 1920x1080, 2560x1440
+
+R12's creature verdict is independent of its older screen-test failure. That
+screen failure was fixed and passes in R14. R11's zero-tick creature PASS is
+superseded and excluded as current combat evidence.
+Qualifying evidence logs have zero SCRIPT ERROR and zero ERROR lines.
+All 20 engine starts (one import + 19 runner runs) exited naturally under
+57 seconds. No timeout or process kill occurred. Longest runner: 46.1077023 s.
+Engine timings below exclude waiting for other Godot processes.
+
+Scope / unresolved exploratory result:
+These checks were headless. No screenshot, GPU, FPS or rendered-pixel quality
+claim is made; terrain paint count may be zero with the dummy renderer.
+R16 used FIT_QUICK=1 for the broader legacy UI-fit test at 1280x720. It found
+4 unrelated non-battle fit failures: relations World (up to 16 px overflow) and
+three world-map states (an offscreen world-space Control measured outside the
+viewport). Those broader checks remain unresolved and are NOT passing.
+--battle-only selects battle cases and adds an open terrain/combat legend check.
+No relations/world-map code changed. All worlds were Normal with one-day
+history. No old-save compatibility, phone QA or long benchmark work was done.
+
+Repairs to the already-applied patch and necessary regression fixtures:
+- readability_fx.gd: typed frost symbol integer iterator fixes compilation.
+- test_battle_readability_v055.gd: queue teardown so deferred UI callbacks finish.
+- battle.gd: expand status label horizontally; reduce strength-bar minimum width
+  so the desktop HUD fits beside enabled diagnostics.
+- ui/settings.gd: keep native numeric/string choices; String(float) crashed and
+  converting choice values would store the wrong type.
+- Presentation fixture: hash journal content/failure state rather than Object
+  IDs/private paths/read-cache counters. Added equal/different-history checks.
+  Run/hash/dispose the reference journal before the presented 400-person fight
+  to avoid exhausting Windows' paired native writer handles.
+- Performance fixture: explicitly enable the overlay, check its disabled lane,
+  and restore the original setting.
+- Screen/creature fixtures: muster actual residents and reject zero-tick fights.
+  Screen cases load the saved Normal/one-day fixture and complete native medics
+  before expecting results.
+- UI-fit fixture: native troops and an actual enlisted ruler provide real tabs
+  and portraits; add bounded desktop battle/legend-only mode.
+- Memory fixture: initialize the lazy native mobilization/medic registry before
+  the complete-state baseline. Strict state/RNG/UID comparisons remain intact.
+Temporary diagnostics were removed. No simulation/formula source changed.
+The provided terrain/cue/legend/version patch was retained, not reapplied.
+
+Process protocol:
+Get-Process Godot* -ErrorAction SilentlyContinue preceded every start.
+Existing engines were waited for and never stopped. A fresh final preflight
+found no Godot process before launching. All starts used -WindowStyle Hidden
+and requested BelowNormal priority. The owned process used WaitForExit(57000).
+Every runner received --watchdog=60. Deferred launches did not count as tests.
+No foreground/input automation, downloads, installs, pushes, branch switches or
+deletions were performed. Runner-owned temporary-save cleanup was allowed.
+
+ONE CACHE IMPORT: exit 0, 9.1290922 s, cwd = worktree:
+Start-Process -FilePath 'C:/Users/bligh/Desktop/Burning_Brood_Bloodlines_v0.022/runtime/Godot_v4.7.2-stable_win64.exe' -ArgumentList @('--headless', '--path', 'game', '--editor', '--quit', '--log-file', 'test-results/v055_sol_import_20261024_025138_226.log') -WindowStyle Hidden -PassThru
+game/.godot/global_script_class_cache.cfg was created at
+2026-10-23T22:51:45.8917292-04:00. The relative import log did not appear inside
+the worktree; no external log was read. No second import/editor run occurred.
+
+EXACT RESOLVED POWERSHELL RUNNER ARGUMENTS:
+Each $godotArgs vector below was passed unchanged to this actual launcher:
+$godotRun = Start-Process -FilePath 'C:/Users/bligh/Desktop/Burning_Brood_Bloodlines_v0.022/runtime/Godot_v4.7.2-stable_win64.exe' -WorkingDirectory 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055' -ArgumentList $godotArgs -WindowStyle Hidden -PassThru
+try { $godotRun.PriorityClass = 'BelowNormal' } catch { }
+$godotRun.WaitForExit(57000)
+The wrapper also reported exit code, elapsed seconds and log tail.
+
+R01: test-results/v055_sol_readability_20261024_025407_143.log
+Exit 38; 18.9851887 s; scripts PASS 0 / FAIL 1; SCRIPT ERROR 38; ERROR 1.
+Original frost-symbol compile error; cascading script errors. No pass counted.
+$godotArgs = @('--headless', '--path', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/game', 'res://tests/runner.tscn', '--log-file', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/test-results/v055_sol_readability_20261024_025407_143.log', '--', '--tests=res://tests/test_battle_readability_v055.gd', '--watchdog=60')
+
+R02: test-results/v055_sol_readability_fixed_20261024_025440_724.log
+Exit 0; 10.6902373 s; scripts PASS 1 / FAIL 0; SCRIPT ERROR 0; ERROR 8.
+168 checks passed, but 8 deferred UI errors remained. Superseded by queued teardown.
+$godotArgs = @('--headless', '--path', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/game', 'res://tests/runner.tscn', '--log-file', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/test-results/v055_sol_readability_fixed_20261024_025440_724.log', '--', '--tests=res://tests/test_battle_readability_v055.gd', '--watchdog=60')
+
+R03: test-results/v055_sol_core_20261024_025540_822.log
+Exit 4; 21.3832826 s; scripts PASS 4 / FAIL 1; SCRIPT ERROR 0; ERROR 0.
+Four scripts passed; presentation snapshot failed 4 journal-identity checks.
+$godotArgs = @('--headless', '--path', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/game', 'res://tests/runner.tscn', '--log-file', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/test-results/v055_sol_core_20261024_025540_822.log', '--', '--tests=res://tests/test_battle_readability_v055.gd,res://tests/test_battle_visual_purity.gd,res://tests/test_battle_presentation_state.gd,res://tests/test_battle_results_ui_v014.gd,res://tests/test_sim_determinism.gd', '--watchdog=60')
+
+R04: test-results/v055_sol_state_diagnostic_20261024_025905_960.log
+Exit 4; 10.1064001 s; scripts PASS 0 / FAIL 1; SCRIPT ERROR 0; ERROR 0.
+Readability OFF: only journal Object IDs differed. Temporary diagnostic removed.
+$godotArgs = @('--headless', '--path', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/game', 'res://tests/runner.tscn', '--log-file', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/test-results/v055_sol_state_diagnostic_20261024_025905_960.log', '--', '--tests=res://tests/test_battle_presentation_state.gd', '--watchdog=60')
+
+R05: test-results/v055_sol_core_final_20261024_030000_880.log
+Exit 1; 24.6919171 s; scripts PASS 4 / FAIL 1; SCRIPT ERROR 0; ERROR 0.
+Content normalization fixed identity comparisons; one 200/200 history failure remained.
+$godotArgs = @('--headless', '--path', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/game', 'res://tests/runner.tscn', '--log-file', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/test-results/v055_sol_core_final_20261024_030000_880.log', '--', '--tests=res://tests/test_battle_readability_v055.gd,res://tests/test_battle_visual_purity.gd,res://tests/test_battle_presentation_state.gd,res://tests/test_battle_results_ui_v014.gd,res://tests/test_sim_determinism.gd', '--watchdog=60')
+
+R06: test-results/v055_sol_state_detail_20261024_030111_590.log
+Exit 3; 4.0655412 s; scripts PASS 0 / FAIL 1; SCRIPT ERROR 2; ERROR 1.
+Temporary diagnostic missed two explicit type annotations; compile failure. Corrected, then removed.
+$godotArgs = @('--headless', '--path', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/game', 'res://tests/runner.tscn', '--log-file', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/test-results/v055_sol_state_detail_20261024_030111_590.log', '--', '--tests=res://tests/test_battle_presentation_state.gd', '--watchdog=60')
+
+R07: test-results/v055_sol_state_detail_fixed_20261024_030128_282.log
+Exit 1; 13.6650507 s; scripts PASS 0 / FAIL 1; SCRIPT ERROR 0; ERROR 0.
+Diagnostic located unequal retained journal rows.
+$godotArgs = @('--headless', '--path', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/game', 'res://tests/runner.tscn', '--log-file', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/test-results/v055_sol_state_detail_fixed_20261024_030128_282.log', '--', '--tests=res://tests/test_battle_presentation_state.gd', '--watchdog=60')
+
+R08: test-results/v055_sol_journal_and_regressions_20261024_030300_371.log
+Exit 14; 15.2825189 s; scripts PASS 1 / FAIL 3; SCRIPT ERROR 6; ERROR 0.
+Exposed Windows writer exhaustion, numeric settings crash and stale overlay assumptions.
+$godotArgs = @('--headless', '--path', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/game', 'res://tests/runner.tscn', '--log-file', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/test-results/v055_sol_journal_and_regressions_20261024_030300_371.log', '--', '--tests=res://tests/test_battle_presentation_state.gd,res://tests/test_battle_pace_v014.gd,res://tests/test_combat_history_integration_v016.gd,res://tests/test_performance_panel.gd', '--watchdog=60')
+
+R09: test-results/v055_sol_regressions_final_20261024_030551_841.log
+Exit 2; 15.8460231 s; scripts PASS 3 / FAIL 1; SCRIPT ERROR 0; ERROR 0.
+Presentation/pace/history passed; HUD fit still failed 2 checks.
+$godotArgs = @('--headless', '--path', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/game', 'res://tests/runner.tscn', '--log-file', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/test-results/v055_sol_regressions_final_20261024_030551_841.log', '--', '--tests=res://tests/test_battle_presentation_state.gd,res://tests/test_battle_pace_v014.gd,res://tests/test_combat_history_integration_v016.gd,res://tests/test_performance_panel.gd', '--watchdog=60')
+
+R10: test-results/v055_sol_core_verified_20261024_031016_117.log
+Exit 0; 31.4708382 s; scripts PASS 8 / FAIL 0; SCRIPT ERROR 0; ERROR 0.
+Final core block: 8 scripts passed cleanly.
+$godotArgs = @('--headless', '--path', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/game', 'res://tests/runner.tscn', '--log-file', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/test-results/v055_sol_core_verified_20261024_031016_117.log', '--', '--tests=res://tests/test_battle_readability_v055.gd,res://tests/test_battle_visual_purity.gd,res://tests/test_battle_presentation_state.gd,res://tests/test_battle_results_ui_v014.gd,res://tests/test_sim_determinism.gd,res://tests/test_battle_pace_v014.gd,res://tests/test_combat_history_integration_v016.gd,res://tests/test_performance_panel.gd', '--watchdog=60')
+
+R11: test-results/v055_sol_rider_creatures_log_20261024_031136_574.log
+Exit 0; 16.7144762 s; scripts PASS 3 / FAIL 0; SCRIPT ERROR 0; ERROR 0.
+Current rider/log UI passes. Creature's zero-tick pass is superseded, not current combat evidence.
+$godotArgs = @('--headless', '--path', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/game', 'res://tests/runner.tscn', '--log-file', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/test-results/v055_sol_rider_creatures_log_20261024_031136_574.log', '--', '--tests=res://tests/test_rider_danger_v054.gd,res://tests/test_battle_creatures.gd,res://tests/test_combat_log_ui_v016.gd', '--watchdog=60')
+
+R12: test-results/v055_sol_screen_creatures_20261024_031331_691.log
+Exit 1; 27.2842788 s; scripts PASS 1 / FAIL 1; SCRIPT ERROR 0; ERROR 0.
+Current creature fixture passed at 24000 ticks. Older screen skip-result assertion failed.
+$godotArgs = @('--headless', '--path', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/game', 'res://tests/runner.tscn', '--log-file', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/test-results/v055_sol_screen_creatures_20261024_031331_691.log', '--', '--tests=res://tests/test_battle_screen.gd,res://tests/test_battle_creatures.gd', '--watchdog=60')
+
+R13: test-results/v055_sol_screen_final_20261024_031610_850.log
+Exit 1; 14.7447881 s; scripts PASS 0 / FAIL 1; SCRIPT ERROR 0; ERROR 0.
+Real screen battles ran; result assertion still preceded the native medic phase.
+$godotArgs = @('--headless', '--path', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/game', 'res://tests/runner.tscn', '--log-file', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/test-results/v055_sol_screen_final_20261024_031610_850.log', '--', '--tests=res://tests/test_battle_screen.gd', '--watchdog=60')
+
+R14: test-results/v055_sol_screen_verified_20261024_032022_440.log
+Exit 0; 13.8841952 s; scripts PASS 1 / FAIL 0; SCRIPT ERROR 0; ERROR 0.
+Final screen pass: 299 / 414 / 24000 native ticks, native aftermath completed.
+$godotArgs = @('--headless', '--path', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/game', 'res://tests/runner.tscn', '--log-file', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/test-results/v055_sol_screen_verified_20261024_032022_440.log', '--', '--tests=res://tests/test_battle_screen.gd', '--watchdog=60')
+
+R15: test-results/v055_sol_memory_20261024_032124_977.log
+Exit 6; 38.8227503 s; scripts PASS 0 / FAIL 1; SCRIPT ERROR 0; ERROR 0.
+Ownership/workers passed; six full-state comparisons exposed lazy fixture initialization.
+$godotArgs = @('--headless', '--path', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/game', 'res://tests/runner.tscn', '--log-file', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/test-results/v055_sol_memory_20261024_032124_977.log', '--', '--tests=res://tests/test_memory_lifecycle_v012.gd', '--watchdog=60', '--ticks=64')
+
+R16: test-results/v055_sol_ui_fit_20261024_032420_840.log
+Exit 4; 13.6951534 s; scripts PASS 0 / FAIL 1; SCRIPT ERROR 0; ERROR 0.
+Exploratory full-menu fit: 1 relations and 3 world-map failures outside battle scope. Unresolved; not a pass.
+$env:FIT_QUICK = '1'
+$godotArgs = @('--headless', '--path', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/game', 'res://tests/runner.tscn', '--log-file', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/test-results/v055_sol_ui_fit_20261024_032420_840.log', '--', '--tests=res://tests/test_ui_fit.gd', '--watchdog=60')
+
+R17: test-results/v055_sol_memory_diagnostic_20261024_032637_855.log
+Exit 6; 46.1077023 s; scripts PASS 0 / FAIL 1; SCRIPT ERROR 0; ERROR 0.
+Only an extra world key differed; RNG and both UID counters matched.
+$godotArgs = @('--headless', '--path', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/game', 'res://tests/runner.tscn', '--log-file', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/test-results/v055_sol_memory_diagnostic_20261024_032637_855.log', '--', '--tests=res://tests/test_memory_lifecycle_v012.gd', '--watchdog=60', '--ticks=64')
+
+R18: test-results/v055_sol_fit_memory_detail_20261024_032933_017.log
+Exit 6; 44.2265821 s; scripts PASS 1 / FAIL 1; SCRIPT ERROR 0; ERROR 0.
+Battle fit passed. Memory located the extra mobilization key; six comparisons failed.
+$godotArgs = @('--headless', '--path', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/game', 'res://tests/runner.tscn', '--log-file', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/test-results/v055_sol_fit_memory_detail_20261024_032933_017.log', '--', '--tests=res://tests/test_ui_fit.gd,res://tests/test_memory_lifecycle_v012.gd', '--watchdog=60', '--battle-only', '--ticks=64')
+
+R19: test-results/v055_sol_fit_memory_verified_20261024_033234_464.log
+Exit 0; 40.0767242 s; scripts PASS 2 / FAIL 0; SCRIPT ERROR 0; ERROR 0.
+Final battle-fit/memory block: 2 scripts passed cleanly.
+$godotArgs = @('--headless', '--path', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/game', 'res://tests/runner.tscn', '--log-file', 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v055/test-results/v055_sol_fit_memory_verified_20261024_033234_464.log', '--', '--tests=res://tests/test_ui_fit.gd,res://tests/test_memory_lifecycle_v012.gd', '--watchdog=60', '--battle-only', '--ticks=64')
+
+Read-only final checks: git diff --check passed; index was empty.
+The authorized single commit is 'v0.055 Clearer battles' on claude/v055-sol.
+Its returned hash is reported to the controller after creation.
+
+Files selected for commit (17):
+- game/battle/battle.gd
+- game/battle/map_view.gd
+- game/battle/readability_fx.gd
+- game/battle/readability_fx.gd.uid
+- game/battle/readability_legend.gd
+- game/battle/readability_legend.gd.uid
+- game/project.godot
+- game/tests/test_battle_readability_v055.gd
+- game/tests/test_battle_readability_v055.gd.uid
+- game/tests/test_battle_presentation_state.gd
+- game/tests/test_performance_panel.gd
+- game/ui/settings.gd
+- game/tests/test_battle_screen.gd
+- game/tests/test_battle_creatures.gd
+- game/tests/test_memory_lifecycle_v012.gd
+- game/tests/test_ui_fit.gd
+- test-results/v0.055_2026-10-23_results.txt
+
+Generated artifacts retained / excluded from commit:
+game/.godot/ is ignored engine cache. The 19 raw test-results/v055_sol_*.log
+files are retained evidence at the paths above. The following import descriptors
+and unrelated test UIDs came from the single import; they are outside this
+source patch. None were deleted:
+- game/art/concepts/dragon_amethyst_v006.webp.import
+- game/art/concepts/dragon_aquamarine_v006.webp.import
+- game/art/concepts/dragon_black_diamond_v006.webp.import
+- game/art/concepts/dragon_citrine_v006.webp.import
+- game/art/concepts/dragon_diamond_v006.webp.import
+- game/art/concepts/dragon_emerald_v006.webp.import
+- game/art/concepts/dragon_garnet_v006.webp.import
+- game/art/concepts/dragon_jade_v006.webp.import
+- game/art/concepts/dragon_moonstone_v006.webp.import
+- game/art/concepts/dragon_onyx_v006.webp.import
+- game/art/concepts/dragon_opal_v006.webp.import
+- game/art/concepts/dragon_pearl_v006.webp.import
+- game/art/concepts/dragon_ruby_v006.webp.import
+- game/art/concepts/dragon_sapphire_v006.webp.import
+- game/art/concepts/dragon_topaz_v006.webp.import
+- game/art/concepts/dragon_tourmaline_v006.webp.import
+- game/art/icons/icon_256.png.import
+- game/art/icons/icon_32.png.import
+- game/art/icons/icon_48.png.import
+- game/audio/breath_fire.ogg.import
+- game/audio/breath_frost.ogg.import
+- game/audio/breath_storm.ogg.import
+- game/audio/breath_venom.ogg.import
+- game/audio/clash_0.ogg.import
+- game/audio/clash_1.ogg.import
+- game/audio/clash_2.ogg.import
+- game/audio/clash_3.ogg.import
+- game/audio/event_fanfare.ogg.import
+- game/audio/fall.ogg.import
+- game/audio/hit_0.ogg.import
+- game/audio/hit_1.ogg.import
+- game/audio/hit_2.ogg.import
+- game/audio/music_battle.ogg.import
+- game/audio/music_map.ogg.import
+- game/audio/music_title.ogg.import
+- game/audio/roar_0.ogg.import
+- game/audio/roar_1.ogg.import
+- game/audio/ui_confirm.ogg.import
+- game/icon.png.import
+- game/icon_claude.png.import
+- game/tests/test_caravan_margins_v048.gd.uid
+- game/tests/test_dragon_growth_v052.gd.uid
+- game/tests/test_dragon_provisions_v050.gd.uid

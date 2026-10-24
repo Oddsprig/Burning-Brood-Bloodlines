@@ -17,6 +17,8 @@ const FxLayer := preload("res://battle/fx_layer.gd")
 const Inspector := preload("res://battle/inspector.gd")
 const LogBrowser := preload("res://battle/combat_log.gd")
 const GoreLayer := preload("res://battle/gore_layer.gd")
+const ReadabilityFx := preload("res://battle/readability_fx.gd")
+const ReadabilityLegend := preload("res://battle/readability_legend.gd")
 
 const TICKS_PER_SEC := 20.0           # sim ticks per real second at 1x (1 tick = 0.05 s: 1x is real time)
 const SPEEDS := [0.0, 1.0, 2.0, 4.0]
@@ -81,6 +83,9 @@ var gore_layer: Node2D
 var gore_pieces: Array = []          # {node, fighter, part} severed parts on the ground
 var blood: Node2D                    # v0.014 GoreLayer: sprays, pools, trails (under the severed pieces and the units)
 var fx: Node2D
+var readability: Node2D
+var readability_legend: Control
+var readability_enabled := true # Developer/test switch, set before building this battle.
 var arrows_layer: ArrowLayer   # bows
 var ui: Control
 var _playback_bar: HBoxContainer
@@ -127,6 +132,7 @@ func _ready() -> void:
 	Sound.sfx("event_fanfare", 0.5, 0.0, 0)
 
 func _exit_tree() -> void:
+	if readability != null: readability.end_battle()
 	if Game.setting_changed.is_connected(_on_setting_changed):
 		Game.setting_changed.disconnect(_on_setting_changed)
 	# Finish the bounded native image tasks before their scene/definitions leave.
@@ -198,6 +204,7 @@ func _demo_battle() -> Dictionary:
 func _build_world(map_seed: int) -> void:
 	map_view = MapView.new()
 	map_view.margin = MAP_MARGIN * 2.0
+	map_view.patterns_enabled = readability_enabled
 	map_view.settlement = str(Game.pending_battle.get("assault", {}).get("kind", ""))
 	map_view.configure(sim, TILE, terrain, map_seed)
 	add_child(map_view)
@@ -222,6 +229,10 @@ func _build_world(map_seed: int) -> void:
 	arrows_layer.z_index = 5
 	arrows_layer.setup(sim, TILE)
 	add_child(arrows_layer)
+	readability = ReadabilityFx.new()
+	readability.z_index = 8
+	readability.setup(sim, TILE, readability_enabled, Game.pending_battle.get("rounds", {}).get("tactics", []))
+	add_child(readability)
 	fx = FxLayer.new()
 	fx.z_index = 10
 	add_child(fx)
@@ -292,6 +303,7 @@ func _build_ui() -> void:
 	status_label = Label.new()
 	status_label.add_theme_font_size_override("font_size", 18)
 	status_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	status_label.custom_minimum_size = Vector2(0, 40)
@@ -301,7 +313,7 @@ func _build_ui() -> void:
 	sp.add_child(sh)
 	sh.add_child(status_label)
 	strength_bar = Control.new()
-	strength_bar.custom_minimum_size = Vector2(420, 26)
+	strength_bar.custom_minimum_size = Vector2(120, 26)
 	strength_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	strength_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	strength_bar.draw.connect(_draw_strength)
@@ -323,6 +335,8 @@ func _build_ui() -> void:
 	inspector.closed.connect(func(): select(-1))
 	inspector.history_requested.connect(func(idx: int): open_combat_log(idx))
 	ui.add_child(inspector)
+	readability_legend = ReadabilityLegend.new()
+	ui.add_child(readability_legend)
 	get_viewport().size_changed.connect(_layout_diagnostics)
 	_layout_diagnostics()
 	_refresh_speed_buttons()
@@ -551,6 +565,7 @@ func _do_tick() -> void:
 	var started := Time.get_ticks_usec()
 	sim.step()
 	Perf.record_us("Battle calculations", Time.get_ticks_usec() - started)
+	if readability != null and not _skipping: readability.observe(sim)
 	started = Time.get_ticks_usec()
 	var part_started: int = started
 	var touched := {}
@@ -589,6 +604,7 @@ func skip_to_end() -> void:
 	if sim.is_over():
 		return
 	_skipping = true
+	if readability != null: readability.end_battle()
 	if maxi(int(sim.side_total[0]), int(sim.side_total[1])) > 64:
 		return   # The same sim advances over bounded frames; large skips do not block input.
 	var guard := 0
@@ -668,14 +684,7 @@ func _present_event(e: Dictionary, touched: Dictionary) -> void:
 		"learn":
 			if av and av.fighter.side == 0: fx.add(av.body_center() + Vector2(0, -40), "+skill", Color(0.5, 1.0, 0.5))
 		"breath":
-			if av:
-				var blast := BreathFx.new()
-				var facing := int(e.get("facing", 1))
-				blast.setup(str(e.get("element", "fire")), facing, float(e.get("range", 6)) * TILE, int(e.get("tick", 0)) * 31 + a)
-				var vb: Rect2 = av.doll.visual_bounds() if av.doll is DragonView else Rect2(-20, -40, 40, 40)
-				blast.position = av.position + Vector2(facing * absf(vb.size.x) * 0.22, -absf(vb.size.y) * 0.3)
-				add_child(blast)
-				av.flash("strike")
+			if av: av.flash("strike") # Cone and element cue share the capped readability layer.
 		"breath_hit":
 			if dv: dv.flash("hit")
 
@@ -960,6 +969,8 @@ func show_result() -> void:
 	if result_shown:
 		return
 	result_shown = true
+	if readability != null: readability.end_battle()
+	if readability_legend != null: readability_legend.close()
 	if BattleRounds.active(Game):
 		_show_round_result()
 		return
@@ -1092,7 +1103,8 @@ func zoom_at(screen_pos: Vector2, factor: float) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") and not event.is_echo():
-		if is_instance_valid(_log_overlay): close_combat_log()
+		if readability_legend != null and readability_legend.is_open(): readability_legend.close()
+		elif is_instance_valid(_log_overlay): close_combat_log()
 		else: _toggle_settings()
 		get_viewport().set_input_as_handled()
 		return

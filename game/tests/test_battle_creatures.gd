@@ -13,6 +13,8 @@ func run(tree: SceneTree) -> int:
 	var fails := 0
 	await tree.process_frame
 	Game.new_game(808)
+	var town := DevTools.choose_house(Game)
+	fails += _check(DevTools.raise_army(Game, town, 8) == 8, "eight native residents mustered for a real battle")
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 8
 	var enemy: Array = Creatures.make_group(rng, "wolf", 5) + [Creatures.make(rng, "bear")]
@@ -41,7 +43,7 @@ func run(tree: SceneTree) -> int:
 	while not b.sim.is_over() and guard < 30000:
 		b.step_ticks(50)
 		guard += 50
-	fails += _check(b.sim.is_over(), "creature battle ends")
+	fails += _check(b.sim.is_over() and b.sim.tick > 0, "nonempty creature battle ends")
 	for v in b.views:
 		v.update_visual(0.0, 0.0)
 	b._drop_piece(beast, "leg_front_upper_l")

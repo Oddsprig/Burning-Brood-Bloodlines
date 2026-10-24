@@ -188,6 +188,8 @@ func run(tree: SceneTree) -> int:
 	Dynasty.prepare_world(Game)
 	check(Game.has_method("new_game_finalize"), "native generation finalization boundary is available")
 	if Game.has_method("new_game_finalize"): Game.call("new_game_finalize")
+	# Current deployment/medic reads initialize this native registry lazily.
+	Mobilization._state(Game)
 	history = {}
 	check(Game.day == 1.0 and Game.world.get("work", []).is_empty(), "fresh campaign is settled at exactly day one")
 	var host := SceneHost.new()

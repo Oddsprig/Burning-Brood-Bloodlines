@@ -22,14 +22,26 @@ static func effective(win: Vector2i) -> Vector2:
 func run(t: SceneTree) -> int:
 	tree = t
 	await tree.process_frame
-	Game.new_game(11)
+	var loaded := await DevTools.start_world(tree, Game.SAVE_PATH)
+	assert(loaded, "Normal one-day UI fixture loads")
+	var home := DevTools.choose_house(Game, func(choice: Dictionary):
+		return str(Dynasty.person(Game, str(choice["ruler_uid"])).get("race", "")) == "human")
+	var raised := DevTools.raise_army(Game, home, 2)
+	assert(raised == 2, "two native residents provide actual company tabs")
+	var enlisted := Mobilization.enlist_household(Game, str(Dynasty.selected(Game)["ruler_uid"]))
+	assert(bool(enlisted.get("ok", false)), "the actual ruler supplies a native officer portrait")
 	town_id = _friendly_town()
-	_wound(Game.company[1])
+	_wound(enlisted["unit"])
 	# a fake aftermath result
 	var rng := RandomNumberGenerator.new(); rng.seed = 4
 	var foes := Factory.make_warband(rng, "orc_horde", 6)
 	Game.last_result = {"winner": 0, "player_units": Game.company.duplicate(), "enemy_units": foes,
 		"enemy_fallen": foes.slice(0, 4), "events": [], "dead_names": ["Somebody Unlucky"], "loot_gold": 120}
+	if OS.get_cmdline_user_args().has("--battle-only"):
+		for size: Vector2 in [Vector2(1280,720), Vector2(1920,1080), Vector2(2560,1440)]:
+			await _battle(size)
+		print("Battle UI fit: 3 desktop sizes, 9 inspector/legend fit cases, %d failures" % fails)
+		return fails
 	var sizes := []
 	for w in WINDOWS:
 		var e := effective(w)
@@ -168,6 +180,10 @@ func _battle(size: Vector2) -> void:
 		b.inspector.show_tab("health")
 		await _settle()
 		_check(sv, size, "battle + inspector health")
+	b.readability_legend.button.set_pressed(true)
+	await _settle()
+	_check(sv, size, "battle + terrain/combat legend")
+	b.readability_legend.close()
 	sv.queue_free()
 	Game.pending_battle = {}
 	await tree.process_frame
