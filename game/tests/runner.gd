@@ -133,6 +133,7 @@ func reset_between(keep: Array) -> void:
 	Sickness.prof_on = false; Sickness.prof_parts = false
 	Monsters.new_world_creatures = true
 	HorseArt.clear_cache()
+	TownEcon.goods_lost.clear()
 	BattleRounds.round_size = BattleRounds.ROUND
 	BattleTactics._pending_picks = ["", ""]
 	WorldGen.gen_size = WorldGen.WORLD_SIZE

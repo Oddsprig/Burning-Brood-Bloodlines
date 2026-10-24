@@ -174,7 +174,7 @@ func run(tree: SceneTree) -> int:
 	Warfare.feed_march_day(Game, int(Game.day) + 1)
 	var receipt: Dictionary = u.horse_care.get("receipt", {})
 	check(int(receipt.get("grain", 0)) == Horses.GRAIN_DAY and int(receipt.get("coin", 0)) == Horses.COIN_DAY, "daily upkeep draws counted feed plus coin")
-	check(Game.gold == wallet - Horses.COIN_DAY and grain(town) == grain_before and absf(coins() - before) < 0.0001, "daily feed/use ledger and all coin holders balance")
+	check(Game.gold == wallet - Horses.COIN_DAY and grain(town) == grain_before - int(receipt.get("grain", 0)) and absf(coins() - before) < 0.0001, "daily feed consumes packed grain once and all coin holders balance")
 	wallet = Game.gold
 	var lost := int(TownEcon.goods_lost.get("grain", 0))
 	Warfare.feed_march_day(Game, int(Game.day) + 1)

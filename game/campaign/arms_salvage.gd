@@ -20,6 +20,8 @@ const FENCE_SHARE := ArmsTrade.FENCE_SHARE
 static func field(game, dead: Array, holder: Dictionary, pos: Vector2) -> Dictionary:
 	var out := {"kept": 0, "scrapped": 0, "lost": 0, "coin": 0, "gold": 0.0}
 	var people := dead.filter(func(u): return u is Unit and not u.race_def().get("creature", false))
+	# AI clashes remove fallen Units before Army.sweep can see their bodies.
+	for u: Unit in people: Horses.return_mount(game, u)
 	if people.is_empty():
 		return out
 	var w: Dictionary = game.world
@@ -379,6 +381,10 @@ static func plunder_cargo(game, win: Dictionary, car: Dictionary) -> void:
 ## The company's battle is over (CampaignWorld.on_battle_result, before the dead are filtered out): the AI winner
 ## loots the company's fallen and its own; the guards of an escorted caravan and allied bands go to whoever holds it.
 static func after_company_battle(game, result: Dictionary, wb: Dictionary, car: Dictionary, ally_ids: Array) -> void:
+	# A player victory settles gear elsewhere; recover mounts before either side
+	# filters its fallen out of the campaign band.
+	for u: Unit in wb.get("units", []):
+		if u.dead: Horses.return_mount(game, u)
 	var won := int(result.get("winner", -1)) == 0
 	var w: Dictionary = game.world
 	var pos: Vector2 = wb.get("pos", w["party"]["pos"])

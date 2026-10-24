@@ -248,6 +248,7 @@ static func _standing_text(game, kind: String, fid: String, amount: int) -> Stri
 static func _free_enemy(game, rec: Dictionary, why: String) -> void:
 	held(game).erase(rec)
 	var u: Unit = rec["unit"]
+	Horses.return_mount(game, u)
 	if Army.state(game.world)["roll"].has(str(u.uid)):
 		Army.release(game, u, why)
 		return
@@ -291,6 +292,7 @@ static func daily(game, day: int = -1) -> void:
 				var a := _address(game, rec)
 				gone = a.is_empty() or str(a["person"][4]) in ["gone", "dead"]
 			if gone:
+				if u is Unit: Horses.return_mount(game, u)
 				list.erase(rec)
 				_log(game, "%s died in captivity." % str(rec.get("name", "?")), day)
 

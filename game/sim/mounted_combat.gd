@@ -43,11 +43,17 @@ static func sync(sim) -> void:
 	for horse: Fighter in sim.fighters:
 		if horse.mount_rider_idx < 0 or not horse.mount_attached: continue
 		var rider: Fighter = sim.fighters[horse.mount_rider_idx]
+		if rider.state == "fled" and horse.active() and not horse.prone:
+			follow(sim, rider)
+			sim._flee_step(horse) # the attached carrier exits at the same edge
 		if horse.unit.dead or horse.prone or not horse.active() or horse.routed \
 				or horse.grabbed_by >= 0 or not rider.active() or rider.prone:
 			horse.mount_attached = false
 			rider.mount_idx = -1
 			rider.tempo_tick = -1000
+			if horse.standing() and sim.occ[sim._ci(horse.cell)] == -1:
+				sim.occ[sim._ci(horse.cell)] = horse.idx
+			sim._tcells_ok = false
 			if rider.active() and not rider.prone and (horse.unit.dead or horse.prone or not horse.active()):
 				sim._fall(rider, "pain", Formulas.KNOCKDOWN_TICKS)
 			if horse.unit.dead: Horses.casualty(rider.unit, horse.unit)

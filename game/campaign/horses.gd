@@ -167,7 +167,7 @@ static func _care(game, u: Unit, day: int, payer: Dictionary, draw: Callable) ->
 		paid = COIN_DAY
 	var feed := int(draw.call(GRAIN_DAY))
 	if feed == GRAIN_DAY and paid == COIN_DAY: Healing.heal(u.horse, 1.0, false, 0)
-	TownEcon.goods_lost["grain"] = int(TownEcon.goods_lost.get("grain", 0)) + feed
+	# Provisioning already books this grain as used when it leaves the town.
 	care["last_day"] = day
 	care["fed"] = feed == GRAIN_DAY
 	care["paid"] = paid == COIN_DAY

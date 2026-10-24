@@ -469,6 +469,7 @@ static func _fight_one(game, fid: String, by: Dictionary) -> void:
 
 ## A man killed in a succession fight leaves his band now (the sweep takes him off his family row).
 static func _bury(game, u: Unit) -> void:
+	Horses.return_mount(game, u)
 	for wid in game.world["warbands"]:
 		var wb: Dictionary = game.world["warbands"][wid]
 		if (wb["units"] as Array).has(u):

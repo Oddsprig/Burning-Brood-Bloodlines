@@ -738,7 +738,7 @@ func _complete_action(f: Fighter) -> void:
 		f.state = _idle_state(f)
 
 func _decide(f: Fighter) -> void:
-	if f.mount_rider_idx >= 0:
+	if f.mount_rider_idx >= 0 and f.mount_attached:
 		_set_action(f, _idle_state(f), 10)
 		return
 	if f.routed:
@@ -757,6 +757,9 @@ func _decide(f: Fighter) -> void:
 			_ev_simple("stand", f.idx, -1, "stand", {})
 			_set_action(f, "ready", _ticks(f, 6.0))
 			return
+	if f.mount_rider_idx >= 0:
+		_set_action(f, _idle_state(f), 10)
+		return
 	# A weapon stuck in me, still held by its wielder: fight on only if my weapon reaches him, else pull it out.
 	for s in f.stuck_in_me:
 		if int(s["wielder"]) >= 0:
@@ -936,7 +939,8 @@ func _do_move(f: Fighter, p: Vector2i) -> void:
 	var pci := p.y * grid_w + p.x   # = _ci(p)
 	var from := f.cell
 	if f.standing():
-		occ[from.y * grid_w + from.x] = -1
+		if occ[from.y * grid_w + from.x] == f.idx:
+			occ[from.y * grid_w + from.x] = -1
 		occ[pci] = f.idx
 	f.prev_cell = from
 	f.cell = p

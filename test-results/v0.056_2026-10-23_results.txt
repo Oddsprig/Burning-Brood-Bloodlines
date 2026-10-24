@@ -155,3 +155,79 @@ Generated files left unstaged; nothing deleted:
 
 Authorized final commit message: v0.056 Horses
 No main update, merge, push, reset, checkout, clean, stash or branch mutation.
+
+2026-10-24 SECOND-REVIEW FOLLOW-UP (base 70e83b8, claude/v056-sol)
+
+Verdicts against the current code:
+  1. AI warband horses vanish: real, fixed. Return the surviving mount before
+     Army.release, beaten-band deaths, non-Mobilization company desertion,
+     succession burial, prisoner release/death and the physical-unit army sweep
+     discard its rider. ArmsSalvage.field also handles aggregate AI casualties
+     already removed from their band; after_company_battle covers enemy deaths
+     when player victory settles gear on a different path. Repeated return is
+     harmless; a dead horse never becomes a new herd head.
+  2. Fled/detached combat horses: real, fixed. An attached horse exits through
+     the native flee step with its rider. A standing detached horse takes the
+     vacated occupancy cell. Detached horses can flee and recover from prone;
+     passive attached horses still use the rider's movement. Movement clears
+     only its own occupancy so a routed detached horse cannot erase the still
+     standing rider's cell. No new randomness; repeated seeded cases agree.
+  3. Grain double count/reset: real, fixed. Horse care consumes army provisions
+     without adding a second global goods_lost entry after town export. Runner
+     reset_between now clears all goods_lost keys. The feature test's physical
+     grain assertion now accounts for the eaten ration instead of treating it
+     as lost town stock.
+
+Focused additions to test_horse_regressions_v056.gd:
+  Fifteen real AI market/return boundaries: release, beaten survivor/death,
+  faction desertion, non-Mobilization company desertion, prisoner release on
+  and off the army roll, enemy/player captive deaths, a captive whose register
+  says dead, succession death, aggregate field casualties, sweep death, player
+  victory enemy death, and an already dead horse. Check counted heads, exact
+  saved body/UID, conserved coin, removal from custody and replay safety.
+  Five mounted paths (rider flee/death/KO, horse rout/prone), each repeated with
+  the same seed: departure, occupancy, native recovery, replay and RNG checks.
+  Player packing and AI provisioning each book grain exactly once; subsequent
+  care draws the actual ration. Exercise the real runner reset with two dirty
+  goods_lost keys and verify they both disappear.
+
+CURRENT RESULTS: 9 requested tests PASS, 0 FAIL; all 3 processes exited 0.
+  Horse block, 29.4268897 s, PID 63880:
+    test_horses_v056: 114 checks, 0 failures.
+    test_horse_regressions_v056: 7607 checks, 0 failures
+      (includes 775 existing supply and 6675 existing army-equipment checks).
+    Log: v0.056_2026-10-24_review_horses_20261024_004455_071.log
+  Battle block, 28.1807407 s, PID 41136:
+    test_sim_determinism: PASS (same seed identical, different seed differs).
+    test_rider_danger_v054: 1079 checks, 0 failures.
+    test_battle_screen: PASS (small, large and choke fixtures).
+    test_battle_creatures: PASS.
+    claude_troop_upkeep: 41 checks, 0 failures.
+    Log: v0.056_2026-10-24_review_battle_20261024_004609_371.log
+  Herd block, 5.1981158 s, PID 12328:
+    test_harvest_herds: 29 checks, 0 failures.
+    test_herd_totals_v043: 82 checks, 0 failures.
+    Log: v0.056_2026-10-24_review_herds_20261024_004649_427.log
+  All three complete logs contain no SCRIPT ERROR, ERROR:, FAIL or WATCHDOG.
+  test_mobilization_v017 was intentionally not rerun, per the assigned scope.
+  No failed/preparatory engine runs were needed in this follow-up.
+
+Run constraints and exact invocation:
+  Executable: C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.022\runtime\Godot_v4.7.2-stable_win64.exe
+  Working directory: the bb-v056 worktree named in the task.
+  Every process used Start-Process -WindowStyle Hidden -PassThru, BelowNormal,
+  and the arguments below, with an absolute uniquely named --log-file path:
+    --headless --path game res://tests/runner.tscn --log-file "<log>" -- --tests=<list> --watchdog=60
+  Horse list:
+    tests/test_horses_v056.gd,tests/test_horse_regressions_v056.gd
+  Battle list:
+    tests/test_sim_determinism.gd,tests/test_rider_danger_v054.gd,tests/test_battle_screen.gd,tests/test_battle_creatures.gd,tests/claude_troop_upkeep.gd
+  Herd list:
+    tests/test_harvest_herds.gd,tests/test_herd_totals_v043.gd
+  Get-Process Godot* was checked before each launch; unrelated Godot sessions
+  delayed starts until they exited. No other process was killed. The three
+  test runs were serial, hidden and each under one minute. All files were
+  edited with apply_patch; no shell writes or deletes were used. Existing
+  unrelated untracked imports/UIDs and raw logs remain unstaged.
+  git diff --check passed. One explicit-path git add and one commit only:
+    v0.056 Horses: review fixes

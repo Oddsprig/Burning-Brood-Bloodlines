@@ -249,6 +249,7 @@ static func _new_family(game, town: Dictionary, u: Unit, role: String) -> int:
 
 ## A man leaves his force alive (deserted, scattered, fled a lost fight): home to his family.
 static func release(game, u: Unit, why: String, force: String = "") -> void:
+	Horses.return_mount(game, u)
 	var w: Dictionary = game.world
 	var roll: Dictionary = state(w)["roll"]
 	var r: Array = roll.get(str(u.uid), [])
@@ -289,6 +290,7 @@ static func band_beaten(game, wb: Dictionary, rng: RandomNumberGenerator, home_s
 		if u.race_def().get("creature", false):
 			continue
 		if u.dead:
+			Horses.return_mount(game, u)
 			out["dead"].append(u)
 			continue
 		if home_share >= 1.0 or rng.randf() < home_share:
@@ -398,6 +400,8 @@ static func sweep(game) -> void:
 		for u in w["warbands"][wid]["units"]:
 			if not u.dead:
 				here[str(u.uid)] = true
+			else:
+				Horses.return_mount(game, u)
 	for u in CampaignWorld.mustering_units(w):   # world size: a force still being raised (its men are not dead)
 		here[str(u.uid)] = true
 	for u in Prisoners.units(game):   # v0.033: a soldier held prisoner stays on his realm's roll until freed
@@ -883,6 +887,7 @@ static func company_desertion(game) -> void:
 			Families.add_hist(family, "%s came home from the company, unpaid for %d days." % [u.name, unpaid], float(game.day))
 			CampaignWorld.log_event(game, "%s deserted the company: unpaid for %d days." % [u.name, unpaid])
 			continue
+		Horses.return_mount(game, u)
 		game.company.erase(u)
 		game.squads.erase(u.uid)
 		ArmsTrade.kit_home(game, u)   # arms trade: he takes his kit home and hands it in for coin
