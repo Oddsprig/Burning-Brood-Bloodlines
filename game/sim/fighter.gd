@@ -105,6 +105,10 @@ var food_pain_tick: int = -1000    # last "too drunk to feel it" line
 # perf caches (sim-internal, set by BattleSim; values are exactly what the uncached calls return)
 var rdef: Dictionary = {}          # unit.race_def() (the race never changes in a battle)
 var creature: bool = false         # NaturalAttacks.is_creature
+## Support horse bodies are native targets at their rider's cell, not extra soldiers.
+var mount_idx := -1
+var mount_rider_idx := -1
+var mount_attached := false
 var dragon: bool = false           # actual prepared native dragon actor
 var dragon_profile: Dictionary = {} # frozen detached per-individual physics
 var dragon_attacks: Array = []     # [attack, required part IDs], never the race-shared cache

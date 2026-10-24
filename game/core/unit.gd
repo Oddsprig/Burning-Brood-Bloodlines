@@ -28,6 +28,9 @@ var overrides: Dictionary = {}   # slot -> template id; individual override of t
 var body: BodyState
 var dragon_uid: String = ""       # original individual registry ID; never a humanoid person
 var native_dragon_profile: Dictionary = {} # detached boundary snapshot, never DB-wide mutable data
+## Purchased livestock; the horse owns its native body, while this person owns the mount.
+var horse: Unit
+var horse_care: Dictionary = {}
 var dead: bool = false
 var kills: int = 0
 var battles: int = 0
@@ -219,6 +222,9 @@ func to_dict() -> Dictionary:
 		"drank_eq": drank_eq, "fav_drink": fav_drink, "fav_today": fav_today, "fav_bonus": fav_bonus,
 		"mass_mult": mass_mult, "merry_day": merry_day, "quiver": quiver.duplicate(),
 		"sick": sick, "sick_shed": sick_shed, "sick_on": sick_on, "sick_to": sick_to, "sick_bed": sick_bed}
+	if horse != null:
+		out["horse"] = horse.to_dict()
+	if not horse_care.is_empty(): out["horse_care"] = horse_care.duplicate(true)
 	if dragon_uid != "":
 		out["dragon_uid"] = dragon_uid
 		out["native_dragon_profile"] = native_dragon_profile.duplicate(true)
@@ -232,6 +238,8 @@ static func from_dict(d: Dictionary) -> Unit:
 	u.race = d.get("race", "human")
 	u.dragon_uid = str(d.get("dragon_uid", ""))
 	u.native_dragon_profile = (d.get("native_dragon_profile", {}) as Dictionary).duplicate(true)
+	if d.get("horse") is Dictionary: u.horse = Unit.from_dict(d["horse"])
+	u.horse_care = (d.get("horse_care", {}) as Dictionary).duplicate(true)
 	u.faction = d.get("faction", "")
 	u.role = d.get("role", "troop")
 	u.title = d.get("title", "")

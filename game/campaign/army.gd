@@ -432,6 +432,7 @@ static func faction_day(game, fid: String, day: int, split: bool = false) -> voi
 		r["bill"] = 0.0; r["paid"] = 0.0; r["unpaid_n"] = 0
 		var lo := low_officer(order, "army")
 		r["pay_lo"] = lo
+		r["pay_day"] = day
 		var pay_front := []
 		if order.is_empty():
 			pay_front.append(["army_pay", fid, 0])
@@ -456,7 +457,7 @@ static func faction_day(game, fid: String, day: int, split: bool = false) -> voi
 		var wb: Dictionary = w["warbands"][wid]
 		if wb["faction"] == fid and is_field(wb):
 			Supplies.eat(wb)
-			Supplies.provision(game, wb, {"kind": "faction", "fac": fac})
+			Supplies.provision(game, wb, {"kind": "faction", "fac": fac}, day)
 	if TownEcon.prof_on: _t0 = TownEcon._prof("fd_supplies", _t0)
 	desertion(game, fid)
 	if TownEcon.prof_on: _t0 = TownEcon._prof("fd_desertion", _t0)
@@ -512,7 +513,7 @@ static func pay_chunk(game, fid: String, start: int) -> void:
 		var wb: Dictionary = w["warbands"][wid]
 		if wb["faction"] == fid and is_field(wb):
 			Supplies.eat(wb)
-			Supplies.provision(game, wb, {"kind": "faction", "fac": fac})
+			Supplies.provision(game, wb, {"kind": "faction", "fac": fac}, int(r.get("pay_day", game.day)))
 	if TownEcon.prof_on: _t0 = TownEcon._prof("fd_supplies", _t0)
 	desertion(game, fid)
 	if TownEcon.prof_on: _t0 = TownEcon._prof("fd_desertion", _t0)
@@ -657,6 +658,7 @@ static func pay_units(game, units: Array, payer: Dictionary, tier: String, cul: 
 
 static func _funds(payer: Dictionary) -> float:
 	match String(payer["kind"]):
+		"company": return float(payer["game"].gold)
 		"faction": return float(payer["fac"].get("treasury", 0.0))
 		"town": return float(payer["e"]["treasury"])
 		"camp": return float(payer["l"].get("gold", 0.0))
@@ -664,6 +666,7 @@ static func _funds(payer: Dictionary) -> float:
 
 static func _spend(payer: Dictionary, v: float) -> void:
 	match String(payer["kind"]):
+		"company": payer["game"].gold -= int(v)
 		"faction": payer["fac"]["treasury"] = float(payer["fac"]["treasury"]) - v
 		"town": payer["e"]["treasury"] = float(payer["e"]["treasury"]) - v
 		"camp": payer["l"]["gold"] = float(payer["l"].get("gold", 0.0)) - v

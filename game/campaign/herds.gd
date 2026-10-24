@@ -149,6 +149,10 @@ static func change(e: Dictionary, h: Dictionary, age: String, dn: int, what: Str
 		if dn == 0:
 			return 0
 	h[age] = int(h[age]) + dn
+	if String(h["k"]) == "horses" and age == "y" and dn < 0:
+		LivestockCare.trim_foals(h)
+	if String(h["k"]) == "horses" and age == "g" and dn < 0:
+		LivestockCare.trim_mount_bodies(h)
 	e["hd"]["ver"] = int(e["hd"].get("ver", 0)) + 1   # (the screens' cached head counts)
 	var L: Dictionary = h["led"]
 	match what:
@@ -213,10 +217,23 @@ static func _mirror(e: Dictionary, h: Dictionary, dn: int) -> void:
 ## Moves head from one herd to another (a sale or a theft). The buyer's herd of the kind is found or made.
 static func _transfer(e: Dictionary, from: Dictionary, to: Dictionary, age: String, n: int, what_from: String, what_to: String,
 		det_from: String, det_to: String, day_v: float, mirror: bool = true) -> int:
+	# Young horses retain their birth dates through the existing live-stock market.
+	var foals: Array = []
+	if String(from["k"]) == "horses" and age == "y":
+		foals = LivestockCare.take_foals(from, mini(n, int(from["y"])))
+	var mount_bodies: Array = []
+	if String(from["k"]) == "horses" and age == "g":
+		mount_bodies = LivestockCare.take_mount_bodies(from, mini(n, int(from["g"])))
 	var got := -change(e, from, age, -n, what_from, det_from, day_v, mirror)
 	if got > 0:
 		var before := head(to)
 		change(e, to, age, got, what_to, det_to, day_v, mirror)
+		if not foals.is_empty():
+			LivestockCare.ensure_foals(to, got)
+			to["foals"].append_array(foals)
+		if not mount_bodies.is_empty():
+			if not to.has("mount_bodies"): to["mount_bodies"] = []
+			to["mount_bodies"].append_array(mount_bodies)
 		# sickness and immunity go with the beasts (sold, driven, left): mixed by head
 		for key in ["inf", "imm"]:
 			var src: Dictionary = from.get(key, {})
@@ -597,6 +614,7 @@ static func week(game, town: Dictionary, day_v: float) -> void:
 	_males(e)
 	_land_choice(e, Plots.of(town), day_v)
 	var P := Plots.of(town)
+	assign_tiles(e, P) # Returned/bought stock uses its current native pasture allocation.
 	var ids: Array = (hd["h"] as Dictionary).keys()
 	for hid in ids:
 		var h: Dictionary = hd["h"][hid]
@@ -807,14 +825,17 @@ static func _disease(e: Dictionary, rng: RandomNumberGenerator, day_v: float) ->
 static func _life(e: Dictionary, h: Dictionary, si: int, day_v: float, rng: RandomNumberGenerator) -> void:
 	var K := kind(String(h["k"]))
 	var wk := 7.0 / float(year_days())
+	var horse := String(h["k"]) == "horses"
+	if horse: LivestockCare.horse_life(e, h, Plots._p(e), day_v, rng)
 	# growing up and growing old (same beasts; no change of head)
-	if float(K.get("grow", 0.0)) > 0.0 and int(h["y"]) > 0:
+	if not horse and float(K.get("grow", 0.0)) > 0.0 and int(h["y"]) > 0:
 		var up := mini(int(h["y"]), _whole(float(h["y"]) * wk / float(K["grow"]), rng))
 		h["y"] = int(h["y"]) - up; h["g"] = int(h["g"]) + up
 		if up > 0: H(e)["ver"] = int(H(e).get("ver", 0)) + 1
 	if int(h["g"]) > 0:
 		var ol := mini(int(h["g"]), _whole(float(h["g"]) * wk / float(K["prime"]), rng))
 		h["g"] = int(h["g"]) - ol; h["o"] = int(h["o"]) + ol
+	if horse: LivestockCare.trim_mount_bodies(h)
 	# births by the kind's biology: in each of its breeding seasons (gestation decides how many a year fit), per grown
 	# female the owners put to the male this year (h.bred, their choice), served by the town's males (each covers
 	# the kind's females_per_male); a hungry herd bears fewer [ours: x0.5], a sick one by its healthy share
@@ -822,7 +843,7 @@ static func _life(e: Dictionary, h: Dictionary, si: int, day_v: float, rng: Rand
 	for s0 in K.get("seasons", [0]):   # (JSON gives the seasons back as floats)
 		if int(s0) == si:
 			in_season = true
-	if in_season and float(K.get("bear", 0.0)) > 0.0 and int(h["g"]) > 0:
+	if not horse and in_season and float(K.get("bear", 0.0)) > 0.0 and int(h["g"]) > 0:
 		var stamp := Calendar.year(day_v) * 4 + si
 		if int(h.get("bred_s", -1)) != stamp:
 			h["bred"] = snappedf(_bred_share(e, h, day_v), 0.001)

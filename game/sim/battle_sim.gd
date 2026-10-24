@@ -237,6 +237,7 @@ func setup(side0: Array, side1: Array, seed: int, opts: Dictionary = {}) -> void
 			for f in fighters:
 				if f.side == s:
 					f.hold = true
+	MountedCombat.setup(self)
 	for f in fighters:
 		side_total[f.side] += 1
 		if f.state == "dead" or f.state == "unconscious":
@@ -473,6 +474,7 @@ func step() -> void:
 	if over:
 		return
 	tick += 1
+	MountedCombat.sync(self)
 	if not _downs.is_empty():
 		_process_downs()
 	if stream and tick % stream_gap == 0:
@@ -513,6 +515,7 @@ func step() -> void:
 		if not f.active() or f.action_ticks > 0:
 			continue
 		_decide(f)
+	MountedCombat.sync(self)
 	_check_end()
 	_trim_history()
 
@@ -531,12 +534,13 @@ func _stream_enter() -> void:
 	if best.x < 0:
 		return
 	for f in fighters:
-		if f.waiting and f.state != "dead":
+		if f.waiting and f.state != "dead" and f.mount_rider_idx < 0:
 			f.waiting = false
 			f.cell = best
 			f.prev_cell = best
 			if f.standing():
 				occ[_ci(best)] = f.idx
+			MountedCombat.follow(self, f)
 			_event("enter", f.idx, -1, "", false)
 			return
 
@@ -549,7 +553,7 @@ func _check_end() -> void:
 	var first := -1
 	for f in fighters:
 		var st: String = f.state
-		if st != "dead" and st != "fled" and st != "unconscious" and not f.routed:
+		if f.mount_rider_idx < 0 and st != "dead" and st != "fled" and st != "unconscious" and not f.routed:
 			first = f.side
 			break
 	var last := -1
@@ -557,7 +561,7 @@ func _check_end() -> void:
 		for i in range(fighters.size() - 1, -1, -1):
 			var f: Fighter = fighters[i]
 			var st: String = f.state
-			if st != "dead" and st != "fled" and st != "unconscious" and not f.routed:
+			if f.mount_rider_idx < 0 and st != "dead" and st != "fled" and st != "unconscious" and not f.routed:
 				last = f.side
 				break
 	if first >= 0 and last >= 0 and first != last:
@@ -566,7 +570,7 @@ func _check_end() -> void:
 	else:
 		for f in fighters:
 			var st: String = f.state
-			if st != "dead" and st != "fled" and st != "unconscious" and not f.routed:
+			if f.mount_rider_idx < 0 and st != "dead" and st != "fled" and st != "unconscious" and not f.routed:
 				if f.side == 0:
 					s0 += 1
 				else:
@@ -594,6 +598,7 @@ func _check_end() -> void:
 			Archery.end_battle(self)
 		apply_battle_growth()
 		for f in fighters:
+			if f.mount_rider_idx >= 0: Healing.after_battle(f.unit)
 			# battle-only attribute multipliers come off when the fight ends (already empty = nothing to clear;
 			# Unit.set_food_attr_mult empties both dictionaries together)
 			if not f.unit.food_attr_mult.is_empty():
@@ -733,6 +738,9 @@ func _complete_action(f: Fighter) -> void:
 		f.state = _idle_state(f)
 
 func _decide(f: Fighter) -> void:
+	if f.mount_rider_idx >= 0:
+		_set_action(f, _idle_state(f), 10)
+		return
 	if f.routed:
 		_flee_step(f)
 		return
@@ -951,10 +959,13 @@ func _do_move(f: Fighter, p: Vector2i) -> void:
 		f.facing = 1 if p.x > from.x else -1
 	_compute_tempo(f)
 	var tm := _terrain_mult * (Formulas.ROUGH_MOVE_MULT if tiles[pci] == T_ROUGH else 1.0)
-	var mt := Formulas.move_ticks(f.speed, tm, f.prone) * f.walk_mult
+	var mover := MountedCombat.mover(self, f)
+	_compute_tempo(mover)
+	var mt := Formulas.move_ticks(mover.speed, tm, f.prone) * mover.walk_mult
 	var ticks := _ticks(f, mt)
 	_set_action(f, "moving", ticks)
-	f.unit.body.exertion += Formulas.exertion_move(_eff_mass(f), f.unit.attr("END"), f.breath_bad) * f.fatigue_mult
+	mover.unit.body.exertion += Formulas.exertion_move(_eff_mass(mover), mover.unit.attr("END"), mover.breath_bad) * mover.fatigue_mult
+	MountedCombat.follow(self, f)
 	if f.armor_mass > 5.0:
 		Learning.note_use(f.attr_use, "march", 0.1)
 	if f.belly_state == "starving" or f.belly_state == "hungry":
@@ -970,7 +981,11 @@ func _eff_mass(f: Fighter) -> float:
 	return Formulas.effective_gear_mass(f.armor_mass, f.other_mass, f.unit.skill("armor_user"))
 
 func _enc_ratio(f: Fighter) -> float:
-	return Formulas.encumbrance_ratio(_eff_mass(f), f.unit.attr("STR"), f.unit.mass())
+	var burden := _eff_mass(f)
+	if f.mount_attached and f.mount_rider_idx >= 0:
+		var rider: Unit = fighters[f.mount_rider_idx].unit
+		burden += rider.mass() + rider.gear_mass()
+	return Formulas.encumbrance_ratio(burden, f.unit.attr("STR"), f.unit.mass())
 
 func _ex_ratio(f: Fighter) -> float:
 	var u := f.unit
@@ -1353,6 +1368,10 @@ func _event(type: String, actor: int, target: int, text: String, decisive: bool,
 			var down: Fighter = fighters[down_idx]
 			if down.dragon:
 				dragon_downs[down.unit.dragon_uid] = bool(dragon_downs.get(down.unit.dragon_uid, false)) or bool(down.dragon_profile.get("flying", false))
+	if type == "death" and target >= 0 and target < fighters.size():
+		var horse: Fighter = fighters[target]
+		if horse.mount_rider_idx >= 0:
+			Horses.casualty(fighters[horse.mount_rider_idx].unit, horse.unit)
 	if _journal_pending.size() >= 256: flush_combat_journal()
 	var e := {"tick": tick, "type": type, "actor": actor, "target": target, "text": text, "decisive": decisive, "part": part}
 	events.append(e)

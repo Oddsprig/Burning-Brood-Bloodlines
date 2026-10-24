@@ -592,6 +592,17 @@ static func land(scr, t: Dictionary, e: Dictionary, v: VBoxContainer) -> void:
 	RecKit.kv(c, "Unclaimed or common", "%d acres" % int(ls["common"]))
 	c.add_child(RecKit.row("Herds", "%d herds" % RecData.herd_records(e).size(), herd_text(e, RecData.herds(e)),
 		func(): scr.page("Herds of %s" % t["name"], func(b): herds_page(scr, t, e, b))))
+	var horse_head := 0
+	var horse_cap := 0
+	var pasture_acres := 0
+	var P := Plots._p(e)
+	for i in Plots.count(P):
+		if int(P["use"][i]) == Plots.PASTURE: pasture_acres += int(P["ac"][i])
+	for h: Dictionary in Herds.herds(e).values():
+		if str(h["k"]) != "horses" or str(h["ow"]) == "d": continue
+		horse_head += Herds.head(h)
+		horse_cap += LivestockCare.horse_capacity(e, h, P)
+	RecKit.kv(c, "Horse pasture", "%d horses / %d carrying capacity; %d shared pasture acres" % [horse_head, horse_cap, pasture_acres])
 	RecKit.nt(c, "Pasture and woodland acres")
 	# ------------------------------------------------ LAND MAP SLOT: the land helper's map view (ui/land_map.gd) mounts here
 	var slot := RecKit.card(v, "Land map")

@@ -584,6 +584,7 @@ static func _return(game, u: Unit, from: String = "company") -> bool:
 	var held: bool = game.company.has(u) if from == "company" else Prisoners.captive_unit(game, u.uid) == u
 	if a.is_empty() or not held or u.dead or str(a["person"][4]) != from: return false
 	if not Families.restore_returned(a["econ"], a["family"]): return false
+	Horses.return_mount(game, u)
 	var entry: Dictionary = _entry(game, u, a); var p: Array = a["person"]; var f: Dictionary = a["family"]; var e: Dictionary = a["econ"]
 	if from != "company": reserves(game).append(u)   # borrowed kit is found on its holder
 	_return_loans(game, entry)
@@ -687,6 +688,7 @@ static func _settle_private_gear(game, u: Unit, a: Dictionary) -> void:
 
 static func reserve_died(game, u: Unit) -> void:
 	if u == null: return
+	Horses.return_mount(game, u)
 	var a: Dictionary = _address(game, u)
 	# Only a home-held reserve has private gear without the native field loot
 	# owner. Company battlefield casualties already use that real loot pathway.

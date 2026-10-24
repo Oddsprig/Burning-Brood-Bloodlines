@@ -130,3 +130,43 @@ static func outbreak(game, tid: String, dis: String, n: int) -> int:
 		Sickness._pool_infect(e, b, f, dis, "adult", "workers", k, int(game.day), rng, "cond:set by a developer tool")
 		left -= k
 	return n - left
+
+
+## Detached native settlement fixture: one existing horse herd and one real pasture.
+## Biology checks can jump straight to a due date without running a campaign year.
+static func horse_fixture(town: Dictionary) -> Dictionary:
+	if not TownEcon.has_econ(town): return {}
+	var e: Dictionary = town["econ"].duplicate(true)
+	var h: Dictionary = {}
+	for candidate: Dictionary in Herds.herds(e).values():
+		if str(candidate["k"]) == "horses" and (h.is_empty() or int(candidate["g"]) > int(h["g"])): h = candidate
+	var P := Plots._p(e)
+	var pasture := -1
+	for i in Plots.count(P):
+		if int(P["use"][i]) == Plots.PASTURE:
+			pasture = i
+			break
+	if h.is_empty() or int(h["g"]) < 1 or pasture < 0: return {}
+	e["hd"]["h"] = {str(int(h["id"])): h}
+	e["hd"]["cpool"] = []
+	e["hd"]["pc"] = {}
+	e["hf_now"] = 1.0
+	h["opl"] = [pasture]
+	h["cs"] = 0.0
+	h["horse_life_day"] = -1
+	h["horse_bred_year"] = -1
+	return {"econ": e, "herd_id": str(int(h["id"])), "pasture": pasture}
+
+## Offer actual grown heads for bounded market checks; creates no animals or money.
+static func offer_horses(town: Dictionary) -> int:
+	if not TownEcon.has_econ(town): return 0
+	var e: Dictionary = town["econ"]
+	var offers: Array = []
+	for row: Array in Herds.H(e)["of"]:
+		var h: Dictionary = Herds.herds(e).get(str(int(row[0])), {})
+		if not h.is_empty() and str(h["k"]) != "horses": offers.append(row)
+	for h: Dictionary in Herds.herds(e).values():
+		if str(h["k"]) == "horses" and int(h["g"]) > 0 and Herds.sick(h) <= float(Herds.A()["disease_no_sale"]):
+			offers.append([int(h["id"]), "g", int(h["g"]), ""])
+	Herds.H(e)["of"] = offers
+	return Horses.offered(e)

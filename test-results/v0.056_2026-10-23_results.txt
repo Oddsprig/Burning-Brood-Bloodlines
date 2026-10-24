@@ -1,0 +1,157 @@
+Burning Brood: Bloodlines v0.056 - bounded horse QA
+Requested evidence date: 2026-10-23; verification finished after midnight 2026-10-24 (America/New_York).
+Worktree: C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v056
+Branch: claude/v056-sol; starting commit: 75b9d66 (v0.055).
+The supplied v0.056 patch was already applied; it was not reapplied.
+
+RESULT: 13 distinct test scripts PASS; 1 distinct existing test script FAILS.
+The passing scripts which print assertion totals report 10,220 checks, 0 failures.
+This excludes the unreported assertion counts in test_sim_determinism,
+test_battle_screen and test_battle_creatures; all three scripts PASS.
+The failing test reports 44 checks, 4 assertion failures and 1 runtime script
+error (runner exit 5). This is not an all-green regression result.
+
+Final results (repeated feature runs counted once):
+  test_horses_v056.gd                 PASS   114 checks / 0 failures
+  test_horse_regressions_v056.gd       PASS  7465 checks / 0 failures
+    Includes unchanged existing military-supply assertions: 775 / 0
+    Includes unchanged existing army-equipment assertions: 6675 / 0
+    Additional native horse/reset/art checks: 15 / 0
+  test_harvest_herds.gd               PASS    29 checks / 0 failures
+  test_herd_totals_v043.gd             PASS    82 checks / 0 failures
+  test_muster_ui_v017.gd              PASS   890 assertions / 0 failures; 15 layout cases
+  test_sim_determinism.gd             PASS   same-seed equality / different-seed divergence
+  test_rider_danger_v054.gd           PASS  1079 checks / 0 failures
+  test_battle_readability_v055.gd     PASS   168 checks / 0 failures
+  test_mounted_rider_art.gd           PASS   311 checks / 0 failures
+  test_battle_screen.gd              PASS   small / large / chokepoint scenes
+  test_battle_creatures.gd           PASS   native creature battle / trophies / aftermath
+  claude_house_upkeep.gd             PASS    41 checks / 0 failures
+  claude_troop_upkeep.gd             PASS    41 checks / 0 failures
+  test_mobilization_v017.gd          FAIL    44 checks / 4 failed assertions + 1 script error
+
+Horse coverage:
+  Real pasture capacity, gestation, exact foal age/maturation, deterministic
+  biology and native starvation ledgers; real mount purchase/sale, stock/coin
+  conservation, body persistence, packed grain and once-per-morning upkeep.
+  Unfed/unpaid cavalry is unavailable; the soldiers' last meals are protected.
+  Movement uses the horse's exertion and one native occupied cell. Horse and
+  rider remain separate native combat bodies; surviving support horses cannot
+  win alone. Native horse death removes exactly one mount. Home returns retain
+  the original body/UID and reselling transfers that same counted animal.
+  AI care consumes real grain/coin away from home and rejects a repeated day.
+  All 72 coat/animation textures are cached and nonempty. After that feature
+  test, the next test observes HorseArt._frames empty: reset_between verified.
+  Visual inspection: horse_frames.png shows distinct bay/chestnut/black/grey
+  coats, idle/walk/trot/gallop/fall frames, intact outlines and visible poses.
+  The sheet uses native code-painted pixels; no AI-generated art was used.
+
+Existing mobilization failure investigation (no assertions changed):
+  Reproduced both after herd tests and alone in a new Godot process.
+  - The v017 fixture supplies swords but no torso armour. Existing v029 padded
+    fallback creates armour Items, invalidating the old no-new-Item checks.
+  - It expects five automatically promoted commoner officers. The existing
+    command_plan only appoints actual house members; there are no such leaders
+    in this fixture. Indexing the empty officer array at line 130 aborts that
+    subcase, so its remaining assertions were NOT treated as passes.
+  - The two recruiting/estate assertions likewise assume the former equipment
+    count, before the existing padded fallback.
+  Read-only git diff and git show HEAD:game/campaign/mobilization.gd confirm
+  the fallback and house-only command logic are unchanged from v0.055. The only
+  v056 additions in that file are return_mount calls for stand-down and death.
+  A separate v0.055 engine checkout/run was not performed. No baseline gameplay
+  or old assertions were altered to make the stale expectations pass.
+
+Changes made by this worker:
+  Added game/tests/test_horse_regressions_v056.gd. It reuses existing supply
+  policy/money/distribution/substitution and army-equipment selection/loadout/
+  real-job assertions on saved DevTools Normal/one-day fixtures. It adds the
+  horse boundary checks above without campaign-day simulations.
+  Added this report and test-results/v0.056_2026-10-23_horse_frames.png.
+  Corrected an explicit Dictionary annotation in the new QA test after its
+  first compile attempt; that failed attempt is recorded below.
+  No additional gameplay fixes were needed by the passing v056 horse checks.
+
+Run constraints:
+  All Godot launches were hidden (--headless, Start-Process -WindowStyle Hidden).
+  Get-Process Godot* was checked immediately before every start. One unrelated
+  process was observed; launch was deferred until it exited. No process was killed.
+  One effective headless editor import; no engine install, UI window or long
+  presimulation. Every launched process completed under 60 seconds (max 32.30 s).
+  Runner watchdog was always 60. No deletes, history changes or branch changes.
+  Full legacy year-long herd/army simulations and multi-seed supply migration
+  runs were not executed; relevant bounded existing assertions are listed above.
+  git diff --check passed before staging.
+
+Exact executable, launch wrapper and argument strings:
+  All commands used Windows PowerShell 5.1 syntax from the worktree above.
+  The common wrapper below was used for each $log/$runArgs pair that follows.
+  Import attempt 01 used the normal sandbox; its exit 0 had no output artifacts
+  and is NOT an import pass. Subsequent launches used approved elevated access
+  because this task worktree is outside the session's default writable root.
+
+  $running = @(Get-Process Godot* -ErrorAction SilentlyContinue)
+  if ($running.Count -gt 0) { $running | Select-Object Id, ProcessName; return }
+  $godot = 'C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.022\runtime\Godot_v4.7.2-stable_win64.exe'
+  # Set $log and $runArgs to the pair for the individual run below.
+  $timer = [Diagnostics.Stopwatch]::StartNew()
+  $process = Start-Process -FilePath $godot -ArgumentList $runArgs -WorkingDirectory (Get-Location).Path -WindowStyle Hidden -PassThru
+  $finished = $process.WaitForExit(55000)
+  $timer.Stop()
+  if ($finished) { $process.Refresh(); [pscustomobject]@{PID=$process.Id; ExitCode=$process.ExitCode; Seconds=$timer.Elapsed.TotalSeconds} } else { [pscustomobject]@{PID=$process.Id; StillRunning=$true; Seconds=$timer.Elapsed.TotalSeconds} }
+
+  1. Sandboxed import attempt: exit 0, 7.9377281 s; no cache/log written, NOT A PASS.
+  $runArgs = '--headless --path game --editor --quit --log-file "test-results/v0.056_2026-10-23_import_01.log"'
+
+  2. Effective import: exit 0, 8.6221347 s; no script errors in the import log.
+  $log = Join-Path (Get-Location).Path 'test-results\v0.056_2026-10-23_import_02.log'
+  $runArgs = '--headless --path game --editor --quit --log-file "' + $log + '"'
+
+  3. Initial horse feature test: exit 0, 13.9414166 s; 114/0 (1 test PASS).
+  $log = Join-Path (Get-Location).Path 'test-results\v0.056_2026-10-23_horses_01.log'
+  $runArgs = '--headless --path game res://tests/runner.tscn --log-file "' + $log + '" -- --tests=tests/test_horses_v056.gd --watchdog=60'
+
+  4. Herds/muster block: exit 5, 20.3555598 s; 3 tests PASS, 1 FAIL.
+  $log = Join-Path (Get-Location).Path 'test-results\v0.056_2026-10-23_herds_muster_01.log'
+  $runArgs = '--headless --path game res://tests/runner.tscn --log-file "' + $log + '" -- --tests=tests/test_harvest_herds.gd,tests/test_herd_totals_v043.gd,tests/test_mobilization_v017.gd,tests/test_muster_ui_v017.gd --watchdog=60'
+
+  5. Battle logic/art block: exit 0, 12.2032009 s; 4 tests PASS, 0 FAIL.
+  $log = Join-Path (Get-Location).Path 'test-results\v0.056_2026-10-23_battle_logic_01.log'
+  $runArgs = '--headless --path game res://tests/runner.tscn --log-file "' + $log + '" -- --tests=tests/test_sim_determinism.gd,tests/test_rider_danger_v054.gd,tests/test_battle_readability_v055.gd,tests/test_mounted_rider_art.gd --watchdog=60'
+
+  6. Battle screens/upkeep block: exit 0, 32.2982851 s; 4 tests PASS, 0 FAIL.
+  $log = Join-Path (Get-Location).Path 'test-results\v0.056_2026-10-23_battle_upkeep_01.log'
+  $runArgs = '--headless --path game res://tests/runner.tscn --log-file "' + $log + '" -- --tests=tests/test_battle_screen.gd,tests/test_battle_creatures.gd,tests/claude_house_upkeep.gd,tests/claude_troop_upkeep.gd --watchdog=60'
+
+  7. First additional QA attempt: exit 2, 9.0886929 s; feature PASS, new QA compile FAIL.
+     Cannot infer enemy Dictionary at line 52; corrected in the new test only.
+  $log = Join-Path (Get-Location).Path 'test-results\v0.056_2026-10-23_horse_regressions_01.log'
+  $runArgs = '--headless --path game res://tests/runner.tscn --log-file "' + $log + '" -- --tests=tests/test_horses_v056.gd,tests/test_horse_regressions_v056.gd --watchdog=60'
+
+  8. Additional QA corrected: exit 0, 29.9787700 s; 2 tests PASS, 0 FAIL (114 + 7464 checks).
+  $log = Join-Path (Get-Location).Path 'test-results\v0.056_2026-10-23_horse_regressions_02.log'
+  $runArgs = '--headless --path game res://tests/runner.tscn --log-file "' + $log + '" -- --tests=tests/test_horses_v056.gd,tests/test_horse_regressions_v056.gd --watchdog=60'
+
+  9. FINAL horse QA including sprite export: exit 0, 30.5727834 s; 2 tests PASS, 0 FAIL (114 + 7465 checks).
+  $log = Join-Path (Get-Location).Path 'test-results\v0.056_2026-10-23_horse_regressions_03.log'
+  $runArgs = '--headless --path game res://tests/runner.tscn --log-file "' + $log + '" -- --tests=tests/test_horses_v056.gd,tests/test_horse_regressions_v056.gd --watchdog=60'
+
+  10. Isolated existing mobilization: exit 5, 4.5307653 s; same 4 assertions + 1 script error FAIL.
+  $log = Join-Path (Get-Location).Path 'test-results\v0.056_2026-10-23_mobilization_isolated_01.log'
+  $runArgs = '--headless --path game res://tests/runner.tscn --log-file "' + $log + '" -- --tests=tests/test_mobilization_v017.gd --watchdog=60'
+
+Generated files left unstaged; nothing deleted:
+  game/art/concepts/*.webp.import, game/art/icons/*.png.import,
+  game/audio/*.ogg.import, game/icon.png.import, game/icon_claude.png.import
+    Native import sidecars for preexisting assets, outside the horse patch.
+  game/tests/test_caravan_margins_v048.gd.uid
+  game/tests/test_dragon_growth_v052.gd.uid
+  game/tests/test_dragon_provisions_v050.gd.uid
+    UIDs generated by import for unrelated existing tests.
+  test-results/v0.056_2026-10-23_*.log
+    Raw evidence retained locally, including failed attempts; this report records
+    all commands/results without committing editor progress or full combat logs.
+  New native UID sidecars for the five horse scripts are included with the patch.
+
+Authorized final commit message: v0.056 Horses
+No main update, merge, push, reset, checkout, clean, stash or branch mutation.

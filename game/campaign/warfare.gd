@@ -274,7 +274,9 @@ static func daily(game, days: int) -> void:
 
 ## One morning boundary. The previous evening has already spoiled, and this morning's meals have not been served.
 static func feed_march_day(game, day: int) -> void:
-	if day <= 0 or not game.world.has("dragons"): return
+	if day <= 0: return
+	Horses.company_day(game, day)
+	if not game.world.has("dragons"): return
 	for row: Dictionary in game.world["dragons"].get("records", {}).values():
 		if not bool(row.get("campaign_march", {}).get("enabled", false)): continue
 		if game.company.is_empty() or not bool(row.get("alive", false)):

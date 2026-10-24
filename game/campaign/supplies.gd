@@ -70,7 +70,7 @@ static func eat(wb: Dictionary) -> void:
 	wb["hungry"] = int(wb.get("hungry", 0)) + 1 if need > n else 0
 
 ## Top the stores up to store_days from the home market (the payer pays the market). payer as Army.pay_units.
-static func provision(game, wb: Dictionary, payer: Dictionary) -> void:
+static func provision(game, wb: Dictionary, payer: Dictionary, supply_day: int = -1) -> void:
 	var w: Dictionary = game.world
 	var town: Dictionary = w["towns"].get(String(wb.get("home", "")), {})
 	if not TownEcon.has_econ(town):
@@ -80,11 +80,12 @@ static func provision(game, wb: Dictionary, payer: Dictionary) -> void:
 		return
 	var e: Dictionary = town["econ"]
 	var st := stores(wb)
+	Horses.band_day(game, wb, payer, int(game.day) if supply_day < 0 else supply_day)
 	var dd := float(A()["store_days"])
 	var room := capacity(n) - weight(st)
 	var t: Dictionary = Goods.table()
 	var mkt: Dictionary = e["biz"][int(e["mkt"])]
-	var want_food := int(2.0 * n * dd) - (int(st.get("grain", 0)) + int(st.get("fruit", 0)) + int(st.get("meat", 0)))
+	var want_food := int((2.0 * n + Horses.count(wb.get("units", [])) * Horses.GRAIN_DAY) * dd) - (int(st.get("grain", 0)) + int(st.get("fruit", 0)) + int(st.get("meat", 0)))
 	var want_drink := int(n * dd) - (int(st.get("beer", 0)) + int(st.get("wine", 0)))
 	for pair in [[["grain", "meat", "fruit"], want_food], [["beer", "wine"], want_drink]]:
 		var want: int = pair[1]
@@ -200,3 +201,27 @@ static func seed_stores(wb: Dictionary) -> void:
 		return
 	var dd := int(A()["store_days"])
 	wb["stores"] = {"grain": 2 * n * dd * 3 / 4, "meat": 2 * n * dd / 4, "beer": n * dd}
+
+
+## Mounted animals draw named grain; keep one full day of the soldiers' meals.
+static func draw_horse_grain(game, quantity: int) -> int:
+	var spare := maxi(0, Food.stock(game, "meal") - 2 * Food.eaters(game).size())
+	return int(Food.take_named(game, ["grain"], mini(quantity, spare))["taken"])
+
+## Packing uses the same market, named meal lots and price as the provision screen.
+## Stock leaves the town ledger exactly once, as it does in provision().
+static func pack_horse_grain(game, town: Dictionary, days: int = 7) -> Dictionary:
+	if not TownEcon.has_econ(town) or not Mobilization._here(game, str(town["id"])):
+		return {"ok": false, "reason": "Visit the market to pack grain."}
+	var quantity := Horses.count(game.company) * Horses.GRAIN_DAY * maxi(0, days)
+	quantity = mini(quantity, maxi(0, int(town["econ"]["stock"].get("grain", 0))))
+	var cost := Food.food_cost(town, "grain", quantity)
+	if quantity <= 0 or game.gold < cost: return {"ok": false, "reason": "Not enough grain or army coins."}
+	Goods.take(town, "grain", quantity)
+	TownEcon.led(town["econ"], "used", "grain", quantity)
+	game.gold -= cost
+	Goods.pay_market(town, cost)
+	Food.add_stock(game, "meal", quantity, 0, "grain", Food.food_name(town, "grain"))
+	Food.sync(game)
+	game.changed.emit()
+	return {"ok": true, "reason": "Packed %d grain for %d coins." % [quantity, cost], "grain": quantity, "cost": cost}

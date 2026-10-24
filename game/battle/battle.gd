@@ -1009,6 +1009,7 @@ func build_result() -> Dictionary:
 	var p := []; var en := []; var fallen := []; var all := []; var fled := []
 	var player_fled: Array = []; var states: Array = []
 	for f in sim.fighters:
+		if f.mount_rider_idx >= 0: continue # Mount events/bodies stay in the journal; no phantom people or loot.
 		all.append(f.unit)
 		states.append(f.state)
 		if f.side == 0:

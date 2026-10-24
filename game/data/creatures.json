@@ -13,6 +13,13 @@
   "_bodies_note": "v0.013: the quadruped plan moved to data/bodies.json (full DF anatomy, tools/gen_anatomy.js). drop_parts on a creature removes those part ids from its own copy of the plan.",
 
   "creatures": {
+    "horse": {"name": "horse", "plural": "horses", "body": "quadruped",
+      "drop_parts": ["toe_f1_l", "toe_f1_r", "toe_f2_l", "toe_f2_r", "toe_f3_l", "toe_f3_r", "toe_f4_l", "toe_f4_r", "toe_f5_l", "toe_f5_r", "toe_r1_l", "toe_r1_r", "toe_r2_l", "toe_r2_r", "toe_r3_l", "toe_r3_r", "toe_r4_l", "toe_r4_r", "toe_r5_l", "toe_r5_r"],
+      "coat": [{"tissue": "fur", "t": 1}], "mass": 450, "height": 1.65, "width": 0.7,
+      "attrs": {"STR": 1400, "AGI": 1100, "TOU": 1200, "END": 1300, "REC": 1000, "WIL": 1000, "FOC": 1000, "SPA": 1000, "KIN": 1000},
+      "gait": [100, 220, 350], "learn": 30, "attr_cost": 600,
+      "attacks": [{"verb": "kick", "type": "blunt", "contact": 1000, "p": 8, "v": 8, "prep": 3, "rec": 4, "w": 1, "needs": "foot_rear"}],
+      "tokens": [], "size_tiles": 1, "power": 1, "trophies": [], "enabled": false},
     "wolf": {"name": "wolf", "plural": "wolves", "body": "quadruped", "drop_parts": ["toe_f5_l", "toe_f5_r", "toe_r5_l", "toe_r5_r"], "coat": [{"tissue": "fur", "t": 6}],
       "mass": 40, "height": 0.8, "width": 0.9, "src": "DF wolf ~40,000 cm3 [DF]; attacks/skills ours",
       "tiers": {"STR": "0", "AGI": "+", "TOU": "0", "END": "+", "REC": "0", "WIL": "0", "FOC": "0", "SPA": "+", "KIN": "0"},

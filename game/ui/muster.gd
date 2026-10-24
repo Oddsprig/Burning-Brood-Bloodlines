@@ -26,6 +26,7 @@ var raise_button: Button
 var down_button: Button
 var refit_button: Button
 var house_flow: HFlowContainer
+var mounts_flow: VBoxContainer
 var _house_key: String = "?"
 var _refresh_pending: bool = false
 
@@ -86,6 +87,7 @@ func _ready() -> void:
 	refit_button = UiKit.button("Refit army", request_refit, "Row", 160); refit_button.name = "MusterRefit"
 	actions.add_child(refit_button)
 	refit_button.tooltip_text = "Refit at home: body armour and helmets from this town's armory or stalls for soldiers who lack them."
+	mounts_flow = _card("MusterMounts")
 	notice_label = _line(body, "MusterNotice")
 	Game.changed.connect(_queue_refresh)
 	_refresh()
@@ -140,6 +142,7 @@ func _refresh() -> void:
 	refit_button.tooltip_text = "Refit at home: body armour and helmets for soldiers who lack them. " + String(refit_current.get("reason",""))
 	fund_button.disabled = fund_input.value <= 0 or not bool(current_status.get("can_act",false)) or fund_input.value > float(current_status.get("payer_purse",0))
 	_refresh_house()
+	_refresh_mounts()
 	notice_label.text = notice
 	Perf.record_us("Army interface",Time.get_ticks_usec()-started)
 
@@ -271,3 +274,47 @@ func _roster() -> void:
 
 func _back() -> void:
 	Game.goto(back,back_params)
+
+
+func _refresh_mounts() -> void:
+	UiKit.clear(mounts_flow)
+	var town: Dictionary = Game.world.get("towns", {}).get(Game.location, {})
+	var n := Horses.count(Game.company)
+	mounts_flow.add_child(UiKit.label("Mounts: %d; upkeep %d grain + %d coins daily" % [n, n * Horses.GRAIN_DAY, n * Horses.COIN_DAY], "H2", true))
+	if not TownEcon.has_econ(town):
+		mounts_flow.add_child(UiKit.label("Visit a settlement to buy horses and pack grain.", "Muted", true))
+		return
+	mounts_flow.add_child(UiKit.label("Grown horses: %d offered at %d coins each. An unfed or unpaid mount cannot field cavalry." % [Horses.offered(town["econ"]), Horses.price(town)], "Muted", true))
+	var pack := UiKit.button("Pack 7 days of horse grain", func():
+		var r := Supplies.pack_horse_grain(Game, town)
+		notice = str(r.get("reason", ""))
+		_queue_refresh(), "Row", 250)
+	pack.disabled = n == 0
+	mounts_flow.add_child(pack)
+	var riders: Array = Game.company.filter(func(u: Unit): return not u.dead)
+	if riders.is_empty(): return
+	var row := UiKit.flow(6)
+	mounts_flow.add_child(row)
+	var picker := OptionButton.new()
+	picker.custom_minimum_size = Vector2(260, 48)
+	for u: Unit in riders:
+		var text := "cavalry" if Horses.can_field(u) else ("mount needs care" if u.horse != null else "on foot")
+		picker.add_item("%s: %s" % [u.name, text])
+	row.add_child(picker)
+	var buy := UiKit.button("Buy mount", func():
+		var r := Horses.buy(Game, town, riders[picker.selected])
+		notice = str(r.get("reason", ""))
+		_queue_refresh(), "Row", 130)
+	var sell := UiKit.button("Sell mount", func():
+		var r := Horses.sell(Game, town, riders[picker.selected])
+		notice = str(r.get("reason", ""))
+		_queue_refresh(), "Row", 130)
+	row.add_child(buy)
+	row.add_child(sell)
+	var select_rider := func(i: int):
+		var q := Horses.quote(Game, town, riders[i])
+		buy.disabled = not bool(q["ok"])
+		buy.tooltip_text = str(q["reason"])
+		sell.disabled = riders[i].horse == null
+	picker.item_selected.connect(select_rider)
+	select_rider.call(0)

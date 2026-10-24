@@ -30,6 +30,8 @@ var gone := false          # fled off the map
 var _raster_bounds := Rect2()
 var _draw_dead := false
 var _dead_settled := false
+var _horse_clock := 0.0
+var _horse_fall := -1.0
 
 func setup(f, tile_px: float) -> void:
 	fighter = f
@@ -38,13 +40,13 @@ func setup(f, tile_px: float) -> void:
 	# a humanoid/creature stand-in for a registered animal.
 	var dragon_tag: Variant = f.unit.get("dragon_uid")
 	var dragon_actor: bool = (dragon_tag != null and String(dragon_tag) != "") or f.unit.race == "dragon" or (f.unit.body != null and f.unit.body.plan_id == "wyvern")
-	doll = DragonView.new() if dragon_actor else Paperdoll.new()
+	doll = DragonView.new() if dragon_actor else (HorseDoll.new() if f.unit.horse != null or f.unit.race == "horse" else Paperdoll.new())
 	doll.team_color = PLAYER_COLOR if f.side == 0 else ENEMY_COLOR
 	doll.facing = f.facing
 	add_child(doll)
 	doll.set_unit(f.unit)
 	position = cell_pos(f.cell)
-	if doll is DragonView: _raster_bounds = doll.visual_bounds()
+	if doll is DragonView or doll is HorseDoll: _raster_bounds = doll.visual_bounds()
 	else:
 		var dimensions: Dictionary = FigurePainter.dims(f.unit.race)
 		var display: float = FigurePainter.display_scale(f.unit.race)
@@ -71,7 +73,12 @@ func update_visual(frac: float, dt: float, view_rect: Rect2 = Rect2()) -> bool:
 	var f = fighter
 	if gone:
 		return false
-	visible = not f.waiting   # stream arrivals are off the map until they enter
+	visible = not f.waiting and not f.mount_attached # The actual horse body is drawn once, under its rider.
+	if f.mount_attached:
+		var carrier_total := maxf(1.0, float(f.action_total))
+		var carrier_t := clampf((carrier_total - float(f.action_ticks) + frac) / carrier_total, 0.0, 1.0)
+		position = cell_pos(f.prev_cell).lerp(cell_pos(f.cell), carrier_t)
+		return false
 	if f.waiting:
 		return false
 	_flash_t = maxf(0.0, _flash_t - dt)
@@ -138,6 +145,17 @@ func update_visual(frac: float, dt: float, view_rect: Rect2 = Rect2()) -> bool:
 	# Actor coordinates/timers remain current. Hide the sprite alone so a queued
 	# native draw cannot rasterize an offscreen invalidation behind this gate.
 	doll.visible = render_frame
+	if doll is HorseDoll:
+		doll.mounted = f.mount_idx >= 0
+		doll.gait_animation = "gallop" if f.routed or st == "fled" else ("trot" if f.action_total <= 8 else "walk")
+		_horse_clock += dt
+		if pose == "idle": t = fmod(_horse_clock, 1.0)
+		if f.unit.race == "horse" and pose in ["prone", "dead"]:
+			_horse_fall = minf(0.36, maxf(0, _horse_fall) + dt)
+			t = _horse_fall / 0.36
+			_dead_settled = dead_now and _horse_fall >= 0.36
+		else:
+			_horse_fall = -1.0
 	doll.set_pose(pose, t, render_frame)
 	return render_frame
 
