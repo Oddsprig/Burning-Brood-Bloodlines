@@ -1,0 +1,14 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+dev: loaded the start world in 4382 ms
+rounds: enlist Ulf Longshank true Ulf Longshank rides with the army as an officer.
+rounds: quote true Raise 14 of 14 requested; actual manpower, weapons, meals and army funds limit the muster. planned 14
+rounds: medics 3
+rounds: raised 15
+rounds: enemy 100
+rounds: round 1 winner 1 fought [10, 10] dead [5, 0] wounded [0, 3] captured [1, 0] fled [0, 0] morale [0.0, 27.6] left [6, 97] household 3
+rounds: most kills by one man in the battle 1 kill histogram { 1: 5 } raised [{ "name": "Uzg Ironjaw", "house": "Ironjaw", "by": "orc_horde", "day": 1.0, "deed": "slaying Ulf Longshank and 1 kills" }]
+rounds: winner 1 rounds 1 summary Company falls back to Wexbury to remuster
+rounds: prisoners 0 captives 1
+Rounds test: 14 checks, 0 failures
+== res://tests/claude_rounds.gd: PASS ==

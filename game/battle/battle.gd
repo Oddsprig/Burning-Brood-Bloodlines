@@ -1016,7 +1016,7 @@ func build_result() -> Dictionary:
 	return {"winner": sim.winner, "player_units": p, "enemy_units": en, "enemy_fallen": fallen, "enemy_fled": fled,
 		"player_fled": player_fled, "side_names": side_names.duplicate(), "fighter_states": states,
 		"events": sim.result_events(), "fighter_units": all, "ticks": sim.tick, "growth": growth,
-		"combat_journal": sim.combat_journal, "kill_pairs": sim.kill_pairs,
+		"combat_journal": sim.combat_journal, "kill_pairs": sim.kill_pairs, "dragon_downs": sim.dragon_downs.duplicate(),
 		"history_events_omitted": sim.events_dropped,
 		"arrow_field": sim.arrow_field.duplicate(true)}
 
@@ -1135,6 +1135,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## Battle sounds: only what happens on screen is heard, louder when zoomed in; rate-limited per kind.
 func _sound(type: String, e: Dictionary, av, dv) -> void:
+	if not is_inside_tree() or camera == null: return
 	var v = dv if dv != null else av
 	if v == null: return
 	var view := _raster_view_rect()

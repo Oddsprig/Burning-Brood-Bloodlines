@@ -133,6 +133,11 @@ func _build_overview(parent: Control) -> void:
 	important.add_theme_font_size_override("font_size", 17)
 	important.add_theme_color_override("font_color", UiTheme.BRASS)
 	box.add_child(important)
+	for rider: Dictionary in result.get("rider_outcomes", []):
+		var danger := UiKit.label(str(rider["text"]), "", true)
+		danger.name = "RiderDanger%d" % box.get_child_count()
+		danger.add_theme_color_override("font_color", UiTheme.BAD if str(rider["outcome"]) == "killed" else UiTheme.BRASS)
+		box.add_child(danger)
 	# v0.033: men downed on a field the other side holds are taken (BattleRounds); bargain for them at Court.
 	var taken: Array = result.get("captured", result.get("battle_summary", {}).get("captured", []))
 	if taken.size() == 2 and int(taken[0]) + int(taken[1]) > 0:

@@ -28,7 +28,7 @@ static func begin(game, side0: Array, side1: Array) -> void:
 	var st := {"pool": [side0.duplicate(), side1.duplicate()], "round": 0, "morale": [START_MORALE, START_MORALE],
 		"start": [side0.size(), side1.size()], "dead": [0, 0], "wounded": [0, 0], "captured": [0, 0], "fled": [0, 0],
 		"captives": [[], []], "fought": {}, "household": {}, "log": [], "broke": -1, "winner": -1, "over": false,
-		"last_fought": [[], []], "commander": [_commander(game, side0, true), _commander(game, side1, false)],
+		"last_fought": [[], []], "dragon_downs": {}, "commander": [_commander(game, side0, true), _commander(game, side1, false)],
 		"defender_side": def_side}
 	game.pending_battle["rounds"] = st
 	_pick_round(game)
@@ -99,6 +99,9 @@ const FATE_RANK := {"unhurt": 0, "fled": 1, "wounded": 2, "captured": 3, "dead":
 ## Applies one finished round (r = battle.gd build_result) and returns its summary for the round panel.
 static func after_round(game, r: Dictionary) -> Dictionary:
 	var st: Dictionary = game.pending_battle["rounds"]
+	if not st.has("dragon_downs"): st["dragon_downs"] = {}
+	for uid: String in r.get("dragon_downs", {}):
+		st["dragon_downs"][uid] = bool(st["dragon_downs"].get(uid, false)) or bool(r["dragon_downs"][uid])
 	var units: Array = r.get("fighter_units", [])
 	var states: Array = r.get("fighter_states", [])
 	var w := int(r.get("winner", -1))
@@ -242,6 +245,7 @@ static func final_result(game, last: Dictionary) -> Dictionary:
 	r["enemy_fled"] = fled
 	r["player_fled"] = []
 	r["rounds"] = (st["log"] as Array).duplicate()
+	r["dragon_downs"] = st.get("dragon_downs", {}).duplicate()
 	r["battle_summary"] = battle_summary(game)
 	_take_prisoners(game, st)
 	return r

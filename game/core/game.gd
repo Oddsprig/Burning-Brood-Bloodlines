@@ -293,6 +293,8 @@ func finish_battle(result: Dictionary) -> void:
 	if bool(result.get("_finish_applied", false)):
 		return
 	result["_finish_applied"] = true
+	# Rider casualties must enter native company loot/death accounting before it runs.
+	result["dragon_combat_receipt"] = DragonCombat.on_battle_result(self, result, pending_battle.get("dragon_admission", {}))
 	if not result.has("rounds"):   # one-clash battle: the house arms pools learn here (rounds do it per round)
 		var fu: Array = result.get("fighter_units", []); var fs: Array = result.get("fighter_states", [])
 		for side in 2:
@@ -365,7 +367,6 @@ func finish_battle(result: Dictionary) -> void:
 	result["loot_gold"] = loot + int(sale.get("paid", 0))
 	result["scrap_gold"] = int(sale.get("scrap_paid", 0))
 	result["scrap_paid"] = result["scrap_gold"]
-	result["dragon_combat_receipt"] = DragonCombat.on_battle_result(self, result, pending_battle.get("dragon_admission", {}))
 	last_result = result
 	result["gear_wear"] = TroopUpkeep.on_battle_end(self, result)   # economy pass: kit wears in battle, repaired at a smith
 	var W = load("res://campaign/world.gd") if ResourceLoader.exists("res://campaign/world.gd") else null

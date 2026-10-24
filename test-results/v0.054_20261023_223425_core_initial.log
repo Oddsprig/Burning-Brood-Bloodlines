@@ -1,0 +1,10 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+dev: loaded the start world in 4311 ms
+Rider danger v054: 1079 checks, 0 failures.
+== res://tests/test_rider_danger_v054.gd: PASS ==
+Dragon combat v022: 189 checks, 0 failures
+== res://tests/test_dragon_combat_v022.gd: PASS ==
+== block: 2 tests, 0 failing ==
+  test_rider_danger_v054.gd PASS (5 s)
+  test_dragon_combat_v022.gd PASS (0 s)

@@ -49,7 +49,7 @@ static func uid_floor(game) -> int:
 static func _source(row: Dictionary) -> Array:
 	return [str(row.get("id", "")), str(row.get("name", "")), str(row.get("gem_id", "")), str(row.get("morph_id", "")),
 		str(row.get("size_class", "")), int(row.get("appearance_seed", 0)), float(DragonGrowth.metrics(row).get("growth_points", -1.0)),
-		float(row.get("care", {}).get("health", 1.0)), str(row.get("sex", "")), float(row.get("birth_day", 0.0)), str(row.get("stage", ""))]
+		float(row.get("care", {}).get("health", 1.0)), str(row.get("sex", "")), float(row.get("birth_day", 0.0)), str(row.get("stage", "")), bool(row.get("flying", false))]
 
 static func _profile(game, row: Dictionary) -> Dictionary:
 	var profile: Dictionary = Dragons.physical_profile(game, row)
@@ -67,6 +67,8 @@ static func _profile(game, row: Dictionary) -> Dictionary:
 	profile["battle_bound"] = true
 	profile["source"] = _source(row)
 	profile["rider_person_uid"] = str(row.get("rider_person_uid", ""))
+	# Autobattles are grounded today; honour an explicit flying state without adding flight mechanics.
+	profile["flying"] = bool(row.get("flying", false))
 	return profile
 
 static func _mark_death(game, row: Dictionary, unit: Unit, cause: String) -> void:
@@ -238,32 +240,144 @@ static func admission_receipt(game, units: Array) -> Dictionary:
 	var rows: Array = []
 	for value: Variant in units:
 		if is_dragon_unit(game, value) and admitted.has(value):
-			rows.append({"dragon_uid": value.dragon_uid, "unit_uid": value.uid})
+			rows.append({"dragon_uid": value.dragon_uid, "unit_uid": value.uid,
+				"rider_person_uid": str(_record(game, value.dragon_uid).get("rider_person_uid", "")),
+				"damage_before": rider_damage(value), "flying": bool(value.native_dragon_profile.get("flying", false))})
 	if rows.is_empty(): return {}
 	var state: Dictionary = _registry(game)
 	var receipt: int = int(state.get("next_combat_receipt", 1))
 	state["next_combat_receipt"] = receipt + 1
-	var issued: Dictionary = {"id": receipt, "day": float(game.day), "town_id": str(game.location), "units": rows}
+	var issued: Dictionary = {"id": receipt, "day": float(game.day), "town_id": str(game.location), "units": rows,
+		"seed": int(game.pending_battle.get("seed", 0))}
 	state["combat_admission"] = issued.duplicate(true) # one actual current battle, no owned Unit refs
 	return issued
+
+## A derived measure of native tissue loss and blood loss, used only to scale a fall.
+static func rider_damage(unit: Unit) -> float:
+	if unit.body == null: return 0.0
+	var damage := maxf(0.0, 1.0 - unit.body.blood / maxf(0.001, unit.body.blood_max))
+	for part: Dictionary in unit.body.parts.values():
+		if bool(part.get("severed", false)): damage += 1.0
+		for layer: Dictionary in part.get("layers", []):
+			damage += float(layer.get("dmg", 0.0))
+	return damage
+
+## v0.029 refits issue these actual slots. Broken pieces give no protection.
+static func rider_protection(unit: Unit) -> float:
+	if unit == null: return 0.0
+	var protection := 0.0
+	for spec: Array in [[Mobilization.BODY_SLOT, 0.25], [Mobilization.HELM_SLOT, 0.20], ["clothing", 0.15]]:
+		var item: Item = unit.equip.get(str(spec[0]))
+		if item == null or item.broken or item.slot() != str(spec[0]): continue
+		if str(spec[0]) == "clothing" and not bool(item.tmpl().get("padded", false)): continue
+		protection += float(spec[1]) * clampf(1.0 - float(item.wear) * 0.2, 0.4, 1.0)
+	return protection
+
+## Local RNG: neither the campaign stream nor combat initiative/attacks are consumed.
+static func rider_roll(battle_seed: int, dragon_uid: String, person_uid: String, downed: bool,
+		flying: bool, damage: float, protection: float) -> Dictionary:
+	var harm := clampf(damage, 0.0, 1.0)
+	var air := 1.0 if flying else 0.0
+	var safe := 1.0 - clampf(protection, 0.0, 0.75)
+	var lethal := (0.04 + 0.16 * harm + 0.12 * air) * safe if downed else 0.0
+	var wound := (0.30 + 0.25 * harm + 0.10 * air) * safe if downed else (0.04 + 0.16 * harm) * safe
+	var random := RandomNumberGenerator.new()
+	random.seed = hash([battle_seed, dragon_uid, person_uid, "rider-danger-v054"])
+	var roll := random.randf()
+	return {"outcome": "killed" if roll < lethal else ("wounded" if roll < lethal + wound else "unhurt"),
+		"downed": downed, "flying": flying, "damage": harm, "roll": roll, "kill_chance": lethal, "wound_chance": wound,
+		"wound_damage": (0.22 + 0.30 * harm + 0.12 * air) * safe if downed else (0.06 + 0.12 * harm) * safe}
+
+static func _rider_wound(unit: Unit, damage: float) -> void:
+	if unit == null or unit.body == null or not unit.body.has_part("torso_upper") or unit.body.is_lost("torso_upper"): return
+	# The existing native muscle layer, wound kinds and healing timers persist on this exact Unit.
+	for layer: Dictionary in unit.body.wound_part("torso_upper")["layers"]:
+		if str(layer["tissue"]) != "muscle": continue
+		layer["dmg"] = minf(1.0, float(layer["dmg"]) + damage)
+		layer["kind"] = Formulas.worse_kind(str(layer.get("kind", "")), "bruised")
+		unit.body.pain += float(Formulas.PAIN_RECEPTORS.get("muscle", 5.0)) * damage
+		break
+	Healing.update_heal_days(unit)
+
+static func _rider_result(game, result: Dictionary, entry: Dictionary, dragon: Unit, battle_seed: int) -> Dictionary:
+	var person_uid := str(entry.get("rider_person_uid", ""))
+	if person_uid == "": return {}
+	var downs: Dictionary = result.get("dragon_downs", {})
+	var downed := dragon.dead or downs.has(dragon.dragon_uid)
+	var units: Array = result.get("fighter_units", [])
+	var states: Array = result.get("fighter_states", [])
+	var idx := units.find(dragon)
+	if idx >= 0 and idx < states.size():
+		downed = downed or str(states[idx]) in ["dead", "unconscious", "prone"]
+	var damage := maxf(0.0, rider_damage(dragon) - float(entry.get("damage_before", 0.0)))
+	if not downed and damage <= 0.0: return {}
+	var loc := Dynasty._person(game, person_uid)
+	if loc.is_empty(): return {} # The normal death path already retired this person.
+	var person := Dynasty.person(game, person_uid)
+	var rider: Unit = Dynasty.bound_unit(game, person)
+	if rider != null and rider.dead: return {} # An existing combat death is never rolled/handled again.
+	var flying := bool(downs.get(dragon.dragon_uid, entry.get("flying", false)))
+	var outcome := rider_roll(battle_seed, dragon.dragon_uid, person_uid, downed, flying, damage, rider_protection(rider))
+	outcome["rider_person_uid"] = person_uid
+	outcome["rider_name"] = str(person["name"])
+	outcome["dragon_uid"] = dragon.dragon_uid
+	outcome["dragon_name"] = dragon.name
+	var cause := "a fall as %s went down%s" % [dragon.name, " from the air" if flying else ""] if downed else "the saddle as %s was wounded" % dragon.name
+	var fate: String = outcome["outcome"]
+	outcome["text"] = "%s %s %s." % [person["name"],
+		"escaped unhurt from" if fate == "unhurt" else ("was killed in" if fate == "killed" else ("was wounded in" if downed else "was lightly wounded in")), cause]
+	var p: Array = loc["person"]
+	if fate == "killed":
+		var previous_context: Array = Census._ctx.duplicate()
+		Census.ctx("battle", str(outcome["text"]))
+		if rider != null:
+			rider.dead = true
+			People.casualty(game, rider, "dead", str(p[4]))
+		else:
+			People.casualty_rec(game, str(person["town_id"]), int(person["family_id"]), str(person["name"]), "dead", str(p[4]), p)
+		Census._ctx = previous_context
+	elif fate == "wounded":
+		_rider_wound(rider, float(outcome["wound_damage"]))
+		Persons.log_life(p, float(game.day), "wound", str(outcome["text"]))
+		Families.add_hist(loc["family"], str(outcome["text"]), float(game.day))
+	var event := {"tick": int(result.get("ticks", 0)), "type": "rider_danger", "actor": idx, "target": -1,
+		"text": outcome["text"], "decisive": fate != "unhurt", "part": "", "rider_person_uid": person_uid}
+	if not result.has("events"): result["events"] = []
+	result["events"].append(event)
+	var journal: Variant = result.get("combat_journal")
+	if journal is CombatJournal:
+		journal.append({"tick": event["tick"], "k": "event", "d": {"event": event, "context": {}}}, idx, -1, "rider_danger")
+	return outcome
 
 static func on_battle_result(game, result: Dictionary, receipt: Dictionary) -> Dictionary:
 	var receipt_id: int = int(receipt.get("id", -1))
 	var done: Array = []; var rejected: Array = []
 	if receipt_id < 1: return {"applied": false, "units": done, "rejected": rejected}
 	if receipt != _registry(game).get("combat_admission", {}): return {"applied": false, "units": done, "rejected": rejected, "reason": "No matching issued admission receipt."}
-	var participants: Array = result.get("fighter_units", [])
-	if participants.is_empty(): participants = result.get("player_units", []) + result.get("enemy_units", [])
+	var participants: Array = result.get("fighter_units", []).duplicate()
+	# The final round only lists its own fighters; earlier actual participants remain in the side rosters.
+	for value: Variant in result.get("player_units", []) + result.get("enemy_units", []):
+		if not participants.has(value): participants.append(value)
 	# Validate every admitted actual object before mutating any receipt/actor.
 	for entry: Dictionary in receipt.get("units", []):
 		var unit: Unit = _unit(game, str(entry.get("dragon_uid", "")))
-		if unit == null or not is_dragon_unit(game, unit) or int(entry.get("unit_uid", -1)) != unit.uid or not participants.has(unit): rejected.append(str(entry.get("dragon_uid", "")))
+		if unit == null or not is_dragon_unit(game, unit) or int(entry.get("unit_uid", -1)) != unit.uid:
+			rejected.append(str(entry.get("dragon_uid", "")))
+		elif not participants.has(unit):
+			# An admitted reserve may never have entered a round; a same-ID impostor is still invalid.
+			for value: Variant in participants:
+				if value is Unit and (value.uid == unit.uid or value.dragon_uid == unit.dragon_uid): rejected.append(unit.dragon_uid)
 	if not rejected.is_empty(): return {"applied": false, "units": done, "rejected": rejected}
+	var riders: Array = []
 	for entry: Dictionary in receipt.get("units", []):
 		var uid: String = str(entry.get("dragon_uid", "")); var row: Dictionary = _record(game, uid); var unit: Unit = _unit(game, uid)
-		if unit == null or not is_dragon_unit(game, unit) or int(entry.get("unit_uid", -1)) != unit.uid or not participants.has(unit): rejected.append(uid); continue
+		if not participants.has(unit): continue
+		if unit == null or not is_dragon_unit(game, unit) or int(entry.get("unit_uid", -1)) != unit.uid: rejected.append(uid); continue
 		if int(row.get("combat_last_receipt", 0)) >= receipt_id: continue
 		row["combat_last_receipt"] = receipt_id
+		# Resolve before dragon death reconciles bonds, and before Game settles the company dead.
+		var rider := _rider_result(game, result, entry, unit, int(receipt.get("seed", 0)))
+		if not rider.is_empty(): riders.append(rider)
 		unit.battles += 1
 		Food.clear_battle(unit)
 		if unit.dead: _mark_death(game, row, unit, "native battle wounds")
@@ -271,7 +385,8 @@ static func on_battle_result(game, result: Dictionary, receipt: Dictionary) -> D
 		Dragons._history(game, row, "dragon_battle", {"unit_uid": unit.uid, "receipt": receipt_id, "alive": not unit.dead, "town_id": str(receipt.get("town_id", ""))})
 		done.append({"dragon_uid": uid, "unit_uid": unit.uid, "alive": not unit.dead})
 	_registry(game).erase("combat_admission")
-	return {"applied": not done.is_empty(), "receipt": receipt_id, "units": done, "rejected": rejected}
+	result["rider_outcomes"] = riders
+	return {"applied": not done.is_empty(), "receipt": receipt_id, "units": done, "rejected": rejected, "riders": riders}
 
 static func on_care(game, uid: String, day: int) -> void:
 	var row: Dictionary = _record(game, uid); var unit: Unit = _unit(game, uid)

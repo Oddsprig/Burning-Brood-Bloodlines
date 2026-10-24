@@ -1,0 +1,386 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+seed 4242: winner 0 at tick 317, 944 signature lines; seed 4243: winner 1 at tick 497
+== res://tests/test_sim_determinism.gd: PASS ==
+ERROR: Condition "!is_inside_tree()" is true. Returning: Rect2()
+   at: get_viewport_rect (scene/main/canvas_item.cpp:1231)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+SCRIPT ERROR: Invalid access to property or key 'zoom' on a base object of type 'Nil'.
+   at: _raster_view_rect (res://battle/battle.gd:546)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+ERROR: Condition "!is_inside_tree()" is true. Returning: Rect2()
+   at: get_viewport_rect (scene/main/canvas_item.cpp:1231)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+SCRIPT ERROR: Invalid access to property or key 'zoom' on a base object of type 'Nil'.
+   at: _raster_view_rect (res://battle/battle.gd:546)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+ERROR: Condition "!is_inside_tree()" is true. Returning: Rect2()
+   at: get_viewport_rect (scene/main/canvas_item.cpp:1231)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+SCRIPT ERROR: Invalid access to property or key 'zoom' on a base object of type 'Nil'.
+   at: _raster_view_rect (res://battle/battle.gd:546)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+ERROR: Condition "!is_inside_tree()" is true. Returning: Rect2()
+   at: get_viewport_rect (scene/main/canvas_item.cpp:1231)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+SCRIPT ERROR: Invalid access to property or key 'zoom' on a base object of type 'Nil'.
+   at: _raster_view_rect (res://battle/battle.gd:546)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+ERROR: Condition "!is_inside_tree()" is true. Returning: Rect2()
+   at: get_viewport_rect (scene/main/canvas_item.cpp:1231)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+SCRIPT ERROR: Invalid access to property or key 'zoom' on a base object of type 'Nil'.
+   at: _raster_view_rect (res://battle/battle.gd:546)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+ERROR: Condition "!is_inside_tree()" is true. Returning: Rect2()
+   at: get_viewport_rect (scene/main/canvas_item.cpp:1231)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+SCRIPT ERROR: Invalid access to property or key 'zoom' on a base object of type 'Nil'.
+   at: _raster_view_rect (res://battle/battle.gd:546)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+ERROR: Condition "!is_inside_tree()" is true. Returning: Rect2()
+   at: get_viewport_rect (scene/main/canvas_item.cpp:1231)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+SCRIPT ERROR: Invalid access to property or key 'zoom' on a base object of type 'Nil'.
+   at: _raster_view_rect (res://battle/battle.gd:546)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+ERROR: Condition "!is_inside_tree()" is true. Returning: Rect2()
+   at: get_viewport_rect (scene/main/canvas_item.cpp:1231)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+SCRIPT ERROR: Invalid access to property or key 'zoom' on a base object of type 'Nil'.
+   at: _raster_view_rect (res://battle/battle.gd:546)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+ERROR: Condition "!is_inside_tree()" is true. Returning: Rect2()
+   at: get_viewport_rect (scene/main/canvas_item.cpp:1231)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+SCRIPT ERROR: Invalid access to property or key 'zoom' on a base object of type 'Nil'.
+   at: _raster_view_rect (res://battle/battle.gd:546)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+ERROR: Condition "!is_inside_tree()" is true. Returning: Rect2()
+   at: get_viewport_rect (scene/main/canvas_item.cpp:1231)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+SCRIPT ERROR: Invalid access to property or key 'zoom' on a base object of type 'Nil'.
+   at: _raster_view_rect (res://battle/battle.gd:546)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+ERROR: Condition "!is_inside_tree()" is true. Returning: Rect2()
+   at: get_viewport_rect (scene/main/canvas_item.cpp:1231)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+SCRIPT ERROR: Invalid access to property or key 'zoom' on a base object of type 'Nil'.
+   at: _raster_view_rect (res://battle/battle.gd:546)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+ERROR: Condition "!is_inside_tree()" is true. Returning: Rect2()
+   at: get_viewport_rect (scene/main/canvas_item.cpp:1231)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+SCRIPT ERROR: Invalid access to property or key 'zoom' on a base object of type 'Nil'.
+   at: _raster_view_rect (res://battle/battle.gd:546)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+ERROR: Condition "!is_inside_tree()" is true. Returning: Rect2()
+   at: get_viewport_rect (scene/main/canvas_item.cpp:1231)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+SCRIPT ERROR: Invalid access to property or key 'zoom' on a base object of type 'Nil'.
+   at: _raster_view_rect (res://battle/battle.gd:546)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+ERROR: Condition "!is_inside_tree()" is true. Returning: Rect2()
+   at: get_viewport_rect (scene/main/canvas_item.cpp:1231)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+SCRIPT ERROR: Invalid access to property or key 'zoom' on a base object of type 'Nil'.
+   at: _raster_view_rect (res://battle/battle.gd:546)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+ERROR: Condition "!is_inside_tree()" is true. Returning: Rect2()
+   at: get_viewport_rect (scene/main/canvas_item.cpp:1231)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+SCRIPT ERROR: Invalid access to property or key 'zoom' on a base object of type 'Nil'.
+   at: _raster_view_rect (res://battle/battle.gd:546)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+ERROR: Condition "!is_inside_tree()" is true. Returning: Rect2()
+   at: get_viewport_rect (scene/main/canvas_item.cpp:1231)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+SCRIPT ERROR: Invalid access to property or key 'zoom' on a base object of type 'Nil'.
+   at: _raster_view_rect (res://battle/battle.gd:546)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+ERROR: Condition "!is_inside_tree()" is true. Returning: Rect2()
+   at: get_viewport_rect (scene/main/canvas_item.cpp:1231)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+SCRIPT ERROR: Invalid access to property or key 'zoom' on a base object of type 'Nil'.
+   at: _raster_view_rect (res://battle/battle.gd:546)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+ERROR: Condition "!is_inside_tree()" is true. Returning: Rect2()
+   at: get_viewport_rect (scene/main/canvas_item.cpp:1231)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+SCRIPT ERROR: Invalid access to property or key 'zoom' on a base object of type 'Nil'.
+   at: _raster_view_rect (res://battle/battle.gd:546)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+ERROR: Condition "!is_inside_tree()" is true. Returning: Rect2()
+   at: get_viewport_rect (scene/main/canvas_item.cpp:1231)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+SCRIPT ERROR: Invalid access to property or key 'zoom' on a base object of type 'Nil'.
+   at: _raster_view_rect (res://battle/battle.gd:546)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+ERROR: Condition "!is_inside_tree()" is true. Returning: Rect2()
+   at: get_viewport_rect (scene/main/canvas_item.cpp:1231)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+SCRIPT ERROR: Invalid access to property or key 'zoom' on a base object of type 'Nil'.
+   at: _raster_view_rect (res://battle/battle.gd:546)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+ERROR: Condition "!is_inside_tree()" is true. Returning: Rect2()
+   at: get_viewport_rect (scene/main/canvas_item.cpp:1231)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+SCRIPT ERROR: Invalid access to property or key 'zoom' on a base object of type 'Nil'.
+   at: _raster_view_rect (res://battle/battle.gd:546)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+ERROR: Condition "!is_inside_tree()" is true. Returning: Rect2()
+   at: get_viewport_rect (scene/main/canvas_item.cpp:1231)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+SCRIPT ERROR: Invalid access to property or key 'zoom' on a base object of type 'Nil'.
+   at: _raster_view_rect (res://battle/battle.gd:546)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+ERROR: Condition "!is_inside_tree()" is true. Returning: Rect2()
+   at: get_viewport_rect (scene/main/canvas_item.cpp:1231)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+SCRIPT ERROR: Invalid access to property or key 'zoom' on a base object of type 'Nil'.
+   at: _raster_view_rect (res://battle/battle.gd:546)
+   GDScript backtrace (most recent call first):
+       [0] _raster_view_rect (res://battle/battle.gd:546)
+       [1] _sound (res://battle/battle.gd:1140)
+       [2] _present_event (res://battle/battle.gd:638)
+       [3] _do_tick (res://battle/battle.gd:558)
+       [4] run (res://tests/test_battle_visual_purity.gd:136)
+  Native adjacent combat: 6 attacks, 4 hits, 3 wounds in 48 ticks
+Battle visual purity: 25 checks, 0 failures
+runner: 23 runtime script error(s) during res://tests/test_battle_visual_purity.gd (see SCRIPT ERROR above); each counts as a failure
+== res://tests/test_battle_visual_purity.gd: FAIL (23) ==
+Native dragon control: 6 checks, 0 failures; SHA=10107054ea86c381cda3380908f596deab158d9522a6f551713fcf60e1efcf95
+== res://tests/diag_dragon_control_v022.gd: PASS ==
+dev: loaded the start world in 4584 ms
+tactics041: 60 checks, 0 failures
+== res://tests/claude_tactics_v041.gd: PASS ==
+== block: 4 tests, 1 failing ==
+  test_sim_determinism.gd PASS (0 s)
+  test_battle_visual_purity.gd FAIL (23) (1 s)
+  diag_dragon_control_v022.gd PASS (0 s)
+  claude_tactics_v041.gd PASS (10 s)

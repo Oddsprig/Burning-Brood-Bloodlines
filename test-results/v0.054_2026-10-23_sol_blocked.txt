@@ -1,0 +1,51 @@
+Burning Brood: Bloodlines v0.054 - bounded worker result
+Date: 2026-10-23
+Worktree: .work/bb-v054
+Branch: claude/v054-sol
+Source base: 3b98725
+
+Patch application
+  git apply --check --directory=game ../pending_patches/v054.diff
+  PASS: exit 0, no diagnostics.
+  git apply --directory=game ../pending_patches/v054.diff
+  PASS: exit 0, no diagnostics; patch applied cleanly.
+  git diff --check
+  PASS: exit 0, no whitespace diagnostics.
+
+Files supplied by the patch
+  game/campaign/dragon_combat.gd
+  game/sim/battle_sim.gd
+  game/battle/battle.gd
+  game/campaign/battle_rounds.gd
+  game/core/game.gd
+  game/battle/aftermath.gd
+  game/tests/test_dragon_combat_v022.gd
+  game/tests/test_rider_danger_v054.gd
+
+Validation status: BLOCKED, not a test pass or an observed test failure.
+No Godot process was started; no gameplay test command was run.
+The patch supplies a focused rider-danger test; it has not been executed.
+
+Runtime checks
+  Get-Command godot,godot4,Godot_v4.7.2-stable_win64_console.exe -ErrorAction SilentlyContinue
+  No matching command was found.
+  Test-Path -LiteralPath 'runtime\Godot_v4.7.2-stable_win64.exe'
+  False.
+  Test-Path -LiteralPath 'game\.godot\global_script_class_cache.cfg'
+  False.
+  rg --files --hidden --no-ignore -g '*.exe' -g '!game/.godot/**' -g '!.git/**' .
+  No executable was found within the allowed worktree.
+
+No-deletion constraint
+  game/tests/runner.gd removes Game.SAVE_PATH and Game.SETTINGS_PATH at completion.
+  game/sim/combat_journal.gd dispose()/NOTIFICATION_PREDELETE remove private journal files.
+  Selected combat tests invoke journal disposal. These paths were inspected but not run.
+  A preservation-compatible test harness is required before running these tests.
+
+Next bounded validation, once an authorized existing runtime and preservation-compatible
+harness are supplied: focused test_rider_danger_v054, existing test_dragon_combat_v022
+and test_dragon_bond_v021, and relevant combat result/round coverage. Every run must
+be headless, use --watchdog=60, finish under 60 seconds, and run serially.
+
+Commit: not created; required gameplay validation remains blocked.
+No files were deleted, no runtime was installed, and nothing was pushed or merged.

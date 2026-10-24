@@ -1,0 +1,38 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Dragon bond v021: 103 checks, 0 failures
+== res://tests/test_dragon_bond_v021.gd: PASS ==
+mounted rider art: 311 checks, 0 failures
+== res://tests/test_mounted_rider_art.gd: PASS ==
+Battle result summary checkpoint: 100/100 complete
+Battle result summary checkpoint: 200/200 complete
+Battle result summary checkpoint: identity/sparse fallbacks complete
+Battle result summary checkpoint: bounded native ticks complete
+Battle result summary v014: 110 assertions; failures=0
+== res://tests/test_battle_result_summary_v014.gd: PASS ==
+Battle results UI v014: 231 assertions, 15 desktop fit cases; failures=0
+== res://tests/test_battle_results_ui_v014.gd: PASS ==
+Combat history integration v016: 75 checks, 0 failures
+== res://tests/test_combat_history_integration_v016.gd: PASS ==
+Officer rally v016: 140 checks, 0 failures
+== res://tests/test_officer_rally_v016.gd: PASS ==
+dev: loaded the start world in 4496 ms
+rounds: enlist Ulf Longshank true Ulf Longshank rides with the army as an officer.
+rounds: quote true Raise 14 of 14 requested; actual manpower, weapons, meals and army funds limit the muster. planned 14
+rounds: medics 3
+rounds: raised 15
+rounds: enemy 100
+rounds: round 1 winner 1 fought [10, 10] dead [5, 0] wounded [0, 3] captured [1, 0] fled [0, 0] morale [0.0, 27.6] left [6, 97] household 3
+rounds: most kills by one man in the battle 1 kill histogram { 1: 5 } raised [{ "name": "Uzg Ironjaw", "house": "Ironjaw", "by": "orc_horde", "day": 1.0, "deed": "slaying Ulf Longshank and 1 kills" }]
+rounds: winner 1 rounds 1 summary Company falls back to Wexbury to remuster
+rounds: prisoners 0 captives 1
+Rounds test: 14 checks, 0 failures
+== res://tests/claude_rounds.gd: PASS ==
+== block: 7 tests, 0 failing ==
+  test_dragon_bond_v021.gd PASS (1 s)
+  test_mounted_rider_art.gd PASS (0 s)
+  test_battle_result_summary_v014.gd PASS (1 s)
+  test_battle_results_ui_v014.gd PASS (5 s)
+  test_combat_history_integration_v016.gd PASS (1 s)
+  test_officer_rally_v016.gd PASS (1 s)
+  claude_rounds.gd PASS (10 s)

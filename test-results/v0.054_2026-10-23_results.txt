@@ -1,0 +1,178 @@
+Burning Brood: Bloodlines v0.054 - bounded validation results
+Date: 2026-10-23
+Worktree: C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v054
+Verified branch: claude/v054-sol
+Source base: 3b987258a57979680ffcb6ea53655b5adca561b2 (v0.053 roadmap line)
+
+FINAL STATUS: PASS - all 13 selected tests pass on the corrected source.
+The inherited v0.054 patch was already present and was not re-applied.
+v0.054_2026-10-23_sol_blocked.txt is retained as stale preparatory evidence.
+
+Runtime and execution rules
+  C:/Users/bligh/Desktop/Burning_Brood_Bloodlines_v0.022/runtime/Godot_v4.7.2-stable_win64.exe
+  Godot 4.7.2.stable.official.ed1daf0bf; used in place, never copied.
+  Every invocation used --headless and a fresh --log-file.
+  Gameplay checks used res://tests/runner.tscn, --tests= and --watchdog=60.
+  Processes were launched with Start-Process -WindowStyle Hidden -PassThru,
+  set to BelowNormal priority, and supervised with WaitForExit(55000).
+  The wrapper checked Get-Process -Name 'Godot*' before every launch and
+  refused to launch while another engine process existed.
+  No run reached the 55-second supervisor limit. No process was killed.
+  DevTools checks loaded the game's saved Normal, seed-4242, one-day start world.
+  No player save was loaded. Only normal test-runner/journal cleanup was allowed.
+  The first headless editor import was needed because the class cache was absent.
+
+Exact engine command lines
+  Working directory for every command: the worktree above.
+  PowerShell executable variable:
+  $godotExe = 'C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.022\runtime\Godot_v4.7.2-stable_win64.exe'
+  The following are the exact executable argument sequences launched by Start-Process.
+
+1. Preparation (before gameplay checks): exit 0, 32.805 seconds.
+& $godotExe --headless --path game --editor --quit --log-file ../test-results/v0.054_20261023_223305_import.log
+
+2. Initial requested tests: exit 0, 10.112 seconds.
+& $godotExe --headless --path game res://tests/runner.tscn --log-file ../test-results/v0.054_20261023_223425_core_initial.log -- --tests=res://tests/test_rider_danger_v054.gd,res://tests/test_dragon_combat_v022.gd --watchdog=60
+
+3. Initial related checks: exit 0, 14.145 seconds.
+& $godotExe --headless --path game res://tests/runner.tscn --log-file ../test-results/v0.054_20261023_223602_related.log -- --tests=res://tests/test_dragon_bond_v021.gd,res://tests/test_mounted_rider_art.gd,res://tests/test_battle_result_summary_v014.gd,res://tests/test_battle_results_ui_v014.gd,res://tests/test_combat_history_integration_v016.gd,res://tests/test_officer_rally_v016.gd --watchdog=60
+
+4. Initial round-battle check: exit 0, 14.887 seconds.
+& $godotExe --headless --path game res://tests/runner.tscn --log-file ../test-results/v0.054_20261023_223748_rounds.log -- --tests=res://tests/claude_rounds.gd --watchdog=60
+
+5. Initial simulation regressions (before fix): exit 23, 15.073 seconds.
+& $godotExe --headless --path game res://tests/runner.tscn --log-file ../test-results/v0.054_20261023_223925_simulation.log -- --tests=res://tests/test_sim_determinism.gd,res://tests/test_battle_visual_purity.gd,res://tests/diag_dragon_control_v022.gd,res://tests/claude_tactics_v041.gd --watchdog=60
+
+Observed initial results
+  PASS test_rider_danger_v054.gd: 1079 checks, 0 failures.
+  PASS test_dragon_combat_v022.gd: 189 checks, 0 failures.
+  PASS test_dragon_bond_v021.gd: 103 checks, 0 failures.
+  PASS test_mounted_rider_art.gd: 311 checks, 0 failures.
+  PASS test_battle_result_summary_v014.gd: 110 assertions, 0 failures.
+  PASS test_battle_results_ui_v014.gd: 231 assertions, 15 layout cases, 0 failures.
+  PASS test_combat_history_integration_v016.gd: 75 checks, 0 failures.
+  PASS test_officer_rally_v016.gd: 140 checks, 0 failures.
+  PASS claude_rounds.gd: 14 checks, 0 failures; actual battle/settlement/map flow.
+  PASS test_sim_determinism.gd: same seed identical, different seed differs.
+  FAIL test_battle_visual_purity.gd: 25 assertions passed, but the runner
+       correctly counted 23 runtime script errors and returned FAIL (23).
+  PASS diag_dragon_control_v022.gd: 6 checks, 0 failures.
+       Native SHA: 10107054ea86c381cda3380908f596deab158d9522a6f551713fcf60e1efcf95.
+       No previous-release reference was supplied; no cross-release parity claim.
+  PASS claude_tactics_v041.gd: 60 checks, 0 failures.
+
+Fix made during this validation
+  game/battle/battle.gd, _sound(): return before viewport/camera access when
+  the battle is detached from the scene tree or its camera is not initialized.
+  The existing visual-purity fixture intentionally uses a detached native battle.
+  Its event presentation previously called _raster_view_rect() with a null
+  camera, producing 23 script errors. The one-line lifecycle guard prevents
+  that invalid presentation work. No test assertion was weakened or skipped.
+
+Runtime coordination
+  Existing mono-engine PID 13324 finished before the first import was launched.
+  A post-fix rerun attempt was refused by the wrapper while mono-engine
+  PID 42512 was running; no new process/log/test execution occurred for that attempt.
+
+Post-fix verification
+  FINAL PASS: all 13 selected tests, 0 failures and 0 runtime script errors.
+
+6. Final core and simulation checks, after sound guard: exit 0, 20.444 seconds.
+& $godotExe --headless --path game res://tests/runner.tscn --log-file ../test-results/v0.054_20261023_223835_final_core.log -- --tests=res://tests/test_rider_danger_v054.gd,res://tests/test_dragon_combat_v022.gd,res://tests/test_sim_determinism.gd,res://tests/test_battle_visual_purity.gd,res://tests/diag_dragon_control_v022.gd,res://tests/claude_tactics_v041.gd --watchdog=60
+
+7. Final related and round-battle checks, after sound guard: exit 0, 23.254 seconds.
+& $godotExe --headless --path game res://tests/runner.tscn --log-file ../test-results/v0.054_20261023_223958_final_related.log -- --tests=res://tests/test_dragon_bond_v021.gd,res://tests/test_mounted_rider_art.gd,res://tests/test_battle_result_summary_v014.gd,res://tests/test_battle_results_ui_v014.gd,res://tests/test_combat_history_integration_v016.gd,res://tests/test_officer_rally_v016.gd,res://tests/claude_rounds.gd --watchdog=60
+
+Final test results (the final logs above supersede initial outcomes)
+  PASS test_rider_danger_v054.gd: 1079 checks, 0 failures.
+  PASS test_dragon_combat_v022.gd: 189 checks, 0 failures.
+  PASS test_sim_determinism.gd: same seed identical, different seed differs.
+  PASS test_battle_visual_purity.gd: 25 checks, 0 failures, 0 script errors.
+  PASS diag_dragon_control_v022.gd: 6 checks, 0 failures.
+       Final native SHA: 993bcf4c92deb78977e7dd0c7a746960b09481e8be83d8c163f04890eb79f063.
+       SHA values are block-context observations; no baseline comparison was requested or run.
+  PASS claude_tactics_v041.gd: 60 checks, 0 failures.
+  PASS test_dragon_bond_v021.gd: 103 checks, 0 failures.
+  PASS test_mounted_rider_art.gd: 311 checks, 0 failures.
+  PASS test_battle_result_summary_v014.gd: 110 assertions, 0 failures.
+  PASS test_battle_results_ui_v014.gd: 231 assertions, 15 layout cases, 0 failures.
+  PASS test_combat_history_integration_v016.gd: 75 checks, 0 failures.
+  PASS test_officer_rally_v016.gd: 140 checks, 0 failures.
+  PASS claude_rounds.gd: 14 checks, 0 failures.
+
+Verification limits
+  Headless checks validate simulation, identity/accounting, native raster data and
+  UI layout/control behavior. No GPU screenshot, visual inspection, rendered-frame
+  performance, long benchmark, old-save compatibility or full suite is claimed.
+  The existing saved start-world fixture was used; no new world-history simulation was needed.
+  Every executed engine invocation finished under 60 seconds.
+  The stale blocked report and the initial failing log are preserved.
+
+Whitespace verification
+  Source, test, UID and authored TXT changes pass the scoped check:
+  git diff --cached --check -- game test-results/v0.054_2026-10-23_results.txt test-results/v0.054_2026-10-23_sol_blocked.txt
+  The unscoped staged check reports Godot's own trailing spaces and final blank
+  line in the raw import log. That captured output is retained byte-for-byte.
+
+Task source/test files included in the local commit
+  game/campaign/dragon_combat.gd
+  game/campaign/battle_rounds.gd
+  game/sim/battle_sim.gd
+  game/battle/battle.gd
+  game/battle/aftermath.gd
+  game/core/game.gd
+  game/tests/test_dragon_combat_v022.gd
+  game/tests/test_rider_danger_v054.gd
+  game/tests/test_rider_danger_v054.gd.uid
+  Plus this result, the stale blocked report, and all seven run logs listed above.
+  The inherited patch was preserved; this worker added only the battle sound guard
+  to gameplay code. The engine generated the new test's UID sidecar.
+  Local commit message: v0.054 Riders share the danger
+  The resulting commit hash is reported in the worker reply.
+
+Engine-generated files retained on disk outside the v0.054 commit
+  These 43 untracked sidecars were produced by normal import, unrelated to the
+  rider-danger source change. They have not been deleted or added to the task commit.
+  game/art/concepts/dragon_amethyst_v006.webp.import
+  game/art/concepts/dragon_aquamarine_v006.webp.import
+  game/art/concepts/dragon_black_diamond_v006.webp.import
+  game/art/concepts/dragon_citrine_v006.webp.import
+  game/art/concepts/dragon_diamond_v006.webp.import
+  game/art/concepts/dragon_emerald_v006.webp.import
+  game/art/concepts/dragon_garnet_v006.webp.import
+  game/art/concepts/dragon_jade_v006.webp.import
+  game/art/concepts/dragon_moonstone_v006.webp.import
+  game/art/concepts/dragon_onyx_v006.webp.import
+  game/art/concepts/dragon_opal_v006.webp.import
+  game/art/concepts/dragon_pearl_v006.webp.import
+  game/art/concepts/dragon_ruby_v006.webp.import
+  game/art/concepts/dragon_sapphire_v006.webp.import
+  game/art/concepts/dragon_topaz_v006.webp.import
+  game/art/concepts/dragon_tourmaline_v006.webp.import
+  game/art/icons/icon_256.png.import
+  game/art/icons/icon_32.png.import
+  game/art/icons/icon_48.png.import
+  game/audio/breath_fire.ogg.import
+  game/audio/breath_frost.ogg.import
+  game/audio/breath_storm.ogg.import
+  game/audio/breath_venom.ogg.import
+  game/audio/clash_0.ogg.import
+  game/audio/clash_1.ogg.import
+  game/audio/clash_2.ogg.import
+  game/audio/clash_3.ogg.import
+  game/audio/event_fanfare.ogg.import
+  game/audio/fall.ogg.import
+  game/audio/hit_0.ogg.import
+  game/audio/hit_1.ogg.import
+  game/audio/hit_2.ogg.import
+  game/audio/music_battle.ogg.import
+  game/audio/music_map.ogg.import
+  game/audio/music_title.ogg.import
+  game/audio/roar_0.ogg.import
+  game/audio/roar_1.ogg.import
+  game/audio/ui_confirm.ogg.import
+  game/icon.png.import
+  game/icon_claude.png.import
+  game/tests/test_caravan_margins_v048.gd.uid
+  game/tests/test_dragon_growth_v052.gd.uid
+  game/tests/test_dragon_provisions_v050.gd.uid

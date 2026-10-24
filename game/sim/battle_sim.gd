@@ -99,6 +99,8 @@ var _wl_death := ""
 var projectiles: Array = []
 var breath_debug: Dictionary = {}
 var breath_state: Dictionary = {}    # dragon fighter idx -> {left, next, element} (sim/dragon_breath.gd)
+## Dragon UID -> whether any native collapse happened while flying. Survives history-tail trimming.
+var dragon_downs: Dictionary = {}
 ## Where the battle's arrows ended up: {arrow id: {"ground", "body", "shield", "armor", "lost": n}} (recovery).
 var arrow_field: Dictionary = {}
 var _bows_on := false                # any fighter carries a bow
@@ -186,7 +188,7 @@ func setup(side0: Array, side1: Array, seed: int, opts: Dictionary = {}) -> void
 	_terrain_mult = float(Formulas.TERRAIN_MOVE.get(terrain, 1.0))
 	fighters.clear(); events.clear(); new_events.clear(); growth.clear(); ground.clear()
 	winner = -1; over = false; _growth_done = false
-	kill_pairs.clear()
+	kill_pairs.clear(); dragon_downs.clear()
 	side_total = [0, 0]; side_down = [0, 0]
 	_bleeders.clear(); _bleed_total.clear(); _ldef_cache.clear(); _downs.clear(); _iname.clear(); _tmats.clear(); _wgeo.clear(); _itmpl.clear(); _isw.clear(); _proles.clear()
 	projectiles.clear(); arrow_field.clear(); _bows_on = false; _shot = {}; _shot_out = {}; _bows_down = 0; _proj_next = 0   # bows
@@ -1345,6 +1347,12 @@ func result_events() -> Array:
 	return out
 
 func _event(type: String, actor: int, target: int, text: String, decisive: bool, part: String = "") -> Dictionary:
+	if type in ["fall", "unconscious", "death"]:
+		var down_idx := target if type == "death" else actor
+		if down_idx >= 0 and down_idx < fighters.size():
+			var down: Fighter = fighters[down_idx]
+			if down.dragon:
+				dragon_downs[down.unit.dragon_uid] = bool(dragon_downs.get(down.unit.dragon_uid, false)) or bool(down.dragon_profile.get("flying", false))
 	if _journal_pending.size() >= 256: flush_combat_journal()
 	var e := {"tick": tick, "type": type, "actor": actor, "target": target, "text": text, "decisive": decisive, "part": part}
 	events.append(e)

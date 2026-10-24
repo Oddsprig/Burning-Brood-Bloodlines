@@ -188,11 +188,11 @@ func persistence_growth_care_and_receipt() -> void:
 	var copy: Unit = Unit.from_dict(unit.to_dict().duplicate(true))
 	before = snapshot()
 	check(not DragonCombat.on_battle_result(Game, {"fighter_units": [copy]}, receipt)["applied"] and snapshot() == before, "forged same UID result reference cannot consume actual admission or casualty")
-	var funds: String = people_and_funds()
+	var funds_before := [Game.gold, Unit._next_uid, Item._next_uid]
 	var actual_result: Dictionary = {"fighter_units": [unit, actor(other_uid)], "player_units": [unit], "enemy_units": [actor(other_uid)]}
 	check(DragonCombat.on_battle_result(Game, actual_result, receipt)["applied"], "native issued receipt consumes actual holder outcome once")
 	check(not row()["alive"] and row()["rider_person_uid"] == "" and row()["last_rider_person_uid"] == native.uid("a",0) and unit.battles == 1 and not row()["combat_order"]["enabled"], "real death ends bond/order with original IDs and one battle count")
-	check(people_and_funds() == funds and Game.company.is_empty(), "dragon casualty never debits humanoid population/coin/gear or creates rider Unit")
+	check([Game.gold, Unit._next_uid, Item._next_uid] == funds_before and Game.company.is_empty(), "dragon/rider casualty cannot mint coin, gear or a substitute rider Unit")
 	before = snapshot(); DragonCombat.on_battle_result(Game, actual_result, receipt); DragonCombat.prepare_world(Game); DragonCombat.after_load(Game)
 	check(snapshot() == before and actor() == unit and unit.dead, "repeated result/setup/load cannot revive original dead body or pay rewards")
 	sim.combat_journal.dispose()
