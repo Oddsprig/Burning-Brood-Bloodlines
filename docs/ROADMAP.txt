@@ -279,6 +279,9 @@ v0.050 counted dragon provisions - DELIVERED (Claude Edition): each dragon is fe
 v0.051 earned rider bonds - DELIVERED (Claude Edition): an eligible adult approaches an unbonded dragon and earns familiarity over two to four months of real presence (faster as its keeper, slower if it is hungry or hurt); it then accepts or refuses (30-day cooldown); the dragon screen shows progress and why.
 v0.052 individual dragon growth - DELIVERED (Claude Edition): every dragon inherits a growth potential (about 1 in 20 founders can reach colossal), grows along hatchling, juvenile, adult and mature stages paced by how well it is fed, and stops at its potential; the dragon screen shows its likely adult size band and why growth has stalled.
 v0.053 delivered: The dragon roost. A Roost view on the dragon screen shows eggs and dragons at true relative size, with keeper and rider at human scale; tapping one opens a read-only care, growth and bond panel. Caches are bounded and it fits portrait and landscape.
+v0.054 riders share the danger - DELIVERED (Claude Edition): when a dragon is brought down in flight, its rider can be wounded or killed, with the same fate when the same battle is replayed; the aftermath shows what happened to the rider.
+v0.055 clearer battles - DELIVERED (Claude Edition): terrain patterns, short combat cues and an on-screen legend make battles easier to read; these visual changes leave battle results unchanged.
+v0.056 horses - DELIVERED (Claude Edition): horses graze and breed in town herds, while officers and cavalry buy mounts and pay their upkeep in grain. Mounted fighters fight from horseback; horses can be killed, flee with their riders and return to the herd.
 Also delivered outside the numbered list (Claude Edition): court and marriage, interface pass, 100 v 100 battle rounds, armies to 1000, house officers and noble call-up, house arms pool, ennoblement, medics and aftermath.
 
 LOCKED FOUNDATIONS / LATER SMALL PASSES
