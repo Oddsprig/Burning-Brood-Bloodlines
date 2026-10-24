@@ -11,6 +11,7 @@ const WINDOWS := [Vector2i(1280, 720), Vector2i(1366, 768), Vector2i(1920, 1080)
 const TOL := 1.5
 
 var fails := 0
+var cases := 0
 var tree: SceneTree
 var town_id := ""
 
@@ -22,6 +23,7 @@ static func effective(win: Vector2i) -> Vector2:
 func run(t: SceneTree) -> int:
 	tree = t
 	await tree.process_frame
+	await _canvas_bounds()
 	var loaded := await DevTools.start_world(tree, Game.SAVE_PATH)
 	assert(loaded, "Normal one-day UI fixture loads")
 	var home := DevTools.choose_house(Game, func(choice: Dictionary):
@@ -87,6 +89,7 @@ func run(t: SceneTree) -> int:
 		await _screen(size, "res://ui/gameover.tscn", [])
 		await _screen(size, "res://battle/aftermath.tscn", [])
 		await _battle(size)
+	print("Menu UI fit: %d content sizes, %d fit cases, %d failures" % [sizes.size(), cases, fails])
 	return fails
 
 func _sample_units() -> Array:
@@ -192,8 +195,36 @@ func _settle() -> void:
 	for i in 3:
 		await tree.process_frame
 
+## A world-space banner is centered by its camera; moving that camera away must
+## still expose real screen overflow. This guards against simply skipping map Controls.
+func _canvas_bounds() -> void:
+	var sv := _viewport(BASE)
+	var world := Node2D.new()
+	sv.add_child(world)
+	var camera := Camera2D.new()
+	world.add_child(camera)
+	camera.position = Vector2(1900, 200)
+	var banner := HouseBanner.new()
+	banner.position = camera.position - banner.custom_minimum_size * 0.5
+	world.add_child(banner)
+	await _settle()
+	var bad := []
+	_walk(world, [0.0, 0.0, BASE.x, BASE.y], bad)
+	if not bad.is_empty():
+		fails += 1; printerr("FAIL: camera-centered world banner must fit in canvas coordinates")
+	camera.position.x += BASE.x
+	await _settle()
+	bad.clear()
+	_walk(world, [0.0, 0.0, BASE.x, BASE.y], bad)
+	if bad.size() != 1:
+		fails += 1; printerr("FAIL: genuinely off-screen world banner must still be detected")
+	sv.queue_free()
+	await tree.process_frame
+	print("Canvas fit regression: camera-centered and off-screen world banners checked")
+
 ## Walks the tree; collects controls outside the allowed rect.
 func _check(sv: SubViewport, size: Vector2, label: String) -> void:
+	cases += 1
 	var bad := []
 	for c in sv.get_children():
 		_walk(c, [0.0, 0.0, size.x, size.y], bad)
@@ -216,7 +247,9 @@ func _walk(n: Node, bounds: Array, bad: Array) -> bool:
 	var mine := []
 	if n is Control:
 		var c := n as Control
-		var r := c.get_global_rect()
+		# Control global rects beneath Node2D are in world space. Include the
+		# camera/CanvasLayer transform so both rects and inherited bounds are on-screen.
+		var r := c.get_global_transform_with_canvas() * Rect2(Vector2.ZERO, c.size)
 		var over := maxf(maxf(bounds[0] - r.position.x, r.end.x - bounds[2]), maxf(bounds[1] - r.position.y, r.end.y - bounds[3]))
 		if over > TOL and r.size.x > 0.5 and r.size.y > 0.5:
 			mine = [over, _describe(c, r)]

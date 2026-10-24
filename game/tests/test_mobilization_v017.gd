@@ -80,6 +80,22 @@ func items() -> Dictionary:
 		out[it.get_instance_id()] = int(out.get(it.get_instance_id(), 0)) + 1
 	return out
 
+## v0.029 adds paid padded armour when stock is empty. Retain every original
+## Item exactly once and admit only the reviewed new pieces, on their real holders.
+func issued_items_conserved(before: Dictionary, review: Dictionary, first_uid: int) -> bool:
+	var expected := before.duplicate()
+	var next_uid := first_uid
+	var offset := Game.company.size() - (review["rows"] as Array).size()
+	for i in (review["rows"] as Array).size():
+		var row: Array = review["rows"][i]
+		if str(row[12]) == "": continue
+		var slot := str(DB.armor[str(row[12])]["slot"])
+		var it: Item = Game.company[offset + i].equip.get(slot)
+		if it == null or it.tid != str(row[12]) or it.uid != next_uid: return false
+		expected[it.get_instance_id()] = 1
+		next_uid += 1
+	return items() == expected and Item._next_uid == next_uid
+
 func state() -> String:
 	return JSON.stringify(Game._save_tree())
 
@@ -121,18 +137,18 @@ func native_commands() -> void:
 	var raised: Dictionary = Mobilization.muster(Game, "city_a", 200, q["review"])
 	check(raised["ok"] and raised["partial"] and int(raised["raised"]) == 120, "muster reports actual partial acceptance without fictional120 new population")
 	check(population() == all_pop and int(e["pop"]) == home_pop - 120, "native company AWAY conversion preserves total people exactly")
-	check(items() == all_items and Item._next_uid == items_before, "all actual armory/market Items move once without factory-created equipment")
+	check(issued_items_conserved(all_items, q["review"], items_before) and Item._next_uid == items_before + 120,
+		"all actual armory/market Items move once, with only120 reviewed paid padded pieces created")
+	all_items = items() # the paid armour must also survive stand-down and re-raising
 	check(absf(coins() - all_coin) < 0.000001 and float(e["treasury"]) == treasury, "bounties and actual purchases preserve private/public/all-owner coin")
 	check(wallet - int(Game.gold) == int(raised["cost"]) and int(raised["cost"]) == int(q["raise_cost"]) and float(e["biz"][int(e["mkt"])]["till"]) > market, "actual quote bill debits army wallet and credits real recipients")
 	check(Food.stock(Game, "meal") - food_before == 720 and grain - int(e["stock"]["grain"]) == 720 and int(raised["food_units"]) == 720, "six paid native meals per actual departing person are counted once")
 	check(public_state == JSON.stringify(fxt["public_units"].map(func(u): return u.to_dict())), "existing guards/public militia retain exact bodies, kit and duty")
-	check(Game.squads.size() == 5 and Game.company.filter(func(u): return u.is_officer()).size() == 5, "120 actual people include five enlisted officers with native rally squad links")
-	var first_leader: Unit = Game.company.filter(func(x): return x.is_officer())[0]
-	Game.squads[first_leader.uid] = {"uniform": {"head": "nasal_helm"}, "material": "bronze"}
-	Mobilization.command_plan(Game)
-	check(Game.squads[first_leader.uid]["material"] == "bronze" and Game.squads[first_leader.uid]["uniform"] == {"head": "nasal_helm"}, "command refresh preserves actual retained leader uniform/material settings")
+	# Later noble call-up rules leave common levies unled until a house member joins.
+	check(Game.squads.is_empty() and Game.company.filter(func(u): return u.is_officer()).is_empty(),
+		"120 actual common levies do not invent five noble officers")
 	for u in Game.company:
-		check(u.is_officer() or Game.squads.has(u.squad), "each enlisted fighter has a real living native officer")
+		check(u.squad == -1, "common levies remain unassigned without a real house officer")
 	var u: Unit = Game.company[0]; var original_uid := u.uid
 	var address: Dictionary = Mobilization._address(Game, u); var person_uid := str(address["person"][Persons.PERSON_UID])
 	HealthUtil.wound(u, "head", "skin", "bruised", 0.1)
@@ -197,6 +213,24 @@ func native_commands() -> void:
 	check(round_trip["world"]["mobilization"]["reserve"].size() == 118 and round_trip["world"]["mobilization"]["reserve"][0] is Unit, "current save schema restores actual retained native Units")
 	print("mobilization native conservation case complete")
 
+func household_commands() -> void:
+	fixture()
+	Mobilization.fund(Game, 1000000.0)
+	var raised: Dictionary = Mobilization.muster(Game, "city_a", 120)
+	var enlisted: Dictionary = Mobilization.enlist_household(Game, str(Dynasty.selected(Game)["ruler_uid"]))
+	check(raised.get("raised", 0) == 120 and enlisted.get("ok", false), "an actual adult house ruler joins120 native levies")
+	if not enlisted.get("ok", false): return
+	var leader: Unit = enlisted["unit"]
+	check(Game.squads.size() == 1 and Game.company.filter(func(u): return u.is_officer()) == [leader],
+		"the real enlisted house member supplies the sole native officer")
+	Game.squads[leader.uid] = {"uniform": {"helm": "nasal_helm"}, "material": "bronze"}
+	Mobilization.command_plan(Game)
+	check(Game.squads[leader.uid]["material"] == "bronze" and Game.squads[leader.uid]["uniform"] == {"helm": "nasal_helm"},
+		"command refresh preserves the actual leader's uniform/material settings")
+	for u in Game.company:
+		check(u == leader or u.squad == leader.uid, "each enlisted fighter links to the actual living house officer")
+	print("mobilization household command case complete")
+
 func negotiated_native_hires() -> void:
 	var fxt: Dictionary = fixture(); var town: Dictionary = fxt["town"]; var e: Dictionary = fxt["econ"]; var f: Dictionary = fxt["pool"]
 	var local := RandomNumberGenerator.new(); local.seed = 1789
@@ -212,29 +246,36 @@ func negotiated_native_hires() -> void:
 	# Include existing hiring pool private gear in this independent inventory book.
 	for recruit in town["recruits"]:
 		for it in recruit.equip.values(): equipment[it.get_instance_id()] = 1
-	var wallet := int(Game.gold); var q: Dictionary = Mobilization.quote(Game, "city_a", 2)
+	var wallet := int(Game.gold); var q: Dictionary = Mobilization.quote(Game, "city_a", 2); var next_item := Item._next_uid
 	var result: Dictionary = Mobilization.muster(Game, "city_a", 2, q["review"])
 	check(result["ok"] and int(result["raised"]) == 2 and int(result["cost"]) == wallet - int(Game.gold) and int(result["cost"]) < int(q["raise_cost"]),
 		"native improved negotiation charges and receipts actual hire payment beneath the reviewed ceiling")
-	check(population() == pop and absf(coins() - before) < 0.000001 and items() == equipment, "existing native recruits conserve their exact people/private kit/hiring recipients")
+	check(population() == pop and absf(coins() - before) < 0.000001 and issued_items_conserved(equipment, q["review"], next_item)
+		and Item._next_uid == next_item + 2, "existing native recruits conserve exact people/private kit/hiring recipients plus two reviewed paid padded pieces")
 	wallet = int(Game.gold); Game.gold = 500
 	q = Mobilization.quote(Game, "city_a", 1)
 	check(not q["ok"] and int(q["required_funding"]) > 0, "additional raising protects three days of TOTAL existing plus additional native payroll")
 	Game.gold = wallet
 	var victim: Unit = Game.company[1]; var a: Dictionary = Mobilization._address(Game, victim)
 	var all_gear: Dictionary = items(); var dead_person := str(a["person"][Persons.PERSON_UID]); var estate_count := Mobilization.estate_items(Game).size()
+	var private_gear: Array = victim.equip.values().duplicate()
 	# Actual native natural-death path: sickness owns one person/census removal;
 	# explicit settlement preserves private equipment before Unit erasure.
 	Sickness._kill(Game, town, a["family"], a["person"], Game.day, "starved", "")
-	check(not Game.company.has(victim) and Mobilization.estate_items(Game).size() == estate_count + 1 and items() == all_gear,
-		"actual natural company death preserves exact private Item instead of dropping its owner")
-	check(Mobilization.estate_items(Game)[-1]["person_uid"] == dead_person and absf(coins() - before) < 0.000001 and population() == pop - 1,
-		"natural death receipt names actual deceased owner and counts death once without invented coin")
-	var fighter: Unit = Game.company[0]; var loot: Item = fighter.equip["main_hand"]
-	fighter.equip.clear(); Game.stash.append(loot) # actual native loot was already assigned to company stash
+	var estate: Array = Mobilization.estate_items(Game).slice(estate_count)
+	var inherited: Array = estate.map(func(row): return row["item"])
+	check(not Game.company.has(victim) and inherited.size() == private_gear.size() and items() == all_gear
+		and private_gear.all(func(it): return inherited.has(it)),
+		"actual natural company death preserves every exact private Item, including paid armour, instead of dropping its owner")
+	check(estate.all(func(row): return row["person_uid"] == dead_person and row["household_uid"] == a["family"]["household_uid"])
+		and absf(coins() - before) < 0.000001 and population() == pop - 1,
+		"every natural death receipt names the actual deceased owner/household and counts death once without invented coin")
+	var fighter: Unit = Game.company[0]; var loot: Array = fighter.equip.values().duplicate()
+	fighter.equip.clear(); Game.stash.append_array(loot) # all actual native loot was already assigned to company stash
 	estate_count = Mobilization.estate_items(Game).size(); fighter.dead = true
 	People.casualty(Game, fighter, "dead", "company"); Game.company.erase(fighter)
-	check(Mobilization.estate_items(Game).size() == estate_count and Game.stash.has(loot), "ordinary battlefield casualty cannot duplicate already-owned native loot into an estate")
+	check(Mobilization.estate_items(Game).size() == estate_count and loot.all(func(it): return Game.stash.has(it)),
+		"ordinary battlefield casualty cannot duplicate already-owned native loot into an estate")
 	print("mobilization negotiated-hire/natural-death case complete")
 
 func away_house(town: Dictionary) -> Dictionary:
@@ -319,7 +360,7 @@ func run(_tree: SceneTree) -> int:
 	# Real startup boundary; stop before the returned generation jobs are run.
 	Game.new_game_begin(17017)
 	check(Game.company.is_empty() and Game.gold == 0 and Food.stock(Game, "meal") == 0, "real new_game_begin has no inherited minted company/wallet/food")
-	native_commands(); negotiated_native_hires(); empty_home_survivors()
+	native_commands(); household_commands(); negotiated_native_hires(); empty_home_survivors()
 	# Restore through the native detached schema rather than sharing mutated arrays.
 	Game.company = original_company; Game.stash = original_stash; Game.squads = original_squads
 	Game.world = original_world; Game.day = float(original["day"]); Game.gold = int(original["gold"])

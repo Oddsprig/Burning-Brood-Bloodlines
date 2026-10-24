@@ -175,6 +175,7 @@ func _realm_line(fid: String) -> String:
 # ------------------------------------------------------------------ world grid
 func _world_page() -> Control:
 	var sc := UiKit.scroll()
+	sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	var v := UiKit.vbox(10)
 	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	sc.add_child(v)

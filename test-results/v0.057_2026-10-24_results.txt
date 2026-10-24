@@ -1,0 +1,159 @@
+Burning Brood: Bloodlines v0.057 - Loose ends
+Date: 2026-10-24, America/New_York
+Worktree: C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v057
+Branch: claude/v057-sol
+Baseline: 3627528 (v0.056 Horses: review fixes)
+Roadmap-only commit: 8c1f61e (v0.054-v0.056 roadmap lines)
+Engine: C:/Users/bligh/Desktop/Burning_Brood_Bloodlines_v0.022/runtime/Godot_v4.7.2-stable_win64.exe
+Engine banner: Godot v4.7.2.stable.official.ed1daf0bf
+
+FINAL STATUS: PASS
+All seven requested test/mode executions pass, plus the related officer-rally
+test: eight distinct script/mode results, zero failures or script errors.
+Initial failing results are preserved separately and are not current passes.
+
+Diagnosis of the five mobilization failures (all obsolete test assumptions)
+1. Item conservation: v0.029 deliberately makes paid padded armour when the
+   town has none. The weapon-only fixture therefore creates 120 reviewed pieces.
+   The revised check requires every original Item instance exactly once, the
+   exact new template/holder/UID for each reviewed piece, exactly 120 new UIDs,
+   and no other creation. This expanded inventory must survive home return and
+   re-raising without further creation; existing money/recipient checks remain.
+2. Five automatic officers: later noble call-up rules allow only actual house
+   members to lead. This fixture recruits commoners, so it correctly has none.
+   Check all 120 unled residents, then separately enlist the actual adult ruler
+   and verify the sole real officer, every squad link, and retained uniform.
+3. Runtime index 0: the same outdated assumption indexed an empty officer list.
+   Use the actual enlistment result in the new household-command case, guarded
+   by its success check. The previously aborted conservation/return/death/save
+   portion now runs to completion.
+4. Existing hires: the two sword-owning recruits also buy two new padded pieces.
+   Check all original identities, exact reviewed new Items/UIDs and conserved
+   people/coin instead of requiring the inventory to contain no new armour.
+5. Natural company death: the victim owns a sword AND paid armour, so a fixed
+   one-item estate increment is obsolete. Check every original private Item
+   instance and each deceased-person/household receipt, total inventory, coin
+   and one population death. The battlefield-loot fixture likewise transfers
+   all carried Items into stash before checking that no estate duplicate appears.
+
+Historical source check:
+  git show 6210641:game/campaign/mobilization.gd
+Already contains the v0.029 padded fallback and "Only house members lead" rule.
+Both rules therefore predate horses; no mobilization gameplay fix was needed.
+
+Screen-fit diagnosis and changes
+  GAME: Relations World used fixed-width cells inside a scroll container whose
+  horizontal scrolling was disabled, propagating its minimum width into the
+  frame (16 px overflow at 1280). Enable automatic horizontal scrolling there.
+  TEST: The three map reports per size were the same HouseBanner under Node2D.
+  get_global_rect() measured world position (~1909,183) without the Camera2D.
+  Transform the local Control rect with get_global_transform_with_canvas().
+  The actual map banner passes in canvas coordinates; world_map.gd is unchanged.
+  A camera-centered banner and a deliberately off-screen banner independently
+  verify that the checker both accepts correct placement and catches overflow.
+
+Final selected results
+  test_mobilization_v017.gd        308 checks, 0 failures (run 5)
+  test_muster_ui_v017.gd           890 assertions, 15 desktop fits, 0 failures (run 3)
+  test_ui_fit.gd full menus        240 fit cases, 5 content sizes, 0 failures (run 3)
+  test_horses_v056.gd              114 checks, 0 failures (run 4)
+  test_horse_regressions_v056.gd    7607 checks, 0 failures (run 4)
+    Includes bounded military supply 775 and army equipment 6675; these are
+    subsets of 7607, not extra checks to add again.
+  test_sim_determinism.gd          PASS, 0 failures (run 4)
+    Same seed matches; different seed differs. Seed 4242: winner 0, tick 317,
+    944 signature lines; seed 4243: winner 1, tick 497.
+  test_ui_fit.gd --battle-only     9 inspector/legend fits, 0 failures (run 4)
+  test_officer_rally_v016.gd        140 checks, 0 failures (run 5)
+
+UI sizes:
+  Full menus use canvas_items/expand effective content sizes for all seven
+  configured windows, including 1280x720, 1920x1080 and 2560x1440. Those three
+  share a 1280x720 logical canvas. Five distinct content sizes were checked:
+  1280x720, 1280x719, 1280x800, 1600x720, 1280x2844.
+  FIT_QUICK was not set; no menu/tab checks were skipped.
+  Battle-only additionally checks actual 1280x720, 1920x1080 and 2560x1440
+  SubViewports. Both UI modes also run the two canvas-placement probes.
+
+Exact PowerShell commands
+All engine runs used the worktree above as their working directory. Each
+$runLog/$runArgs pair below was launched using this exact common wrapper:
+
+  $running = @(Get-Process Godot* -ErrorAction SilentlyContinue)
+  if ($running.Count -gt 0) { $running | Select-Object Id, ProcessName, StartTime; return }
+  $godotExe = 'C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.022\runtime\Godot_v4.7.2-stable_win64.exe'
+  $timer = [Diagnostics.Stopwatch]::StartNew()
+  $engine = Start-Process -FilePath $godotExe -ArgumentList $runArgs -WorkingDirectory (Get-Location).Path -WindowStyle Hidden -PassThru
+  $engine.PriorityClass = 'BelowNormal'
+  $finished = $engine.WaitForExit(55000)
+  $timer.Stop()
+  if ($finished) { $engine.Refresh(); [pscustomobject]@{PID=$engine.Id; ExitCode=$engine.ExitCode; Seconds=$timer.Elapsed.TotalSeconds; Log=$runLog; Arguments=$runArgs} } else { [pscustomobject]@{PID=$engine.Id; StillRunning=$true; Seconds=$timer.Elapsed.TotalSeconds; Log=$runLog; Arguments=$runArgs} }
+
+The exact log-generation commands, resulting paths and argument strings follow.
+
+1. One bounded fresh-checkout import. PID 64276; exit 0; 16.3929416 seconds.
+   Log: test-results/v0.057_20261024_041456_343_import.log
+   $runLog = Join-Path (Get-Location).Path ('test-results\v0.057_' + (Get-Date -Format 'yyyyMMdd_HHmmss_fff') + '_import.log')
+   $runArgs = '--headless --path game --editor --quit --log-file "' + $runLog + '"'
+   Cache/log created successfully; no parse or script errors.
+
+2. Unmodified baseline reproduction. PID 34536; exit 24; 20.0890559 seconds.
+   Log: test-results/v0.057_20261024_041549_044_baseline.log
+   $runLog = Join-Path (Get-Location).Path ('test-results\v0.057_' + (Get-Date -Format 'yyyyMMdd_HHmmss_fff') + '_baseline.log')
+   $runArgs = '--headless --path game res://tests/runner.tscn --log-file "' + $runLog + '" -- --tests=res://tests/test_mobilization_v017.gd,res://tests/test_ui_fit.gd --watchdog=60'
+   0 tests PASS / 2 FAIL.
+   Mobilization: 44 checks reached, 4 failed assertions + 1 runtime script error.
+   Full menus: 19 failed layout cases (relations at four content sizes, and
+   the same three map-banner reports at each of all five content sizes).
+
+3. Corrected mobilization/muster/full-menu block. PID 51188; exit 0; 41.6775438 seconds.
+   Log: test-results/v0.057_20261024_041840_131_mobilization_ui.log
+   $runLog = Join-Path (Get-Location).Path ('test-results\v0.057_' + (Get-Date -Format 'yyyyMMdd_HHmmss_fff') + '_mobilization_ui.log')
+   $runArgs = '--headless --path game res://tests/runner.tscn --log-file "' + $runLog + '" -- --tests=res://tests/test_mobilization_v017.gd,res://tests/test_muster_ui_v017.gd,res://tests/test_ui_fit.gd --watchdog=60'
+   3 tests PASS / 0 FAIL; 308 mobilization checks, 890 muster assertions,
+   240 full-menu fit cases; no script errors.
+
+4. Horses/determinism/battle-only block. PID 65592; exit 0; 42.0463783 seconds.
+   Log: test-results/v0.057_20261024_041946_279_horses_battle.log
+   $runLog = Join-Path (Get-Location).Path ('test-results\v0.057_' + (Get-Date -Format 'yyyyMMdd_HHmmss_fff') + '_horses_battle.log')
+   $runArgs = '--headless --path game res://tests/runner.tscn --log-file "' + $runLog + '" -- --tests=res://tests/test_horses_v056.gd,res://tests/test_horse_regressions_v056.gd,res://tests/test_sim_determinism.gd,res://tests/test_ui_fit.gd --watchdog=60 --battle-only'
+   4 tests PASS / 0 FAIL; counts as listed above; no script errors.
+
+5. Final mobilization/rally block after strengthening estate ownership and
+   retaining all multi-item battlefield loot. PID 4036; exit 0; 6.5271986 seconds.
+   Log: test-results/v0.057_20261024_042116_061_final_mobilization.log
+   $runLog = Join-Path (Get-Location).Path ('test-results\v0.057_' + (Get-Date -Format 'yyyyMMdd_HHmmss_fff') + '_final_mobilization.log')
+   $runArgs = '--headless --path game res://tests/runner.tscn --log-file "' + $runLog + '" -- --tests=res://tests/test_mobilization_v017.gd,res://tests/test_officer_rally_v016.gd --watchdog=60'
+   2 tests PASS / 0 FAIL; 308 + 140 checks; no script errors.
+   Supersedes run 3 only for the edited mobilization script; UI/game source
+   was unchanged after its passing runs.
+
+Execution constraints and limits
+  All five invocations finished under one minute, longest 42.047 seconds.
+  Each start checked Get-Process Godot*. Existing PIDs 69652/27320 were seen
+  during initial inspection and finished before this worker's first launch.
+  No other engine was killed; no overlap, visible window or foreground input.
+  Runs used --headless, hidden windows, BelowNormal priority and watchdog 60.
+  Normal one-day saved DevTools fixtures and bounded native unit fixtures only;
+  no long campaign simulation, player-save loading or compatibility testing.
+  Headless layout/simulation checks do not claim rendered screenshots, GPU frame
+  performance or a full suite run.
+  No software installation, deletion, branch/history change, merge or push.
+  Authored source changes pass git diff --check.
+
+Files in the second requested commit
+  game/tests/test_mobilization_v017.gd
+  game/tests/test_ui_fit.gd
+  game/ui/relations.gd
+  test-results/v0.057_2026-10-24_results.txt
+  Commit message: v0.057 Loose ends: mobilization test and screen fit
+
+Generated files retained locally and excluded from the task commits
+  All five raw v0.057 logs listed above (including the failed baseline).
+  game/art/concepts/*.webp.import, game/art/icons/*.png.import,
+  game/audio/*.ogg.import, game/icon.png.import, game/icon_claude.png.import
+  game/tests/test_caravan_margins_v048.gd.uid
+  game/tests/test_dragon_growth_v052.gd.uid
+  game/tests/test_dragon_provisions_v050.gd.uid
+  game/tests/test_horse_regressions_v056.gd.uid
+  These 44 unrelated engine-generated sidecars are left unstaged, not deleted.
