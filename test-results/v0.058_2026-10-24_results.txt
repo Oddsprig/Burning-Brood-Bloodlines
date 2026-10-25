@@ -1,0 +1,8 @@
+Burning Brood: Bloodlines v0.058 - Farm hands
+Branch: claude/v058-farm-hands (from main 95c9a6b, v0.057)
+Most of Sol's sol_acres.diff was already on main (field_hands, refresh_employers, harvest_area, mint keeper).
+Added here: EconomyRules.farm_hand_value now uses net sales (grain tax, broker share, tribute) over the year's seasonal hands;
+test_food_coin_recovery updated (annual payroll fits net sales).
+Headless run, one Godot at a time, exit 0:
+  test_farm_worked 357/0, test_food_coin_recovery PASS, test_population_economy_controls 60/0, test_economy_fixes 2975 checks PASS.
+Not regressions (identical on v0.057 baseline): test_producer_cash 15 fails, claude_population_v034 1 fail (format string at line 128).
