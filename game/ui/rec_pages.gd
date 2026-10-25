@@ -84,7 +84,7 @@ static func family(scr, t: Dictionary, fid: int, box: VBoxContainer) -> void:
 			(_m(wage / 7.0) + " a day") if wage >= 0 and String(m["work"]) != "child" else "",
 			"%s%s; %s%s" % [(sk + "; ") if sk != "" else "", String(m["kin"]), String(m["work"]), ("; " + Persons.SERVICE_WORDS.get(String(m["state"]), String(m["state"]))) if String(m["state"]) != "" else ""],
 			func(): scr.open_person(t, fid, pid), UiTheme.BAD if sk != "" else null))
-	if not Persons.pp(f).is_empty() or f.has("dp"):
+	if not Persons.pp_read(f).is_empty() or f.has("dp"):
 		var gone := remembered(e, f)
 		if not gone.is_empty():
 			var gc := RecKit.card(box, "Remembered (dead and departed)")
@@ -416,7 +416,7 @@ static func remembered(e: Dictionary, f: Dictionary) -> Array:
 	var living := {}
 	for family in e.get("fams", []):
 		if family.get("gone", false): continue
-		for p in Persons.pp(family) + Persons.kp(family): living[int(p[0])] = true
+		for p in Persons.pp_read(family) + Persons.kp_read(family): living[int(p[0])] = true
 	for p in f.get("dp", []):
 		if not living.has(int(p[0])): out.append(p)
 	return out
