@@ -25,7 +25,7 @@ func _model(p: String, t: float, inj: Dictionary) -> Dictionary:
 static func cached_model(row: Dictionary, p: String = "rest", t: float = 0.0, inj: Dictionary = {}) -> Dictionary:
 	# Care, bonds, identity and fractional growth do not change the source rig.
 	# Physical growth is applied by DragonView.physical_ppu at the drawing boundary.
-	var look := [row.get("gem_id", ""), row.get("morph_id", ""), row.get("size_class", ""), row.get("appearance_seed", 0)]
+	var look := [row.get("sprite_id", ""), row.get("gem_id", ""), row.get("morph_id", ""), row.get("size_class", ""), row.get("appearance_seed", 0)]
 	var key := "model:%d:%s:%.3f:%d" % [hash(look), p, t, inj.hash()]
 	if not _shared.has(key):
 		if _shared.size() > 96: _shared.clear()
@@ -83,9 +83,10 @@ func _prepare() -> void:
 
 func _prepare_frame() -> void:
 	var ready: bool = false
-	var frames: int = int(FigurePainter.FRAMES.get("idle" if pose == "ground" else pose, 4))
-	# Bounds from the first and middle frames (the animation sways a little; a margin covers the rest).
-	for i: int in ([0, frames / 2] if frames > 1 else [0]):
+	var frames: int = DragonArt.frame_count(record, pose)
+	# Wingbeat extremes need all six frames; original sources retain their existing framing.
+	var samples: Array = range(frames) if not DragonSpriteCatalog.variant_for(record).is_empty() else ([0, frames / 2] if frames > 1 else [0])
+	for i: int in samples:
 		var model: Dictionary = _model(pose, float(i) / maxf(1, frames), injury)
 		if not bool(model.get("valid", false)): continue
 		# Injury previews keep the intact frame so removing a head cannot enlarge
@@ -117,7 +118,7 @@ func _draw() -> void:
 		return
 	if record.is_empty() or mode != "model" or String(record.get("stage", "egg")) == "egg": return
 	# One model per pose frame, cached: a still card never rebuilds its rig on a redraw (scroll, resize).
-	var frames_n: int = maxi(1, int(FigurePainter.FRAMES.get("idle" if pose == "ground" else pose, 4)))
+	var frames_n: int = DragonArt.frame_count(record, pose)
 	var model_key := "%s:%d" % [pose, floori(progress * frames_n)]
 	if not _model_cache.has(model_key):
 		if _model_cache.size() > 16: _model_cache.clear()

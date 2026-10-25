@@ -150,7 +150,7 @@ func _resolve_source() -> void:
 	var started: int = Time.get_ticks_usec()
 	var row: Dictionary = DragonCombat.record_for_unit(Game,unit) if unit != null else {}
 	var state: Dictionary = DragonCombat.visual_state(unit) if unit != null and not row.is_empty() else {}
-	var signature: String = JSON.stringify([row.get("id",""),row.get("morph_id",""),row.get("gem_id",""),row.get("appearance_seed",0),row.get("size_class","")])
+	var signature: String = JSON.stringify([row.get("id",""),row.get("sprite_id",""),row.get("morph_id",""),row.get("gem_id",""),row.get("appearance_seed",0),row.get("size_class","")])
 	_dead = bool(state.get("dead",false))
 	_record = row; _state = state; _current_key = ""
 	if signature == _signature:
@@ -191,7 +191,7 @@ func _resolve_source() -> void:
 func _resolve_frame() -> void:
 	if _record.is_empty(): return
 	var actual_pose: String = "dead" if _dead else pose
-	var frames: int = maxi(1,int(FigurePainter.FRAMES.get(actual_pose,1)))
+	var frames: int = DragonArt.frame_count(_record,actual_pose)
 	var frame: int = mini(frames-1,floori(progress*frames))
 	var key: String = "%s:%d" % [actual_pose,frame]
 	if _current_key == key and not _current.is_empty(): return

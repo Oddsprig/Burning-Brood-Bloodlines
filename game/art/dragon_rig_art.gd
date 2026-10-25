@@ -65,16 +65,22 @@ static func _extract(bytes: PackedByteArray, size: Vector2i, crop: Rect2i, mask:
 			output.encode_u32(pixel * 4, bytes.decode_u32(source_index))
 	return Image.create_from_data(crop.size.x, crop.size.y, false, Image.FORMAT_RGBA8, output)
 
-static func _source(row: Dictionary) -> Dictionary:
-	var morph: String = String(row.get("morph_id", ""))
-	if _sources.has(morph): return _sources[morph]
-	var entry: Dictionary = DragonSpriteCatalog.entry(morph)
+static func _source(row: Dictionary, pose: String = "rest", progress: float = 0.0) -> Dictionary:
+	var morph: String = DragonSpriteCatalog.source_id(row)
+	var generated: bool = not DragonSpriteCatalog.variant_for(row).is_empty()
+	var source_key := "%s/frame%d" % [morph, SapphireSpirewingArt.frame_index(pose, progress)] if generated else morph
+	if _sources.has(source_key): return _sources[source_key]
+	var entry: Dictionary = DragonSpriteCatalog.source_entry(row, pose, progress)
 	if entry.is_empty(): return {}
 	var path: String = String(entry.get("source_path", ""))
-	if not ResourceLoader.exists(path, "Texture2D"):
-		push_error("Dragon coherent source is missing: " + path); return {}
-	var texture: Texture2D = ResourceLoader.load(path, "Texture2D") as Texture2D
-	var image: Image = texture.get_image() if texture != null else null
+	var image: Image
+	if generated:
+		image = SapphireSpirewingArt.frame(int(entry["frame"]))
+	else:
+		if not ResourceLoader.exists(path, "Texture2D"):
+			push_error("Dragon coherent source is missing: " + path); return {}
+		var texture: Texture2D = ResourceLoader.load(path, "Texture2D") as Texture2D
+		image = texture.get_image() if texture != null else null
 	if image == null or image.is_empty():
 		push_error("Dragon coherent source cannot be decoded: " + path); return {}
 	if image.is_compressed() and image.decompress() != OK:
@@ -123,10 +129,10 @@ static func _source(row: Dictionary) -> Dictionary:
 	var gems: Array[Rect2] = []
 	for area: Array in entry.get("preserve_regions", []): preserve.append(_rectangle(area))
 	for area: Array in entry.get("gem_regions", []): gems.append(_rectangle(area))
-	var source: Dictionary = {"key": morph + "/coherent", "entry": entry, "size": Vector2(size), "bytes": raw,
+	var source: Dictionary = {"key": source_key + "/coherent", "entry": entry, "size": Vector2(size), "bytes": raw,
 		"image": image, "ownership": ownership, "parts": layers, "regions": regions, "preserve": preserve, "gems": gems}
 	source["neck_contacts"] = _neck_contacts(entry, raw, ownership, size)
-	_sources[morph] = source
+	_sources[source_key] = source
 	return source
 
 ## Original alpha-visible contacts along the anatomical head/body boundary.
@@ -211,7 +217,8 @@ static func _part_images(source: Dictionary, row: Dictionary) -> Dictionary:
 		_image_order.erase(key); _image_order.append(key); return _images[key]
 	var gem: Dictionary = DragonArt._entry("gems", String(row.get("gem_id", "")))
 	if gem.is_empty(): push_error("Dragon source gem palette is unknown."); return {}
-	var tinted: Dictionary = DragonArt._tinted(source, row, Color(String(gem["base"])), Color(String(gem["accent"])))
+	# Code sources already contain the authored sapphire ramps, eye and gem glints.
+	var tinted: Dictionary = {"bytes": source["bytes"]} if bool(source["entry"].get("painted", false)) else DragonArt._tinted(source, row, Color(String(gem["base"])), Color(String(gem["accent"])))
 	var source_size: Vector2i = Vector2i(source["size"])
 	var result: Dictionary = {"parts": {}, "regions": {}, "whole": Image.create_from_data(source_size.x, source_size.y, false, Image.FORMAT_RGBA8, tinted["bytes"])}
 	# Image blits with cached full-size masks: no per-pixel script loop on every new dragon.
@@ -278,6 +285,7 @@ static func _pose_transforms(source: Dictionary, pose: String, progress: float) 
 		"block": body_angle = -0.01 * pulse; head_angle = -0.07 * pulse
 		"dodge": body_angle = -0.012 * pulse; body_move = Vector2(-12, 2) * pulse; head_angle = -0.06 * pulse
 		"prone", "dead": body_angle = 0.04; body_move = Vector2(0, 8); head_angle = 0.08; jaw_angle = 0.09
+	body_move *= float(source["entry"].get("motion_scale", 1.0))
 	var body: Transform2D = _around(parts["body"]["pivot_px"], body_angle, body_move)
 	var join: Dictionary = _seat_neck(source, _around(parts["head"]["pivot_px"], head_angle))
 	var head: Transform2D = body * join["xf"]
@@ -288,7 +296,7 @@ static func model(row: Dictionary, pose: String = "idle", progress: float = 0.0,
 	pose = "idle" if pose == "ground" else pose
 	if pose != "rest" and not pose in FigurePainter.POSES:
 		push_error("Dragon source pose is unsupported: " + pose); return DragonArt._empty_model(pose)
-	var source: Dictionary = _source(row)
+	var source: Dictionary = _source(row, pose, progress)
 	if source.is_empty(): return DragonArt._empty_model(pose)
 	var images: Dictionary = _part_images(source, row)
 	if images.is_empty(): return DragonArt._empty_model(pose)
@@ -354,7 +362,7 @@ static func model(row: Dictionary, pose: String = "idle", progress: float = 0.0,
 	# caused by independently filtering complementary alpha masks at rest.
 	var seamless: bool = not beheaded and detached_root == "" and (posed["body"] as Transform2D).is_equal_approx(posed["head"]) and (posed["head"] as Transform2D).is_equal_approx(posed["jaw"])
 	return {"valid": true, "mountable": detached_root == "" and not pose in ["prone", "dead"], "pose": pose, "progress": progress,
-		"frames": 1 if pose == "rest" else int(FigurePainter.FRAMES[pose]), "supported_poses": DragonArt.SUPPORTED_POSES.duplicate(),
+		"frames": DragonArt.frame_count(row, pose), "supported_poses": DragonArt.SUPPORTED_POSES.duplicate(),
 		"linear_scale": linear_scale, "source_scale": source_scale, "source_to_logical": to_logical,
 		"source_origin_px": source_origin, "source_size": Vector2i(source["size"]), "seat": seat,
 		"seat_angle": body_xf.get_rotation() + float(entry.get("seat_angle", 0)), "seat_width": 4.4 * linear_scale,

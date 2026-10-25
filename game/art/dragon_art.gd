@@ -42,6 +42,9 @@ static func reconstruct_source(row: Dictionary) -> Image:
 static func labelled_source_layers(row: Dictionary) -> Array:
 	return DragonRigArt.labelled_source_layers(row)
 
+static func frame_count(row: Dictionary, pose: String) -> int:
+	return DragonSpriteCatalog.frame_count(row, pose)
+
 static func model(row: Dictionary, pose: String = "idle", progress: float = 0.0, state: Dictionary = {}) -> Dictionary:
 	return DragonRigArt.model(row, pose, progress, state)
 
@@ -169,7 +172,7 @@ static func warm(rows: Array) -> int:
 	for row: Dictionary in rows:
 		if str(row.get("stage", "egg")) == "egg" or not bool(row.get("alive", true)): continue
 		var source: Dictionary = DragonRigArt._source(row)
-		if source.is_empty(): continue
+		if source.is_empty() or bool(source["entry"].get("painted", false)): continue
 		var gem: Dictionary = _entry("gems", String(row.get("gem_id", "")))
 		if gem.is_empty(): continue
 		var job := _tint_job(source, row, Color(String(gem["base"])), Color(String(gem["accent"])))
@@ -302,7 +305,7 @@ static func _draw_canvas_fangs(cv: PixelCanvas, model_data: Dictionary, row: Dic
 	if "head" in lost or "neck" in lost: return
 	var pal: Dictionary = fang_palette(String(row.get("gem_id", "")))
 	if pal.is_empty(): return
-	var source: Dictionary = DragonRigArt._source(row)
+	var source: Dictionary = DragonRigArt._source(row, String(model_data["pose"]), float(model_data.get("progress", 0.0)))
 	if source.is_empty(): return
 	var entry: Dictionary = source.get("entry", {})
 	var anatomy: Dictionary = entry.get("anatomical_regions", {})
@@ -380,7 +383,7 @@ static func portrait_jaw_rect(row: Dictionary, pose: String = "idle", progress: 
 	var raster: float = minf((SIDE - 24.0) / bounds.size.x, (SIDE - 24.0) / bounds.size.y)
 	var origin: Vector2 = Vector2(SIDE, SIDE) * 0.5 - bounds.get_center() * raster
 	var out: Dictionary = _canvas_model(info, origin, raster)
-	var source: Dictionary = DragonRigArt._source(row)
+	var source: Dictionary = DragonRigArt._source(row, pose, progress)
 	var polys: Array = source.get("entry", {}).get("anatomical_regions", {}).get("jaw", {}).get("polygons", [])
 	for reg: Dictionary in out.get("regions", []):
 		if String(reg.get("id", "")) == "jaw" and not polys.is_empty() and polys[0] is Array:

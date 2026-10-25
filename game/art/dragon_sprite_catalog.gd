@@ -1,7 +1,7 @@
 class_name DragonSpriteCatalog
 extends RefCounted
-## Observed source-image anchors. JSON is authored after each sprite is viewed.
-## No approximate procedural body or inferred saddle position is supplied here.
+## Observed source-image anchors and explicitly selected code-drawn variants.
+## Original JSON sources retain their authored pixel cuts and rider sockets.
 const PATH := "res://art/dragon_source/source_catalog_v006.json"
 static var _catalog: Dictionary = {}
 static var _material_masks: Dictionary = {}
@@ -20,7 +20,35 @@ static func entries() -> Dictionary:
 		_catalog = decoded["entries"].duplicate(true)
 	return _catalog.duplicate(true)
 
+## Appearance variants retain the existing gem, body form and physical profile.
+static func variants() -> Array:
+	return [{"id": "sapphire_spirewing", "name": "Sapphire Spirewing", "gem_id": "sapphire", "morph_id": "spirewing", "frames": SapphireSpirewingArt.FRAME_COUNT}]
+
+static func variants_for(row: Dictionary) -> Array:
+	return variants().filter(func(value: Dictionary): return value["gem_id"] == row.get("gem_id", "") and value["morph_id"] == row.get("morph_id", ""))
+
+static func variant_for(row: Dictionary) -> Dictionary:
+	if row.get("sprite_id", "") != "sapphire_spirewing": return {}
+	for value: Dictionary in variants_for(row):
+		if value["id"] == row.get("sprite_id", ""): return value
+	return {}
+
+static func source_id(row: Dictionary) -> String:
+	var variant := variant_for(row)
+	return String(variant["id"]) if not variant.is_empty() else String(row.get("morph_id", ""))
+
+static func source_entry(row: Dictionary, pose: String = "rest", progress: float = 0.0) -> Dictionary:
+	if not variant_for(row).is_empty(): return SapphireSpirewingArt.metadata(SapphireSpirewingArt.frame_index(pose, progress))
+	return entry(String(row.get("morph_id", "")), pose)
+
+static func frame_count(row: Dictionary, pose: String) -> int:
+	if pose == "rest": return 1
+	pose = "idle" if pose == "ground" else pose
+	if not variant_for(row).is_empty() and pose not in ["prone", "dead"]: return SapphireSpirewingArt.FRAME_COUNT
+	return maxi(1, int(FigurePainter.FRAMES.get(pose, 1)))
+
 static func entry(morph_id: String, _pose: String = "rest") -> Dictionary:
+	if morph_id == "sapphire_spirewing": return SapphireSpirewingArt.metadata(1)
 	var data: Dictionary = entries().get(morph_id, {})
 	if data.is_empty(): push_error("Dragon coherent source or observed anchors are missing for " + morph_id)
 	return data.duplicate(true)
