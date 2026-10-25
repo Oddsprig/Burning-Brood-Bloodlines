@@ -1,0 +1,162 @@
+Burning Brood: Bloodlines v0.061 - actual verification, 2026-10-25
+Worktree: C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v061
+Branch: claude/v061-spirewing
+HEAD: dff078d4e7f0bd38c895e96115618807474bbf79 (v0.060)
+Commit: NONE. The requested "when tests pass" condition is not met.
+
+Outcome
+- Initial headless import PASS, exit 0, 19.84s; no parse/compile errors.
+- New spirewing_v061 block PASS twice: 2 tests, 209 checks, 0 failures per run.
+- Distinct v0.061 tests attempted: 30; 26 PASS, 3 FAIL, 1 TIMEOUT.
+- Completed distinct assertions: 5356; 5351 passed, 5 failed.
+- All five failed assertions reproduce on v0.060 in the same three tests.
+- The display-dependent creature UI test also times out headlessly on v0.060.
+- No v0.061 source fix was necessary in the executed checks.
+- Full suite not run: the one-minute condition was not met. The creature UI
+  test cannot finish headlessly; the inventory also includes claude_bench,
+  whose defaults alone request 60s battle plus 40s map, before setup/other work.
+- No rendered artwork-quality or GPU/display validation is claimed.
+
+Remaining failures (identical on v0.060)
+1. test_dragon_care_release.gd: 293 checks, 2 failures:
+   FAIL: native 100-person starting company retained
+   FAIL: all individual records, history, owner and custody survive native save/load
+2. test_dragon_release.gd: 293 checks, 2 failures:
+   FAIL: native 100-person starting company retained
+   FAIL: all individual records, history, owner and custody survive native save/load
+3. test_dragon_care_ui.gd: 56 assertions, 1 failure:
+   FAIL dragon care UI: roster shows actual adult/egg condition
+4. claude_creatures_ui_v035.gd: TIMEOUT, waits for RenderingServer.frame_post_draw.
+   Guard: Test run timed out at 60 seconds; stopped only the retained owned process.
+   v0.060 log also contains:
+   runner: WATCHDOG - res://tests/claude_creatures_ui_v035.gd did not finish in 60 s (compile or runtime error?)
+
+Baseline method and restoration
+Temporarily reverted these seven production files to HEAD using file patches:
+game/art/dragon_art.gd
+game/art/dragon_rig_art.gd
+game/art/dragon_sprite_catalog.gd
+game/battle/dragon_view.gd
+game/project.godot
+game/ui/dragon_card.gd
+game/ui/dragons.gd
+git diff --exit-code for all seven returned 0 before baseline tests. New v0.061
+art/test files stayed present but were not referenced by the baseline tests.
+After comparison, restored the original v0.061 patch and verified the complete
+seven-file diff exactly matches the diff recorded before baseline edits.
+git diff --check passed. Final spirewing_v061 rerun passed 209/209 checks.
+
+Scheduling and bounds
+Every Godot launch used --headless and --watchdog=60, hidden/BelowNormal,
+one process at a time, with a retained process handle and an outer 60s cap.
+Before EVERY launch: tasklist plus the original shared lane's read-only
+detector, including renamed games and active test leases. Inspections repeated
+during each run; only our retained owned process could be stopped.
+The shared lane command attempt failed before any Godot process started:
+  Cannot find an overload for "Move" and the argument count: "3".
+Windows PowerShell is 5.1; pwsh is unavailable on PATH. An explicit escalated
+command approval extended the user's direct-launch fallback to this lane error.
+Two launch attempts found another workflow's active test lease and did not
+launch. They were retried only after the lane was free; neither is a failed
+test or a passed test. The timeout group retained two completed PASS results,
+one timed-out test, and two not-started tests; those last two later passed.
+No deletion or cleanup commands were issued. All logs were preserved.
+No git add, commit, push, branch switch or history rewrite was performed.
+
+Per-test assertion counts (distinct v0.061 completions; timeout separate below)
+Test | Passed assertions | Failed assertions | Status | Log stem
+test_sapphire_spirewing_v061.gd | 76 | 0 | PASS | v0.061_spirewing_01.log
+test_dragon_concepts.gd | 133 | 0 | PASS | v0.061_spirewing_01.log
+test_dragon_models.gd | 734 | 0 | PASS | v0.061_dragon_art_01.log
+test_dragon_view_v022.gd | 121 | 0 | PASS | v0.061_dragon_art_01.log
+test_dragon_damage_art.gd | 126 | 0 | PASS | v0.061_dragon_art_01.log
+test_dragon_mount_preview.gd | 246 | 0 | PASS | v0.061_dragon_art_01.log
+test_dragon_bond_v021.gd | 103 | 0 | PASS | v0.061_dragon_core_01.log
+test_dragon_bond_ui_v021.gd | 307 | 0 | PASS | v0.061_dragon_core_01.log
+test_creature_check_performance.gd | 28 | 0 | PASS | v0.061_dragon_core_01.log
+test_dragon_identities.gd | 279 | 0 | PASS | v0.061_dragon_core_01.log
+test_dragon_growth.gd | 69 | 0 | PASS | v0.061_dragon_core_01.log
+test_dragon_growth_v052.gd | 63 | 0 | PASS | v0.061_dragon_core_01.log
+test_dragon_care.gd | 44 | 0 | PASS | v0.061_dragon_campaign_01.log
+test_dragon_care_release.gd | 291 | 2 | FAIL | v0.061_dragon_campaign_01.log
+test_dragon_provisions_v050.gd | 80 | 0 | PASS | v0.061_dragon_campaign_01.log
+test_earned_bonds_v051.gd | 85 | 0 | PASS | v0.061_dragon_campaign_01.log
+test_rider_danger_v054.gd | 1079 | 0 | PASS | v0.061_dragon_campaign_01.log
+test_dragon_combat_v022.gd | 189 | 0 | PASS | v0.061_dragon_campaign_01.log
+test_dragon_care_ui.gd | 55 | 1 | FAIL | v0.061_dragon_ui_01.log
+test_dragon_combat_ui_v022.gd | 109 | 0 | PASS | v0.061_dragon_ui_01.log
+test_dragon_roost_v053.gd | 259 | 0 | PASS | v0.061_dragon_ui_01.log
+test_dragon_ui.gd | 152 | 0 | PASS | v0.061_dragon_ui_01.log
+test_dragon_release.gd | 291 | 2 | FAIL | v0.061_dragon_ui_01.log
+test_dragon_asset_succession.gd | 29 | 0 | PASS | v0.061_dragon_ui_01.log
+claude_dragonfear.gd | 14 | 0 | PASS | v0.061_dragonfear_01.log
+test_mounted_rider_art.gd | 311 | 0 | PASS | v0.061_dragon_creatures_01.log
+claude_creatures_v035.gd | 9 | 0 | PASS | v0.061_dragon_creatures_01.log
+claude_breeding_v038.gd | 36 | 0 | PASS | v0.061_breeding_fangs_01.log
+claude_fangs_v036.gd | 33 | 0 | PASS | v0.061_breeding_fangs_01.log
+claude_creatures_ui_v035.gd | not reported | not reported | TIMEOUT | v0.061_dragon_creatures_01.log
+
+Exact executed engine commands (PowerShell 5.1 syntax)
+These record the child engine invocations; execution used the guarded hidden
+Start-Process launch described above, not an unguarded interactive launch.
+$spireWorktree = 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v061'
+$godot = 'C:/Users/bligh/Desktop/Burning_Brood_Bloodlines_v0.022/runtime/Godot_v4.7.2-stable_win64.exe'
+Set-Location -LiteralPath $spireWorktree
+
+# import: import PASS; 19.84s; exit 0
+& $godot --headless --path game --editor --quit --log-file 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v061/test-results/v0.061_import.log' -- --watchdog=60
+
+# spirewing_01: 2 PASS / 0 FAIL; 209 checks / 0 failed; 6.69s; exit 0
+& $godot --headless --path game --log-file 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v061/test-results/v0.061_spirewing_01.log' res://tests/runner.tscn -- '--block=spirewing_v061' --watchdog=60
+
+# dragon_art_01: 4 PASS / 0 FAIL; 1227 checks / 0 failed; 43.73s; exit 0
+& $godot --headless --path game --log-file 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v061/test-results/v0.061_dragon_art_01.log' res://tests/runner.tscn -- '--tests=res://tests/test_dragon_models.gd,res://tests/test_dragon_view_v022.gd,res://tests/test_dragon_damage_art.gd,res://tests/test_dragon_mount_preview.gd' --watchdog=60
+
+# dragon_core_01: 6 PASS / 0 FAIL; 849 checks / 0 failed; 24.06s; exit 0
+& $godot --headless --path game --log-file 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v061/test-results/v0.061_dragon_core_01.log' res://tests/runner.tscn -- '--tests=res://tests/test_dragon_bond_v021.gd,res://tests/test_dragon_bond_ui_v021.gd,res://tests/test_creature_check_performance.gd,res://tests/test_dragon_identities.gd,res://tests/test_dragon_growth.gd,res://tests/test_dragon_growth_v052.gd' --watchdog=60
+
+# dragon_campaign_01: 5 PASS / 1 FAIL; 1770 checks / 2 failed; 40.53s; exit 2
+& $godot --headless --path game --log-file 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v061/test-results/v0.061_dragon_campaign_01.log' res://tests/runner.tscn -- '--tests=res://tests/test_dragon_care.gd,res://tests/test_dragon_care_release.gd,res://tests/test_dragon_provisions_v050.gd,res://tests/test_earned_bonds_v051.gd,res://tests/test_rider_danger_v054.gd,res://tests/test_dragon_combat_v022.gd' --watchdog=60
+
+# dragon_ui_01: 4 PASS / 2 FAIL; 898 checks / 3 failed; 47.11s; exit 3
+& $godot --headless --path game --log-file 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v061/test-results/v0.061_dragon_ui_01.log' res://tests/runner.tscn -- '--tests=res://tests/test_dragon_care_ui.gd,res://tests/test_dragon_combat_ui_v022.gd,res://tests/test_dragon_roost_v053.gd,res://tests/test_dragon_ui.gd,res://tests/test_dragon_release.gd,res://tests/test_dragon_asset_succession.gd' --watchdog=60
+
+# dragonfear_01: 1 PASS / 0 FAIL; 14 checks / 0 failed; 16.76s; exit 0
+& $godot --headless --path game --log-file 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v061/test-results/v0.061_dragonfear_01.log' res://tests/runner.tscn -- '--tests=res://tests/claude_dragonfear.gd' --watchdog=60
+
+# dragon_creatures_01: 2 PASS / 1 TIMEOUT / 2 NOT STARTED; completed checks 320 / 0 failed; the two unstarted tests ran separately below; 60s; exit stopped
+& $godot --headless --path game --log-file 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v061/test-results/v0.061_dragon_creatures_01.log' res://tests/runner.tscn -- '--tests=res://tests/test_mounted_rider_art.gd,res://tests/claude_creatures_v035.gd,res://tests/claude_creatures_ui_v035.gd,res://tests/claude_breeding_v038.gd,res://tests/claude_fangs_v036.gd' --watchdog=60
+
+# breeding_fangs_01: 2 PASS / 0 FAIL; 69 checks / 0 failed; 23.15s; exit 0
+& $godot --headless --path game --log-file 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v061/test-results/v0.061_breeding_fangs_01.log' res://tests/runner.tscn -- '--tests=res://tests/claude_breeding_v038.gd,res://tests/claude_fangs_v036.gd' --watchdog=60
+
+# baseline_v060_01: v0.060: 0 PASS / 3 FAIL; 642 checks / 5 failed; all messages match v0.061; 25.07s; exit 5
+& $godot --headless --path game --log-file 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v061/test-results/v0.061_baseline_v060_01.log' res://tests/runner.tscn -- '--tests=res://tests/test_dragon_care_release.gd,res://tests/test_dragon_release.gd,res://tests/test_dragon_care_ui.gd' --watchdog=60
+
+# baseline_v060_creature_ui_01: v0.060: 1 TIMEOUT; no assertions reached; 60s; exit stopped
+& $godot --headless --path game --log-file 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v061/test-results/v0.061_baseline_v060_creature_ui_01.log' res://tests/runner.tscn -- '--tests=res://tests/claude_creatures_ui_v035.gd' --watchdog=60
+
+# spirewing_02: restored v0.061: 2 PASS / 0 FAIL; 209 checks / 0 failed; repeated tests excluded from distinct totals; 6.58s; exit 0
+& $godot --headless --path game --log-file 'C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v061/test-results/v0.061_spirewing_02.log' res://tests/runner.tscn -- '--block=spirewing_v061' --watchdog=60
+
+Read-only detector command (used before every launch and during runs):
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File 'C:/Users/bligh/Documents/Codex/tools/game-testing/Invoke-GameTestLane.ps1' -CheckOnly
+tasklist.exe /FO CSV /NH
+
+Files created by this verification pass
+game/art/sapphire_spirewing_art.gd.uid
+game/tests/test_sapphire_spirewing_v061.gd.uid
+test-results/v0.061_verification.txt
+test-results/v0.061_import.log
+test-results/v0.061_spirewing_01.log
+test-results/v0.061_dragon_art_01.log
+test-results/v0.061_dragon_core_01.log
+test-results/v0.061_dragon_campaign_01.log
+test-results/v0.061_dragon_ui_01.log
+test-results/v0.061_dragonfear_01.log
+test-results/v0.061_dragon_creatures_01.log
+test-results/v0.061_breeding_fangs_01.log
+test-results/v0.061_baseline_v060_01.log
+test-results/v0.061_baseline_v060_creature_ui_01.log
+test-results/v0.061_spirewing_02.log
+All previously applied v0.061 source edits remain intact. No deletion is requested.

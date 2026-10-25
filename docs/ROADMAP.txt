@@ -285,6 +285,7 @@ v0.056 horses - DELIVERED (Claude Edition): horses graze and breed in town herds
 v0.058 farm hands - DELIVERED (Claude Edition): a farm's wage ceiling now follows net sales (after grain tax, broker share and tribute) spread over the year's seasonal hands; hired hands keep their own hunger and sickness, owners' fields follow their staff, and a working mint keeper still casts after paid minters leave.
 v0.059 guard record fix - DELIVERED (Claude Edition): opening a unit's record page (a caravan guard's, a militiaman's) no longer adds an empty records list to the household it reads; record pages read the register without creating it, so cohort and older-save households stay as they were.
 v0.060 test fixes (Claude Edition): producer checks follow weekly labour-band wage bids and keep full-market fixtures stocked with equipment that is not recycled; migration conservation counts wage-paying business tills with a strict coin tolerance, and the deadliness format string is escaped.
+v0.061 Sapphire Spirewing (Claude Edition): a code-drawn sapphire wyvern with six wingbeat frames is selectable in matching dragon holdings and appears in cards, the roost and battles, with the existing head, jaw, rider and injury rig.
 Also delivered outside the numbered list (Claude Edition): court and marriage, interface pass, 100 v 100 battle rounds, armies to 1000, house officers and noble call-up, house arms pool, ennoblement, medics and aftermath.
 
 LOCKED FOUNDATIONS / LATER SMALL PASSES
