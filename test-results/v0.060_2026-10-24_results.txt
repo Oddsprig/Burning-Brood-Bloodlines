@@ -1,0 +1,38 @@
+Burning Brood: Bloodlines v0.060 - Test fixes
+Date: 2026-10-24
+Working folder: LegionaryAI/.work/bb
+
+Changes:
+- Retained the escaped deadliness percent and business-till conservation total.
+- Families.reassign -> set_job -> WageClaims.pay_business debits the employer's
+  till by exactly the cash credited to the household purse; including both is
+  the correct migration invariant. Both coin checks now allow less than 0.001
+  coin of absolute error rather than a balance-dependent relative tolerance.
+- Markets follow Businesses.bid_day: half-vacant ordinary jobs bid up 12%,
+  repeat observations within seven days do not bid again, and fully staffed
+  jobs without departures lower their next weekly bid by 3%, inside the band.
+- Follow-up: market_wages gives its sole market fixture row id 0, matching
+  its index in biz and the real business constructor. All checks retained.
+- Full-market stock now uses bronze swords. The daily recycling pass consumed
+  the old copper fixture, opening the stalls and legitimately wearing tools.
+  Added an explicit check that the full stalls and absence of orders persist.
+- Removed DBGT. Set project version to 0.060-claude and added the roadmap entry.
+No production economy code changed.
+
+Current verification:
+- Earlier static checks passed: DBGT absent, bronze fixture present, version
+  set, and deadliness percent escape retained. Code paths reviewed as above.
+Gemini 3.8 high ran the tests; reviewer results reported by the controller:
+- claude_population_v034: PASS, 48 checks / 0 failures.
+- test_farm_worked: PASS, 357 checks / 0 failures.
+- test_food_coin_recovery: PASS.
+- test_population_economy_controls: PASS, 60 checks / 0 failures.
+- test_economy_fixes: PASS, 2975 checks.
+- test_producer_cash before the fixture fix: 64 checks / 0 assertion failures,
+  overall FAIL (2 runtime script errors: missing market fixture id in
+  Businesses.refresh_hiring). NEEDS RE-RUN after the id fix above.
+- This follow-up is static-check only; this worker did not run Godot.
+- Static readback confirmed the test changed only by adding id 0; all check
+  statements are unchanged.
+Existing dbg/baseline logs predate these edits and are not current passes.
+No git commands or commit: the worker instructions prohibit git.

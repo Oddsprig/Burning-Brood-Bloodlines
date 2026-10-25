@@ -283,6 +283,7 @@ v0.054 riders share the danger - DELIVERED (Claude Edition): when a dragon is br
 v0.055 clearer battles - DELIVERED (Claude Edition): terrain patterns, short combat cues and an on-screen legend make battles easier to read; these visual changes leave battle results unchanged.
 v0.056 horses - DELIVERED (Claude Edition): horses graze and breed in town herds, while officers and cavalry buy mounts and pay their upkeep in grain. Mounted fighters fight from horseback; horses can be killed, flee with their riders and return to the herd.
 v0.058 farm hands - DELIVERED (Claude Edition): a farm's wage ceiling now follows net sales (after grain tax, broker share and tribute) spread over the year's seasonal hands; hired hands keep their own hunger and sickness, owners' fields follow their staff, and a working mint keeper still casts after paid minters leave.
+v0.060 test fixes (Claude Edition): producer checks follow weekly labour-band wage bids and keep full-market fixtures stocked with equipment that is not recycled; migration conservation counts wage-paying business tills with a strict coin tolerance, and the deadliness format string is escaped.
 Also delivered outside the numbered list (Claude Edition): court and marriage, interface pass, 100 v 100 battle rounds, armies to 1000, house officers and noble call-up, house arms pool, ennoblement, medics and aftermath.
 
 LOCKED FOUNDATIONS / LATER SMALL PASSES

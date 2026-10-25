@@ -30,6 +30,18 @@ func receipt_losses() -> void:
 	for i in 14: EconomyRules.record_receipts(b, float(b["till"]), 1)
 	check(b["net_receipts"].size() == 14 and (b["net_receipts"] as Array).all(func(v): return float(v) == 0), "old profits and losses age out after fourteen staffed days")
 
+func market_wages() -> void:
+	# Market offers use weekly vacancies, just like other ordinary employers.
+	var mkt := {"id": 0, "type": "market", "cap": 2, "workers": 1, "wage": 100.0, "till": 10000.0}
+	var e := {"day": 7, "dwage": 100.0, "biz": [mkt]}
+	Barge.pay_week(e)
+	check(absf(float(mkt["wage"]) - 112.0) < 0.001, "half-vacant market raises its weekly offer by twelve percent")
+	Businesses.bid_day(e)
+	check(absf(float(mkt["wage"]) - 112.0) < 0.001, "daily market observation does not repeat the same week's bid")
+	e["day"] = 14; mkt["workers"] = 2
+	Barge.pay_week(e)
+	check(absf(float(mkt["wage"]) - 108.64) < 0.001, "fully staffed market lowers its weekly offer by three percent without departures")
+
 func full_market_and_ownerless(rows: Array) -> void:
 	var t: Dictionary = rows[0]; var b: Dictionary = rows[1]
 	var e: Dictionary = t["econ"]
@@ -37,7 +49,8 @@ func full_market_and_ownerless(rows: Array) -> void:
 	e["prod"] = [int(b["id"])]
 	e["arms_short"] = {}; e["arms_tgt"] = {}
 	(t["shop"] as Array).clear()
-	for i in Businesses.arms_cap(t) + 1: (t["shop"] as Array).append(Item.make("arming_sword", "copper", 2))
+	# Copper equipment is recycled before the daily full-market check.
+	for i in Businesses.arms_cap(t) + 1: (t["shop"] as Array).append(Item.make("arming_sword", "bronze", 2))
 	for k in ["heads_copper", "heads_tin"]:
 		e["stock"][k] = 100000
 		e["price"][k] = float(TownEcon.data()["goods"][k]["price"])
@@ -62,17 +75,22 @@ func full_market_and_ownerless(rows: Array) -> void:
 	check(b["net_receipts"].size() == 14 and (b["net_receipts"] as Array).all(func(v): return float(v) == 0), "staffed full-market days replace stale profitable history")
 	check(String(b["state"]) == "wages" and float(b["owed"]) == 1400.0, "overdue pay remains visible despite market rest")
 	check(absf(Barge.holdings(Game) - coins) < 0.001, "rest bookkeeping makes no money or artificial sales")
+	check((t["shop"] as Array).size() == Businesses.arms_cap(t) + 1 and not ArmsTrade.has_orders(e, "weapon"), "rest fixture keeps full arms stalls with no standing orders")
 	check(int(b["tools"]) == 5 and float(b["tw"]) == 0.5 and int(e["stock"].get("tools", 0)) == tool_stock, "blocked resting days do not wear or purchase tools")
 	b["owner"] = -1
 	Barge.pay_week(e)
-	check(float(b["wage"]) == 0 and float(b["revenue_hand"]) == 0, "ownerless production cannot bypass realised wage support")
+	# Wages are a labour-market price inside the band (v0.043); ownerless production neither zeroes nor lifts it, and only fields carry a crop value.
+	var band_low: float = EconomyRules.wage_limit(e, b, 0.0)
+	var band_high: float = EconomyRules.wage_limit(e, b, 1000000.0)
+	check(float(b["wage"]) >= band_low - 0.001 and float(b["wage"]) <= band_high + 0.001 and not b.has("revenue_hand"), "ownerless production pays inside the labour band with no crop value")
+	var ownerless_wage: float = float(b["wage"])
 	Businesses.bid_day(e)
-	check(float(b["wage"]) == 0, "daily ownerless bidding observes same production limit")
+	check(float(b["wage"]) >= band_low - 0.001 and float(b["wage"]) <= band_high + 0.001, "daily ownerless bidding stays inside the same band")
 	b["owner"] = old_owner
 	Businesses.bid_day(e)
-	check(float(b["wage"]) == 0, "ownership resale does not reset an unsupported offer")
+	check(float(b["wage"]) >= band_low - 0.001 and float(b["wage"]) <= band_high + 0.001 and float(b["wage"]) <= ownerless_wage * 1.2 + 0.001, "ownership resale does not jump the offer outside the band")
 	var mkt: Dictionary = e["biz"][int(e["mkt"])]
-	check(absf(float(mkt["wage"]) - float(TownEcon.data()["businesses"]["market"]["wage"]) * Barge.wage_mult(e)) < 0.001, "funded public-service pay keeps its table rule")
+	check(float(mkt["wage"]) >= Barge.day_wage(e) * 0.6 - 0.001 and float(mkt["wage"]) <= Barge.day_wage(e) * 1.8 + 0.001, "generated market offer stays inside the ordinary labour band")
 
 func funded_family_staff(rows: Array) -> void:
 	var t: Dictionary = rows[0]; var b: Dictionary = rows[1]; var f: Dictionary = rows[2]
@@ -121,6 +139,7 @@ func funded_family_staff(rows: Array) -> void:
 
 func run(_tree: SceneTree) -> int:
 	receipt_losses()
+	market_wages()
 	for seed_v in [713, 2026, 8801]:
 		Game.new_game(seed_v)
 		var rows := select_shop(); check(rows.size() == 3, "generated general producer fixture exists")

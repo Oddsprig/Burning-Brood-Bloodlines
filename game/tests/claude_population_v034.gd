@@ -56,6 +56,9 @@ func _goods(e: Dictionary) -> int:
 func _purses(e: Dictionary) -> float:
 	var n := float(e.get("treasury", 0.0))
 	for f in e["fams"]: n += float(f.get("purse", 0.0))
+	# Leaving a job during reassignment settles earned wages from its till into
+	# the household purse. Both pockets belong in the conservation total.
+	for b in e["biz"]: n += float(b.get("till", 0.0))
 	return n
 
 func run(tree: SceneTree) -> int:
@@ -125,7 +128,7 @@ func run(tree: SceneTree) -> int:
 	Sickness.deadliness = 0.0
 	var zero_rng := RandomNumberGenerator.new(); zero_rng.seed = 7
 	Sickness._pool_infect(e, b, row, "flux", "adult", "workers", 30, d, zero_rng, "cond:test")
-	check(int(row["psk"][-1][3]) == 0, "at 0% deadliness no case dies (%d of 30)" % int(row["psk"][-1][3]))
+	check(int(row["psk"][-1][3]) == 0, "at 0%% deadliness no case dies (%d of 30)" % int(row["psk"][-1][3]))
 	_act0_fix(e, row)
 	Sickness.deadliness = 1.0
 	for k in saved: flux[k] = saved[k]
@@ -180,7 +183,7 @@ func run(tree: SceneTree) -> int:
 	check(moved > 0 and Families.people(fs) == ps0 - moved and Families.people(fd) == pd0 + moved, "ten households' people move from one row to the other (%d)" % moved)
 	check(Population.households(fs) == hh0 - 10 and Population.households(fd) == hd0 + 10, "the households move with them")
 	check(int(es["pop"]) + int(ed["pop"]) == total_pop, "no person is made or lost")
-	check(is_equal_approx(_purses(es) + _purses(ed), total_coin), "no coin is made or lost (house purchases go to the treasury)")
+	check(absf(_purses(es) + _purses(ed) - total_coin) < 0.001, "no coin is made or lost (house purchases go to the treasury)")
 	check(_goods(es) + _goods(ed) == total_goods, "their stores move as goods, none made or lost")
 	check(_bins(fs) == _anon(fs) and _bins(fd) == _anon(fd), "age bins match residents in both rows")
 	check(int(es["stats"].get("left_war", 0)) == left0 + moved, "the old town counts them as left for war")
@@ -236,7 +239,7 @@ func run(tree: SceneTree) -> int:
 		check(n > 0 and bought > 0 and bought <= 3, "arrivals buy empty town houses (%d)" % bought)
 		check(int(ew["fams"][0]["homes"]) == estate0 - bought, "the houses come from the town estate")
 		check(is_equal_approx(float(ew["treasury"]) - treasury0, float(bought) * float(Shelter.D()["estate_home"])), "at the estate price, into the treasury")
-		check(is_equal_approx(_purses(ed) + _purses(ew), coin_all), "no coin is made or lost")
+		check(absf(_purses(ed) + _purses(ew) - coin_all) < 0.001, "no coin is made or lost")
 	# --- Save and load keep the war memory and the open common cases.
 	Migration.note_attack(w, String(src["id"]), Game.day)
 	row["psk"] = [["flux", "adult", 3, 1, d + 100, d + 110, false]]
