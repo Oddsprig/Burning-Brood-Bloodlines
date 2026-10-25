@@ -117,7 +117,12 @@ func run(_tree: SceneTree) -> int:
 		"fams": [Families.make_estate({}), f], "biz": [fb], "farm_till": 0.0, "barn": {}}
 	var day_w: float = Barge.day_wage(e)
 	var hand_val: float = EconomyRules.farm_hand_value(e, f)
-	check(absf(hand_val - 8.0 * 200.0 / EconGen.YEAR_DAYS) < 0.00001 and hand_val < day_w * 0.6, "low crop revenue per hand is below the adult wage floor")
+	var annual: float = 0.0
+	for season in 4:
+		annual += Families.seasonal_need_hands(f, float(season * Calendar.DAYS_PER_SEASON), e) / 4.0
+	var net: float = 8.0 * 200.0 * float(TownEcon.data()["market"]["broker_share"]) * (1.0 - float(TownEcon.data()["tax"]["grain_share"])) / EconGen.YEAR_DAYS
+	check(absf(hand_val * annual - net) < 0.00001, "annual seasonal payroll fits actual net farm sales")
+	check(hand_val < day_w * 0.6, "low crop revenue per hand is below the adult wage floor")
 	check(absf(EconomyRules.wage_limit(e, fb, hand_val) - day_w * 0.6) < 0.00001 and absf(EconomyRules.wage_limit(e, fb, 10000.0) - day_w * 1.8) < 0.00001, "farm wage stays within the adult labour band instead of capping at crop revenue")
 	Businesses.bid_day(e)
 	var raised_wage: float = float(fb["wage"])

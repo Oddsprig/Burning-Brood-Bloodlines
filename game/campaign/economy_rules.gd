@@ -120,14 +120,25 @@ static func farm_hand_value(e: Dictionary, f: Dictionary) -> float:
 	var prices: Dictionary = e.get("price", {}) # Initial hiring precedes the first market price book.
 	var climate: Dictionary = D["climates"].get(String(e.get("climate", "temperate")), {})
 	var revenue := 0.0
+	var broker: float = float(D["market"]["broker_share"])
+	var tribute: float = float(e.get("ruler", {}).get("tribute", 0.0))
+	var tribute_kind: bool = String(e.get("ruler", {}).get("kind", "")) == "kind"
 	for crop in f["land"]:
 		var yield_v := CropRotation.family_yield(e, f, String(crop))
 		if crop in ["grain", "fruit"]: yield_v *= float(climate.get(crop + "_yield", 1))
+		# Wages spend sale proceeds, after grain tax and the broker's share.
+		if crop == "grain": yield_v *= maxf(0.0, 1.0 - float(D["tax"]["grain_share"]) - (tribute if tribute_kind else 0.0))
 		revenue += float(f["land"][crop]) * yield_v * float(prices.get(crop, D["goods"].get(crop, {}).get("price", 0))) / EconGen.YEAR_DAYS
 	for animal in f["herd"]:
 		for good in D["herds"].get(animal, {}):
 			revenue += float(f["herd"][animal]) * float(D["herds"][animal][good]) * float(prices.get(good, D["goods"].get(good, {}).get("price", 0)))
-	return maxf(0, revenue / maxf(1, Families.need_hands(f, e)))
+	revenue *= broker * (1.0 if tribute_kind else maxf(0.0, 1.0 - tribute))
+	# Base hands alone omit the extra harvest payroll. At the old ceiling,
+	# a fully hired farm spent 150% of gross annual revenue on wages alone.
+	var annual_hands: float = 0.0
+	for season in 4:
+		annual_hands += Families.seasonal_need_hands(f, float(season * Calendar.DAYS_PER_SEASON), e) / 4.0
+	return maxf(0.0, revenue / maxf(1.0, annual_hands))
 
 ## Skilled work keeps a higher band and is not discounted for surplus staff.
 const SKILLED_WORK := ["smelter", "weaponsmith", "armorsmith", "carpenter", "weaver", "tailor",
