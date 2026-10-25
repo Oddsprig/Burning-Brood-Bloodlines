@@ -96,6 +96,15 @@ static func kp(f: Dictionary) -> Array:
 		f["kp"] = []
 	return f["kp"]
 
+## Read-only views of the register: a household without records (a cohort, the estate, an older save) stays
+## without them. pp()/kp() create the empty list on first touch, which turns the row into a record household
+## (f.has("pp") is the test everywhere), so a record page opening must read through these instead.
+static func pp_read(f: Dictionary) -> Array:
+	return f["pp"] if f.has("pp") else []
+
+static func kp_read(f: Dictionary) -> Array:
+	return f["kp"] if f.has("kp") else []
+
 static func g(p: Array, i: int, d: Variant) -> Variant:
 	return p[i] if p.size() > i else d
 
@@ -168,10 +177,10 @@ static func race_of(e: Dictionary) -> String:
 static func by_pid(f: Dictionary, pid: int) -> Array:
 	if pid < 0:
 		return []
-	for p in pp(f):
+	for p in pp_read(f):
 		if int(p[0]) == pid:
 			return p
-	for p in kp(f):
+	for p in kp_read(f):
 		if int(p[0]) == pid:
 			return p
 	return []
@@ -847,14 +856,14 @@ static func pick_home(f: Dictionary, rng: RandomNumberGenerator, elders: bool = 
 	return c[rng.randi() % c.size()]
 
 static func by_uid(f: Dictionary, uid: int) -> Array:
-	for p in pp(f):
+	for p in pp_read(f):
 		if int(p[5]) == uid:
 			return p
 	return []
 
 static func by_name(e: Dictionary, f: Dictionary, uname: String) -> Array:
 	var race := race_of(e)
-	for p in pp(f):
+	for p in pp_read(f):
 		if name_of(f, p, race) == uname:
 			return p
 	return []
@@ -865,7 +874,7 @@ static func by_name_any(e: Dictionary, f: Dictionary, uname: String) -> Array:
 	if not p.is_empty():
 		return p
 	var race := race_of(e)
-	for q in kp(f):
+	for q in kp_read(f):
 		if name_of(f, q, race) == uname:
 			return q
 	for q in f.get("dp", []):
@@ -1150,7 +1159,7 @@ static func _biggest(d: Dictionary) -> String:
 static func head_of(f: Dictionary) -> Array:
 	var best: Array = []
 	for pass_i in 3:
-		for p in pp(f):
+		for p in pp_read(f):
 			if AWAY.has(String(p[4])) and pass_i < 2:
 				continue
 			var ok := false
@@ -1283,14 +1292,14 @@ static func household(e: Dictionary, f: Dictionary, day: float) -> Array:
 	var jobs := work(e, f)
 	var hs := by_pid(f, int(g(h, SP, -1))) if not h.is_empty() else []
 	var groups := [[], [], [], []]
-	for p in pp(f):
+	for p in pp_read(f):
 		var gi := 2
 		if int(p[6]) == 1:
 			gi = 0
 		elif (not h.is_empty() and int(p[0]) == int(h[0])) or (not hs.is_empty() and int(p[0]) == int(hs[0])):
 			gi = 1
 		groups[gi].append(p)
-	for p in kp(f):
+	for p in kp_read(f):
 		groups[3].append(p)
 	for gr in groups:
 		gr.sort_custom(func(x, y): return float(x[3]) < float(y[3]) if float(x[3]) != float(y[3]) else int(x[0]) < int(y[0]))
