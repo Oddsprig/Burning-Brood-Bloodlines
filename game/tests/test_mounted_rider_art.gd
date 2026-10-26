@@ -25,7 +25,7 @@ func joint_contract(spec: Dictionary, layers: Dictionary, label: String) -> void
 	for side: String in ["r", "l"]:
 		var hip: Vector2 = joints["p" + side]; var knee: Vector2 = joints["k" + side]; var foot: Vector2 = joints["f" + side]
 		check(knee.x > hip.x and knee.y > hip.y and foot.y > knee.y and foot.x < knee.x, label + " forward bent knee and downward shin " + side)
-		check((knee - hip).x > (knee - hip).y * 2.0 and (foot - knee).y > absf((foot - knee).x) * 3.0, label + " visibly horizontal seated thigh and mainly vertical shin " + side)
+		check((knee - hip).y > (knee - hip).x and (knee - hip).x > (knee - hip).y * 0.45 and (foot - knee).y > absf((foot - knee).x) * 3.0, label + " straddling downward-forward thigh and vertical stirrup shin " + side)
 		check(is_equal_approx(hip.distance_to(knee), fp.leg_len * 0.5) and is_equal_approx(knee.distance_to(foot), fp.leg_len * 0.5), label + " original thigh/shin lengths " + side)
 		var shoulder: Vector2 = joints["s" + side]; var elbow: Vector2 = joints["e" + side]; var hand: Vector2 = joints["h" + side]
 		check(is_equal_approx(shoulder.distance_to(elbow), fp.arm_a) and is_equal_approx(elbow.distance_to(hand), fp.arm_b), label + " reachable native arm IK " + side)
@@ -42,7 +42,7 @@ func joint_contract(spec: Dictionary, layers: Dictionary, label: String) -> void
 	var full: Image = layers["image"]; var size := full.get_size()
 	for kind: String in ["far", "saddle", "near"]:
 		var image: Image = layers[kind]
-		check(image.get_size() == size and visible(image) > 8, label + " visible common cropped " + kind + " layer")
+		check(image.get_size() == size and visible(image) > (40 if kind == "saddle" else 8), label + " visible common cropped " + kind + " layer")
 	var used := full.get_used_rect()
 	check(used.position.x > 0 and used.position.y > 0 and used.end.x < size.x and used.end.y < size.y, label + " gear/body crop has transparent safety margin")
 	check(layers["bounds"].has_point(Vector2.ZERO) and layers["bounds"].has_point(joints["hc"]), label + " logical bounds contain seated anatomy")

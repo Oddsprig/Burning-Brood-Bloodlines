@@ -27,7 +27,7 @@ static func bob(animation: String, index: int) -> float:
 	return [-1.0, -3.0, 0.0, -2.0][index % 4] * (1.5 if animation == "gallop" else 1.0)
 
 static func seat(animation: String, index: int) -> Vector2:
-	return Vector2(37, 26 + bob(animation, index)) - ANCHOR
+	return Vector2(41, 27 + bob(animation, index)) - ANCHOR
 
 static func _leg(c: PixelCanvas, x: float, phase: float, far: bool, coat: Color, drop: float, fall: bool) -> void:
 	var hip := Vector2(x, 38 + drop)
@@ -85,9 +85,9 @@ static func _paint(coat: String, animation: String, index: int) -> Image:
 	if coat == "grey":
 		for p: Vector2 in [Vector2(26,32),Vector2(32,37),Vector2(40,31)]:
 			c.dot(p + Vector2(0,dy), skin.darkened(0.22))
-	# Saddle cloth and girth are fitted to the back. MountedRiderArt supplies the seat.
-	c.rect(Rect2(31, 26 + dy, 14, 5), Color("#3e4355"))
-	c.line1(Vector2(37,30+dy), Vector2(39,42+dy), Color("#684332"))
-	c.rect(Rect2(32, 25 + dy, 11, 3), Color("#88593c"))
-	c.line1(Vector2(33,25+dy), Vector2(41,25+dy), Color("#c69c6d"))
+	# Saddle cloth and girth are fitted to the withers/back. MountedRiderArt supplies the full saddle.
+	c.rect(Rect2(34, 25 + dy, 13, 5), Color("#3e4355"))
+	c.line1(Vector2(41, 29 + dy), Vector2(43, 42 + dy), Color("#684332"))
+	c.rect(Rect2(35, 24 + dy, 11, 3), Color("#88593c"))
+	c.line1(Vector2(36, 24 + dy), Vector2(44, 24 + dy), Color("#c69c6d"))
 	return c.to_image()

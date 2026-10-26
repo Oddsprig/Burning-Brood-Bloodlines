@@ -2,6 +2,8 @@ class_name HorseDoll
 extends Node2D
 ## Read-only rider/horse composite. Shared horse frames; native rider layers only
 ## rebuild on equipment/wound invalidation, never once per gait frame.
+const HORSE_SCALE := 1.24
+const RIDER_PPU := 1.55
 var unit: Unit
 var facing := 1
 var team_color := Color.WHITE
@@ -52,9 +54,9 @@ func set_pose(pose: String, progress: float, render_frame: bool = true) -> void:
 		if on_foot: _foot.set_pose(pose, progress, render_frame)
 	if render_frame: queue_redraw()
 
-func _rider_layer(key: String, seat: Vector2) -> void:
+func _rider_layer(key: String, seat: Vector2, pitch: float = 0.0) -> void:
 	var mirror := Transform2D(0, Vector2(float(facing), 1), 0, Vector2.ZERO)
-	draw_set_transform_matrix(mirror * MountedRiderArt.placement(_layers, seat, 2.0))
+	draw_set_transform_matrix(mirror * MountedRiderArt.placement(_layers, seat, RIDER_PPU, pitch))
 	draw_texture(_textures[key], Vector2.ZERO)
 
 func _draw() -> void:
@@ -66,7 +68,12 @@ func _draw() -> void:
 	var animation := gait_animation if _pose == "walk" else "idle"
 	if _pose in ["dead", "prone"]: animation = "fall"
 	var index := mini(int(_progress * int(HorseArt.ANIMATIONS[animation])), int(HorseArt.ANIMATIONS[animation]) - 1)
-	var at := HorseArt.seat(animation, index)
+	var at := HorseArt.seat(animation, index) * HORSE_SCALE
+	var pitch := 0.0
+	if animation == "gallop":
+		pitch = [-0.05, -0.08, 0.035, -0.025][index % 4]
+	elif animation in ["walk", "trot"]:
+		pitch = [-0.025, -0.04, 0.02, -0.015][index % 4]
 	if riding and _dirty:
 		var spec := MountedRiderArt.spec_for_unit(unit)
 		spec["team"] = team_color
@@ -76,10 +83,10 @@ func _draw() -> void:
 			for key: String in ["far", "saddle", "near"]:
 				_textures[key] = ImageTexture.create_from_image(_layers[key])
 		_dirty = false
-	if riding and not _textures.is_empty(): _rider_layer("far", at)
-	draw_set_transform(Vector2.ZERO, 0, Vector2(float(facing), 1))
+	if riding and not _textures.is_empty(): _rider_layer("far", at, pitch)
+	draw_set_transform(Vector2.ZERO, 0, Vector2(float(facing) * HORSE_SCALE, HORSE_SCALE))
 	draw_texture(HorseArt.frame(str(horse.look.get("coat", "bay")), animation, index), -HorseArt.ANCHOR)
 	if riding and not _textures.is_empty():
-		_rider_layer("saddle", at)
-		_rider_layer("near", at)
+		_rider_layer("saddle", at, pitch)
+		_rider_layer("near", at, pitch)
 	draw_set_transform(Vector2.ZERO)

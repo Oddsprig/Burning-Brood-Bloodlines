@@ -1,0 +1,45 @@
+BURNING BROOD: BLOODLINES - v0.062 VERIFICATION RESULTS
+Date: 2026-10-26
+Version: 0.062-claude
+Branch: claude/v062-mounted-riders -> main
+
+SUMMARY OF CHANGES
+1. Dragon-to-rider proportions (`game/art/sapphire_spirewing_art.gd`):
+   - Recalibrated `units_per_pixel` from `0.50` to `0.90` so a human rider (`standing_height = 24.0` units) reads at believable scale against Juvenile, Adult, Large, Huge and Colossal dragons across `DragonMountPreviewArt`, `DragonCard`, `DragonRoost`, and `DragonView` in battle.
+2. Mount position & wingbeat motion sync (`game/art/sapphire_spirewing_art.gd`):
+   - Shifted wing shoulders slightly back (`near_wing: (68, 47 + d)`, `far_wing: (64, 45 + d)`) and moved `seat_px` from `[60, 46 + d]` (mid-wing) to `[72, 45 + d]` (`source_origin_px: [72, 48]`), seating the rider in the hollow at the base of the neck in front of the wing roots, slightly recessed into the dorsal line so the far leg is occluded by the dragon's body.
+   - Expanded vertical wingbeat bob (`BOB := [-1, 0, 2, 4, 2, 0]`) and added per-frame radian pitch (`SEAT_PITCH := [0.04, 0.0, -0.05, -0.08, -0.035, 0.02]`) so the rider bobs and pitches dynamically across all 6 wingbeat frames while keeping rest frame 1 at `seat == Vector2.ZERO` and `seat_angle == 0.0`.
+3. Straddling rider pose & procedural saddle (`game/art/mounted_rider_art.gd`):
+   - Updated `_seated_rig(fp)` with a slight forward lean (`shoulder.x = 1.75 + fp.hunch * 0.35`) and straddling legs (`thigh_dir = Vector2(0.55, 0.835).normalized()`, `shin_dir = Vector2(-0.18, 0.984).normalized()`) while preserving exact native limb segment lengths (`fp.leg_len * 0.5`, `fp.arm_a`, `fp.arm_b`).
+   - Added `_draw_saddle(fp)` on the `"saddle"` layer between mount body and rider: chest girth strap with brass cinch buckle and breastcollar strap, quilted saddle pad/shabrack with heraldic trim, molded leather saddle seat and thigh fender, raised cantle with brass rim, high pommel with brass plate and mount handles, and stirrup leather strap + metal stirrup iron.
+   - Added `_trim_standing_skirt(...)` and `_draw_pommel_cap(fp)` on the `"near"` layer so standing tunic hems wrap cleanly around the straddling thigh and the pommel cap/stirrup iron bracket the rider's pelvis and boot.
+4. Warhorse proportions, seat & gait pitch (`game/art/horse_art.gd`, `game/battle/horse_doll.gd`):
+   - Moved `HorseArt.seat(animation, index)` to `Vector2(41, 27 + bob(animation, index)) - ANCHOR` at the withers / base of the neck and aligned the base saddle cloth/girth.
+   - Updated `HorseDoll` with `HORSE_SCALE = 1.24`, `RIDER_PPU = 1.55`, and gait-synced radian pitch across `walk`, `trot`, and `gallop`.
+
+HEADLESS GODOT TEST SUITE RESULTS (ONE ENGINE INSTANCE AT A TIME VIA FIFO TEST LANE)
+Batch 1 (`test_batch1.log`):
+- `res://tests/test_sapphire_spirewing_v061.gd`: 78 checks, 0 failures (PASS, 0 s)
+- `res://tests/test_mounted_rider_art.gd`: 311 checks, 0 failures (PASS, 0 s)
+- `res://tests/test_dragon_mount_preview.gd`: 246 checks, 0 failures (PASS, 5 s)
+- `res://tests/test_dragon_models.gd`: 734 assertions, 0 failures (PASS, 27 s)
+- `res://tests/test_dragon_view_v022.gd`: 121 checks, 0 failures (PASS, 2 s)
+- `res://tests/test_dragon_damage_art.gd`: 126 checks, 0 failures (PASS, 0 s)
+- `res://tests/test_dragon_concepts.gd`: 133 checks, 0 failures (PASS, 0 s)
+
+Batch 2 (`test_batch2.log`):
+- `res://tests/test_dragon_roost_v053.gd`: 259 checks, 0 failures (PASS, 20 s)
+- `res://tests/test_dragon_bond_ui_v021.gd`: 307 checks, 0 failures; 18 desktop fit cases, 0 fit failures (PASS, 4 s)
+- `res://tests/test_rider_danger_v054.gd`: 1079 checks, 0 failures (PASS, 2 s)
+- `res://tests/test_horses_v056.gd`: 114 checks, 0 failures (PASS, 2 s)
+- `res://tests/test_horse_regressions_v056.gd`: 7607 checks, 0 failures (PASS, 22 s)
+
+Total: 12 test suites, 11,115 checks, 0 failures.
+
+BEFORE / AFTER PREVIEW IMAGES
+Saved in `test-results/` and `.work/previews/v0062/`:
+- `v0062_before_spirewing_mount_preview.png` / `v0062_after_spirewing_mount_preview.png`
+- `v0062_before_spirewing_card.png` / `v0062_after_spirewing_card.png`
+- `v0062_before_spirewing_roost.png` / `v0062_after_spirewing_roost.png`
+- `v0062_before_spirewing_battle.png` / `v0062_after_spirewing_battle.png`
+- `v0062_before_horse_rider.png` / `v0062_after_horse_rider.png`

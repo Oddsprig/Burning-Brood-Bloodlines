@@ -20,7 +20,8 @@ const WING_POSES := [
 	[Vector2(-6, -2), Vector2(-12, 0), Vector2(-42, 6), Vector2(-50, 18), Vector2(-40, 12)],
 	[Vector2(-3, -10), Vector2(-2, -22), Vector2(-20, -38), Vector2(-42, -28), Vector2(-46, -8)]
 ]
-const BOB := [0, 0, 1, 2, 1, 0]
+const BOB := [-1, 0, 2, 4, 2, 0]
+const SEAT_PITCH := [0.04, 0.0, -0.05, -0.08, -0.035, 0.02]
 static var _frames: Dictionary = {}
 
 class Layer extends RefCounted:
@@ -202,7 +203,7 @@ static func frame(index: int) -> Image:
 	if _frames.has(index): return _frames[index]
 	var pose: Array = WING_POSES[index]
 	var shift := Vector2(0, -BOB[index])
-	var shoulder := Vector2(72, 46) + shift
+	var shoulder := Vector2(68, 47) + shift
 	var far_wing := Layer.new(true)
 	var far_leg := Layer.new(true)
 	var tail := Layer.new()
@@ -279,7 +280,7 @@ static func metadata(index: int) -> Dictionary:
 	regions["neck"]["cut_point_px"] = [86, 38 + d]
 	for side: String in ["l", "r"]:
 		var distant := side == "l"
-		var shoulder := Vector2(68, 44 + d) if distant else Vector2(72, 46 + d)
+		var shoulder := Vector2(64, 45 + d) if distant else Vector2(68, 47 + d)
 		var pose: Array = _far_pose(WING_POSES[index]) if distant else WING_POSES[index]
 		var elbow: Vector2 = shoulder + pose[0]
 		var wrist: Vector2 = shoulder + pose[1]
@@ -293,11 +294,11 @@ static func metadata(index: int) -> Dictionary:
 		regions["leg_lower_" + side] = _region("body", [[knee.x - 5, knee.y - 3], [knee.x + 5, knee.y], [ankle.x + 4, ankle.y + 2], [ankle.x - 4, ankle.y + 2]], [knee.x, knee.y], [ankle.x, ankle.y])
 		regions["foot_" + side] = _region("body", [[ankle.x - 9, ankle.y - 3], [ankle.x + 13, ankle.y - 2], [ankle.x + 14, ankle.y + 9], [ankle.x - 9, ankle.y + 9]], [ankle.x, ankle.y], [ankle.x + 10, ankle.y + 4])
 	return {"generator": "sapphire_spirewing", "frame": index, "painted": true, "source_path": "code:sapphire_spirewing/%d" % index,
-		"image_size": [128, 96], "source_origin_px": [60, 49], "units_per_pixel": 0.5, "motion_scale": 1.0 / 12.0,
-		"seat_px": [60, 46 + d], "seat_angle": 0, "ground_y_px": 88, "neck_root_px": [76, 50 + d],
-		"wing_roots_px": {"left": [68, 44 + d], "right": [72, 46 + d]}, "head_crop_px": [78, 10 + d, 42, 35],
+		"image_size": [128, 96], "source_origin_px": [72, 48], "units_per_pixel": 0.90, "motion_scale": 1.0 / 12.0,
+		"seat_px": [72, 45 + d], "seat_angle": SEAT_PITCH[index], "ground_y_px": 88, "neck_root_px": [78, 49 + d],
+		"wing_roots_px": {"left": [64, 45 + d], "right": [68, 47 + d]}, "head_crop_px": [78, 10 + d, 42, 35],
 		"parts": {
-			"body": {"label": "Body, wingbeat, hind legs and tail", "parent": "", "polygons": [[[0, 0], [128, 0], [128, 96], [0, 96]]], "pivot_px": [60, 46 + d]},
+			"body": {"label": "Body, wingbeat, hind legs and tail", "parent": "", "polygons": [[[0, 0], [128, 0], [128, 96], [0, 96]]], "pivot_px": [72, 45 + d]},
 			"head": {"label": "Head and upper neck", "parent": "body", "polygons": [head], "pivot_px": [86, 38 + d], "ownership_priority": 1},
 			"jaw": {"label": "Lower jaw", "parent": "head", "polygons": [jaw], "pivot_px": [100, 29 + d], "ownership_priority": 2}},
 		"anatomical_regions": regions, "gem_regions": [], "preserve_regions": [],

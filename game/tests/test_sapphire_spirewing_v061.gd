@@ -53,6 +53,16 @@ func run(tree: SceneTree) -> int:
 	check(source_image != null and reconstructed != null and source_image.get_data() == reconstructed.get_data(), "rest head/jaw/body cuts exactly reconstruct the generated source")
 	var rest := DragonArt.model(row, "rest")
 	check(rest.get("frames") == 1 and rest["seat"].is_equal_approx(Vector2.ZERO), "still rest uses the raised-wing source and original seat origin")
+	var meta_rest := SapphireSpirewingArt.metadata(1)
+	var seat_x := float(meta_rest["seat_px"][0])
+	check(seat_x > float(meta_rest["wing_roots_px"]["left"][0]) and seat_x > float(meta_rest["wing_roots_px"]["right"][0]) and seat_x <= float(meta_rest["neck_root_px"][0]), "saddle seat is positioned at the base of the neck in front of the wing roots")
+	var seat_ys := {}
+	var seat_angles := {}
+	for i in SapphireSpirewingArt.FRAME_COUNT:
+		var m := DragonArt.model(row, "idle", float(i) / SapphireSpirewingArt.FRAME_COUNT)
+		seat_ys[snappedf((m["seat"] as Vector2).y, 0.01)] = true
+		seat_angles[snappedf(float(m["seat_angle"]), 0.001)] = true
+	check(seat_ys.size() >= 3 and seat_angles.size() >= 4, "rider seat position and pitch move with the dragon across wingbeat frames")
 	check(DragonArt.frame_count(row, "ground") == 6 and DragonArt.frame_count(row, "idle") == 6 and DragonArt.frame_count(row, "dead") == 1 and DragonArt.frame_count(row, "prone") == 1, "live adapters get six frames while fallen dragons remain still")
 	check(DragonArt.frame_count(original, "idle") == int(FigurePainter.FRAMES["idle"]), "original source frame counts are unchanged")
 	var dead_a := DragonRigArt._source(row, "dead", 0.0)
