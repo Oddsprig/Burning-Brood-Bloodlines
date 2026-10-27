@@ -1,7 +1,7 @@
 class_name SapphireSpirewingArt
 extends RefCounted
-## GDScript port of previews/code_dragon_v2/draw_dragon.py.
-## Six 128x96 sources, painted once in memory; no imported bitmap or RNG.
+## Code-drawn 2.5D normal-mapped wyvern art for all 16 dragon gem colours and 6 breeds.
+## Six 128x96 wingbeat frames per variant, painted in memory; no imported bitmap or RNG.
 const SIZE := Vector2i(128, 96)
 const FRAME_COUNT := 6
 const OUTLINE := Color("0a1028")
@@ -12,6 +12,203 @@ const BELLY_FAR := [Color("2c4674"), Color("4f72a6"), Color("7a9ccc"), Color("a8
 const MEMBRANE := [Color("161a44"), Color("232a68"), Color("323f92"), Color("4558b4"), Color("6a80d4")]
 const MEMBRANE_FAR := [Color("0f1232"), Color("181d4c"), Color("222c6a"), Color("30408c"), Color("4a5ca8")]
 const GEM := [Color("0b1660"), Color("1838b8"), Color("3274f0"), Color("8cc8ff"), Color.WHITE]
+
+const MORPHS := ["spirewing", "broadmantle", "reedrunner", "ironcrest", "stormkeel", "duskfin"]
+const PALETTES := {
+	"ruby": {
+		"outline": Color("24060e"),
+		"skin": [Color("3b0a18"), Color("631126"), Color("8f1836"), Color("bd2448"), Color("e04868"), Color("ff8ca3")],
+		"skin_far": [Color("280710"), Color("440c1b"), Color("631227"), Color("871b36"), Color("a8324e"), Color("cf637b")],
+		"belly": [Color("7a3b48"), Color("a8606c"), Color("d4969e"), Color("f7d4d8")],
+		"belly_far": [Color("572833"), Color("7a434e"), Color("9e6872"), Color("c498a0")],
+		"membrane": [Color("2e0818"), Color("4a0e26"), Color("6e1838"), Color("96264c"), Color("c94a70")],
+		"membrane_far": [Color("1f0510"), Color("33091a"), Color("4d1027"), Color("6b1b38"), Color("913554")],
+		"gem": [Color("4a0618"), Color("9e1438"), Color("e62255"), Color("ff7898"), Color("ffebf0")],
+		"eye": [Color("ffd15c"), Color("fff7d6")],
+		"tooth": Color("ffe6ec")
+	},
+	"sapphire": {
+		"outline": OUTLINE,
+		"skin": SKIN,
+		"skin_far": SKIN_FAR,
+		"belly": BELLY,
+		"belly_far": BELLY_FAR,
+		"membrane": MEMBRANE,
+		"membrane_far": MEMBRANE_FAR,
+		"gem": GEM,
+		"eye": [Color("8ff6ff"), Color("e8ffff")],
+		"tooth": Color("e4f2ff")
+	},
+	"black_diamond": {
+		"outline": Color("07070e"),
+		"skin": [Color("10111c"), Color("1a1c2e"), Color("272b42"), Color("3a405e"), Color("586084"), Color("98a2c4")],
+		"skin_far": [Color("0b0c14"), Color("131522"), Color("1d2032"), Color("2b2f47"), Color("414766"), Color("6e7699")],
+		"belly": [Color("2d3145"), Color("4c526e"), Color("78809e"), Color("b8c0dc")],
+		"belly_far": [Color("202333"), Color("363b52"), Color("565d78"), Color("858da8")],
+		"membrane": [Color("0d0e18"), Color("171929"), Color("24283e"), Color("363c59"), Color("586186")],
+		"membrane_far": [Color("080910"), Color("10121d"), Color("191c2c"), Color("262b40"), Color("3e4461")],
+		"gem": [Color("181b2e"), Color("383f63"), Color("6873a1"), Color("b2bcdb"), Color("f0f4ff")],
+		"eye": [Color("9ee6ff"), Color("f2fcff")],
+		"tooth": Color("dce2f5")
+	},
+	"emerald": {
+		"outline": Color("061f14"),
+		"skin": [Color("0c3624"), Color("13543a"), Color("1b7853"), Color("289e6e"), Color("4ac48e"), Color("9ce8be")],
+		"skin_far": [Color("08261a"), Color("0e3d2a"), Color("14573d"), Color("1f7553"), Color("36946b"), Color("6ec298")],
+		"belly": [Color("3b755c"), Color("64a183"), Color("99cfb0"), Color("d4f5df")],
+		"belly_far": [Color("295441"), Color("47755f"), Color("6e9e84"), Color("9ec7b0")],
+		"membrane": [Color("0a2b20"), Color("124534"), Color("1c634b"), Color("2b8566"), Color("50b38e")],
+		"membrane_far": [Color("071f17"), Color("0d3024"), Color("144736"), Color("1f614a"), Color("398569")],
+		"gem": [Color("073b26"), Color("128054"), Color("26c480"), Color("8cf2be"), Color("ebfff4")],
+		"eye": [Color("ffe066"), Color("fff9d6")],
+		"tooth": Color("e2faec")
+	},
+	"amethyst": {
+		"outline": Color("180b26"),
+		"skin": [Color("2b1542"), Color("462369"), Color("653594"), Color("874ec0"), Color("ad76e3"), Color("debaff")],
+		"skin_far": [Color("1f0f30"), Color("32194d"), Color("49266e"), Color("63388f"), Color("8154b0"), Color("ab82d4")],
+		"belly": [Color("5e4678"), Color("896ca8"), Color("b79cd4"), Color("e8d6fa")],
+		"belly_far": [Color("433157"), Color("634d7a"), Color("8870a1"), Color("b39cc9")],
+		"membrane": [Color("231038"), Color("381b59"), Color("52297d"), Color("703ca3"), Color("9d66cf")],
+		"membrane_far": [Color("170a26"), Color("27123e"), Color("3a1c59"), Color("502a78"), Color("72479c")],
+		"gem": [Color("311154"), Color("6628a8"), Color("9e4df0"), Color("deb3ff"), Color("faf0ff")],
+		"eye": [Color("ffdf78"), Color("fff8de")],
+		"tooth": Color("f2e6ff")
+	},
+	"opal": {
+		"outline": Color("1a292b"),
+		"skin": [Color("4f6668"), Color("6e8a8c"), Color("91adad"), Color("b4ccc9"), Color("d2e3df"), Color("f0faf7")],
+		"skin_far": [Color("3b4d4f"), Color("53696b"), Color("6f8787"), Color("8da3a1"), Color("acc2bf"), Color("cce0dc")],
+		"belly": [Color("7a9491"), Color("a3bfba"), Color("cae0dc"), Color("f2fcf9")],
+		"belly_far": [Color("5b706e"), Color("7c9490"), Color("9fb8b3"), Color("c5dbd6")],
+		"membrane": [Color("3d595e"), Color("567b82"), Color("749ea6"), Color("96c2ca"), Color("bfe5eb")],
+		"membrane_far": [Color("2c4145"), Color("3f5b61"), Color("567980"), Color("71989f"), Color("95bbc2")],
+		"gem": [Color("2e666e"), Color("4f9da8"), Color("7bd1db"), Color("c2f5fa"), Color("ffffff")],
+		"eye": [Color("5ef0ff"), Color("ebffff")],
+		"tooth": Color("f0fcfb")
+	},
+	"topaz": {
+		"outline": Color("261304"),
+		"skin": [Color("4a2608"), Color("753e10"), Color("a35b1c"), Color("cf7c2e"), Color("eda455"), Color("ffd999")],
+		"skin_far": [Color("361b05"), Color("542c0b"), Color("784214"), Color("995a22"), Color("b8773b"), Color("d9a36c")],
+		"belly": [Color("8a5e32"), Color("b88752"), Color("e0b67e"), Color("fce5be")],
+		"belly_far": [Color("634322"), Color("87613a"), Color("ab8459"), Color("cfa97e")],
+		"membrane": [Color("3d1d06"), Color("612f0d"), Color("8a4516"), Color("b56024"), Color("de8a4b")],
+		"membrane_far": [Color("2b1404"), Color("452108"), Color("63310f"), Color("85451a"), Color("a86334")],
+		"gem": [Color("592c06"), Color("a85911"), Color("eb8c26"), Color("ffd275"), Color("fff8e6")],
+		"eye": [Color("82f2ff"), Color("e8ffff")],
+		"tooth": Color("fff2d6")
+	},
+	"garnet": {
+		"outline": Color("1c060c"),
+		"skin": [Color("2e0b16"), Color("4a1324"), Color("6b1e35"), Color("8f2d47"), Color("b84c5e"), Color("e68a7c")],
+		"skin_far": [Color("210710"), Color("360d1a"), Color("4f1527"), Color("6b2135"), Color("8c3847"), Color("b36260")],
+		"belly": [Color("69353c"), Color("945458"), Color("bf817e"), Color("ebc0b7")],
+		"belly_far": [Color("4a2429"), Color("6b3b3e"), Color("8f5c5b"), Color("b58682")],
+		"membrane": [Color("260812"), Color("3d0f1e"), Color("59182c"), Color("7a263c"), Color("a84456")],
+		"membrane_far": [Color("1a050c"), Color("2b0a15"), Color("40101f"), Color("591b2b"), Color("7d313f")],
+		"gem": [Color("3d0a1a"), Color("781932"), Color("b83248"), Color("e8826b"), Color("ffebe3")],
+		"eye": [Color("ffbe4f"), Color("fff3d1")],
+		"tooth": Color("fae3dc")
+	},
+	"jade": {
+		"outline": Color("102119"),
+		"skin": [Color("223d31"), Color("355c4b"), Color("4b7d67"), Color("669e84"), Color("8ec2a3"), Color("c9e6c8")],
+		"skin_far": [Color("182b23"), Color("264236"), Color("375c4b"), Color("4b7863"), Color("68967c"), Color("96bd9e")],
+		"belly": [Color("547561"), Color("7b9e84"), Color("a8c9ab"), Color("dcf0d8")],
+		"belly_far": [Color("3c5446"), Color("597561"), Color("7b9980"), Color("a3bfa3")],
+		"membrane": [Color("1c3329"), Color("2c4f40"), Color("406e5a"), Color("588f75"), Color("80b899")],
+		"membrane_far": [Color("13241c"), Color("1f382d"), Color("2e4f40"), Color("406955"), Color("5e8a72")],
+		"gem": [Color("1f4232"), Color("3d785c"), Color("68ad86"), Color("bce0b4"), Color("f4ffef")],
+		"eye": [Color("ffd86b"), Color("fff8db")],
+		"tooth": Color("eaf7e6")
+	},
+	"aquamarine": {
+		"outline": Color("082226"),
+		"skin": [Color("144047"), Color("21636b"), Color("338991"), Color("4ab0b8"), Color("74d4d9"), Color("c4f7f2")],
+		"skin_far": [Color("0e2e33"), Color("17484f"), Color("24646b"), Color("36848a"), Color("54a3a8"), Color("8ccfd1")],
+		"belly": [Color("47858a"), Color("6faeb0"), Color("a0d6d4"), Color("dafaf5")],
+		"belly_far": [Color("336166"), Color("508082"), Color("75a3a3"), Color("a2ccc9")],
+		"membrane": [Color("10363b"), Color("1b545c"), Color("297580"), Color("3d99a3"), Color("68c4cc")],
+		"membrane_far": [Color("0b2529"), Color("133b40"), Color("1d545c"), Color("2c7078"), Color("4b949c")],
+		"gem": [Color("0e4a52"), Color("228994"), Color("45c9d1"), Color("a8f5ed"), Color("f2fffe")],
+		"eye": [Color("ffe478"), Color("fffbe0")],
+		"tooth": Color("e6fcf9")
+	},
+	"citrine": {
+		"outline": Color("261d04"),
+		"skin": [Color("4d3b08"), Color("785c0f"), Color("a68119"), Color("d1a72a"), Color("f0cb54"), Color("fff09e")],
+		"skin_far": [Color("362905"), Color("54410a"), Color("755b12"), Color("96771e"), Color("b5963a"), Color("d9c06c")],
+		"belly": [Color("8c7530"), Color("b89e4f"), Color("e0ca7e"), Color("fcf0be")],
+		"belly_far": [Color("635321"), Color("857138"), Color("a89458"), Color("cfc082")],
+		"membrane": [Color("3d2f06"), Color("614b0c"), Color("8a6b15"), Color("b58f24"), Color("deb84b")],
+		"membrane_far": [Color("2b2004"), Color("453408"), Color("634c0e"), Color("856719"), Color("a88934")],
+		"gem": [Color("594306"), Color("a88211"), Color("ebc026"), Color("ffea85"), Color("fffce8")],
+		"eye": [Color("78ebff"), Color("e8fcff")],
+		"tooth": Color("fff9d6")
+	},
+	"moonstone": {
+		"outline": Color("191d2b"),
+		"skin": [Color("3d445e"), Color("586282"), Color("7783a6"), Color("99a5c7"), Color("c0c8e0"), Color("f5e4d7")],
+		"skin_far": [Color("2b3045"), Color("404761"), Color("586180"), Color("737d9c"), Color("929cb8"), Color("bfb8bd")],
+		"belly": [Color("6e738c"), Color("989ab0"), Color("c7c2cf"), Color("f7e8dc")],
+		"belly_far": [Color("4f5366"), Color("6e7185"), Color("9190a1"), Color("bdb5bd")],
+		"membrane": [Color("30364f"), Color("475070"), Color("636e94"), Color("8490b5"), Color("b8b5cf")],
+		"membrane_far": [Color("212538"), Color("323952"), Color("47506e"), Color("606a8a"), Color("8688a6")],
+		"gem": [Color("444c6e"), Color("7580ab"), Color("aeb8db"), Color("f2d8c9"), Color("fff8f2")],
+		"eye": [Color("ffe299"), Color("fff9eb")],
+		"tooth": Color("faf0e8")
+	},
+	"pearl": {
+		"outline": Color("2b231b"),
+		"skin": [Color("5e4f40"), Color("82705d"), Color("a6927c"), Color("c9b69f"), Color("e6d6c0"), Color("fcf3e4")],
+		"skin_far": [Color("45392e"), Color("615244"), Color("7d6c5b"), Color("998875"), Color("b8a793"), Color("d9cbb8")],
+		"belly": [Color("8c7b68"), Color("b5a490"), Color("dbccb8"), Color("fcf5eb")],
+		"belly_far": [Color("66594b"), Color("877867"), Color("a89987"), Color("cfc2b0")],
+		"membrane": [Color("4f4036"), Color("6e5b4e"), Color("91796a"), Color("b59d8d"), Color("dec7b6")],
+		"membrane_far": [Color("382d26"), Color("4f4037"), Color("69574b"), Color("857164"), Color("a89385")],
+		"gem": [Color("6e5d4b"), Color("a38f78"), Color("d4c2ab"), Color("f7ebd9"), Color("ffffff")],
+		"eye": [Color("73e6f5"), Color("ebfcff")],
+		"tooth": Color("fffaf2")
+	},
+	"onyx": {
+		"outline": Color("0a090a"),
+		"skin": [Color("141314"), Color("211f21"), Color("333032"), Color("4a4547"), Color("6e6564"), Color("b8a390")],
+		"skin_far": [Color("0e0d0e"), Color("171617"), Color("242223"), Color("363234"), Color("504949"), Color("827367")],
+		"belly": [Color("3d3632"), Color("63574f"), Color("948274"), Color("d2bca6")],
+		"belly_far": [Color("2b2623"), Color("473f39"), Color("6b5e54"), Color("998777")],
+		"membrane": [Color("121012"), Color("1f1c1e"), Color("302b2d"), Color("473f41"), Color("736460")],
+		"membrane_far": [Color("0c0b0c"), Color("151314"), Color("211e1f"), Color("312b2d"), Color("4f4543")],
+		"gem": [Color("241f1c"), Color("52463d"), Color("8c7765"), Color("d6bfa8"), Color("faf0e6")],
+		"eye": [Color("ff9442"), Color("ffe8cf")],
+		"tooth": Color("ebd9c8")
+	},
+	"diamond": {
+		"outline": Color("16222e"),
+		"skin": [Color("3e5469"), Color("5a7691"), Color("7c9ab5"), Color("a1bdd6"), Color("c6dced"), Color("f2f9ff")],
+		"skin_far": [Color("2d3e4f"), Color("43596e"), Color("5d768c"), Color("7b95ab"), Color("9cb6cc"), Color("c5dbed")],
+		"belly": [Color("6d879e"), Color("96b1c7"), Color("c2daed"), Color("f7fcff")],
+		"belly_far": [Color("4f6478"), Color("70889c"), Color("95aec2"), Color("bfd6e8")],
+		"membrane": [Color("32485c"), Color("4b6985"), Color("698ca8"), Color("8eb2cf"), Color("bfe0fa")],
+		"membrane_far": [Color("243442"), Color("364d61"), Color("4d6980"), Color("68879e"), Color("90b0c7")],
+		"gem": [Color("43617a"), Color("749bbf"), Color("b0d4f0"), Color("e6f5ff"), Color("ffffff")],
+		"eye": [Color("7df2ff"), Color("f5ffff")],
+		"tooth": Color("ffffff")
+	},
+	"tourmaline": {
+		"outline": Color("112120"),
+		"skin": [Color("1b3635"), Color("295250"), Color("3b706d"), Color("528f8b"), Color("7ab3ad"), Color("d498ad")],
+		"skin_far": [Color("132625"), Color("1e3b3a"), Color("2b5250"), Color("3d6b68"), Color("598783"), Color("9c7382")],
+		"belly": [Color("6e4a58"), Color("99697b"), Color("c793a6"), Color("f2c9d7")],
+		"belly_far": [Color("4f343f"), Color("6e4b59"), Color("916878"), Color("b88fa0")],
+		"membrane": [Color("381d29"), Color("572c3f"), Color("7a3f58"), Color("a35876"), Color("d982a3")],
+		"membrane_far": [Color("26131c"), Color("3d1f2c"), Color("572d3f"), Color("753f56"), Color("9c5d77")],
+		"gem": [Color("4a182b"), Color("8c2d52"), Color("c94f7c"), Color("f29bb8"), Color("ffebf2")],
+		"eye": [Color("ffd670"), Color("fff7db")],
+		"tooth": Color("fae3ec")
+	}
+}
+
 const WING_POSES := [
 	[Vector2(-2, -14), Vector2(4, -30), Vector2(-10, -45), Vector2(-34, -40), Vector2(-46, -18)],
 	[Vector2(-4, -12), Vector2(-2, -27), Vector2(-22, -44), Vector2(-44, -32), Vector2(-48, -10)],
@@ -22,7 +219,10 @@ const WING_POSES := [
 ]
 const BOB := [-1, 0, 2, 4, 2, 0]
 const SEAT_PITCH := [0.04, 0.0, -0.05, -0.08, -0.035, 0.02]
+const VARIANT_CACHE_LIMIT := 96
 static var _frames: Dictionary = {}
+static var _variant_frames: Dictionary = {}
+static var _variant_order: Array[String] = []
 
 class Layer extends RefCounted:
 	var height := PackedFloat32Array()
@@ -64,12 +264,31 @@ class Layer extends RefCounted:
 			capsule(points[i], points[i + 1], lerpf(first, last, pow(float(i) / count, exponent)), lerpf(first, last, pow(float(i + 1) / count, exponent)), mat)
 
 	func polygon(points: PackedVector2Array, mat: int) -> void:
-		# Use the game's pixel-centre polygon rasterizer for deterministic ownership.
-		var cv := PixelCanvas.new(128, 96)
-		cv.poly(points, Color.WHITE)
-		for i in material.size():
-			if cv.buf[i].a == 0 or height[i] >= 0: continue
-			height[i] = 0.01; material[i] = mat
+		var lo := Vector2(128, 96)
+		var hi := Vector2.ZERO
+		for p: Vector2 in points:
+			lo = lo.min(p)
+			hi = hi.max(p)
+		var x0 := maxi(0, floori(lo.x))
+		var x1 := mini(128, ceili(hi.x) + 1)
+		var y0 := maxi(0, floori(lo.y))
+		var y1 := mini(96, ceili(hi.y) + 1)
+		for y in range(y0, y1):
+			for x in range(x0, x1):
+				var i := y * 128 + x
+				if height[i] >= 0: continue
+				if Geometry2D.is_point_in_polygon(Vector2(x + 0.5, y + 0.5), points):
+					height[i] = 0.01
+					material[i] = mat
+
+static func has_gem(gem_id: String) -> bool:
+	return PALETTES.has(gem_id)
+
+static func has_morph(morph_id: String) -> bool:
+	return morph_id in MORPHS
+
+static func palette_for(gem_id: String) -> Dictionary:
+	return PALETTES.get(gem_id, PALETTES["sapphire"])
 
 static func frame_index(pose: String, progress: float) -> int:
 	if pose in ["rest", "dead", "prone"]: return 1
@@ -90,16 +309,59 @@ static func _scallop(a: Vector2, b: Vector2, wrist: Vector2, k: float = 0.28) ->
 		points.append(a.lerp(control, t).lerp(control.lerp(b, t), t))
 	return points
 
-static func _wing_points(shoulder: Vector2, pose: Array) -> PackedVector2Array:
-	var wrist: Vector2 = shoulder + pose[1]
-	var first: Vector2 = shoulder + pose[2]
-	var middle: Vector2 = shoulder + pose[3]
-	var last: Vector2 = shoulder + pose[4]
-	var flank := shoulder + Vector2(-18, 8)
-	var points := PackedVector2Array([shoulder, shoulder + pose[0], wrist, first])
-	points.append_array(_scallop(first, middle, wrist).slice(1))
-	points.append_array(_scallop(middle, last, wrist).slice(1))
-	points.append_array(_scallop(last, flank, wrist, 0.18).slice(1))
+static func _morph_wing_pose(pose: Array, morph_id: String) -> Array:
+	var scale := Vector2.ONE
+	var offset := Vector2.ZERO
+	match morph_id:
+		"broadmantle":
+			scale = Vector2(1.06, 1.04)
+			offset = Vector2(-2, 1)
+		"reedrunner":
+			scale = Vector2(1.04, 0.86)
+			offset = Vector2(-4, 2)
+		"ironcrest":
+			scale = Vector2(0.96, 0.98)
+			offset = Vector2(-1, 0)
+		"stormkeel":
+			scale = Vector2(1.05, 1.02)
+			offset = Vector2(-2, 0)
+		"duskfin":
+			scale = Vector2(1.02, 0.92)
+			offset = Vector2(-3, 1)
+	var out: Array = []
+	for idx in pose.size():
+		var p: Vector2 = pose[idx]
+		out.append(p * scale + (offset if idx >= 2 else offset * 0.4))
+	return out
+
+static func _wing_flank_offset(morph_id: String) -> Vector2:
+	match morph_id:
+		"broadmantle": return Vector2(-22, 11)
+		"reedrunner": return Vector2(-15, 6)
+		"ironcrest": return Vector2(-18, 9)
+		"stormkeel": return Vector2(-21, 10)
+		"duskfin": return Vector2(-20, 9)
+		_: return Vector2(-18, 8)
+
+static func _wing_scallop_k(morph_id: String) -> float:
+	match morph_id:
+		"broadmantle": return 0.20
+		"stormkeel": return 0.36
+		"duskfin": return 0.12
+		_: return 0.28
+
+static func _wing_points(shoulder: Vector2, pose: Array, morph_id: String = "spirewing") -> PackedVector2Array:
+	var mpose := _morph_wing_pose(pose, morph_id)
+	var wrist: Vector2 = shoulder + mpose[1]
+	var first: Vector2 = shoulder + mpose[2]
+	var middle: Vector2 = shoulder + mpose[3]
+	var last: Vector2 = shoulder + mpose[4]
+	var flank := shoulder + _wing_flank_offset(morph_id)
+	var k := _wing_scallop_k(morph_id)
+	var points := PackedVector2Array([shoulder, shoulder + mpose[0], wrist, first])
+	points.append_array(_scallop(first, middle, wrist, k).slice(1))
+	points.append_array(_scallop(middle, last, wrist, k).slice(1))
+	points.append_array(_scallop(last, flank, wrist, k * 0.65).slice(1))
 	return points
 
 static func _far_pose(pose: Array) -> Array:
@@ -107,15 +369,22 @@ static func _far_pose(pose: Array) -> Array:
 	for point: Vector2 in pose: out.append(point * Vector2(0.86, 0.9) - Vector2(2, 2))
 	return out
 
-static func _wing(layer: Layer, shoulder: Vector2, pose: Array) -> void:
+static func _wing(layer: Layer, shoulder: Vector2, pose: Array, morph_id: String = "spirewing") -> void:
 	layer.is_wing = true
-	var elbow: Vector2 = shoulder + pose[0]
-	var wrist: Vector2 = shoulder + pose[1]
-	var fingers := [shoulder + pose[2], shoulder + pose[3], shoulder + pose[4]]
-	layer.polygon(_wing_points(shoulder, pose), 4)
+	var mpose := _morph_wing_pose(pose, morph_id)
+	var elbow: Vector2 = shoulder + mpose[0]
+	var wrist: Vector2 = shoulder + mpose[1]
+	var fingers := [shoulder + mpose[2], shoulder + mpose[3], shoulder + mpose[4]]
+	var poly := _wing_points(shoulder, pose, morph_id)
+	layer.polygon(poly, 4)
 	var bones := [[wrist, fingers[0]], [wrist, fingers[1]], [wrist, fingers[2]], [shoulder, elbow], [elbow, wrist]]
-	for y in SIZE.y:
-		for x in SIZE.x:
+	var lo := Vector2(128, 96)
+	var hi := Vector2.ZERO
+	for p: Vector2 in poly:
+		lo = lo.min(p)
+		hi = hi.max(p)
+	for y in range(maxi(0, floori(lo.y)), mini(SIZE.y, ceili(hi.y) + 1)):
+		for x in range(maxi(0, floori(lo.x)), mini(SIZE.x, ceili(hi.x) + 1)):
 			var index := y * SIZE.x + x
 			if layer.material[index] != 4: continue
 			var point := Vector2(x + 0.5, y + 0.5)
@@ -123,38 +392,46 @@ static func _wing(layer: Layer, shoulder: Vector2, pose: Array) -> void:
 			for bone: Array in bones:
 				distance = minf(distance, point.distance_to(Geometry2D.get_closest_point_to_segment(point, bone[0], bone[1])))
 			layer.extra[index] = clampf(distance / 7, 0, 1) * 0.55 + clampf(point.distance_to(wrist) / 40, 0, 1) * 0.35 + (0.08 if point.y < shoulder.y else 0.0)
-	var edge := _scallop(fingers[0], fingers[1], wrist)
-	edge.append_array(_scallop(fingers[1], fingers[2], wrist))
-	edge.append_array(_scallop(fingers[2], shoulder + Vector2(-18, 8), wrist, 0.18))
+	var k := _wing_scallop_k(morph_id)
+	var edge := _scallop(fingers[0], fingers[1], wrist, k)
+	edge.append_array(_scallop(fingers[1], fingers[2], wrist, k))
+	edge.append_array(_scallop(fingers[2], shoulder + _wing_flank_offset(morph_id), wrist, k * 0.65))
 	for point: Vector2 in edge:
 		var at := Vector2i(point)
 		if Rect2i(Vector2i.ZERO, SIZE).has_point(at) and layer.material[at.y * SIZE.x + at.x] == 4:
 			layer.material[at.y * SIZE.x + at.x] = 5
-	layer.capsule(shoulder, elbow, 3.2, 2.4)
-	layer.capsule(elbow, wrist, 2.4, 1.7)
-	for i in 3: layer.capsule(wrist, fingers[i], 1.1, [0.54, 0.48, 0.42][i])
-	layer.capsule(wrist, wrist + Vector2(2.5, -2.5), 1.3, 0.5, 3)
+	var arm_scale := 1.18 if morph_id in ["broadmantle", "stormkeel"] else (0.86 if morph_id in ["reedrunner", "duskfin"] else 1.0)
+	layer.capsule(shoulder, elbow, 3.2 * arm_scale, 2.4 * arm_scale)
+	layer.capsule(elbow, wrist, 2.4 * arm_scale, 1.7 * arm_scale)
+	var finger_mat := 3 if morph_id == "duskfin" else 1
+	for i in 3: layer.capsule(wrist, fingers[i], 1.1, [0.54, 0.48, 0.42][i], finger_mat)
+	var claw_vec := Vector2(3.8, -3.6) if morph_id == "ironcrest" else Vector2(2.5, -2.5)
+	layer.capsule(wrist, wrist + claw_vec, 1.5 if morph_id == "ironcrest" else 1.3, 0.5, 3)
 
-static func _leg(layer: Layer, hip: Vector2, bend: float, lift: float) -> void:
+static func _leg(layer: Layer, hip: Vector2, bend: float, lift: float, morph_id: String = "spirewing") -> void:
 	var knee := hip + Vector2(8, 9 + bend)
 	var ankle := hip + Vector2(2, 20 + lift)
 	var toe := hip + Vector2(10, 23.5 + lift)
-	layer.capsule(hip, knee, 7, 4.2)
-	layer.capsule(knee, ankle, 3.6, 2.4)
-	layer.capsule(ankle, toe, 2.4, 1.8)
-	layer.capsule(ankle + Vector2(-1, 1), ankle + Vector2(-4, 3.5), 1.6, 0.8)
+	var thick := 1.18 if morph_id in ["broadmantle", "stormkeel"] else (0.82 if morph_id == "reedrunner" else (0.90 if morph_id == "duskfin" else 1.05 if morph_id == "ironcrest" else 1.0))
+	layer.capsule(hip, knee, 7.0 * thick, 4.2 * thick)
+	layer.capsule(knee, ankle, 3.6 * thick, 2.4 * thick)
+	layer.capsule(ankle, toe, 2.4 * thick, 1.8 * thick)
+	layer.capsule(ankle + Vector2(-1, 1), ankle + Vector2(-4, 3.5), 1.6 * thick, 0.8 * thick)
+	if morph_id == "duskfin":
+		layer.polygon(PackedVector2Array([knee + Vector2(-2, 0), knee + Vector2(-7, 4), ankle + Vector2(-2, -1)]), 4)
 	for tx: float in [0.0, -3.0]:
 		var tip := toe + Vector2(1 + tx, -0.5)
 		layer.capsule(tip, tip + Vector2(2.4, 1.6), 1.1, 0.4, 3)
 	layer.capsule(ankle + Vector2(-4, 3.5), ankle + Vector2(-6, 4.5), 0.9, 0.3, 3)
 
-static func _shade(layer: Layer) -> PackedColorArray:
+static func _shade(layer: Layer, pal: Dictionary) -> PackedColorArray:
 	var output := PackedColorArray()
 	output.resize(SIZE.x * SIZE.y)
 	var light := Vector3(-0.60, -0.75, 0.35).normalized()
-	var skin: Array = SKIN_FAR if layer.far else SKIN
-	var belly: Array = BELLY_FAR if layer.far else BELLY
-	var membrane: Array = MEMBRANE_FAR if layer.far else MEMBRANE
+	var skin: Array = pal["skin_far"] if layer.far else pal["skin"]
+	var belly: Array = pal["belly_far"] if layer.far else pal["belly"]
+	var membrane: Array = pal["membrane_far"] if layer.far else pal["membrane"]
+	var gem: Array = pal["gem"]
 	for y in SIZE.y:
 		for x in SIZE.x:
 			var i := y * SIZE.x + x
@@ -169,15 +446,18 @@ static func _shade(layer: Layer) -> PackedColorArray:
 						if y % 3 == 0: index = maxi(0, index - 1)
 						output[i] = belly[index]
 					else: output[i] = skin[clampi(int((lambert + dither + 0.12) * 4.4), 0, 5)]
-				3: output[i] = GEM[clampi(int((lambert + 0.1) * 3.4), 0, 3)]
+				3: output[i] = gem[clampi(int((lambert + 0.1) * 3.4), 0, 3)]
 				4: output[i] = membrane[clampi(int(layer.extra[i] * 4.2), 0, 3)]
 				5: output[i] = membrane[4]
 	return output
 
-static func _composite(layers: Array) -> Image:
+static func _composite(layers: Array, pal: Dictionary) -> Image:
 	var cv := PixelCanvas.new(SIZE.x, SIZE.y)
+	var outline: Color = pal["outline"]
+	var skin: Array = pal["skin"]
+	var skin_far: Array = pal["skin_far"]
 	for layer: Layer in layers:
-		var colors := _shade(layer)
+		var colors := _shade(layer, pal)
 		for y in SIZE.y:
 			for x in SIZE.x:
 				var i := y * SIZE.x + x
@@ -186,8 +466,8 @@ static func _composite(layers: Array) -> Image:
 				for step: Vector2i in PixelCanvas.N4:
 					var at := Vector2i(x, y) + step
 					if not Rect2i(Vector2i.ZERO, SIZE).has_point(at) or layer.material[at.y * SIZE.x + at.x] == 0: rim = true
-				var dark: Color = SKIN_FAR[0] if layer.far else SKIN[0]
-				cv.buf[i] = (OUTLINE if layer.is_wing else dark) if rim and cv.buf[i].a > 0 else colors[i]
+				var dark: Color = skin_far[0] if layer.far else skin[0]
+				cv.buf[i] = (outline if layer.is_wing else dark) if rim and cv.buf[i].a > 0 else colors[i]
 	var solid := cv.buf.duplicate()
 	for y in SIZE.y:
 		for x in SIZE.x:
@@ -195,64 +475,198 @@ static func _composite(layers: Array) -> Image:
 			for step: Vector2i in PixelCanvas.N4:
 				var at := Vector2i(x, y) + step
 				if Rect2i(Vector2i.ZERO, SIZE).has_point(at) and solid[at.y * SIZE.x + at.x].a > 0:
-					cv.buf[y * SIZE.x + x] = OUTLINE
+					cv.buf[y * SIZE.x + x] = outline
 	return cv.to_image()
 
-static func frame(index: int) -> Image:
+static func _draw_tail_features(tail: Layer, tail_points: PackedVector2Array, morph_id: String) -> void:
+	var tip := tail_points[-1]
+	var prev := tail_points[maxi(0, tail_points.size() - 4)]
+	match morph_id:
+		"broadmantle":
+			tail.chain(tail_points, 9.4, 2.2, 2, 0.78)
+			tail.capsule(prev, tip + Vector2(-2, 0), 3.4, 3.8, 1)
+			tail.polygon(PackedVector2Array([tip + Vector2(-2, -1), tip + Vector2(-6, -6), tip + Vector2(1, -3)]), 3)
+			tail.polygon(PackedVector2Array([tip + Vector2(-2, 1), tip + Vector2(-5, 6), tip + Vector2(1, 3)]), 3)
+		"reedrunner":
+			tail.chain(tail_points, 6.6, 0.9, 2, 0.85)
+			tail.polygon(PackedVector2Array([tip + Vector2(4, 0), tip + Vector2(-5, -3), tip + Vector2(-2, 0), tip + Vector2(-5, 3)]), 3)
+		"ironcrest":
+			tail.chain(tail_points, 8.6, 1.8, 2, 0.80)
+			tail.polygon(PackedVector2Array([tip + Vector2(2, 1), tip + Vector2(-5, -7), tip + Vector2(-7, -1), tip + Vector2(-4, 5)]), 3)
+		"stormkeel":
+			tail.chain(tail_points, 8.8, 1.6, 2, 0.78)
+			tail.polygon(PackedVector2Array([tip + Vector2(2, 0), tip + Vector2(-6, -6), tip + Vector2(-2, 0), tip + Vector2(-6, 6)]), 4)
+			tail.capsule(tip + Vector2(1, 0), tip + Vector2(-5, -5), 1.0, 0.4, 3)
+			tail.capsule(tip + Vector2(1, 0), tip + Vector2(-5, 5), 1.0, 0.4, 3)
+		"duskfin":
+			tail.chain(tail_points, 7.2, 1.1, 2, 0.82)
+			tail.polygon(PackedVector2Array([prev + Vector2(2, 0), tip + Vector2(-5, -7), tip + Vector2(-7, 0), tip + Vector2(-4, 7)]), 4)
+			tail.capsule(prev, tip + Vector2(-5, -6), 0.9, 0.3, 3)
+			tail.capsule(prev, tip + Vector2(-6, 0), 0.9, 0.3, 3)
+			tail.capsule(prev, tip + Vector2(-4, 6), 0.9, 0.3, 3)
+		_:
+			tail.chain(tail_points, 8.0, 1.2, 2, 0.8)
+			tail.polygon(PackedVector2Array([tip + Vector2(-1, 2), tip + Vector2(-4, -5), tip + Vector2(3, -3)]), 1)
+
+static func _draw_breed_body_and_head(body: Layer, shift: Vector2, morph_id: String) -> Vector2:
+	var torso := PackedVector2Array([Vector2(48, 58) + shift, Vector2(58, 55.5) + shift, Vector2(69, 52.0) + shift, Vector2(76, 49.5) + shift])
+	var radii := [10.0, 10.6, 9.6, 8.2]
+	var neck_start := 8.0
+	var neck_end := 4.4
+	match morph_id:
+		"broadmantle":
+			radii = [11.2, 11.8, 10.8, 9.4]
+			neck_start = 9.2; neck_end = 5.2
+		"reedrunner":
+			torso = PackedVector2Array([Vector2(45, 58.5) + shift, Vector2(57, 56.0) + shift, Vector2(69, 52.5) + shift, Vector2(76, 50.0) + shift])
+			radii = [8.8, 9.5, 8.6, 7.2]
+			neck_start = 6.8; neck_end = 3.8
+		"ironcrest":
+			torso = PackedVector2Array([Vector2(50, 57.5) + shift, Vector2(59, 55.0) + shift, Vector2(69, 52.0) + shift, Vector2(76, 49.5) + shift])
+			radii = [9.8, 11.0, 10.2, 8.6]
+			neck_start = 8.4; neck_end = 4.8
+		"stormkeel":
+			radii = [10.6, 11.4, 10.6, 9.0]
+			neck_start = 8.8; neck_end = 4.8
+		"duskfin":
+			radii = [9.2, 9.8, 8.8, 7.5]
+			neck_start = 7.2; neck_end = 4.0
+	for i in 3:
+		body.capsule(torso[i], torso[i + 1], radii[i], radii[i + 1], 2)
+	if morph_id == "stormkeel":
+		body.capsule(Vector2(60, 61) + shift, Vector2(74, 56) + shift, 5.2, 5.8, 2)
+		body.polygon(PackedVector2Array([Vector2(64, 65) + shift, Vector2(76, 59) + shift, Vector2(72, 66) + shift]), 3)
+	elif morph_id == "broadmantle":
+		body.capsule(Vector2(58, 60) + shift, Vector2(73, 55) + shift, 5.4, 5.6, 2)
+	var neck := _bezier(Vector2(76, 50) + shift, Vector2(86, 46) + shift, Vector2(84, 30) + shift, Vector2(97, 24) + shift, 20)
+	body.chain(neck, neck_start, neck_end, 2)
+	var head := Vector2(100, 24) + shift
+	body.capsule(head, head + Vector2(14, 3), 6, 2.6)
+	body.capsule(head + Vector2(1, 4), head + Vector2(12, 6), 4, 1.7, 2)
+	var brow_r := 2.8 if morph_id in ["broadmantle", "ironcrest"] else (1.9 if morph_id in ["reedrunner", "duskfin"] else 2.2)
+	body.capsule(head + Vector2(-1, -2), head + Vector2(6, -3), brow_r, 1.6)
+	match morph_id:
+		"broadmantle":
+			for horn: Vector3 in [Vector3(0, 0, 1.15), Vector3(2, 1, 0.9)]:
+				var points := _bezier(head + Vector2(-1 + horn.x, -3 + horn.y), head + Vector2(-8 + horn.x, -8 + horn.y), head + Vector2(-15 + horn.x * 2, -6 + horn.y), head + Vector2(-18 + horn.x * 2, -11 + horn.y), 14)
+				body.chain(points, 2.8 * horn.z, 0.7, 3)
+			body.polygon(PackedVector2Array([head + Vector2(-2, 1), head + Vector2(-9, 4), head + Vector2(-2, 5)]), 3)
+			body.polygon(PackedVector2Array([head + Vector2(-4, 4), head + Vector2(-10, 7), head + Vector2(-3, 6)]), 1)
+		"reedrunner":
+			for horn: Vector3 in [Vector3(0, 0, 0.9), Vector3(2, 1, 0.75)]:
+				var points := _bezier(head + Vector2(-1 + horn.x, -3 + horn.y), head + Vector2(-8 + horn.x, -7 + horn.y), head + Vector2(-15 + horn.x * 2, -6 + horn.y), head + Vector2(-20 + horn.x * 2, -5 + horn.y), 14)
+				body.chain(points, 2.0 * horn.z, 0.4, 3)
+			body.polygon(PackedVector2Array([head + Vector2(-3, 2), head + Vector2(-10, 4), head + Vector2(-3, 5)]), 1)
+		"ironcrest":
+			for horn: Vector3 in [Vector3(0, 0, 1.05), Vector3(2, 1, 0.85)]:
+				var points := _bezier(head + Vector2(-1 + horn.x, -4 + horn.y), head + Vector2(-6 + horn.x, -13 + horn.y), head + Vector2(-13 + horn.x * 2, -14 + horn.y), head + Vector2(-17 + horn.x * 2, -11 + horn.y), 14)
+				body.chain(points, 2.5 * horn.z, 0.6, 3)
+			for cx: float in [2.0, -1.5, -5.0]:
+				var cbase := head + Vector2(cx, -4)
+				body.polygon(PackedVector2Array([cbase + Vector2(-2, 1), cbase + Vector2(-4, -7), cbase + Vector2(2, 1)]), 3)
+			body.polygon(PackedVector2Array([head + Vector2(-3, 2), head + Vector2(-9, 5), head + Vector2(-3, 5)]), 1)
+		"stormkeel":
+			for horn: Vector3 in [Vector3(0, 0, 1.1), Vector3(2, 1, 0.85)]:
+				var points := _bezier(head + Vector2(-1 + horn.x, -4 + horn.y), head + Vector2(-7 + horn.x, -11 + horn.y), head + Vector2(-15 + horn.x * 2, -9 + horn.y), head + Vector2(-17 + horn.x * 2, -4 + horn.y), 14)
+				body.chain(points, 2.6 * horn.z, 0.6, 3)
+			body.polygon(PackedVector2Array([head + Vector2(9, 0), head + Vector2(12, -5), head + Vector2(13, 1)]), 3)
+			body.polygon(PackedVector2Array([head + Vector2(-3, 2), head + Vector2(-9, 5), head + Vector2(-3, 5)]), 1)
+		"duskfin":
+			for horn: Vector3 in [Vector3(0, 0, 0.95), Vector3(2, 1, 0.78)]:
+				var points := _bezier(head + Vector2(-1 + horn.x, -4 + horn.y), head + Vector2(-7 + horn.x, -10 + horn.y), head + Vector2(-14 + horn.x * 2, -10 + horn.y), head + Vector2(-19 + horn.x * 2, -7 + horn.y), 14)
+				body.chain(points, 2.1 * horn.z, 0.45, 3)
+			body.polygon(PackedVector2Array([head + Vector2(-2, 0), head + Vector2(-11, -3), head + Vector2(-12, 3), head + Vector2(-3, 5)]), 4)
+			body.capsule(head + Vector2(-2, 1), head + Vector2(-11, -2), 0.9, 0.3, 3)
+			body.capsule(head + Vector2(-2, 3), head + Vector2(-11, 3), 0.9, 0.3, 3)
+		_:
+			for horn: Vector3 in [Vector3(0, 0, 1), Vector3(2, 1, 0.8)]:
+				var points := _bezier(head + Vector2(-1 + horn.x, -4 + horn.y), head + Vector2(-6 + horn.x, -12 + horn.y), head + Vector2(-14 + horn.x * 2, -12 + horn.y), head + Vector2(-19 + horn.x * 3, -8 + horn.y), 14)
+				body.chain(points, 2.4 * horn.z, 0.5, 3)
+			body.polygon(PackedVector2Array([head + Vector2(-3, 2), head + Vector2(-9, 5), head + Vector2(-3, 5)]), 1)
+	var spine_mat := 3 if morph_id in ["ironcrest", "stormkeel"] else 1
+	var spine_h := 5.8 if morph_id == "ironcrest" else (4.8 if morph_id == "stormkeel" else (2.8 if morph_id == "reedrunner" else 4.0))
+	if morph_id == "duskfin":
+		var sail_pts := PackedVector2Array()
+		for t: float in [0.22, 0.45, 0.68]:
+			var idx := int(t * 20)
+			var normal := (neck[idx + 1] - neck[idx]).orthogonal().normalized()
+			var base := neck[idx] - normal * lerpf(neck_start, neck_end, float(idx) / 20) * 0.75
+			sail_pts.append(base)
+			body.capsule(base, base - normal * 4.5, 0.9, 0.3, 3)
+		if sail_pts.size() == 3:
+			body.polygon(PackedVector2Array([sail_pts[0], sail_pts[0] + Vector2(-4, -3), sail_pts[1] + Vector2(-4, -3), sail_pts[2] + Vector2(-3, -2), sail_pts[2]]), 4)
+	else:
+		for t: float in [0.25, 0.45, 0.62, 0.78]:
+			var i := int(t * 20)
+			var angle := (neck[i + 1] - neck[i]).angle()
+			var tangent := Vector2(cos(angle), sin(angle))
+			var normal := Vector2(sin(angle), -cos(angle))
+			var base := neck[i] + normal * lerpf(neck_start, neck_end, float(i) / 20) * 0.8
+			body.polygon(PackedVector2Array([base - tangent * 2, base + normal * spine_h - tangent * 3, base + tangent * 1.5]), spine_mat)
+	# Keep the dorsal saddle seat between the shoulders (x = 57..66) clear of sharp spines.
+	for point: Vector2 in [Vector2(52, 47), Vector2(44, 52), Vector2(35, 58)]:
+		body.polygon(PackedVector2Array([point + shift + Vector2(-2, 2), point + shift + Vector2(-3, -spine_h * 0.8), point + shift + Vector2(2, 1)]), spine_mat)
+	return head
+
+static func _render_frame(gem_id: String, morph_id: String, index: int) -> Image:
 	index = posmod(index, FRAME_COUNT)
-	if _frames.has(index): return _frames[index]
+	var pal := palette_for(gem_id)
 	var pose: Array = WING_POSES[index]
 	var shift := Vector2(0, -BOB[index])
-	var shoulder := Vector2(68, 47) + shift
+	var near_shoulder := Vector2(66, 44) + shift
+	var far_shoulder := Vector2(58, 42) + shift
 	var far_wing := Layer.new(true)
 	var far_leg := Layer.new(true)
 	var tail := Layer.new()
 	var body := Layer.new()
 	var near_leg := Layer.new()
 	var near_wing := Layer.new()
-	_wing(far_wing, shoulder + Vector2(-4, -2), _far_pose(pose))
-	_leg(far_leg, Vector2(45, 59) + shift, 1, -shift.y)
+	_wing(far_wing, far_shoulder, _far_pose(pose), morph_id)
+	_leg(far_leg, Vector2(45, 59) + shift, 1, -shift.y, morph_id)
 	var sway := sin(float(index) / FRAME_COUNT * TAU) * 2
-	var tail_points := _bezier(Vector2(46, 60) + shift, Vector2(30, 66) + shift, Vector2(12, 78 + sway), Vector2(6, 60 + sway), 30)
-	tail.chain(tail_points, 8, 1.2, 2, 0.8)
-	var tip := tail_points[-1]
-	tail.polygon(PackedVector2Array([tip + Vector2(-1, 2), tip + Vector2(-4, -5), tip + Vector2(3, -3)]), 1)
-	var torso := PackedVector2Array([Vector2(48, 58) + shift, Vector2(58, 55.5) + shift, Vector2(70, 51.5) + shift, Vector2(76, 49.5) + shift])
-	var radii := [10.0, 10.4, 9.4, 8.2]
-	for i in 3: body.capsule(torso[i], torso[i + 1], radii[i], radii[i + 1], 2)
-	var neck := _bezier(Vector2(76, 50) + shift, Vector2(86, 46) + shift, Vector2(84, 30) + shift, Vector2(97, 24) + shift, 20)
-	body.chain(neck, 8, 4.4, 2)
-	var head := Vector2(100, 24) + shift
-	body.capsule(head, head + Vector2(14, 3), 6, 2.6)
-	body.capsule(head + Vector2(1, 4), head + Vector2(12, 6), 4, 1.7, 2)
-	body.capsule(head + Vector2(-1, -2), head + Vector2(6, -3), 2.2, 1.6)
-	for horn: Vector3 in [Vector3(0, 0, 1), Vector3(2, 1, 0.8)]:
-		var points := _bezier(head + Vector2(-1 + horn.x, -4 + horn.y), head + Vector2(-6 + horn.x, -12 + horn.y), head + Vector2(-14 + horn.x * 2, -12 + horn.y), head + Vector2(-19 + horn.x * 3, -8 + horn.y), 14)
-		body.chain(points, 2.4 * horn.z, 0.5, 3)
-	body.polygon(PackedVector2Array([head + Vector2(-3, 2), head + Vector2(-9, 5), head + Vector2(-3, 5)]), 1)
-	for t: float in [0.25, 0.45, 0.62, 0.78]:
-		var i := int(t * 20)
-		var angle := (neck[i + 1] - neck[i]).angle()
-		var tangent := Vector2(cos(angle), sin(angle))
-		var normal := Vector2(sin(angle), -cos(angle))
-		var base := neck[i] + normal * lerpf(8, 4.4, float(i) / 20) * 0.8
-		body.polygon(PackedVector2Array([base - tangent * 2, base + normal * 4 - tangent * 3, base + tangent * 1.5]), 1)
-	for point: Vector2 in [Vector2(62, 45), Vector2(54, 47), Vector2(44, 52), Vector2(34, 58)]:
-		body.polygon(PackedVector2Array([point + shift + Vector2(-2, 2), point + shift + Vector2(-3, -3), point + shift + Vector2(2, 1)]), 1)
-	_leg(near_leg, Vector2(52, 61) + shift, 0, -shift.y)
-	_wing(near_wing, shoulder, pose)
-	var image := _composite([far_wing, far_leg, tail, body, near_leg, near_wing])
+	var tail_end := Vector2(3, 59 + sway) if morph_id == "reedrunner" else Vector2(6, 60 + sway)
+	var tail_points := _bezier(Vector2(46, 60) + shift, Vector2(30, 66) + shift, Vector2(12, 78 + sway), tail_end, 30)
+	_draw_tail_features(tail, tail_points, morph_id)
+	var head := _draw_breed_body_and_head(body, shift, morph_id)
+	_leg(near_leg, Vector2(52, 61) + shift, 0, -shift.y, morph_id)
+	_wing(near_wing, near_shoulder, pose, morph_id)
+	var image := _composite([far_wing, far_leg, tail, body, near_leg, near_wing], pal)
+	var outline: Color = pal["outline"]
+	var eye_colors: Array = pal["eye"]
+	var gem_colors: Array = pal["gem"]
+	var tooth_color: Color = pal["tooth"]
 	var eye := Vector2i(head + Vector2(3, -1))
-	image.set_pixelv(eye, Color("8ff6ff")); image.set_pixelv(eye + Vector2i(1, 0), Color("e8ffff"))
-	for step: Vector2i in [Vector2i(-1, 0), Vector2i(0, -1), Vector2i(1, -1)]: image.set_pixelv(eye + step, OUTLINE)
-	image.set_pixelv(Vector2i(head + Vector2(12, 1)), OUTLINE)
-	for i in range(3, 12): image.set_pixelv(Vector2i(head + Vector2(i, 4)), OUTLINE)
-	for x in [5, 8, 11]: image.set_pixelv(Vector2i(head + Vector2(x, 5)), Color("e4f2ff"))
-	image.set_pixelv(Vector2i(head + Vector2(-8, -11)), GEM[4])
-	image.set_pixelv(Vector2i(head + Vector2(-4, -9)), GEM[3])
+	image.set_pixelv(eye, eye_colors[0]); image.set_pixelv(eye + Vector2i(1, 0), eye_colors[1])
+	for step: Vector2i in [Vector2i(-1, 0), Vector2i(0, -1), Vector2i(1, -1)]: image.set_pixelv(eye + step, outline)
+	image.set_pixelv(Vector2i(head + Vector2(12, 1)), outline)
+	for i in range(3, 12): image.set_pixelv(Vector2i(head + Vector2(i, 4)), outline)
+	for x in [5, 8, 11]: image.set_pixelv(Vector2i(head + Vector2(x, 5)), tooth_color)
+	image.set_pixelv(Vector2i(head + Vector2(-8, -11)), gem_colors[4])
+	image.set_pixelv(Vector2i(head + Vector2(-4, -9)), gem_colors[3])
 	var output := Image.create_empty(SIZE.x, SIZE.y, false, Image.FORMAT_RGBA8)
 	output.blit_rect(image, Rect2i(0, 0, SIZE.x, SIZE.y - 3), Vector2i(0, 3))
+	return output
+
+static func frame(index: int) -> Image:
+	index = posmod(index, FRAME_COUNT)
+	if _frames.has(index): return _frames[index]
+	var output := _render_frame("sapphire", "spirewing", index)
 	_frames[index] = output
+	return output
+
+static func frame_for(gem_id: String, morph_id: String, index: int) -> Image:
+	index = posmod(index, FRAME_COUNT)
+	if gem_id == "sapphire" and morph_id == "spirewing":
+		return frame(index)
+	var key := "%s_%s:%d" % [gem_id, morph_id, index]
+	if _variant_frames.has(key):
+		_variant_order.erase(key); _variant_order.append(key)
+		return _variant_frames[key]
+	var output := _render_frame(gem_id, morph_id, index)
+	_variant_frames[key] = output
+	_variant_order.append(key)
+	while _variant_order.size() > VARIANT_CACHE_LIMIT:
+		_variant_frames.erase(_variant_order.pop_front())
 	return output
 
 static func _coordinates(points: PackedVector2Array) -> Array:
@@ -264,42 +678,51 @@ static func _region(owner: String, polygon: Array, start: Array, end: Array) -> 
 	return {"owner_part_id": owner, "polygons": [polygon], "anchor_start_px": start, "anchor_end_px": end}
 
 static func metadata(index: int) -> Dictionary:
+	return metadata_for("sapphire", "spirewing", index)
+
+static func metadata_for(gem_id: String, morph_id: String, index: int) -> Dictionary:
 	index = posmod(index, FRAME_COUNT)
 	var d: int = 3 - BOB[index]
 	var head: Array = [[78, 0], [128, 0], [128, 37 + d], [90, 37 + d], [81, 39 + d]]
 	var jaw: Array = [[99, 28 + d], [104, 28 + d], [117, 30 + d], [116, 35 + d], [98, 33 + d]]
 	var neck: Array = [[70, 45 + d], [81, 39 + d], [90, 37 + d], [94, 48 + d], [80, 60 + d]]
 	var regions := {
-		"torso": _region("body", [[37, 44 + d], [78, 38 + d], [84, 62 + d], [42, 73 + d]], [48, 58 + d], [76, 50 + d]),
+		"torso": _region("body", [[37, 44 + d], [78, 38 + d], [84, 66 + d], [42, 73 + d]], [48, 58 + d], [76, 50 + d]),
 		"neck": _region("body", neck, [76, 50 + d], [86, 38 + d]),
 		"head": _region("head", head, [86, 38 + d], [105, 24 + d]),
 		"jaw": _region("jaw", jaw, [100, 29 + d], [114, 31 + d]),
-		"tail": _region("body", [[0, 48], [44, 50 + d], [54, 70 + d], [10, 86], [0, 74]], [46, 60 + d], [6, 60 + d])
+		"tail": _region("body", [[0, 46], [44, 50 + d], [54, 70 + d], [10, 88], [0, 76]], [46, 60 + d], [6, 60 + d])
 	}
 	regions["neck"]["cut_line_px"] = [[81, 39 + d], [90, 37 + d], [128, 37 + d]]
 	regions["neck"]["cut_point_px"] = [86, 38 + d]
 	for side: String in ["l", "r"]:
 		var distant := side == "l"
-		var shoulder := Vector2(64, 45 + d) if distant else Vector2(68, 47 + d)
-		var pose: Array = _far_pose(WING_POSES[index]) if distant else WING_POSES[index]
+		var shoulder := Vector2(58, 45 + d) if distant else Vector2(66, 47 + d)
+		var base_pose: Array = _far_pose(WING_POSES[index]) if distant else WING_POSES[index]
+		var pose: Array = _morph_wing_pose(base_pose, morph_id)
 		var elbow: Vector2 = shoulder + pose[0]
 		var wrist: Vector2 = shoulder + pose[1]
 		var upper := PackedVector2Array([shoulder + Vector2(-5, -4), elbow + Vector2(-4, -4), wrist + Vector2(4, -3), wrist + Vector2(5, 4), shoulder + Vector2(4, 5)])
 		regions["wing_upper_" + side] = _region("body", _coordinates(upper), [shoulder.x, shoulder.y], [wrist.x, wrist.y])
-		regions["wing_lower_" + side] = _region("body", _coordinates(_wing_points(shoulder, pose)), [wrist.x, wrist.y], [shoulder.x + pose[2].x, shoulder.y + pose[2].y])
+		regions["wing_lower_" + side] = _region("body", _coordinates(_wing_points(shoulder, base_pose, morph_id)), [wrist.x, wrist.y], [shoulder.x + pose[2].x, shoulder.y + pose[2].y])
 		var hip := Vector2(45, 59 + d) if distant else Vector2(52, 61 + d)
 		var knee := hip + Vector2(8, 10 if distant else 9)
 		var ankle := Vector2(hip.x + 2, 79 if distant else 81) + Vector2(0, 3)
-		regions["leg_upper_" + side] = _region("body", [[hip.x - 7, hip.y - 7], [knee.x + 5, knee.y - 4], [knee.x + 5, knee.y + 6], [hip.x - 5, hip.y + 8]], [hip.x, hip.y], [knee.x, knee.y])
-		regions["leg_lower_" + side] = _region("body", [[knee.x - 5, knee.y - 3], [knee.x + 5, knee.y], [ankle.x + 4, ankle.y + 2], [ankle.x - 4, ankle.y + 2]], [knee.x, knee.y], [ankle.x, ankle.y])
+		regions["leg_upper_" + side] = _region("body", [[hip.x - 8, hip.y - 8], [knee.x + 6, knee.y - 4], [knee.x + 6, knee.y + 6], [hip.x - 6, hip.y + 8]], [hip.x, hip.y], [knee.x, knee.y])
+		regions["leg_lower_" + side] = _region("body", [[knee.x - 6, knee.y - 3], [knee.x + 6, knee.y], [ankle.x + 5, ankle.y + 2], [ankle.x - 5, ankle.y + 2]], [knee.x, knee.y], [ankle.x, ankle.y])
 		regions["foot_" + side] = _region("body", [[ankle.x - 9, ankle.y - 3], [ankle.x + 13, ankle.y - 2], [ankle.x + 14, ankle.y + 9], [ankle.x - 9, ankle.y + 9]], [ankle.x, ankle.y], [ankle.x + 10, ankle.y + 4])
-	return {"generator": "sapphire_spirewing", "frame": index, "painted": true, "source_path": "code:sapphire_spirewing/%d" % index,
-		"image_size": [128, 96], "source_origin_px": [70, 49], "units_per_pixel": 0.48, "motion_scale": 1.0 / 12.0,
-		"seat_px": [70, 46 + d], "seat_angle": SEAT_PITCH[index] * 0.5, "ground_y_px": 88, "neck_root_px": [78, 49 + d],
-		"wing_roots_px": {"left": [64, 45 + d], "right": [68, 47 + d]}, "head_crop_px": [78, 10 + d, 42, 35],
+	var vid := "sapphire_spirewing" if (gem_id == "sapphire" and morph_id == "spirewing") else "%s_%s" % [gem_id, morph_id]
+	var base_seat_y := 49 if morph_id == "reedrunner" else (47 if morph_id in ["broadmantle", "stormkeel", "ironcrest"] else 48)
+	# Rider seat is sunk onto the dorsal line between the far (x=58) and near (x=66) wing shoulders,
+	# so the rider's hips sit on the back between the shoulders and the near leg runs down the flank.
+	return {"generator": "sapphire_spirewing", "gem_id": gem_id, "morph_id": morph_id, "frame": index, "painted": true,
+		"source_path": "code:%s/%d" % [vid, index], "image_size": [128, 96], "source_origin_px": [61, base_seat_y + 3],
+		"units_per_pixel": 0.48, "motion_scale": 1.0 / 12.0, "seat_px": [61, base_seat_y + d], "seat_angle": SEAT_PITCH[index] * 0.5,
+		"ground_y_px": 88, "neck_root_px": [78, 49 + d], "wing_roots_px": {"left": [58, 45 + d], "right": [66, 47 + d]},
+		"head_crop_px": [78, 8 + d, 44, 37],
 		"parts": {
-			"body": {"label": "Body, wingbeat, hind legs and tail", "parent": "", "polygons": [[[0, 0], [128, 0], [128, 96], [0, 96]]], "pivot_px": [70, 46 + d]},
+			"body": {"label": "Body, wingbeat, hind legs and tail", "parent": "", "polygons": [[[0, 0], [128, 0], [128, 96], [0, 96]]], "pivot_px": [61, base_seat_y + d]},
 			"head": {"label": "Head and upper neck", "parent": "body", "polygons": [head], "pivot_px": [86, 38 + d], "ownership_priority": 1},
 			"jaw": {"label": "Lower jaw", "parent": "head", "polygons": [jaw], "pivot_px": [100, 29 + d], "ownership_priority": 2}},
 		"anatomical_regions": regions, "gem_regions": [], "preserve_regions": [],
-		"material_masks_px": {"horns": [[[79, 10 + d], [98, 10 + d], [102, 22 + d], [90, 23 + d]]], "eyes": [[[102, 22 + d], [105, 22 + d], [105, 25 + d], [102, 25 + d]]]}}
+		"material_masks_px": {"horns": [[[79, 8 + d], [100, 8 + d], [102, 22 + d], [90, 23 + d]]], "eyes": [[[102, 22 + d], [105, 22 + d], [105, 25 + d], [102, 25 + d]]]}}

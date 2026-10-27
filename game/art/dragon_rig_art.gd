@@ -75,7 +75,7 @@ static func _source(row: Dictionary, pose: String = "rest", progress: float = 0.
 	var path: String = String(entry.get("source_path", ""))
 	var image: Image
 	if generated:
-		image = SapphireSpirewingArt.frame(int(entry["frame"]))
+		image = SapphireSpirewingArt.frame_for(String(entry.get("gem_id", "sapphire")), String(entry.get("morph_id", "spirewing")), int(entry["frame"]))
 	else:
 		if not ResourceLoader.exists(path, "Texture2D"):
 			push_error("Dragon coherent source is missing: " + path); return {}

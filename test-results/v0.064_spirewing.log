@@ -1,0 +1,9 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Sapphire Spirewing v061: 97 checks, 0 failures
+== res://tests/test_sapphire_spirewing_v061.gd: PASS ==
+dragon concepts: 133 checks, 0 failures
+== res://tests/test_dragon_concepts.gd: PASS ==
+== block spirewing_v061: 2 tests, 0 failing ==
+  test_sapphire_spirewing_v061.gd PASS (1 s)
+  test_dragon_concepts.gd PASS (0 s)

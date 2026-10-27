@@ -1,0 +1,9 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+mounted rider art: 311 checks, 0 failures
+== res://tests/test_mounted_rider_art.gd: PASS ==
+dragon mount preview: 246 checks, 0 failures
+== res://tests/test_dragon_mount_preview.gd: PASS ==
+== block: 2 tests, 0 failing ==
+  test_mounted_rider_art.gd PASS (0 s)
+  test_dragon_mount_preview.gd PASS (3 s)

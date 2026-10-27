@@ -22,15 +22,47 @@ static func entries() -> Dictionary:
 
 ## Appearance variants retain the existing gem, body form and physical profile.
 static func variants() -> Array:
-	return [{"id": "sapphire_spirewing", "name": "Sapphire Spirewing", "gem_id": "sapphire", "morph_id": "spirewing", "frames": SapphireSpirewingArt.FRAME_COUNT}]
+	var out: Array = []
+	var gems: Array = Dragons.catalogs().get("gems", [])
+	var morphs: Dictionary = {}
+	for m: Dictionary in Dragons.catalogs().get("morphs", []):
+		morphs[String(m.get("id", ""))] = String(m.get("name", ""))
+	for gem: Dictionary in gems:
+		var gid := String(gem.get("id", ""))
+		var gname := String(gem.get("name", gid.replace("_", " ").capitalize()))
+		var mid := String(DragonConcepts.entry(gid).get("morph_id", "spirewing"))
+		var mname := String(morphs.get(mid, mid.capitalize()))
+		var vid := "sapphire_spirewing" if (gid == "sapphire" and mid == "spirewing") else "%s_%s" % [gid, mid]
+		out.append({"id": vid, "name": "%s %s" % [gname, mname], "gem_id": gid, "morph_id": mid, "frames": SapphireSpirewingArt.FRAME_COUNT})
+	return out
 
 static func variants_for(row: Dictionary) -> Array:
-	return variants().filter(func(value: Dictionary): return value["gem_id"] == row.get("gem_id", "") and value["morph_id"] == row.get("morph_id", ""))
+	var gid := String(row.get("gem_id", ""))
+	var mid := String(row.get("morph_id", ""))
+	if not SapphireSpirewingArt.has_gem(gid) or not SapphireSpirewingArt.has_morph(mid):
+		return []
+	var gem_name := gid.replace("_", " ").capitalize()
+	for g: Dictionary in Dragons.catalogs().get("gems", []):
+		if String(g.get("id", "")) == gid:
+			gem_name = String(g.get("name", gem_name))
+			break
+	var morph_name := mid.capitalize()
+	for m: Dictionary in Dragons.catalogs().get("morphs", []):
+		if String(m.get("id", "")) == mid:
+			morph_name = String(m.get("name", morph_name))
+			break
+	var vid := "sapphire_spirewing" if (gid == "sapphire" and mid == "spirewing") else "%s_%s" % [gid, mid]
+	return [{"id": vid, "name": "%s %s" % [gem_name, morph_name], "gem_id": gid, "morph_id": mid, "frames": SapphireSpirewingArt.FRAME_COUNT}]
 
 static func variant_for(row: Dictionary) -> Dictionary:
-	if row.get("sprite_id", "") != "sapphire_spirewing": return {}
-	for value: Dictionary in variants_for(row):
-		if value["id"] == row.get("sprite_id", ""): return value
+	var requested := String(row.get("sprite_id", ""))
+	if requested == "classic":
+		return {}
+	var eligible := variants_for(row)
+	if eligible.is_empty():
+		return {}
+	if requested == "" or requested == "code" or requested == String(eligible[0]["id"]):
+		return eligible[0]
 	return {}
 
 static func source_id(row: Dictionary) -> String:
@@ -38,7 +70,9 @@ static func source_id(row: Dictionary) -> String:
 	return String(variant["id"]) if not variant.is_empty() else String(row.get("morph_id", ""))
 
 static func source_entry(row: Dictionary, pose: String = "rest", progress: float = 0.0) -> Dictionary:
-	if not variant_for(row).is_empty(): return SapphireSpirewingArt.metadata(SapphireSpirewingArt.frame_index(pose, progress))
+	var variant := variant_for(row)
+	if not variant.is_empty():
+		return SapphireSpirewingArt.metadata_for(String(variant["gem_id"]), String(variant["morph_id"]), SapphireSpirewingArt.frame_index(pose, progress))
 	return entry(String(row.get("morph_id", "")), pose)
 
 static func frame_count(row: Dictionary, pose: String) -> int:
@@ -49,6 +83,12 @@ static func frame_count(row: Dictionary, pose: String) -> int:
 
 static func entry(morph_id: String, _pose: String = "rest") -> Dictionary:
 	if morph_id == "sapphire_spirewing": return SapphireSpirewingArt.metadata(1)
+	var parts := morph_id.split("_")
+	if parts.size() >= 2:
+		var m_candidate := parts[parts.size() - 1]
+		var g_candidate := "_".join(parts.slice(0, parts.size() - 1))
+		if SapphireSpirewingArt.has_gem(g_candidate) and SapphireSpirewingArt.has_morph(m_candidate):
+			return SapphireSpirewingArt.metadata_for(g_candidate, m_candidate, 1)
 	var data: Dictionary = entries().get(morph_id, {})
 	if data.is_empty(): push_error("Dragon coherent source or observed anchors are missing for " + morph_id)
 	return data.duplicate(true)

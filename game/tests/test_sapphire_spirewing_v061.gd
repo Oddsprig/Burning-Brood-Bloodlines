@@ -16,11 +16,14 @@ func run(tree: SceneTree) -> int:
 	var next_item: int = Item._next_uid
 	var row: Dictionary = {"stage": "adult", "alive": true, "gem_id": "sapphire", "morph_id": "spirewing", "size_class": "medium", "appearance_seed": 27, "sprite_id": "sapphire_spirewing"}
 	var copied := row.duplicate(true)
+	var default_row := row.duplicate(true)
+	default_row.erase("sprite_id")
 	var original := row.duplicate(true)
-	original["sprite_id"] = ""
+	original["sprite_id"] = "classic"
 	check(DragonSpriteCatalog.variants_for(row).size() == 1 and DragonSpriteCatalog.variant_for(row).get("name") == "Sapphire Spirewing", "catalog registers an eligible, selectable variant")
+	check(DragonSpriteCatalog.variant_for(default_row).get("id") == "sapphire_spirewing", "default sprite_id selects the v0.064 code-drawn variant")
 	check(DragonSpriteCatalog.entry("sapphire_spirewing").get("generator") == "sapphire_spirewing", "catalog resolves the code-generated source")
-	check(DragonSpriteCatalog.entries().size() == 6 and DragonSpriteCatalog.variant_for(original).is_empty(), "original six source forms retain their default art")
+	check(DragonSpriteCatalog.entries().size() == 6 and DragonSpriteCatalog.variant_for(original).is_empty(), "classic sprite_id retains the original six source forms")
 	var wrong := row.duplicate(true)
 	wrong["gem_id"] = "ruby"
 	check(DragonSpriteCatalog.variant_for(wrong).is_empty(), "sapphire sprite cannot override a different gem")
@@ -55,7 +58,22 @@ func run(tree: SceneTree) -> int:
 	check(rest.get("frames") == 1 and rest["seat"].is_equal_approx(Vector2.ZERO), "still rest uses the raised-wing source and original seat origin")
 	var meta_rest := SapphireSpirewingArt.metadata(1)
 	var seat_x := float(meta_rest["seat_px"][0])
-	check(seat_x > float(meta_rest["wing_roots_px"]["left"][0]) and seat_x > float(meta_rest["wing_roots_px"]["right"][0]) and seat_x <= float(meta_rest["neck_root_px"][0]), "saddle seat is positioned at the base of the neck in front of the wing roots")
+	var seat_y := float(meta_rest["seat_px"][1])
+	check(seat_x >= float(meta_rest["wing_roots_px"]["left"][0]) and seat_x <= float(meta_rest["wing_roots_px"]["right"][0]) and seat_x < float(meta_rest["neck_root_px"][0]) and seat_y >= float(meta_rest["wing_roots_px"]["right"][1]), "saddle seat is sunk onto the dorsal line between the shoulders, behind the neck base")
+	var gem_hashes := {}
+	for gem: Dictionary in Dragons.catalogs().get("gems", []):
+		var gid := String(gem.get("id", ""))
+		var mid := String(DragonConcepts.entry(gid).get("morph_id", "spirewing"))
+		var f_img := SapphireSpirewingArt.frame_for(gid, mid, 1)
+		check(f_img != null and f_img.get_size() == Vector2i(128, 96) and f_img.get_used_rect().size.x > 90, "v0.064 code-drawn gem/breed frame builds: " + gid + "/" + mid)
+		if f_img != null: gem_hashes[f_img.get_data().hex_encode().sha256_text()] = true
+	check(gem_hashes.size() == 16, "all 16 dragon gem colours produce distinct 2.5D code-drawn art")
+	var morph_hashes := {}
+	for morph: Dictionary in Dragons.catalogs().get("morphs", []):
+		var mid := String(morph.get("id", ""))
+		var m_img := SapphireSpirewingArt.frame_for("emerald", mid, 1)
+		if m_img != null: morph_hashes[m_img.get_data().hex_encode().sha256_text()] = true
+	check(morph_hashes.size() == 6, "all 6 dragon breeds produce distinct 2.5D silhouettes for the same gem")
 	var seat_ys := {}
 	var seat_angles := {}
 	for i in SapphireSpirewingArt.FRAME_COUNT:
