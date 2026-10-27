@@ -59,21 +59,41 @@ func run(tree: SceneTree) -> int:
 	var meta_rest := SapphireSpirewingArt.metadata(1)
 	var seat_x := float(meta_rest["seat_px"][0])
 	var seat_y := float(meta_rest["seat_px"][1])
-	check(seat_x >= float(meta_rest["wing_roots_px"]["left"][0]) and seat_x <= float(meta_rest["wing_roots_px"]["right"][0]) and seat_x < float(meta_rest["neck_root_px"][0]) and seat_y >= float(meta_rest["wing_roots_px"]["right"][1]), "saddle seat is sunk onto the dorsal line between the shoulders, behind the neck base")
+	check(seat_x > float(meta_rest["wing_roots_px"]["right"][0]) and float(meta_rest["wing_roots_px"]["right"][0]) > float(meta_rest["wing_roots_px"]["left"][0]) and absf(seat_x - float(meta_rest["neck_root_px"][0])) <= 4.0 and absf(seat_y - float(meta_rest["neck_root_px"][1])) <= 4.0, "saddle seat sits at the base of the neck, clearly forward of the wing roots")
 	var gem_hashes := {}
 	for gem: Dictionary in Dragons.catalogs().get("gems", []):
 		var gid := String(gem.get("id", ""))
 		var mid := String(DragonConcepts.entry(gid).get("morph_id", "spirewing"))
 		var f_img := SapphireSpirewingArt.frame_for(gid, mid, 1)
-		check(f_img != null and f_img.get_size() == Vector2i(128, 96) and f_img.get_used_rect().size.x > 90, "v0.064 code-drawn gem/breed frame builds: " + gid + "/" + mid)
+		check(f_img != null and f_img.get_size() == Vector2i(128, 96) and f_img.get_used_rect().size.x > 80, "v0.064 code-drawn gem/breed frame builds: " + gid + "/" + mid)
 		if f_img != null: gem_hashes[f_img.get_data().hex_encode().sha256_text()] = true
 	check(gem_hashes.size() == 16, "all 16 dragon gem colours produce distinct 2.5D code-drawn art")
 	var morph_hashes := {}
+	var morph_spec_hashes := {}
+	var morph_opaque_counts := {}
 	for morph: Dictionary in Dragons.catalogs().get("morphs", []):
 		var mid := String(morph.get("id", ""))
+		var bspec := SapphireSpirewingArt.breed_spec(mid)
+		var spec_sig := JSON.stringify([bspec.get("torso_points"), bspec.get("torso_radii"), bspec.get("neck_points"), bspec.get("head_pos"), bspec.get("wing_scale"), bspec.get("tail_points"), bspec.get("seat_px"), bspec.get("wing_roots_px")])
+		morph_spec_hashes[spec_sig] = true
+		var bmeta := SapphireSpirewingArt.metadata_for("emerald", mid, 1)
+		var b_seat_x := float(bmeta["seat_px"][0])
+		var b_seat_y := float(bmeta["seat_px"][1])
+		var b_wing_r_x := float(bmeta["wing_roots_px"]["right"][0])
+		var b_wing_l_x := float(bmeta["wing_roots_px"]["left"][0])
+		var b_neck_x := float(bmeta["neck_root_px"][0])
+		var b_neck_y := float(bmeta["neck_root_px"][1])
+		check(b_seat_x >= b_wing_r_x + 10.0 and b_wing_r_x > b_wing_l_x and absf(b_seat_x - b_neck_x) <= 4.0 and absf(b_seat_y - b_neck_y) <= 4.0, mid + " seat point is at neck base and clearly forward of wing roots")
 		var m_img := SapphireSpirewingArt.frame_for("emerald", mid, 1)
-		if m_img != null: morph_hashes[m_img.get_data().hex_encode().sha256_text()] = true
-	check(morph_hashes.size() == 6, "all 6 dragon breeds produce distinct 2.5D silhouettes for the same gem")
+		if m_img != null:
+			morph_hashes[m_img.get_data().hex_encode().sha256_text()] = true
+			var opaque := 0
+			for py in m_img.get_height():
+				for px in m_img.get_width():
+					if m_img.get_pixel(px, py).a > 0.0:
+						opaque += 1
+			morph_opaque_counts[opaque] = true
+	check(morph_hashes.size() == 6 and morph_spec_hashes.size() == 6 and morph_opaque_counts.size() >= 5, "all 6 dragon breeds have distinct silhouette parameters and distinct 2.5D silhouettes")
 	var seat_ys := {}
 	var seat_angles := {}
 	for i in SapphireSpirewingArt.FRAME_COUNT:

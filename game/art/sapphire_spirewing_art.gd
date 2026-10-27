@@ -210,12 +210,12 @@ const PALETTES := {
 }
 
 const WING_POSES := [
-	[Vector2(-2, -14), Vector2(4, -30), Vector2(-10, -45), Vector2(-34, -40), Vector2(-46, -18)],
-	[Vector2(-4, -12), Vector2(-2, -27), Vector2(-22, -44), Vector2(-44, -32), Vector2(-48, -10)],
-	[Vector2(-6, -8), Vector2(-12, -16), Vector2(-46, -26), Vector2(-56, -8), Vector2(-44, 4)],
-	[Vector2(-4, 4), Vector2(-6, 13), Vector2(-24, 34), Vector2(-40, 30), Vector2(-42, 14)],
-	[Vector2(-6, -2), Vector2(-12, 0), Vector2(-42, 6), Vector2(-50, 18), Vector2(-40, 12)],
-	[Vector2(-3, -10), Vector2(-2, -22), Vector2(-20, -38), Vector2(-42, -28), Vector2(-46, -8)]
+	[Vector2(-3, -14), Vector2(-1, -29), Vector2(-14, -42), Vector2(-33, -37), Vector2(-41, -16)],
+	[Vector2(-4, -12), Vector2(-4, -26), Vector2(-22, -41), Vector2(-39, -30), Vector2(-42, -9)],
+	[Vector2(-6, -8), Vector2(-10, -15), Vector2(-38, -24), Vector2(-44, -7), Vector2(-36, 4)],
+	[Vector2(-4, 4), Vector2(-6, 12), Vector2(-22, 30), Vector2(-36, 26), Vector2(-37, 12)],
+	[Vector2(-6, -2), Vector2(-10, 0), Vector2(-36, 6), Vector2(-42, 16), Vector2(-34, 11)],
+	[Vector2(-4, -10), Vector2(-3, -21), Vector2(-20, -35), Vector2(-37, -26), Vector2(-40, -7)]
 ]
 const BOB := [-1, 0, 2, 4, 2, 0]
 const SEAT_PITCH := [0.04, 0.0, -0.05, -0.08, -0.035, 0.02]
@@ -223,6 +223,182 @@ const VARIANT_CACHE_LIMIT := 96
 static var _frames: Dictionary = {}
 static var _variant_frames: Dictionary = {}
 static var _variant_order: Array[String] = []
+
+## Data-driven silhouette, anatomy and socket parameters for each of the 6 dragon breeds.
+## Seat is placed at the base of the neck, clearly in front of the wing roots on the dorsal back.
+const BREEDS := {
+	"spirewing": {
+		"build": "lean",
+		"torso_points": [Vector2(47, 58), Vector2(56, 54.5), Vector2(66, 50.5), Vector2(74, 48.5)],
+		"torso_radii": [8.6, 9.5, 9.6, 8.6],
+		"chest_capsule": [Vector2(64, 55), Vector2(75, 53.5), 6.8, 7.4],
+		"neck_points": [Vector2(74, 48.5), Vector2(85, 45), Vector2(84, 27), Vector2(98, 20)],
+		"neck_radii": [8.0, 4.2],
+		"head_pos": Vector2(100, 20),
+		"head_size": Vector2(14, 3),
+		"head_radii": [5.6, 2.4, 3.8, 1.6, 2.2],
+		"horn_style": "spire",
+		"horn_length": 20.0,
+		"wing_scale": Vector2(0.88, 1.08),
+		"wing_offset": Vector2(-2, -2),
+		"wing_flank": Vector2(-16, 9),
+		"wing_scallop": 0.30,
+		"wing_arm_scale": 0.95,
+		"tail_points": [Vector2(45, 59), Vector2(29, 66), Vector2(13, 74), Vector2(6, 56)],
+		"tail_radii": [7.6, 1.1, 0.82],
+		"tail_style": "spade",
+		"far_hip": Vector2(44, 59),
+		"near_hip": Vector2(51, 61),
+		"leg_stance": [Vector2(7, 9), Vector2(1, 20), Vector2(9, 23.5)],
+		"leg_thick": 0.95,
+		"seat_px": Vector2(72, 45),
+		"neck_root_px": Vector2(74, 45),
+		"wing_roots_px": {"left": Vector2(51, 44), "right": Vector2(58, 46)}
+	},
+	"broadmantle": {
+		"build": "heavy",
+		"torso_points": [Vector2(45, 57), Vector2(55, 54), Vector2(65, 50), Vector2(74, 48)],
+		"torso_radii": [11.6, 12.6, 12.2, 10.8],
+		"chest_capsule": [Vector2(57, 59), Vector2(75, 53.5), 7.5, 8.0],
+		"neck_points": [Vector2(74, 48), Vector2(83, 44.5), Vector2(85, 33), Vector2(95, 26.5)],
+		"neck_radii": [10.0, 5.6],
+		"head_pos": Vector2(97, 26),
+		"head_size": Vector2(15, 3.5),
+		"head_radii": [6.8, 3.4, 4.8, 2.4, 3.2],
+		"horn_style": "bull",
+		"horn_length": 22.0,
+		"wing_scale": Vector2(1.14, 1.05),
+		"wing_offset": Vector2(-3, 1),
+		"wing_flank": Vector2(-22, 13),
+		"wing_scallop": 0.14,
+		"wing_arm_scale": 1.25,
+		"tail_points": [Vector2(44, 58), Vector2(28, 63), Vector2(15, 69), Vector2(7, 63)],
+		"tail_radii": [10.6, 2.8, 0.72],
+		"tail_style": "mace",
+		"far_hip": Vector2(42, 58),
+		"near_hip": Vector2(52, 60),
+		"leg_stance": [Vector2(9, 8.5), Vector2(3, 19.5), Vector2(12, 23.5)],
+		"leg_thick": 1.26,
+		"seat_px": Vector2(71, 43),
+		"neck_root_px": Vector2(73, 43),
+		"wing_roots_px": {"left": Vector2(49, 43), "right": Vector2(56, 45)}
+	},
+	"reedrunner": {
+		"build": "long",
+		"torso_points": [Vector2(42, 60), Vector2(54, 57.5), Vector2(66, 54), Vector2(77, 51.5)],
+		"torso_radii": [7.5, 8.4, 8.6, 7.6],
+		"chest_capsule": [Vector2(66, 58), Vector2(78, 56.5), 6.4, 7.2],
+		"neck_points": [Vector2(77, 51.5), Vector2(88, 49), Vector2(92, 36), Vector2(104, 29)],
+		"neck_radii": [7.0, 3.5],
+		"head_pos": Vector2(105, 28),
+		"head_size": Vector2(16, 2.5),
+		"head_radii": [4.6, 1.9, 3.0, 1.3, 1.7],
+		"horn_style": "reed",
+		"horn_length": 23.0,
+		"wing_scale": Vector2(1.04, 0.72),
+		"wing_offset": Vector2(-4, 4),
+		"wing_flank": Vector2(-15, 6),
+		"wing_scallop": 0.24,
+		"wing_arm_scale": 0.80,
+		"tail_points": [Vector2(41, 60.5), Vector2(26, 64), Vector2(11, 67), Vector2(2, 62)],
+		"tail_radii": [6.4, 0.8, 0.90],
+		"tail_style": "dart",
+		"far_hip": Vector2(41, 60),
+		"near_hip": Vector2(49, 61.5),
+		"leg_stance": [Vector2(9, 8), Vector2(1, 19.5), Vector2(10, 22.5)],
+		"leg_thick": 0.76,
+		"seat_px": Vector2(75, 49),
+		"neck_root_px": Vector2(77, 49),
+		"wing_roots_px": {"left": Vector2(53, 49), "right": Vector2(60, 51)}
+	},
+	"ironcrest": {
+		"build": "compact",
+		"torso_points": [Vector2(52, 57), Vector2(59, 53.5), Vector2(66, 49.5), Vector2(73, 47.5)],
+		"torso_radii": [9.8, 11.4, 11.4, 9.8],
+		"chest_capsule": [Vector2(63, 55.5), Vector2(74, 52), 7.2, 7.6],
+		"neck_points": [Vector2(73, 47.5), Vector2(81, 43), Vector2(81, 29), Vector2(92, 22)],
+		"neck_radii": [8.8, 5.0],
+		"head_pos": Vector2(94, 22),
+		"head_size": Vector2(12, 3),
+		"head_radii": [6.2, 3.0, 4.4, 2.2, 3.0],
+		"horn_style": "crest",
+		"horn_length": 17.0,
+		"wing_scale": Vector2(0.84, 0.96),
+		"wing_offset": Vector2(-1, -1),
+		"wing_flank": Vector2(-16, 10),
+		"wing_scallop": 0.34,
+		"wing_arm_scale": 1.12,
+		"tail_points": [Vector2(50, 58), Vector2(36, 62), Vector2(21, 66), Vector2(11, 50)],
+		"tail_radii": [8.8, 2.0, 0.78],
+		"tail_style": "halberd",
+		"far_hip": Vector2(48, 58),
+		"near_hip": Vector2(55, 60),
+		"leg_stance": [Vector2(7, 9), Vector2(2, 20), Vector2(10, 23.5)],
+		"leg_thick": 1.12,
+		"seat_px": Vector2(70, 43),
+		"neck_root_px": Vector2(72, 43),
+		"wing_roots_px": {"left": Vector2(52, 43), "right": Vector2(58, 45)}
+	},
+	"stormkeel": {
+		"build": "barrel",
+		"torso_points": [Vector2(46, 57), Vector2(56, 54), Vector2(67, 50), Vector2(75, 48)],
+		"torso_radii": [10.4, 11.8, 11.8, 10.0],
+		"chest_capsule": [Vector2(58, 59), Vector2(77, 54), 7.4, 8.0],
+		"neck_points": [Vector2(75, 48), Vector2(85, 44), Vector2(84, 29), Vector2(97, 23)],
+		"neck_radii": [9.2, 4.8],
+		"head_pos": Vector2(99, 23),
+		"head_size": Vector2(14, 3),
+		"head_radii": [6.0, 2.6, 4.2, 1.8, 2.5],
+		"horn_style": "prow",
+		"horn_length": 21.0,
+		"wing_scale": Vector2(1.10, 1.03),
+		"wing_offset": Vector2(-3, -1),
+		"wing_flank": Vector2(-21, 12),
+		"wing_scallop": 0.40,
+		"wing_arm_scale": 1.20,
+		"tail_points": [Vector2(45, 58.5), Vector2(29, 65), Vector2(14, 73), Vector2(6, 58)],
+		"tail_radii": [9.2, 1.8, 0.76],
+		"tail_style": "fluke",
+		"far_hip": Vector2(43, 59),
+		"near_hip": Vector2(51, 61),
+		"leg_stance": [Vector2(8.5, 9), Vector2(2, 20), Vector2(11, 23.5)],
+		"leg_thick": 1.20,
+		"seat_px": Vector2(73, 44),
+		"neck_root_px": Vector2(75, 44),
+		"wing_roots_px": {"left": Vector2(50, 44), "right": Vector2(57, 46)}
+	},
+	"duskfin": {
+		"build": "sleek",
+		"torso_points": [Vector2(45, 59), Vector2(56, 56), Vector2(67, 52), Vector2(75, 49.5)],
+		"torso_radii": [8.2, 9.2, 9.2, 8.2],
+		"chest_capsule": [Vector2(65, 56.5), Vector2(76, 55), 6.6, 7.2],
+		"neck_points": [Vector2(75, 49.5), Vector2(87, 46), Vector2(86, 30), Vector2(100, 24)],
+		"neck_radii": [7.4, 3.8],
+		"head_pos": Vector2(101, 24),
+		"head_size": Vector2(15, 2.5),
+		"head_radii": [5.0, 2.1, 3.4, 1.4, 1.8],
+		"horn_style": "frill",
+		"horn_length": 19.5,
+		"wing_scale": Vector2(1.02, 0.86),
+		"wing_offset": Vector2(-4, 2),
+		"wing_flank": Vector2(-20, 10),
+		"wing_scallop": 0.10,
+		"wing_arm_scale": 0.84,
+		"tail_points": [Vector2(44, 59.5), Vector2(28, 67), Vector2(14, 76), Vector2(7, 61)],
+		"tail_radii": [7.0, 1.0, 0.84],
+		"tail_style": "fan",
+		"far_hip": Vector2(44, 59.5),
+		"near_hip": Vector2(51, 61),
+		"leg_stance": [Vector2(7.5, 9), Vector2(1.5, 20), Vector2(9.5, 23.5)],
+		"leg_thick": 0.86,
+		"seat_px": Vector2(73, 47),
+		"neck_root_px": Vector2(75, 47),
+		"wing_roots_px": {"left": Vector2(52, 47), "right": Vector2(59, 49)}
+	}
+}
+
+static func breed_spec(morph_id: String) -> Dictionary:
+	return BREEDS.get(morph_id, BREEDS["spirewing"])
 
 class Layer extends RefCounted:
 	var height := PackedFloat32Array()
@@ -310,45 +486,20 @@ static func _scallop(a: Vector2, b: Vector2, wrist: Vector2, k: float = 0.28) ->
 	return points
 
 static func _morph_wing_pose(pose: Array, morph_id: String) -> Array:
-	var scale := Vector2.ONE
-	var offset := Vector2.ZERO
-	match morph_id:
-		"broadmantle":
-			scale = Vector2(1.06, 1.04)
-			offset = Vector2(-2, 1)
-		"reedrunner":
-			scale = Vector2(1.04, 0.86)
-			offset = Vector2(-4, 2)
-		"ironcrest":
-			scale = Vector2(0.96, 0.98)
-			offset = Vector2(-1, 0)
-		"stormkeel":
-			scale = Vector2(1.05, 1.02)
-			offset = Vector2(-2, 0)
-		"duskfin":
-			scale = Vector2(1.02, 0.92)
-			offset = Vector2(-3, 1)
+	var spec := breed_spec(morph_id)
+	var scale: Vector2 = spec["wing_scale"]
+	var offset: Vector2 = spec["wing_offset"]
 	var out: Array = []
 	for idx in pose.size():
 		var p: Vector2 = pose[idx]
-		out.append(p * scale + (offset if idx >= 2 else offset * 0.4))
+		out.append(p * scale + (offset if idx >= 2 else offset * 0.35))
 	return out
 
 static func _wing_flank_offset(morph_id: String) -> Vector2:
-	match morph_id:
-		"broadmantle": return Vector2(-22, 11)
-		"reedrunner": return Vector2(-15, 6)
-		"ironcrest": return Vector2(-18, 9)
-		"stormkeel": return Vector2(-21, 10)
-		"duskfin": return Vector2(-20, 9)
-		_: return Vector2(-18, 8)
+	return breed_spec(morph_id)["wing_flank"]
 
 static func _wing_scallop_k(morph_id: String) -> float:
-	match morph_id:
-		"broadmantle": return 0.20
-		"stormkeel": return 0.36
-		"duskfin": return 0.12
-		_: return 0.28
+	return float(breed_spec(morph_id)["wing_scallop"])
 
 static func _wing_points(shoulder: Vector2, pose: Array, morph_id: String = "spirewing") -> PackedVector2Array:
 	var mpose := _morph_wing_pose(pose, morph_id)
@@ -371,6 +522,7 @@ static func _far_pose(pose: Array) -> Array:
 
 static func _wing(layer: Layer, shoulder: Vector2, pose: Array, morph_id: String = "spirewing") -> void:
 	layer.is_wing = true
+	var spec := breed_spec(morph_id)
 	var mpose := _morph_wing_pose(pose, morph_id)
 	var elbow: Vector2 = shoulder + mpose[0]
 	var wrist: Vector2 = shoulder + mpose[1]
@@ -400,28 +552,39 @@ static func _wing(layer: Layer, shoulder: Vector2, pose: Array, morph_id: String
 		var at := Vector2i(point)
 		if Rect2i(Vector2i.ZERO, SIZE).has_point(at) and layer.material[at.y * SIZE.x + at.x] == 4:
 			layer.material[at.y * SIZE.x + at.x] = 5
-	var arm_scale := 1.18 if morph_id in ["broadmantle", "stormkeel"] else (0.86 if morph_id in ["reedrunner", "duskfin"] else 1.0)
+	var arm_scale := float(spec["wing_arm_scale"])
 	layer.capsule(shoulder, elbow, 3.2 * arm_scale, 2.4 * arm_scale)
 	layer.capsule(elbow, wrist, 2.4 * arm_scale, 1.7 * arm_scale)
 	var finger_mat := 3 if morph_id == "duskfin" else 1
 	for i in 3: layer.capsule(wrist, fingers[i], 1.1, [0.54, 0.48, 0.42][i], finger_mat)
-	var claw_vec := Vector2(3.8, -3.6) if morph_id == "ironcrest" else Vector2(2.5, -2.5)
-	layer.capsule(wrist, wrist + claw_vec, 1.5 if morph_id == "ironcrest" else 1.3, 0.5, 3)
+	if morph_id == "duskfin":
+		layer.capsule(wrist, (fingers[1] + fingers[2]) * 0.5, 0.95, 0.40, 3)
+	var claw_vec := Vector2(3.6, -4.0) if morph_id == "ironcrest" else Vector2(2.2, -2.5)
+	layer.capsule(wrist, wrist + claw_vec, 1.5 if morph_id == "ironcrest" else 1.2, 0.5, 3)
 
 static func _leg(layer: Layer, hip: Vector2, bend: float, lift: float, morph_id: String = "spirewing") -> void:
-	var knee := hip + Vector2(8, 9 + bend)
-	var ankle := hip + Vector2(2, 20 + lift)
-	var toe := hip + Vector2(10, 23.5 + lift)
-	var thick := 1.18 if morph_id in ["broadmantle", "stormkeel"] else (0.82 if morph_id == "reedrunner" else (0.90 if morph_id == "duskfin" else 1.05 if morph_id == "ironcrest" else 1.0))
+	var spec := breed_spec(morph_id)
+	var stance: Array = spec["leg_stance"]
+	var knee := hip + (stance[0] as Vector2) + Vector2(0, bend)
+	var ankle := hip + (stance[1] as Vector2) + Vector2(0, lift)
+	var toe := hip + (stance[2] as Vector2) + Vector2(0, lift)
+	var thick := float(spec["leg_thick"])
 	layer.capsule(hip, knee, 7.0 * thick, 4.2 * thick)
+	if morph_id == "broadmantle":
+		layer.capsule(hip + Vector2(-2, 1), knee + Vector2(-1, 0), 7.8 * thick, 4.5 * thick)
 	layer.capsule(knee, ankle, 3.6 * thick, 2.4 * thick)
 	layer.capsule(ankle, toe, 2.4 * thick, 1.8 * thick)
 	layer.capsule(ankle + Vector2(-1, 1), ankle + Vector2(-4, 3.5), 1.6 * thick, 0.8 * thick)
 	if morph_id == "duskfin":
-		layer.polygon(PackedVector2Array([knee + Vector2(-2, 0), knee + Vector2(-7, 4), ankle + Vector2(-2, -1)]), 4)
+		layer.polygon(PackedVector2Array([knee + Vector2(-2, -1), knee + Vector2(-8, 4), ankle + Vector2(-2, 0)]), 4)
+		layer.capsule(knee + Vector2(-1, 0), knee + Vector2(-7, 4), 0.85, 0.35, 3)
+	elif morph_id == "ironcrest":
+		layer.polygon(PackedVector2Array([knee + Vector2(1, -2), knee + Vector2(6, -1), knee + Vector2(2, 2)]), 3)
+	elif morph_id == "stormkeel":
+		layer.capsule(ankle + Vector2(-1, 0), ankle + Vector2(-6, 1.5), 1.5, 0.45, 3)
 	for tx: float in [0.0, -3.0]:
 		var tip := toe + Vector2(1 + tx, -0.5)
-		layer.capsule(tip, tip + Vector2(2.4, 1.6), 1.1, 0.4, 3)
+		layer.capsule(tip, tip + Vector2(2.4, 1.6), 1.1 * clampf(thick, 0.9, 1.2), 0.4, 3)
 	layer.capsule(ankle + Vector2(-4, 3.5), ankle + Vector2(-6, 4.5), 0.9, 0.3, 3)
 
 static func _shade(layer: Layer, pal: Dictionary) -> PackedColorArray:
@@ -479,142 +642,137 @@ static func _composite(layers: Array, pal: Dictionary) -> Image:
 	return cv.to_image()
 
 static func _draw_tail_features(tail: Layer, tail_points: PackedVector2Array, morph_id: String) -> void:
+	var spec := breed_spec(morph_id)
+	var tr: Array = spec["tail_radii"]
+	tail.chain(tail_points, float(tr[0]), float(tr[1]), 2, float(tr[2]))
 	var tip := tail_points[-1]
-	var prev := tail_points[maxi(0, tail_points.size() - 4)]
-	match morph_id:
-		"broadmantle":
-			tail.chain(tail_points, 9.4, 2.2, 2, 0.78)
-			tail.capsule(prev, tip + Vector2(-2, 0), 3.4, 3.8, 1)
-			tail.polygon(PackedVector2Array([tip + Vector2(-2, -1), tip + Vector2(-6, -6), tip + Vector2(1, -3)]), 3)
-			tail.polygon(PackedVector2Array([tip + Vector2(-2, 1), tip + Vector2(-5, 6), tip + Vector2(1, 3)]), 3)
-		"reedrunner":
-			tail.chain(tail_points, 6.6, 0.9, 2, 0.85)
-			tail.polygon(PackedVector2Array([tip + Vector2(4, 0), tip + Vector2(-5, -3), tip + Vector2(-2, 0), tip + Vector2(-5, 3)]), 3)
-		"ironcrest":
-			tail.chain(tail_points, 8.6, 1.8, 2, 0.80)
-			tail.polygon(PackedVector2Array([tip + Vector2(2, 1), tip + Vector2(-5, -7), tip + Vector2(-7, -1), tip + Vector2(-4, 5)]), 3)
-		"stormkeel":
-			tail.chain(tail_points, 8.8, 1.6, 2, 0.78)
-			tail.polygon(PackedVector2Array([tip + Vector2(2, 0), tip + Vector2(-6, -6), tip + Vector2(-2, 0), tip + Vector2(-6, 6)]), 4)
-			tail.capsule(tip + Vector2(1, 0), tip + Vector2(-5, -5), 1.0, 0.4, 3)
-			tail.capsule(tip + Vector2(1, 0), tip + Vector2(-5, 5), 1.0, 0.4, 3)
-		"duskfin":
-			tail.chain(tail_points, 7.2, 1.1, 2, 0.82)
-			tail.polygon(PackedVector2Array([prev + Vector2(2, 0), tip + Vector2(-5, -7), tip + Vector2(-7, 0), tip + Vector2(-4, 7)]), 4)
-			tail.capsule(prev, tip + Vector2(-5, -6), 0.9, 0.3, 3)
-			tail.capsule(prev, tip + Vector2(-6, 0), 0.9, 0.3, 3)
-			tail.capsule(prev, tip + Vector2(-4, 6), 0.9, 0.3, 3)
+	var prev := tail_points[maxi(0, tail_points.size() - 5)]
+	match String(spec["tail_style"]):
+		"mace":
+			tail.capsule(prev, tip + Vector2(-2, 0), 4.2, 4.8, 1)
+			tail.polygon(PackedVector2Array([tip + Vector2(-1, -2), tip + Vector2(-6, -8), tip + Vector2(2, -4)]), 3)
+			tail.polygon(PackedVector2Array([tip + Vector2(-1, 2), tip + Vector2(-6, 8), tip + Vector2(2, 4)]), 3)
+			tail.polygon(PackedVector2Array([prev + Vector2(1, -2), prev + Vector2(-2, -7), prev + Vector2(4, -3)]), 3)
+		"dart":
+			tail.polygon(PackedVector2Array([prev + Vector2(3, 0), tip + Vector2(-3, -4), tip + Vector2(-6, 0), tip + Vector2(-3, 4)]), 3)
+		"halberd":
+			tail.polygon(PackedVector2Array([prev + Vector2(2, 1), tip + Vector2(-5, -9), tip + Vector2(-9, -1), tip + Vector2(-4, 6)]), 3)
+			for idx: int in [10, 17, 23]:
+				var tp := tail_points[idx]
+				tail.polygon(PackedVector2Array([tp + Vector2(-2, 0), tp + Vector2(-3, -6), tp + Vector2(2, 0)]), 3)
+		"fluke":
+			tail.polygon(PackedVector2Array([prev + Vector2(3, 0), tip + Vector2(-6, -8), tip + Vector2(-2, 0), tip + Vector2(-6, 8)]), 4)
+			tail.capsule(prev + Vector2(1, 0), tip + Vector2(-5, -7), 1.1, 0.4, 3)
+			tail.capsule(prev + Vector2(1, 0), tip + Vector2(-5, 7), 1.1, 0.4, 3)
+		"fan":
+			tail.polygon(PackedVector2Array([prev + Vector2(4, 0), tip + Vector2(-5, -8), tip + Vector2(-8, -3), tip + Vector2(-8, 3), tip + Vector2(-4, 8)]), 4)
+			for dy: float in [-7.0, -2.5, 2.5, 7.0]:
+				tail.capsule(prev + Vector2(2, 0), tip + Vector2(-6, dy), 0.9, 0.3, 3)
 		_:
-			tail.chain(tail_points, 8.0, 1.2, 2, 0.8)
-			tail.polygon(PackedVector2Array([tip + Vector2(-1, 2), tip + Vector2(-4, -5), tip + Vector2(3, -3)]), 1)
+			tail.polygon(PackedVector2Array([tip + Vector2(-1, 2), tip + Vector2(-5, -5), tip + Vector2(3, -3)]), 1)
+			tail.capsule(tip + Vector2(1, -1), tip + Vector2(-4, -5), 0.9, 0.35, 3)
 
 static func _draw_breed_body_and_head(body: Layer, shift: Vector2, morph_id: String) -> Vector2:
-	var torso := PackedVector2Array([Vector2(48, 58) + shift, Vector2(58, 55.5) + shift, Vector2(69, 52.0) + shift, Vector2(76, 49.5) + shift])
-	var radii := [10.0, 10.6, 9.6, 8.2]
-	var neck_start := 8.0
-	var neck_end := 4.4
-	match morph_id:
-		"broadmantle":
-			radii = [11.2, 11.8, 10.8, 9.4]
-			neck_start = 9.2; neck_end = 5.2
-		"reedrunner":
-			torso = PackedVector2Array([Vector2(45, 58.5) + shift, Vector2(57, 56.0) + shift, Vector2(69, 52.5) + shift, Vector2(76, 50.0) + shift])
-			radii = [8.8, 9.5, 8.6, 7.2]
-			neck_start = 6.8; neck_end = 3.8
-		"ironcrest":
-			torso = PackedVector2Array([Vector2(50, 57.5) + shift, Vector2(59, 55.0) + shift, Vector2(69, 52.0) + shift, Vector2(76, 49.5) + shift])
-			radii = [9.8, 11.0, 10.2, 8.6]
-			neck_start = 8.4; neck_end = 4.8
-		"stormkeel":
-			radii = [10.6, 11.4, 10.6, 9.0]
-			neck_start = 8.8; neck_end = 4.8
-		"duskfin":
-			radii = [9.2, 9.8, 8.8, 7.5]
-			neck_start = 7.2; neck_end = 4.0
+	var spec := breed_spec(morph_id)
+	var t_pts: Array = spec["torso_points"]
+	var radii: Array = spec["torso_radii"]
 	for i in 3:
-		body.capsule(torso[i], torso[i + 1], radii[i], radii[i + 1], 2)
+		body.capsule((t_pts[i] as Vector2) + shift, (t_pts[i + 1] as Vector2) + shift, float(radii[i]), float(radii[i + 1]), 2)
+	var chest: Array = spec["chest_capsule"]
+	body.capsule((chest[0] as Vector2) + shift, (chest[1] as Vector2) + shift, float(chest[2]), float(chest[3]), 2)
 	if morph_id == "stormkeel":
-		body.capsule(Vector2(60, 61) + shift, Vector2(74, 56) + shift, 5.2, 5.8, 2)
-		body.polygon(PackedVector2Array([Vector2(64, 65) + shift, Vector2(76, 59) + shift, Vector2(72, 66) + shift]), 3)
+		body.capsule(Vector2(57, 61) + shift, Vector2(77, 55.5) + shift, 6.2, 7.2, 2)
+		body.polygon(PackedVector2Array([Vector2(61, 65) + shift, Vector2(80, 57.5) + shift, Vector2(75, 67) + shift]), 3)
 	elif morph_id == "broadmantle":
-		body.capsule(Vector2(58, 60) + shift, Vector2(73, 55) + shift, 5.4, 5.6, 2)
-	var neck := _bezier(Vector2(76, 50) + shift, Vector2(86, 46) + shift, Vector2(84, 30) + shift, Vector2(97, 24) + shift, 20)
+		body.capsule(Vector2(56, 60) + shift, Vector2(74, 54) + shift, 6.4, 6.8, 2)
+	var n_pts: Array = spec["neck_points"]
+	var n_rad: Array = spec["neck_radii"]
+	var neck_start := float(n_rad[0])
+	var neck_end := float(n_rad[1])
+	var neck := _bezier((n_pts[0] as Vector2) + shift, (n_pts[1] as Vector2) + shift, (n_pts[2] as Vector2) + shift, (n_pts[3] as Vector2) + shift, 20)
 	body.chain(neck, neck_start, neck_end, 2)
-	var head := Vector2(100, 24) + shift
-	body.capsule(head, head + Vector2(14, 3), 6, 2.6)
-	body.capsule(head + Vector2(1, 4), head + Vector2(12, 6), 4, 1.7, 2)
-	var brow_r := 2.8 if morph_id in ["broadmantle", "ironcrest"] else (1.9 if morph_id in ["reedrunner", "duskfin"] else 2.2)
-	body.capsule(head + Vector2(-1, -2), head + Vector2(6, -3), brow_r, 1.6)
-	match morph_id:
-		"broadmantle":
+	var head: Vector2 = (spec["head_pos"] as Vector2) + shift
+	var h_size: Vector2 = spec["head_size"]
+	var h_rad: Array = spec["head_radii"]
+	body.capsule(head, head + h_size, float(h_rad[0]), float(h_rad[1]))
+	body.capsule(head + Vector2(1, 4), head + Vector2(h_size.x - 2, 6), float(h_rad[2]), float(h_rad[3]), 2)
+	body.capsule(head + Vector2(-1, -2), head + Vector2(6, -3), float(h_rad[4]), 1.6)
+	match String(spec["horn_style"]):
+		"bull":
 			for horn: Vector3 in [Vector3(0, 0, 1.15), Vector3(2, 1, 0.9)]:
-				var points := _bezier(head + Vector2(-1 + horn.x, -3 + horn.y), head + Vector2(-8 + horn.x, -8 + horn.y), head + Vector2(-15 + horn.x * 2, -6 + horn.y), head + Vector2(-18 + horn.x * 2, -11 + horn.y), 14)
-				body.chain(points, 2.8 * horn.z, 0.7, 3)
-			body.polygon(PackedVector2Array([head + Vector2(-2, 1), head + Vector2(-9, 4), head + Vector2(-2, 5)]), 3)
-			body.polygon(PackedVector2Array([head + Vector2(-4, 4), head + Vector2(-10, 7), head + Vector2(-3, 6)]), 1)
-		"reedrunner":
-			for horn: Vector3 in [Vector3(0, 0, 0.9), Vector3(2, 1, 0.75)]:
-				var points := _bezier(head + Vector2(-1 + horn.x, -3 + horn.y), head + Vector2(-8 + horn.x, -7 + horn.y), head + Vector2(-15 + horn.x * 2, -6 + horn.y), head + Vector2(-20 + horn.x * 2, -5 + horn.y), 14)
-				body.chain(points, 2.0 * horn.z, 0.4, 3)
+				var points := _bezier(head + Vector2(-1 + horn.x, -3 + horn.y), head + Vector2(-9 + horn.x, -9 + horn.y), head + Vector2(-16 + horn.x * 2, -5 + horn.y), head + Vector2(-21 + horn.x * 2, -12 + horn.y), 14)
+				body.chain(points, 3.1 * horn.z, 0.75, 3)
+			body.polygon(PackedVector2Array([head + Vector2(-2, 1), head + Vector2(-10, 5), head + Vector2(-2, 5)]), 3)
+			body.polygon(PackedVector2Array([head + Vector2(-4, 4), head + Vector2(-11, 8), head + Vector2(-3, 7)]), 1)
+			body.capsule(head + Vector2(3, 6), head + Vector2(12, 7.5), 2.4, 1.8, 1)
+		"reed":
+			for horn: Vector3 in [Vector3(0, 0, 0.92), Vector3(2, 1, 0.78)]:
+				var points := _bezier(head + Vector2(-1 + horn.x, -3 + horn.y), head + Vector2(-9 + horn.x, -6 + horn.y), head + Vector2(-16 + horn.x * 2, -5 + horn.y), head + Vector2(-22 + horn.x * 2, -3 + horn.y), 14)
+				body.chain(points, 1.9 * horn.z, 0.35, 3)
+			body.capsule(head + Vector2(-2, 0), head + Vector2(-15, 1), 1.3, 0.35, 3)
 			body.polygon(PackedVector2Array([head + Vector2(-3, 2), head + Vector2(-10, 4), head + Vector2(-3, 5)]), 1)
-		"ironcrest":
+		"crest":
 			for horn: Vector3 in [Vector3(0, 0, 1.05), Vector3(2, 1, 0.85)]:
-				var points := _bezier(head + Vector2(-1 + horn.x, -4 + horn.y), head + Vector2(-6 + horn.x, -13 + horn.y), head + Vector2(-13 + horn.x * 2, -14 + horn.y), head + Vector2(-17 + horn.x * 2, -11 + horn.y), 14)
+				var points := _bezier(head + Vector2(-1 + horn.x, -4 + horn.y), head + Vector2(-5 + horn.x, -14 + horn.y), head + Vector2(-12 + horn.x * 2, -16 + horn.y), head + Vector2(-16 + horn.x * 2, -12 + horn.y), 14)
 				body.chain(points, 2.5 * horn.z, 0.6, 3)
-			for cx: float in [2.0, -1.5, -5.0]:
+			for cx: float in [4.0, 1.0, -2.0, -5.0, -8.0]:
 				var cbase := head + Vector2(cx, -4)
-				body.polygon(PackedVector2Array([cbase + Vector2(-2, 1), cbase + Vector2(-4, -7), cbase + Vector2(2, 1)]), 3)
+				body.polygon(PackedVector2Array([cbase + Vector2(-2, 1), cbase + Vector2(-4, -9), cbase + Vector2(2, 1)]), 3)
+			body.polygon(PackedVector2Array([head + Vector2(6, 6), head + Vector2(10, 9.5), head + Vector2(11, 6)]), 3)
 			body.polygon(PackedVector2Array([head + Vector2(-3, 2), head + Vector2(-9, 5), head + Vector2(-3, 5)]), 1)
-		"stormkeel":
+		"prow":
 			for horn: Vector3 in [Vector3(0, 0, 1.1), Vector3(2, 1, 0.85)]:
-				var points := _bezier(head + Vector2(-1 + horn.x, -4 + horn.y), head + Vector2(-7 + horn.x, -11 + horn.y), head + Vector2(-15 + horn.x * 2, -9 + horn.y), head + Vector2(-17 + horn.x * 2, -4 + horn.y), 14)
-				body.chain(points, 2.6 * horn.z, 0.6, 3)
-			body.polygon(PackedVector2Array([head + Vector2(9, 0), head + Vector2(12, -5), head + Vector2(13, 1)]), 3)
+				var points := _bezier(head + Vector2(-1 + horn.x, -4 + horn.y), head + Vector2(-8 + horn.x, -12 + horn.y), head + Vector2(-15 + horn.x * 2, -9 + horn.y), head + Vector2(-20 + horn.x * 2, -3 + horn.y), 14)
+				body.chain(points, 2.7 * horn.z, 0.6, 3)
+			body.polygon(PackedVector2Array([head + Vector2(8, 0), head + Vector2(13, -6), head + Vector2(14, 1)]), 3)
 			body.polygon(PackedVector2Array([head + Vector2(-3, 2), head + Vector2(-9, 5), head + Vector2(-3, 5)]), 1)
-		"duskfin":
+		"frill":
 			for horn: Vector3 in [Vector3(0, 0, 0.95), Vector3(2, 1, 0.78)]:
-				var points := _bezier(head + Vector2(-1 + horn.x, -4 + horn.y), head + Vector2(-7 + horn.x, -10 + horn.y), head + Vector2(-14 + horn.x * 2, -10 + horn.y), head + Vector2(-19 + horn.x * 2, -7 + horn.y), 14)
-				body.chain(points, 2.1 * horn.z, 0.45, 3)
-			body.polygon(PackedVector2Array([head + Vector2(-2, 0), head + Vector2(-11, -3), head + Vector2(-12, 3), head + Vector2(-3, 5)]), 4)
-			body.capsule(head + Vector2(-2, 1), head + Vector2(-11, -2), 0.9, 0.3, 3)
-			body.capsule(head + Vector2(-2, 3), head + Vector2(-11, 3), 0.9, 0.3, 3)
+				var points := _bezier(head + Vector2(-1 + horn.x, -4 + horn.y), head + Vector2(-7 + horn.x, -10 + horn.y), head + Vector2(-14 + horn.x * 2, -10 + horn.y), head + Vector2(-19 + horn.x * 2, -6 + horn.y), 14)
+				body.chain(points, 2.0 * horn.z, 0.42, 3)
+			body.polygon(PackedVector2Array([head + Vector2(-2, 0), head + Vector2(-12, -3), head + Vector2(-13, 4), head + Vector2(-3, 6)]), 4)
+			body.capsule(head + Vector2(-2, 0), head + Vector2(-12, -2), 0.9, 0.3, 3)
+			body.capsule(head + Vector2(-2, 2), head + Vector2(-12, 1), 0.9, 0.3, 3)
+			body.capsule(head + Vector2(-2, 4), head + Vector2(-11, 4), 0.9, 0.3, 3)
 		_:
 			for horn: Vector3 in [Vector3(0, 0, 1), Vector3(2, 1, 0.8)]:
-				var points := _bezier(head + Vector2(-1 + horn.x, -4 + horn.y), head + Vector2(-6 + horn.x, -12 + horn.y), head + Vector2(-14 + horn.x * 2, -12 + horn.y), head + Vector2(-19 + horn.x * 3, -8 + horn.y), 14)
+				var points := _bezier(head + Vector2(-1 + horn.x, -4 + horn.y), head + Vector2(-6 + horn.x, -13 + horn.y), head + Vector2(-14 + horn.x * 2, -14 + horn.y), head + Vector2(-20 + horn.x * 3, -9 + horn.y), 14)
 				body.chain(points, 2.4 * horn.z, 0.5, 3)
 			body.polygon(PackedVector2Array([head + Vector2(-3, 2), head + Vector2(-9, 5), head + Vector2(-3, 5)]), 1)
 	var spine_mat := 3 if morph_id in ["ironcrest", "stormkeel"] else 1
-	var spine_h := 5.8 if morph_id == "ironcrest" else (4.8 if morph_id == "stormkeel" else (2.8 if morph_id == "reedrunner" else 4.0))
+	var spine_h := 6.0 if morph_id == "ironcrest" else (5.0 if morph_id == "stormkeel" else (2.6 if morph_id == "reedrunner" else 4.2))
+	# Keep the base of the neck (t < 0.42) clear of dorsal spines so the saddle and rider sit cleanly on the neck base.
 	if morph_id == "duskfin":
 		var sail_pts := PackedVector2Array()
-		for t: float in [0.22, 0.45, 0.68]:
+		for t: float in [0.42, 0.60, 0.78]:
 			var idx := int(t * 20)
 			var normal := (neck[idx + 1] - neck[idx]).orthogonal().normalized()
 			var base := neck[idx] - normal * lerpf(neck_start, neck_end, float(idx) / 20) * 0.75
 			sail_pts.append(base)
-			body.capsule(base, base - normal * 4.5, 0.9, 0.3, 3)
+			body.capsule(base, base - normal * 5.0, 0.9, 0.3, 3)
 		if sail_pts.size() == 3:
 			body.polygon(PackedVector2Array([sail_pts[0], sail_pts[0] + Vector2(-4, -3), sail_pts[1] + Vector2(-4, -3), sail_pts[2] + Vector2(-3, -2), sail_pts[2]]), 4)
 	else:
-		for t: float in [0.25, 0.45, 0.62, 0.78]:
+		for t: float in [0.46, 0.64, 0.80]:
 			var i := int(t * 20)
 			var angle := (neck[i + 1] - neck[i]).angle()
 			var tangent := Vector2(cos(angle), sin(angle))
 			var normal := Vector2(sin(angle), -cos(angle))
 			var base := neck[i] + normal * lerpf(neck_start, neck_end, float(i) / 20) * 0.8
 			body.polygon(PackedVector2Array([base - tangent * 2, base + normal * spine_h - tangent * 3, base + tangent * 1.5]), spine_mat)
-	# Keep the dorsal saddle seat between the shoulders (x = 57..66) clear of sharp spines.
-	for point: Vector2 in [Vector2(52, 47), Vector2(44, 52), Vector2(35, 58)]:
+	for point: Vector2 in [Vector2(47, 50), Vector2(40, 54), Vector2(33, 58)]:
 		body.polygon(PackedVector2Array([point + shift + Vector2(-2, 2), point + shift + Vector2(-3, -spine_h * 0.8), point + shift + Vector2(2, 1)]), spine_mat)
 	return head
 
 static func _render_frame(gem_id: String, morph_id: String, index: int) -> Image:
 	index = posmod(index, FRAME_COUNT)
 	var pal := palette_for(gem_id)
+	var spec := breed_spec(morph_id)
 	var pose: Array = WING_POSES[index]
 	var shift := Vector2(0, -BOB[index])
-	var near_shoulder := Vector2(66, 44) + shift
-	var far_shoulder := Vector2(58, 42) + shift
+	var wing_roots: Dictionary = spec["wing_roots_px"]
+	var far_shoulder: Vector2 = (wing_roots["left"] as Vector2) + shift
+	var near_shoulder: Vector2 = (wing_roots["right"] as Vector2) + shift
 	var far_wing := Layer.new(true)
 	var far_leg := Layer.new(true)
 	var tail := Layer.new()
@@ -622,27 +780,31 @@ static func _render_frame(gem_id: String, morph_id: String, index: int) -> Image
 	var near_leg := Layer.new()
 	var near_wing := Layer.new()
 	_wing(far_wing, far_shoulder, _far_pose(pose), morph_id)
-	_leg(far_leg, Vector2(45, 59) + shift, 1, -shift.y, morph_id)
+	_leg(far_leg, (spec["far_hip"] as Vector2) + shift, 1, -shift.y, morph_id)
 	var sway := sin(float(index) / FRAME_COUNT * TAU) * 2
-	var tail_end := Vector2(3, 59 + sway) if morph_id == "reedrunner" else Vector2(6, 60 + sway)
-	var tail_points := _bezier(Vector2(46, 60) + shift, Vector2(30, 66) + shift, Vector2(12, 78 + sway), tail_end, 30)
+	var t_pts: Array = spec["tail_points"]
+	var tail_points := _bezier((t_pts[0] as Vector2) + shift, (t_pts[1] as Vector2) + shift, (t_pts[2] as Vector2) + Vector2(0, sway), (t_pts[3] as Vector2) + Vector2(0, sway), 30)
 	_draw_tail_features(tail, tail_points, morph_id)
 	var head := _draw_breed_body_and_head(body, shift, morph_id)
-	_leg(near_leg, Vector2(52, 61) + shift, 0, -shift.y, morph_id)
+	_leg(near_leg, (spec["near_hip"] as Vector2) + shift, 0, -shift.y, morph_id)
 	_wing(near_wing, near_shoulder, pose, morph_id)
 	var image := _composite([far_wing, far_leg, tail, body, near_leg, near_wing], pal)
 	var outline: Color = pal["outline"]
 	var eye_colors: Array = pal["eye"]
 	var gem_colors: Array = pal["gem"]
 	var tooth_color: Color = pal["tooth"]
+	var hl := int((spec["head_size"] as Vector2).x)
 	var eye := Vector2i(head + Vector2(3, -1))
 	image.set_pixelv(eye, eye_colors[0]); image.set_pixelv(eye + Vector2i(1, 0), eye_colors[1])
 	for step: Vector2i in [Vector2i(-1, 0), Vector2i(0, -1), Vector2i(1, -1)]: image.set_pixelv(eye + step, outline)
-	image.set_pixelv(Vector2i(head + Vector2(12, 1)), outline)
-	for i in range(3, 12): image.set_pixelv(Vector2i(head + Vector2(i, 4)), outline)
-	for x in [5, 8, 11]: image.set_pixelv(Vector2i(head + Vector2(x, 5)), tooth_color)
-	image.set_pixelv(Vector2i(head + Vector2(-8, -11)), gem_colors[4])
-	image.set_pixelv(Vector2i(head + Vector2(-4, -9)), gem_colors[3])
+	image.set_pixelv(Vector2i(head + Vector2(hl - 2, 1)), outline)
+	for i in range(3, hl - 1): image.set_pixelv(Vector2i(head + Vector2(i, 4)), outline)
+	var teeth_x: Array = [4, 7, 9] if hl <= 12 else ([5, 8, 11, 13] if hl >= 16 else [5, 8, 11])
+	for x: int in teeth_x: image.set_pixelv(Vector2i(head + Vector2(x, 5)), tooth_color)
+	for glint_step: Vector2i in [Vector2i(-8, -11), Vector2i(-8, -6), Vector2i(-4, -9), Vector2i(-5, -5)]:
+		var gp := Vector2i(head) + glint_step
+		if Rect2i(Vector2i.ZERO, SIZE).has_point(gp) and body.material[gp.y * SIZE.x + gp.x] == 3:
+			image.set_pixelv(gp, gem_colors[4] if glint_step.x <= -7 else gem_colors[3])
 	var output := Image.create_empty(SIZE.x, SIZE.y, false, Image.FORMAT_RGBA8)
 	output.blit_rect(image, Rect2i(0, 0, SIZE.x, SIZE.y - 3), Vector2i(0, 3))
 	return output
@@ -682,22 +844,42 @@ static func metadata(index: int) -> Dictionary:
 
 static func metadata_for(gem_id: String, morph_id: String, index: int) -> Dictionary:
 	index = posmod(index, FRAME_COUNT)
+	var spec := breed_spec(morph_id)
 	var d: int = 3 - BOB[index]
-	var head: Array = [[78, 0], [128, 0], [128, 37 + d], [90, 37 + d], [81, 39 + d]]
-	var jaw: Array = [[99, 28 + d], [104, 28 + d], [117, 30 + d], [116, 35 + d], [98, 33 + d]]
-	var neck: Array = [[70, 45 + d], [81, 39 + d], [90, 37 + d], [94, 48 + d], [80, 60 + d]]
+	var hp: Vector2 = spec["head_pos"]
+	var hx := int(hp.x)
+	var hy := int(hp.y)
+	var hl := int((spec["head_size"] as Vector2).x)
+	var seat: Vector2 = spec["seat_px"]
+	var neck_root: Vector2 = spec["neck_root_px"]
+	var wing_roots: Dictionary = spec["wing_roots_px"]
+	var far_wing: Vector2 = wing_roots["left"]
+	var near_wing: Vector2 = wing_roots["right"]
+	var cut_y: int = hy + 14 + d
+	var cut_x0: int = hx - 19
+	var cut_x1: int = hx - 9
+	var head: Array = [[hx - 24, 0], [128, 0], [128, cut_y], [cut_x1, cut_y], [cut_x0, cut_y + 2]]
+	var jaw: Array = [[hx - 1, hy + 4 + d], [hx + 3, hy + 4 + d], [hx + hl + 2, hy + 6 + d], [hx + hl + 1, hy + 12 + d], [hx - 2, hy + 10 + d]]
+	var neck: Array = [[int(neck_root.x) - 6, int(neck_root.y) - 4 + d], [cut_x0, cut_y + 2], [cut_x1, cut_y], [cut_x1 + 5, int(neck_root.y) + 2 + d], [int(neck_root.x) + 4, int(neck_root.y) + 14 + d]]
+	var t_pts: Array = spec["torso_points"]
+	var t_start: Vector2 = t_pts[0]
+	var t_end: Vector2 = t_pts[3]
+	var tail_pts: Array = spec["tail_points"]
+	var tail_start: Vector2 = tail_pts[0]
+	var tail_end: Vector2 = tail_pts[3]
 	var regions := {
-		"torso": _region("body", [[37, 44 + d], [78, 38 + d], [84, 66 + d], [42, 73 + d]], [48, 58 + d], [76, 50 + d]),
-		"neck": _region("body", neck, [76, 50 + d], [86, 38 + d]),
-		"head": _region("head", head, [86, 38 + d], [105, 24 + d]),
-		"jaw": _region("jaw", jaw, [100, 29 + d], [114, 31 + d]),
-		"tail": _region("body", [[0, 46], [44, 50 + d], [54, 70 + d], [10, 88], [0, 76]], [46, 60 + d], [6, 60 + d])
+		"torso": _region("body", [[int(t_start.x) - 9, 40 + d], [int(t_end.x) + 4, 36 + d], [int(t_end.x) + 8, 68 + d], [int(t_start.x) - 4, 74 + d]], [t_start.x, t_start.y + d], [t_end.x, t_end.y + d]),
+		"neck": _region("body", neck, [neck_root.x, neck_root.y + d], [cut_x1 - 4, cut_y + 1]),
+		"head": _region("head", head, [cut_x1 - 4, cut_y + 1], [hx + 5, hy + d]),
+		"jaw": _region("jaw", jaw, [hx, hy + 5 + d], [hx + hl - 1, hy + 7 + d]),
+		"tail": _region("body", [[0, 42], [int(tail_start.x) + 2, 48 + d], [int(tail_start.x) + 8, 72 + d], [10, 88], [0, 78]], [tail_start.x, tail_start.y + d], [tail_end.x, tail_end.y + d])
 	}
-	regions["neck"]["cut_line_px"] = [[81, 39 + d], [90, 37 + d], [128, 37 + d]]
-	regions["neck"]["cut_point_px"] = [86, 38 + d]
+	regions["neck"]["cut_line_px"] = [[cut_x0, cut_y + 2], [cut_x1, cut_y], [128, cut_y]]
+	regions["neck"]["cut_point_px"] = [cut_x1 - 4, cut_y + 1]
+	var stance: Array = spec["leg_stance"]
 	for side: String in ["l", "r"]:
 		var distant := side == "l"
-		var shoulder := Vector2(58, 45 + d) if distant else Vector2(66, 47 + d)
+		var shoulder := Vector2(far_wing.x, far_wing.y + d) if distant else Vector2(near_wing.x, near_wing.y + d)
 		var base_pose: Array = _far_pose(WING_POSES[index]) if distant else WING_POSES[index]
 		var pose: Array = _morph_wing_pose(base_pose, morph_id)
 		var elbow: Vector2 = shoulder + pose[0]
@@ -705,24 +887,29 @@ static func metadata_for(gem_id: String, morph_id: String, index: int) -> Dictio
 		var upper := PackedVector2Array([shoulder + Vector2(-5, -4), elbow + Vector2(-4, -4), wrist + Vector2(4, -3), wrist + Vector2(5, 4), shoulder + Vector2(4, 5)])
 		regions["wing_upper_" + side] = _region("body", _coordinates(upper), [shoulder.x, shoulder.y], [wrist.x, wrist.y])
 		regions["wing_lower_" + side] = _region("body", _coordinates(_wing_points(shoulder, base_pose, morph_id)), [wrist.x, wrist.y], [shoulder.x + pose[2].x, shoulder.y + pose[2].y])
-		var hip := Vector2(45, 59 + d) if distant else Vector2(52, 61 + d)
-		var knee := hip + Vector2(8, 10 if distant else 9)
-		var ankle := Vector2(hip.x + 2, 79 if distant else 81) + Vector2(0, 3)
+		var hip_base: Vector2 = spec["far_hip"] if distant else spec["near_hip"]
+		var hip := Vector2(hip_base.x, hip_base.y + d)
+		var knee := hip + (stance[0] as Vector2) + Vector2(0, 1 if distant else 0)
+		var ankle := hip + (stance[1] as Vector2)
 		regions["leg_upper_" + side] = _region("body", [[hip.x - 8, hip.y - 8], [knee.x + 6, knee.y - 4], [knee.x + 6, knee.y + 6], [hip.x - 6, hip.y + 8]], [hip.x, hip.y], [knee.x, knee.y])
 		regions["leg_lower_" + side] = _region("body", [[knee.x - 6, knee.y - 3], [knee.x + 6, knee.y], [ankle.x + 5, ankle.y + 2], [ankle.x - 5, ankle.y + 2]], [knee.x, knee.y], [ankle.x, ankle.y])
 		regions["foot_" + side] = _region("body", [[ankle.x - 9, ankle.y - 3], [ankle.x + 13, ankle.y - 2], [ankle.x + 14, ankle.y + 9], [ankle.x - 9, ankle.y + 9]], [ankle.x, ankle.y], [ankle.x + 10, ankle.y + 4])
 	var vid := "sapphire_spirewing" if (gem_id == "sapphire" and morph_id == "spirewing") else "%s_%s" % [gem_id, morph_id]
-	var base_seat_y := 49 if morph_id == "reedrunner" else (47 if morph_id in ["broadmantle", "stormkeel", "ironcrest"] else 48)
-	# Rider seat is sunk onto the dorsal line between the far (x=58) and near (x=66) wing shoulders,
-	# so the rider's hips sit on the back between the shoulders and the near leg runs down the flank.
+	var crop_x := maxi(0, hx - 23)
+	var crop_y := maxi(0, hy - 14 + d)
+	var crop_w := mini(45, 128 - crop_x)
+	var crop_h := mini(38, 96 - crop_y)
+	# Rider seat is placed at the base of the neck, clearly in front of the wing roots,
+	# with the saddle girth wrapping around the chest just behind the forelegs.
 	return {"generator": "sapphire_spirewing", "gem_id": gem_id, "morph_id": morph_id, "frame": index, "painted": true,
-		"source_path": "code:%s/%d" % [vid, index], "image_size": [128, 96], "source_origin_px": [61, base_seat_y + 3],
-		"units_per_pixel": 0.48, "motion_scale": 1.0 / 12.0, "seat_px": [61, base_seat_y + d], "seat_angle": SEAT_PITCH[index] * 0.5,
-		"ground_y_px": 88, "neck_root_px": [78, 49 + d], "wing_roots_px": {"left": [58, 45 + d], "right": [66, 47 + d]},
-		"head_crop_px": [78, 8 + d, 44, 37],
+		"source_path": "code:%s/%d" % [vid, index], "image_size": [128, 96], "source_origin_px": [seat.x, seat.y + 3],
+		"units_per_pixel": 0.48, "motion_scale": 1.0 / 12.0, "seat_px": [seat.x, seat.y + d], "seat_angle": SEAT_PITCH[index] * 0.5,
+		"ground_y_px": 88, "neck_root_px": [neck_root.x, neck_root.y + d],
+		"wing_roots_px": {"left": [far_wing.x, far_wing.y + d], "right": [near_wing.x, near_wing.y + d]},
+		"head_crop_px": [crop_x, crop_y, crop_w, crop_h],
 		"parts": {
-			"body": {"label": "Body, wingbeat, hind legs and tail", "parent": "", "polygons": [[[0, 0], [128, 0], [128, 96], [0, 96]]], "pivot_px": [61, base_seat_y + d]},
-			"head": {"label": "Head and upper neck", "parent": "body", "polygons": [head], "pivot_px": [86, 38 + d], "ownership_priority": 1},
-			"jaw": {"label": "Lower jaw", "parent": "head", "polygons": [jaw], "pivot_px": [100, 29 + d], "ownership_priority": 2}},
+			"body": {"label": "Body, wingbeat, hind legs and tail", "parent": "", "polygons": [[[0, 0], [128, 0], [128, 96], [0, 96]]], "pivot_px": [seat.x, seat.y + d]},
+			"head": {"label": "Head and upper neck", "parent": "body", "polygons": [head], "pivot_px": [cut_x1 - 4, cut_y + 1], "ownership_priority": 1},
+			"jaw": {"label": "Lower jaw", "parent": "head", "polygons": [jaw], "pivot_px": [hx, hy + 5 + d], "ownership_priority": 2}},
 		"anatomical_regions": regions, "gem_regions": [], "preserve_regions": [],
-		"material_masks_px": {"horns": [[[79, 8 + d], [100, 8 + d], [102, 22 + d], [90, 23 + d]]], "eyes": [[[102, 22 + d], [105, 22 + d], [105, 25 + d], [102, 25 + d]]]}}
+		"material_masks_px": {"horns": [[[hx - 22, maxi(0, hy - 14 + d)], [hx + 4, maxi(0, hy - 14 + d)], [hx + 4, hy + 1 + d], [hx - 12, hy + 2 + d]]], "eyes": [[[hx + 2, hy - 2 + d], [hx + 5, hy - 2 + d], [hx + 5, hy + 1 + d], [hx + 2, hy + 1 + d]]]}}
