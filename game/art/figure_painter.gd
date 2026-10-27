@@ -21,6 +21,8 @@ const POSES := ["idle", "walk", "prepare", "strike", "recover", "hit", "block", 
 ## Company (player faction) colours; menus may overwrite.
 static var company_colors := {"primary": "#1f8f88", "secondary": "#e0a040"}
 static var force_legacy_v064: bool = false
+## When set, paint_bust keeps the v0.066 bust (including the dark-elf chest stroke) for before-sheets.
+static var snapshot_v066_bust: bool = false
 
 static func set_legacy_v064(enabled: bool) -> void:
 	force_legacy_v064 = enabled
@@ -255,7 +257,22 @@ static func render_canvas(sp: Dictionary, p: String, prog: float) -> PixelCanvas
 static func render_bust(sp: Dictionary) -> Image:
 	if CreaturePainter.is_creature_spec(sp):
 		return CreaturePainter.render_bust(sp)
+	if not force_legacy_v064 and not snapshot_v066_bust and String(sp.get("race", "human")) in DETAILED_RACES:
+		return load("res://art/portrait_bust.gd").paint(sp)
 	return FigurePainter.new(sp).paint_bust().to_image()
+
+## Frozen v0.066 bust (zoomed battle figure, old dark-elf chest stroke) for before-sheets.
+static func render_bust_v066(sp: Dictionary) -> Image:
+	if CreaturePainter.is_creature_spec(sp):
+		return CreaturePainter.render_bust(sp)
+	var keep_legacy := force_legacy_v064
+	var keep_snap := snapshot_v066_bust
+	set_legacy_v064(false)
+	snapshot_v066_bust = true
+	var img := FigurePainter.new(sp).paint_bust().to_image()
+	snapshot_v066_bust = keep_snap
+	set_legacy_v064(keep_legacy)
+	return img
 
 # --- setup ------------------------------------------------------------------------------------
 
