@@ -325,7 +325,8 @@ class ShadedLayer extends RefCounted:
 				if dist <= r:
 					var u := clampf(dist / r, 0.0, 1.0)
 					var hz := sqrt(maxf(0.0, 1.0 - u * u))
-					var z := z_bias + hz * r * z_scale
+					var lr := maxf(0.2, lerpf(ra, rb, t))
+					var z := z_bias + hz * lr * 0.5 * z_scale
 					var n := Vector3(d.x / r, d.y / r, maxf(0.18, hz))
 					_write(x, y, z, n, mat_id)
 
@@ -345,6 +346,7 @@ class ShadedLayer extends RefCounted:
 		var x1 := mini(w - 1, ceili(mc.x + rmax + 1.0))
 		var y0 := maxi(0, floori(mc.y - rmax - 1.0))
 		var y1 := mini(h - 1, ceili(mc.y + rmax + 1.0))
+		var lrz := maxf(0.2, minf(rx, ry))
 		for y in range(y0, y1 + 1):
 			for x in range(x0, x1 + 1):
 				var dp := Vector2(float(x) + 0.5, float(y) + 0.5) - mc
@@ -357,7 +359,7 @@ class ShadedLayer extends RefCounted:
 					var hz := sqrt(maxf(0.0, 1.0 - u2))
 					var wx := ux * ca - uy * sa
 					var wy := ux * sa + uy * ca
-					var z := z_bias + hz * minf(prx, pry) * z_scale
+					var z := z_bias + hz * lrz * 0.5 * z_scale
 					_write(x, y, z, Vector3(wx, wy, maxf(0.18, hz)), mat_id)
 
 	func poly(pts: PackedVector2Array, mat_id: int, z_bias: float = 0.0, dome: float = 2.5, flat_n: Vector3 = Vector3(0.0, 0.0, 1.0)) -> void:
@@ -398,7 +400,7 @@ class ShadedLayer extends RefCounted:
 				var dir := (p - center)
 				var dlen := maxf(1.0, dir.length())
 				var n := (Vector3(dir.x / dlen * u * 0.65, dir.y / dlen * u * 0.65, hz) + fn * 0.55).normalized()
-				_write(x, y, z_bias + hz * pdome * 0.5, n, mat_id)
+				_write(x, y, z_bias + hz * dome * 0.5, n, mat_id)
 
 	func composite(outline: Color = Color(0.05, 0.04, 0.07, 1.0), exterior_outline: bool = true) -> void:
 		if max_x < min_x or max_y < min_y:

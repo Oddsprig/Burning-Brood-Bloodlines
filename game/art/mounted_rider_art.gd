@@ -5,9 +5,14 @@ extends RefCounted
 ## Never scale this rider by the dragon's physical body scale. No live rider
 ## assignment, Units, Items, campaign RNG or battle state is created here.
 
+const NO_MOUNT_RACES := ["troll", "giant"]
+
+static func can_mount_race(race: String) -> bool:
+	return race in FigurePainter.DETAILED_RACES and race not in NO_MOUNT_RACES
+
 static func spec_for_unit(unit: Unit) -> Dictionary:
 	var out := FigurePainter.spec_for_unit(unit).duplicate(true)
-	if unit != null and unit.horse != null:
+	if unit != null and unit.horse != null and can_mount_race(unit.race):
 		out["mount_kind"] = "horse"
 	return out
 
@@ -255,7 +260,8 @@ static func _draw_layer(fp: FigurePainter, kind: String, size: Vector2i, anchor:
 ## Composite far behind mount, saddle on back, near over saddle/flank. No stretch.
 static func render_layers(spec: Dictionary) -> Dictionary:
 	var race := str(spec.get("race", "human"))
-	if race not in FigurePainter.DETAILED_RACES: return {"ok": false, "reason": "A native humanoid figure is required."}
+	if race in NO_MOUNT_RACES: return {"ok": false, "reason": "Trolls and giants fight on foot only."}
+	if not can_mount_race(race): return {"ok": false, "reason": "A native humanoid figure is required."}
 	var copied: Dictionary = spec.duplicate(true)
 	var fp := FigurePainter.new(copied); _seated_rig(fp)
 	var raster := FigurePainter.raster_scale(race)

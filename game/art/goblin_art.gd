@@ -65,33 +65,29 @@ static func head(f) -> void:
 			sh.capsule(hc + Vector2(-1.85, -1.25), hc + Vector2(-5.45, -2.35 - ear_lift), 0.36, 0.14, c_skin_l, 2.2, 0.9)
 			sh.capsule(hc + Vector2(-2.05, -0.65), hc + Vector2(-4.45, -1.45 - ear_lift * 0.7), 0.38, 0.16, c_ear_in, 2.1, 0.7)
 
-	# Angular wedge cranium & small pointed goblin jaw
-	var chin_y: float = (2.25 if female else 2.52) if not jaw_lost else 1.15
+	# Angular wedge cranium, unified face plane & small pointed goblin jaw
+	var chin_y: float = (2.25 if female else 2.45) if not jaw_lost else 1.15
 	var skull_pts := PackedVector2Array([
-		hc + Vector2(-1.98, -1.82), hc + Vector2(-1.38, -2.75), hc + Vector2(-0.05, -2.98),
+		hc + Vector2(-1.98, -1.82), hc + Vector2(-1.38, -2.75), hc + Vector2(-0.05, -2.90),
 		hc + Vector2(1.38, -2.62), hc + Vector2(2.02, -1.88), hc + Vector2(2.08, -0.85),
-		hc + Vector2(2.15, 0.45),
-		hc + Vector2(1.68 if not jaw_lost else 1.55, 1.55 if not jaw_lost else 0.95),
+		hc + Vector2(2.12, 0.45),
+		hc + Vector2(1.62 if not jaw_lost else 1.55, 1.52 if not jaw_lost else 0.95),
 		hc + Vector2(0.68, chin_y),
 		hc + Vector2(-0.35, (chin_y - 0.25) if not jaw_lost else 0.95),
 		hc + Vector2(-1.68, 0.32), hc + Vector2(-2.12, -0.75)
 	])
 	sh.poly(skull_pts, c_skin, 0.0, 1.95)
-	sh.ellipsoid(hc + Vector2(-0.05, -1.05), 1.98, 1.85, c_skin, 0.3, 1.1)
+	sh.ellipsoid(hc + Vector2(0.0, -0.22 if not jaw_lost else -0.75), 1.98, (2.48 if female else 2.62) if not jaw_lost else 1.85, c_skin, 0.3, 0.88)
 	if not jaw_lost:
-		sh.capsule(hc + Vector2(-0.35, 1.15), hc + Vector2(0.75, chin_y - 0.32), 0.95 if not female else 0.85, 0.62 if not female else 0.55, c_skin, 0.5, 0.95)
-	sh.ellipsoid(hc + Vector2(0.75, 0.15), 0.95, 0.68, c_skin_l, 1.0, 0.85)
+		sh.capsule(hc + Vector2(-0.32, 1.15), hc + Vector2(0.68, chin_y - 0.32), 0.88 if not female else 0.78, 0.58 if not female else 0.52, c_skin, 0.45, 0.75)
+	sh.ellipsoid(hc + Vector2(-0.32, 0.25), 0.78, 0.56, c_skin_l, 0.7, 0.55)
+	sh.ellipsoid(hc + Vector2(1.18, 0.24), 0.68, 0.52, c_skin_l, 0.7, 0.55)
 
-	# Long down-curving hooked goblin nose
+	# Hooked goblin nose centered between the eyes on the front face plane
+	var n_tip := hc + Vector2((0.82 if female else 0.95) + nose_length, 0.54 if female else 0.62)
 	if not f._lost("nose"):
-		var n_reach: float = (2.85 if female else 3.75) + nose_length
-		var n_pts := PackedVector2Array([
-			hc + Vector2(1.35, -1.45), hc + Vector2(1.95, -1.42),
-			hc + Vector2(n_reach - 0.25, -0.02), hc + Vector2(n_reach + 0.15, 0.55),
-			hc + Vector2(n_reach - 0.18, 0.92), hc + Vector2(2.35, 0.45), hc + Vector2(1.45, -0.05)
-		])
-		sh.poly(n_pts, c_skin_l, 2.1, 1.6)
-		sh.capsule(hc + Vector2(1.65, -1.15), hc + Vector2(n_reach, 0.52), 0.38, 0.28, c_skin_l, 2.5, 0.95)
+		sh.capsule(hc + Vector2(0.48, -0.28), n_tip, 0.32 if female else 0.38, 0.42 if female else 0.50, c_skin_l, 2.1, 0.90)
+		sh.ellipsoid(n_tip + Vector2(0.06, 0.06), 0.44 if female else 0.54, 0.32 if female else 0.38, c_skin_l, 2.35, 0.90)
 
 	# Goblin hair (female styles 0..4, male jagged top-tuft when seed % 3 == 1)
 	if not coif and helm_open:
@@ -105,25 +101,35 @@ static func head(f) -> void:
 
 	sh.composite(FigurePainter.ol(skin), true)
 
-	# Oblique amber slit eyes, arched brows & sharp grin
+	# Oblique amber slit eyes on the front plane at mid-head height, arched brows & sharp grin
 	var deep: Color = skin.darkened(0.55).lerp(Color("#27301b"), 0.18)
 	var brow: Color = hair.darkened(0.20).lerp(deep, 0.50)
+	var ey: float = -0.25 if female else -0.22
 	if female:
 		if fvar == 0:
-			_retained_female_eye(f, hc + Vector2(0.48, -0.85), 0.79, skin, deep, brow, dead, "eye_r")
-			_retained_female_eye(f, hc + Vector2(1.78, -1.01), 0.33, skin, deep, brow, dead, "eye_l")
+			_retained_female_eye(f, hc + Vector2(-0.22, ey), 0.62, skin, deep, brow, dead, "eye_r")
+			_retained_female_eye(f, hc + Vector2(1.10, ey), 0.38, skin, deep, brow, dead, "eye_l")
 		else:
-			_female_eye(f, hc + Vector2(-0.18, -0.88), 0.92, skin, deep, brow, dead, "eye_r")
-			_female_eye(f, hc + Vector2(1.43, -1.00), 0.38, skin, deep, brow, dead, "eye_l")
+			_female_eye(f, hc + Vector2(-0.22, ey), 0.64, skin, deep, brow, dead, "eye_r")
+			_female_eye(f, hc + Vector2(1.10, ey), 0.38, skin, deep, brow, dead, "eye_l")
 	else:
-		_eye(f, hc + Vector2(0.65, -0.82), 0.82, skin, deep, dead, "eye_r")
-		_eye(f, hc + Vector2(1.91, -1.00), 0.38, skin, deep, dead, "eye_l")
-		cv.capsule(hc + Vector2(-0.16, -1.48), hc + Vector2(1.27, -1.22), 0.16, brow)
-		cv.capsule(hc + Vector2(1.68, -1.48), hc + Vector2(2.20, -1.62), 0.13, brow)
+		_eye(f, hc + Vector2(-0.22, ey), 0.62, skin, deep, dead, "eye_r")
+		_eye(f, hc + Vector2(1.15, ey), 0.38, skin, deep, dead, "eye_l")
+		cv.capsule(hc + Vector2(-0.85, ey - 0.52), hc + Vector2(0.32, ey - 0.38), 0.15, brow)
+		cv.capsule(hc + Vector2(0.82, ey - 0.38), hc + Vector2(1.52, ey - 0.52), 0.13, brow)
+
+	if not f._lost("nose"):
+		cv.capsule(n_tip + Vector2(-0.20, 0.14), n_tip + Vector2(0.16, 0.12), 0.10, deep)
 
 	if not f._lost("mouth") and not jaw_lost:
-		var lip_c: Color = skin.darkened(0.22).lerp(Color("#9e5868"), 0.32) if female else deep
-		cv.capsule(hc + Vector2(0.55, 1.32), hc + Vector2(1.85, 1.18), 0.13, lip_c)
+		var lip_c: Color = skin.darkened(0.22).lerp(Color("#9e5868"), 0.38) if female else deep
+		var my: float = 1.18 if female else 1.25
+		cv.capsule(hc + Vector2(0.12, my), hc + Vector2(1.24, my - 0.03), 0.14, lip_c)
+		if female:
+			cv.capsule(hc + Vector2(0.26, my + 0.12), hc + Vector2(1.02, my + 0.10), 0.10, lip_c.lightened(0.18))
+		else:
+			cv.capsule(hc + Vector2(0.22, my + 0.02), hc + Vector2(0.28, my - 0.18), 0.09, Color("#ece2be"))
+			cv.capsule(hc + Vector2(1.12, my - 0.01), hc + Vector2(1.16, my - 0.20), 0.09, Color("#ece2be"))
 
 	f._helm(hc, -float(f.head_w) * 0.5, float(f.head_w) * 0.5, -float(f.head_h) * 0.5, float(f.head_h) * 0.5)
 

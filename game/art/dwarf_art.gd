@@ -85,33 +85,35 @@ static func _shaded_head(f) -> void:
 					sh.ellipsoid(hc + Vector2(-2.35 + 0.06 * float(bi), by), 0.62, 0.48, c_hair, -1.2, 0.9)
 				sh.capsule(hc + Vector2(-2.4, 3.9), hc + Vector2(-1.9, 3.9), 0.25, 0.25, c_clasp, -0.8, 0.9)
 
-	# Broad square-jawed dwarven skull & cranium
+	# Broad square-jawed dwarven skull & unified face plane
+	var chin_y: float = (2.45 if not female else 2.25) if not jaw_lost else 0.95
 	var skull_pts := PackedVector2Array([
 		hc + Vector2(-2.45, -1.45), hc + Vector2(-1.55, -2.75), hc + Vector2(0.45, -2.85),
-		hc + Vector2(1.95, -2.15), hc + Vector2(2.38, -0.75),
-		hc + Vector2(2.42 + cheek, 0.45),
-		hc + Vector2(2.15 if not jaw_lost else 1.55, 1.95 if not jaw_lost else 0.75),
-		hc + Vector2(0.75, 2.38 if not jaw_lost else 0.95),
-		hc + Vector2(-0.95, 2.05 if not jaw_lost else 0.85),
+		hc + Vector2(1.95, -2.15), hc + Vector2(2.32, -0.75),
+		hc + Vector2(2.35 + cheek, 0.45),
+		hc + Vector2(2.05 if not jaw_lost else 1.55, 1.85 if not jaw_lost else 0.75),
+		hc + Vector2(0.68, chin_y),
+		hc + Vector2(-0.95, (chin_y - 0.25) if not jaw_lost else 0.85),
 		hc + Vector2(-2.25, 1.05), hc + Vector2(-2.55, -0.15)
 	])
 	sh.poly(skull_pts, c_skin, 0.0, 2.0)
-	sh.ellipsoid(hc + Vector2(-0.08, -0.65), 2.48 if not female else 2.28, 2.25, c_skin, 0.3, 1.15)
+	sh.ellipsoid(hc + Vector2(0.02, -0.18 if not jaw_lost else -0.65), 2.38 if not female else 2.20, (2.55 if not female else 2.40) if not jaw_lost else 1.85, c_skin, 0.3, 0.90)
 	if not jaw_lost:
-		sh.ellipsoid(hc + Vector2(0.48, 1.15), 2.15 if not female else 1.85, 1.35 if not female else 1.18, c_skin, 0.5, 0.95)
-	sh.ellipsoid(hc + Vector2(1.05 + cheek * 0.5, 0.22), 1.15, 0.92, c_skin, 1.1, 0.85)
+		sh.capsule(hc + Vector2(-0.65, 1.35), hc + Vector2(0.95, 1.65 if not female else 1.48), 1.05 if not female else 0.88, 1.02 if not female else 0.85, c_skin, 0.45, 0.75)
+	sh.ellipsoid(hc + Vector2(-0.35, 0.32), 0.92, 0.68, c_skin, 0.7, 0.55)
+	sh.ellipsoid(hc + Vector2(1.32 + cheek * 0.5, 0.30), 0.85, 0.65, c_skin, 0.7, 0.55)
 
-	# Prominent dwarven brow ridge & broad bulbous nose
-	sh.capsule(hc + Vector2(-0.45, -0.95), hc + Vector2(2.18, -0.88), 0.48 if not female else 0.34, 0.54 if not female else 0.36, c_skin, 1.6, 0.9)
+	# Prominent dwarven brow ridge & broad bulbous nose centered between the eyes
+	sh.capsule(hc + Vector2(-0.78, -0.76), hc + Vector2(1.65, -0.74), 0.44 if not female else 0.32, 0.46 if not female else 0.34, c_skin, 1.4, 0.75)
+	var n_tip := hc + Vector2((0.85 if female else 0.95) + nose_ext * (0.6 if female else 1.0), 0.52 if female else 0.56)
 	if not f._lost("nose"):
-		var n_tip := hc + Vector2(2.58 + nose_ext if not female else 2.25 + nose_ext * 0.6, 0.18)
-		sh.capsule(hc + Vector2(1.75, -0.65), n_tip, 0.48 if not female else 0.38, 0.68 if not female else 0.50, c_nose, 2.1, 1.0)
-		sh.ellipsoid(n_tip + Vector2(-0.08, 0.08), 0.76 if not female else 0.56, 0.64 if not female else 0.48, c_nose, 2.4, 1.0)
+		sh.capsule(hc + Vector2(0.56, -0.24), n_tip, 0.42 if not female else 0.34, 0.58 if not female else 0.44, c_nose, 2.1, 0.90)
+		sh.ellipsoid(n_tip, 0.66 if not female else 0.48, 0.50 if not female else 0.38, c_nose, 2.35, 0.90)
 
 	# Round fleshy dwarven ear
 	if not coif and not f._lost("ear_r"):
-		sh.ellipsoid(hc + Vector2(-2.15, 0.02), 0.68, 0.88, c_skin, 0.8, 0.85)
-		sh.ellipsoid(hc + Vector2(-2.05, 0.05), 0.34, 0.48, c_skin_d, 0.9, 0.6)
+		sh.ellipsoid(hc + Vector2(-2.15, -0.02), 0.68, 0.88, c_skin, 0.8, 0.85)
+		sh.ellipsoid(hc + Vector2(-2.05, 0.02), 0.34, 0.48, c_skin_d, 0.9, 0.6)
 
 	# Crown hair & side locks
 	if not coif and helm_open:
@@ -137,20 +139,25 @@ static func _shaded_head(f) -> void:
 
 	sh.composite(FigurePainter.ol(skin), true)
 
-	# Crisp eye & facial details over normal-mapped head
+	# Crisp eye & facial details on the front face plane at mid-head height
 	var brow_c: Color = hair.darkened(0.22)
 	var iris_c: Color = [Color("#5c4433"), Color("#6d5939"), Color("#566b70"), Color("#4f3e31")][(seed / 7) % 4]
 	if female:
-		_female_eye(f, hc, Vector2(-0.04, -0.58), 0.82, iris_c, brow_c, dead, "eye_r")
-		_female_eye(f, hc, Vector2(1.62, -0.68), 0.38, iris_c, brow_c, dead, "eye_l")
+		_female_eye(f, hc, Vector2(-0.20, -0.22), 0.64, iris_c, brow_c, dead, "eye_r")
+		_female_eye(f, hc, Vector2(1.20, -0.22), 0.36, iris_c, brow_c, dead, "eye_l")
 	else:
-		_eye(f, hc, Vector2(0.08, -0.54), 0.72, iris_c, brow_c, dead, "eye_r", false)
-		_eye(f, hc, Vector2(1.68, -0.62), 0.42, iris_c, brow_c, dead, "eye_l", false)
+		_eye(f, hc, Vector2(-0.18, -0.18), 0.56, iris_c, brow_c, dead, "eye_r", false)
+		_eye(f, hc, Vector2(1.28, -0.18), 0.36, iris_c, brow_c, dead, "eye_l", false)
 
-	var b_style: int = FigurePainter.beard_style(f.spec) if bearded else -1
-	if not jaw_lost and not f._lost("mouth") and (not bearded or b_style in [6, 7]):
-		var lip_c: Color = skin.darkened(0.28).lerp(Color("#8c4246"), 0.38 if female else 0.22)
-		cv.capsule(hc + Vector2(0.45, 1.28), hc + Vector2(1.55, 1.24), 0.14, lip_c)
+	if not f._lost("nose"):
+		cv.capsule(n_tip + Vector2(-0.28, 0.14), n_tip + Vector2(0.18, 0.12), 0.11, skin.darkened(0.45))
+
+	if not jaw_lost and not f._lost("mouth"):
+		var lip_c: Color = skin.darkened(0.28).lerp(Color("#8c4246"), 0.38 if female else 0.28)
+		var my: float = 1.18 if female else 1.25
+		cv.capsule(hc + Vector2(0.18, my), hc + Vector2(1.22 if female else 1.28, my - 0.02), 0.15, lip_c)
+		if not bearded:
+			cv.capsule(hc + Vector2(0.32, my + 0.14), hc + Vector2(1.05, my + 0.12), 0.11, skin.lightened(0.16))
 
 	f._helm(hc, -float(f.head_w) * 0.5, float(f.head_w) * 0.5, -float(f.head_h) * 0.5, float(f.head_h) * 0.5)
 
@@ -159,76 +166,75 @@ static func _shaded_beard(f, sh: PixelCanvas.ShadedLayer, hc: Vector2, seed: int
 	var length: float = 5.6 + 0.32 * float((seed / 11) % 4)
 	var variant: int = (seed / 3) % 3
 	if selected == 7:
-		# Stubble + light moustache
-		sh.ellipsoid(hc + Vector2(0.55, 1.55), 1.95, 1.15, c_hair_d, 1.2, 0.55)
-		sh.capsule(hc + Vector2(0.35, 1.02), hc + Vector2(2.35, 1.08), 0.26, 0.24, c_hair, 2.5, 0.8)
+		# Stubble + light moustache above mouth (y=1.25)
+		sh.ellipsoid(hc + Vector2(0.55, 1.75), 1.85, 0.95, c_hair_d, 1.2, 0.55)
+		sh.capsule(hc + Vector2(0.05, 0.94), hc + Vector2(1.45, 0.96), 0.22, 0.20, c_hair, 2.5, 0.8)
 		return
 	if selected == 6:
-		# Handlebar moustache only
-		sh.capsule(hc + Vector2(0.15, 1.08), hc + Vector2(1.45, 0.94), 0.38, 0.44, c_hair_l, 2.8, 0.95)
-		sh.capsule(hc + Vector2(1.45, 0.94), hc + Vector2(2.65, 1.28), 0.44, 0.32, c_hair, 2.8, 0.95)
-		sh.capsule(hc + Vector2(0.15, 1.08), hc + Vector2(-0.45, 1.75), 0.36, 0.24, c_hair, 2.7, 0.9)
+		# Handlebar moustache arching above mouth (y=1.25)
+		sh.capsule(hc + Vector2(0.65, 0.92), hc + Vector2(-0.55, 1.38), 0.36, 0.24, c_hair, 2.8, 0.9)
+		sh.capsule(hc + Vector2(0.65, 0.92), hc + Vector2(1.85, 1.32), 0.38, 0.26, c_hair_l, 2.8, 0.95)
 		return
 
-	# Jawline beard cradle
-	sh.capsule(hc + Vector2(-1.75, 0.55), hc + Vector2(0.35, 2.15), 0.85, 1.25, c_hair_d, 2.0, 0.95)
-	sh.capsule(hc + Vector2(0.35, 2.15), hc + Vector2(2.35, 1.55), 1.25, 0.95, c_hair, 2.1, 0.95)
+	# Jawline beard cradle starting below the mouth (y=1.25) so lips stay visible
+	sh.capsule(hc + Vector2(-1.75, 0.55), hc + Vector2(-0.45, 1.85), 0.78, 0.95, c_hair_d, 2.0, 0.95)
+	sh.capsule(hc + Vector2(1.95, 0.65), hc + Vector2(1.35, 1.85), 0.72, 0.88, c_hair, 2.0, 0.95)
+	sh.capsule(hc + Vector2(-0.55, 1.85), hc + Vector2(1.45, 1.85), 0.95, 0.92, c_hair, 2.1, 0.95)
 
 	match selected:
 		1: # Close trimmed
-			sh.ellipsoid(hc + Vector2(0.55, 2.35), 2.15, 1.35, c_hair, 2.3, 1.0)
-			sh.capsule(hc + Vector2(-0.85, 2.15), hc + Vector2(1.85, 2.55), 0.75, 0.78, c_hair_l, 2.6, 0.9)
+			sh.ellipsoid(hc + Vector2(0.50, 2.38), 2.05, 1.15, c_hair, 2.3, 1.0)
+			sh.capsule(hc + Vector2(-0.85, 2.20), hc + Vector2(1.75, 2.48), 0.72, 0.75, c_hair_l, 2.6, 0.9)
 		2: # Round full
-			sh.ellipsoid(hc + Vector2(0.48, 3.15), 2.35, 1.95, c_hair, 2.4, 1.1)
+			sh.ellipsoid(hc + Vector2(0.48, 3.15), 2.30, 1.75, c_hair, 2.4, 1.1)
 			sh.capsule(hc + Vector2(-1.05, 2.25), hc + Vector2(-0.55, 4.45), 0.82, 0.68, c_hair_d, 2.6, 0.95)
 			sh.capsule(hc + Vector2(0.35, 2.25), hc + Vector2(0.65, 4.75), 0.92, 0.78, c_hair_l, 2.8, 1.0)
 			sh.capsule(hc + Vector2(1.75, 2.05), hc + Vector2(1.65, 4.35), 0.82, 0.68, c_hair, 2.7, 0.95)
 		3: # Pointed long
 			var b_pts := PackedVector2Array([
-				hc + Vector2(-1.95, 1.25), hc + Vector2(2.55, 1.35), hc + Vector2(2.15, 4.15),
-				hc + Vector2(0.85, 6.65), hc + Vector2(-0.35, 4.85), hc + Vector2(-1.65, 3.25)
+				hc + Vector2(-1.95, 1.65), hc + Vector2(2.35, 1.65), hc + Vector2(2.05, 4.15),
+				hc + Vector2(0.75, 6.65), hc + Vector2(-0.35, 4.85), hc + Vector2(-1.65, 3.25)
 			])
 			sh.poly(b_pts, c_hair, 2.3, 2.1)
-			sh.capsule(hc + Vector2(0.65, 2.15), hc + Vector2(0.85, 6.25), 1.05, 0.42, c_hair_l, 2.7, 1.0)
+			sh.capsule(hc + Vector2(0.65, 2.15), hc + Vector2(0.75, 6.25), 1.02, 0.42, c_hair_l, 2.7, 1.0)
 		4: # Forked twin-tail beard
-			sh.ellipsoid(hc + Vector2(0.55, 2.55), 2.15, 1.35, c_hair, 2.3, 1.0)
+			sh.ellipsoid(hc + Vector2(0.50, 2.55), 2.05, 1.15, c_hair, 2.3, 1.0)
 			sh.capsule(hc + Vector2(-0.35, 2.45), hc + Vector2(-0.35, 6.25), 0.95, 0.45, c_hair_d, 2.6, 1.0)
-			sh.capsule(hc + Vector2(1.55, 2.35), hc + Vector2(1.65, 6.35), 0.95, 0.45, c_hair_l, 2.7, 1.0)
+			sh.capsule(hc + Vector2(1.45, 2.35), hc + Vector2(1.55, 6.35), 0.95, 0.45, c_hair_l, 2.7, 1.0)
 		5: # Woven central braid
-			sh.ellipsoid(hc + Vector2(0.55, 2.55), 2.15, 1.35, c_hair, 2.3, 1.0)
+			sh.ellipsoid(hc + Vector2(0.50, 2.55), 2.05, 1.15, c_hair, 2.3, 1.0)
 			for bi in 5:
 				var by: float = 2.95 + float(bi) * 0.72
-				sh.ellipsoid(hc + Vector2(0.75 + (0.12 if bi % 2 == 0 else -0.12), by), 0.72, 0.52, c_hair_l if bi % 2 == 0 else c_hair, 2.8, 1.0)
-			sh.capsule(hc + Vector2(0.35, 6.15), hc + Vector2(1.15, 6.15), 0.24, 0.24, c_clasp, 3.1, 0.95)
+				sh.ellipsoid(hc + Vector2(0.70 + (0.12 if bi % 2 == 0 else -0.12), by), 0.72, 0.52, c_hair_l if bi % 2 == 0 else c_hair, 2.8, 1.0)
+			sh.capsule(hc + Vector2(0.30, 6.15), hc + Vector2(1.10, 6.15), 0.24, 0.24, c_clasp, 3.1, 0.95)
 		_: # Original seeded full dwarven beard (variant 0: central braid, 1: twin braids, 2: flowing locks)
 			var b_pts := PackedVector2Array([
-				hc + Vector2(-2.05, 1.15), hc + Vector2(2.65, 1.25), hc + Vector2(2.35, 3.85),
-				hc + Vector2(1.35, length), hc + Vector2(0.15, length + 0.1),
+				hc + Vector2(-2.05, 1.65), hc + Vector2(2.45, 1.65), hc + Vector2(2.25, 3.85),
+				hc + Vector2(1.25, length), hc + Vector2(0.15, length + 0.1),
 				hc + Vector2(-0.95, length - 0.8), hc + Vector2(-1.95, 3.15)
 			])
 			sh.poly(b_pts, c_hair, 2.3, 2.2)
 			if variant == 0:
 				for bi in 5:
 					var by: float = 2.65 + float(bi) * 0.62
-					sh.ellipsoid(hc + Vector2(0.85 + (0.10 if bi % 2 == 0 else -0.10), by), 0.74, 0.50, c_hair_l if bi % 2 == 0 else c_hair, 2.8, 1.0)
-				sh.capsule(hc + Vector2(0.45, length - 0.35), hc + Vector2(1.25, length - 0.35), 0.24, 0.24, c_clasp, 3.1, 0.95)
+					sh.ellipsoid(hc + Vector2(0.75 + (0.10 if bi % 2 == 0 else -0.10), by), 0.74, 0.50, c_hair_l if bi % 2 == 0 else c_hair, 2.8, 1.0)
+				sh.capsule(hc + Vector2(0.35, length - 0.35), hc + Vector2(1.15, length - 0.35), 0.24, 0.24, c_clasp, 3.1, 0.95)
 			elif variant == 1:
 				for bi in 4:
 					var by: float = 2.65 + float(bi) * 0.65
 					sh.ellipsoid(hc + Vector2(-0.05, by), 0.55, 0.44, c_hair_d, 2.7, 0.95)
-					sh.ellipsoid(hc + Vector2(1.65, by), 0.55, 0.44, c_hair_l, 2.8, 0.95)
+					sh.ellipsoid(hc + Vector2(1.55, by), 0.55, 0.44, c_hair_l, 2.8, 0.95)
 				sh.capsule(hc + Vector2(-0.35, length - 0.55), hc + Vector2(0.25, length - 0.55), 0.20, 0.20, c_clasp, 3.0, 0.9)
-				sh.capsule(hc + Vector2(1.35, length - 0.65), hc + Vector2(1.95, length - 0.65), 0.20, 0.20, c_clasp, 3.0, 0.9)
+				sh.capsule(hc + Vector2(1.25, length - 0.65), hc + Vector2(1.85, length - 0.65), 0.20, 0.20, c_clasp, 3.0, 0.9)
 			else:
 				sh.capsule(hc + Vector2(-0.65, 2.25), hc + Vector2(-0.25, length - 0.65), 0.68, 0.48, c_hair_d, 2.6, 0.95)
 				sh.capsule(hc + Vector2(0.55, 2.15), hc + Vector2(0.65, length - 0.15), 0.78, 0.52, c_hair_l, 2.8, 1.0)
-				sh.capsule(hc + Vector2(1.75, 2.05), hc + Vector2(1.45, length - 0.45), 0.68, 0.48, c_hair, 2.7, 0.95)
+				sh.capsule(hc + Vector2(1.65, 2.05), hc + Vector2(1.35, length - 0.45), 0.68, 0.48, c_hair, 2.7, 0.95)
 
-	# Full sweeping moustache above beard
+	# Full sweeping moustache arching from below the nose (y=0.92) out to the cheeks so the mouth at y=1.25 shows below
 	if not f._lost("mouth"):
-		sh.capsule(hc + Vector2(0.25, 1.15), hc + Vector2(1.45, 0.95), 0.42, 0.48, c_hair_l, 3.1, 1.0)
-		sh.capsule(hc + Vector2(1.45, 0.95), hc + Vector2(2.65, 1.38), 0.48, 0.35, c_hair, 3.1, 1.0)
-		sh.capsule(hc + Vector2(0.25, 1.15), hc + Vector2(-0.35, 1.78), 0.38, 0.28, c_hair_d, 2.9, 0.95)
+		sh.capsule(hc + Vector2(0.65, 0.92), hc + Vector2(-0.55, 1.48), 0.34, 0.26, c_hair_d, 2.9, 0.95)
+		sh.capsule(hc + Vector2(0.65, 0.92), hc + Vector2(1.95, 1.42), 0.36, 0.28, c_hair_l, 3.0, 1.0)
 
 static func _native_head(f) -> void:
 	if f._lost("head"): return

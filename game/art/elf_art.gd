@@ -99,25 +99,27 @@ static func head(f) -> void:
 				for bi in 4:
 					sh.ellipsoid(hc + Vector2(1.85, 0.25 + float(bi) * 0.75), 0.44, 0.38, c_hair, -1.2, 0.9)
 
-	# Sculpted angular V-tapered elven cranium & jaw
-	var jaw_y: float = 2.25 if not female else 2.12
+	# Sculpted angular V-tapered elven cranium & unified face plane
+	var jaw_y: float = 2.35 if not female else 2.20
 	var skull_pts := PackedVector2Array([
-		hc + Vector2(-2.15, -1.65), hc + Vector2(-1.35, -2.95), hc + Vector2(0.45, -3.02),
+		hc + Vector2(-2.15, -1.65), hc + Vector2(-1.35, -2.95), hc + Vector2(0.45, -3.00),
 		hc + Vector2(1.75, -2.25), hc + Vector2(2.02, -0.85), hc + Vector2(1.98, 0.35),
-		hc + Vector2(1.42 if not jaw_lost else 1.35, jaw_y if not jaw_lost else 0.75),
-		hc + Vector2(0.55, (jaw_y + 0.18) if not jaw_lost else 0.85),
-		hc + Vector2(-0.85, 1.75 if not jaw_lost else 0.75),
-		hc + Vector2(-1.95, 0.75), hc + Vector2(-2.22, -0.35)
+		hc + Vector2(1.42 if not jaw_lost else 1.35, (jaw_y - 0.15) if not jaw_lost else 0.75),
+		hc + Vector2(0.58, jaw_y if not jaw_lost else 0.85),
+		hc + Vector2(-0.78, (jaw_y - 0.45) if not jaw_lost else 0.75),
+		hc + Vector2(-1.92, 0.75), hc + Vector2(-2.18, -0.35)
 	])
 	sh.poly(skull_pts, c_skin, 0.0, 1.95)
-	sh.ellipsoid(hc + Vector2(-0.12, -0.85), 2.12, 2.08, c_skin, 0.3, 1.1)
+	sh.ellipsoid(hc + Vector2(0.0, -0.26 if not jaw_lost else -0.75), 2.02 if not female else 1.94, (2.52 if not female else 2.40) if not jaw_lost else 1.85, c_skin, 0.3, 0.88)
 	if not jaw_lost:
-		sh.capsule(hc + Vector2(-0.45, 1.15), hc + Vector2(0.95, jaw_y - 0.22), 1.12 if not female else 0.98, 0.78 if not female else 0.68, c_skin, 0.5, 0.95)
-	# High elven cheekbone & fine straight aristocratic nose bridge
-	sh.ellipsoid(hc + Vector2(0.88, -0.05), 0.96, 0.72, c_skin_l, 1.1, 0.85)
+		sh.capsule(hc + Vector2(-0.38, 1.18), hc + Vector2(0.68, jaw_y - 0.35), 0.92 if not female else 0.82, 0.68 if not female else 0.60, c_skin, 0.45, 0.72)
+	# High elven cheekbones & fine straight aristocratic nose bridge between the eyes
+	sh.ellipsoid(hc + Vector2(-0.32, 0.25), 0.72, 0.54, c_skin_l, 0.7, 0.55)
+	sh.ellipsoid(hc + Vector2(1.18, 0.24), 0.65, 0.50, c_skin_l, 0.7, 0.55)
+	var n_tip := hc + Vector2(0.70 if female else 0.76, 0.48 if female else 0.52)
 	if not f._lost("nose"):
-		var n_tip := hc + Vector2(2.22 if not female else 2.08, 0.12)
-		sh.capsule(hc + Vector2(1.58, -0.92), n_tip, 0.34, 0.38, c_skin_l, 2.0, 0.95)
+		sh.capsule(hc + Vector2(0.46, -0.30), n_tip, 0.28 if female else 0.31, 0.34 if female else 0.38, c_skin_l, 2.0, 0.85)
+		sh.ellipsoid(n_tip, 0.36 if female else 0.40, 0.28 if female else 0.32, c_skin_l, 2.15, 0.85)
 
 	# Signature long swept pointed elven ears (subrace cant & length)
 	var ear_tip: Vector2 = Vector2(-4.45, -1.35)
@@ -149,14 +151,20 @@ static func head(f) -> void:
 
 	sh.composite(FigurePainter.ol(skin), true)
 
-	# Luminous slanted elven eyes & fine lips
+	# Luminous slanted elven eyes on the front plane at mid-head height & fine lips below nose
 	var eye_c: Color = Color("#3aa0ff") if race == "high_elf" else (Color("#ff4040") if race == "dark_elf" else Color("#7fe0ff"))
 	var brow_c: Color = hair.darkened(0.32).lerp(Color("#1e1624"), 0.35)
-	_eye(f, hc, Vector2(0.05, -0.58), 1.05, eye_c, brow_c, dead, "eye_r")
-	_eye(f, hc, Vector2(1.48, -0.68), 0.56, eye_c, brow_c, dead, "eye_l")
+	var ey: float = -0.26 if female else -0.24
+	_eye(f, hc, Vector2(-0.24 if female else -0.22, ey), 0.96, eye_c, brow_c, dead, "eye_r")
+	_eye(f, hc, Vector2(1.08 if female else 1.12, ey), 0.58, eye_c, brow_c, dead, "eye_l")
+	if not f._lost("nose"):
+		cv.capsule(n_tip + Vector2(-0.18, 0.11), n_tip + Vector2(0.12, 0.10), 0.09, skin.darkened(0.38))
 	if not jaw_lost and not f._lost("mouth"):
-		var lip_c: Color = skin.darkened(0.24).lerp(Color("#944258" if race != "dark_elf" else "#5e344e"), 0.45 if female else 0.28)
-		cv.capsule(hc + Vector2(0.42, 1.24), hc + Vector2(1.45, 1.20), 0.13, lip_c)
+		var lip_c: Color = skin.darkened(0.24).lerp(Color("#944258" if race != "dark_elf" else "#5e344e"), 0.48 if female else 0.32)
+		var my: float = 1.12 if female else 1.18
+		cv.capsule(hc + Vector2(0.18, my), hc + Vector2(1.10, my - 0.02), 0.14, lip_c)
+		if female:
+			cv.capsule(hc + Vector2(0.32, my + 0.11), hc + Vector2(0.95, my + 0.10), 0.10, lip_c.lightened(0.16))
 
 	f._helm(hc, -float(f.head_w) * 0.5, float(f.head_w) * 0.5, -float(f.head_h) * 0.5, float(f.head_h) * 0.5)
 

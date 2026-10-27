@@ -40,7 +40,8 @@ func setup(f, tile_px: float) -> void:
 	# a humanoid/creature stand-in for a registered animal.
 	var dragon_tag: Variant = f.unit.get("dragon_uid")
 	var dragon_actor: bool = (dragon_tag != null and String(dragon_tag) != "") or f.unit.race == "dragon" or (f.unit.body != null and f.unit.body.plan_id == "wyvern")
-	doll = DragonView.new() if dragon_actor else (HorseDoll.new() if f.unit.horse != null or f.unit.race == "horse" else Paperdoll.new())
+	var can_horse: bool = f.unit.race == "horse" or (f.unit.horse != null and Horses.can_mount_race(f.unit.race))
+	doll = DragonView.new() if dragon_actor else (HorseDoll.new() if can_horse else Paperdoll.new())
 	doll.team_color = PLAYER_COLOR if f.side == 0 else ENEMY_COLOR
 	doll.facing = f.facing
 	add_child(doll)

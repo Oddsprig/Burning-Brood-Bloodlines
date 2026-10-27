@@ -79,33 +79,34 @@ static func head(f) -> void:
 			if style == 7:
 				sh.capsule(hc + Vector2(-1.8, -0.4), hc + Vector2(-2.1, 3.9), 0.72, 0.52, c_hair, -1.4, 0.95)
 
-	# Broad heavy orcish cranium & prognathic lower mandible
-	var jaw_ext: float = 0.0 if female else (0.45 if not compact else 0.22)
-	var chin_y: float = (2.65 if female else (3.15 if not compact else 2.95)) if has_jaw else 1.45
+	# Broad heavy orcish cranium, unified face plane & prognathic lower mandible
+	var jaw_ext: float = 0.0 if female else (0.32 if not compact else 0.16)
+	var chin_y: float = (2.55 if female else (2.85 if not compact else 2.75)) if has_jaw else 1.25
 	var skull_pts := PackedVector2Array([
-		hc + Vector2(-3.15 if not female else -2.55, -1.35),
-		hc + Vector2(-2.15, -3.15), hc + Vector2(0.45, -3.25),
-		hc + Vector2(2.15, -2.25), hc + Vector2(2.55, -0.55),
-		hc + Vector2(3.15 + jaw_ext if has_jaw else 2.25, 1.35 if has_jaw else 0.65),
-		hc + Vector2(2.65 + jaw_ext if has_jaw else 1.85, chin_y),
-		hc + Vector2(0.35, chin_y + 0.15),
-		hc + Vector2(-1.85, chin_y - 0.55),
-		hc + Vector2(-3.15 if not female else -2.55, 0.75)
+		hc + Vector2(-2.95 if not female else -2.45, -1.35),
+		hc + Vector2(-2.05, -3.05), hc + Vector2(0.45, -3.15),
+		hc + Vector2(2.05, -2.20), hc + Vector2(2.45, -0.55),
+		hc + Vector2(2.55 + jaw_ext if has_jaw else 2.15, 1.35 if has_jaw else 0.65),
+		hc + Vector2(2.05 + jaw_ext if has_jaw else 1.65, chin_y - 0.15),
+		hc + Vector2(0.55, chin_y),
+		hc + Vector2(-1.65, chin_y - 0.55),
+		hc + Vector2(-2.95 if not female else -2.45, 0.75)
 	])
 	sh.poly(skull_pts, c_skin, 0.0, 2.2)
-	sh.ellipsoid(hc + Vector2(-0.35, -0.95), 2.75 if not female else 2.35, 2.25, c_skin, 0.3, 1.15)
+	sh.ellipsoid(hc + Vector2(-0.08, -0.15 if has_jaw else -0.70), 2.55 if not female else 2.22, (2.75 if not female else 2.48) if has_jaw else 1.95, c_skin, 0.3, 0.90)
 	if has_jaw:
-		sh.ellipsoid(hc + Vector2(0.95 + jaw_ext * 0.5, 1.75 if not female else 1.45), 2.35 if not female else 1.92, 1.42 if not female else 1.18, c_skin, 0.6, 1.05)
-	sh.ellipsoid(hc + Vector2(0.85, 0.25), 1.35, 0.95, c_skin_l, 1.1, 0.9)
+		sh.capsule(hc + Vector2(-0.55, 1.45), hc + Vector2(1.15 + jaw_ext * 0.5, 1.85 if not female else 1.55), 1.15 if not female else 0.92, 1.12 if not female else 0.88, c_skin, 0.45, 0.78)
+	sh.ellipsoid(hc + Vector2(-0.42, 0.32), 0.95, 0.68, c_skin_l, 0.7, 0.55)
+	sh.ellipsoid(hc + Vector2(1.38, 0.30), 0.85, 0.64, c_skin_l, 0.7, 0.55)
 
-	# Heavy overhanging supraorbital brow ridge
-	sh.capsule(hc + Vector2(-1.15, -1.25), hc + Vector2(2.45, -1.05), 0.58 if not female else 0.42, 0.65 if not female else 0.46, c_skin_l, 2.0, 1.0)
+	# Heavy overhanging supraorbital brow ridge above the mid-head eye line
+	sh.capsule(hc + Vector2(-0.95, -0.82), hc + Vector2(1.85, -0.78), 0.46 if not female else 0.34, 0.50 if not female else 0.36, c_skin_l, 1.6, 0.80)
 
-	# Separate loss-aware broad upturned orc nose/snout (critical for nose-severing portrait checks)
+	# Separate loss-aware broad upturned orc nose/snout centered between the eyes
+	var n_tip := hc + Vector2(0.86 if female else 0.96, 0.50 if female else 0.56)
 	if has_nose:
-		var n_tip := hc + Vector2(2.85 + jaw_ext * 0.35 if not female else 2.45, 0.25)
-		sh.capsule(hc + Vector2(1.65, -0.85), n_tip, 0.55 if not female else 0.42, 0.78 if not female else 0.58, c_skin_l, 2.4, 1.05)
-		sh.ellipsoid(n_tip + Vector2(-0.10, 0.12), 0.85 if not female else 0.64, 0.58 if not female else 0.46, c_skin_l, 2.7, 1.0)
+		sh.capsule(hc + Vector2(0.58, -0.26), n_tip, 0.42 if not female else 0.34, 0.58 if not female else 0.46, c_skin_l, 2.3, 0.90)
+		sh.ellipsoid(n_tip, 0.68 if not female else 0.52, 0.46 if not female else 0.38, c_skin_l, 2.55, 0.90)
 
 	# Notched pointed orcish ear
 	if not coif and not f._lost("ear_l"):
@@ -129,50 +130,63 @@ static func head(f) -> void:
 			if style == 4:
 				sh.capsule(hc + Vector2(-0.85, -2.85), hc + Vector2(1.75, -1.85), 0.75, 0.52, c_hair_l, 2.2, 0.95)
 
-	# Orc beard variants
+	# Orc beard variants (positioned below mouth y=1.38 so mouth & tusks remain visible)
 	if bool(f.spec.get("beard", false)) and has_jaw and not female:
 		var b_style: int = FigurePainter.beard_style(f.spec)
 		if b_style == 6:
-			sh.capsule(hc + Vector2(0.55, 1.25), hc + Vector2(2.85, 1.35), 0.38, 0.35, c_hair, 2.8, 0.95)
+			sh.capsule(hc + Vector2(0.05, 1.02), hc + Vector2(1.65, 1.05), 0.32, 0.30, c_hair, 2.8, 0.95)
 		elif b_style == 7:
-			sh.ellipsoid(hc + Vector2(1.15, 2.35), 1.95, 0.95, c_hair_d, 1.4, 0.6)
+			sh.ellipsoid(hc + Vector2(0.85, 2.25), 1.85, 0.85, c_hair_d, 1.4, 0.6)
 		else:
 			var b_len: float = 3.85 if b_style in [0, 2, 3, 4, 5] else 3.15
-			sh.capsule(hc + Vector2(-0.75, 1.85), hc + Vector2(1.35, b_len), 0.95, 0.85, c_hair_d, 2.4, 1.0)
-			sh.capsule(hc + Vector2(1.35, b_len), hc + Vector2(2.85, 2.25), 0.95, 0.75, c_hair, 2.5, 1.0)
+			sh.capsule(hc + Vector2(-0.75, 1.95), hc + Vector2(0.95, b_len), 0.92, 0.82, c_hair_d, 2.4, 1.0)
+			sh.capsule(hc + Vector2(0.95, b_len), hc + Vector2(2.25, 2.15), 0.92, 0.72, c_hair, 2.5, 1.0)
 
-	# Prominent curved lower-jaw ivory tusks
+	# Prominent curved lower-jaw ivory tusks framing the mouth on the front face plane
+	var my: float = 1.24 if female else 1.38
 	if has_mouth and has_jaw:
-		var t_near := hc + Vector2(0.85 if not female else 0.75, 2.25 if not female else 1.85)
-		var t_far := hc + Vector2(2.65 if not female else 2.15, 2.28 if not female else 1.88)
-		var t_h: float = 1.45 if not female else 0.95
-		sh.capsule(t_near, t_near + Vector2(0.28, -t_h), 0.42 if not female else 0.30, 0.16, c_tusk, 3.4, 1.0)
-		sh.capsule(t_far, t_far + Vector2(0.32, -t_h * 1.08), 0.46 if not female else 0.32, 0.18, c_tusk, 3.5, 1.0)
+		var t_near := hc + Vector2(-0.02 if not female else 0.04, my + 0.42)
+		var t_far := hc + Vector2(1.72 if not female else 1.46, my + 0.40)
+		var t_h: float = 0.88 if not female else 0.62
+		sh.capsule(t_near, t_near + Vector2(0.14, -t_h), 0.32 if not female else 0.24, 0.14, c_tusk, 3.2, 0.95)
+		sh.capsule(t_far, t_far + Vector2(0.16, -t_h * 1.05), 0.34 if not female else 0.25, 0.15, c_tusk, 3.3, 0.95)
 
 	sh.composite(FigurePainter.ol(skin), true)
 
-	# Fierce glowing yellow/amber orc eyes & nostrils/mouth
+	# Fierce glowing yellow/amber orc eyes on the front plane at mid-head height & nostrils/mouth
 	var deep_c: Color = skin.darkened(0.62).lerp(Color("#202519"), 0.15)
-	if female:
-		_eye(cv, hc + Vector2(-0.65, -0.78), 0.92, skin, deep_c, dead, f._lost("eye_l"), false)
-		_eye(cv, hc + Vector2(0.65, -0.68), 1.32, skin, deep_c, dead, f._lost("eye_r"), true)
-	elif compact:
-		_compact_eye(cv, hc + Vector2(-0.9, -0.62), 1.02, skin, deep_c, dead, f._lost("eye_l"), false)
-		_compact_eye(cv, hc + Vector2(0.82, -0.56), 1.45, skin, deep_c, dead, f._lost("eye_r"), true)
-	else:
-		_eye(cv, hc + Vector2(-1.0, -0.9), 1.02, skin, deep_c, dead, f._lost("eye_l"), false)
-		_eye(cv, hc + Vector2(0.5, -0.78), 1.52, skin, deep_c, dead, f._lost("eye_r"), true)
+	var ey: float = -0.22 if female else -0.18
+	_shaded_eye(cv, hc + Vector2(-0.20 if female else -0.22, ey), 0.58 if not compact else 0.54, 0.27 if not compact else 0.23, skin, deep_c, dead, f._lost("eye_r") or f._lost("eye_l"), true)
+	_shaded_eye(cv, hc + Vector2(1.22 if female else 1.32, ey), 0.40 if not compact else 0.38, 0.24 if not compact else 0.21, skin, deep_c, dead, f._lost("eye_l"), false)
 
 	if has_nose:
-		cv.ellipse(hc + Vector2(1.85, 0.52), 0.22, 0.12, deep_c)
-		cv.ellipse(hc + Vector2(2.65, 0.52), 0.24, 0.13, deep_c)
+		cv.ellipse(n_tip + Vector2(-0.22, 0.08), 0.18, 0.11, deep_c)
+		cv.ellipse(n_tip + Vector2(0.22, 0.06), 0.19, 0.12, deep_c)
 	else:
-		cv.ellipse(hc + Vector2(1.85, 0.15), 0.36, 0.28, FigurePainter.BLOOD_DARK)
+		cv.ellipse(hc + Vector2(0.85, 0.32), 0.36, 0.28, FigurePainter.BLOOD_DARK)
 
-	if has_mouth:
-		cv.capsule(hc + Vector2(0.55, 1.48), hc + Vector2(2.45, 1.38), 0.15, deep_c)
+	if has_mouth and has_jaw:
+		var lip_c: Color = skin.darkened(0.28).lerp(Color("#804842"), 0.32) if female else deep_c
+		cv.capsule(hc + Vector2(0.12, my), hc + Vector2(1.38 if female else 1.58, my - 0.03), 0.16, lip_c)
+		cv.capsule(hc + Vector2(0.28, my + 0.16), hc + Vector2(1.25 if female else 1.42, my + 0.14), 0.12, skin.lightened(0.14))
 
 	f._helm(hc, -float(f.head_w) * 0.5, float(f.head_w) * 0.5, -float(f.head_h) * 0.5, float(f.head_h) * 0.5)
+
+static func _shaded_eye(cv: PixelCanvas, center: Vector2, rx: float, ry: float, skin: Color,
+		deep: Color, dead: bool, lost: bool, near: bool) -> void:
+	cv.ellipse(center, rx + 0.12, ry + 0.10, skin.darkened(0.38))
+	cv.capsule(center + Vector2(-rx, -ry * 0.55), center + Vector2(rx * 0.92, -ry * 0.42), 0.14, deep)
+	if lost:
+		return
+	if dead:
+		cv.capsule(center + Vector2(-rx * 0.82, 0.02), center + Vector2(rx * 0.82, 0.04), 0.13, deep)
+		return
+	cv.ellipse(center, rx, ry, Color("#dcd098"))
+	var iris_p := center + Vector2(rx * 0.18, 0.01)
+	cv.ellipse(iris_p, 0.25 if near else 0.18, ry * 0.88, Color("#ebb832"))
+	cv.ellipse(iris_p + Vector2(0.03, 0.0), 0.11 if near else 0.08, ry * 0.72, deep)
+	if near and cv.k >= 3.0:
+		cv.ellipse(iris_p + Vector2(-0.06, -0.07), 0.055, 0.055, Color("#fff3bd"))
 
 static func _legacy_head(f) -> void:
 	if f._lost("head"):

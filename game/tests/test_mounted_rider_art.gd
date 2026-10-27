@@ -55,6 +55,9 @@ func run(_tree: SceneTree) -> int:
 	var native := snapshot(); var rs := Game.rng.state; var original_unit_uid := Unit._next_uid; var original_item_uid := Item._next_uid
 	var images := {}
 	for race: String in FigurePainter.DETAILED_RACES:
+		if not MountedRiderArt.can_mount_race(race):
+			check(not MountedRiderArt.render_layers({"race": race})["ok"], race + " fights on foot only and is rejected by MountedRiderArt")
+			continue
 		var spec := FigurePainter.spec_generic(race, Color("#397e92"), Color("#d9bd71"), 63)
 		spec["sex"] = "female"; spec["age"] = 54
 		var copied := spec.duplicate(true)
@@ -63,7 +66,9 @@ func run(_tree: SceneTree) -> int:
 		var repeated := MountedRiderArt.render_layers(spec)
 		check(spec == copied and layers["image"].get_data() == repeated["image"].get_data(), race + " deterministic render and copied input")
 		images[race] = layers["image"].get_data()
-	check(images["human"] != images["orc"] and images["human"] != images["dwarf"] and images["moon_elf"] != images["goblin"] and images["troll"] != images["dwarf"], "native race silhouettes retained")
+	check(not MountedRiderArt.can_mount_race("troll") and not MountedRiderArt.can_mount_race("giant"), "trolls and giants cannot mount horses")
+	check(not MountedRiderArt.render_layers({"race": "troll"})["ok"] and not MountedRiderArt.render_layers({"race": "giant"})["ok"], "trolls and giants rejected by render_layers")
+	check(images["human"] != images["orc"] and images["human"] != images["dwarf"] and images["moon_elf"] != images["goblin"] and images["orc"] != images["dwarf"], "native race silhouettes retained")
 	# Actual native Unit and Item exist only in this test fixture. Runtime renderer
 	# reads a copied native spec and never creates combat identities or equipment.
 	var unit := Unit.create("human", "middle_kingdom")

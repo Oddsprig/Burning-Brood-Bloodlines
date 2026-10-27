@@ -40,7 +40,8 @@ func body_center_offset() -> Vector2:
 func set_pose(pose: String, progress: float, render_frame: bool = true) -> void:
 	_pose = pose
 	_progress = progress
-	var on_foot := unit.race != "horse" and (not mounted or pose in ["prone", "dead"])
+	var unmountable := unit.race != "horse" and not Horses.can_mount_race(unit.race)
+	var on_foot := unit.race != "horse" and (unmountable or not mounted or pose in ["prone", "dead"])
 	if on_foot and render_frame and _foot == null:
 		_foot = Paperdoll.new()
 		_foot.team_color = team_color
@@ -62,7 +63,7 @@ func _rider_layer(key: String, seat: Vector2, pitch: float = 0.0) -> void:
 func _draw() -> void:
 	if unit == null: return
 	var riding := unit.race != "horse"
-	if riding and (not mounted or _pose in ["prone", "dead"]): return
+	if riding and (not Horses.can_mount_race(unit.race) or not mounted or _pose in ["prone", "dead"]): return
 	var horse: Unit = unit.horse if riding else unit
 	if horse == null: return
 	var animation := gait_animation if _pose == "walk" else "idle"

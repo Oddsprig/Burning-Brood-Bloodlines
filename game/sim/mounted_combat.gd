@@ -4,7 +4,7 @@ extends RefCounted
 ## Horses are passive native targets, do not occupy a second tile or win alone.
 static func setup(sim) -> void:
 	for rider: Fighter in sim.fighters.duplicate():
-		if not Horses.can_field(rider.unit) or not rider.active() or rider.prone: continue
+		if not Horses.can_field(rider.unit) or not Horses.can_mount_race(rider.unit.race) or not rider.active() or rider.prone: continue
 		var horse := Fighter.new()
 		horse.idx = sim.fighters.size()
 		horse.unit = rider.unit.horse

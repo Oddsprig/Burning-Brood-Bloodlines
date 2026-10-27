@@ -252,6 +252,298 @@ func _render_portrait_card(spec: Dictionary) -> Image:
 	out.fill_rect(Rect2i(size - 2, 0, 2, size), border)
 	return out
 
+func _portrait_variant_spec(race: String, variant_idx: int) -> Dictionary:
+	var rd: Dictionary = DB.races.get(race, DB.races["human"])
+	var skins: Array = rd.get("skin", ["#e8c4a0"])
+	var hairs: Array = rd.get("hair", ["#3a2a1a"])
+	var female: bool = variant_idx >= 3
+	var sp := _race_preset(race, variant_idx == 1 or variant_idx == 4, female)
+	sp["helm"] = {}
+	sp["skin"] = Color(skins[variant_idx % skins.size()])
+	sp["hair"] = Color(hairs[variant_idx % hairs.size()])
+	match variant_idx:
+		0: # Young Male
+			sp["sex"] = "male"
+			sp["age"] = 20
+			sp["beard"] = (race == "dwarf")
+			sp["beard_style"] = 0
+			sp["seed"] = 11
+		1: # Adult Male (bearded / armed)
+			sp["sex"] = "male"
+			sp["age"] = 35
+			sp["beard"] = (race in ["human", "dwarf", "orc", "troll"])
+			sp["beard_style"] = 1
+			sp["seed"] = 23
+		2: # Elder Male
+			sp["sex"] = "male"
+			sp["age"] = 68
+			sp["beard"] = (race in ["human", "dwarf", "orc", "troll", "high_elf", "moon_elf"])
+			sp["beard_style"] = 2
+			sp["hair"] = Color(hairs[variant_idx % hairs.size()]).lerp(Color("#d8d8dc"), 0.65)
+			sp["seed"] = 37
+		3: # Young Female
+			sp["sex"] = "female"
+			sp["age"] = 21
+			sp["beard"] = false
+			sp["seed"] = 61
+		4: # Elder Female
+			sp["sex"] = "female"
+			sp["age"] = 66
+			sp["beard"] = false
+			sp["hair"] = Color(hairs[variant_idx % hairs.size()]).lerp(Color("#d8d8dc"), 0.6)
+			sp["seed"] = 79
+	return sp
+
+func _draw_v0066_portrait_half(img: Image, race: String, y_off: int, header_prefix: String) -> void:
+	FigurePainter.set_legacy_v064(false)
+	img.fill_rect(Rect2i(0, y_off, 920, 240), Color("#12161e"))
+	img.fill_rect(Rect2i(0, y_off, 920, 28), Color("#1e2432"))
+	_draw_text(img, 12, y_off + 7, "%s - %s PORTRAITS (AGE / SEX VARIANTS)" % [header_prefix, race.replace("_", " ")], Color("#f2da94"), 2)
+	var labels := ["YOUNG MALE", "ADULT MALE", "ELDER MALE", "YOUNG FEMALE", "ELDER FEMALE"]
+	for i in 5:
+		var sp := _portrait_variant_spec(race, i)
+		var card := _render_portrait_card(sp)
+		var big := _scale_nearest(card, 1)
+		big.resize(156, 156, Image.INTERPOLATE_NEAREST)
+		var cx: int = 16 + i * 180
+		var cy: int = y_off + 36
+		_blit_alpha(img, big, Vector2i(cx, cy))
+		_draw_text(img, cx + 10, cy + 164, labels[i], Color("#9ab4d0"), 1)
+
+func _save_v0066_portrait_before_after(out_dir: String, race: String) -> void:
+	var path: String = out_dir.path_join("v0066_portrait_before_after_%s.png" % race)
+	var sheet: Image
+	if FileAccess.file_exists(path):
+		sheet = Image.load_from_file(path)
+		if sheet == null or sheet.get_width() != 920 or sheet.get_height() != 480:
+			sheet = Image.create(920, 480, false, Image.FORMAT_RGBA8)
+			_draw_v0066_portrait_half(sheet, race, 0, "BEFORE (B78F919)")
+	else:
+		sheet = Image.create(920, 480, false, Image.FORMAT_RGBA8)
+		_draw_v0066_portrait_half(sheet, race, 0, "BEFORE (B78F919)")
+	_draw_v0066_portrait_half(sheet, race, 240, "AFTER (V0.066 FIXED EYES)")
+	sheet.fill_rect(Rect2i(0, 238, 920, 2), Color("#38465e"))
+	check(sheet.save_png(path) == OK, "saved " + path)
+
+func _draw_v0066_troll_half(img: Image, y_off: int, header_prefix: String) -> void:
+	FigurePainter.set_legacy_v064(false)
+	img.fill_rect(Rect2i(0, y_off, 860, 270), Color("#12161e"))
+	img.fill_rect(Rect2i(0, y_off, 860, 28), Color("#1e2432"))
+	_draw_text(img, 12, y_off + 7, "%s - TROLL MASSING, IDLE ARMS & PORTRAIT" % header_prefix, Color("#f2da94"), 2)
+
+	var sp_bare := _race_preset("troll", false, false)
+	sp_bare["clothing"] = {}
+	sp_bare["feet"] = {}
+	var sp_unarmed := _race_preset("troll", false, false)
+	var sp_maul := _race_preset("troll", true, false)
+	sp_maul["role"] = "troop"
+	var sp_cleaver := _race_preset("troll", true, false)
+	sp_cleaver["role"] = "troop"
+	sp_cleaver["weapon"] = {"tid": "hacking_cleaver", "sprite": "axe", "mat": "iron", "q": 1, "two": false, "reach": 105}
+	sp_cleaver["shield"] = {"tid": "slab_shield", "sprite": "heater", "mat": "iron", "q": 1}
+
+	var specs := [sp_bare, sp_unarmed, sp_maul, sp_cleaver]
+	var poses := ["idle", "idle", "idle", "prepare"]
+	var titles := ["BARE BODY", "UNARMED IDLE", "WAR MAUL", "CLEAVER+SHIELD"]
+	for i in 4:
+		var fig: Image = _scale_nearest(FigurePainter.render(specs[i], poses[i], 0.0), 2)
+		var dm: Dictionary = FigurePainter.frame_dims(specs[i], poses[i])
+		var anc: Vector2 = dm["anchor"] * 2.0
+		var cx: int = 85 + i * 165
+		var base_y: int = y_off + 232
+		_blit_alpha(img, fig, Vector2i(int(cx - anc.x), int(base_y - anc.y)))
+		_draw_text(img, cx - 38, y_off + 244, titles[i], Color("#9ab4d0"), 1)
+
+	var sp_port := _portrait_variant_spec("troll", 1)
+	var port_card := _render_portrait_card(sp_port)
+	port_card.resize(164, 164, Image.INTERPOLATE_NEAREST)
+	_blit_alpha(img, port_card, Vector2i(674, y_off + 52))
+	_draw_text(img, 706, y_off + 244, "PORTRAIT BUST", Color("#9ab4d0"), 1)
+
+func _save_v0066_troll_before_after(out_dir: String) -> void:
+	var path: String = out_dir.path_join("v0066_troll_before_after.png")
+	var sheet: Image
+	if FileAccess.file_exists(path):
+		sheet = Image.load_from_file(path)
+		if sheet == null or sheet.get_width() != 860 or sheet.get_height() != 540:
+			sheet = Image.create(860, 540, false, Image.FORMAT_RGBA8)
+			_draw_v0066_troll_half(sheet, 0, "BEFORE (B78F919)")
+	else:
+		sheet = Image.create(860, 540, false, Image.FORMAT_RGBA8)
+		_draw_v0066_troll_half(sheet, 0, "BEFORE (B78F919)")
+	sheet.fill_rect(Rect2i(0, 0, 860, 28), Color("#1e2432"))
+	_draw_text(sheet, 12, 7, "BEFORE (B78F919) - TROLL MASSING, IDLE ARMS & PORTRAIT", Color("#f2da94"), 2)
+	_draw_v0066_troll_half(sheet, 270, "AFTER (V0.066 ORGANIC)")
+	sheet.fill_rect(Rect2i(0, 268, 860, 2), Color("#38465e"))
+	check(sheet.save_png(path) == OK, "saved " + path)
+
+func _save_v0066_race_standing_lineup(out_dir: String) -> void:
+	FigurePainter.set_legacy_v064(false)
+	var sheet := Image.create(1240, 540, false, Image.FORMAT_RGBA8)
+	sheet.fill(Color("#10141c"))
+	sheet.fill_rect(Rect2i(0, 0, 1240, 34), Color("#1c2230"))
+	_draw_text(sheet, 16, 10, "V0.066 STANDING IDLE LINEUP - ALL 8 RACES (ARMS AT SIDES / WEAPON READY, NO FOLDED ARMS)", Color("#f4dc96"), 2)
+
+	for i in ALL_RACES.size():
+		var race: String = ALL_RACES[i]
+		var col: int = i % 4
+		var row: int = i / 4
+		var ox: int = 12 + col * 306
+		var oy: int = 44 + row * 242
+		sheet.fill_rect(Rect2i(ox, oy, 298, 232), Color("#161b26"))
+		sheet.fill_rect(Rect2i(ox, oy, 298, 24), Color("#202838"))
+		_draw_text(sheet, ox + 10, oy + 5, race.replace("_", " "), Color("#f0d890"), 2)
+
+		var sp_m := _race_preset(race, false, false)
+		var sp_f := _race_preset(race, false, true)
+		var sp_w := _race_preset(race, true, false)
+		if race == "troll":
+			sp_w["role"] = "troop"
+		var fig_m: Image = _scale_nearest(FigurePainter.render(sp_m, "idle", 0.0), 2)
+		var fig_f: Image = _scale_nearest(FigurePainter.render(sp_f, "idle", 0.0), 2)
+		var fig_w: Image = _scale_nearest(FigurePainter.render(sp_w, "idle", 0.0), 2)
+		var dm: Dictionary = FigurePainter.frame_dims(sp_w, "idle")
+		var anc: Vector2 = dm["anchor"] * 2.0
+		var base_y: int = oy + (204 if race == "troll" else 196)
+		_blit_alpha(sheet, fig_m, Vector2i(int(ox + 56 - anc.x), int(base_y - anc.y)))
+		_blit_alpha(sheet, fig_f, Vector2i(int(ox + 136 - anc.x), int(base_y - anc.y)))
+		_blit_alpha(sheet, fig_w, Vector2i(int(ox + 224 - anc.x), int(base_y - anc.y)))
+		_draw_text(sheet, ox + 28, oy + 214, "MALE IDLE", Color("#9ab0c8"), 1)
+		_draw_text(sheet, ox + 108, oy + 214, "FEM IDLE", Color("#9ab0c8"), 1)
+		_draw_text(sheet, ox + 196, oy + 214, "ARMED IDLE", Color("#9ab0c8"), 1)
+
+	var path: String = out_dir.path_join("v0066_race_standing_lineup.png")
+	check(sheet.save_png(path) == OK, "saved " + path)
+
+func _save_v0066_troll_on_foot_only(out_dir: String) -> void:
+	FigurePainter.set_legacy_v064(false)
+	var sheet := Image.create(980, 340, false, Image.FORMAT_RGBA8)
+	sheet.fill(Color("#12161e"))
+	sheet.fill_rect(Rect2i(0, 0, 980, 34), Color("#1e2432"))
+	_draw_text(sheet, 14, 10, "V0.066 TROLLS FIGHT ON FOOT ONLY - NO HORSE MOUNTS ALLOWED", Color("#f4dc96"), 2)
+
+	var sp_bare := _race_preset("troll", false, false)
+	sp_bare["clothing"] = {}
+	sp_bare["feet"] = {}
+	var sp_unarmed := _race_preset("troll", false, false)
+	var sp_maul := _race_preset("troll", true, false)
+	sp_maul["role"] = "troop"
+	var sp_club := _race_preset("troll", true, false)
+	sp_club["role"] = "troop"
+	sp_club["weapon"] = {"tid": "great_club", "sprite": "mace", "mat": "wood", "q": 1, "two": true, "reach": 140}
+	var sp_cleaver := _race_preset("troll", true, false)
+	sp_cleaver["role"] = "troop"
+	sp_cleaver["weapon"] = {"tid": "hacking_cleaver", "sprite": "axe", "mat": "iron", "q": 1, "two": false, "reach": 105}
+	sp_cleaver["shield"] = {"tid": "slab_shield", "sprite": "heater", "mat": "iron", "q": 1}
+
+	var specs := [sp_bare, sp_unarmed, sp_maul, sp_club, sp_cleaver]
+	var poses := ["idle", "walk", "idle", "strike", "prepare"]
+	var t_vals := [0.0, 0.25, 0.0, 0.35, 0.5]
+	var labels := ["BARE ON FOOT", "MARCH ON FOOT", "MAUL ON FOOT", "STRIKE ON FOOT", "CLEAVER+SHIELD"]
+
+	for i in 5:
+		var cx: int = 86 + i * 142
+		var base_y: int = 268
+		var fig: Image = _scale_nearest(FigurePainter.render(specs[i], poses[i], t_vals[i]), 2)
+		var dm: Dictionary = FigurePainter.frame_dims(specs[i], poses[i])
+		var anc: Vector2 = dm["anchor"] * 2.0
+		_blit_alpha(sheet, fig, Vector2i(int(cx - anc.x), int(base_y - anc.y)))
+		_draw_text(sheet, cx - 42, 286, labels[i], Color("#9ab4d0"), 1)
+
+	# Verification badge box on the right confirming mount rejection in code
+	sheet.fill_rect(Rect2i(748, 56, 216, 236), Color("#1b212e"))
+	sheet.fill_rect(Rect2i(748, 56, 216, 24), Color("#582626"))
+	_draw_text(sheet, 760, 65, "MOUNT CODE GATE: REFUSED", Color("#ffd0c8"), 1)
+	_draw_text(sheet, 758, 98, "HORSES.CAN_MOUNT_RACE:", Color("#c8d6e8"), 1)
+	_draw_text(sheet, 768, 114, "TROLL -> FALSE", Color("#88f0a8"), 1)
+	_draw_text(sheet, 768, 130, "GIANT -> FALSE", Color("#88f0a8"), 1)
+	_draw_text(sheet, 758, 158, "MOUNTEDRIDERART:", Color("#c8d6e8"), 1)
+	_draw_text(sheet, 768, 174, "OK -> FALSE (ON FOOT)", Color("#88f0a8"), 1)
+	_draw_text(sheet, 758, 202, "UNITVIEW / BATTLE:", Color("#c8d6e8"), 1)
+	_draw_text(sheet, 768, 218, "PAPERDOLL ONLY", Color("#88f0a8"), 1)
+	_draw_text(sheet, 768, 234, "NO HORSEDOLL", Color("#88f0a8"), 1)
+
+	var path: String = out_dir.path_join("v0066_troll_on_foot_only.png")
+	check(sheet.save_png(path) == OK, "saved " + path)
+
+func _verify_v0066_contracts() -> void:
+	FigurePainter.set_legacy_v064(false)
+	# 1. Portrait eye, nose, and mouth landmarks across all 8 races and 5 age/sex variants
+	for race in ALL_RACES:
+		for v_idx in 5:
+			var sp := _portrait_variant_spec(race, v_idx)
+			var lm: Dictionary = FigurePainter.head_landmarks(sp)
+			var h_top: float = float(lm["head_top"])
+			var h_bot: float = float(lm["head_bottom"])
+			var head_span: float = h_bot - h_top
+			var eye_r: Vector2 = lm["eye_r"]
+			var eye_l: Vector2 = lm["eye_l"]
+			var nose_b: Vector2 = lm["nose_bridge"]
+			var nose_t: Vector2 = lm["nose_tip"]
+			var mouth: Vector2 = lm["mouth"]
+			var rel_r: float = (eye_r.y - h_top) / maxf(0.01, head_span)
+			var rel_l: float = (eye_l.y - h_top) / maxf(0.01, head_span)
+			check(rel_r >= 0.40 and rel_r <= 0.56 and rel_l >= 0.40 and rel_l <= 0.56,
+				"%s v%d eyes at mid-head height (rel_y=%.2f, %.2f)" % [race, v_idx, rel_r, rel_l])
+			check(is_equal_approx(eye_r.y, eye_l.y),
+				"%s v%d eyes symmetric in y (%.2f vs %.2f)" % [race, v_idx, eye_r.y, eye_l.y])
+			check(eye_r.x < nose_b.x and nose_b.x < eye_l.x and (eye_l.x - eye_r.x) >= 1.2,
+				"%s v%d both eyes on front plane straddling nose bridge" % [race, v_idx])
+			check(nose_t.y > eye_r.y and mouth.y > nose_t.y and mouth.y < h_bot,
+				"%s v%d visible nose and mouth ordered below eyes" % [race, v_idx])
+
+	# 2. Trolls and giants refused by mounted-unit code
+	check(not Horses.can_mount_race("troll") and not Horses.can_mount_race("giant"),
+		"Horses.can_mount_race refuses troll and giant")
+	check(not MountedRiderArt.can_mount_race("troll") and not MountedRiderArt.can_mount_race("giant"),
+		"MountedRiderArt.can_mount_race refuses troll and giant")
+	check(not bool(MountedRiderArt.render_layers({"race": "troll"}).get("ok", true)),
+		"MountedRiderArt.render_layers refuses troll")
+	check(not bool(MountedRiderArt.render_layers({"race": "giant"}).get("ok", true)),
+		"MountedRiderArt.render_layers refuses giant")
+	var troll_u: Unit = Unit.create("troll", "troll_den")
+	var dummy_horse: Unit = Unit.create("horse", "troll_den", false)
+	troll_u.horse = dummy_horse
+	troll_u.horse_care = {"fed": true, "paid": true}
+	check(not Horses.can_field(troll_u), "Horses.can_field refuses troll even if horse attached")
+	check(not MountedRiderArt.spec_for_unit(troll_u).has("mount_kind"), "MountedRiderArt.spec_for_unit omits mount_kind for troll")
+	var sim_troll := BattleSim.new()
+	var orc_u: Unit = Unit.create("orc", "red_skull")
+	sim_troll.setup([troll_u], [orc_u], 101, {"w": 16, "h": 10, "max_ticks": 10, "log_moves": false})
+	check(sim_troll.fighters.size() == 2 and sim_troll.fighters[0].mount_idx == -1,
+		"MountedCombat.setup refuses to spawn horse fighter for troll")
+	var UnitViewScript := preload("res://battle/unit_view.gd")
+	var uv: Node2D = UnitViewScript.new()
+	uv.setup(sim_troll.fighters[0], 40.0)
+	check(uv.doll is Paperdoll and not (uv.doll is HorseDoll),
+		"UnitView uses on-foot Paperdoll for troll even if horse ref present")
+	uv.free()
+
+	# 3. No folded-arm idle pose across any race (unarmed male, unarmed female, armed)
+	for race in ALL_RACES:
+		for mode in 3:
+			var sp := _race_preset(race, mode == 2, mode == 1)
+			if race == "troll":
+				sp["role"] = "troop"
+			var fp := FigurePainter.new(sp)
+			fp.pose = "idle"
+			fp.t = 0.0
+			fp._rig()
+			var sr: Vector2 = fp.j["sr"]
+			var er: Vector2 = fp.j["er"]
+			var hr: Vector2 = fp.j["hr"]
+			var sl: Vector2 = fp.j["sl"]
+			var el: Vector2 = fp.j["el"]
+			var hl: Vector2 = fp.j["hl"]
+			if mode < 2:
+				check(hr.x < sr.x and hr.x < 0.0 and hl.x > sl.x and hl.x > 0.0,
+					"%s mode %d unarmed idle hands stay outside shoulders (no folded arms across stomach)" % [race, mode])
+				check(hr.y > er.y and er.y > sr.y and hl.y > el.y and el.y > sl.y,
+					"%s mode %d unarmed idle arms hang naturally downward at sides" % [race, mode])
+			else:
+				check(fp._wkind() != "none" and fp.j["grip"] == hr and hl.x > 0.0,
+					"%s mode %d armed idle holds weapon in grip with off-hand at shield/shaft/side" % [race, mode])
+
 func _build_race_panel(race: String, is_legacy: bool) -> Image:
 	FigurePainter.set_legacy_v064(is_legacy)
 	var panel := Image.create(520, 230, false, Image.FORMAT_RGBA8)
@@ -275,10 +567,18 @@ func _build_race_panel(race: String, is_legacy: bool) -> Image:
 	_blit_alpha(panel, stand_w, Vector2i(int(180 - anc.x), int(base_y - anc.y)))
 	_draw_text(panel, 28, 208, "STANDING", Color("#9ab0c8"), 1)
 
-	# 2. Mounted on a horse
-	var horse_card: Image = _render_mounted_horse_card(sp_armed, "bay" if race in ["dwarf", "human", "orc"] else ("palomino" if race in ["high_elf", "moon_elf"] else "black"))
-	_blit_alpha(panel, horse_card, Vector2i(205, 32))
-	_draw_text(panel, 250, 208, "MOUNTED (HORSE)", Color("#9ab0c8"), 1)
+	# 2. Mounted on a horse (or on-foot heavy shock poses for troll, which never rides horses)
+	if race == "troll":
+		var sp_strike := sp_armed.duplicate(true)
+		var stand_strike: Image = _scale_nearest(FigurePainter.render(sp_strike, "strike", 0.35), 2)
+		var dm_s: Dictionary = FigurePainter.frame_dims(sp_strike, "strike")
+		var anc_s: Vector2 = dm_s["anchor"] * 2.0
+		_blit_alpha(panel, stand_strike, Vector2i(int(295 - anc_s.x), int(base_y - anc_s.y)))
+		_draw_text(panel, 240, 208, "ON FOOT ONLY (NO MOUNT)", Color("#9ab0c8"), 1)
+	else:
+		var horse_card: Image = _render_mounted_horse_card(sp_armed, "bay" if race in ["dwarf", "human", "orc"] else ("palomino" if race in ["high_elf", "moon_elf"] else "black"))
+		_blit_alpha(panel, horse_card, Vector2i(205, 32))
+		_draw_text(panel, 250, 208, "MOUNTED (HORSE)", Color("#9ab0c8"), 1)
 
 	# 3. Portrait (unhelm'd so full head/face/hair/beard shading is clear)
 	var sp_port := sp_armed.duplicate(true)
@@ -551,6 +851,13 @@ func run(tree: SceneTree) -> int:
 	var out_dir: String = ProjectSettings.globalize_path("res://").path_join("../test-results").simplify_path()
 	DirAccess.make_dir_recursive_absolute(out_dir)
 
+	for race in ALL_RACES:
+		_save_v0066_portrait_before_after(out_dir, race)
+	_save_v0066_troll_before_after(out_dir)
+	_save_v0066_race_standing_lineup(out_dir)
+	_save_v0066_troll_on_foot_only(out_dir)
+	_verify_v0066_contracts()
+
 	var after_panels: Array[Image] = []
 	# Also include human panel at top of combined lineup
 	var human_panel: Image = _build_race_panel("human", false)
@@ -570,7 +877,10 @@ func run(tree: SceneTree) -> int:
 		check(img_before_bust.get_data() != img_after_bust.get_data(), "%s portrait bust updated to v0.065 2.5D shaded style" % race)
 
 		var layers: Dictionary = MountedRiderArt.render_layers(sp_test)
-		check(bool(layers.get("ok", false)), "%s MountedRiderArt layers build cleanly" % race)
+		if race == "troll":
+			check(not bool(layers.get("ok", true)), "troll rejected by MountedRiderArt.render_layers")
+		else:
+			check(bool(layers.get("ok", false)), "%s MountedRiderArt layers build cleanly" % race)
 
 		var before_panel: Image = _build_race_panel(race, true)
 		var after_panel: Image = _build_race_panel(race, false)
