@@ -338,7 +338,8 @@ func _sparkle(p: Vector2, m: Dictionary) -> void:
 # --- rig ----------------------------------------------------------------------------------------
 
 func _stance(wk: String, which: String, A: float) -> Dictionary:
-	var hl_rest := Vector2(tw * 0.5 + 1.5, 0.42 * A) if not _it("shield").is_empty() else Vector2(2.5, 0.8 * A)
+	var is_hum := String(spec.get("race", "human")) == "human"
+	var hl_rest := Vector2(tw * 0.5 + 1.5, 0.42 * A) if not _it("shield").is_empty() else (Vector2(2.35, 0.85 + 0.988 * A) if is_hum else Vector2(2.5, 0.8 * A))
 	var d := {"hl": hl_rest, "lean": 0.0, "wa": 0.0}
 	if wk == "bow":   # bows: bow arm out front, string hand at the bow (rest), at the chin (draw), flung back (loose)
 		match which:
@@ -349,11 +350,11 @@ func _stance(wk: String, which: String, A: float) -> Dictionary:
 	match which:
 		"rest":
 			match wk:
-				"none": d.merge({"hr": Vector2(1.5, 0.85 * A), "wa": 60.0}, true)
-				"swing1": d.merge({"hr": Vector2(3.0, 0.6 * A), "wa": -62.0}, true)
-				"swing2": d.merge({"hr": Vector2(2.5, 0.68 * A), "wa": -58.0}, true)
-				"thrust1": d.merge({"hr": Vector2(3.5, 0.55 * A), "wa": -82.0}, true)
-				"thrust2": d.merge({"hr": Vector2(3.0, 0.62 * A), "wa": -72.0}, true)
+				"none": d.merge({"hr": Vector2(-1.75, 0.85 + 0.988 * A) if is_hum else Vector2(1.5, 0.85 * A), "wa": 60.0}, true)
+				"swing1": d.merge({"hr": Vector2(1.8, 0.68 * A) if is_hum else Vector2(3.0, 0.6 * A), "wa": -62.0}, true)
+				"swing2": d.merge({"hr": Vector2(2.0, 0.68 * A) if is_hum else Vector2(2.5, 0.68 * A), "wa": -58.0}, true)
+				"thrust1": d.merge({"hr": Vector2(2.4, 0.60 * A) if is_hum else Vector2(3.5, 0.55 * A), "wa": -82.0}, true)
+				"thrust2": d.merge({"hr": Vector2(2.4, 0.62 * A) if is_hum else Vector2(3.0, 0.62 * A), "wa": -72.0}, true)
 		"wind":
 			match wk:
 				"none": d.merge({"hr": Vector2(-2.0, 0.35 * A), "wa": 0.0, "lean": -0.5}, true)
@@ -369,7 +370,7 @@ func _stance(wk: String, which: String, A: float) -> Dictionary:
 				"thrust1": d.merge({"hr": Vector2(A + 0.5, 0.25 * A), "wa": -4.0, "lean": 2.0}, true)
 				"thrust2": d.merge({"hr": Vector2(A, 0.3 * A), "wa": -6.0, "lean": 2.0}, true)
 	if not d.has("hr"):
-		d["hr"] = Vector2(1.5, 0.85 * A)
+		d["hr"] = Vector2(-1.75, 0.85 + 0.988 * A) if is_hum else Vector2(1.5, 0.85 * A)
 	return d
 
 static func _mix(a: Dictionary, b: Dictionary, f: float) -> Dictionary:
@@ -446,13 +447,14 @@ func _rig() -> void:
 			step = -0.5 * f
 			head_dx = -0.5 * f
 	j.clear()
+	var is_hum := String(spec.get("race", "human")) == "human"
 	var hip := Vector2(dx, -leg_len + bob)
 	var sc := hip + Vector2(float(cur["lean"]) + hunch * 0.5, -torso_len + breathe)
 	j["hip"] = hip
 	j["sc"] = sc
-	j["hc"] = sc + Vector2(0.5 + head_dx + hunch, -head_h * 0.5 + hunch * 0.6)
-	j["sr"] = sc + Vector2(-1.0, 1.0)
-	j["sl"] = sc + Vector2(1.5, 1.0)
+	j["hc"] = sc + Vector2((0.35 if is_hum else 0.5) + head_dx + hunch, -head_h * 0.5 + hunch * 0.6)
+	j["sr"] = sc + (Vector2(-2.15, 0.85) if is_hum else Vector2(-1.0, 1.0))
+	j["sl"] = sc + (Vector2(1.90, 0.85) if is_hum else Vector2(1.5, 1.0))
 	var reach := arm_a + arm_b - 0.05
 	j["hr"] = _reach(j["sr"], sc + (cur["hr"] as Vector2), reach)
 	j["er"] = _ik(j["sr"], j["hr"], arm_a, arm_b, 1.0)
@@ -463,16 +465,18 @@ func _rig() -> void:
 	if wk == "swing2" or wk == "thrust2":
 		lt = (j["hr"] as Vector2) + wdir * (3.0 if wk == "swing2" else 4.0) * gs
 	j["hl"] = _reach(j["sl"], lt, reach)
-	j["el"] = _ik(j["sl"], j["hl"], arm_a, arm_b, 1.0)
+	j["el"] = _ik(j["sl"], j["hl"], arm_a, arm_b, -1.0 if (is_hum and wk == "none" and _it("shield").is_empty() and pose in ["idle", "walk"]) else 1.0)
 	# legs (r = near leg, l = far leg)
 	var thigh := leg_len * 0.5
 	var shin := leg_len * 0.5
-	j["pr"] = hip + Vector2(-1.0, 0.0)
-	j["pl"] = hip + Vector2(1.0, 0.0)
-	j["fr"] = Vector2(dx - 1.0 + step * 2.5, -1.5 - lift_n)
-	j["fl"] = Vector2(dx + 1.0 - step * 2.5, -1.5 - lift_f)
-	j["kr"] = _ik(j["pr"], j["fr"], thigh, shin - 1.0, -1.0)
-	j["kl"] = _ik(j["pl"], j["fl"], thigh, shin - 1.0, -1.0)
+	j["pr"] = hip + (Vector2(-1.10, 0.0) if is_hum else Vector2(-1.0, 0.0))
+	j["pl"] = hip + (Vector2(1.05, 0.0) if is_hum else Vector2(1.0, 0.0))
+	j["fr"] = Vector2(dx - (1.15 if is_hum else 1.0) + step * 2.5, (-0.78 if is_hum else -1.5) - lift_n)
+	j["fl"] = Vector2(dx + (1.05 if is_hum else 1.0) - step * 2.5, (-0.78 if is_hum else -1.5) - lift_f)
+	var thigh_ik := (thigh - 0.34) if is_hum else thigh
+	var shin_ik := (shin - 0.34) if is_hum else (shin - 1.0)
+	j["kr"] = _ik(j["pr"], j["fr"], thigh_ik, shin_ik, -1.0)
+	j["kl"] = _ik(j["pl"], j["fl"], thigh_ik, shin_ik, -1.0)
 
 # --- full figure --------------------------------------------------------------------------------
 
@@ -954,12 +958,16 @@ func _head() -> void:
 		var sc: Vector2 = j["sc"]
 		# The closed visor conceals the face, ears and hair. Preserve the neck and rig.
 		cv.begin()
-		cv.capsule(hc+Vector2(0.0,1.80),sc+Vector2(0.0,-0.24),0.69,skin)
+		cv.capsule(hc+Vector2(0.0,1.40 if _human() else 1.80),sc+Vector2(0.0,0.15 if _human() else -0.24),0.69,skin)
 		_skin_end()
 		var previous := cv.xf
 		var previous_k := cv.k
 		if String(spec.get("race","")) == "dwarf":
 			var scale := DwarfArt.HEAD_SCALE
+			cv.xf = previous*Transform2D(0.0,Vector2(scale,scale),0.0,hc*(1.0-scale))
+			cv.k = previous_k*scale
+		elif _human():
+			var scale := HumanArt.HEAD_SCALE
 			cv.xf = previous*Transform2D(0.0,Vector2(scale,scale),0.0,hc*(1.0-scale))
 			cv.k = previous_k*scale
 		_helm(hc,-head_w*0.5,head_w*0.5,-head_h*0.5,head_h*0.5)
@@ -1733,18 +1741,19 @@ func paint_bust() -> PixelCanvas:
 	cv = PixelCanvas.new(bust, bust)
 	_rig()
 	var bust_factor := float(bust) / BUST
-	var k := 18.0 / head_h * bust_factor
+	var hscale := HumanArt.HEAD_SCALE * 1.15 if _human() else 1.0
+	var k := 18.0 / (head_h * hscale) * bust_factor
 	var hc: Vector2 = j["hc"]
 	# arms hang straight down at the sides (no weapon or shield in the portrait)
 	var A := arm_a + arm_b
 	var sc: Vector2 = j["sc"]
-	j["sr"] = sc + Vector2(-tw * 0.5 + 0.2, 1.0)
-	j["sl"] = sc + Vector2(tw * 0.5 - 0.2, 1.0)
-	j["hr"] = (j["sr"] as Vector2) + Vector2(-0.6, A * 0.95)
+	j["sr"] = sc + Vector2(-tw * 0.5 + (1.1 if _human() else 0.2), 1.0)
+	j["sl"] = sc + Vector2(tw * 0.5 - (1.1 if _human() else 0.2), 1.0)
+	j["hr"] = (j["sr"] as Vector2) + Vector2(-0.4, A * 0.95)
 	j["er"] = _ik(j["sr"], j["hr"], arm_a, arm_b, 1.0)
-	j["hl"] = (j["sl"] as Vector2) + Vector2(0.6, A * 0.95)
-	j["el"] = _ik(j["sl"], j["hl"], arm_a, arm_b, 1.0)
+	j["hl"] = (j["sl"] as Vector2) + Vector2(0.4, A * 0.95)
+	j["el"] = _ik(j["sl"], j["hl"], arm_a, arm_b, -1.0 if _human() else 1.0)
 	# head centre lands at (20, 18) in the portrait
-	cv.set_frame(Vector2(20.0, 18.5) * bust_factor - Vector2(hc.x - 0.5, hc.y) * k, k, 0.0)
+	cv.set_frame(Vector2(20.0, 17.5 if _human() else 18.5) * bust_factor - Vector2(hc.x - 0.5, hc.y) * k, k, 0.0)
 	_draw_figure(false)
 	return cv
