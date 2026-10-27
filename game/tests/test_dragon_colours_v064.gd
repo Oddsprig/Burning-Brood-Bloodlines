@@ -1,8 +1,27 @@
 extends RefCounted
-## v0.064 verification & image capture: all 16 dragon colours and 6 breeds drawn
-## in 2.5D code art with dorsal between-shoulders rider seat, across all 5 sizes.
+## v0.064 / v0.066 verification & image capture: all 16 dragon colours and 6 distinct breed
+## silhouettes drawn in 2.5D code art with rider and saddle at the base of the neck,
+## clearly in front of the wing roots.
 var checks := 0
 var fails := 0
+
+const BREED_CANONICAL_GEMS := {
+	"spirewing": "sapphire",
+	"broadmantle": "ruby",
+	"reedrunner": "emerald",
+	"ironcrest": "black_diamond",
+	"stormkeel": "opal",
+	"duskfin": "amethyst",
+}
+
+const BREED_COLOUR_SETS := {
+	"spirewing": ["sapphire", "moonstone", "diamond"],
+	"broadmantle": ["ruby", "topaz", "citrine"],
+	"reedrunner": ["emerald", "tourmaline", "citrine"],
+	"ironcrest": ["black_diamond", "garnet", "onyx"],
+	"stormkeel": ["opal", "jade", "moonstone"],
+	"duskfin": ["amethyst", "aquamarine", "pearl"],
+}
 
 func check(ok: bool, why: String) -> void:
 	checks += 1
@@ -32,59 +51,13 @@ static func _composite_pair(whole: Image, close: Image) -> Image:
 	out.blit_rect(c_scaled, Rect2i(0, 0, 390, 228), Vector2i(560, 66))
 	return out
 
-static func _render_sapphire_v063_before(spec: Dictionary, closeup: bool) -> Image:
-	# Reconstruct the exact pre-v0.064 Sapphire Spirewing seat (seat_px = [70, 46+d] at neck base).
-	var row := {"id": "dragon:v063:sapphire", "name": "Sapphire", "gem_id": "sapphire", "morph_id": "spirewing",
-		"size_class": "medium", "appearance_seed": 27, "stage": "adult", "alive": true}
-	DragonRigArt._sources.erase("sapphire_spirewing/frame0")
-	DragonRigArt._sources.erase("sapphire_spirewing/frame1")
-	var entry := SapphireSpirewingArt.metadata(0)
-	var d: int = 3 - SapphireSpirewingArt.BOB[0]
-	entry["source_origin_px"] = [70, 49]
-	entry["seat_px"] = [70, 46 + d]
-	entry["wing_roots_px"] = {"left": [64, 45 + d], "right": [68, 47 + d]}
-	entry["parts"]["body"]["pivot_px"] = [70, 46 + d]
-	var img := SapphireSpirewingArt.frame(0)
-	var size := img.get_size()
-	var definitions: Dictionary = entry["parts"]
-	var ownership := PackedByteArray()
-	ownership.resize(size.x * size.y); ownership.fill(0)
-	for id: String in ["head", "jaw"]:
-		DragonRigArt._fill(ownership, size.x, Rect2i(Vector2i.ZERO, size), definitions[id]["polygons"], DragonRigArt.ORDER.find(id))
-	var raw := img.get_data()
-	var layers := {}
-	for id: String in DragonRigArt.ORDER:
-		var def: Dictionary = definitions[id]
-		var crop: Rect2i = Rect2i(Vector2i.ZERO, size) if id == "body" else DragonRigArt._polygon_bounds(def["polygons"], size)
-		var mask := PackedByteArray()
-		mask.resize(crop.size.x * crop.size.y)
-		for y in crop.size.y:
-			for x in crop.size.x:
-				mask[y * crop.size.x + x] = 1 if ownership[(y + crop.position.y) * size.x + x + crop.position.x] == DragonRigArt.ORDER.find(id) else 0
-		layers[id] = {"id": id, "label": def.get("label", id), "parent": String(def.get("parent", "")),
-			"source_rect": crop, "mask": mask, "pivot_px": DragonRigArt._point(def["pivot_px"]),
-			"painter_order": DragonRigArt.ORDER.find(id), "image": DragonRigArt._extract(raw, size, crop, mask)}
-	var regions := {}
-	for id: String in entry["anatomical_regions"]:
-		var def: Dictionary = entry["anatomical_regions"][id]
-		var crop := DragonRigArt._polygon_bounds(def.get("polygons", []), size)
-		var mask := PackedByteArray()
-		mask.resize(crop.size.x * crop.size.y)
-		DragonRigArt._fill(mask, crop.size.x, crop, def.get("polygons", []), 1)
-		var owner := String(def.get("owner_part_id", "body"))
-		for y in crop.size.y:
-			for x in crop.size.x:
-				if ownership[(y + crop.position.y) * size.x + x + crop.position.x] != DragonRigArt.ORDER.find(owner):
-					mask[y * crop.size.x + x] = 0
-		regions[id] = {"id": id, "owner_part_id": owner, "source_rect": crop, "mask": mask, "definition": def}
-	var source := {"key": "sapphire_v063_before/frame0/coherent", "entry": entry, "size": Vector2(size), "bytes": raw,
-		"image": img, "ownership": ownership, "parts": layers, "regions": regions, "preserve": [], "gems": []}
-	source["neck_contacts"] = DragonRigArt._neck_contacts(entry, raw, ownership, size)
-	DragonRigArt._sources["sapphire_spirewing/frame0"] = source
-	var out := DragonMountPreviewArt.image_for(row, spec, "ground", closeup, 0.0)
-	DragonRigArt._sources.erase("sapphire_spirewing/frame0")
-	DragonRigArt._images.clear()
-	DragonRigArt._image_order.clear()
+static func _composite_before_after(before_sheet: Image, after_sheet: Image) -> Image:
+	var out := Image.create(968, 740, false, Image.FORMAT_RGBA8)
+	out.fill(Color("0d0c10"))
+	out.fill_rect(Rect2i(2, 2, 964, 364), Color("3c1d24"))
+	out.blit_rect(before_sheet, Rect2i(0, 0, 960, 360), Vector2i(4, 4))
+	out.fill_rect(Rect2i(2, 374, 964, 364), Color("1e3d2b"))
+	out.blit_rect(after_sheet, Rect2i(0, 0, 960, 360), Vector2i(4, 376))
 	return out
 
 func run(_tree: SceneTree) -> int:
@@ -96,24 +69,10 @@ func run(_tree: SceneTree) -> int:
 	var out_dir := ProjectSettings.globalize_path("res://../test-results")
 	DirAccess.make_dir_recursive_absolute(out_dir)
 
-	# 1. Verify all 16 colours x 6 breeds and capture before/after pairs per colour.
+	# 1. Verify all 16 colours resolve to their 2.5D code-drawn breed & have neck-base seats forward of wing roots.
 	for gem: Dictionary in gems:
 		var gid := String(gem["id"])
 		var mid := String(DragonConcepts.entry(gid).get("morph_id", "spirewing"))
-		var before_whole: Image
-		var before_close: Image
-		if gid == "sapphire":
-			before_whole = _render_sapphire_v063_before(spec, false)
-			before_close = _render_sapphire_v063_before(spec, true)
-		else:
-			var classic_row := {"id": "dragon:before:" + gid, "name": String(gem["name"]), "gem_id": gid, "morph_id": mid,
-				"size_class": "medium", "appearance_seed": 27, "stage": "adult", "alive": true, "sprite_id": "classic"}
-			before_whole = DragonMountPreviewArt.image_for(classic_row, spec, "ground", false, 0.0)
-			before_close = DragonMountPreviewArt.image_for(classic_row, spec, "ground", true, 0.0)
-		var before_sheet := _composite_pair(before_whole, before_close)
-		var before_path := out_dir.path_join("v0064_%s_before.png" % gid)
-		check(before_sheet.save_png(before_path) == OK, "saved " + before_path)
-
 		var after_row := {"id": "dragon:after:" + gid, "name": String(gem["name"]), "gem_id": gid, "morph_id": mid,
 			"size_class": "medium", "appearance_seed": 27, "stage": "adult", "alive": true}
 		var variant := DragonSpriteCatalog.variant_for(after_row)
@@ -122,49 +81,79 @@ func run(_tree: SceneTree) -> int:
 		check(bool(framing.get("valid", false)) and bool(framing.get("mountable", false)), gid + " mount preview framing is valid")
 		var meta := SapphireSpirewingArt.metadata_for(gid, mid, 1)
 		var seat_x := float(meta["seat_px"][0])
-		check(seat_x >= float(meta["wing_roots_px"]["left"][0]) and seat_x <= float(meta["wing_roots_px"]["right"][0]) and seat_x < float(meta["neck_root_px"][0]), gid + " rider seat is between the shoulders behind neck root")
-		var after_whole := DragonMountPreviewArt.image_for(after_row, spec, "ground", false, 0.0)
-		var after_close := DragonMountPreviewArt.image_for(after_row, spec, "ground", true, 0.0)
-		check(after_whole.get_data() != before_whole.get_data() and after_close.get_data() != before_close.get_data(), gid + " after render differs from before render")
-		var after_sheet := _composite_pair(after_whole, after_close)
-		var after_path := out_dir.path_join("v0064_%s_after.png" % gid)
-		check(after_sheet.save_png(after_path) == OK, "saved " + after_path)
+		var seat_y := float(meta["seat_px"][1])
+		var wing_r_x := float(meta["wing_roots_px"]["right"][0])
+		var wing_l_x := float(meta["wing_roots_px"]["left"][0])
+		var neck_x := float(meta["neck_root_px"][0])
+		var neck_y := float(meta["neck_root_px"][1])
+		check(seat_x >= wing_r_x + 10.0 and wing_r_x > wing_l_x and absf(seat_x - neck_x) <= 4.0 and absf(seat_y - neck_y) <= 4.0, gid + "/" + mid + " rider seat is at the base of the neck and forward of wing roots")
+		var model: Dictionary = framing["model"]
+		var m_seat := model["seat"] as Vector2
+		var m_wing_r := model["right_wing_root"] as Vector2
+		var m_wing_l := model["left_wing_root"] as Vector2
+		check(m_seat.x > m_wing_r.x and m_wing_r.x > m_wing_l.x, gid + "/" + mid + " logical seat point is forward of logical wing roots")
 
-	# 2. Capture lineup sheets of every dragon colour with a rider at each size (small, medium, large, huge, colossal).
-	var cell_w := 360
-	var cell_h := 210
-	var cols := 4
-	var rows_n := 4
-	var size_strips: Array[Image] = []
-	for size_def: Dictionary in sizes:
-		var sid := String(size_def["id"])
-		var sheet := Image.create(cols * cell_w, rows_n * cell_h, false, Image.FORMAT_RGBA8)
-		sheet.fill(Color("121116"))
-		for idx in gems.size():
-			var gem: Dictionary = gems[idx]
-			var gid := String(gem["id"])
-			var mid := String(DragonConcepts.entry(gid).get("morph_id", "spirewing"))
-			var d_row := {"id": "dragon:lineup:%s:%s" % [sid, gid], "name": String(gem["name"]),
-				"gem_id": gid, "morph_id": mid, "size_class": sid, "appearance_seed": 27, "stage": "adult", "alive": true}
-			var img := DragonMountPreviewArt.image_for(d_row, spec, "ground", false, 0.18)
+	# 2. Verify all 6 breeds have distinct silhouette parameters and generate v0066 before/after & closeup sheets.
+	var breed_order := ["spirewing", "broadmantle", "reedrunner", "ironcrest", "stormkeel", "duskfin"]
+	var spec_sigs := {}
+	var closeup_cells: Array[Image] = []
+	for mid: String in breed_order:
+		var bspec := SapphireSpirewingArt.breed_spec(mid)
+		var sig := JSON.stringify([
+			bspec.get("torso_points"), bspec.get("torso_radii"),
+			bspec.get("neck_points"), bspec.get("head_pos"),
+			bspec.get("horn_style"), bspec.get("wing_scale"),
+			bspec.get("tail_points"), bspec.get("tail_style"),
+			bspec.get("seat_px"), bspec.get("wing_roots_px"),
+		])
+		spec_sigs[sig] = true
+		var gid: String = BREED_CANONICAL_GEMS[mid]
+		var a643bfa_path := out_dir.path_join("v0064_%s_after.png" % gid)
+		var before_sheet := Image.load_from_file(a643bfa_path)
+		check(before_sheet != null and before_sheet.get_size() == Vector2i(960, 360), "loaded a643bfa before sheet for " + mid)
+		var row := {"id": "dragon:v066:" + mid, "name": mid.capitalize(), "gem_id": gid, "morph_id": mid,
+			"size_class": "medium", "appearance_seed": 27, "stage": "adult", "alive": true}
+		var after_whole := DragonMountPreviewArt.image_for(row, spec, "ground", false, 0.0)
+		var after_close := DragonMountPreviewArt.image_for(row, spec, "ground", true, 0.0)
+		var after_sheet := _composite_pair(after_whole, after_close)
+		check(before_sheet == null or after_sheet.get_data() != before_sheet.get_data(), mid + " new render differs from a643bfa render")
+		if before_sheet != null:
+			var ba_img := _composite_before_after(before_sheet, after_sheet)
+			var ba_path := out_dir.path_join("v0066_dragon_before_after_%s.png" % mid)
+			check(ba_img.save_png(ba_path) == OK, "saved " + ba_path)
+		var close_cell := after_close.duplicate()
+		close_cell.resize(480, 280, Image.INTERPOLATE_BILINEAR)
+		closeup_cells.append(close_cell)
+	check(spec_sigs.size() == 6, "all 6 breeds have distinct silhouette parameter sets")
+
+	# 3. Save v0066_dragon_seat_closeup.png (3x2 grid of neck-base seat closeups with wing roots behind).
+	var closeup_sheet := Image.create(480 * 3, 280 * 2, false, Image.FORMAT_RGBA8)
+	closeup_sheet.fill(Color("121116"))
+	for i in closeup_cells.size():
+		var cx := (i % 3) * 480
+		var cy := int(i / 3) * 280
+		closeup_sheet.blit_rect(closeup_cells[i], Rect2i(0, 0, 480, 280), Vector2i(cx, cy))
+	var closeup_path := out_dir.path_join("v0066_dragon_seat_closeup.png")
+	check(closeup_sheet.save_png(closeup_path) == OK, "saved " + closeup_path)
+
+	# 4. Save v0066_dragon_breed_lineup.png (all 6 breeds in columns, 3 gem colours per breed in rows).
+	var cell_w := 320
+	var cell_h := 190
+	var lineup_sheet := Image.create(cell_w * 6, cell_h * 3, false, Image.FORMAT_RGBA8)
+	lineup_sheet.fill(Color("121116"))
+	for b_idx in breed_order.size():
+		var mid: String = breed_order[b_idx]
+		var colours: Array = BREED_COLOUR_SETS[mid]
+		for c_idx in colours.size():
+			var gid: String = colours[c_idx]
+			var d_row := {"id": "dragon:breed_lineup:%s:%s" % [mid, gid], "name": "%s %s" % [gid.capitalize(), mid.capitalize()],
+				"gem_id": gid, "morph_id": mid, "size_class": "medium", "appearance_seed": 27, "stage": "adult", "alive": true}
+			var img := DragonMountPreviewArt.image_for(d_row, spec, "ground", false, 0.0)
 			var cell := img.duplicate()
 			cell.resize(cell_w, cell_h, Image.INTERPOLATE_BILINEAR)
-			var gx := (idx % cols) * cell_w
-			var gy := int(idx / cols) * cell_h
-			sheet.blit_rect(cell, Rect2i(0, 0, cell_w, cell_h), Vector2i(gx, gy))
-		var lineup_path := out_dir.path_join("v0064_lineup_%s.png" % sid)
-		check(sheet.save_png(lineup_path) == OK, "saved lineup sheet " + lineup_path)
-		var strip := sheet.duplicate()
-		strip.resize(720, 420, Image.INTERPOLATE_BILINEAR)
-		size_strips.append(strip)
-
-	# Also save a combined master lineup sheet across all 5 sizes.
-	var master := Image.create(720 * 5, 420, false, Image.FORMAT_RGBA8)
-	master.fill(Color("121116"))
-	for s_idx in size_strips.size():
-		master.blit_rect(size_strips[s_idx], Rect2i(0, 0, 720, 420), Vector2i(s_idx * 720, 0))
-	var master_path := out_dir.path_join("v0064_lineup_all_sizes.png")
-	check(master.save_png(master_path) == OK, "saved master lineup sheet " + master_path)
+			lineup_sheet.blit_rect(cell, Rect2i(0, 0, cell_w, cell_h), Vector2i(b_idx * cell_w, c_idx * cell_h))
+	var lineup_path := out_dir.path_join("v0066_dragon_breed_lineup.png")
+	check(lineup_sheet.save_png(lineup_path) == OK, "saved " + lineup_path)
 
 	DragonRigArt.clear_texture_cache()
 	print("Dragon colours v064: %d checks, %d failures" % [checks, fails])
