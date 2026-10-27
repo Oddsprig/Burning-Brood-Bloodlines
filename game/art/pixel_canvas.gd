@@ -221,3 +221,237 @@ func to_image() -> Image:
 		bytes[i * 4 + 2] = c.b8
 		bytes[i * 4 + 3] = c.a8
 	return Image.create_from_data(w, h, false, Image.FORMAT_RGBA8, bytes)
+
+func shaded() -> ShadedLayer:
+	return ShadedLayer.new(self)
+
+## Build a 6-stop Spirewing-style 2.5D colour ramp (deep shadow -> shadow -> mid-dark -> mid -> lit -> specular highlight).
+static func make_ramp(base: Color, shine_tint: Color = Color(1.0, 0.96, 0.88), contrast: float = 1.0) -> Array[Color]:
+	var cool := Color(0.06, 0.05, 0.12, 1.0)
+	var s0 := base.darkened(clampf(0.56 * contrast, 0.15, 0.82)).lerp(cool, 0.28)
+	var s1 := base.darkened(clampf(0.36 * contrast, 0.10, 0.65)).lerp(cool, 0.16)
+	var s2 := base.darkened(clampf(0.16 * contrast, 0.05, 0.42)).lerp(cool, 0.06)
+	var s3 := base
+	var s4 := base.lightened(clampf(0.18 * contrast, 0.05, 0.48)).lerp(shine_tint, 0.14)
+	var s5 := base.lightened(clampf(0.38 * contrast, 0.10, 0.72)).lerp(shine_tint, 0.34)
+	s0.a = 1.0; s1.a = 1.0; s2.a = 1.0; s3.a = 1.0; s4.a = 1.0; s5.a = 1.0
+	return [s0, s1, s2, s3, s4, s5]
+
+
+## Shared 2.5D heightfield & surface-normal rasteriser (light from top-left, 6-stop shade ramp, clean outline).
+class ShadedLayer extends RefCounted:
+	const LIGHT := Vector3(-0.56, -0.74, 0.37)
+	const HALF_VEC := Vector3(-0.32, -0.45, 0.83)
+	const BAYER4: Array[float] = [-0.375, 0.125, -0.125, 0.375]
+
+	var cv: PixelCanvas
+	var w: int
+	var h: int
+	var fill := PackedByteArray()
+	var z_buf := PackedFloat32Array()
+	var nx_buf := PackedFloat32Array()
+	var ny_buf := PackedFloat32Array()
+	var nz_buf := PackedFloat32Array()
+	var ramps: Array = []
+	var specs := PackedFloat32Array()
+	var dithers := PackedFloat32Array()
+	var min_x: int = 999999
+	var min_y: int = 999999
+	var max_x: int = -1
+	var max_y: int = -1
+
+	func _init(canvas: PixelCanvas) -> void:
+		cv = canvas
+		w = canvas.w
+		h = canvas.h
+		var n := w * h
+		fill.resize(n)
+		fill.fill(0)
+		z_buf.resize(n)
+		z_buf.fill(-1e9)
+		nx_buf.resize(n)
+		ny_buf.resize(n)
+		nz_buf.resize(n)
+
+	func add_ramp(ramp: Array[Color], specular: float = 0.12, dither: float = 0.06) -> int:
+		ramps.append(ramp)
+		specs.append(specular)
+		dithers.append(dither)
+		return ramps.size()
+
+	func add_color(base: Color, specular: float = 0.12, contrast: float = 1.0, shine_tint: Color = Color(1.0, 0.96, 0.88), dither: float = 0.06) -> int:
+		return add_ramp(PixelCanvas.make_ramp(base, shine_tint, contrast), specular, dither)
+
+	func _write(x: int, y: int, z: float, n: Vector3, mat_id: int) -> void:
+		if x < 0 or y < 0 or x >= w or y >= h:
+			return
+		var idx := y * w + x
+		if z >= z_buf[idx]:
+			fill[idx] = mat_id
+			z_buf[idx] = z
+			var nn := n.normalized()
+			nx_buf[idx] = nn.x
+			ny_buf[idx] = nn.y
+			nz_buf[idx] = nn.z
+			if x < min_x: min_x = x
+			if x > max_x: max_x = x
+			if y < min_y: min_y = y
+			if y > max_y: max_y = y
+
+	func capsule(a: Vector2, b: Vector2, ra: float, rb: float, mat_id: int, z_bias: float = 0.0, z_scale: float = 1.0) -> void:
+		var ma := cv.xf * a
+		var mb := cv.xf * b
+		var pra := maxf(0.45, ra * cv.k)
+		var prb := maxf(0.45, rb * cv.k)
+		var rmax := maxf(pra, prb)
+		var x0 := maxi(0, floori(minf(ma.x, mb.x) - rmax - 1.0))
+		var x1 := mini(w - 1, ceili(maxf(ma.x, mb.x) + rmax + 1.0))
+		var y0 := maxi(0, floori(minf(ma.y, mb.y) - rmax - 1.0))
+		var y1 := mini(h - 1, ceili(maxf(ma.y, mb.y) + rmax + 1.0))
+		var ab := mb - ma
+		var ab_len2 := ab.length_squared()
+		for y in range(y0, y1 + 1):
+			for x in range(x0, x1 + 1):
+				var p := Vector2(float(x) + 0.5, float(y) + 0.5)
+				var t := 0.0
+				if ab_len2 > 0.0001:
+					t = clampf((p - ma).dot(ab) / ab_len2, 0.0, 1.0)
+				var closest := ma + ab * t
+				var r := lerpf(pra, prb, t)
+				if r <= 0.05:
+					continue
+				var d := p - closest
+				var dist := d.length()
+				if dist <= r:
+					var u := clampf(dist / r, 0.0, 1.0)
+					var hz := sqrt(maxf(0.0, 1.0 - u * u))
+					var z := z_bias + hz * r * z_scale
+					var n := Vector3(d.x / r, d.y / r, maxf(0.18, hz))
+					_write(x, y, z, n, mat_id)
+
+	func chain(pts: Array, radii: Array, mat_id: int, z_bias: float = 0.0, z_scale: float = 1.0) -> void:
+		for i in range(pts.size() - 1):
+			capsule(pts[i], pts[i + 1], float(radii[i]), float(radii[i + 1]), mat_id, z_bias, z_scale)
+
+	func ellipsoid(center: Vector2, rx: float, ry: float, mat_id: int, z_bias: float = 0.0, z_scale: float = 1.0, local_angle: float = 0.0) -> void:
+		var mc := cv.xf * center
+		var prx := maxf(0.45, rx * cv.k)
+		var pry := maxf(0.45, ry * cv.k)
+		var rmax := maxf(prx, pry)
+		var ang := local_angle + cv.xf.get_rotation()
+		var ca := cos(ang)
+		var sa := sin(ang)
+		var x0 := maxi(0, floori(mc.x - rmax - 1.0))
+		var x1 := mini(w - 1, ceili(mc.x + rmax + 1.0))
+		var y0 := maxi(0, floori(mc.y - rmax - 1.0))
+		var y1 := mini(h - 1, ceili(mc.y + rmax + 1.0))
+		for y in range(y0, y1 + 1):
+			for x in range(x0, x1 + 1):
+				var dp := Vector2(float(x) + 0.5, float(y) + 0.5) - mc
+				var lx := dp.x * ca + dp.y * sa
+				var ly := -dp.x * sa + dp.y * ca
+				var ux := lx / prx
+				var uy := ly / pry
+				var u2 := ux * ux + uy * uy
+				if u2 <= 1.0:
+					var hz := sqrt(maxf(0.0, 1.0 - u2))
+					var wx := ux * ca - uy * sa
+					var wy := ux * sa + uy * ca
+					var z := z_bias + hz * minf(prx, pry) * z_scale
+					_write(x, y, z, Vector3(wx, wy, maxf(0.18, hz)), mat_id)
+
+	func poly(pts: PackedVector2Array, mat_id: int, z_bias: float = 0.0, dome: float = 2.5, flat_n: Vector3 = Vector3(0.0, 0.0, 1.0)) -> void:
+		if pts.size() < 3:
+			return
+		var m := PackedVector2Array()
+		var lo := Vector2(INF, INF)
+		var hi := Vector2(-INF, -INF)
+		var center := Vector2.ZERO
+		for p in pts:
+			var q := cv.xf * p
+			m.append(q)
+			lo = lo.min(q)
+			hi = hi.max(q)
+			center += q
+		center /= float(m.size())
+		var pdome := maxf(0.6, dome * cv.k)
+		var x0 := maxi(0, floori(lo.x - 1.0))
+		var x1 := mini(w - 1, ceili(hi.x + 1.0))
+		var y0 := maxi(0, floori(lo.y - 1.0))
+		var y1 := mini(h - 1, ceili(hi.y + 1.0))
+		var fn := flat_n.normalized()
+		for y in range(y0, y1 + 1):
+			for x in range(x0, x1 + 1):
+				var p := Vector2(float(x) + 0.5, float(y) + 0.5)
+				if not Geometry2D.is_point_in_polygon(p, m):
+					continue
+				var min_d := 999.0
+				for i in m.size():
+					var a := m[i]
+					var b := m[(i + 1) % m.size()]
+					var closest := Geometry2D.get_closest_point_to_segment(p, a, b)
+					var dist := p.distance_to(closest)
+					if dist < min_d:
+						min_d = dist
+				var u := clampf(1.0 - min_d / pdome, 0.0, 1.0)
+				var hz := sqrt(maxf(0.05, 1.0 - u * u))
+				var dir := (p - center)
+				var dlen := maxf(1.0, dir.length())
+				var n := (Vector3(dir.x / dlen * u * 0.65, dir.y / dlen * u * 0.65, hz) + fn * 0.55).normalized()
+				_write(x, y, z_bias + hz * pdome * 0.5, n, mat_id)
+
+	func composite(outline: Color = Color(0.05, 0.04, 0.07, 1.0), exterior_outline: bool = true) -> void:
+		if max_x < min_x or max_y < min_y:
+			return
+		var l_dir := LIGHT.normalized()
+		var h_dir := HALF_VEC.normalized()
+		if exterior_outline and outline.a > 0.0:
+			for y in range(min_y, max_y + 1):
+				for x in range(min_x, max_x + 1):
+					var idx := y * w + x
+					var m := fill[idx]
+					if m == 0:
+						continue
+					var rmp: Array = ramps[m - 1]
+					var edge_col := outline.lerp(rmp[0] as Color, 0.25)
+					edge_col.a = outline.a
+					for d in PixelCanvas.N4:
+						var nx := x + d.x
+						var ny := y + d.y
+						if nx >= 0 and ny >= 0 and nx < w and ny < h and fill[ny * w + nx] == 0:
+							cv._put(nx, ny, edge_col, Callable())
+		for y in range(min_y, max_y + 1):
+			for x in range(min_x, max_x + 1):
+				var idx := y * w + x
+				var m := fill[idx]
+				if m == 0:
+					continue
+				var rmp: Array = ramps[m - 1]
+				if not exterior_outline and outline.a > 0.0:
+					var is_edge := false
+					for d in PixelCanvas.N4:
+						var nx := x + d.x
+						var ny := y + d.y
+						if nx < 0 or ny < 0 or nx >= w or ny >= h or fill[ny * w + nx] == 0:
+							is_edge = true
+							break
+					if is_edge:
+						cv._put(x, y, outline.lerp(rmp[0] as Color, 0.22), Callable())
+						continue
+				var seam_darken := 0.0
+				for d in PixelCanvas.N4:
+					var nx := x + d.x
+					var ny := y + d.y
+					if nx >= 0 and ny >= 0 and nx < w and ny < h:
+						var nm := fill[ny * w + nx]
+						if nm != 0 and nm != m and z_buf[ny * w + nx] > z_buf[idx] + 0.35:
+							seam_darken = 0.16
+							break
+				var n := Vector3(nx_buf[idx], ny_buf[idx], nz_buf[idx])
+				var ndotl := n.dot(l_dir)
+				var spec := pow(maxf(0.0, n.dot(h_dir)), 10.0) * specs[m - 1]
+				var bayer := BAYER4[(x & 1) + ((y & 1) << 1)] * dithers[m - 1]
+				var t := clampf((ndotl + 0.68) / 1.52 + spec + bayer - seam_darken, 0.0, 0.999)
+				var ci := clampi(int(t * float(rmp.size())), 0, rmp.size() - 1)
+				cv._put(x, y, rmp[ci] as Color, Callable())
+

@@ -2,8 +2,8 @@ class_name HorseDoll
 extends Node2D
 ## Read-only rider/horse composite. Shared horse frames; native rider layers only
 ## rebuild on equipment/wound invalidation, never once per gait frame.
-const HORSE_SCALE := 1.24
-const RIDER_PPU := 1.55
+const HORSE_SCALE := 1.12
+const RIDER_PPU := FigurePainter.PX
 var unit: Unit
 var facing := 1
 var team_color := Color.WHITE

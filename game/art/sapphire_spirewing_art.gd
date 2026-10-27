@@ -217,8 +217,8 @@ static func frame(index: int) -> Image:
 	tail.chain(tail_points, 8, 1.2, 2, 0.8)
 	var tip := tail_points[-1]
 	tail.polygon(PackedVector2Array([tip + Vector2(-1, 2), tip + Vector2(-4, -5), tip + Vector2(3, -3)]), 1)
-	var torso := PackedVector2Array([Vector2(48, 58) + shift, Vector2(58, 56) + shift, Vector2(70, 52) + shift, Vector2(76, 50) + shift])
-	var radii := [10.0, 11.0, 10.5, 8.5]
+	var torso := PackedVector2Array([Vector2(48, 58) + shift, Vector2(58, 55.5) + shift, Vector2(70, 51.5) + shift, Vector2(76, 49.5) + shift])
+	var radii := [10.0, 10.4, 9.4, 8.2]
 	for i in 3: body.capsule(torso[i], torso[i + 1], radii[i], radii[i + 1], 2)
 	var neck := _bezier(Vector2(76, 50) + shift, Vector2(86, 46) + shift, Vector2(84, 30) + shift, Vector2(97, 24) + shift, 20)
 	body.chain(neck, 8, 4.4, 2)
@@ -294,11 +294,11 @@ static func metadata(index: int) -> Dictionary:
 		regions["leg_lower_" + side] = _region("body", [[knee.x - 5, knee.y - 3], [knee.x + 5, knee.y], [ankle.x + 4, ankle.y + 2], [ankle.x - 4, ankle.y + 2]], [knee.x, knee.y], [ankle.x, ankle.y])
 		regions["foot_" + side] = _region("body", [[ankle.x - 9, ankle.y - 3], [ankle.x + 13, ankle.y - 2], [ankle.x + 14, ankle.y + 9], [ankle.x - 9, ankle.y + 9]], [ankle.x, ankle.y], [ankle.x + 10, ankle.y + 4])
 	return {"generator": "sapphire_spirewing", "frame": index, "painted": true, "source_path": "code:sapphire_spirewing/%d" % index,
-		"image_size": [128, 96], "source_origin_px": [72, 48], "units_per_pixel": 0.90, "motion_scale": 1.0 / 12.0,
-		"seat_px": [72, 45 + d], "seat_angle": SEAT_PITCH[index], "ground_y_px": 88, "neck_root_px": [78, 49 + d],
+		"image_size": [128, 96], "source_origin_px": [70, 49], "units_per_pixel": 0.48, "motion_scale": 1.0 / 12.0,
+		"seat_px": [70, 46 + d], "seat_angle": SEAT_PITCH[index] * 0.5, "ground_y_px": 88, "neck_root_px": [78, 49 + d],
 		"wing_roots_px": {"left": [64, 45 + d], "right": [68, 47 + d]}, "head_crop_px": [78, 10 + d, 42, 35],
 		"parts": {
-			"body": {"label": "Body, wingbeat, hind legs and tail", "parent": "", "polygons": [[[0, 0], [128, 0], [128, 96], [0, 96]]], "pivot_px": [72, 45 + d]},
+			"body": {"label": "Body, wingbeat, hind legs and tail", "parent": "", "polygons": [[[0, 0], [128, 0], [128, 96], [0, 96]]], "pivot_px": [70, 46 + d]},
 			"head": {"label": "Head and upper neck", "parent": "body", "polygons": [head], "pivot_px": [86, 38 + d], "ownership_priority": 1},
 			"jaw": {"label": "Lower jaw", "parent": "head", "polygons": [jaw], "pivot_px": [100, 29 + d], "ownership_priority": 2}},
 		"anatomical_regions": regions, "gem_regions": [], "preserve_regions": [],
