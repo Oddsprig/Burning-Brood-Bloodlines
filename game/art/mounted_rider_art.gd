@@ -189,7 +189,7 @@ static func _draw_saddle(fp: FigurePainter) -> void:
 	_stirrup(fp, "r", false)
 
 static func _trim_standing_skirt(fp: FigurePainter, size: Vector2i, anchor: Vector2, raster: float) -> void:
-	if fp._human():
+	if fp._human() or not FigurePainter.force_legacy_v064:
 		return
 	var outline := FigurePainter.ol(fp.prim)
 	for y in size.y:

@@ -2,6 +2,7 @@ class_name DwarfArt
 extends RefCounted
 
 const HEAD_SCALE: float = 0.79
+static var _force_legacy_v064: bool = false
 ## Dwarven anatomy and cloth surfaces on FigurePainter's original moving joint graph.
 ## Seed chooses hair/grooming, never equipment. Native wounds and helm remain the final layers.
 
@@ -34,9 +35,200 @@ static func head(f) -> void:
 	# Draw the accepted face, hair, beard and fitted helm together around the native head anchor.
 	cv.xf = before*Transform2D(0.0,Vector2(HEAD_SCALE,HEAD_SCALE),0.0,hc*(1.0-HEAD_SCALE))
 	cv.k = before_k*HEAD_SCALE
-	_native_head(f)
+	if _force_legacy_v064:
+		_native_head(f)
+	else:
+		_shaded_head(f)
 	cv.xf = before
 	cv.k = before_k
+
+static func _shaded_head(f) -> void:
+	if f._lost("head"): return
+	var cv: PixelCanvas = f.cv
+	var hc: Vector2 = f.j["hc"]
+	var skin: Color = f.skin
+	var hair: Color = f.hair
+	var seed: int = absi(int(f.spec.get("seed", 0)))
+	var style: int = seed % 5
+	var female: bool = String(f.spec.get("sex", "")).to_lower() in ["female", "f", "woman"]
+	var fvar: int = FigurePainter.female_variant(f.spec) if female else 0
+	var bearded: bool = bool(f.spec.get("beard", false)) and not female and not f._lost("jaw")
+	var dead: bool = f.pose == "dead" or bool(f.spec.get("dead", false))
+	var jaw_lost: bool = f._lost("jaw")
+	var coif: bool = String(f._it("helm").get("sprite", "")) == "coif"
+	var helm_open: bool = f._it("helm").is_empty() or String(f._it("helm").get("sprite", "")) in ["crown", "circlet"]
+	var cheek: float = 0.08 * float((seed / 5) % 4)
+	var nose_ext: float = 0.10 * float((seed / 13) % 4)
+
+	var sh := cv.shaded()
+	var c_skin: int = sh.add_color(skin, 0.12, 1.06)
+	var c_skin_d: int = c_skin
+	var c_nose: int = c_skin
+	var c_hair: int = sh.add_color(hair, 0.18, 1.12, hair.lightened(0.35))
+	var c_hair_d: int = c_hair
+	var c_hair_l: int = c_hair
+	var c_clasp: int = sh.add_color(Color("#d9a441"), 0.36, 1.18, Color("#f6dc8b"))
+
+	# Back hair braids / flowing locks behind neck and shoulders
+	if not coif:
+		if female:
+			sh.capsule(hc + Vector2(-1.6, -0.4), hc + Vector2(-2.2, 3.8), 1.35, 1.05, c_hair_d, -1.8, 0.9)
+			sh.capsule(hc + Vector2(-0.8, 0.8), hc + Vector2(-1.5, 4.4), 0.85, 0.65, c_hair, -1.4, 0.9)
+			if fvar == 1 or style in [1, 4]:
+				sh.ellipsoid(hc + Vector2(-2.5, -0.9), 1.25, 1.25, c_hair, -1.2, 1.0)
+				sh.capsule(hc + Vector2(-2.1, 3.6), hc + Vector2(-1.5, 3.6), 0.26, 0.26, c_clasp, -0.8, 0.9)
+		elif style in [1, 3, 4]:
+			sh.capsule(hc + Vector2(-1.8, -0.2), hc + Vector2(-2.4, 3.9), 1.15, 0.85, c_hair_d, -1.8, 0.9)
+			if style == 4:
+				for bi in 4:
+					var by: float = 1.0 + float(bi) * 0.78
+					sh.ellipsoid(hc + Vector2(-2.35 + 0.06 * float(bi), by), 0.62, 0.48, c_hair, -1.2, 0.9)
+				sh.capsule(hc + Vector2(-2.4, 3.9), hc + Vector2(-1.9, 3.9), 0.25, 0.25, c_clasp, -0.8, 0.9)
+
+	# Broad square-jawed dwarven skull & cranium
+	var skull_pts := PackedVector2Array([
+		hc + Vector2(-2.45, -1.45), hc + Vector2(-1.55, -2.75), hc + Vector2(0.45, -2.85),
+		hc + Vector2(1.95, -2.15), hc + Vector2(2.38, -0.75),
+		hc + Vector2(2.42 + cheek, 0.45),
+		hc + Vector2(2.15 if not jaw_lost else 1.55, 1.95 if not jaw_lost else 0.75),
+		hc + Vector2(0.75, 2.38 if not jaw_lost else 0.95),
+		hc + Vector2(-0.95, 2.05 if not jaw_lost else 0.85),
+		hc + Vector2(-2.25, 1.05), hc + Vector2(-2.55, -0.15)
+	])
+	sh.poly(skull_pts, c_skin, 0.0, 2.0)
+	sh.ellipsoid(hc + Vector2(-0.08, -0.65), 2.48 if not female else 2.28, 2.25, c_skin, 0.3, 1.15)
+	if not jaw_lost:
+		sh.ellipsoid(hc + Vector2(0.48, 1.15), 2.15 if not female else 1.85, 1.35 if not female else 1.18, c_skin, 0.5, 0.95)
+	sh.ellipsoid(hc + Vector2(1.05 + cheek * 0.5, 0.22), 1.15, 0.92, c_skin, 1.1, 0.85)
+
+	# Prominent dwarven brow ridge & broad bulbous nose
+	sh.capsule(hc + Vector2(-0.45, -0.95), hc + Vector2(2.18, -0.88), 0.48 if not female else 0.34, 0.54 if not female else 0.36, c_skin, 1.6, 0.9)
+	if not f._lost("nose"):
+		var n_tip := hc + Vector2(2.58 + nose_ext if not female else 2.25 + nose_ext * 0.6, 0.18)
+		sh.capsule(hc + Vector2(1.75, -0.65), n_tip, 0.48 if not female else 0.38, 0.68 if not female else 0.50, c_nose, 2.1, 1.0)
+		sh.ellipsoid(n_tip + Vector2(-0.08, 0.08), 0.76 if not female else 0.56, 0.64 if not female else 0.48, c_nose, 2.4, 1.0)
+
+	# Round fleshy dwarven ear
+	if not coif and not f._lost("ear_r"):
+		sh.ellipsoid(hc + Vector2(-2.15, 0.02), 0.68, 0.88, c_skin, 0.8, 0.85)
+		sh.ellipsoid(hc + Vector2(-2.05, 0.05), 0.34, 0.48, c_skin_d, 0.9, 0.6)
+
+	# Crown hair & side locks
+	if not coif and helm_open:
+		if female:
+			sh.ellipsoid(hc + Vector2(-0.35, -2.05), 2.55, 1.35, c_hair, 1.6, 1.0)
+			sh.capsule(hc + Vector2(-2.15, -1.55), hc + Vector2(1.95, -1.85), 0.85, 0.68, c_hair_l, 2.1, 0.95)
+			sh.capsule(hc + Vector2(-2.25, -1.25), hc + Vector2(-2.05, 1.25), 0.78, 0.58, c_hair, 1.8, 0.9)
+			if style == 4 or fvar == 1:
+				for bi in 4:
+					sh.ellipsoid(hc + Vector2(-2.15, 0.55 + float(bi) * 0.75), 0.55, 0.44, c_hair_l, 2.2, 0.9)
+				sh.capsule(hc + Vector2(-2.35, 3.45), hc + Vector2(-1.85, 3.45), 0.22, 0.22, c_clasp, 2.4, 0.9)
+		elif style != 2:
+			sh.ellipsoid(hc + Vector2(-0.38, -2.10), 2.55, 1.30, c_hair, 1.6, 1.0)
+			sh.capsule(hc + Vector2(-2.25, -1.35), hc + Vector2(-2.05, 0.65), 0.82, 0.62, c_hair_d, 1.5, 0.9)
+			if style in [0, 1, 4]:
+				sh.capsule(hc + Vector2(-1.75, -2.35), hc + Vector2(1.85, -1.95), 0.78, 0.58, c_hair_l, 2.1, 0.95)
+			elif style == 3:
+				sh.capsule(hc + Vector2(-1.35, -2.65), hc + Vector2(1.45, -2.45), 0.92, 0.75, c_hair_l, 2.3, 1.0)
+
+	# Rich 3D volumetric dwarven beard & moustache
+	if bearded:
+		_shaded_beard(f, sh, hc, seed, c_hair, c_hair_d, c_hair_l, c_clasp)
+
+	sh.composite(FigurePainter.ol(skin), true)
+
+	# Crisp eye & facial details over normal-mapped head
+	var brow_c: Color = hair.darkened(0.22)
+	var iris_c: Color = [Color("#5c4433"), Color("#6d5939"), Color("#566b70"), Color("#4f3e31")][(seed / 7) % 4]
+	if female:
+		_female_eye(f, hc, Vector2(-0.04, -0.58), 0.82, iris_c, brow_c, dead, "eye_r")
+		_female_eye(f, hc, Vector2(1.62, -0.68), 0.38, iris_c, brow_c, dead, "eye_l")
+	else:
+		_eye(f, hc, Vector2(0.08, -0.54), 0.72, iris_c, brow_c, dead, "eye_r", false)
+		_eye(f, hc, Vector2(1.68, -0.62), 0.42, iris_c, brow_c, dead, "eye_l", false)
+
+	var b_style: int = FigurePainter.beard_style(f.spec) if bearded else -1
+	if not jaw_lost and not f._lost("mouth") and (not bearded or b_style in [6, 7]):
+		var lip_c: Color = skin.darkened(0.28).lerp(Color("#8c4246"), 0.38 if female else 0.22)
+		cv.capsule(hc + Vector2(0.45, 1.28), hc + Vector2(1.55, 1.24), 0.14, lip_c)
+
+	f._helm(hc, -float(f.head_w) * 0.5, float(f.head_w) * 0.5, -float(f.head_h) * 0.5, float(f.head_h) * 0.5)
+
+static func _shaded_beard(f, sh: PixelCanvas.ShadedLayer, hc: Vector2, seed: int, c_hair: int, c_hair_d: int, c_hair_l: int, c_clasp: int) -> void:
+	var selected: int = FigurePainter.beard_style(f.spec)
+	var length: float = 5.6 + 0.32 * float((seed / 11) % 4)
+	var variant: int = (seed / 3) % 3
+	if selected == 7:
+		# Stubble + light moustache
+		sh.ellipsoid(hc + Vector2(0.55, 1.55), 1.95, 1.15, c_hair_d, 1.2, 0.55)
+		sh.capsule(hc + Vector2(0.35, 1.02), hc + Vector2(2.35, 1.08), 0.26, 0.24, c_hair, 2.5, 0.8)
+		return
+	if selected == 6:
+		# Handlebar moustache only
+		sh.capsule(hc + Vector2(0.15, 1.08), hc + Vector2(1.45, 0.94), 0.38, 0.44, c_hair_l, 2.8, 0.95)
+		sh.capsule(hc + Vector2(1.45, 0.94), hc + Vector2(2.65, 1.28), 0.44, 0.32, c_hair, 2.8, 0.95)
+		sh.capsule(hc + Vector2(0.15, 1.08), hc + Vector2(-0.45, 1.75), 0.36, 0.24, c_hair, 2.7, 0.9)
+		return
+
+	# Jawline beard cradle
+	sh.capsule(hc + Vector2(-1.75, 0.55), hc + Vector2(0.35, 2.15), 0.85, 1.25, c_hair_d, 2.0, 0.95)
+	sh.capsule(hc + Vector2(0.35, 2.15), hc + Vector2(2.35, 1.55), 1.25, 0.95, c_hair, 2.1, 0.95)
+
+	match selected:
+		1: # Close trimmed
+			sh.ellipsoid(hc + Vector2(0.55, 2.35), 2.15, 1.35, c_hair, 2.3, 1.0)
+			sh.capsule(hc + Vector2(-0.85, 2.15), hc + Vector2(1.85, 2.55), 0.75, 0.78, c_hair_l, 2.6, 0.9)
+		2: # Round full
+			sh.ellipsoid(hc + Vector2(0.48, 3.15), 2.35, 1.95, c_hair, 2.4, 1.1)
+			sh.capsule(hc + Vector2(-1.05, 2.25), hc + Vector2(-0.55, 4.45), 0.82, 0.68, c_hair_d, 2.6, 0.95)
+			sh.capsule(hc + Vector2(0.35, 2.25), hc + Vector2(0.65, 4.75), 0.92, 0.78, c_hair_l, 2.8, 1.0)
+			sh.capsule(hc + Vector2(1.75, 2.05), hc + Vector2(1.65, 4.35), 0.82, 0.68, c_hair, 2.7, 0.95)
+		3: # Pointed long
+			var b_pts := PackedVector2Array([
+				hc + Vector2(-1.95, 1.25), hc + Vector2(2.55, 1.35), hc + Vector2(2.15, 4.15),
+				hc + Vector2(0.85, 6.65), hc + Vector2(-0.35, 4.85), hc + Vector2(-1.65, 3.25)
+			])
+			sh.poly(b_pts, c_hair, 2.3, 2.1)
+			sh.capsule(hc + Vector2(0.65, 2.15), hc + Vector2(0.85, 6.25), 1.05, 0.42, c_hair_l, 2.7, 1.0)
+		4: # Forked twin-tail beard
+			sh.ellipsoid(hc + Vector2(0.55, 2.55), 2.15, 1.35, c_hair, 2.3, 1.0)
+			sh.capsule(hc + Vector2(-0.35, 2.45), hc + Vector2(-0.35, 6.25), 0.95, 0.45, c_hair_d, 2.6, 1.0)
+			sh.capsule(hc + Vector2(1.55, 2.35), hc + Vector2(1.65, 6.35), 0.95, 0.45, c_hair_l, 2.7, 1.0)
+		5: # Woven central braid
+			sh.ellipsoid(hc + Vector2(0.55, 2.55), 2.15, 1.35, c_hair, 2.3, 1.0)
+			for bi in 5:
+				var by: float = 2.95 + float(bi) * 0.72
+				sh.ellipsoid(hc + Vector2(0.75 + (0.12 if bi % 2 == 0 else -0.12), by), 0.72, 0.52, c_hair_l if bi % 2 == 0 else c_hair, 2.8, 1.0)
+			sh.capsule(hc + Vector2(0.35, 6.15), hc + Vector2(1.15, 6.15), 0.24, 0.24, c_clasp, 3.1, 0.95)
+		_: # Original seeded full dwarven beard (variant 0: central braid, 1: twin braids, 2: flowing locks)
+			var b_pts := PackedVector2Array([
+				hc + Vector2(-2.05, 1.15), hc + Vector2(2.65, 1.25), hc + Vector2(2.35, 3.85),
+				hc + Vector2(1.35, length), hc + Vector2(0.15, length + 0.1),
+				hc + Vector2(-0.95, length - 0.8), hc + Vector2(-1.95, 3.15)
+			])
+			sh.poly(b_pts, c_hair, 2.3, 2.2)
+			if variant == 0:
+				for bi in 5:
+					var by: float = 2.65 + float(bi) * 0.62
+					sh.ellipsoid(hc + Vector2(0.85 + (0.10 if bi % 2 == 0 else -0.10), by), 0.74, 0.50, c_hair_l if bi % 2 == 0 else c_hair, 2.8, 1.0)
+				sh.capsule(hc + Vector2(0.45, length - 0.35), hc + Vector2(1.25, length - 0.35), 0.24, 0.24, c_clasp, 3.1, 0.95)
+			elif variant == 1:
+				for bi in 4:
+					var by: float = 2.65 + float(bi) * 0.65
+					sh.ellipsoid(hc + Vector2(-0.05, by), 0.55, 0.44, c_hair_d, 2.7, 0.95)
+					sh.ellipsoid(hc + Vector2(1.65, by), 0.55, 0.44, c_hair_l, 2.8, 0.95)
+				sh.capsule(hc + Vector2(-0.35, length - 0.55), hc + Vector2(0.25, length - 0.55), 0.20, 0.20, c_clasp, 3.0, 0.9)
+				sh.capsule(hc + Vector2(1.35, length - 0.65), hc + Vector2(1.95, length - 0.65), 0.20, 0.20, c_clasp, 3.0, 0.9)
+			else:
+				sh.capsule(hc + Vector2(-0.65, 2.25), hc + Vector2(-0.25, length - 0.65), 0.68, 0.48, c_hair_d, 2.6, 0.95)
+				sh.capsule(hc + Vector2(0.55, 2.15), hc + Vector2(0.65, length - 0.15), 0.78, 0.52, c_hair_l, 2.8, 1.0)
+				sh.capsule(hc + Vector2(1.75, 2.05), hc + Vector2(1.45, length - 0.45), 0.68, 0.48, c_hair, 2.7, 0.95)
+
+	# Full sweeping moustache above beard
+	if not f._lost("mouth"):
+		sh.capsule(hc + Vector2(0.25, 1.15), hc + Vector2(1.45, 0.95), 0.42, 0.48, c_hair_l, 3.1, 1.0)
+		sh.capsule(hc + Vector2(1.45, 0.95), hc + Vector2(2.65, 1.38), 0.48, 0.35, c_hair, 3.1, 1.0)
+		sh.capsule(hc + Vector2(0.25, 1.15), hc + Vector2(-0.35, 1.78), 0.38, 0.28, c_hair_d, 2.9, 0.95)
 
 static func _native_head(f) -> void:
 	if f._lost("head"): return
@@ -568,6 +760,126 @@ static func _surface(f,origin: Vector2,kind: String,m: Dictionary = {}) -> Calla
 		return out
 
 static func torso(f) -> bool:
+	if _force_legacy_v064:
+		return _legacy_torso(f)
+	var cv: PixelCanvas = f.cv
+	var sc: Vector2 = f.j["sc"]
+	var hip: Vector2 = f.j["hip"]
+	var w: float = float(f.tw) * 0.5
+	var hw: float = float(f.hipw) * 0.5
+	var female: bool = String(f.spec.get("sex", "")).to_lower() in ["female", "f", "woman"]
+	var mounted: bool = f.pose == "mounted"
+	var spread: float = 0.0 if mounted else float(f._spread()) * 0.48
+	var cloth: Dictionary = f._it("clothing")
+	var armor: Dictionary = f._it("body")
+	var c_kind: String = String(cloth.get("sprite", ""))
+	var a_kind: String = String(armor.get("sprite", ""))
+	var has_cloth: bool = not cloth.is_empty()
+	var has_armor: bool = not armor.is_empty()
+	var robe: bool = c_kind == "robe"
+	var gambeson: bool = c_kind == "gambeson" or a_kind in ["gambeson", "padded"]
+	var mail: bool = a_kind in ["mail", "byrnie", "dwarf_mail"]
+	var scale_a: bool = a_kind == "scale"
+	var lamellar: bool = a_kind in ["lamellar", "steppe_lamellar"]
+	var plate: bool = a_kind in ["plate", "cuirass"]
+	var leather: bool = a_kind == "leather"
+	var scrap: bool = a_kind == "scrap"
+
+	var sh := cv.shaded()
+	var c_skin: int = sh.add_color(f.skin, 0.10, 1.05)
+	var c_cloth: int = sh.add_color(f.prim, 0.08 if gambeson else 0.11, 1.08)
+	var c_sec: int = sh.add_color(f.sec, 0.16, 1.10)
+	var c_leath: int = sh.add_color(Color("#473121"), 0.20, 1.12)
+	var c_brass: int = sh.add_color(Color("#d9a441"), 0.36, 1.18, Color("#f6dc8b"))
+
+	if not f._lost("neck"):
+		sh.capsule(f.j["hc"] + Vector2(-0.10, 1.05), sc + Vector2(0.0, 0.45), 0.68 if female else 0.82, 0.78 if female else 0.92, c_skin, -0.8, 0.95)
+	sh.capsule(sc + Vector2(-1.4, 0.35), sc + Vector2(1.4, 0.35), 0.65, 0.65, c_skin, -0.6, 0.9)
+
+	var chest_w: float = w * (0.78 if female else 0.84) + (0.18 if has_armor else 0.06)
+	var waist_w: float = w * (0.60 if female else 0.68) + (0.16 if has_armor or gambeson else 0.04)
+	var hip_w: float = hw * 0.84 + (0.16 if has_armor else 0.05)
+	var hem: float = 0.72 if mounted else (3.1 if robe else (2.15 if mail or scale_a else (1.75 if gambeson or lamellar or plate else 1.45)))
+
+	if not has_cloth and not has_armor:
+		var bare_pts := _body(f, 0.65, 0.0)
+		sh.poly(bare_pts, c_skin, 0.0, 2.2)
+		sh.ellipsoid(sc + Vector2(-1.15, 1.35), 1.45, 1.15 if female else 1.02, c_skin, 0.8, 1.0)
+		sh.ellipsoid(sc + Vector2(1.25, 1.35), 1.45, 1.15 if female else 1.02, c_skin, 0.9, 1.0)
+		sh.composite(FigurePainter.ol(f.skin), true)
+		return true
+
+	# Base dwarven tunic / robe / gambeson
+	var base_col: int = c_cloth
+	if gambeson and not has_cloth:
+		base_col = sh.add_color(Color("#7a6852").lerp(f.prim, 0.35), 0.09, 1.08)
+	var chest_pt: Vector2 = sc.lerp(hip, 0.30)
+	var waist_pt: Vector2 = sc.lerp(hip, 0.68)
+	var body_pts := PackedVector2Array([
+		sc + Vector2(-chest_w + 0.3, 0.12), sc + Vector2(-1.2, -0.15), sc + Vector2(1.2, -0.15),
+		sc + Vector2(chest_w - 0.3, 0.12), chest_pt + Vector2(chest_w, 0.0),
+		waist_pt + Vector2(waist_w, 0.0), hip + Vector2(hip_w + spread, hem - 0.25),
+		hip + Vector2(hip_w * 0.72 + spread, hem), hip + Vector2(0.0, hem - (0.35 if not robe else -0.1)),
+		hip + Vector2(-hip_w * 0.72 - spread, hem), hip + Vector2(-hip_w - spread, hem - 0.25),
+		waist_pt + Vector2(-waist_w, 0.0), chest_pt + Vector2(-chest_w, 0.0)
+	])
+	sh.poly(body_pts, base_col, 0.0, 2.2)
+	sh.ellipsoid(sc + Vector2(0.0, 1.45), chest_w * 0.82, 1.65, base_col, 0.5, 1.0)
+	if female and not has_armor:
+		sh.ellipsoid(sc + Vector2(-0.85, 1.55), 1.15, 0.98, base_col, 0.9, 0.9)
+		sh.ellipsoid(sc + Vector2(1.05, 1.55), 1.15, 0.98, base_col, 1.0, 0.9)
+	if gambeson:
+		for qi in 4:
+			var qx: float = (-0.38 + 0.25 * float(qi)) * chest_w * 1.4
+			sh.capsule(sc + Vector2(qx, 0.45), hip + Vector2(qx * 0.95, hem - 0.35), 0.34, 0.32, base_col, 0.9, 0.85)
+	# Neckline V-collar & dwarven geometric hem trim
+	sh.capsule(sc + Vector2(-0.95, 0.02), sc + Vector2(0.10, 0.78), 0.22, 0.22, c_sec, 1.2, 0.8)
+	sh.capsule(sc + Vector2(0.95, 0.02), sc + Vector2(0.10, 0.78), 0.22, 0.22, c_sec, 1.2, 0.8)
+	if not mounted:
+		sh.capsule(hip + Vector2(-hip_w * 0.82 - spread, hem - 0.12), hip + Vector2(hip_w * 0.82 + spread, hem - 0.12), 0.22, 0.22, c_sec, 1.1, 0.85)
+
+	# Heavy dwarven body armour over garment
+	if has_armor and not a_kind in ["gambeson", "padded"]:
+		var m := FigurePainter.metal(String(armor.get("mat", "iron")), int(armor.get("q", 0)))
+		var c_metal: int = sh.add_color(m["base"], 0.36 if plate else (0.28 if mail else 0.32), 1.18, m["shine"], 0.12 if mail else (0.10 if scale_a or lamellar else 0.05))
+		var c_metal_d: int = sh.add_color(m["dark"], 0.26, 1.14, m["shine"], 0.08 if mail else 0.04)
+		var a_hem: float = 0.68 if mounted else (1.95 if mail or scale_a else 1.35)
+		var a_pts := PackedVector2Array([
+			sc + Vector2(-chest_w + 0.15, 0.08), sc + Vector2(chest_w - 0.15, 0.08),
+			chest_pt + Vector2(chest_w + 0.12, 0.0), waist_pt + Vector2(waist_w + 0.10, 0.0),
+			hip + Vector2(hip_w + 0.08 + spread * 0.6, a_hem),
+			hip + Vector2(0.0, a_hem - 0.25),
+			hip + Vector2(-hip_w - 0.08 - spread * 0.6, a_hem),
+			waist_pt + Vector2(-waist_w - 0.10, 0.0), chest_pt + Vector2(-chest_w - 0.12, 0.0)
+		])
+		var a_col: int = c_leath if leather else c_metal
+		sh.poly(a_pts, a_col, 1.0, 2.4)
+		sh.ellipsoid(sc + Vector2(0.05, 1.45), chest_w * 0.86, 1.72, a_col, 1.5, 1.15)
+		if plate:
+			sh.capsule(sc + Vector2(0.15, 0.35), waist_pt + Vector2(0.15, 0.25), 0.38, 0.32, a_col, 2.4, 1.1)
+			sh.capsule(sc + Vector2(-chest_w * 0.75, 0.25), sc + Vector2(chest_w * 0.75, 0.25), 0.26, 0.26, c_brass, 2.3, 0.95)
+		elif lamellar or scale_a:
+			for ri in 3:
+				var ry: float = sc.y + 0.95 + float(ri) * 1.15
+				sh.capsule(Vector2(-chest_w * 0.82, ry), Vector2(chest_w * 0.82, ry), 0.28, 0.28, c_metal_d if ri % 2 == 1 else c_brass, 2.1, 0.9)
+		elif mail:
+			# Dwarven dagged bronze-rimmed mail mantle & hem
+			sh.capsule(sc + Vector2(-chest_w * 0.85, 0.95), sc + Vector2(0.15, 1.65), 0.26, 0.28, c_brass, 2.2, 0.95)
+			sh.capsule(sc + Vector2(chest_w * 0.85, 0.95), sc + Vector2(0.15, 1.65), 0.26, 0.28, c_brass, 2.2, 0.95)
+			if not mounted:
+				sh.capsule(hip + Vector2(-hip_w * 0.85, a_hem - 0.08), hip + Vector2(hip_w * 0.85, a_hem - 0.08), 0.24, 0.24, c_brass, 2.1, 0.95)
+		elif scrap:
+			sh.capsule(sc + Vector2(-chest_w * 0.7, 0.8), waist_pt + Vector2(waist_w * 0.6, 0.0), 0.45, 0.42, c_metal_d, 2.2, 0.95)
+
+	# Heavy dwarven war-belt with geometric brass buckle
+	var belt_y: Vector2 = hip.lerp(sc, 0.22)
+	sh.capsule(belt_y + Vector2(-waist_w - 0.12, 0.0), belt_y + Vector2(waist_w + 0.12, 0.0), 0.42, 0.42, c_leath, 2.5, 1.0)
+	sh.ellipsoid(belt_y + Vector2(0.45, 0.0), 0.58, 0.46, c_brass, 2.9, 1.0)
+
+	sh.composite(FigurePainter.ol(f.prim), true)
+	return true
+
+static func _legacy_torso(f) -> bool:
 	var armor: Dictionary = f._it("body")
 	var kind: String = String(armor.get("sprite",""))
 	var cv: PixelCanvas = f.cv
@@ -607,6 +919,71 @@ static func _segment(cv: PixelCanvas,a: Vector2,b: Vector2,r0: float,r1: float,c
 	cv.ellipse(b,r1,r1,c,pat)
 
 static func arm(f,side: String) -> bool:
+	if _force_legacy_v064:
+		return _legacy_arm(f, side)
+	var cv: PixelCanvas = f.cv
+	var sh_pt: Vector2 = f.j["s" + side]
+	var el: Vector2 = f.j["e" + side]
+	var hd: Vector2 = f.j["h" + side]
+	var r: float = float(f.arm_r) * (0.94 if String(f.spec.get("sex", "")).to_lower() == "female" else 1.04)
+	if f._lost("arm_upper_" + side):
+		cv.dot(sh_pt, FigurePainter.BLOOD)
+		return true
+	var lower_lost: bool = f._lost("arm_lower_" + side)
+	var hand_lost: bool = f._lost("hand_" + side)
+	var skin_c: Color = f.skin.darkened(0.10) if side == "l" else f.skin
+	var cloth: Dictionary = f._it("clothing")
+	var body: Dictionary = f._it("body")
+	var gloves: Dictionary = f._it("hands")
+	var a_kind: String = String(body.get("sprite", ""))
+	var c_kind: String = String(cloth.get("sprite", ""))
+
+	var sh := cv.shaded()
+	var c_skin: int = sh.add_color(skin_c, 0.10, 1.05)
+	var c_cloth: int = sh.add_color((f.prim if c_kind != "gambeson" else Color("#7a6852").lerp(f.prim, 0.35)).darkened(0.08 if side == "l" else 0.0), 0.09, 1.08)
+	var c_brass: int = sh.add_color(Color("#d9a441"), 0.34, 1.18, Color("#f6dc8b"))
+
+	# Muscular dwarven upper and lower arm
+	sh.capsule(sh_pt, el, r * 1.22, r * 0.92, c_skin, 0.0, 1.0)
+	if not lower_lost:
+		sh.capsule(el, hd, r * 1.05, r * 0.76, c_skin, 0.2, 1.0)
+
+	# Clothing sleeve
+	if not cloth.is_empty() or a_kind in ["gambeson", "padded"]:
+		sh.capsule(sh_pt, el, r * 1.30, r * 1.02, c_cloth, 0.5, 1.0)
+		if not lower_lost:
+			sh.capsule(el, el.lerp(hd, 0.72), r * 1.12, r * 0.88, c_cloth, 0.6, 1.0)
+
+	# Armour sleeve / pauldron
+	if not body.is_empty() and not a_kind in ["gambeson", "padded"]:
+		var m := FigurePainter.metal(String(body.get("mat", "iron")), int(body.get("q", 0)))
+		var mail: bool = a_kind in ["mail", "byrnie", "dwarf_mail"]
+		var plate: bool = a_kind in ["plate", "cuirass"]
+		var c_arm: int = sh.add_color(m["base"].darkened(0.08 if side == "l" else 0.0), 0.34 if plate else 0.28, 1.16, m["shine"], 0.12 if mail else 0.05)
+		sh.capsule(sh_pt, sh_pt.lerp(el, 0.85), r * 1.38, r * 1.08, c_arm, 1.1, 1.05)
+		sh.ellipsoid(sh_pt + Vector2(0.0, 0.15), r * 1.48, r * 1.28, c_arm, 1.5, 1.1)
+		if mail or plate:
+			sh.capsule(sh_pt.lerp(el, 0.82) + Vector2(-r, 0.0), sh_pt.lerp(el, 0.82) + Vector2(r, 0.0), 0.20, 0.20, c_brass, 1.6, 0.9)
+
+	# Bracers / gauntlets & sturdy dwarven hand
+	if not lower_lost:
+		if not gloves.is_empty():
+			var gm := FigurePainter.metal(String(gloves.get("mat", "leather")), int(gloves.get("q", 0)))
+			var c_glv: int = sh.add_color(gm["base"].darkened(0.08 if side == "l" else 0.0), 0.28, 1.15, gm["shine"])
+			sh.capsule(el.lerp(hd, 0.30), hd, r * 1.14, r * 0.88, c_glv, 1.3, 1.0)
+			if not hand_lost:
+				sh.ellipsoid(hd, r * 0.98, r * 0.95, c_glv, 1.6, 1.0)
+		elif not hand_lost:
+			sh.ellipsoid(hd, r * 0.94, r * 0.92, c_skin, 0.8, 1.0)
+
+	sh.composite(FigurePainter.ol(skin_c), true)
+	if lower_lost:
+		cv.dot(el, FigurePainter.BLOOD)
+	elif hand_lost:
+		cv.dot(hd, FigurePainter.BLOOD)
+	return true
+
+static func _legacy_arm(f,side: String) -> bool:
 	var body: Dictionary = f._it("body")
 	var kind: String = String(body.get("sprite",""))
 	var cv: PixelCanvas = f.cv
@@ -637,6 +1014,52 @@ static func arm(f,side: String) -> bool:
 	return true
 
 static func leg(f,side: String) -> bool:
+	if _force_legacy_v064:
+		return _legacy_leg(f, side)
+	var cv: PixelCanvas = f.cv
+	var hp: Vector2 = f.j["p" + side]
+	var kn: Vector2 = f.j["k" + side]
+	var ft: Vector2 = f.j["f" + side]
+	var r: float = float(f.leg_r)
+	if f._lost("leg_upper_" + side):
+		cv.dot(hp, FigurePainter.BLOOD)
+		return true
+	var trousers: bool = not f._it("legs_under").is_empty()
+	var base_c: Color = f._trouser_col() if trousers else f.skin
+	if side == "l":
+		base_c = base_c.darkened(0.10)
+	var lower_lost: bool = f._lost("leg_lower_" + side)
+	var foot_lost: bool = f._lost("foot_" + side)
+	var greaves: Dictionary = f._it("legs")
+	var shoes: Dictionary = f._it("feet")
+
+	var sh := cv.shaded()
+	var c_leg: int = sh.add_color(base_c, 0.09 if trousers else 0.12, 1.08)
+	sh.capsule(hp, kn, r * 1.42, r * 1.06, c_leg, 0.0, 1.05)
+	if not lower_lost:
+		sh.capsule(kn, ft, r * 1.15, r * 0.82, c_leg, 0.2, 1.0)
+		if not greaves.is_empty():
+			var gm := FigurePainter.metal(String(greaves.get("mat", "iron")), int(greaves.get("q", 0)))
+			var c_grv: int = sh.add_color(gm["base"].darkened(0.08 if side == "l" else 0.0), 0.32, 1.18, gm["shine"])
+			sh.ellipsoid(kn, r * 1.18, r * 0.98, c_grv, 1.2, 1.0)
+			sh.capsule(kn, ft, r * 1.20, r * 0.90, c_grv, 1.0, 1.05)
+		if not foot_lost:
+			var boot_c: Color = Color("#3e2a1d") if not shoes.is_empty() else f.skin
+			if not shoes.is_empty() and String(shoes.get("mat", "")) in ["iron", "steel", "bronze", "copper"]:
+				boot_c = FigurePainter.metal(String(shoes.get("mat", "iron")), int(shoes.get("q", 0)))["base"]
+			if side == "l":
+				boot_c = boot_c.darkened(0.10)
+			var c_boot: int = sh.add_color(boot_c, 0.18 if not shoes.is_empty() else 0.10, 1.12)
+			sh.capsule(ft + Vector2(-0.55, -0.35), ft + Vector2(1.65, 0.55), r * 0.85, r * 0.78, c_boot, 1.3, 1.0)
+
+	sh.composite(FigurePainter.ol(base_c), true)
+	if lower_lost:
+		cv.dot(kn, FigurePainter.BLOOD)
+	elif foot_lost:
+		cv.dot(ft, FigurePainter.BLOOD)
+	return true
+
+static func _legacy_leg(f,side: String) -> bool:
 	var cv: PixelCanvas = f.cv
 	var hp: Vector2 = f.j["p"+side]
 	var kn: Vector2 = f.j["k"+side]

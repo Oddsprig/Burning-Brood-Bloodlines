@@ -20,6 +20,15 @@ const POSES := ["idle", "walk", "prepare", "strike", "recover", "hit", "block", 
 
 ## Company (player faction) colours; menus may overwrite.
 static var company_colors := {"primary": "#1f8f88", "secondary": "#e0a040"}
+static var force_legacy_v064: bool = false
+
+static func set_legacy_v064(enabled: bool) -> void:
+	force_legacy_v064 = enabled
+	DwarfArt._force_legacy_v064 = enabled
+	ElfArt._force_legacy_v064 = enabled
+	OrcArt._force_legacy_v064 = enabled
+	GoblinArt._force_legacy_v064 = enabled
+	TrollArt._force_legacy_v064 = enabled
 
 const RACE_ART := {
 	"human":    {"head": 6.0, "headw": 6.0, "arm": 2.0, "leg": 2.6, "ears": "round", "nose": 1, "eye": "#1c1424",
@@ -957,9 +966,15 @@ func _head() -> void:
 		var hc: Vector2 = j["hc"]
 		var sc: Vector2 = j["sc"]
 		# The closed visor conceals the face, ears and hair. Preserve the neck and rig.
-		cv.begin()
-		cv.capsule(hc+Vector2(0.0,1.40 if _human() else 1.80),sc+Vector2(0.0,0.15 if _human() else -0.24),0.69,skin)
-		_skin_end()
+		if force_legacy_v064 and not _human():
+			cv.begin()
+			cv.capsule(hc+Vector2(0.0,1.40 if _human() else 1.80),sc+Vector2(0.0,0.15 if _human() else -0.24),0.69,skin)
+			_skin_end()
+		else:
+			var sh_neck := cv.shaded()
+			var c_sk: int = sh_neck.add_color(skin.darkened(0.14), 0.10, 1.06)
+			sh_neck.capsule(hc+Vector2(0.0,1.40 if _human() else 1.80),sc+Vector2(0.0,0.15 if _human() else -0.24),0.72,0.82,c_sk,-1.0,0.9)
+			sh_neck.composite(FigurePainter.ol(skin), true)
 		var previous := cv.xf
 		var previous_k := cv.k
 		if String(spec.get("race","")) == "dwarf":

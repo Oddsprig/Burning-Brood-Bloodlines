@@ -4,6 +4,8 @@ extends RefCounted
 ## hanging chest and weighty forearms distinguish the troll without changing its rig.
 ## Actual look colors, hair seed and equipment are retained; wounds belong to the caller.
 
+static var _force_legacy_v064: bool = false
+
 static func _poly(cv: PixelCanvas, origin: Vector2, points: Array, color: Color) -> void:
 	var vertices: PackedVector2Array = PackedVector2Array()
 	for point: Vector2 in points:
@@ -11,6 +13,96 @@ static func _poly(cv: PixelCanvas, origin: Vector2, points: Array, color: Color)
 	cv.poly(vertices, color)
 
 static func head(f) -> void:
+	if f._lost("head"):
+		return
+	if _force_legacy_v064:
+		_legacy_head(f)
+		return
+	var cv: PixelCanvas = f.cv
+	var hc: Vector2 = f.j["hc"]
+	var skin: Color = f.skin
+	var hair: Color = f.hair
+	var seed: int = absi(int(f.spec.get("seed", 0)))
+	var dead: bool = String(f.pose) == "dead" or bool(f.spec.get("dead", false))
+	var chin: float = 0.08 * float(seed % 3)
+	var has_nose: bool = not f._lost("nose")
+	var has_jaw: bool = not f._lost("jaw")
+	var has_mouth: bool = not f._lost("mouth")
+	var coif: bool = String(f._it("helm").get("sprite", "")) == "coif"
+
+	var sh := cv.shaded()
+	var c_skin: int = sh.add_color(skin, 0.14, 1.10)
+	var c_skin_d: int = c_skin
+	var c_skin_l: int = c_skin
+	var c_hair: int = sh.add_color(hair, 0.16, 1.12, hair.lightened(0.35))
+	var c_tusk: int = sh.add_color(Color("#ede0b6"), 0.28, 1.14, Color("#fff8e0"))
+	var c_tusk_d: int = sh.add_color(Color("#c9ba92"), 0.20, 1.12, Color("#ede0b6"))
+
+	# Long sloped troll cranium & massive low protruding mandible
+	var skull_pts := PackedVector2Array([
+		hc + Vector2(-4.0, -1.65), hc + Vector2(-3.45, -3.45), hc + Vector2(-2.15, -4.10),
+		hc + Vector2(-0.30, -3.90), hc + Vector2(1.00, -3.15), hc + Vector2(2.00, -2.00),
+		hc + Vector2(2.80, -1.40), hc + Vector2(3.05, -0.80), hc + Vector2(3.10, 0.75),
+		hc + Vector2(4.40 if has_jaw else 2.85, 1.25),
+		hc + Vector2(4.95 if has_jaw else 2.65, 2.15 if has_jaw else 1.55),
+		hc + Vector2(4.85 + chin if has_jaw else 2.35, 3.20 if has_jaw else 1.75),
+		hc + Vector2(3.45 if has_jaw else 1.25, 3.85 if has_jaw else 1.85),
+		hc + Vector2(0.60, 3.55 if has_jaw else 1.85),
+		hc + Vector2(-2.50, 2.10), hc + Vector2(-4.15, 0.30)
+	])
+	sh.poly(skull_pts, c_skin, 0.0, 2.4)
+	sh.ellipsoid(hc + Vector2(-1.15, -1.35), 2.95, 2.45, c_skin, 0.3, 1.15)
+	if has_jaw:
+		sh.ellipsoid(hc + Vector2(2.15, 2.45), 2.65, 1.45, c_skin, 0.6, 1.05)
+
+	# Cavernous overhanging supraorbital brow ridge
+	sh.capsule(hc + Vector2(-1.25, -1.45), hc + Vector2(2.85, -1.15), 0.72, 0.78, c_skin_l, 2.1, 1.0)
+
+	# Separate loss-aware broad bulbous troll nose (critical for nose-severing portrait check)
+	if has_nose:
+		var nose_pts := PackedVector2Array([
+			hc + Vector2(2.15, -1.10), hc + Vector2(3.45, -0.75),
+			hc + Vector2(4.85, -0.05), hc + Vector2(5.05, 0.80),
+			hc + Vector2(4.05, 1.15), hc + Vector2(2.45, 0.85)
+		])
+		sh.poly(nose_pts, c_skin_l, 2.4, 1.8)
+		sh.ellipsoid(hc + Vector2(3.95, 0.38), 1.15, 0.72, c_skin_l, 2.7, 1.0)
+
+	# Heavy low-slung troll ear
+	if not coif and not f._lost("ear_l"):
+		sh.capsule(hc + Vector2(-2.85, -0.15), hc + Vector2(-4.55, -0.75), 0.78, 0.42, c_skin, 1.2, 0.9)
+		sh.capsule(hc + Vector2(-3.05, -0.05), hc + Vector2(-4.15, -0.45), 0.38, 0.20, c_skin_d, 1.3, 0.7)
+
+	# Sparse dorsal scalp tuft & coarse chin beard
+	if seed % 2 == 1 and f._it("helm").is_empty():
+		sh.capsule(hc + Vector2(-2.95, -3.55), hc + Vector2(-2.45, -4.65), 0.68, 0.32, c_hair, 1.8, 0.95)
+		sh.capsule(hc + Vector2(-2.05, -3.65), hc + Vector2(-1.45, -4.45), 0.62, 0.28, c_hair, 1.9, 0.95)
+	if bool(f.spec.get("beard", false)) and has_jaw:
+		sh.capsule(hc + Vector2(-0.85, 2.15), hc + Vector2(1.45, 3.65), 0.78, 0.85, c_hair, 2.2, 0.95)
+		sh.capsule(hc + Vector2(1.45, 3.65), hc + Vector2(3.55, 3.65), 0.85, 0.68, c_hair, 2.3, 0.95)
+
+	# Huge hooked lower-jaw troll tusks
+	if has_jaw and has_mouth:
+		sh.capsule(hc + Vector2(1.20, 2.45), hc + Vector2(1.45, 0.25), 0.46, 0.18, c_tusk_d, 3.2, 1.0)
+		sh.capsule(hc + Vector2(4.15, 2.45), hc + Vector2(4.45, -0.25), 0.58, 0.22, c_tusk, 3.5, 1.0)
+
+	sh.composite(FigurePainter.ol(skin), true)
+
+	# Sunken glowing orange-amber troll eyes, nostrils & wide maw
+	var deep: Color = skin.darkened(0.66).lerp(Color("#20251b"), 0.18)
+	_eye(cv, hc + Vector2(-0.65, -0.50), 0.80, skin, deep, dead, f._lost("eye_l"))
+	_eye(cv, hc + Vector2(1.10, -0.38), 1.18, skin, deep, dead, f._lost("eye_r"))
+	if has_nose:
+		cv.ellipse(hc + Vector2(3.20, 0.62), 0.24, 0.15, deep)
+		cv.ellipse(hc + Vector2(4.35, 0.58), 0.26, 0.16, deep)
+	else:
+		cv.ellipse(hc + Vector2(2.75, 0.15), 0.42, 0.32, FigurePainter.BLOOD_DARK)
+	if has_mouth and has_jaw:
+		cv.capsule(hc + Vector2(0.95, 1.75), hc + Vector2(4.45, 1.68), 0.20, deep)
+
+	f._helm(hc, -float(f.head_w) * 0.5, float(f.head_w) * 0.5, -float(f.head_h) * 0.5, float(f.head_h) * 0.5)
+
+static func _legacy_head(f) -> void:
 	if f._lost("head"):
 		return
 	var cv: PixelCanvas = f.cv
@@ -143,6 +235,75 @@ static func _tusk(cv: PixelCanvas, o: Vector2, width: float, height: float, near
 	cv.end(Color("#514d37"), 0.02)
 
 static func torso(f) -> bool:
+	if _force_legacy_v064:
+		return _legacy_torso(f)
+	var cv: PixelCanvas = f.cv
+	var sc: Vector2 = f.j["sc"]
+	var hip: Vector2 = f.j["hip"]
+	var mounted: bool = f.pose == "mounted"
+	var half: float = float(f.tw) * 0.5
+	var waist: float = float(f.hipw) * 0.5
+	var middle: Vector2 = sc.lerp(hip, 0.48)
+	var clothing: Dictionary = f._it("clothing")
+	var body: Dictionary = f._it("body")
+	var has_cloth: bool = not clothing.is_empty()
+	var has_armor: bool = not body.is_empty()
+
+	var sh := cv.shaded()
+	var c_skin: int = sh.add_color(f.skin, 0.14, 1.10)
+	var c_leath: int = sh.add_color(FigurePainter.LEATHER, 0.20, 1.12)
+
+	if not f._lost("neck"):
+		sh.capsule(f.j["hc"] + Vector2(-0.85, 1.35), sc + Vector2(-0.15, 0.55), 1.35, 1.55, c_skin, -0.8, 0.95)
+
+	# Massive hunched troll back, barrel ribcage & heavy belly
+	var bare_pts := PackedVector2Array([
+		sc + Vector2(-half, 0.60), sc + Vector2(-half * 0.58, -0.55),
+		sc + Vector2(half * 0.35, -0.50), sc + Vector2(half, 1.00),
+		middle + Vector2(half + 0.25, 0.00), hip + Vector2(waist, 1.00),
+		hip + Vector2(-waist, 1.00), middle + Vector2(-half - 0.25, 0.20)
+	])
+	sh.poly(bare_pts, c_skin, 0.0, 2.6)
+	sh.ellipsoid(sc + Vector2(-0.85, 0.85), half * 0.72, 1.65, c_skin, 0.7, 1.15)
+	sh.ellipsoid(middle + Vector2(0.35, 0.25), half * 0.86, 2.05, c_skin, 0.8, 1.1)
+
+	if has_cloth:
+		var padded: bool = String(clothing.get("tid", "")) == "gambeson"
+		var cloth_c: Color = _wardrobe_cloth(f, clothing)
+		var c_cloth: int = sh.add_color(cloth_c, 0.09 if padded else 0.11, 1.08)
+		var c_sec: int = sh.add_color(f.sec, 0.16, 1.10)
+		var c_skirt: float = 0.85 if mounted else (float(f.leg_len) * (0.31 if padded else 0.28))
+		sh.poly(_wardrobe_shape(f, c_skirt, padded), c_cloth, 0.6, 2.4)
+		sh.ellipsoid(middle + Vector2(0.25, 0.15), half * 0.88, 2.15, c_cloth, 1.0, 1.1)
+		sh.capsule(_wardrobe_p(f, -minf(half * 0.4, 1.55), 0.14), _wardrobe_p(f, -0.1, 1.6), 0.22, 0.22, c_sec, 1.5, 0.9)
+		sh.capsule(_wardrobe_p(f, -0.1, 1.6), _wardrobe_p(f, minf(half * 0.4, 1.55), 0.18), 0.22, 0.22, c_sec, 1.5, 0.9)
+
+	if has_armor:
+		var kind: String = String(body.get("sprite", ""))
+		var m: Dictionary = FigurePainter.metal(String(body.get("mat", "copper")), int(body.get("q", 0)))
+		var mail: bool = kind in ["mail", "byrnie"]
+		var scale_a: bool = kind == "scale"
+		var lamellar: bool = kind == "lamellar"
+		var scrap: bool = kind == "scrap"
+		var c_arm: int = sh.add_color(m["base"], 0.28 if mail else 0.34, 1.18, m["shine"], 0.12 if mail else (0.10 if scale_a or lamellar else 0.05))
+		var c_arm_d: int = sh.add_color(m["dark"], 0.24, 1.14, m["shine"])
+		var c_trim: int = sh.add_color(m["trim"], 0.36, 1.18, m["shine"])
+		var a_skirt: float = 0.80 if mounted else (float(f.leg_len) * (0.38 if kind == "mail" else (0.32 if lamellar else 0.14)))
+		sh.poly(_wardrobe_shape(f, a_skirt, false), c_leath if scrap else c_arm, 1.2, 2.6)
+		sh.ellipsoid(middle + Vector2(0.25, 0.15), half * 0.92, 2.25, c_arm, 1.7, 1.15)
+		if scrap:
+			for ri in 3:
+				var ry: float = sc.y + 1.35 + float(ri) * 1.85
+				sh.capsule(Vector2(-half * 0.82, ry), Vector2(half * 0.82, ry - 0.18), 0.58, 0.54, c_arm if ri % 2 == 0 else c_arm_d, 2.3, 1.0)
+			sh.capsule(sc + Vector2(-half * 0.58, 0.65), hip + Vector2(waist * 0.44, -0.95), 0.34, 0.34, c_leath, 2.6, 0.95)
+		var belt_p: Vector2 = hip.lerp(sc, 0.19)
+		sh.capsule(belt_p + Vector2(-waist - 0.18, 0.0), belt_p + Vector2(waist + 0.18, 0.0), 0.44, 0.44, c_leath, 2.7, 1.0)
+		sh.ellipsoid(belt_p + Vector2(0.75, 0.0), 0.58, 0.44, c_trim, 3.0, 1.0)
+
+	sh.composite(FigurePainter.ol(f.skin), true)
+	return true
+
+static func _legacy_torso(f) -> bool:
 	var cv: PixelCanvas = f.cv
 	var sc: Vector2 = f.j["sc"]
 	var hip: Vector2 = f.j["hip"]
@@ -185,6 +346,65 @@ static func _limb(cv: PixelCanvas, a: Vector2, b: Vector2, ra: float, rb: float,
 		minf(ra, rb) * 0.17, color.darkened(0.22))
 
 static func arm(f, side: String) -> bool:
+	if _force_legacy_v064:
+		return _legacy_arm(f, side)
+	var cv: PixelCanvas = f.cv
+	var shoulder: Vector2 = f.j["s" + side]
+	var elbow: Vector2 = f.j["e" + side]
+	var hand: Vector2 = f.j["h" + side]
+	var radius: float = float(f.arm_r)
+	var skin_c: Color = f.skin.darkened(0.10) if side == "l" else f.skin
+	if f._lost("arm_upper_" + side):
+		cv.dot(shoulder, FigurePainter.BLOOD)
+		return true
+	var lower_lost: bool = f._lost("arm_lower_" + side)
+	var hand_lost: bool = f._lost("hand_" + side)
+	var clothing: Dictionary = f._it("clothing")
+	var body: Dictionary = f._it("body")
+	var hands_it: Dictionary = f._it("hands")
+
+	var sh := cv.shaded()
+	var c_skin: int = sh.add_color(skin_c, 0.14, 1.10)
+	# Weighty long troll upper arm & heavy forearm
+	sh.capsule(shoulder, elbow, radius * 1.15, radius * 0.84, c_skin, 0.0, 1.05)
+	if not lower_lost:
+		sh.capsule(elbow, hand, radius * 1.06, radius * 0.78, c_skin, 0.2, 1.05)
+
+	if not clothing.is_empty():
+		var padded: bool = String(clothing.get("tid", "")) == "gambeson"
+		var c_cloth: int = sh.add_color(_wardrobe_cloth(f, clothing).darkened(0.08 if side == "l" else 0.0), 0.09, 1.08)
+		sh.capsule(shoulder, shoulder.lerp(elbow, 0.76 if padded else 0.65), radius * (1.24 if padded else 1.14), radius * (1.02 if padded else 0.90), c_cloth, 0.5, 1.0)
+
+	if not body.is_empty():
+		var b_kind: String = String(body.get("sprite", ""))
+		var m: Dictionary = FigurePainter.metal(String(body.get("mat", "copper")), int(body.get("q", 0)))
+		var mail: bool = b_kind in ["mail", "byrnie"]
+		var c_arm: int = sh.add_color(m["base"].darkened(0.08 if side == "l" else 0.0), 0.28 if mail else 0.34, 1.16, m["shine"], 0.12 if mail else 0.05)
+		sh.capsule(shoulder, shoulder.lerp(elbow, 0.85 if b_kind == "mail" else 0.52), radius * 1.24, radius * 0.96, c_arm, 1.1, 1.05)
+		if b_kind in ["scrap", "lamellar", "scale", "plate"]:
+			sh.ellipsoid(shoulder + Vector2(0.0, 0.12), radius * 1.38, radius * 1.18, c_arm, 1.5, 1.1)
+
+	if not lower_lost:
+		if not hands_it.is_empty():
+			var hm: Dictionary = FigurePainter.metal(String(hands_it.get("mat", "copper")), int(hands_it.get("q", 0)))
+			var h_tid: String = String(hands_it.get("tid", ""))
+			var c_hnd: int = sh.add_color(hm["base"].darkened(0.08 if side == "l" else 0.0), 0.32, 1.16, hm["shine"])
+			sh.capsule(elbow.lerp(hand, 0.22), elbow.lerp(hand, 0.82), radius * 1.08, radius * 0.84, c_hnd, 1.3, 1.05)
+			if h_tid.contains("gauntlet") and not hand_lost:
+				sh.ellipsoid(hand, radius * 1.18, radius * 1.05, c_hnd, 1.6, 1.05)
+			elif not hand_lost:
+				sh.ellipsoid(hand, radius * 1.15, radius * 1.02, c_skin, 0.8, 1.05)
+		elif not hand_lost:
+			sh.ellipsoid(hand, radius * 1.15, radius * 1.02, c_skin, 0.8, 1.05)
+
+	sh.composite(FigurePainter.ol(skin_c), true)
+	if lower_lost:
+		cv.dot(elbow, FigurePainter.BLOOD)
+	elif hand_lost:
+		cv.dot(hand, FigurePainter.BLOOD)
+	return true
+
+static func _legacy_arm(f, side: String) -> bool:
 	var cv: PixelCanvas = f.cv
 	var shoulder: Vector2 = f.j["s" + side]
 	var elbow: Vector2 = f.j["e" + side]
@@ -221,6 +441,53 @@ static func arm(f, side: String) -> bool:
 	return true
 
 static func leg(f, side: String) -> bool:
+	if _force_legacy_v064:
+		return _legacy_leg(f, side)
+	var cv: PixelCanvas = f.cv
+	var hip: Vector2 = f.j["p" + side]
+	var knee: Vector2 = f.j["k" + side]
+	var foot: Vector2 = f.j["f" + side]
+	var radius: float = float(f.leg_r)
+	if f._lost("leg_upper_" + side):
+		cv.dot(hip, FigurePainter.BLOOD)
+		return true
+	var trousers: bool = not f._it("legs_under").is_empty()
+	var color: Color = f._trouser_col() if trousers else f.skin
+	if side == "l":
+		color = color.darkened(0.10)
+	var lower_lost: bool = f._lost("leg_lower_" + side)
+	var foot_lost: bool = f._lost("foot_" + side)
+	var greaves: Dictionary = f._it("legs")
+	var shoes: Dictionary = f._it("feet")
+
+	var sh := cv.shaded()
+	var c_leg: int = sh.add_color(color, 0.10 if trousers else 0.14, 1.08)
+	sh.capsule(hip, knee, radius * 1.12, radius * 0.88, c_leg, 0.0, 1.05)
+	if not lower_lost:
+		sh.capsule(knee, foot, radius * 0.94, radius * 0.68, c_leg, 0.2, 1.0)
+		if not greaves.is_empty():
+			var gm: Dictionary = FigurePainter.metal(String(greaves.get("mat", "copper")), int(greaves.get("q", 0)))
+			var c_grv: int = sh.add_color(gm["base"].darkened(0.08 if side == "l" else 0.0), 0.32, 1.18, gm["shine"])
+			sh.ellipsoid(knee, radius * 1.02, radius * 0.86, c_grv, 1.2, 1.0)
+			sh.capsule(knee.lerp(foot, 0.10), knee.lerp(foot, 0.88), radius * 1.02, radius * 0.74, c_grv, 1.0, 1.05)
+		if not foot_lost:
+			var length: float = 3.4 * float(f.gs)
+			var boot_c: Color = f.skin if shoes.is_empty() else FigurePainter.LEATHER.darkened(0.20)
+			if not shoes.is_empty() and String(shoes.get("mat", "")) in ["copper", "tin", "iron", "steel", "bronze", "silver", "gold"]:
+				boot_c = FigurePainter.metal(String(shoes.get("mat", "iron")), int(shoes.get("q", 0)))["base"]
+			if side == "l":
+				boot_c = boot_c.darkened(0.10)
+			var c_boot: int = sh.add_color(boot_c, 0.18 if not shoes.is_empty() else 0.14, 1.12)
+			sh.capsule(foot + Vector2(-0.85, -0.30), foot + Vector2(length - 0.85, 0.65), radius * 0.78, radius * 0.68, c_boot, 1.3, 1.0)
+
+	sh.composite(FigurePainter.ol(color), true)
+	if lower_lost:
+		cv.dot(knee, FigurePainter.BLOOD)
+	elif foot_lost:
+		cv.dot(foot, FigurePainter.BLOOD)
+	return true
+
+static func _legacy_leg(f, side: String) -> bool:
 	var cv: PixelCanvas = f.cv
 	var hip: Vector2 = f.j["p" + side]
 	var knee: Vector2 = f.j["k" + side]
