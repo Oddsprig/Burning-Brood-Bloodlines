@@ -200,27 +200,34 @@ func _read() -> void:
 		eye_k *= 1.05
 	if race == "dark_elf":
 		if stage == "young":
-			jaw *= 0.90
-			brow_k *= 0.72
-			eye_k *= 1.10
+			jaw *= 0.84
+			brow_k *= 0.58
+			eye_k *= 1.16
 		elif stage == "elder":
-			jaw *= 1.06
-			brow_k *= 1.22
-			eye_k *= 0.82
+			jaw *= 1.16
+			brow_k *= 1.90
+			eye_k *= 0.72
 		elif not sex_f:
-			jaw *= 1.06
-			brow_k *= 1.16
+			jaw *= 1.12
+			brow_k *= 1.80
+		else:
+			jaw *= 0.94
+			brow_k *= 0.82
 	elif race == "moon_elf":
 		if stage == "young":
-			jaw *= 0.88
-			brow_k *= 0.70
-			eye_k *= 1.12
+			jaw *= 0.96
+			brow_k *= 0.55
+			eye_k *= 1.18
 		elif stage == "elder":
-			jaw *= 0.94
-			brow_k *= 1.15
-			eye_k *= 0.84
+			jaw *= 1.10
+			brow_k *= 2.40
+			eye_k *= 0.78
 		elif not sex_f:
-			jaw *= 1.04
+			jaw *= 1.14
+			brow_k *= 2.25
+		else:
+			jaw *= 0.96
+			brow_k *= 0.85
 	elif race == "goblin":
 		if stage == "young":
 			jaw *= 0.86
@@ -244,6 +251,15 @@ func _read() -> void:
 	cx = 48.0
 	eye_y = cy - ry * 0.06
 	mouth_y = cy + ry * 0.52
+	if race == "moon_elf" or race == "dark_elf":
+		if stage == "young":
+			eye_y -= 1.0
+			mouth_y -= 1.6
+		elif stage == "elder":
+			eye_y += 1.0
+			mouth_y += 1.4
+		elif sex_f:
+			mouth_y -= 0.5
 	chin_y = cy + ry * 0.92
 	nose_y = minf(cy + ry * 0.30 + float(nose_extra) * 0.45, mouth_y - 4.0)
 	torso_y = chin_y + 5.0
@@ -261,11 +277,29 @@ func _read() -> void:
 		eyes_open = false
 	else:
 		eyes_open = true
+	if race == "moon_elf":
+		var lumh := hair.get_luminance()
+		if lumh > 0.72:
+			hair = _op(hair.lerp(Color(0.40, 0.50, 0.70), 0.86))
+		elif lumh > 0.40:
+			hair = _op(hair.lerp(Color(0.42, 0.52, 0.72), 0.55))
+		else:
+			hair = _op(hair.lerp(Color(0.36, 0.44, 0.62), 0.35))
 	if stage == "elder":
-		hair = _op(hair.lerp(Color("#d8d8dc"), 0.55))
+		if race == "dark_elf":
+			hair = _op(hair.lerp(Color(0.55, 0.56, 0.60), 0.66))
+		elif race == "moon_elf":
+			hair = _op(hair.lerp(Color(0.70, 0.76, 0.86), 0.40))
+		else:
+			hair = _op(hair.lerp(Color("#d8d8dc"), 0.55))
 	_read_beard()
 	if stage == "elder":
-		beard_col = _op(beard_col.lerp(Color("#d8d8dc"), 0.55))
+		if race == "moon_elf":
+			beard_col = _op(beard_col.lerp(Color(0.62, 0.70, 0.84), 0.45))
+		elif race == "dark_elf":
+			beard_col = _op(beard_col.lerp(Color(0.55, 0.56, 0.60), 0.50))
+		else:
+			beard_col = _op(beard_col.lerp(Color("#d8d8dc"), 0.55))
 	elif race == "dwarf":
 		beard_col = _op(beard_col.lerp(Color("#5c3318"), 0.55))
 	var skin_depth: float = 0.52
@@ -273,18 +307,26 @@ func _read() -> void:
 		skin_depth = 0.66
 	var hair_depth: float = 0.52
 	if race == "dark_elf":
-		hair_depth = 0.30
+		hair_depth = 0.55 if stage == "elder" else 0.30
 	skin_ramp = _ramp(skin, skin_depth)
 	if race == "moon_elf":
 		var pale := skin
 		skin_ramp = [
-			_op(pale.lerp(Color(0.26, 0.32, 0.42), 0.82)),
-			_op(pale.lerp(Color(0.40, 0.48, 0.58), 0.74)),
-			_op(pale.lerp(Color(0.56, 0.64, 0.74), 0.62)),
-			_op(pale.lerp(Color(0.70, 0.76, 0.84), 0.48)),
-			_op(pale.lerp(Color(0.84, 0.88, 0.93), 0.30)),
+			_op(Color(0.28, 0.36, 0.52).lerp(pale, 0.10)),
+			_op(Color(0.40, 0.48, 0.64).lerp(pale, 0.16)),
+			_op(pale.lerp(Color(0.62, 0.70, 0.82), 0.28)),
+			_op(pale.lerp(Color(0.84, 0.88, 0.94), 0.34)),
+			_op(pale.lightened(0.05).lerp(Color(0.96, 0.97, 0.99), 0.22)),
 		]
 	hair_ramp = _ramp(hair, hair_depth)
+	if race == "moon_elf":
+		hair_ramp = [
+			_op(Color(0.22, 0.28, 0.44).lerp(Color(0.62, 0.64, 0.70), 0.45 if stage == "elder" else 0.0)),
+			_op(Color(0.34, 0.44, 0.64).lerp(Color(0.70, 0.72, 0.76), 0.40 if stage == "elder" else 0.0)),
+			_op(Color(0.52, 0.62, 0.82).lerp(Color(0.78, 0.80, 0.84), 0.35 if stage == "elder" else 0.0)),
+			_op(Color(0.74, 0.82, 0.94).lerp(Color(0.86, 0.87, 0.90), 0.30 if stage == "elder" else 0.0)),
+			_op(Color(0.88, 0.92, 0.98).lerp(Color(0.92, 0.92, 0.94), 0.25 if stage == "elder" else 0.0)),
+		]
 	if race == "dwarf" and stage != "elder":
 		beard_ramp = [
 			_op(Color("#3a2412")),
@@ -295,6 +337,8 @@ func _read() -> void:
 		]
 	else:
 		beard_ramp = _ramp(beard_col, 0.50)
+	if race == "moon_elf":
+		beard_ramp = hair_ramp
 	hstyle = _pick_style()
 	part_left = int(spec.get("female_set", seed % 2)) % 2 == 0
 	braid_x = cx + (12.0 if part_left else -14.0)
@@ -361,16 +405,16 @@ func _pick_style() -> String:
 				return "braid" if stage == "elder" else "long"
 			"moon_elf":
 				if stage == "young":
-					return "side"
+					return "long"
 				if stage == "elder":
-					return "half"
-				return "long"
+					return "receding"
+				return "half"
 			"dark_elf":
 				if stage == "young":
-					return "side"
+					return "long"
 				if stage == "elder":
-					return "half"
-				return "long"
+					return "side"
+				return "braid"
 			_:
 				if stage == "young":
 					return "long"
@@ -404,16 +448,16 @@ func _pick_style() -> String:
 			return "half"
 		"moon_elf":
 			if stage == "young":
-				return "half"
+				return "short"
 			if stage == "adult":
 				return "long"
 			return "braid"
 		"dark_elf":
 			if stage == "young":
-				return "long"
+				return "side"
 			if stage == "adult":
 				return "half"
-			return "braid"
+			return "receding"
 		"dwarf":
 			if stage == "elder":
 				return "receding"
@@ -508,6 +552,40 @@ func _probe(px: float, py: float) -> bool:
 		nv = v
 		nn = Vector3(u_jaw * 0.70, 0.42, 0.55).normalized()
 		return true
+	if (race == "moon_elf" or race == "dark_elf") and v > 0.40:
+		var chin_w := 0.92
+		if race == "moon_elf":
+			if stage == "young":
+				chin_w = 1.02
+			elif stage == "elder":
+				chin_w = 0.84 if sex_f else 0.98
+			elif sex_f:
+				chin_w = 0.88
+			else:
+				chin_w = 0.94
+		else:
+			if stage == "young":
+				chin_w = 0.86 if sex_f else 0.98
+			elif stage == "elder":
+				chin_w = 0.80 if sex_f else 1.06
+			elif sex_f:
+				chin_w = 0.76
+			else:
+				chin_w = 0.94
+		var u_jaw2 := dx / (rx * chin_w * side)
+		var v_jaw2 := (v - 0.40) / 0.72
+		var inside2 := absf(u_jaw2) <= 1.0 and v_jaw2 <= 1.0
+		if inside2 and v_jaw2 > 0.48:
+			var chin_u2 := absf(u_jaw2) / (0.94 if stage == "young" else 0.76)
+			var chin_v2 := (v_jaw2 - 0.48) / 0.62
+			if chin_u2 * chin_u2 + chin_v2 * chin_v2 > 1.0:
+				inside2 = false
+		if not inside2:
+			return false
+		nu = u_jaw2
+		nv = v
+		nn = Vector3(u_jaw2 * 0.55, 0.35, 0.62).normalized()
+		return true
 	if v >= 0.0:
 		xrad = lerpf(1.0, jaw * (0.84 if sex_f else 0.93), smoothstep(0.02, 0.92, v))
 		if v > 0.76:
@@ -516,8 +594,24 @@ func _probe(px: float, py: float) -> bool:
 				pinch = 0.90 if sex_f else 0.93
 			elif race == "troll":
 				pinch = 0.78 if sex_f else 0.96
-			elif race == "dark_elf" and sex_f:
-				pinch = 0.62
+			elif race == "dark_elf":
+				if sex_f:
+					pinch = 0.82
+				elif stage == "young":
+					pinch = 0.76
+				elif stage == "elder":
+					pinch = 0.94
+				else:
+					pinch = 0.86
+			elif race == "moon_elf":
+				if stage == "young":
+					pinch = 0.94
+				elif stage == "elder":
+					pinch = 0.84
+				elif sex_f:
+					pinch = 0.90
+				else:
+					pinch = 0.88
 			elif race == "goblin" and sex_f:
 				pinch = 0.50
 			elif race == "goblin" and stage == "elder":
@@ -537,7 +631,7 @@ func _probe(px: float, py: float) -> bool:
 func _skin_at() -> Color:
 	var lit := clampf(0.84 - nu * 0.46 - maxf(nv, -0.15) * 0.34, 0.06, 0.94)
 	if race == "moon_elf":
-		lit = clampf(0.58 - nu * 0.42 - maxf(nv, -0.20) * 0.40, 0.04, 0.80)
+		lit = clampf(0.52 - nu * 0.48 - maxf(nv, 0.0) * 0.36, 0.02, 0.92)
 	var px := int(cx + nu * rx)
 	var py := int(cy + nv * ry)
 	var band := _shade_band(lit, px, py)
@@ -547,16 +641,24 @@ func _skin_at() -> Color:
 		band = maxi(0, band - 1)
 	if race == "troll":
 		if nv > -0.42 and nv < 0.08 and absf(nu) < 0.88:
-			band = maxi(0, band - 2)
+			band = maxi(1, band - 1)
 		if nv > 0.22:
 			band = maxi(0, band - 1)
 		if absf(nu) > 0.55 and nv > 0.15:
 			band = maxi(0, band - 1)
 	elif race == "moon_elf":
-		if nv > -0.45:
-			band = mini(2, band)
-		if nv > 0.35:
-			band = maxi(0, band - 1)
+		if nv > -0.22 and nv < 0.08 and absf(nu) > 0.16 and absf(nu) < 0.72:
+			band = 0
+		elif absf(nu) > 0.20 and absf(nu) < 0.62 and nv > 0.06 and nv < 0.42:
+			band = 4
+		elif nv > 0.40:
+			band = 0
+		elif absf(nu) < 0.42 and nv > -0.08 and nv < 0.40:
+			band = 3
+		elif nv < -0.20:
+			band = 2
+		elif absf(nu) > 0.62:
+			band = 1
 	elif race == "dwarf" and absf(nu) < 0.38 and nv > 0.02 and nv < 0.50:
 		band = mini(4, band + 1)
 	elif race == "dark_elf" or race == "goblin" or race == "orc":
@@ -566,6 +668,13 @@ func _skin_at() -> Color:
 			band = maxi(0, band - 1)
 		elif absf(nu) > 0.48 and nv > 0.0 and nv < 0.40:
 			band = maxi(0, band - 1)
+	if race == "dark_elf":
+		if nv > -0.24 and nv < 0.08 and absf(nu) > 0.14 and absf(nu) < 0.66:
+			band = maxi(0, band - 1)
+		if stage == "elder" and nv > 0.22:
+			band = maxi(0, band - 1)
+		elif stage == "young" and absf(nu) < 0.40 and nv > -0.05 and nv < 0.20:
+			band = mini(4, band + 1)
 	return skin_ramp[clampi(band, 0, 4)]
 
 func _draw_skull() -> void:
@@ -715,8 +824,12 @@ func _hair_col(x: int, y: int) -> Color:
 	var v := float(y - int(cy - ry)) / maxf(12.0, ry * 1.4)
 	var spread: float = 0.50
 	if race == "dark_elf":
-		spread = 0.30
+		spread = 0.48 if stage == "elder" else 0.30
+	elif race == "moon_elf":
+		spread = 0.60
 	var lit := clampf(0.78 - u * spread - v * (spread + 0.08), 0.06, 0.94)
+	if race == "moon_elf":
+		lit = clampf(0.72 - absf(u) * 0.70 - v * 0.22, 0.05, 0.95)
 	var band := _shade_band(lit, x, y)
 	if posmod(x + seed, 5) == 0 and posmod(y, 3) == 1:
 		band = maxi(0, band - 1)
@@ -929,7 +1042,8 @@ func _leaf_ear(dir: float, near: bool, length: float, rise: float, thick: float)
 	_ear_capsule(mid, tip, maxf(1.15, thick * 0.58), near, false)
 	var inner_a := base + Vector2(dir * 1.6, 1.7)
 	var inner_b := mid + Vector2(dir * 0.6, 1.0)
-	_ear_capsule(inner_a, inner_b, 1.55, near, true)
+	var inner_rad := 1.05 if ear_k == "high" else 1.55
+	_ear_capsule(inner_a, inner_b, inner_rad, near, true)
 	_px(int(round(tip.x)), int(round(tip.y)), skin_ramp[4])
 
 func _fan_ear(dir: float, near: bool, sc: float) -> void:
@@ -1011,7 +1125,8 @@ func _ear_capsule(a: Vector2, b: Vector2, rad: float, near: bool, inner: bool) -
 			if not near and _probe(p.x, p.y):
 				continue
 			if inner:
-				_px(x, y, skin_ramp[0])
+				var shade := skin_ramp[2] if ear_k == "high" else skin_ramp[0]
+				_px(x, y, shade)
 			else:
 				var outer := p.x < mid_x if near else p.x > mid_x
 				_px(x, y, skin_ramp[4 if outer else 2])
@@ -1051,18 +1166,28 @@ func _draw_eye(center: Vector2, near: bool, lost_id: String) -> void:
 			hh = 2
 	elif race == "moon_elf":
 		hw = 4
-		hh = 3
-		if stage == "elder":
+		hh = 2
+		if stage == "young":
+			hw = 5
+			hh = 3
+		elif stage == "elder":
 			hw = 3
-			hh = 2
+			hh = 1
+		elif sex_f:
+			hw = 4
+			hh = 3
 	elif race == "dark_elf":
 		hw = 3
 		hh = 2
 		if stage == "young":
-			hw = 4
+			hw = 5 if sex_f else 4
+			hh = 3
 		elif stage == "elder":
 			hw = 2
 			hh = 1
+		elif sex_f:
+			hw = 4
+			hh = 2
 	elif race == "goblin":
 		hw = 3
 		hh = 2
@@ -1098,14 +1223,43 @@ func _draw_eye(center: Vector2, near: bool, lost_id: String) -> void:
 	var iy := y0
 	var iris := EYES.get(race, Color("#4a3422")) as Color
 	if race == "moon_elf":
-		iris = Color(0.10, 0.18, 0.28, 1.0)
-	for dy in range(-1, 2):
-		for dx in range(-1, 2):
+		if stage == "young":
+			iris = Color(0.28, 0.50, 0.74, 1.0)
+		elif stage == "elder":
+			iris = Color(0.10, 0.16, 0.26, 1.0)
+		elif sex_f:
+			iris = Color(0.22, 0.42, 0.64, 1.0)
+		else:
+			iris = Color(0.12, 0.28, 0.48, 1.0)
+	elif race == "dark_elf":
+		if stage == "young":
+			iris = Color(0.95, 0.45, 0.42, 1.0)
+		elif stage == "elder":
+			iris = Color(0.48, 0.08, 0.12, 1.0)
+		elif sex_f:
+			iris = Color(0.84, 0.24, 0.34, 1.0)
+		else:
+			iris = Color(0.62, 0.06, 0.10, 1.0)
+	elif race == "human" and stage == "elder":
+		iris = Color(0.10, 0.06, 0.05, 1.0)
+	var iris_rad := 1
+	if (race == "moon_elf" or race == "dark_elf") and stage == "elder":
+		iris_rad = 0
+	for dy in range(-iris_rad, iris_rad + 1):
+		for dx in range(-iris_rad, iris_rad + 1):
 			var shade := 0.22 if dx > 0 or dy > 0 else 0.0
 			_px(ix + dx, iy + dy, _op(iris.darkened(shade)))
 	_px(ix, iy, PUPIL)
+	if race == "human" and stage == "elder":
+		_px(ix, iy + 1, PUPIL)
 	_px(ix - 1, iy - 1, Color(1, 0.995, 0.97, 1))
 	_brow(x0, y0, hw, hh, near)
+	if race == "moon_elf" or race == "dark_elf":
+		var sock := skin_ramp[0]
+		if stage == "young":
+			sock = skin_ramp[2]
+		for sx in range(-hw, hw + 1):
+			_px(x0 + sx, y0 + hh + 2, sock)
 	if race == "goblin" and sex_f:
 		_px(x0 - hw, y0 - hh - 1, OUTLINE)
 		_px(x0 - hw + 1, y0 - hh - 2, OUTLINE)
@@ -1126,6 +1280,11 @@ func _brow(x0: int, y0: int, hw: int, hh: int, near: bool) -> void:
 	elif hair.get_luminance() > 0.72:
 		brow_col = hair_ramp[1]
 	var by := y0 - hh - thick - (2 if race == "troll" else 0)
+	if race == "moon_elf" or race == "dark_elf":
+		if stage == "young":
+			by -= 1
+		elif stage == "elder":
+			by += 1
 	var toward := 1 if near else -1
 	for t in thick:
 		for x in range(-hw - 1, hw + 2):
@@ -1135,21 +1294,22 @@ func _brow(x0: int, y0: int, hw: int, hh: int, near: bool) -> void:
 			var arch := 0
 			if absi(x) >= hw - 1:
 				arch = -1
+			if (race == "moon_elf" or race == "dark_elf") and stage == "young" and absi(x) >= hw - 2:
+				arch = -1
 			var col := brow_col
 			if race == "troll":
 				if t == 0:
-					col = skin_ramp[3]
+					col = skin_ramp[4]
 				elif t == thick - 1:
-					col = skin_ramp[0]
+					col = skin_ramp[2]
 				else:
-					col = skin_ramp[1]
+					col = skin_ramp[3]
 			_px(x0 + x, by + t + drop + arch, col)
 	if race == "troll":
-		var ridge := _op(skin.darkened(0.35))
 		for x in range(-hw - 2, hw + 3):
-			_px(x0 + x, by - 1, ridge)
+			_px(x0 + x, by - 1, skin_ramp[3])
 			if absi(x) < hw:
-				_px(x0 + x, by - 2, skin_ramp[3])
+				_px(x0 + x, by - 2, skin_ramp[4])
 
 func _draw_nose() -> void:
 	if _lost("nose"):
@@ -1216,45 +1376,76 @@ func _draw_mouth() -> void:
 	if race in ["dwarf", "orc"]:
 		hw = 5
 	elif race == "troll":
-		hw = 6
-	elif race == "goblin" or race.ends_with("elf"):
+		hw = 4 if stage == "young" else 6
+		if stage == "elder":
+			hw = 5
+	elif race == "goblin":
+		hw = 4 if stage == "young" else 3
+	elif race == "moon_elf" or race == "dark_elf":
+		hw = 4 if stage == "young" else 3
+		if stage == "elder":
+			hw = 2
+	elif race.ends_with("elf"):
 		hw = 3
-	if sex_f:
+	if sex_f and race != "moon_elf" and race != "dark_elf":
 		hw = maxi(2, hw - 1)
 	var lip_dark := _op(skin.darkened(0.34).lerp(Color("#4a1822"), 0.28))
 	var lip := _op(skin.lerp(Color("#a4545c"), 0.42 if sex_f else 0.18))
 	if race == "moon_elf":
 		lip_dark = _op(skin.lerp(Color(0.26, 0.30, 0.40), 0.62))
 		lip = _op(skin.lerp(Color(0.52, 0.56, 0.64), 0.40))
-	var corner := 0
-	if race == "moon_elf" or race == "dark_elf" or race == "goblin" or race == "troll":
-		if stage == "young":
-			corner = -2
-		elif stage == "elder":
-			corner = 2
-		elif race == "dark_elf" and not sex_f:
-			corner = 2
-		elif sex_f:
-			corner = 0
-		elif race == "goblin":
-			corner = 1
 	for i in range(-hw, hw + 1):
-		var dy := 0
-		if corner != 0 and absi(i) >= hw - 1:
-			dy = corner
+		var dy := _mouth_bend(i, hw)
 		_px(x + i, y + dy, lip_dark)
 	for i in range(-(hw - 1), hw):
-		var dy2 := 0
-		if corner != 0 and absi(i) >= hw - 2:
-			dy2 = corner
+		var dy2 := _mouth_bend(i, hw)
 		_px(x + i, y + 1 + dy2, lip)
 	if sex_f:
 		for i in range(-(hw - 2), hw - 1):
-			_px(x + i, y + 2, _op(lip.lightened(0.08)))
+			_px(x + i, y + 2 + _mouth_bend(i, hw), _op(lip.lightened(0.08)))
 	_px(x - hw, y + 1, skin_ramp[1])
 	_px(x + hw, y + 1, skin_ramp[0])
 	if race == "goblin":
 		_goblin_nose()
+
+func _mouth_bend(i: int, hw: int) -> int:
+	var t := float(absi(i)) / float(maxi(1, hw))
+	var steps := int(round(t * 2.0))
+	if race == "moon_elf":
+		if stage == "young":
+			return -steps
+		if stage == "elder":
+			return steps
+		if sex_f:
+			return -int(round(t))
+		return int(round(t))
+	if race == "dark_elf":
+		if stage == "young":
+			return -steps if sex_f else -int(round(t))
+		if stage == "elder":
+			return steps
+		if sex_f:
+			return -int(round(t))
+		return steps
+	if race == "goblin":
+		if stage == "young":
+			return -steps
+		if stage == "elder":
+			return steps
+		if sex_f:
+			return -int(round(t))
+		if i > 1:
+			return 1
+		return 0
+	if race == "troll":
+		if stage == "young":
+			return -int(round(t))
+		if stage == "elder":
+			return steps
+		if sex_f:
+			return 0
+		return int(round(t))
+	return 0
 
 func _goblin_nose() -> void:
 	var x := int(round(cx + 2.0))
@@ -1281,6 +1472,10 @@ func _draw_wrinkles() -> void:
 	if stage != "elder":
 		return
 	var wr := _op(skin.darkened(0.18))
+	if race == "dark_elf":
+		wr = _op(skin.lightened(0.26))
+	elif race == "moon_elf":
+		wr = _op(skin.lerp(Color(0.32, 0.38, 0.50), 0.55))
 	if hstyle in ["receding", "bald", "tuft", "half", "mohawk", "topknot"]:
 		var yf := int(eye_y - scl - 7.0)
 		for i in range(7):
@@ -1326,19 +1521,31 @@ func _stage_marks() -> void:
 		_px(int(cx) - 6, int(nose_y) + 2, line2)
 		_px(int(cx) - 7, int(nose_y) + 3, line2)
 	if race == "dark_elf" and stage == "elder":
-		var aged := _op(skin.darkened(0.30))
-		for i in range(6):
-			_px(int(cx) - 4 + i, int(eye_y) - 8, aged)
-		_px(int(cx) - 5, int(mouth_y) - 3, aged)
-		_px(int(cx) - 4, int(mouth_y) - 2, aged)
-		_px(int(cx) + 4, int(mouth_y) - 2, aged)
+		var aged := _op(skin.lightened(0.30))
+		for i in range(8):
+			_px(int(cx) - 5 + i, int(eye_y) - 9, aged)
+			_px(int(cx) - 4 + i, int(eye_y) - 7, aged)
+		_px(int(eye_near.x) - 4, int(eye_near.y) + 1, aged)
+		_px(int(eye_near.x) - 5, int(eye_near.y) + 2, aged)
+		_px(int(eye_far.x) + 4, int(eye_far.y) + 1, aged)
+		_px(int(eye_far.x) + 5, int(eye_far.y) + 2, aged)
+		for i in range(-3, 4):
+			_px(int(cx) + i, int(mouth_y) + 3, aged)
 	elif race == "dark_elf" and stage == "young" and not sex_f:
 		_px(int(eye_near.x) - 1, int(eye_near.y) + 3, skin_ramp[4])
+		_px(int(eye_far.x) + 1, int(eye_far.y) + 3, skin_ramp[4])
+	elif race == "dark_elf" and stage == "young" and sex_f:
+		_px(int(eye_near.x) - 2, int(eye_near.y) + 3, skin_ramp[3])
+		_px(int(eye_far.x) + 2, int(eye_far.y) + 3, skin_ramp[3])
 	elif race == "moon_elf" and stage == "elder":
-		var aged_m := _op(skin.lerp(Color(0.30, 0.34, 0.42), 0.45))
+		var aged_m := _op(skin.lerp(Color(0.30, 0.34, 0.42), 0.55))
 		for i in range(5):
-			_px(int(eye_near.x) - 3 + i, int(eye_near.y) + 5, aged_m)
-			_px(int(eye_far.x) - 1 + i, int(eye_far.y) + 5, aged_m)
+			_px(int(eye_near.x) - 3 + i, int(eye_near.y) + 4, aged_m)
+			_px(int(eye_far.x) - 1 + i, int(eye_far.y) + 4, aged_m)
+		for i in range(7):
+			_px(int(cx) - 3 + i, int(eye_y) - 8, aged_m)
+		_px(int(cx) - 4, int(mouth_y) + 2, aged_m)
+		_px(int(cx) + 4, int(mouth_y) + 2, aged_m)
 	elif race == "moon_elf" and stage == "adult" and not sex_f:
 		var lock := hair_ramp[2]
 		var mx := int(cx - rx * 0.70)
