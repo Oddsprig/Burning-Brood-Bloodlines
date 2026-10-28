@@ -46,6 +46,19 @@ const METRICS := {
 const ARMOR := ["cuirass", "mail", "scale", "lamellar", "scrap", "byrnie", "plate", "brigandine", "hauberk", "breastplate"]
 
 static func paint(spec: Dictionary) -> Image:
+	# Runtime loads avoid a preload cycle with the race-local legacy delegates.
+	# Redo jobs own only their race file; the shared renderer stays frozen for elves.
+	match String(spec.get("race", "human")):
+		"human":
+			return load("res://art/portraits/portrait_human.gd").paint(spec)
+		"dwarf":
+			return load("res://art/portraits/portrait_dwarf.gd").paint(spec)
+		"orc":
+			return load("res://art/portraits/portrait_orc.gd").paint(spec)
+		"goblin":
+			return load("res://art/portraits/portrait_goblin.gd").paint(spec)
+		"troll":
+			return load("res://art/portraits/portrait_troll.gd").paint(spec)
 	return load("res://art/portrait_bust.gd").new()._render(spec)
 
 var cv: PixelCanvas
