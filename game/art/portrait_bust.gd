@@ -238,6 +238,17 @@ func _read() -> void:
 		if sex_f:
 			mouth_y -= 0.8
 			eye_y -= 0.4
+	if race == "troll":
+		if stage == "young" and sex_f:
+			eye_y -= 1.6
+		elif stage == "young":
+			eye_y -= 0.6
+		elif stage == "elder" and sex_f:
+			eye_y += 1.0
+		elif stage == "elder":
+			eye_y += 1.4
+		else:
+			eye_y += 0.4
 	nose_y = minf(cy + ry * 0.30 + float(nose_extra) * 0.45, mouth_y - 4.0)
 	torso_y = chin_y + 5.0
 	scl = 3.15 * eye_k
@@ -583,8 +594,8 @@ func _skin_at() -> Color:
 	if brow_k > 1.20 and nv > -0.36 and nv < 0.02 and absf(nu) < 0.72:
 		band = maxi(0, band - 1)
 	if race == "troll":
-		if nv > -0.42 and nv < 0.08 and absf(nu) < 0.88:
-			band = maxi(1, band - 1)
+		if brow_k > 1.20 and nv > -0.36 and nv < 0.02 and absf(nu) < 0.72:
+			band = mini(4, band + 1)
 		if nv > 0.22:
 			band = maxi(0, band - 1)
 		if absf(nu) > 0.55 and nv > 0.15:
@@ -805,6 +816,9 @@ func _draw_hair_back() -> void:
 	if race == "troll" and sex_f and stage == "young":
 		_troll_young_hair(true)
 		return
+	if race == "troll" and sex_f and stage == "elder":
+		_troll_elder_hair(true)
+		return
 	match hstyle:
 		"bald", "tuft", "topknot", "mohawk":
 			return
@@ -867,6 +881,9 @@ func _draw_hair_front() -> void:
 	if race == "troll" and sex_f and stage == "young":
 		_troll_young_hair(false)
 		return
+	if race == "troll" and sex_f and stage == "elder":
+		_troll_elder_hair(false)
+		return
 	var line := eye_y - 5.0
 	match hstyle:
 		"bald":
@@ -879,8 +896,11 @@ func _draw_hair_front() -> void:
 			_hair_ellipse(Vector2(cx, cy - ry - 7.0), 6.5, 6.5)
 			_hair_capsule(Vector2(cx, cy - ry + 1.0), Vector2(cx, cy - ry - 7.0), 2.4)
 		"mohawk":
-			_hair_capsule(Vector2(cx, cy - ry - 11.0), Vector2(cx, line), 3.6)
-			_fringe(3.0)
+			if race == "troll":
+				_hair_capsule(Vector2(cx, cy - ry - 7.0), Vector2(cx, cy - ry + 1.0), 2.4)
+			else:
+				_hair_capsule(Vector2(cx, cy - ry - 11.0), Vector2(cx, line), 3.6)
+				_fringe(3.0)
 		"receding":
 			_hair_ellipse(Vector2(cx - rx * 0.52, eye_y - 7.0), rx * 0.64, 12.0, eye_y - 2.0)
 			_hair_ellipse(Vector2(cx + rx * 0.38, eye_y - 8.0), rx * 0.50, 10.0, eye_y - 2.0)
@@ -1079,14 +1099,48 @@ func _dark_hair(front: bool) -> void:
 		_hair_capsule(Vector2(cx - rx * 1.05, top + 2.0), Vector2(cx - rx * 1.15, mouth_y + 22.0), 4.8)
 		_hair_capsule(Vector2(cx + rx * 0.70, top + 3.0), Vector2(cx + rx * 1.00, mouth_y + 12.0), 4.0)
 
+func _troll_strand(a: Vector2, b: Vector2, rad: float) -> void:
+	_hair_capsule(a, b, rad)
+	var steps := 10
+	for i in range(steps):
+		var t := float(i) / float(steps - 1)
+		var p := a.lerp(b, t)
+		var x := int(round(p.x))
+		var y := int(round(p.y))
+		_px(x - 1, y, hair_ramp[4])
+		if posmod(i, 3) == 0:
+			_px(x + 1, y, hair_ramp[0])
+
 func _troll_young_hair(back: bool) -> void:
 	var top := cy - ry
+	var side := -1.0 if part_left else 1.0
 	if back:
-		_hair_capsule(Vector2(cx - rx * 0.12, top - 2.0), Vector2(cx - rx * 0.58, eye_y + 6.0), 1.65)
-		_hair_capsule(Vector2(cx + rx * 0.08, top - 5.0), Vector2(cx + rx * 0.36, eye_y - 1.0), 1.4)
-	else:
-		_hair_capsule(Vector2(cx - rx * 0.20, top - 1.0), Vector2(cx - rx * 0.70, mouth_y - 2.0), 1.45)
-		_hair_capsule(Vector2(cx + rx * 0.06, top - 4.0), Vector2(cx - rx * 0.08, eye_y - 5.0), 1.2)
+		_troll_strand(Vector2(cx + side * 3.0, top - 6.0), Vector2(cx + side * rx * 0.62, eye_y + 2.0), 1.7)
+		_troll_strand(Vector2(cx - side * 5.0, top - 3.0), Vector2(cx - side * rx * 0.42, eye_y - 4.0), 1.35)
+		_troll_strand(Vector2(cx + side * rx * 0.15, top - 5.0), Vector2(cx + side * rx * 0.88, eye_y + 8.0), 1.45)
+		return
+	_troll_strand(Vector2(cx + side * 1.0, top - 6.0), Vector2(cx + side * 7.0, eye_y - 9.0), 1.55)
+	_troll_strand(Vector2(cx + side * 7.0, top - 4.0), Vector2(cx + side * 14.0, eye_y - 5.0), 1.4)
+	_troll_strand(Vector2(cx + side * 14.0, top - 1.0), Vector2(cx + side * 19.0, eye_y - 2.0), 1.25)
+	_troll_strand(Vector2(cx - side * 2.0, top - 3.0), Vector2(cx - side * 9.0, eye_y - 11.0), 1.25)
+	_troll_strand(Vector2(cx - side * 9.0, top + 1.0), Vector2(cx - side * 15.0, eye_y - 6.0), 1.15)
+	_troll_strand(Vector2(cx + side * 4.0, top - 8.0), Vector2(cx + side * 2.0, eye_y - 13.0), 1.1)
+	_troll_strand(Vector2(cx - side * 1.0, top - 5.0), Vector2(cx + side * 4.0, eye_y - 14.0), 1.05)
+	_troll_strand(Vector2(cx + side * rx * 0.70, eye_y - 6.0), Vector2(cx + side * rx * 0.84, mouth_y + 2.0), 1.5)
+
+func _troll_elder_hair(back: bool) -> void:
+	var top := cy - ry
+	var side := -1.0 if part_left else 1.0
+	if back:
+		_troll_strand(Vector2(cx + side * rx * 0.35, top - 3.0), Vector2(cx + side * rx * 0.75, eye_y + 1.0), 1.35)
+		_troll_strand(Vector2(cx - side * rx * 0.12, top - 1.0), Vector2(cx - side * rx * 0.40, eye_y - 5.0), 1.1)
+		return
+	_troll_strand(Vector2(cx + side * 4.0, top - 5.0), Vector2(cx + side * 11.0, eye_y - 8.0), 1.25)
+	_troll_strand(Vector2(cx + side * 11.0, top - 2.0), Vector2(cx + side * 17.0, eye_y - 3.0), 1.15)
+	_troll_strand(Vector2(cx - side * 2.0, top - 2.0), Vector2(cx - side * 8.0, eye_y - 9.0), 1.1)
+	_troll_strand(Vector2(cx - side * 8.0, top + 2.0), Vector2(cx - side * 13.0, eye_y - 4.0), 1.05)
+	_troll_strand(Vector2(cx + side * 1.0, top - 7.0), Vector2(cx + side * 6.0, eye_y - 12.0), 1.0)
+	_troll_strand(Vector2(cx + side * rx * 0.55, eye_y - 5.0), Vector2(cx + side * rx * 0.76, mouth_y - 1.0), 1.35)
 
 func _draw_ear(near: bool) -> void:
 	var lost_id := "ear_r" if near else "ear_l"
@@ -1260,6 +1314,12 @@ func _draw_eye(center: Vector2, near: bool, lost_id: String) -> void:
 			_px(x0 + i, y0, skin_ramp[0])
 		_blob(x0, y0, 2, FigurePainter.BLOOD)
 		return
+	if race == "troll":
+		_troll_eye(x0, y0, near)
+		return
+	if race == "goblin":
+		_goblin_eye(x0, y0, near)
+		return
 	var hw := 3 if eye_k >= 0.85 else 2
 	var hh := 2 if eye_k >= 0.85 else 1
 	if race == "troll":
@@ -1329,6 +1389,9 @@ func _draw_eye(center: Vector2, near: bool, lost_id: String) -> void:
 		_px(x0 + hw, y0 - hh - 1, OUTLINE)
 
 func _brow(x0: int, y0: int, hw: int, hh: int, near: bool) -> void:
+	if race == "troll":
+		_troll_brow(x0, y0, hw, hh, near)
+		return
 	var thick := 1
 	if race == "troll":
 		thick = 2
@@ -1401,6 +1464,8 @@ func _brow(x0: int, y0: int, hw: int, hh: int, near: bool) -> void:
 func _draw_nose() -> void:
 	if _lost("nose"):
 		return
+	if race == "goblin":
+		return
 	var x := int(round(cx + 1.6 + float(eye_shift) * 0.25))
 	var gap := 4 if nose_k == "fine" else 2
 	var y := int(round(mouth_y)) - gap
@@ -1458,6 +1523,9 @@ func _draw_nose() -> void:
 func _draw_mouth() -> void:
 	if _lost("mouth"):
 		_blob(int(cx + 1.0), int(mouth_y), 3, FigurePainter.BLOOD)
+		return
+	if race == "troll":
+		_troll_mouth()
 		return
 	var x := int(round(cx + 1.2))
 	var y := int(round(mouth_y))
@@ -1541,26 +1609,178 @@ func _mouth_bend(i: int, hw: int) -> int:
 		return int(round(t))
 	return 0
 
+func _goblin_eye(x0: int, y0: int, near: bool) -> void:
+	var hw := 3
+	var hh := 2
+	var iris := Color("#e6a020")
+	var squint := false
+	if stage == "young":
+		hw = 4
+		hh = 2
+		iris = Color("#ffe14a")
+	elif stage == "elder":
+		hw = 3
+		hh = 1
+		squint = true
+		iris = Color("#c88820")
+		y0 += 1
+	else:
+		hw = 3
+		hh = 1
+		squint = true
+		iris = Color("#e8a018")
+	if sex_f and stage != "elder":
+		iris = iris.lightened(0.08)
+	if not eyes_open:
+		for x in range(-hw, hw + 1):
+			_px(x0 + x, y0, skin_ramp[1])
+		_brow(x0, y0, hw, hh, near)
+		return
+	for y in range(-hh, hh + 1):
+		if squint and y > 0:
+			continue
+		for x in range(-hw, hw + 1):
+			var nx := float(x) / float(maxi(1, hw))
+			var ny := float(y) / float(maxi(1, hh))
+			if nx * nx + ny * ny > 1.0:
+				continue
+			_px(x0 + x, y0 + y, SCLERA)
+	var ir := 2 if stage == "young" else 1
+	for dy in range(-ir, ir + 1):
+		if squint and dy > 0:
+			continue
+		for dx in range(-ir, ir + 1):
+			if dx * dx + dy * dy > float(ir * ir + 1):
+				continue
+			var shade := 0.20 if dx > 0 or dy > 0 else 0.0
+			_px(x0 + dx, y0 + dy, _op(iris.darkened(shade)))
+	_px(x0, y0, PUPIL)
+	if not squint or stage != "elder":
+		_px(x0 - 1, y0 - 1, Color(1, 0.98, 0.86, 1))
+	_brow(x0, y0, hw, maxi(1, hh), near)
+
+func _troll_eye(x0: int, y0: int, near: bool) -> void:
+	var hw := 2
+	var hh := 1
+	var iris := Color("#e09428")
+	var squint := false
+	if stage == "young" and not sex_f:
+		iris = Color("#ffb02a")
+	elif stage == "young" and sex_f:
+		y0 -= 1
+		iris = Color("#ffd060")
+	elif stage == "elder" and not sex_f:
+		iris = Color("#c48428")
+		squint = true
+	elif stage == "elder" and sex_f:
+		iris = Color("#c87840")
+		squint = true
+		if near:
+			y0 += 1
+	else:
+		iris = Color("#d05810")
+		squint = true
+	if not eyes_open:
+		for x in range(-hw, hw + 1):
+			_px(x0 + x, y0, skin_ramp[1])
+		_troll_brow(x0, y0, hw, hh, near)
+		return
+	for y in range(-hh, hh + 1):
+		if squint and y > 0:
+			continue
+		for x in range(-hw, hw + 1):
+			var nx := float(x) / float(hw)
+			var ny := float(y) / float(hh)
+			if nx * nx + ny * ny > 1.05:
+				continue
+			var shade := 0.18 if x > 0 or y > 0 else 0.0
+			_px(x0 + x, y0 + y, _op(iris.darkened(shade)))
+	_px(x0, y0, PUPIL)
+	if stage == "elder" and not sex_f:
+		_px(x0 + 1, y0, PUPIL)
+	_troll_brow(x0, y0, hw, hh, near)
+
+func _troll_brow(_x0: int, y0: int, hw: int, hh: int, near: bool) -> void:
+	if not near:
+		return
+	var lit := _op(skin.lightened(0.22))
+	var mid := _op(skin)
+	var shadow := _op(skin.darkened(0.10))
+	var y_shadow := y0 - hh - 1
+	if stage == "young" and sex_f:
+		y_shadow -= 1
+	var x_lo := int(round(minf(eye_near.x, eye_far.x))) - hw - 1
+	var x_hi := int(round(maxf(eye_near.x, eye_far.x))) + hw + 1
+	for x in range(x_lo, x_hi + 1):
+		var arch := -1 if x <= x_lo + 1 or x >= x_hi - 1 else 0
+		var yb := y_shadow + arch
+		_px(x, yb - 2, lit)
+		_px(x, yb - 1, mid)
+		_px(x, yb, shadow)
+
+func _troll_mouth() -> void:
+	var x := int(round(cx + 1.2))
+	var y := int(round(mouth_y))
+	var lip_dark := _op(skin.darkened(0.34))
+	var lip := _op(skin.darkened(0.12))
+	var inside := Color(0.16, 0.05, 0.06, 1.0)
+	if stage == "young" and not sex_f:
+		for i in range(-3, 4):
+			_px(x + i, y - 1, lip)
+			_px(x + i, y, inside)
+			_px(x + i, y + 1, lip_dark)
+	elif stage == "young" and sex_f:
+		for i in range(-4, 5):
+			var dy := -1 if absi(i) >= 3 else 0
+			_px(x + i, y + dy, lip)
+			_px(x + i, y + dy + 1, _op(lip.lightened(0.12)))
+	elif stage == "elder" and not sex_f:
+		for i in range(-5, 6):
+			var dy2 := 1 if absi(i) >= 3 else 0
+			_px(x + i, y + dy2, lip_dark)
+			if absi(i) <= 1:
+				_px(x + i, y + dy2 + 1, inside)
+	elif stage == "elder" and sex_f:
+		for i in range(-4, 2):
+			var dy3 := 1 if i > 0 else 0
+			_px(x + i, y + dy3, lip_dark)
+		_px(x, y + 1, inside)
+		_px(x + 1, y + 1, inside)
+	else:
+		for i in range(-5, 6):
+			var dy4 := 1 if i < -2 else 0
+			_px(x + i, y + dy4, lip_dark)
+			_px(x + i, y + dy4 + 1, inside)
+
 func _goblin_nose() -> void:
-	var x := int(round(cx + 2.0))
+	var x := int(round(cx + 1.0))
 	var y := int(round(mouth_y)) - 4
-	for i in range(6):
-		_px(x - 1, y - 6 + i, skin_ramp[4])
-		_px(x, y - 6 + i, skin_ramp[2])
-		_px(x + 1, y - 6 + i, skin_ramp[1])
-	for dy in range(-2, 3):
-		for dx in range(-1, 5):
-			var edge := dx == -1 or dx == 4 or dy == -2 or dy == 2
-			if edge:
-				_px(x + dx, y + dy, skin_ramp[0])
-			elif dx < 2:
-				_px(x + dx, y + dy, skin_ramp[4])
-			else:
-				_px(x + dx, y + dy, skin_ramp[2])
-	_px(x, y + 1, Color(0.08, 0.12, 0.06, 1.0))
-	_px(x + 3, y + 1, Color(0.08, 0.12, 0.06, 1.0))
-	_px(x + 1, y - 1, skin_ramp[4])
-	_px(x + 1, y, Color(0.95, 0.98, 0.82, 1.0))
+	if stage == "young":
+		y -= 1
+	elif stage == "elder":
+		y += 1
+	var hi := Color(0.99, 1.0, 0.78, 1.0)
+	var lit := _op(skin.lerp(Color(0.98, 1.0, 0.70), 0.62))
+	var mid := _op(skin.lerp(Color(0.86, 0.95, 0.42), 0.48))
+	var shade := _op(skin.darkened(0.30))
+	var nostril := Color(0.05, 0.08, 0.03, 1.0)
+	for dy in range(0, 4):
+		for dx in range(-2, 3):
+			if absi(dx) == 2 and (dy == 0 or dy == 3):
+				continue
+			var col := mid
+			if dy == 0:
+				col = lit
+			elif dy >= 2:
+				col = shade
+			_px(x + dx, y + dy, col)
+	_px(x - 2, y + 1, lit)
+	_px(x - 1, y, hi)
+	_px(x - 2, y, hi)
+	_px(x - 1, y + 2, nostril)
+	_px(x + 1, y + 2, nostril)
+	_px(x - 1, y + 3, nostril)
+	_px(x + 1, y + 3, nostril)
 
 func _draw_wrinkles() -> void:
 	if stage != "elder":
