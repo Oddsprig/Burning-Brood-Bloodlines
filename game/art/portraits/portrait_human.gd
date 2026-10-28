@@ -788,20 +788,82 @@ func _beard_mass(coords: Array, x: float, y0: float, bottom: float, half: float)
 				continue
 			var u := (float(xx)+0.5-x)/half
 			var v := (float(y)-y0)/maxf(1.0, bottom-y0)
-			var lit := 0.46-u*0.13-v*0.06+sqrt(maxf(0.0, 1.0-u*u))*0.05
-			lit += _soft(xx, y, x-half*0.65, my+8, half*0.48, 8)*0.13
-			lit += _soft(xx, y, x-2, chin+3, half*0.65, 9)*0.10
-			lit -= _soft(xx, y, x, my+3, 7, 4)*0.19
-			lit -= _soft(xx, y, x+half-1, my+7, 4, 7)*0.10
-			_px(xx, y, _tone(br, lit))
+			# Recesses sit behind the clumps; the chin catches one rounded pool of light.
+			var lit := 0.38-u*0.13-v*0.06
+			lit += _soft(xx, y, x-half*0.65, my+8, half*0.48, 8)*0.10
+			lit += _soft(xx, y, x-3, chin+1, half*0.65, 8)*0.18
+			lit -= _soft(xx, y, x, my+5, 7, 4)*0.21
+			lit -= _soft(xx, y, x+half-2, chin-3, 6, 9)*0.14
+			var col := br[_band(lit)]
+			if beard_style == 1:
+				col = image.get_pixel(xx, y).lerp(col, clampf((y-y0)/4.0+0.25, 0.25, 1.0))
+			_px(xx, y, col)
 
-func _beard_lock(a: Vector2, b: Vector2, c: Vector2, r0: float, r1: float, bias: float = 0.0) -> void:
-	_lock(a, b, c, r0, r1, br, bias, true)
+func _beard_lock(a: Vector2, b: Vector2, c: Vector2, r0: float, r1: float, bias: float = 0.0, blend_root: bool = false) -> void:
+	if a.y <= my and c.y <= my+2:
+		_lock(a, b, c, r0, r1, br, bias, true)
+		return
+	# Swollen, curved tufts overlap in depth; their short glints stop before the hem.
+	const STEPS := 16
+	var pts := PackedVector2Array()
+	var bounds := Rect2(a, Vector2.ZERO).expand(b).expand(c).grow(r0+1.0)
+	for i in range(STEPS+1):
+		var t := float(i)/STEPS
+		pts.append(a*(1.0-t)*(1.0-t)+b*2.0*(1.0-t)*t+c*t*t)
+	for y in range(maxi(0, int(floor(bounds.position.y))), mini(SIZE, int(ceil(bounds.end.y))+1)):
+		for x in range(maxi(0, int(floor(bounds.position.x))), mini(SIZE, int(ceil(bounds.end.x))+1)):
+			var p := Vector2(x+0.5, y+0.5)
+			var d2 := INF
+			var along := 0.0
+			var center := Vector2.ZERO
+			var tangent := Vector2.DOWN
+			for i in range(STEPS):
+				var seg := pts[i+1]-pts[i]
+				var t := clampf((p-pts[i]).dot(seg)/maxf(0.001, seg.length_squared()), 0.0, 1.0)
+				var q := pts[i]+seg*t
+				var dist := p.distance_squared_to(q)
+				if dist < d2:
+					d2 = dist
+					along = (float(i)+t)/STEPS
+					center = q
+					tangent = seg.normalized()
+			var rad := lerpf(r0*0.48, r1, pow(along, 1.3))+sin(along*PI)*r0*0.62
+			rad *= 1.0+sin(along*9.0+a.y*0.4)*0.07
+			if d2 > rad*rad:
+				continue
+			var normal := Vector2(tangent.y, -tangent.x)
+			if normal.x < 0.0:
+				normal = -normal
+			var across := clampf((p-center).dot(normal)/maxf(rad, 0.25), -1.0, 1.0)
+			var lit := 0.32+sqrt(maxf(0.0, 1.0-across*across))*0.22-across*0.12
+			lit += bias*0.75-along*0.06
+			lit -= _soft(x, y, cx+1, my+5, 6, 4)*0.13
+			lit -= smoothstep(cx+5, cx+15, float(x))*0.09
+			if elder:
+				lit += _soft(x, y, cx-3, chin+1, 10, 8)*0.08
+			if across > 0.55 and along < 0.85:
+				lit -= 0.12
+			var crest := -0.28+sin(along*5.0+c.x*0.37)*0.19
+			if absf(across-crest) < 0.20 and sin(along*12.0+c.x*0.7) > 0.35 and along > 0.18 and along < 0.72:
+				lit += 0.21 if elder else 0.14
+			var col := br[_band(lit)]
+			if blend_root:
+				var opacity := lerpf(0.35, 1.0, smoothstep(0.0, 0.28, along))
+				if a.y < chin and sqrt(d2) > rad*0.78 and along < 0.45:
+					opacity *= 0.65
+				col = image.get_pixel(x, y).lerp(col, opacity)
+			_px(x, y, col)
 
 func _beard() -> void:
 	if not beard or _lost("jaw") or _lost("mouth"):
 		return
 	var x := cx+1
+	var upper_ramp := br
+	if elder:
+		# Four body greys leave room for small silver highlights on the lit clumps.
+		var base := br[3]
+		br = [base.darkened(0.64), base.darkened(0.50), base.darkened(0.33),
+			base.darkened(0.17), base.darkened(0.04), base.lightened(0.12), base.lightened(0.65)]
 	if beard_style == 7:
 		# Short scruff remains skin-coloured between sparse, directional strokes.
 		for side in [-1, 1]:
@@ -816,36 +878,46 @@ func _beard() -> void:
 			hang *= 0.65
 		if beard_style == 1:
 			var bottom := chin+hang-2
-			_beard_mass([x-3, my+4, x-4.5, my+8, x-4, chin+2, x-1, bottom-1,
-				x+1, bottom, x+4, chin+2, x+4, my+7, x+2.5, my+4], x, my+4, bottom, 5.0)
-			_beard_lock(Vector2(x+2, my+6), Vector2(x+5, chin), Vector2(x+2, bottom-1), 2.2, 0.1, -0.09)
-			_beard_lock(Vector2(x-2, my+6), Vector2(x-5, chin-1), Vector2(x-2, chin+5), 2.5, 0.15, 0.06)
-			_beard_lock(Vector2(x-0.5, my+7), Vector2(x-1, chin+4), Vector2(x+0.5, bottom+0.5), 2.4, 0.1, 0.01)
-			_beard_lock(Vector2(x-2, my+4), Vector2(x-3, my+7), Vector2(x-1, chin-2), 1.3, 0.1, 0.07)
+			_beard_mass([x-1, my+4, x-3, my+8, x-3, chin-1, x-1, chin+1,
+				x+2, chin, x+3, my+8, x+1, my+4], x, my+4, chin+1, 5.0)
+			# Short roots grow out of the lower lip; unequal tufts cross over the chin.
+			_beard_lock(Vector2(x+2, my+6), Vector2(x+6, chin-1), Vector2(x+3, chin+4), 2.4, 0.1, -0.13, true)
+			_beard_lock(Vector2(x-2, my+5), Vector2(x-6, chin-2), Vector2(x-4, chin+2), 2.6, 0.1, -0.03, true)
+			_beard_lock(Vector2(x+0.5, chin-2), Vector2(x+4, chin+2), Vector2(x+2.5, bottom-1), 2.3, 0.1, -0.07)
+			_beard_lock(Vector2(x-2, chin-3), Vector2(x-4.5, chin+1), Vector2(x-3, bottom-1.5), 2.7, 0.1, 0.03)
+			_beard_lock(Vector2(x-1, chin-1), Vector2(x+1, chin+3), Vector2(x+0.5, bottom+0.5), 2.3, 0.1, 0.04)
+			_beard_lock(Vector2(x-3, chin-4), Vector2(x+2, chin-2), Vector2(x+2, chin+1), 2.4, 0.15, 0.08, true)
+			_beard_lock(Vector2(x-1, my+4), Vector2(x-3, my+6), Vector2(x-1, chin-3), 1.5, 0.1, 0.02, true)
+			_beard_lock(Vector2(x+1, my+4), Vector2(x+3, my+6), Vector2(x+1, my+9), 1.3, 0.1, -0.10, true)
+			_curve(Vector2(x-4, chin-3), Vector2(x-5, chin-1), Vector2(x-4, chin), br[2].lerp(sr[3], 0.35))
+			_curve(Vector2(x-2, chin-1), Vector2(x-1, chin), Vector2(x-0.5, chin+1), br[4].lerp(br[3], 0.35))
+			_line(Vector2(x+1, chin+3), Vector2(x+2, chin+4), br[4].lerp(br[3], 0.5))
 		else:
 			var half := 13.5 if not young else 10.0
 			var bottom := chin+(2.0 if beard_style == 8 else hang)
 			var end_half := 3.0 if beard_style == 3 else 6.0
 			_beard_mass([x-half, my-3, x-half+4, my+3, x-5, my+5, x+4, my+5,
-				x+half-3, my+2, x+half, my-3, x+half, chin-6,
-				x+half-3, chin+1, x+end_half, bottom-4, x+3, bottom-1,
-				x, bottom, x-4, bottom-2, x-end_half-2, bottom-5, x-half, chin-3], x, my-3, bottom, half)
-			# Cheeks curl inward; the chin hangs in unequal, pointed overlapping clumps.
-			_beard_lock(Vector2(x-half+1, my-3), Vector2(x-half-2, chin-4), Vector2(x-9, bottom-5), 2.7, 0.1, -0.01)
-			_beard_lock(Vector2(x+half-1, my-3), Vector2(x+half+1, chin-3), Vector2(x+9, bottom-7), 2.7, 0.1, -0.18)
-			_beard_lock(Vector2(x-10, my+1), Vector2(x-13, chin-1), Vector2(x-6, bottom-2), 3.2, 0.15, 0.06)
-			_beard_lock(Vector2(x+10, my+1), Vector2(x+13, chin), Vector2(x+6, bottom-4), 3.0, 0.1, -0.11)
-			_beard_lock(Vector2(x-7, my+7), Vector2(x-10, chin+6), Vector2(x-4, bottom), 3.3, 0.1, 0.02)
-			_beard_lock(Vector2(x+7, my+7), Vector2(x+10, chin+5), Vector2(x+4, bottom-2), 3.0, 0.1, -0.10)
-			_beard_lock(Vector2(x-3, my+7), Vector2(x-5, chin+7), Vector2(x-1, bottom+1), 3.0, 0.15, 0.04)
-			_beard_lock(Vector2(x+2, my+8), Vector2(x+6, chin+6), Vector2(x+3, bottom-1), 2.6, 0.1, -0.06)
-			_beard_lock(Vector2(x-10, chin-2), Vector2(x-7, chin+2), Vector2(x-8, bottom-4), 1.6, 0.1, 0.09)
-			_beard_lock(Vector2(x-3, chin+1), Vector2(x-1, chin+5), Vector2(x+1, bottom-2), 1.5, 0.1, 0.01)
+				x+half-3, my+2, x+half, my-3, x+half-1, chin-5,
+				x+half-5, chin+2, x+end_half+1, bottom-7, x+5, bottom-4, x+2, bottom-3,
+				x, bottom-1, x-3, bottom-4, x-5, bottom-3, x-end_half-3, bottom-7,
+				x-half+1, chin-4], x, my-3, bottom, half)
+			# Rear cheek curls stay grey; the lit chin overlaps them with staggered tips.
+			_beard_lock(Vector2(x-half+1, my-3), Vector2(x-half-3, chin-5), Vector2(x-9, bottom-8), 3.3, 0.15, -0.04, true)
+			_beard_lock(Vector2(x+half-1, my-3), Vector2(x+half+1, chin-4), Vector2(x+9, bottom-9), 3.1, 0.1, -0.20, true)
+			_beard_lock(Vector2(x-10, my+2), Vector2(x-13, chin), Vector2(x-6, bottom-3), 4.0, 0.15, 0.01, true)
+			_beard_lock(Vector2(x+10, my+2), Vector2(x+13, chin+1), Vector2(x+6, bottom-6), 3.7, 0.1, -0.16, true)
+			_beard_lock(Vector2(x+1, my+6), Vector2(x+4, chin+2), Vector2(x+2, bottom-2), 4.4, 0.15, -0.16, true)
+			_beard_lock(Vector2(x-6, my+7), Vector2(x-10, chin+4), Vector2(x-4, bottom), 4.5, 0.1, 0.08, true)
+			_beard_lock(Vector2(x+6, my+8), Vector2(x+9, chin+5), Vector2(x+3, bottom-3), 4.0, 0.1, -0.10, true)
+			_beard_lock(Vector2(x-1.5, chin-4), Vector2(x-4, chin+6), Vector2(x-1, bottom+1), 4.7, 0.15, 0.08, true)
+			_beard_lock(Vector2(x-5, chin-1), Vector2(x-1, chin+2), Vector2(x+1, chin+6), 3.0, 0.1, 0.10)
+			_beard_lock(Vector2(x, my+4), Vector2(x-2, my+6), Vector2(x, my+9), 1.4, 0.1, -0.07, true)
 			if beard_style == 4:
 				_poly([x-1, bottom-4, x+2, bottom-4, x+2, bottom+1, x-1, bottom+1], cr[1])
 			if beard_style == 5:
 				for side in [-1, 1]:
 					_line(Vector2(x+side*5-1, chin+8), Vector2(x+side*5+1, chin+8), sec)
+	br = upper_ramp
 	if beard_style != 7:
 		_beard_lock(Vector2(x-1, my-1), Vector2(x-5, my-2), Vector2(x-9, my+1), 1.55, 0.1, 0.02)
 		_beard_lock(Vector2(x+1, my-1), Vector2(x+5, my-2), Vector2(x+8, my+1.5), 1.35, 0.1, -0.08)
