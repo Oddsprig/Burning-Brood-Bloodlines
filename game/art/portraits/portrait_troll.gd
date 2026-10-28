@@ -9,9 +9,9 @@ const LIGHT := Vector3(-0.48, -0.61, 0.63)
 const PROFILE := [
 	Vector3(12, 43, 0.4), Vector3(13, 43, 8), Vector3(15, 43, 15),
 	Vector3(19, 43, 21), Vector3(25, 44, 24), Vector3(33, 44, 25),
-	Vector3(40, 44, 23), Vector3(46, 45, 23), Vector3(51, 47, 22),
-	Vector3(57, 49, 25), Vector3(62, 50, 25), Vector3(67, 51, 23),
-	Vector3(71, 52, 18), Vector3(74, 53, 10), Vector3(75, 53, 0.4),
+	Vector3(40, 44, 22), Vector3(46, 44, 21), Vector3(51, 44, 18),
+	Vector3(56, 46, 19), Vector3(60, 52, 22), Vector3(64, 52, 19),
+	Vector3(68, 51, 17), Vector3(72, 51, 11), Vector3(75, 50, 0.4),
 ]
 const ARMOUR := ["cuirass", "mail", "scale", "lamellar", "scrap", "byrnie",
 	"plate", "brigandine", "hauberk", "breastplate"]
@@ -83,9 +83,9 @@ func _read_spec() -> void:
 	seed = int(spec.get("seed", 1))
 	rng.seed = seed
 	set_id = posmod(int(spec.get("female_set", seed)), 2)
-	sx = (0.90 if female else 1.0) * (0.94 if young else (0.97 if elder else 1.0))
-	sy = (0.97 if female else 0.95) if young else ((1.045 if female else 1.02) if elder else 1.0)
-	dy = (2.0 if female else 4.0) if young else (1.0 if elder else 0.0)
+	sx = (0.94 if female else 1.0) * (0.94 if young else (0.97 if elder else 1.0))
+	sy = (1.0 if female else 0.95) if young else ((1.045 if female else 1.02) if elder else 1.0)
+	dy = (1.0 if female else 4.0) if young else (1.0 if elder else 0.0)
 	tilt = (0.085 if female else 0.055) if elder else (-0.055 if female else 0.015)
 	tilt += float(posmod(seed, 3) - 1) * 0.014
 	var base := _color("skin", Color("#7c8973")).lerp(Color("#7b8979"), 0.32)
@@ -159,19 +159,21 @@ func _profile(y: float) -> Vector2:
 		var m0 := (Vector2(b.y, b.z) - Vector2(prev.y, prev.z)) / maxf(1.0, b.x - prev.x)
 		var m1 := (Vector2(next.y, next.z) - Vector2(a.y, a.z)) / maxf(1.0, next.x - a.x)
 		var row := Vector2(a.y, a.z) * (2*t*t*t - 3*t*t + 1) + m0 * (b.x-a.x) * (t*t*t - 2*t*t + t) + Vector2(b.y, b.z) * (-2*t*t*t + 3*t*t) + m1 * (b.x-a.x) * (t*t*t - t*t)
-		var lower := smoothstep(45.0, 65.0, y)
-		# Projection moves the jaw forward in this three-quarter view, not outwards.
-		row.x += 3.0 * smoothstep(49.0, 57.0, y)
-		row.y *= 1.0 - lower * (0.16 if female and young else (0.10 if female else (0.06 if young else 0.0)))
-		if female:
-			row.y -= 1.2 * _bump(Vector2(0, y), Vector2(0, 35), Vector2(1, 11))
-			row.x -= lower * 0.5
+		var lower := smoothstep(51.0, 62.0, y)
+		# The jaw advances after the hollow, then turns under a compact chin.
+		row.x += (2.2 if female else 4.0) * lower
+		if young and female:
+			row.y += 1.0 * _bump(Vector2(0, y), Vector2(0, 25), Vector2(1, 10))
+			row.y -= 2.4 * _bump(Vector2(0, y), Vector2(0, 35), Vector2(1, 6))
+			row.y += 1.0 * _bump(Vector2(0, y), Vector2(0, 44), Vector2(1, 4))
+			row.y -= 3.0 * lower
+			row.x -= 0.8 * _bump(Vector2(0, y), Vector2(0, 69), Vector2(1, 6))
+		elif female:
+			row.y -= 1.3 + 0.7 * lower
+		elif young:
+			row.y -= 0.7 * lower
 		if elder:
-			row.y -= 1.1 * _bump(Vector2(0, y), Vector2(0, 53), Vector2(1, 5))
-			row.y += 1.0 * _bump(Vector2(0, y), Vector2(0, 65), Vector2(1, 6))
-			if female:
-				row.y -= 1.4 * _bump(Vector2(0, y), Vector2(0, 39), Vector2(1, 12))
-				row.y += 1.1 * _bump(Vector2(0, y), Vector2(0, 64), Vector2(1, 7))
+			row.y -= 1.3 * _bump(Vector2(0, y), Vector2(0, 53), Vector2(1, 5))
 		return row
 	return Vector2.ZERO
 
@@ -189,16 +191,16 @@ func _height(q: Vector2) -> float:
 	var v := (q.y-43.0)/35.0
 	var z := 11.0 * sqrt(maxf(0.02, 1.0-u*u)) * sqrt(maxf(0.16, 1.0-v*v))
 	z += 3.1 * _bump(q, Vector2(41, 25), Vector2(15, 14))
-	# Faceted zygomatic ridges: a narrow crest and a shallow plane below it.
-	var cheek_y := 47.0 + (q.x-30.0)*0.20
-	z += 3.8 * maxf(0.0, 1.0-absf(q.x-30.0)/10.0) * maxf(0.0, 1.0-absf(q.y-cheek_y)/4.0)
-	z += 2.6 * maxf(0.0, 1.0-absf(q.x-64.0)/7.0) * maxf(0.0, 1.0-absf(q.y-47.0)/3.5)
-	z -= (1.4 if elder else 0.9) * _bump(q, Vector2(33, 54), Vector2(8, 6))
-	z -= 1.0 * _bump(q, Vector2(65, 54), Vector2(6, 6))
-	z += 1.6 * _bump(q, Vector2(48, 55), Vector2(14, 5))
-	z += 8.0 * _bump(q, Vector2(55, 65), Vector2(18 if female else 20, 11))
-	z -= 0.5 * _bump(q, Vector2(55, 68), Vector2(11, 2.2))
-	z += 2.5 * _bump(q, Vector2(55, 71), Vector2(12, 4.7))
+	var cheek_y := (44.5 if female and young else 46.0) + (q.x-30.0)*0.20
+	z += 3.5 * maxf(0.0, 1.0-absf(q.x-31.0)/9.0) * maxf(0.0, 1.0-absf(q.y-cheek_y)/3.0)
+	z += 2.2 * maxf(0.0, 1.0-absf(q.x-63.0)/6.0) * maxf(0.0, 1.0-absf(q.y-46.0)/3.0)
+	z -= (2.7 if elder else 2.1) * _bump(q, Vector2(32, 53), Vector2(7, 6))
+	z -= 1.8 * _bump(q, Vector2(64, 53), Vector2(5, 5))
+	z += 0.8 * _bump(q, Vector2(48, 55), Vector2(12, 4))
+	var muzzle_y := 60.0 if female and young else 61.5
+	z += (8.5 if female else 11.5) * _bump(q, Vector2(57, muzzle_y), Vector2(15 if female else 17, 5.2))
+	z -= 0.65 * _bump(q, Vector2(55, 65.7), Vector2(8, 2.0))
+	z += (3.5 if female else 4.5) * _bump(q, Vector2(56, 68.5), Vector2(13, 6.0))
 	return z
 
 func _face() -> void:
@@ -211,9 +213,11 @@ func _face() -> void:
 			var ny := (_height(q + Vector2(0, -0.7)) - _height(q + Vector2(0, 0.7))) / 1.4
 			var n := Vector3(nx, ny, 1.0).normalized()
 			var lit := 0.28 + maxf(0.0, n.dot(LIGHT)) * 0.65
-			lit -= smoothstep(65.0, 77.0, q.y) * 0.13
-			if q.y > 50.0 and q.y < 59.0 and (q.x < 39.0 or q.x > 60.0):
-				lit = maxf(lit, 0.38)
+			lit -= smoothstep(68.0, 75.0, q.y) * 0.21
+			lit -= 0.06 * _bump(q, Vector2(31, 53), Vector2(6, 5))
+			lit -= 0.04 * _bump(q, Vector2(64, 53), Vector2(5, 5))
+			if q.y > 49.0 and q.y < 57.0:
+				lit = maxf(lit, 0.30)
 			if q.y < 35.0:
 				lit -= 0.055 * smoothstep(43.0, 56.0, q.x)
 			_px(x, y, skin[clampi(int(lit * 7.0), 0, 6)])
@@ -265,36 +269,40 @@ func _neck() -> void:
 	if _missing("neck"):
 		_wound(Vector2(48, 73), 5)
 		return
-	_oval(_p(49, 70), Vector2(18*sx, 10), skin, -0.19)
-	_curve(_p(34, 71), _p(42, 77), _p(54, 79), _p(64, 72), 1.5, skin[1])
-	_curve(_p(39, 76), _p(45, 79), _p(54, 80), _p(60, 77), 0.6, skin[4])
+	_oval(_p(49, 71), Vector2(15*sx, 9), skin, -0.28)
+	_curve(_p(37, 68), _p(37, 72), _p(41, 76), _p(44, 78), 1.2, skin[2])
+	_curve(_p(61, 71), _p(60, 74), _p(60, 76), _p(58, 78), 0.7, skin[1])
 
 func _ear(near: bool) -> void:
 	var id := "ear_r" if near else "ear_l"
-	var x := 21.0 if near else 71.0
-	var c := _p(x, 44)
+	var x := 22.0 if near else 67.5
+	var c := _p(x, 40)
 	if _missing(id):
 		_wound(c, 2)
 		return
-	var sign_x := -1.0 if near else 1.0
-	_oval(c, Vector2(6, 10 if elder else 8), skin, -0.14 if near else -0.30)
-	_curve(c+Vector2(-sign_x*2, -5), c+Vector2(sign_x*6, -9), c+Vector2(sign_x*5, 3), c+Vector2(sign_x, 7), 1.2, skin[1])
-	_curve(c+Vector2(-sign_x, -4), c+Vector2(sign_x*3, -6), c+Vector2(sign_x*2, 0), c+Vector2(0, 3), 0.8, skin[4 if near else 2])
+	var s := -1.0 if near else 1.0
+	var drop := 2.0 if elder else 0.0
+	_poly_ramp(PackedVector2Array([_p(x-s, 38), _p(x+s*5, 35),
+		_p(x+s*7, 37), _p(x+s*6, 43), _p(x+s*3, 47+drop),
+		_p(x, 45+drop)]), skin, -0.12 if near else -0.30)
+	_curve(_p(x+s, 39), _p(x+s*5, 36), _p(x+s*6, 40), _p(x+s*3, 44+drop), 0.85, skin[1])
+	_line(_p(x+s*4, 38), _p(x+s*5, 40), 0.65, skin[4 if near else 3])
 
 func _cheeks() -> void:
-	# A slanted crest ends at the cheekbone; no round highlight around the cheek.
-	_line(_p(25, 46), _p(30, 45), 0.7, skin[5])
-	_line(_p(30, 45), _p(35, 48), 0.65, skin[4])
-	_line(_p(26, 49), _p(32, 51), 0.55, skin[3])
+	# The ear ends behind this crease; the cheekbone runs towards the nose.
+	_curve(_p(23, 38), _p(22, 42), _p(23, 45), _p(25, 46), 0.65, skin[1])
+	_curve(_p(67, 39), _p(68, 42), _p(67, 44), _p(66, 45), 0.7, skin[0])
+	var lift := -1.5 if female and young else 0.0
+	_line(_p(26, 46+lift), _p(31, 45+lift), 0.6, skin[5])
+	_line(_p(31, 45+lift), _p(36, 48+lift), 0.6, skin[4])
+	_curve(_p(27, 49+lift), _p(28, 51), _p(31, 54), _p(35, 55), 0.7, skin[2])
 	_line(_p(61, 46), _p(65, 47), 0.6, skin[4])
-	_line(_p(65, 47), _p(67, 50), 0.7, skin[2])
-	if not young and not _missing("jaw"):
-		_curve(_p(30, 52), _p(31, 54), _p(33, 55), _p(35, 56), 0.5, skin[3])
-		_curve(_p(65, 52), _p(66, 54), _p(66, 56), _p(65, 57), 0.5, skin[2])
+	_curve(_p(66, 49), _p(64, 51), _p(63, 53), _p(64, 55), 0.6, skin[2])
 
 func _eye(near: bool) -> void:
-	var eye_x := (35.0 if near else 58.0) if female else (34.0 if near else 59.0)
-	var c := _p(eye_x, 39 if near else 40)
+	var eye_x := (36.0 if near else 58.5) if female and young else ((35.0 if near else 58.0) if female else (34.0 if near else 59.0))
+	var eye_y := (38.0 if near else 39.0) if female and young else (39.0 if near else 40.0)
+	var c := _p(eye_x, eye_y)
 	var id := "eye_r" if near else "eye_l"
 	var ex := 5.1 if near else 4.3
 	_oval(c+Vector2(0, 0.5), Vector2(ex+1.1, 3.7 if elder else 3.1), skin, -0.29)
@@ -309,16 +317,18 @@ func _eye(near: bool) -> void:
 	var y := int(round(c.y))
 	var wide := 4 if near else 3
 	var whites := Color("#e3dfc5") if near else Color("#b9c2a8")
-	var openness := 3 if young and (not female or near) else 2
-	if elder and female and not near:
-		openness = 3
-	var slope := (-1.0 if near else 1.0) if not young else (1.0 if near else -1.0)
-	if female:
-		slope = -slope
-	var ix := 0 if young else (1 if not female else -1)
+	var openness := 4 if female and young and near else 3
+	var slope := (0.6 if near else -0.5) if young else (-0.35 if near else 0.4)
+	if elder:
+		slope = -0.5 if near else 0.7
+	if female and young:
+		slope = -0.65 if near else 0.25
+	var ix := (-1 if young else (0 if elder else 1)) if not female else (-1 if young else 1)
 	for xx in range(-wide, wide+1):
 		var top := int(round(float(xx)*slope/float(wide))) - 1
-		var bottom := top + openness - (1 if absi(xx) == wide else 0)
+		if absi(xx) == wide:
+			top += 1
+		var bottom := top + openness - (2 if absi(xx) == wide else 0)
 		for yy in range(top, bottom):
 			var col := whites.darkened(0.15 if yy == top else 0.0)
 			if absi(xx-ix) <= 1:
@@ -329,12 +339,12 @@ func _eye(near: bool) -> void:
 		_px(x+xx, y+top-1, skin[0])
 		if absi(xx) < wide:
 			_px(x+xx, y+bottom, skin[3 if near else 2])
-	_px(x+ix-1, y-1, Color("#fff0c5"))
+	_px(x+ix, y-1, Color("#fff0c5"))
 
 func _brows() -> void:
-	var thickness := (2.6 if elder else 1.9) if female else (2.5 if young else 3.2)
-	var lift := (-2.0 if young else 0.5) if female else (-0.5 if young else (0.0 if elder else 1.0))
-	var inner := (1.0 if young else -0.5) if female else (-1.5 if young else 1.5)
+	var thickness := (2.3 if elder else 1.7) if female else (2.5 if young else 2.8)
+	var lift := (-2.0 if young else 0.0) if female else (-0.5 if young else -0.6)
+	var inner := (0.6 if young else -0.5) if female else (-1.5 if young else (-0.8 if elder else -0.3))
 	var a := _p(25, 36+lift)
 	var b := _p(29, 31+lift)
 	var c := _p(38, 32+lift+inner)
@@ -354,6 +364,18 @@ func _brows() -> void:
 func _nose() -> void:
 	if _missing("nose"):
 		_wound(_p(50, 51), 3)
+		return
+	if female and young:
+		# A longer exposed philtrum and fine crooked bridge change the face itself.
+		_poly_ramp(PackedVector2Array([_p(47, 34), _p(50, 35), _p(50, 42),
+			_p(53, 49), _p(52, 52), _p(49, 53), _p(46, 51),
+			_p(46, 47), _p(46, 40)]), skin, -0.12)
+		_curve(_p(48, 36), _p(47, 41), _p(48, 46), _p(50, 49), 1.0, skin[5])
+		_oval(_p(50, 50.5), Vector2(3.1*sx, 2.7), skin, 0.02)
+		_line(_p(47, 52), _p(48, 52.5), 0.65, skin[0])
+		_line(_p(52, 52), _p(53, 51), 0.65, skin[0])
+		_pxv(_p(49, 49), skin[6])
+		_line(_p(49, 54), _p(50, 56), 0.5, skin[2])
 		return
 	var drop := (3.5 if female else 3.0) if elder else (0.0 if young else 1.5)
 	# Pear-shaped drooping nose, with a narrow bridge and a weighted soft tip.
@@ -376,22 +398,21 @@ func _mouth() -> void:
 	if _missing("mouth"):
 		_wound(_p(51, 60), 4)
 		return
-	var y := 60.0
-	var lip := skin[4].lerp(Color("#a38b70") if female else Color("#958365"), 0.48)
-	var left := 36.0 if female else 34.0
-	var right := 65.0 if female else 67.0
-	var lcorner := (-0.6 if female else 1.0) if young else (3.0 if elder else 2.0)
-	var rcorner := (1.8 if female else -2.7) if young else (1.5 if elder and female else (2.8 if elder else 1.4))
-	var bow := (-1.2 if female else 2.0) if young else (0.7 if elder else -1.5)
-	# The upper muzzle recedes; the lower lip belongs to the forward jaw.
-	_curve(_p(left+1, y-3), _p(43, y-1), _p(58, y-1), _p(right, y-3+rcorner), 2.0, skin[3])
-	_curve(_p(left, y+lcorner), _p(43, y+bow), _p(57, y+bow+0.4), _p(right, y+rcorner), 1.2, skin[1])
-	_curve(_p(left+1, y+lcorner), _p(44, y+bow+0.2), _p(59, y+bow+0.5), _p(right, y+rcorner), 0.6, Color("#373a2b"))
-	_curve(_p(left+6, y+3), _p(48, y+4.5+bow*0.4), _p(60, y+4.0+bow*0.4), _p(right+3, y+rcorner+1.5), 2.0, lip)
-	_curve(_p(left+7, y+2.2), _p(48, y+3.0+bow*0.4), _p(59, y+2.8+bow*0.4), _p(right+1, y+rcorner+1.2), 0.75, skin[5])
-	_curve(_p(47, 68), _p(51, 69), _p(57, 69), _p(61, 67.5), 0.55, skin[2])
-	_curve(_p(46, 71), _p(50, 72), _p(56, 72), _p(60, 71), 0.6, skin[4])
-	_curve(_p(right+2, y+rcorner), _p(right+4, y+rcorner+1), _p(right+4, y+3), _p(right+2, y+4), 0.6, skin[2])
+	var y := (58.5 if young else 62.0) if female else 60.5
+	var lip := skin[4].lerp(Color("#aa8a72") if female else Color("#958365"), 0.35)
+	var left := (37.0 if young else 39.0) if female else 34.0
+	var right := (63.0 if young else 61.0) if female else 66.0
+	var tension := -0.8 if young and not female else (1.0 if elder else 0.0)
+	# An inset upper lip meets the rising front of the lower muzzle.
+	_curve(_p(left+2, y-1), _p(45, y-2), _p(55, y-1), _p(right-1, y), 1.1, skin[2])
+	_curve(_p(left, y+1.5+tension), _p(44, y+1), _p(59, y+1), _p(right+2, y-0.6), 0.85, skin[0])
+	# The lower lip rolls forward and up, beyond the upper lip at the far corner.
+	_curve(_p(left+5, y+3), _p(49, y+4), _p(64, y+2.5), _p(right+5, y-0.3), 1.25 if not female else 0.95, lip)
+	_curve(_p(49, y+2.5), _p(54, y+2.3), _p(61, y+1.4), _p(right+3, y-0.6), 0.6, skin[5])
+	_curve(_p(right+5, y), _p(right+7, y+2), _p(right+5, y+4), _p(right+3, y+5), 0.8, skin[2])
+	# A short central crease separates the chin; shadow turns under it into the neck.
+	_curve(_p(51, 66.5), _p(53, 67.5), _p(57, 67.0), _p(59, 66), 0.5, skin[2])
+	_curve(_p(46, 73), _p(53, 76), _p(62, 73), _p(65, 70), 1.2, skin[0])
 
 func _mottles() -> void:
 	for i in range(33 if elder else 26):
@@ -419,8 +440,11 @@ func _warts() -> void:
 	var index := 0
 	for q in [Vector2(25, 32), Vector2(25, 53), Vector2(67, 27),
 		Vector2(71, 58), Vector2(37, 22), Vector2(60, 68)]:
-		var p := _p(q.x+float(posmod(seed, 3)-1), q.y)
+		var local := Vector2(q.x+float(posmod(seed, 3)-1), q.y)
+		var p := _p(local.x, local.y)
 		if _missing("jaw") and q.y > 57:
+			continue
+		if not _inside(local):
 			continue
 		var radius := 1.7 if index == 2 else (1.15 if index in [1, 5] else 1.3)
 		_oval(p, Vector2(radius, radius*0.85), skin, -0.05)
@@ -445,43 +469,41 @@ func _age_marks() -> void:
 	if not _missing("jaw"):
 		_curve(_p(42, 53), _p(38, 54), _p(38, 58), _p(36, 62), 0.55, skin[2])
 		_curve(_p(59, 54), _p(63, 56), _p(64, 59), _p(66, 62), 0.55, skin[2])
-		_curve(_p(42, 68), _p(47, 71), _p(58, 70), _p(63, 66), 0.6, skin[2])
+		_curve(_p(39, 64), _p(40, 67), _p(42, 69), _p(44, 70), 0.55, skin[2])
 
 func _back_hair() -> void:
 	if not female:
 		return
-	var length := 70.0 if elder else 64.0
-	_poly_ramp(PackedVector2Array([_p(25, 26), _p(18, 35), _p(17, 52),
-		_p(20, length+1), _p(25, length-3), _p(28, 45)]), hair, -0.38)
-	_poly_ramp(PackedVector2Array([_p(65, 26), _p(75, 34), _p(78, 51),
-		_p(80, length+4), _p(74, length+7), _p(69, 58)]), hair, -0.36)
-	_lock(_p(24, 30), _p(19, 40), _p(23, 52), _p(19, length), 3.8, hair)
-	_lock(_p(68, 29), _p(75, 38), _p(72, 53), _p(78, length+2), 4.0, hair)
-	_lock(_p(73, 40), _p(78, 49), _p(71, 60), _p(74, length+6), 2.8, hair)
+	var length := 70.0 if elder else 65.0
+	# Thin unequal bundles leave gaps behind the ears and shoulders.
+	_lock(_p(25, 28), _p(20, 34), _p(20, 44), _p(18, 52), 2.0, hair)
+	_lock(_p(21, 42), _p(19, 47), _p(22, 55), _p(19, length-3), 1.6, hair)
+	_lock(_p(24, 48), _p(21, 53), _p(23, 59), _p(22, length), 1.35, hair)
+	_lock(_p(67, 28), _p(72, 34), _p(73, 43), _p(74, 49), 2.1, hair)
+	_lock(_p(73, 43), _p(75, 48), _p(73, 56), _p(76, length-2), 1.8, hair)
+	_lock(_p(71, 51), _p(73, 57), _p(72, 63), _p(74, length+3), 1.4, hair)
 
 func _front_hair() -> void:
-	# Isolated swept locks leave most of the crown and forehead bare.
+	# Short changes of direction replace a continuous hook around the scalp.
 	if female:
-		if not elder:
-			if set_id == 0:
-				_lock(_p(40, 15), _p(29, 12), _p(20, 22), _p(22, 36), 3.8, hair)
-				_lock(_p(32, 17), _p(24, 18), _p(25, 28), _p(20, 43), 3.0, hair)
-			else:
-				_lock(_p(53, 14), _p(64, 13), _p(70, 25), _p(72, 38), 3.5, hair)
-		_lock(_p(25, 25), _p(20, 33), _p(25, 43), _p(21, 52), 3.3, hair)
-		_lock(_p(67, 25), _p(73, 35), _p(68, 45), _p(74, 55), 3.4, hair)
-		_lock(_p(70, 40), _p(69, 48), _p(75, 54), _p(73, 65), 2.5, hair)
-		if elder:
-			_lock(_p(30, 19), _p(24, 20), _p(20, 27), _p(23, 36), 2.7, hair)
-			_lock(_p(64, 19), _p(69, 22), _p(72, 26), _p(71, 33), 2.4, hair)
+		var top := 19.0 if elder else 15.0
+		if set_id == 0 or elder:
+			_lock(_p(26, 26), _p(25, 23), _p(26, top+5), _p(28, top+3), 1.5, hair)
+			_lock(_p(33, top+4), _p(33, top+1), _p(35, top-1), _p(38, top-2), 1.5, hair)
+		else:
+			_lock(_p(65, 25), _p(65, 20), _p(60, 16), _p(57, 16), 1.8, hair)
+		_lock(_p(23, 29), _p(20, 34), _p(22, 38), _p(20, 42), 1.7, hair)
+		_lock(_p(22, 46), _p(21, 50), _p(24, 54), _p(22, 58), 1.4, hair)
+		_lock(_p(67, 25), _p(71, 29), _p(70, 35), _p(73, 39), 1.8, hair)
+		_lock(_p(71, 43), _p(70, 47), _p(73, 51), _p(72, 55), 1.4, hair)
 	else:
-		var tip := 19.0 if elder else 13.0
-		_lock(_p(35, tip), _p(27, tip-1), _p(23, 20), _p(24, 29), 3.0, hair)
-		_lock(_p(31, tip+2), _p(26, tip+3), _p(27, 23), _p(25, 28), 2.0, hair)
+		var top := 18.0 if elder else 13.0
+		_lock(_p(25, 28), _p(24, 26), _p(24, 24), _p(25, 22), 1.25, hair)
+		_lock(_p(29, top+6), _p(28, top+4), _p(29, top+1), _p(31, top-1), 1.5, hair)
 		if young:
-			_lock(_p(40, 13), _p(35, 11), _p(32, 14), _p(29, 19), 2.6, hair)
-		_lock(_p(66, 18), _p(68, 21), _p(67, 25), _p(69, 29), 1.7, hair)
-		_lock(_p(24, 32), _p(21, 35), _p(24, 39), _p(22, 43), 1.8, hair)
+			_lock(_p(35, 16), _p(35, 13), _p(37, 11), _p(40, 10), 1.5, hair)
+		_lock(_p(66, 23), _p(67, 24), _p(67, 27), _p(69, 29), 1.15, hair)
+		_lock(_p(24, 32), _p(22, 34), _p(23, 36), _p(22, 38), 1.05, hair)
 
 func _beard() -> void:
 	if not beard_on or _missing("jaw") or _missing("mouth"):
@@ -490,68 +512,92 @@ func _beard() -> void:
 		_lock(_p(47, 57), _p(41, 56), _p(39, 58), _p(36, 60), 1.3, beard)
 		_lock(_p(53, 57), _p(57, 56), _p(61, 57), _p(64, 59), 1.2, beard)
 		return
-	var length := 9.0 if elder else 5.0
+	var length := 11.0 if elder else 7.0
 	if beard_style in [2, 3, 4, 5]:
 		length += 5
 	if beard_style == 7:
 		length = 2
 	if beard_style == 1:
 		length += 2
-		_poly_ramp(PackedVector2Array([_p(46, 68), _p(51, 67), _p(57, 68),
-			_p(59, 72), _p(55, 77), _p(51, 75), _p(48, 76), _p(45, 72)]), beard, -0.12)
-	if beard_style != 1 and beard_style != 7:
-		_poly_ramp(PackedVector2Array([_p(37, 67), _p(46, 69), _p(60, 67),
-			_p(65, 71), _p(61, 78), _p(57, 79), _p(53, 81),
-			_p(48, 78), _p(43, 79), _p(39, 74)]), beard, -0.14)
-	# Stubble crosses the root edge so the short beard grows from the chin.
-	for i in range(8):
-		var x := (46.0+i*1.4) if beard_style == 1 else (39.0+i*3.0)
-		var y := 67.0 + float(posmod(i*3+seed, 3))*0.7
-		_pxv(_p(x, y), skin[3].lerp(beard[2], 0.6))
-	var roots := [Vector2(42, 68), Vector2(57, 68), Vector2(47, 69), Vector2(62, 67), Vector2(52, 70)]
-	var tips := [Vector2(45, 76), Vector2(59, 79), Vector2(48, 80), Vector2(61, 75), Vector2(54, 81)]
+	var roots := [Vector2(40, 64), Vector2(63, 65), Vector2(45, 66),
+		Vector2(58, 66), Vector2(50, 67), Vector2(45, 71),
+		Vector2(59, 72), Vector2(51, 74), Vector2(55, 76)]
+	var tips := [Vector2(42, 70), Vector2(62, 71), Vector2(46, 73),
+		Vector2(60, 74), Vector2(52, 74), Vector2(47, 78),
+		Vector2(59, 79), Vector2(52, 81), Vector2(56, 80)]
 	if beard_style == 1:
-		roots = [Vector2(48, 68), Vector2(55, 68), Vector2(51, 69)]
-		tips = [Vector2(47, 74), Vector2(58, 76), Vector2(52, 75)]
+		roots = [Vector2(48, 64.5), Vector2(56, 65), Vector2(52, 67)]
+		tips = [Vector2(49, 71), Vector2(57, 72), Vector2(54, 75)]
 	for i in range(roots.size()):
 		var root: Vector2 = roots[i]
-		var tip: Vector2 = root+(tips[i]-root)*clampf(length/10.0, 0.35, 1.0)
+		var factor := clampf(length/12.0, 0.15, 1.0)
+		var reach: Vector2 = (tips[i]-root)*factor
+		if beard_style != 1:
+			root.y = 65.0+(root.y-65.0)*factor
+		var tip := root+reach
 		_beard_clump(_p(root.x, root.y), _p(tip.x, tip.y),
-			(4.0 if elder else 2.6)-float(i%3)*0.35, i)
+			(3.7 if elder else 2.4)-float(i%3)*0.25, i)
+	# Unequal single hairs bridge skin and clumps without a solid top edge.
+	for i in range(15):
+		var x := (47.5+i*0.65) if beard_style == 1 else (39.0+i*1.8)
+		var y := 65.0 + float(posmod(i*7+seed, 5))*0.55
+		var p := _p(x, y)
+		if _opaque(int(p.x), int(p.y)):
+			var col := im.get_pixel(int(p.x), int(p.y)).lerp(beard[2+i%2], 0.42)
+			_line(p, p+Vector2(0.3, 1.1), 0.45, col)
 	if beard_style != 1:
-		_lock(_p(30, 59), _p(29, 64), _p(33, 68), _p(36, 70), 1.7, beard)
-		_lock(_p(71, 60), _p(72, 65), _p(67, 70), _p(65, 72), 1.6, beard)
+		_beard_clump(_p(31, 58), _p(36, 65), 1.6, 1)
+		_beard_clump(_p(68, 59), _p(66, 66), 1.5, 0)
 
 func _beard_clump(root: Vector2, tip: Vector2, width: float, index: int) -> void:
-	var along := (tip-root).normalized()
+	var segment := tip-root
+	var along := segment.normalized()
 	var side := Vector2(-along.y, along.x)
-	var mid := root.lerp(tip, 0.53)
-	_poly_ramp(PackedVector2Array([root-side*width*0.65, root+side*width*0.75,
-		mid+side*width*0.72, tip, mid-side*width*0.47]), beard, -0.14)
-	# Short facets across unequal tufts; no bright stroke runs root to tip.
-	var start := root.lerp(tip, 0.18+float(index%2)*0.12)+side*width*0.30
-	_line(start, start+along*2.0-side*0.7, 0.65, beard[4])
-	var lower := root.lerp(tip, 0.66)+side*0.7
-	_line(lower, lower+along*1.3, 0.45, beard[5])
-	_line(mid-side*width*0.45, mid+along*2.0-side*width*0.25, 0.5, beard[1])
+	var lo := root.min(tip)-Vector2.ONE*width
+	var hi := root.max(tip)+Vector2.ONE*width
+	for y in range(maxi(0, int(lo.y)), mini(SIZE, int(hi.y)+1)):
+		for x in range(maxi(0, int(lo.x)), mini(SIZE, int(hi.x)+1)):
+			var p := Vector2(x+0.5, y+0.5)
+			var raw_t := (p-root).dot(segment)/maxf(0.1, segment.length_squared())
+			var t := clampf(raw_t, 0.0, 1.0)
+			var radius := width*(0.50+0.28*sin(t*PI))*(1.0-t*0.12)
+			var center := root.lerp(tip, t)
+			if p.distance_to(center) > radius:
+				continue
+			var across := (p-center).dot(side)/radius
+			var v := t*0.85-0.2
+			var normal := Vector3(side.x*across+along.x*v, side.y*across+along.y*v,
+				sqrt(maxf(0.02, 1.0-across*across-v*v))).normalized()
+			var lit := 0.18+maxf(0.0, normal.dot(LIGHT))*0.56-float(index%2)*0.05
+			var col := beard[clampi(int(lit*7), 1, 5)]
+			var blend := smoothstep(-0.08, 0.32, raw_t)
+			if _opaque(x, y):
+				col = im.get_pixel(x, y).lerp(col, blend)
+			_px(x, y, col)
+	var start := root.lerp(tip, 0.35)+side*width*0.15
+	_line(start, start+along*1.1, 0.45, beard[4])
 
 func _tusks() -> void:
 	if _missing("jaw") or _missing("mouth"):
 		return
-	var length := (11.0 if young else (13.0 if elder else 11.0)) * (0.95 if female else 1.0)
-	_tusk(36, 62, -1.0, length, false)
-	_tusk(65, 61, 1.0, length*(0.85 if elder else 0.94), elder)
+	var length := (15.5 if young else (13.5 if elder else 16.0)) * (0.95 if female else 1.0)
+	var root_y := 61.0 if young and female else 63.0
+	_tusk(38 if female else 36, root_y, -1.0, length, false)
+	_tusk(64 if female else 66, root_y-1, 1.0, length*(0.85 if elder else 0.94), elder)
 
 func _tusk(x: float, y: float, side: float, length: float, chipped: bool) -> void:
 	var a := _p(x, y)
-	var b := _p(x+side*3.0, y-length)
+	var b := _p(x+side*3.1, y-length)
 	var ivory := _ramp(Color("#d9cca2"), Color("#796f4b"), Color("#fff6d5"))
-	var pts := PackedVector2Array([a+Vector2(-3.0, 0), a+Vector2(3.0, 0),
-		_p(x+side*2.7+1.4, y-length*0.58), b+Vector2(0.5, 0),
-		b+Vector2(-0.4, 0.2), _p(x+side*1.3-1.8, y-length*0.55)])
+	var pts := PackedVector2Array([_p(x-3.2, y), _p(x+3.2, y),
+		_p(x+side*2.0+2.4, y-length*0.35), _p(x+side*4.1+1.2, y-length*0.72),
+		b+Vector2(0.5, 0), b+Vector2(-0.4, 0.2),
+		_p(x+side*3.2-1.3, y-length*0.68), _p(x+side*0.4-2.8, y-length*0.28)])
 	_poly_ramp(pts, ivory, 0.10)
-	_curve(a+Vector2(-1.1, -0.4), _p(x+side-1, y-length*0.4), _p(x+side*2-0.6, y-length*0.8), b, 0.55, ivory[6])
-	_line(a+Vector2(-2, 1), a+Vector2(2, 1), 0.6, skin[2])
+	_curve(a+Vector2(-1.2, -0.4), _p(x+side-1.2, y-length*0.4), _p(x+side*3-0.7, y-length*0.8), b, 0.65, ivory[6])
+	# The fleshy socket overlaps the ivory root at the lower lip.
+	_curve(_p(x-3.1, y-0.5), _p(x-2, y+1.1), _p(x+1, y+1.5), _p(x+3.1, y), 0.85, skin[2])
+	_line(_p(x-1.5, y+0.4), _p(x+1.5, y+0.7), 0.5, skin[4])
 	if chipped:
 		_pxv(b, skin[2])
 		_pxv(b+Vector2(0, 1), ivory[2])
@@ -714,20 +760,25 @@ func _curve(a: Vector2, b: Vector2, c: Vector2, d: Vector2, radius: float, color
 		prev = p
 
 func _lock(a: Vector2, b: Vector2, c: Vector2, d: Vector2, width: float, ramp: Array[Color]) -> void:
-	# Overlapping tapered clumps carry short, staggered flecks of light.
+	# A narrow root swells once, then tapers to a ragged directional tip.
 	var phase := fposmod(a.x*0.19+a.y*0.31+d.x*0.07, 1.0)
 	for pass_i in range(3):
-		var offset := Vector2(-0.4*pass_i, -0.2*pass_i)
-		var prev := a+offset
+		var prev := a
 		for i in range(1, 23):
 			var t := float(i)/22.0
-			var p := a.bezier_interpolate(b, c, d, t)+offset
-			var radius := maxf(0.32, width*(1.0-t*0.85)*(1.0-pass_i*0.35))
-			var band := fposmod(t*3.8+phase, 1.0)
-			if pass_i == 0 or (pass_i == 1 and band < 0.68):
-				_line(prev, p, radius, ramp[1 if pass_i == 0 else 3])
-			elif pass_i == 2 and t > 0.12 and t < 0.83 and band > 0.12 and band < 0.43:
-				_line(prev, p, minf(0.7, radius), ramp[5])
+			var p := a.bezier_interpolate(b, c, d, t)
+			var direction := (p-prev).normalized()
+			var side := Vector2(-direction.y, direction.x)
+			if side.dot(Vector2(LIGHT.x, LIGHT.y)) < 0.0:
+				side = -side
+			var taper := (0.62+0.38*sin(minf(1.0, t*2.0)*PI)) * pow(1.0-t, 0.8)
+			var radius := maxf(0.42, width*taper)
+			if pass_i == 0:
+				_line(prev, p, radius, ramp[1])
+			elif pass_i == 1 and t > 0.10 and t < 0.88:
+				_line(prev+side*radius*0.25, p+side*radius*0.25, radius*0.58, ramp[3])
+			elif pass_i == 2 and t > 0.18+phase*0.12 and t < 0.46+phase*0.25:
+				_line(prev+side*radius*0.45, p+side*radius*0.45, minf(0.5, radius*0.28), ramp[5])
 			prev = p
 
 func _wound(center: Vector2, radius: float) -> void:

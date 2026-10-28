@@ -494,14 +494,20 @@ func _eye(x: int, y: int, near: bool) -> void:
 			for dy in range(1 if corner else 0, 2 if corner else height):
 				_px(x+dx, y+dy, WHITE.darkened(0.055*dy+(0.02 if near else 0.07)))
 	var iris := [Color("#526d6b"), Color("#8b633d"), Color("#46647d"), Color("#596c42"), Color("#6b4933")][seed % 5] as Color
+	var pale := skin.get_luminance() > 0.58
+	if pale:
+		iris = iris.darkened(0.25)
 	var ix := x
 	for dy in range(0, height):
 		_px(ix, y+dy, iris)
 		_px(ix+1, y+dy, iris.darkened(0.26))
-	_px(ix+1, y, INK)
-	_px(ix+1, y+1, INK)
+	var pupil := Color("#141923") if pale else INK
+	_px(ix+1, y, pupil)
+	_px(ix+1, y+1, pupil)
+	if pale:
+		_px(ix+1, y+2, pupil)
 	_px(ix, y, WHITE)
-	_px(ix, y+2, iris.lightened(0.20))
+	_px(ix, y+2, iris.lightened(0.08 if pale else 0.20))
 	_px(x-w, y+1, sr[3])
 	_px(x+w, y+1, sr[3])
 	_line(Vector2(x-2, y+3), Vector2(x+1, y+3), sr[4].lerp(sr[3], 0.25))
@@ -536,8 +542,19 @@ func _mouth() -> void:
 		return
 	var x := int(cx)+1
 	var y := my
-	var lip := skin.lerp(Color("#a25755"), 0.48 if female else 0.31)
+	var lip := skin.lerp(Color("#a25755"), 0.36 if female else 0.31)
 	var dark := skin.lerp(Color("#503039"), 0.58)
+	if female:
+		# Shallow lip planes and level corners avoid a pursed, pointed bow.
+		var span := 5 if elder else 6
+		_poly([x-span, y, x-2, y-1, x+2, y-1, x+span, y,
+			x+3, y+1, x-3, y+1], lip.lerp(sr[4], 0.18))
+		_poly([x-span+1, y+1, x+span-1, y+1, x+2, y+2, x-3, y+2], lip.lerp(sr[5], 0.25))
+		_line(Vector2(x-span+1, y), Vector2(x+span-1, y), dark.lerp(skin, 0.16))
+		_line(Vector2(x-2, y+1), Vector2(x+1, y+1), lip.lerp(sr[6], 0.40))
+		_px(x-span, y, lip.lerp(sr[4], 0.50))
+		_px(x+span, y, lip.lerp(sr[4], 0.55))
+		return
 	var w := (4 if elder else 5) if female else (5 if young else 6)
 	# A broad, shallow cupid's bow and a rounded lower lip; corners stay relaxed.
 	_poly([x-w, y, x-2, y-2, x, y-1, x+2, y-2, x+w, y,
@@ -577,8 +594,8 @@ func _age_lines() -> void:
 		_px(int(cx+side*10), 53, crease)
 	_line(Vector2(cx-3, chin-2), Vector2(cx, chin-2), sr[3].lerp(sr[4], 0.5))
 
-func _lock(a: Vector2, b: Vector2, c: Vector2, r0: float, r1: float, ramp: Array[Color], bias: float = 0.0) -> void:
-	# A tapered Bezier ribbon. Its local cylindrical lighting follows the bend.
+func _lock(a: Vector2, b: Vector2, c: Vector2, r0: float, r1: float, ramp: Array[Color], bias: float = 0.0, fibers: bool = false) -> void:
+	# Cloth keeps its rounded folds; hair uses flatter, overlapping strand groups.
 	const STEPS := 20
 	var pts := PackedVector2Array()
 	var bounds := Rect2(a, Vector2.ZERO)
@@ -606,6 +623,9 @@ func _lock(a: Vector2, b: Vector2, c: Vector2, r0: float, r1: float, ramp: Array
 					center = closest
 					tangent = seg.normalized()
 			var rad := lerpf(r0, r1, pow(along, 1.35)) + sin(along*PI)*r0*0.12
+			if fibers:
+				rad = lerpf(r0*0.78, r1, pow(along, 1.65)) + sin(along*PI)*r0*0.23
+				rad *= 1.0 + sin(along*8.0+a.x*0.17)*0.075
 			if d2 > rad*rad:
 				continue
 			var normal := Vector2(-tangent.y, tangent.x)
@@ -620,10 +640,22 @@ func _lock(a: Vector2, b: Vector2, c: Vector2, r0: float, r1: float, ramp: Array
 				lit -= 0.08
 			if along > 0.94:
 				lit -= 0.04
+			if fibers:
+				# Broad, quiet midtones. Short glints follow the bend and stop before tips.
+				lit = 0.49 + bias - along*0.035 - (float(x)-40.0)*0.002
+				lit += maxf(0.0, 0.85-absf(across+0.18))*0.14
+				lit += sin(along*PI)*0.035
+				var glint := sin(along*11.0+c.x*0.37)
+				if across > -0.48 and across < -0.04 and glint > 0.20 and along > 0.12 and along < 0.83:
+					lit += 0.09
+				if across > 0.70 and along < 0.86:
+					lit -= 0.055
+				if across < -0.78:
+					lit -= 0.035
 			_px(x, y, _tone(ramp, lit))
 
 func _hlock(a: Vector2, b: Vector2, c: Vector2, r0: float, r1: float, bias: float = 0.0) -> void:
-	_lock(a, b, c, r0, r1, hr, bias)
+	_lock(a, b, c, r0, r1, hr, bias, true)
 
 func _hair_mass(coords: Array, bias: float = 0.0) -> void:
 	var pts := _points(coords)
@@ -631,22 +663,26 @@ func _hair_mass(coords: Array, bias: float = 0.0) -> void:
 		for x in range(21, 77):
 			if not Geometry2D.is_point_in_polygon(Vector2(x+0.5, y+0.5), pts):
 				continue
-			var lit := 0.65 - (float(x)-cx)*0.007 - maxf(0.0, float(y)-26.0)*0.0025 + bias
-			lit += _soft(x, y, cx-7, 17, 14, 8)*0.10
-			lit -= _soft(x, y, cx+17, 31, 7, 14)*0.10
+			# Root underpainting only; the visible crown is made by individual locks.
+			var lit := 0.40 - (float(x)-cx)*0.003 + bias*0.5
+			lit += _soft(x, y, cx-7, 22, 12, 10)*0.04
 			_px(x, y, _tone(hr, lit))
 
 func _hair_back() -> void:
 	if female and not elder:
-		_hair_mass([cx-16, 22, cx-22, 33, cx-24, 48, cx-22, 59, cx-24, 69,
-			cx-21, 78, cx-16, 81, cx-12, 73, cx-14, 58, cx-12, 43, cx-9, 28], -0.13)
-		_hair_mass([cx+12, 22, cx+20, 30, cx+23, 44, cx+22, 54, cx+25, 64,
-			cx+22, 76, cx+16, 80, cx+12, 72, cx+15, 58, cx+12, 42], -0.22)
-		_hlock(Vector2(cx-18, 32), Vector2(cx-22, 51), Vector2(cx-18, 70), 4.8, 1.8, -0.03)
-		_hlock(Vector2(cx+19, 34), Vector2(cx+16, 53), Vector2(cx+21, 70), 4.0, 1.3, -0.14)
+		for side in [-1, 1]:
+			var d := float(side)
+			var shade := -0.09 if side < 0 else -0.19
+			_hair_mass([cx+d*15, 26, cx+d*21, 37, cx+d*22, 53, cx+d*20, 70,
+				cx+d*16, 74, cx+d*14, 58, cx+d*13, 40], shade)
+			_hlock(Vector2(cx+d*16, 27), Vector2(cx+d*27, 44), Vector2(cx+d*21, 64), 3.5, 0.3, shade)
+			_hlock(Vector2(cx+d*21, 43), Vector2(cx+d*26, 60), Vector2(cx+d*18, 78), 3.2, 0.15, shade+0.02)
+			_hlock(Vector2(cx+d*18, 51), Vector2(cx+d*15, 67), Vector2(cx+d*22, 75), 2.6, 0.2, shade+0.07)
+			_hlock(Vector2(cx+d*23, 57), Vector2(cx+d*24, 69), Vector2(cx+d*20, 73), 1.8, 0.1, shade-0.03)
 	elif female:
 		_oval(Vector2(cx+17, 25), 7.5, 9, hair, hr, -0.22)
-		_curve(Vector2(cx+16, 18), Vector2(cx+26, 25), Vector2(cx+16, 31), hr[2])
+		_hlock(Vector2(cx+16, 17), Vector2(cx+27, 20), Vector2(cx+20, 32), 2.6, 0.2, -0.12)
+		_hlock(Vector2(cx+14, 20), Vector2(cx+24, 24), Vector2(cx+16, 33), 2.6, 0.15, -0.06)
 		_hair_mass([cx-15, 26, cx-20, 35, cx-19, 50, cx-14, 65, cx-10, 66, cx-12, 42], -0.17)
 		_hair_mass([cx+14, 27, cx+19, 33, cx+18, 50, cx+13, 60, cx+12, 44], -0.23)
 	elif elder:
@@ -663,87 +699,86 @@ func _hair_back() -> void:
 
 func _hair_front() -> void:
 	if elder and not female:
-		_hair_mass([cx-18, 42, cx-21, 31, cx-19, 23, cx-13, 17, cx-6, 16,
-			cx-3, 19, cx-12, 22, cx-16, 29, cx-16, 37], -0.02)
-		_hair_mass([cx+6, 18, cx+13, 19, cx+19, 25, cx+21, 35, cx+18, 43,
-			cx+16, 32, cx+13, 25, cx+9, 23], -0.12)
-		_hlock(Vector2(cx-7, 18), Vector2(cx-3, 11), Vector2(cx+7, 17), 2.5, 0.4, 0.05)
-		_curve(Vector2(cx-18, 29), Vector2(cx-17, 23), Vector2(cx-11, 21), hr[5])
-		_line(Vector2(cx+15, 25), Vector2(cx+17, 29), hr[4])
+		_hlock(Vector2(cx-8, 19), Vector2(cx-20, 17), Vector2(cx-20, 33), 3.1, 0.25, 0.03)
+		_hlock(Vector2(cx-12, 22), Vector2(cx-21, 27), Vector2(cx-17, 43), 3.3, 0.2, -0.04)
+		_hlock(Vector2(cx-16, 28), Vector2(cx-20, 38), Vector2(cx-17, 45), 2.0, 0.1, 0.02)
+		_hlock(Vector2(cx+8, 20), Vector2(cx+20, 21), Vector2(cx+20, 35), 2.9, 0.2, -0.12)
+		_hlock(Vector2(cx+15, 27), Vector2(cx+22, 34), Vector2(cx+17, 44), 2.6, 0.15, -0.17)
+		_hlock(Vector2(cx-8, 18), Vector2(cx-3, 10), Vector2(cx+5, 16), 2.3, 0.15, 0.07)
+		_hlock(Vector2(cx-6, 18), Vector2(cx, 13), Vector2(cx+8, 19), 1.8, 0.1, -0.01)
 		return
 	if not female:
 		if young:
-			_hair_mass([cx-21, 33, cx-21, 26, cx-17, 18, cx-8, 12, cx+1, 8,
-				cx+10, 11, cx+17, 17, cx+20, 24, cx+19, 34, cx+16, 37, cx+13, 27,
-				cx+8, 25, cx+2, 26, cx-5, 30, cx-11, 34, cx-16, 41, cx-19, 39])
-			_hlock(Vector2(cx+9, 20), Vector2(cx-8, 21), Vector2(cx-17, 36), 5.0, 0.6, -0.015)
-			_curve(Vector2(cx+8, 18), Vector2(cx+4, 17), Vector2(cx-2, 21), hr[1])
-			_curve(Vector2(cx-9, 26), Vector2(cx-13, 30), Vector2(cx-16, 34), hr[2])
-			_curve(Vector2(cx-16, 24), Vector2(cx-13, 20), Vector2(cx-9, 18), hr[4])
-			_curve(Vector2(cx-5, 16), Vector2(cx, 13), Vector2(cx+4, 14), hr[4])
-			_line(Vector2(cx-10, 17), Vector2(cx-7, 16), hr[5])
-			_curve(Vector2(cx-6, 25), Vector2(cx-2, 22), Vector2(cx+2, 22), hr[4])
+			_hair_mass([cx-19, 32, cx-17, 24, cx-10, 18, cx, 15, cx+12, 18,
+				cx+18, 26, cx+17, 35, cx+12, 27, cx+4, 25, cx-6, 30, cx-16, 39])
+			_hlock(Vector2(cx+6, 14), Vector2(cx+21, 16), Vector2(cx+19, 34), 3.7, 0.2, -0.12)
+			_hlock(Vector2(cx+11, 21), Vector2(cx+20, 27), Vector2(cx+16, 39), 2.8, 0.15, -0.08)
+			_hlock(Vector2(cx+3, 12), Vector2(cx-6, 8), Vector2(cx-15, 22), 3.4, 0.15, 0.10)
+			_hlock(Vector2(cx+8, 14), Vector2(cx-7, 12), Vector2(cx-20, 29), 3.8, 0.15, 0.06)
+			_hlock(Vector2(cx+9, 18), Vector2(cx-6, 15), Vector2(cx-19, 34), 3.5, 0.15, 0.02)
+			_hlock(Vector2(cx+8, 22), Vector2(cx-6, 20), Vector2(cx-16, 39), 3.0, 0.1, -0.02)
+			_hlock(Vector2(cx-3, 25), Vector2(cx-10, 29), Vector2(cx-12, 35), 1.7, 0.1, 0.03)
 		else:
-			_hair_mass([cx-22, 32, cx-21, 24, cx-17, 18, cx-10, 14, cx-2, 15,
-				cx+6, 12, cx+13, 15, cx+20, 22, cx+22, 32, cx+19, 39, cx+16, 34,
-				cx+14, 27, cx+7, 25, cx, 28, cx-8, 28, cx-14, 31, cx-18, 38], -0.05)
-			_poly([cx-17, 24, cx-12, 19, cx-3, 19, cx+5, 16, cx+12, 18,
-				cx+4, 20, cx-5, 23, cx-13, 25], hr[4])
-			_curve(Vector2(cx+14, 23), Vector2(cx+4, 21), Vector2(cx-6, 25), hr[1])
-			_line(Vector2(cx-16, 27), Vector2(cx-12, 25), hr[2])
-			_curve(Vector2(cx-13, 21), Vector2(cx-9, 17), Vector2(cx-5, 17), hr[3])
-			_line(Vector2(cx+5, 15), Vector2(cx+8, 16), hr[5])
-		_hlock(Vector2(cx-19, 29), Vector2(cx-21, 37), Vector2(cx-18, 47), 2.5, 0.5, -0.08)
-		_hlock(Vector2(cx+18, 29), Vector2(cx+20, 38), Vector2(cx+18, 47), 2.5, 0.4, -0.18)
+			_hair_mass([cx-20, 32, cx-18, 24, cx-10, 18, cx, 17, cx+10, 16,
+				cx+19, 25, cx+20, 34, cx+16, 38, cx+12, 27, cx+4, 26, cx-9, 29, cx-17, 37], -0.05)
+			_hlock(Vector2(cx+6, 16), Vector2(cx+21, 19), Vector2(cx+21, 34), 3.4, 0.2, -0.14)
+			_hlock(Vector2(cx+12, 22), Vector2(cx+19, 28), Vector2(cx+17, 39), 2.6, 0.1, -0.08)
+			_hlock(Vector2(cx-4, 17), Vector2(cx-13, 12), Vector2(cx-20, 28), 3.2, 0.2, 0.07)
+			_hlock(Vector2(cx+5, 15), Vector2(cx-6, 13), Vector2(cx-18, 32), 3.6, 0.15, 0.03)
+			_hlock(Vector2(cx+10, 18), Vector2(cx-3, 18), Vector2(cx-17, 36), 3.0, 0.1, -0.02)
+			_hlock(Vector2(cx+12, 22), Vector2(cx+2, 20), Vector2(cx-7, 29), 2.4, 0.1, 0.01)
+			_hlock(Vector2(cx-7, 24), Vector2(cx-13, 25), Vector2(cx-14, 31), 1.5, 0.1, 0.05)
+		_hlock(Vector2(cx-19, 29), Vector2(cx-21, 37), Vector2(cx-18, 47), 2.1, 0.15, -0.08)
+		_hlock(Vector2(cx+18, 29), Vector2(cx+20, 38), Vector2(cx+18, 47), 2.0, 0.1, -0.18)
 	elif elder:
 		var d := -part
-		_hair_mass([cx-d*20, 34, cx-d*19, 24, cx-d*14, 17, cx-d*5, 11,
-			cx+d*5, 10, cx+d*14, 15, cx+d*19, 24, cx+d*18, 36, cx+d*15, 39,
-			cx+d*13, 28, cx+d*5, 24, cx-d*3, 23, cx-d*10, 28, cx-d*15, 37], -0.10)
-		_poly([cx-d*15, 24, cx-d*9, 17, cx, 13, cx+d*8, 14, cx+d*2, 17,
-			cx-d*5, 20, cx-d*12, 27], hr[4].lerp(hr[5], 0.5))
-		_curve(Vector2(cx+d*11, 18), Vector2(cx-d*3, 18), Vector2(cx-d*15, 31), hr[2])
-		_curve(Vector2(cx+d*14, 23), Vector2(cx+d*8, 20), Vector2(cx+d*5, 21), hr[3])
-		_poly([cx+d*13, 25, cx+d*17, 28, cx+d*16, 36, cx+d*13, 32], hr[2].lerp(hr[3], 0.5))
-		_line(Vector2(cx-d*8, 18), Vector2(cx-d*5, 16), hr[5])
-		_curve(Vector2(cx-d*10, 23), Vector2(cx-d*7, 20), Vector2(cx-d*3, 19), hr[3])
+		_hair_mass([cx-d*18, 33, cx-d*16, 24, cx-d*8, 18, cx+d*5, 15,
+			cx+d*15, 21, cx+d*17, 32, cx+d*14, 36, cx+d*10, 27, cx, 24, cx-d*13, 31], -0.10)
+		_hlock(Vector2(cx+d*5, 15), Vector2(cx+d*20, 17), Vector2(cx+d*18, 34), 3.5, 0.2, -0.12)
+		_hlock(Vector2(cx+d*11, 22), Vector2(cx+d*17, 26), Vector2(cx+d*15, 38), 2.7, 0.1, -0.08)
+		_hlock(Vector2(cx+d*1, 13), Vector2(cx-d*8, 11), Vector2(cx-d*17, 25), 3.1, 0.15, 0.08)
+		_hlock(Vector2(cx+d*7, 15), Vector2(cx-d*5, 13), Vector2(cx-d*19, 31), 3.4, 0.1, 0.02)
+		_hlock(Vector2(cx+d*9, 19), Vector2(cx-d*6, 17), Vector2(cx-d*17, 37), 2.9, 0.1, -0.04)
+		_hlock(Vector2(cx+d*4, 22), Vector2(cx-d*7, 22), Vector2(cx-d*13, 32), 2.2, 0.1, -0.01)
 		_braid(cx-16.5, 48, 83)
-		_hlock(Vector2(cx-16, 29), Vector2(cx-21, 41), Vector2(cx-16, 54), 3.6, 1.4, -0.17)
-		_hlock(Vector2(cx+16, 29), Vector2(cx+18, 39), Vector2(cx+16, 47), 2.0, 0.5, -0.16)
+		_hlock(Vector2(cx-16, 29), Vector2(cx-22, 40), Vector2(cx-17, 53), 2.8, 0.2, -0.09)
+		_hlock(Vector2(cx-18, 38), Vector2(cx-20, 46), Vector2(cx-14, 52), 1.7, 0.1, 0.01)
+		_hlock(Vector2(cx+16, 29), Vector2(cx+18, 39), Vector2(cx+16, 47), 1.9, 0.1, -0.16)
 	else:
 		var d := part
-		_hair_mass([cx-d*21, 34, cx-d*20, 25, cx-d*15, 17, cx-d*7, 12, cx+d*2, 9,
-			cx+d*11, 11, cx+d*18, 18, cx+d*21, 28, cx+d*20, 40, cx+d*16, 42,
-			cx+d*13, 31, cx+d*7, 25, cx+d*3, 24, cx-d*4, 27, cx-d*12, 34, cx-d*18, 41])
-		_poly([cx-d*17, 26, cx-d*10, 18, cx, 13, cx+d*8, 13, cx+d*2, 17,
-			cx-d*6, 22, cx-d*14, 30], hr[5])
-		_curve(Vector2(cx+d*5, 17), Vector2(cx-d*2, 19), Vector2(cx-d*8, 25), hr[2])
-		_curve(Vector2(cx-d*11, 28), Vector2(cx-d*14, 31), Vector2(cx-d*16, 34), hr[3])
-		_curve(Vector2(cx+d*7, 16), Vector2(cx+d*18, 20), Vector2(cx+d*18, 31), hr[2])
-		_poly([cx+d*6, 21, cx+d*10, 22, cx+d*14, 27, cx+d*13, 32,
-			cx+d*9, 26, cx+d*5, 24], hr[3])
-		_line(Vector2(cx-d*11, 22), Vector2(cx-d*7, 19), hr[6].lerp(hr[5], 0.5))
-		_hair_mass([cx-18, 33, cx-22, 44, cx-21, 53, cx-18, 62, cx-19, 72,
-			cx-16, 76, cx-13, 67, cx-15, 56, cx-15, 46, cx-12, 33], -0.03)
-		_curve(Vector2(cx-19, 39), Vector2(cx-21, 44), Vector2(cx-20, 48), hr[3])
-		_hlock(Vector2(cx-18, 49), Vector2(cx-19, 55), Vector2(cx-15, 60), 2.7, 0.7, 0.0)
-		_curve(Vector2(cx-18, 58), Vector2(cx-14, 64), Vector2(cx-17, 70), hr[4])
-		_hlock(Vector2(cx-19, 63), Vector2(cx-14, 69), Vector2(cx-23, 73), 2.6, 0.6, -0.02)
-		_hlock(Vector2(cx+17, 33), Vector2(cx+15, 47), Vector2(cx+21, 58), 4.2, 1.8, -0.12)
-		_curve(Vector2(cx+19, 39), Vector2(cx+17, 47), Vector2(cx+20, 52), hr[2])
+		_hair_mass([cx-d*19, 34, cx-d*17, 24, cx-d*8, 17, cx+d*4, 14,
+			cx+d*16, 20, cx+d*20, 30, cx+d*18, 40, cx+d*13, 30,
+			cx+d*5, 25, cx-d*5, 28, cx-d*16, 39])
+		_hlock(Vector2(cx+d*5, 14), Vector2(cx+d*22, 17), Vector2(cx+d*20, 35), 3.9, 0.15, -0.08)
+		_hlock(Vector2(cx+d*11, 21), Vector2(cx+d*21, 27), Vector2(cx+d*17, 42), 3.0, 0.1, -0.07)
+		_hlock(Vector2(cx, 12), Vector2(cx-d*9, 10), Vector2(cx-d*18, 25), 3.5, 0.15, 0.12)
+		_hlock(Vector2(cx+d*6, 14), Vector2(cx-d*8, 13), Vector2(cx-d*20, 32), 3.8, 0.1, 0.08)
+		_hlock(Vector2(cx+d*9, 18), Vector2(cx-d*6, 16), Vector2(cx-d*18, 38), 3.4, 0.15, 0.01)
+		_hlock(Vector2(cx+d*7, 22), Vector2(cx-d*4, 21), Vector2(cx-d*13, 34), 2.7, 0.1, 0.03)
+		_hlock(Vector2(cx-18, 33), Vector2(cx-23, 43), Vector2(cx-19, 55), 2.8, 0.2, 0.01)
+		_hlock(Vector2(cx-19, 47), Vector2(cx-21, 58), Vector2(cx-15, 65), 2.5, 0.15, 0.03)
+		_hlock(Vector2(cx-17, 57), Vector2(cx-14, 68), Vector2(cx-21, 74), 2.4, 0.1, -0.01)
+		_hlock(Vector2(cx-21, 62), Vector2(cx-23, 71), Vector2(cx-17, 77), 1.8, 0.1, 0.07)
+		_hlock(Vector2(cx+18, 33), Vector2(cx+15, 46), Vector2(cx+21, 57), 2.8, 0.2, -0.12)
+		_hlock(Vector2(cx+20, 48), Vector2(cx+25, 59), Vector2(cx+19, 69), 2.3, 0.1, -0.10)
+		_hlock(Vector2(cx+19, 61), Vector2(cx+17, 70), Vector2(cx+22, 75), 1.8, 0.1, -0.03)
 
 func _braid(x: float, y0: int, y1: int) -> void:
-	_hlock(Vector2(x, y0), Vector2(x+3, (y0+y1)*0.5), Vector2(x, y1), 3.5, 1.7, -0.17)
-	for y in range(y0+2, y1-2, 7):
+	_hlock(Vector2(x, y0), Vector2(x+2, (y0+y1)*0.5), Vector2(x, y1), 3.8, 1.6, -0.23)
+	var index := 0
+	for y in range(y0, y1-3, 5):
 		var t := float(y-y0)/float(y1-y0)
-		var bx := x+sin(t*PI)*1.5
-		var rad := lerpf(3.0, 1.6, t)
-		_poly([bx-rad, y-2, bx, y-1, bx+rad, y+2, bx+rad-1, y+4, bx-1, y+2, bx-rad, y], hr[4])
-		_line(Vector2(bx, y+2), Vector2(bx+rad-1, y+3), hr[2])
-		if y < y0+12 or y > y1-10:
-			_line(Vector2(bx-rad+1, y-1), Vector2(bx-1, y), hr[5])
+		var bx := x+sin(t*PI)*1.2
+		var rad := lerpf(4.2, 2.3, t)
+		var d := 1.0 if index % 2 == 0 else -1.0
+		# The rear lobe disappears under the next diagonal crossing.
+		_hlock(Vector2(bx+d*rad*0.55, y-1), Vector2(bx-d*rad, y+1), Vector2(bx-d*0.6, y+5), rad*0.60, 0.2, -0.16)
+		_curve(Vector2(bx-d*rad*0.6, y+1), Vector2(bx, y+3), Vector2(bx+d*rad*0.55, y+3), hr[2])
+		_hlock(Vector2(bx-d*rad*0.60, y-1), Vector2(bx+d*rad, y+1), Vector2(bx+d*0.4, y+5), rad*0.60, 0.2, -0.02 if d > 0 else -0.06)
+		index += 1
 	_line(Vector2(x-1, y1-1), Vector2(x+2, y1-1), sec.darkened(0.25))
-	_hlock(Vector2(x+0.5, y1), Vector2(x+1.5, y1+3), Vector2(x, y1+5), 1.7, 0.2)
+	_hlock(Vector2(x, y1), Vector2(x-1.5, y1+3), Vector2(x-1, y1+6), 1.5, 0.1)
+	_hlock(Vector2(x+1, y1), Vector2(x+3, y1+2), Vector2(x+1, y1+5), 1.2, 0.1, -0.08)
 
 func _beard_mass(coords: Array, x: float, y0: float, bottom: float, half: float) -> void:
 	var pts := _points(coords)
@@ -753,10 +788,15 @@ func _beard_mass(coords: Array, x: float, y0: float, bottom: float, half: float)
 				continue
 			var u := (float(xx)+0.5-x)/half
 			var v := (float(y)-y0)/maxf(1.0, bottom-y0)
-			var lit := 0.52-u*0.30-v*0.10+sqrt(maxf(0.0, 1.0-u*u))*0.12
+			var lit := 0.46-u*0.13-v*0.06+sqrt(maxf(0.0, 1.0-u*u))*0.05
+			lit += _soft(xx, y, x-half*0.65, my+8, half*0.48, 8)*0.13
+			lit += _soft(xx, y, x-2, chin+3, half*0.65, 9)*0.10
 			lit -= _soft(xx, y, x, my+3, 7, 4)*0.19
 			lit -= _soft(xx, y, x+half-1, my+7, 4, 7)*0.10
 			_px(xx, y, _tone(br, lit))
+
+func _beard_lock(a: Vector2, b: Vector2, c: Vector2, r0: float, r1: float, bias: float = 0.0) -> void:
+	_lock(a, b, c, r0, r1, br, bias, true)
 
 func _beard() -> void:
 	if not beard or _lost("jaw") or _lost("mouth"):
@@ -775,41 +815,44 @@ func _beard() -> void:
 		if female:
 			hang *= 0.65
 		if beard_style == 1:
-			var bottom := chin+hang-1
-			_beard_mass([x-4, my+3, x-6, my+6, x-6, chin, x-4, bottom-2,
-				x-1, bottom, x+3, bottom-1, x+6, chin+1, x+5, my+4], x, my+3, bottom, 6.0)
-			_curve(Vector2(x-4, my+7), Vector2(x-5, chin), Vector2(x-2, chin+3), br[4])
-			_curve(Vector2(x+3, chin), Vector2(x+4, chin+3), Vector2(x+1, bottom-2), br[2])
-			_line(Vector2(x-1, bottom-3), Vector2(x, bottom-1), br[4])
+			var bottom := chin+hang-2
+			_beard_mass([x-3, my+4, x-4.5, my+8, x-4, chin+2, x-1, bottom-1,
+				x+1, bottom, x+4, chin+2, x+4, my+7, x+2.5, my+4], x, my+4, bottom, 5.0)
+			_beard_lock(Vector2(x+2, my+6), Vector2(x+5, chin), Vector2(x+2, bottom-1), 2.2, 0.1, -0.09)
+			_beard_lock(Vector2(x-2, my+6), Vector2(x-5, chin-1), Vector2(x-2, chin+5), 2.5, 0.15, 0.06)
+			_beard_lock(Vector2(x-0.5, my+7), Vector2(x-1, chin+4), Vector2(x+0.5, bottom+0.5), 2.4, 0.1, 0.01)
+			_beard_lock(Vector2(x-2, my+4), Vector2(x-3, my+7), Vector2(x-1, chin-2), 1.3, 0.1, 0.07)
 		else:
 			var half := 13.5 if not young else 10.0
 			var bottom := chin+(2.0 if beard_style == 8 else hang)
 			var end_half := 3.0 if beard_style == 3 else 6.0
-			_beard_mass([x-half, my-4, x-half+4, my+2, x-5, my+4, x+4, my+4,
-				x+half-3, my+1, x+half, my-4, x+half+0.5, chin-5,
-				x+half-3, chin+3, x+end_half, bottom-1, x+4, bottom+1,
-				x+1, bottom, x-2, bottom+1, x-6, bottom-1, x-end_half-3, bottom-4,
-				x-half+1, chin], x, my-4, bottom, half)
-			# Short curved clumps interrupt a rounded base instead of scoring it vertically.
-			_curve(Vector2(x-half+2, my+5), Vector2(x-half+3, chin), Vector2(x-7, chin+2), br[3])
-			_curve(Vector2(x-half+4, my+8), Vector2(x-8, chin+1), Vector2(x-5, chin+3), br[5])
-			_curve(Vector2(x+9, chin-2), Vector2(x+10, chin+2), Vector2(x+6, chin+6), br[1].lerp(br[2], 0.6))
-			_curve(Vector2(x+5, chin-3), Vector2(x+7, chin+1), Vector2(x+4, chin+4), br[2])
-			_curve(Vector2(x-5, chin-3), Vector2(x-6, chin), Vector2(x-4, chin+2), br[3])
-			_curve(Vector2(x-4, bottom-6), Vector2(x-4, bottom-2), Vector2(x-1, bottom-1), br[4])
-			_line(Vector2(x+2, bottom-4), Vector2(x+3, bottom-2), br[3])
+			_beard_mass([x-half, my-3, x-half+4, my+3, x-5, my+5, x+4, my+5,
+				x+half-3, my+2, x+half, my-3, x+half, chin-6,
+				x+half-3, chin+1, x+end_half, bottom-4, x+3, bottom-1,
+				x, bottom, x-4, bottom-2, x-end_half-2, bottom-5, x-half, chin-3], x, my-3, bottom, half)
+			# Cheeks curl inward; the chin hangs in unequal, pointed overlapping clumps.
+			_beard_lock(Vector2(x-half+1, my-3), Vector2(x-half-2, chin-4), Vector2(x-9, bottom-5), 2.7, 0.1, -0.01)
+			_beard_lock(Vector2(x+half-1, my-3), Vector2(x+half+1, chin-3), Vector2(x+9, bottom-7), 2.7, 0.1, -0.18)
+			_beard_lock(Vector2(x-10, my+1), Vector2(x-13, chin-1), Vector2(x-6, bottom-2), 3.2, 0.15, 0.06)
+			_beard_lock(Vector2(x+10, my+1), Vector2(x+13, chin), Vector2(x+6, bottom-4), 3.0, 0.1, -0.11)
+			_beard_lock(Vector2(x-7, my+7), Vector2(x-10, chin+6), Vector2(x-4, bottom), 3.3, 0.1, 0.02)
+			_beard_lock(Vector2(x+7, my+7), Vector2(x+10, chin+5), Vector2(x+4, bottom-2), 3.0, 0.1, -0.10)
+			_beard_lock(Vector2(x-3, my+7), Vector2(x-5, chin+7), Vector2(x-1, bottom+1), 3.0, 0.15, 0.04)
+			_beard_lock(Vector2(x+2, my+8), Vector2(x+6, chin+6), Vector2(x+3, bottom-1), 2.6, 0.1, -0.06)
+			_beard_lock(Vector2(x-10, chin-2), Vector2(x-7, chin+2), Vector2(x-8, bottom-4), 1.6, 0.1, 0.09)
+			_beard_lock(Vector2(x-3, chin+1), Vector2(x-1, chin+5), Vector2(x+1, bottom-2), 1.5, 0.1, 0.01)
 			if beard_style == 4:
 				_poly([x-1, bottom-4, x+2, bottom-4, x+2, bottom+1, x-1, bottom+1], cr[1])
 			if beard_style == 5:
 				for side in [-1, 1]:
 					_line(Vector2(x+side*5-1, chin+8), Vector2(x+side*5+1, chin+8), sec)
 	if beard_style != 7:
-		_curve(Vector2(x-8, my+1), Vector2(x-3, my-1), Vector2(x, my), br[0], 0.8)
-		_curve(Vector2(x+1, my), Vector2(x+6, my), Vector2(x+8, my+2), br[0], 0.8)
-		_lock(Vector2(x-1, my-1), Vector2(x-6, my-3), Vector2(x-9, my+1), 2.1, 0.8, br, 0.04)
-		_lock(Vector2(x+1, my-1), Vector2(x+6, my-3), Vector2(x+9, my+2), 2.0, 0.7, br, -0.12)
+		_beard_lock(Vector2(x-1, my-1), Vector2(x-5, my-2), Vector2(x-9, my+1), 1.55, 0.1, 0.02)
+		_beard_lock(Vector2(x+1, my-1), Vector2(x+5, my-2), Vector2(x+8, my+1.5), 1.35, 0.1, -0.08)
+		_beard_lock(Vector2(x-4, my), Vector2(x-7, my+0.5), Vector2(x-7, my+2), 0.9, 0.1, -0.03)
+		_beard_lock(Vector2(x+4, my), Vector2(x+7, my+1), Vector2(x+6, my+2), 0.8, 0.1, -0.09)
 		# The moustache covers the upper lip; only the opening and lower plane show.
-		_line(Vector2(x-4, my+1), Vector2(x+4, my+1), skin.lerp(Color("#503039"), 0.66))
+		_line(Vector2(x-3, my+1), Vector2(x+3, my+1), skin.lerp(Color("#503039"), 0.66))
 		_line(Vector2(x-2, my+2), Vector2(x+2, my+2), skin.lerp(Color("#b16c61"), 0.35))
 		_line(Vector2(x-1, my+3), Vector2(x+1, my+3), skin.lerp(sr[5], 0.5))
 
