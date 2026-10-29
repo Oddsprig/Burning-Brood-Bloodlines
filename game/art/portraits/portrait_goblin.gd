@@ -79,8 +79,8 @@ func _read() -> void:
 	lean = (-1.5 if young else (1.5 if elder else 0.5)) + float(seed % 3 - 1) * 0.5
 	cx = 48.0 + lean
 	ey = 43.0 if young else (42.0 if elder else 40.0)
-	chin = ey + (24.0 if young else (27.0 if elder else 26.0))
-	shoulder = (22.0 if young else (24.0 if elder else 26.0)) - (1.0 if female else 0.0)
+	chin = ey + (25.0 if young else 28.0)
+	shoulder = (32.0 if young else (34.0 if elder else 36.0)) - (1.0 if female else 0.0)
 	skin = _color("skin", Color("#82a84e"))
 	hair = _color("hair", Color("#2d3525"))
 	prim = _color("prim", Color("#6c5820"))
@@ -194,38 +194,39 @@ func _ellipse(c: Vector2, rx: float, ry: float, ramp: Array[Color], bias := 0.0)
 			_px(x, y, ramp[clampi(int(lit * 7.0), 0, 6)])
 
 func _torso() -> void:
-	var left_top := 78.0 + (2.0 if elder else -1.0)
-	var right_top := 80.0 + (1.0 if young else -2.0)
+	var left_top := 71.0 + (2.0 if elder else -1.0)
+	var right_top := 73.0 + (1.0 if young else -2.0)
 	var bc := 48.0 - lean * 0.6
 	var pts := PackedVector2Array([
-		Vector2(bc - 6, 74), Vector2(bc - 15, left_top),
-		Vector2(bc - shoulder + 2, left_top + 5), Vector2(bc - shoulder - 1, 94),
+		Vector2(bc - 8, 66), Vector2(bc - 18, left_top),
+		Vector2(bc - shoulder + 4, left_top + 6), Vector2(bc - shoulder - 1, 94),
 		Vector2(bc - shoulder + 1, 96), Vector2(bc + shoulder, 96),
 		Vector2(bc + shoulder - 1, right_top + 8), Vector2(bc + shoulder - 5, right_top + 3),
-		Vector2(bc + 10, 76), Vector2(bc + 4, 74),
+		Vector2(bc + 17, 69), Vector2(bc + 7, 66),
 	])
-	for y in range(74, SIZE):
-		for x in range(16, 81):
+	for y in range(66, SIZE):
+		for x in range(8, 88):
 			if not Geometry2D.is_point_in_polygon(Vector2(x + 0.5, y + 0.5), pts):
 				continue
 			var u := (float(x) - bc) / shoulder
-			var t := float(y - 75) / 23.0
+			var t := float(y - 67) / 29.0
 			var fold := sin((float(x) - bc) * 0.44 + t * 2.5) * 0.055
 			var lit := 0.68 - u * 0.26 - t * 0.23 + fold
 			_px(x, y, cloth_ramp[clampi(int(lit * 7), 0, 6)])
 	# A raised left shoulder and dropped right shoulder, with diagonal cloth folds.
-	_line(Vector2(bc - 17, left_top + 3), Vector2(bc - 10, 91), cloth_ramp[5])
-	_line(Vector2(bc - 15, left_top + 5), Vector2(bc - 9, 94), cloth_ramp[2])
-	_line(Vector2(bc + 14, right_top + 4), Vector2(bc + 9, 95), cloth_ramp[1])
-	_line(Vector2(bc + 19, right_top + 7), Vector2(bc + 16, 95), cloth_ramp[3])
+	_shape([-29, left_top + 10, -20, left_top + 4, -13, 79, -21, 83, -32, 94], cloth_ramp[4], Vector2(bc, 0))
+	_line(Vector2(bc - 26, left_top + 7), Vector2(bc - 20, left_top + 5), cloth_ramp[5])
+	_line(Vector2(bc - 22, 85), Vector2(bc - 16, 94), cloth_ramp[2])
+	_line(Vector2(bc + 19, right_top + 5), Vector2(bc + 27, 95), cloth_ramp[1])
+	_line(Vector2(bc + 23, right_top + 7), Vector2(bc + 29, 95), cloth_ramp[3])
 	if _armored():
 		_armor(bc, left_top, right_top)
 	else:
 		# Worn cross-body leather strap, with a brass buckle.
-		_shape([-14, 78, -10, 77, 10, 96, 4, 96], Color("#473624"), Vector2(bc, 0))
-		_line(Vector2(bc - 13, 79), Vector2(bc + 5, 95), Color("#98754a"))
-		_shape([-2, 87, 2, 90, 0, 93, -4, 90], sec.darkened(0.28), Vector2(bc, 0))
-		_line(Vector2(bc - 2, 88), Vector2(bc + 1, 90), sec.lightened(0.22))
+		_shape([-19, 73, -15, 72, 14, 96, 7, 96], Color("#473624"), Vector2(bc, 0))
+		_line(Vector2(bc - 18, 74), Vector2(bc + 10, 95), Color("#98754a"))
+		_shape([-3, 83, 2, 86, 0, 89, -5, 86], sec.darkened(0.28), Vector2(bc, 0))
+		_line(Vector2(bc - 3, 84), Vector2(bc + 1, 86), sec.lightened(0.22))
 
 func _armored() -> bool:
 	var label := (String(body.get("sprite", "")) + " " + String(body.get("tid", ""))).to_lower()
@@ -246,13 +247,13 @@ func _metal_ramp(item: Dictionary) -> Array[Color]:
 
 func _armor(bc: float, left_top: float, right_top: float) -> void:
 	var ramp := _metal_ramp(body)
-	_shape([-10, 79, 7, 78, 15, 88, 17, 96, -17, 96, -16, 88], ramp[2], Vector2(bc, 0))
-	_shape([-10, 80, -2, 80, 1, 96, -16, 96, -15, 87], ramp[4], Vector2(bc, 0))
-	_shape([7, 80, 14, 88, 16, 96, 6, 96], ramp[1], Vector2(bc, 0))
+	_shape([-12, 73, 10, 73, 20, 84, 23, 96, -23, 96, -21, 84], ramp[2], Vector2(bc, 0))
+	_shape([-12, 74, -2, 75, 1, 96, -22, 96, -20, 83], ramp[4], Vector2(bc, 0))
+	_shape([10, 75, 19, 84, 22, 96, 7, 96], ramp[1], Vector2(bc, 0))
 	var kind := String(body.get("sprite", ""))
 	if kind in ["mail", "byrnie", "hauberk", "scale", "lamellar"]:
-		for y in range(83, 96, 3):
-			var half := mini(14, 8 + (y - 82))
+		for y in range(78, 96, 3):
+			var half := mini(20, 8 + (y - 76))
 			for x in range(int(bc) - half, int(bc) + half, 4):
 				var xx := x + (1 if y % 2 == 0 else 0)
 				_px(xx, y, ramp[1])
@@ -282,40 +283,41 @@ func _armor(bc: float, left_top: float, right_top: float) -> void:
 
 func _neck() -> void:
 	if _lost("neck"):
-		_wound(Vector2(cx, 74), 3)
+		_wound(Vector2(cx, 71), 4)
 		return
-	var half := 3.8 if young or female else 4.4
-	for y in range(int(chin) - 4, 83):
-		var t := clampf(float(y - int(chin)) / 15.0, 0.0, 1.0)
+	# A short neck widens directly into the trapezius, underneath the raised collar.
+	var half := 7.8 if young else (8.5 if female else 9.3)
+	for y in range(int(chin) - 6, 78):
+		var t := clampf(float(y - int(chin)) / 9.0, 0.0, 1.0)
 		var center := lerpf(cx + 1.0, 48.0 - lean * 0.3, t)
-		var width := half + t * 1.8
+		var width := half + t * 4.0
 		for x in range(int(center - width), int(center + width) + 1):
 			var u := (float(x) - center) / width
-			var lit := 0.57 - u * 0.32 + t * 0.05
-			if y < chin + 3:
-				lit -= 0.23
+			var lit := 0.62 - u * 0.22 - t * 0.06
+			if y < chin + 2:
+				lit -= 0.24
 			_px(x, y, skin_ramp[clampi(int(lit * 7), 0, 6)])
-	_line(Vector2(cx - 2, chin + 4), Vector2(46, 79), skin_ramp[5])
-	_line(Vector2(cx + 3, chin + 3), Vector2(50, 78), skin_ramp[1])
+	_shape([-8, 70, -5, 71, -2, 76, -6, 74], skin_ramp[5], Vector2(cx, 0))
+	_shape([5, 71, 8, 70, 10, 76, 5, 77], skin_ramp[2], Vector2(cx, 0))
 	if elder:
-		_line(Vector2(cx - 1, 74), Vector2(cx + 2, 75), skin_ramp[2])
+		_line(Vector2(cx - 3, 73), Vector2(cx + 2, 74), skin_ramp[2])
 
 func _collar() -> void:
 	var bc := 48.0 - lean * 0.6
-	_shape([-10, 76, -5, 79, 0, 83, -7, 86, -14, 80], cloth_ramp[5], Vector2(bc, 0))
-	_shape([5, 78, 10, 77, 13, 81, 5, 85, 0, 83], cloth_ramp[2], Vector2(bc, 0))
-	_line(Vector2(bc - 9, 78), Vector2(bc - 3, 83), cloth_ramp[6])
-	_line(Vector2(bc + 9, 79), Vector2(bc + 3, 83), cloth_ramp[0])
-	_ellipse(Vector2(bc - 4, 83), 2, 2, _ramp(sec, 0.52))
+	_shape([-13, 69, -8, 72, 0, 78, -7, 82, -19, 74], cloth_ramp[5], Vector2(bc, 0))
+	_shape([8, 72, 13, 69, 18, 74, 6, 82, 0, 78], cloth_ramp[2], Vector2(bc, 0))
+	_line(Vector2(bc - 12, 71), Vector2(bc - 3, 78), cloth_ramp[6])
+	_line(Vector2(bc + 12, 71), Vector2(bc + 3, 78), cloth_ramp[0])
+	_ellipse(Vector2(bc - 4, 79), 2, 2, _ramp(sec, 0.52))
 
 func _skull() -> void:
-	# Row widths describe a rounded cranium, angular cheekbones, hollow cheeks and a pointed chin.
-	var knots := [Vector2(-21, 2), Vector2(-19, 9), Vector2(-15, 13.5), Vector2(-9, 16), Vector2(-2, 16.5), Vector2(5, 15.5), Vector2(9, 13), Vector2(14, 10.5), Vector2(19, 7.7), Vector2(24, 3.4), Vector2(27, 0)]
+	# Wide cheekbones turn into a real jaw before the compact, blunt chin.
+	var knots := [Vector2(-22, 3), Vector2(-20, 10), Vector2(-15, 15), Vector2(-9, 18), Vector2(-2, 18.5), Vector2(5, 18), Vector2(9, 16.7), Vector2(14, 14.5), Vector2(19, 12), Vector2(24, 7.4), Vector2(27, 2.5)]
 	if not young and not elder and not female:
 		# A heavier brow and a wider jaw separate the adult from the boy.
-		knots = [Vector2(-21, 2), Vector2(-19, 9), Vector2(-15, 13.5), Vector2(-9, 16), Vector2(-2, 17), Vector2(5, 16), Vector2(9, 14), Vector2(14, 12), Vector2(19, 10), Vector2(24, 5), Vector2(27, 0)]
+		knots = [Vector2(-22, 3), Vector2(-20, 10), Vector2(-15, 15), Vector2(-9, 18), Vector2(-2, 19), Vector2(5, 18.5), Vector2(9, 17), Vector2(14, 16), Vector2(19, 14), Vector2(24, 9.2), Vector2(27, 3.2)]
 	var bottom := chin - ey
-	for y in range(int(ey - 21), int(chin) + 1):
+	for y in range(int(ey - 22), int(chin) + 1):
 		var dy := (float(y) + 0.5 - ey) * 27.0 / bottom
 		var width := 0.0
 		for i in range(knots.size() - 1):
@@ -324,44 +326,58 @@ func _skull() -> void:
 			if dy >= a.x and dy <= b.x:
 				width = lerpf(a.y, b.y, (dy - a.x) / (b.x - a.x))
 		if female:
-			width *= lerpf(0.94, 0.80, smoothstep(7.0, 25.0, dy))
+			width *= lerpf(0.96, 0.92, smoothstep(7.0, 25.0, dy))
 		if young:
 			width += 0.35 * exp(-pow((dy - 5.0) / 8.0, 2))
 		if elder and dy > 7 and dy < 19:
-			width -= sin((dy - 7.0) / 12.0 * PI) * 1.6
+			width -= sin((dy - 7.0) / 12.0 * PI) * 1.2
 		var center := cx + smoothstep(0.0, 24.0, dy) * 1.0
 		for x in range(int(floor(center - width)), int(ceil(center + width))):
 			var u := (float(x) + 0.5 - center) / maxf(0.5, width)
 			if absf(u) > 1.0:
 				continue
-			var v := (dy + 1.0) / 27.0
+			var dx := float(x) + 0.5 - center
 			var z := sqrt(maxf(0, 1.0 - u * u))
-			var lit := 0.48 + z * 0.28 - u * 0.26 - v * 0.13
-			# Temple and cheek transitions break up the spherical light bands.
-			lit -= 0.075 * exp(-pow((absf(u) - 0.78) / 0.18, 2)) * exp(-pow((dy + 1.0) / 13.0, 2))
-			lit += 0.035 * exp(-pow((u + 0.33) / 0.36, 2)) * exp(-pow((dy - 6.0) / 4.0, 2))
-			if elder:
-				lit -= 0.035 * exp(-pow((absf(u) - 0.65) / 0.30, 2)) * exp(-pow((dy - 12.0) / 5.0, 2))
-			if dy < -10:
-				lit += 0.04
-			_px(x, y, skin_ramp[clampi(int(lit * 7.0), 0, 6)])
+			var lit := 0.60 + z * 0.11 - u * 0.20
+			lit += _soft(dx, dy, -6, -12, 11, 10) * 0.10
+			lit += _soft(dx, dy, -11, 6, 8, 4) * 0.12
+			lit += _soft(dx, dy, 11, 6, 6, 4) * 0.08
+			lit -= _soft(dx, dy, -8, 0, 6, 4) * 0.15
+			lit -= _soft(dx, dy, 8, 0, 6, 4) * 0.16
+			var hollow := 0.18 if elder else (0.035 if young else 0.11)
+			lit -= _soft(dx, dy, -12, 13, 6, 5) * hollow
+			lit -= _soft(dx, dy, 13, 13, 5, 6) * (hollow + 0.04)
+			lit += _soft(dx, dy, -9, 20, 5, 3) * 0.08
+			lit += _soft(dx, dy, 0, 16, 12, 6) * 0.06
+			lit -= _soft(dx, dy, 0, 22, 7, 2) * 0.12
+			lit += _soft(dx, dy, -1, 24, 6, 2) * 0.10
+			lit -= smoothstep(23.0, 27.0, dy) * 0.14
+			lit -= maxf(0.0, absf(u) - 0.82) * 0.70
+			_px(x, y, _skin_tone(lit))
 			face_mask[y * SIZE + x] = 1
 
+func _skin_tone(lit: float) -> Color:
+	# Half-steps keep the cheek turning between its deliberately clustered planes.
+	var step := clampf(floorf(lit * 14.0) * 0.5, 0.0, 6.0)
+	var low := int(step)
+	return skin_ramp[low].lerp(skin_ramp[mini(low + 1, 6)], step - float(low))
+
+func _soft(x: float, y: float, ax: float, ay: float, rx: float, ry: float) -> float:
+	var d := Vector2((x - ax) / rx, (y - ay) / ry).length_squared()
+	return pow(maxf(0.0, 1.0 - d), 2)
+
 func _face_planes() -> void:
-	# Broad midtones wrap the cheekbone before the small, recessed hollow.
-	_face_shape([-14, 4, -10, 3, -5, 6, -7, 12, -10, 17, -13, 13], 4)
-	_face_shape([-14, 5, -10, 4, -6, 6, -8, 8, -12, 8], 5)
-	_face_shape([-13, 9, -10, 8, -7, 10, -7, 14, -9, 17, -12, 14], 3)
-	_face_shape([-13, 8, -10, 7, -7, 9, -8, 11, -11, 10], 4)
+	# Cheekbone tops catch the key light; hollows and jaw undersides turn away.
+	_face_shape([-17, 4, -12, 3, -6, 7, -9, 10, -15, 9], 5)
+	_face_shape([-16, 10, -12, 10, -8, 13, -10, 17, -14, 16], 3 if not young else 4)
+	_face_shape([-15, 5, -12, 4, -9, 6, -11, 7, -14, 7], 6)
 	if elder:
-		_face_shape([-10, 12, -8, 12, -7, 14, -9, 15, -10, 14], 2)
-	_face_shape([6, 4, 13, 3, 14, 6, 12, 12, 9, 17, 6, 15], 3)
-	_face_shape([9, 4, 13, 4, 13, 7, 10, 9, 7, 8], 4)
-	_face_shape([11, 10, 13, 9, 11, 15, 9, 17, 8, 14, 9, 12], 2)
-	_face_shape([-7, 17, -4, 19, 1, 21, 5, 21, 6, 23, 2, 26, -2, 24, -5, 21], 4)
-	_face_shape([5, 18, 8, 16, 8, 20, 5, 25, 2, 27, 1, 25], 3)
-	_face_shape([-3, 22, 1, 22, 4, 23, 2, 24, -1, 24], 5)
-	_face_shape([6, 22, 5, 25, 2, 27, 3, 25], 2)
+		_face_shape([-12, 12, -9, 12, -8, 15, -11, 16, -13, 14], 2)
+	_face_shape([8, 6, 14, 4, 17, 6, 15, 10, 11, 11], 4)
+	_face_shape([13, 11, 16, 10, 14, 18, 11, 21, 9, 16], 2)
+	_face_shape([-14, 18, -11, 18, -6, 23, 1, 25, 5, 24, 5, 26, 0, 27, -7, 24, -12, 21], 4)
+	_face_shape([10, 18, 12, 17, 11, 22, 6, 26, 2, 27, 3, 25], 2)
+	_face_shape([-4, 23, 0, 23, 4, 24, 2, 25, -2, 25], 5)
 	if female and young:
 		var blush := skin_ramp[4].lerp(Color("#b48067"), 0.28)
 		_shape([-12, 6, -9, 6, -8, 7, -11, 8], blush, _p(0, 0), true)
@@ -382,6 +398,8 @@ func _ear(side: int) -> void:
 	var inner: Array = [side * 16, -3, side * 23, -6, side * 34, -12 + droop + far, side * 28, -1 + droop, side * 24, 5, side * 18, 7]
 	var membrane := skin.lerp(Color("#9b8060"), 0.35).darkened(0.12 if side < 0 else 0.30)
 	_shape(inner, membrane, _p(0, 0))
+	_shape([side * 17, -3, side * 24, -6, side * 32, -11 + droop, side * 26, -2 + droop, side * 21, 1], skin_ramp[4 if side < 0 else 3], _p(0, 0))
+	_shape([side * 17, 0, side * 21, 1, side * 26, -2 + droop, side * 22, 6, side * 18, 7], skin_ramp[2 if side < 0 else 1], _p(0, 0))
 	_line(_p(side * 16, -5), _p(side * 34, -12 + droop + far), skin_ramp[5 if side < 0 else 4])
 	_line(_p(side * 34, -12 + droop + far), _p(side * 27, 0 + droop), skin_ramp[3])
 	_line(_p(side * 19, 7), _p(side * 26, -2 + droop), skin_ramp[1])
@@ -396,8 +414,8 @@ func _eye(side: int) -> void:
 		_wound(center, 3)
 		return
 	var rx := 5.0 if young else 4.6
-	var ry := 2.7 if young else (2.1 if elder else 2.4)
-	var lid := -ry + (1.0 if side > 0 else 0.2)
+	var ry := 2.9 if young else (1.9 if elder else 2.2)
+	var lid := -ry + (0.8 if side > 0 else 0.0) + (0.4 if elder else 0.0)
 	var socket := skin_ramp[0].lerp(Color("#3e4125"), 0.25)
 	_ellipse(center + Vector2(0, 0.8), rx + 1.0, ry + 1.0, skin_ramp, -0.20)
 	_shape([-rx - 1, -1, -rx + 1, -ry, 1, -ry - 1, rx, -1, rx, 1, 1, ry, -rx + 1, ry - 1], socket, center)
@@ -416,11 +434,13 @@ func _eye(side: int) -> void:
 	_line(center + Vector2(-rx, -0.5), center + Vector2(1, lid), INK)
 	_line(center + Vector2(1, lid), center + Vector2(rx, -0.3), INK)
 	_line(center + Vector2(-rx + 1, ry), center + Vector2(1, ry + 1), skin_ramp[4 if side < 0 else 2])
-	var brow_y := -5.8 if side < 0 else -4.7
-	if female and young:
-		brow_y = -4.9 if side < 0 else -6.0
+	var brow_y := -6.8 if side < 0 else -6.0
+	if elder:
+		brow_y = -5.4 if side < 0 else (-7.4 if female else -4.6)
+	elif female and young:
+		brow_y = -5.2 if side < 0 else -7.3
 	elif not young:
-		brow_y = -4.6 if side < 0 else -4.0
+		brow_y = -4.3 if side < 0 else -5.4
 	var brow_col := hair_ramp[1].lerp(skin_ramp[0], 0.30)
 	var brow_depth := 1.0 if female or young else 2.0
 	var brow_coords := [-rx - 1, brow_y + 2, -1, brow_y - 0.5, rx, brow_y + 1, rx - 0.5, brow_y + 2.0, -1, brow_y + brow_depth, -rx - 1, brow_y + 3]
@@ -438,18 +458,16 @@ func _nose() -> void:
 	var length := -1.5 if young else (0.8 if elder else 0.0)
 	if female:
 		length -= 0.5
-	# The tip projects past the bridge, then turns back into a shaded underside.
-	_face_shape([4, 6, 7, 8 + length, 11, 12 + length, 10, 15 + length, 7, 17 + length, 5, 15 + length, 3, 12], 2)
-	_face_shape([8, 11 + length, 10, 13 + length, 8, 16 + length, 6, 15 + length, 6, 13 + length], 1)
-	_shape([0, -4, 3, -3, 3, 2, 5, 6, 8, 8 + length, 10, 9 + length, 10, 12 + length, 9, 14 + length, 7, 15 + length, 5, 14 + length, 5, 12 + length, 2, 12 + length, 0, 10 + length, -1, 6], skin_ramp[2], _p(0, 0))
-	_shape([0, -3, 2, -2, 2, 3, 4, 7, 7, 9 + length, 8, 10 + length, 8, 12 + length, 7, 13 + length, 5, 12 + length, 2, 11 + length, 0, 9, -1, 6], skin_ramp[4], _p(0, 0))
-	_shape([0, -2, 1, 1, 1, 5, 3, 8 + length, 3, 10 + length, 1, 9, 0, 6], skin_ramp[6], _p(0, 0))
-	_shape([6, 8 + length, 9, 9 + length, 9, 12 + length, 8, 14 + length, 6, 14 + length, 7, 12 + length, 7, 10 + length], skin_ramp[5], _p(0, 0))
-	_shape([3, 11 + length, 5, 10 + length, 7, 11 + length, 7, 12 + length, 6, 13 + length, 4, 12 + length], skin_ramp[0], _p(0, 0))
-	_line(_p(9, 12 + length), _p(8, 14 + length), skin_ramp[1])
-	_line(_p(8, 14 + length), _p(6, 14 + length), skin_ramp[1])
-	_line(_p(6, 14 + length), _p(5, 13 + length), skin_ramp[2])
-	_line(_p(-1, 10 + length), _p(1, 11 + length), skin_ramp[3])
+	# A raised bridge leads to a rounded, projecting tip and a cool cast shadow.
+	_face_shape([3, 6, 8, 8 + length, 12, 13 + length, 10, 17 + length, 6, 18 + length, 3, 14], 2)
+	_shape([0, -5, 3, -4, 3, 2, 5, 6, 9, 9 + length, 10, 13 + length, 7, 15 + length, 1, 12 + length, -1, 7], skin_ramp[3], _p(0, 0))
+	_shape([0, -4, 1, -3, 1, 3, 3, 7, 5, 10 + length, 3, 12 + length, 0, 9, -1, 5], skin_ramp[5], _p(0, 0))
+	_ellipse(_p(8, 11 + length), 2.7, 2.9, skin_ramp, -0.22)
+	_ellipse(_p(4.7, 10.2 + length), 4.6, 3.6, skin_ramp, 0.02)
+	_shape([1, 8 + length, 3, 7 + length, 5, 8 + length, 5, 9 + length, 2, 10 + length], skin_ramp[6], _p(0, 0))
+	_shape([3, 12 + length, 5, 11 + length, 7, 12 + length, 6, 14 + length, 4, 14 + length], skin_ramp[0], _p(0, 0))
+	_line(_p(8, 13 + length), _p(7, 14 + length), skin_ramp[1])
+	_line(_p(0, 0), _p(0, 4), skin_ramp[6])
 
 func _mouth() -> void:
 	if _lost("jaw"):
@@ -463,21 +481,24 @@ func _mouth() -> void:
 		my = 18.5
 	var left := my - 1.0
 	var right := my - 2.0
-	var depth := 4.0
+	var depth := 3.4
 	if female and young:
 		left = my - 3.0
 		right = my
-		depth = 3.6
+		depth = 2.3
 	elif female and elder:
-		left = my
-		right = my - 3.0
-	elif elder:
-		left = my - 2.0
+		left = my + 0.5
 		right = my - 2.5
+		depth = 1.2
+	elif elder:
+		left = my + 1.2
+		right = my + 0.5
+		my -= 1.0
+		depth = 1.6
 	elif not young:
 		left = my - 3.0
 		right = my - 0.5
-		depth = 3.8
+		depth = 2.0
 	var near_top := lerpf(left, my, 0.55)
 	var far_top := lerpf(my, right, 0.50)
 	var lip := skin.lerp(Color("#6b5636"), 0.55).darkened(0.30)
@@ -496,7 +517,8 @@ func _mouth() -> void:
 			var y := lerpf(left, my, (x + 10.0) / 10.0) if x < 0 else lerpf(my, right, x / 10.0)
 			# Align the point to a pixel center so every variant retains a sharp tip.
 			var root := Vector2(floor(cx + x) + 0.5, floor(ey + y))
-			_shape([-1.5, 0, 1.5, 0, 0, 3.3 if i == 0 else 2.8], TOOTH if x < 0 else TOOTH.darkened(0.14), root, true)
+			var tooth_length := 3.0 if young else (1.5 if elder else 2.2)
+			_shape([-1.2, 0, 1.2, 0, 0, tooth_length if i == 0 else tooth_length - 0.3], TOOTH if x < 0 else TOOTH.darkened(0.14), root, true)
 	_line(_p(-4, my + depth), _p(1, my + depth), skin_ramp[5])
 	_line(_p(-3, my + depth + 1), _p(3, my + depth + 1), skin_ramp[3])
 	_line(_p(9, right - 1), _p(11, right - 3), skin_ramp[2])
@@ -550,7 +572,7 @@ func _beard() -> void:
 		_line(start, start + Vector2(1.0 - i * 0.35, 2 if style == 7 else 5 + i % 2), ramp[2 + i % 3])
 
 func _lock(p0: Vector2, p1: Vector2, p2: Vector2, r0: float, r1: float, bias := 0.0) -> void:
-	# Tapered quadratic lock; light follows its cross-section instead of a checker pattern.
+	# Broad clumps share a quiet midtone; highlights stop along the bend.
 	const STEPS := 16
 	var points: Array[Vector2] = []
 	var lo := p0
@@ -568,6 +590,7 @@ func _lock(p0: Vector2, p1: Vector2, p2: Vector2, r0: float, r1: float, bias := 
 			var best := 99999.0
 			var along := 0.0
 			var offset := 0.0
+			var light_side := 0.0
 			for i in range(STEPS):
 				var a := points[i]
 				var b := points[i + 1]
@@ -579,97 +602,109 @@ func _lock(p0: Vector2, p1: Vector2, p2: Vector2, r0: float, r1: float, bias := 
 					best = distance
 					along = (float(i) + f) / float(STEPS)
 					var normal := Vector2(-segment.y, segment.x).normalized()
-					if normal.dot(Vector2(-0.7, -0.7)) > 0:
-						normal = -normal
 					offset = (p - close).dot(normal)
-			var radius := lerpf(r0, r1, along)
+					light_side = normal.dot(Vector2(-0.7, -0.71))
+			var radius := lerpf(r0 * 0.78, r1, pow(along, 1.5)) + sin(along * PI) * r0 * 0.24
 			if best > radius * radius:
 				continue
 			var cross := offset / maxf(0.6, radius)
-			var lit := 0.65 - cross * 0.31 - along * 0.16 - (float(x) - cx) * 0.006 + bias
-			if cross > 0.76:
-				lit -= 0.10
-			_px(x, y, hair_ramp[clampi(int(lit * 7), 0, 6)])
+			var lit := 0.45 + sqrt(maxf(0.0, 1.0 - cross * cross)) * 0.13
+			lit += cross * light_side * 0.10 + bias - along * 0.035 - (float(x) - cx) * 0.003
+			var sheen := exp(-pow((along - 0.38) / 0.22, 2)) * exp(-pow((cross + light_side * 0.35) / 0.55, 2))
+			lit += sheen * 0.25
+			lit -= smoothstep(0.68, 1.0, absf(cross)) * 0.10
+			lit -= smoothstep(0.88, 1.0, along) * 0.06
+			_px(x, y, _hair_tone(lit))
+
+func _hair_tone(lit: float) -> Color:
+	var step := clampf(floorf(lit * 14.0) * 0.5, 0.0, 6.0)
+	var low := int(step)
+	return hair_ramp[low].lerp(hair_ramp[mini(low + 1, 6)], step - float(low))
+
+func _hair_mass(coords: Array, bias := 0.0) -> void:
+	var points := PackedVector2Array()
+	for i in range(0, coords.size(), 2):
+		points.append(_p(float(coords[i]), float(coords[i + 1])))
+	for y in range(6, 84):
+		for x in range(20, 78):
+			if not Geometry2D.is_point_in_polygon(Vector2(x + 0.5, y + 0.5), points):
+				continue
+			var lit := 0.38 - (float(x) - cx) * 0.004 + bias
+			lit += _soft(float(x) - cx, float(y) - ey, -6, -20, 15, 12) * 0.13
+			_px(x, y, _hair_tone(lit))
 
 func _back_hair() -> void:
 	if _lost("head") or helm_kind == "closed" or helm_kind == "hood":
 		return
 	if female:
 		if elder:
-			# Loose off-center knot made of overlapping curved locks, not a solid cap.
-			_lock(_p(9, -20), _p(22, -29), _p(17, -9), 4, 2, -0.10)
-			_lock(_p(12, -22), _p(24, -16), _p(15, -7), 3.5, 0.6)
+			_ellipse(_p(14, -22), 6.5, 7.5, hair_ramp, -0.20)
+			_lock(_p(11, -24), _p(23, -27), _p(18, -14), 4.2, 0.6, -0.08)
+			_lock(_p(13, -23), _p(23, -19), _p(16, -12), 3.4, 0.4, -0.13)
 		else:
-			_lock(_p(-11, -14), _p(-27, 4), _p(-20, 29), 4.8, 0.15, -0.12)
-			_lock(_p(-15, -2), _p(-21, 22), _p(-25, 24), 2.4, 0.10)
-			_lock(_p(12, -15), _p(24, 2), _p(21, 19), 3.8, 0.15, -0.22)
-			_lock(_p(18, 3), _p(23, 14), _p(16, 23), 2.4, 0.10, -0.12)
+			_hair_mass([-13, -16, -20, -14, -25, -2, -23, 18, -18, 29, -14, 25, -16, 9], -0.10)
+			_hair_mass([12, -16, 20, -13, 24, 1, 24, 18, 18, 24, 15, 17, 17, 3], -0.16)
+			_lock(_p(-16, -10), _p(-29, 6), _p(-19, 27), 5.4, 0.3, -0.13)
+			_lock(_p(-22, 5), _p(-25, 21), _p(-16, 26), 3.8, 0.2, -0.08)
+			_lock(_p(16, -11), _p(27, 6), _p(19, 23), 5.0, 0.3, -0.21)
+			_lock(_p(21, 4), _p(25, 16), _p(17, 22), 3.5, 0.2, -0.16)
 	elif elder:
-		_lock(_p(-12, -11), _p(-20, 3), _p(-14, 14), 2.5, 0.5)
-		_lock(_p(12, -12), _p(20, 2), _p(15, 12), 2.5, 0.4, -0.15)
+		_hair_mass([-18, -16, -13, -22, -12, -5, -14, 13, -19, 10, -20, -4], -0.10)
+		_hair_mass([14, -19, 19, -14, 20, 1, 18, 12, 14, 9, 15, -3], -0.20)
+		_lock(_p(-15, -10), _p(-22, 2), _p(-15, 13), 3.8, 0.5, -0.10)
+		_lock(_p(15, -11), _p(21, 3), _p(16, 12), 3.5, 0.4, -0.18)
 
 func _front_hair() -> void:
 	if elder and not female:
-		# Receded scalp remains visible between wisps, with longer silver temple locks.
-		_lock(_p(-13, -9), _p(-18, -25), _p(-4, -23), 2.4, 0.3, 0.04)
-		_lock(_p(-12, -13), _p(-10, -24), _p(1, -22), 2.4, 0.3)
-		_lock(_p(12, -8), _p(18, -20), _p(8, -20), 2.7, 0.3, -0.10)
-		_lock(_p(-15, -7), _p(-18, 0), _p(-14, 8), 2.5, 0.3)
-		_lock(_p(15, -7), _p(18, 1), _p(14, 8), 2.0, 0.3, -0.15)
+		# A receded horseshoe exposes the crown; full temple clumps frame the jowls.
+		_hair_mass([-18, -4, -20, -17, -15, -25, -9, -27, -5, -24, -11, -18, -14, -7], -0.07)
+		_hair_mass([12, -22, 18, -18, 20, -8, 17, 1, 14, -2], -0.18)
+		_lock(_p(-16, -7), _p(-23, -25), _p(-7, -24), 4.5, 0.3, 0.01)
+		_lock(_p(-15, -16), _p(-15, -27), _p(-6, -26), 3.5, 0.2, 0.02)
+		_lock(_p(15, -7), _p(20, -20), _p(10, -21), 3.8, 0.3, -0.13)
+		_lock(_p(-17, -2), _p(-21, 5), _p(-15, 12), 3.0, 0.6, -0.06)
+		_lock(_p(17, -1), _p(21, 6), _p(15, 11), 2.5, 0.4, -0.19)
 	elif female and elder:
-		_lock(_p(7, -20), _p(-7, -28), _p(-16, -8), 4.0, 1.0, 0.02)
-		_lock(_p(6, -20), _p(-8, -22), _p(-14, -3), 3.2, 0.5)
-		_lock(_p(8, -20), _p(18, -20), _p(16, -4), 3.5, 0.5, -0.05)
-		_lock(_p(9, -18), _p(14, -15), _p(16, -1), 2.5, 0.4, -0.10)
+		_hair_mass([-19, -7, -19, -17, -12, -25, -3, -28, 7, -25, 16, -23, 19, -11, 16, -2, 12, -12, 3, -19, -8, -12], -0.08)
+		_lock(_p(8, -22), _p(-4, -31), _p(-17, -9), 6.0, 0.6, 0.01)
+		_lock(_p(6, -21), _p(-11, -22), _p(-15, -3), 4.8, 0.4, -0.02)
+		_lock(_p(8, -22), _p(20, -23), _p(17, -4), 4.5, 0.5, -0.10)
 		var side := -1.0 if int(spec.get("female_set", seed % 2)) % 2 == 0 else 1.0
-		_lock(_p(side * 15, -1), _p(side * 18, 5), _p(side * 17, 10), 2.5, 1.2, -0.05)
-		# Each crossing has its own scalloped silhouette and overlap shadow.
-		for i in range(7):
-			var t := float(i) / 6.0
-			var y := ey + 10 + i * 4.5
-			var bx := cx + side * (17.0 + sin(t * PI) * 1.2 + t)
-			var r := 3.5 - t * 1.2
-			var at := Vector2(bx, y)
-			_shape([-r, -1, 0, -3, r, -1, r, 2, 0, 5, -r, 2], hair_ramp[1], at)
-			if i % 2 == 0:
-				_shape([r, -1, r - 1, -2, -1, 0, -r, 2, -r + 1, 3, 1, 1], hair_ramp[3], at)
-				_shape([-r, -1, -r + 1, -2, 0, -1, r, 2, r - 1, 3, -1, 1], hair_ramp[4], at)
-				_line(at + Vector2(-r + 1, -1), at + Vector2(1, 1), hair_ramp[5])
-			else:
-				_shape([-r, -1, -r + 1, -2, 0, -1, r, 2, r - 1, 3, -1, 1], hair_ramp[3], at)
-				_shape([r, -1, r - 1, -2, 1, -1, -r, 2, -r + 1, 3, 1, 1], hair_ramp[4], at)
-				_line(at + Vector2(-r + 1, 2), at + Vector2(0, 0), hair_ramp[5])
-		var tie := Vector2(cx + side * 18, 85)
+		_lock(_p(side * 16, -2), _p(side * 20, 4), _p(side * 18, 10), 3.1, 1.5, -0.09)
+		# Rounded crossing clumps overlap; no repeated flat diagonal stripe stamps.
+		for i in range(6):
+			var t := float(i) / 5.0
+			var at := _p(side * (18.0 + sin(t * PI) * 1.5), 9 + i * 4.7)
+			var r := 3.1 - t * 0.9
+			var cross := side * (1.0 if i % 2 == 0 else -1.0)
+			_lock(at + Vector2(-cross, -1), at + Vector2(cross * 3.5, 1), at + Vector2(0, 5.6), r, 0.3, -0.13)
+			_lock(at + Vector2(cross, 0), at + Vector2(-cross * 3.0, 3), at + Vector2(0.5, 5.8), r - 0.4, 0.3, -0.02)
+		var tie := _p(side * 18, 39)
 		_lock(tie + Vector2(0, 1), tie + Vector2(side, 4), tie + Vector2(-side, 7), 1.7, 0.10)
 		_line(tie + Vector2(-2, 0), tie + Vector2(2, 0), sec)
 	elif female:
-		_lock(_p(4, -19), _p(-8, -30), _p(-18, -11), 5.0, 0.6, 0.03)
-		_lock(_p(3, -19), _p(-8, -20), _p(-13, -7), 4.0, 0.5, 0.02)
-		_lock(_p(5, -20), _p(-2, -22), _p(-13, -3), 4.0, 0.4, 0.02)
-		_lock(_p(6, -22), _p(14, -28), _p(18, -9), 4.2, 0.3, -0.10)
-		_lock(_p(6, -21), _p(17, -17), _p(14, 1), 3.2, 0.4, -0.12)
-		_lock(_p(-15, -4), _p(-23, 7), _p(-14, 22), 3.0, 0.10, 0.02)
-		_lock(_p(-18, 11), _p(-15, 21), _p(-20, 27), 1.6, 0.05)
-		_lock(_p(15, -2), _p(20, 8), _p(14, 15), 2.4, 0.10, -0.12)
-		_lock(_p(18, 4), _p(22, 12), _p(20, 20), 1.8, 0.10, -0.12)
-		_lock(_p(-10, -20), _p(-16, -11), _p(-11, -5), 2.2, 0.2, 0.05)
+		_hair_mass([-19, -6, -21, -17, -13, -26, -2, -28, 7, -26, 16, -26, 21, -16, 18, -3, 12, -12, 2, -18, -10, -10], -0.08)
+		_lock(_p(8, -21), _p(-2, -31), _p(-17, -14), 6.2, 0.6, 0.02)
+		_lock(_p(4, -21), _p(-12, -22), _p(-15, -5), 5.2, 0.5, 0.00)
+		_lock(_p(7, -23), _p(20, -27), _p(18, -5), 5.0, 0.4, -0.12)
+		_lock(_p(-17, -5), _p(-25, 9), _p(-17, 24), 4.0, 0.2, -0.01)
+		_lock(_p(-21, 11), _p(-20, 20), _p(-15, 23), 2.6, 0.2, -0.05)
+		_lock(_p(17, -2), _p(24, 9), _p(18, 19), 3.2, 0.3, -0.16)
 	elif young:
-		_lock(_p(8, -17), _p(-2, -28), _p(-18, -14), 4.8, 0.3)
-		_lock(_p(5, -18), _p(-7, -21), _p(-14, -9), 4.2, 0.4)
-		_lock(_p(5, -19), _p(-4, -29), _p(-10, -25), 3.8, 0.2, 0.02)
-		_lock(_p(9, -19), _p(3, -26), _p(0, -29), 3.4, 0.2)
-		_lock(_p(9, -19), _p(16, -26), _p(17, -13), 3.8, 0.3, -0.12)
-		_lock(_p(4, -17), _p(-3, -15), _p(-12, -6), 4.3, 0.4)
-		_lock(_p(8, -18), _p(14, -13), _p(14, -5), 3.2, 0.2, -0.12)
-		_lock(_p(-13, -14), _p(-18, -7), _p(-15, -1), 2.4, 0.2)
+		_hair_mass([-18, -7, -19, -15, -12, -25, -5, -30, 2, -28, 8, -30, 16, -25, 19, -13, 16, -6, 12, -16, 4, -18, -2, -15, -10, -9], -0.05)
+		_lock(_p(8, -20), _p(-6, -31), _p(-18, -14), 6.0, 0.3, 0.02)
+		_lock(_p(4, -22), _p(-9, -24), _p(-16, -8), 5.0, 0.3, 0.01)
+		_lock(_p(5, -24), _p(0, -33), _p(-5, -30), 3.8, 0.2, -0.01)
+		_lock(_p(7, -24), _p(19, -27), _p(17, -9), 5.2, 0.3, -0.12)
+		_lock(_p(5, -18), _p(-1, -15), _p(-11, -5), 4.7, 0.2, 0.00)
+		_lock(_p(-15, -11), _p(-20, -5), _p(-16, 0), 2.8, 0.2, -0.10)
 	else:
-		# Adult's swept, wiry forelock leaves shaved temples and a high forehead.
-		_lock(_p(5, -18), _p(-2, -30), _p(-12, -24), 4.1, 0.3, 0.03)
-		_lock(_p(5, -20), _p(0, -30), _p(-4, -30), 3.5, 0.2)
-		_lock(_p(7, -17), _p(12, -29), _p(8, -27), 3.6, 0.2, -0.08)
-		_lock(_p(3, -19), _p(-7, -22), _p(-14, -9), 3.4, 0.3)
-		_lock(_p(7, -20), _p(16, -17), _p(15, -8), 3.0, 0.3, -0.15)
-		_lock(_p(0, -19), _p(-3, -11), _p(-8, -7), 2.7, 0.2)
+		# The adult has a heavy swept forelock, high temple and a broader lower face.
+		_hair_mass([-17, -9, -18, -18, -12, -25, -4, -29, 4, -27, 9, -29, 15, -24, 18, -15, 16, -8, 12, -13, 5, -19, -4, -13, -9, -7], -0.06)
+		_lock(_p(7, -20), _p(-5, -32), _p(-15, -20), 6.0, 0.3, 0.03)
+		_lock(_p(6, -24), _p(5, -32), _p(10, -29), 4.0, 0.3, -0.05)
+		_lock(_p(8, -22), _p(19, -23), _p(16, -10), 4.4, 0.3, -0.14)
+		_lock(_p(4, -23), _p(-8, -23), _p(-10, -6), 4.8, 0.2, 0.01)
 
 func _hood() -> void:
 	var ramp := _metal_ramp(helm) if "coif" in String(helm.get("sprite", "")) else cloth_ramp

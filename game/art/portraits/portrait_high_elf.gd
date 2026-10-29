@@ -1,6 +1,6 @@
 extends RefCounted
-## high elf-only 96px bust painter, copied without changing the legacy pixel math.
-## Anatomy, hair, shading and equipment stay local so this race can be edited independently.
+## High elf-only 96px bust painter: warm facial planes and swept, sculpted locks.
+## The spec, equipment and injury contract stays local to this race.
 
 const RACE := "high_elf"
 const SIZE := 96
@@ -105,15 +105,16 @@ func _render(sp: Dictionary) -> Image:
 	cv = PixelCanvas.new(SIZE, SIZE)
 	cv.set_frame(Vector2.ZERO, 1.0, 0.0)
 	_read()
+	_high_read()
 	if _lost("head"):
-		_draw_torso()
+		_high_torso()
 		_blob(int(cx), int(cy), 11, FigurePainter.BLOOD)
 		_outline()
 		return cv.to_image()
 	if helm_kind == "closed":
-		_draw_torso()
-		_draw_neck()
-		_draw_collar()
+		_high_torso()
+		_high_neck()
+		_high_collar()
 		_draw_closed_helm()
 		_draw_lost_blood()
 		_outline()
@@ -121,27 +122,459 @@ func _render(sp: Dictionary) -> Image:
 	if helm_kind == "coif":
 		_draw_hood()
 	else:
-		_draw_hair_back()
-	_draw_torso()
-	_draw_neck()
-	_draw_collar()
-	_draw_skull()
-	_blush()
+		_high_hair_back()
+	_high_torso()
+	_high_neck()
+	_high_collar()
+	_high_face()
+	_high_age_lines()
+	_high_ear(-1)
+	_high_ear(1)
+	_high_eye(true)
+	_high_eye(false)
+	_high_nose_mouth()
 	if helm_kind != "coif":
-		_draw_hair_front()
-	_draw_ear(true)
-	_draw_ear(false)
-	_draw_brows_and_eyes()
-	_draw_nose()
-	_draw_mouth()
-	_draw_wrinkles()
-	_stage_marks()
-	_draw_beard()
-	_draw_tusks()
+		_high_hair_front()
+	_high_beard()
 	_draw_open_helm()
 	_draw_lost_blood()
 	_outline()
 	return cv.to_image()
+
+func _high_read() -> void:
+	# Keep the supplied complexion and hair colour; age changes their temperature.
+	rx = (16.7 if sex_f else (17.2 if stage == "young" else 18.2))
+	if stage == "elder":
+		rx -= 0.5
+	ry = 23.0
+	cy = 40.0
+	chin_y = 65.0 if sex_f or stage == "young" else 66.0
+	eye_y = 39.0 + (1.0 if stage == "elder" else 0.0)
+	mouth_y = 55.0 if sex_f or stage == "young" else 56.0
+	nose_y = mouth_y - 5.0
+	torso_y = 69.0
+	neck_w = 5.7 if sex_f else 6.5
+	sh_w = 32.0 if sex_f else 35.0
+	eye_near = Vector2(cx - 7.0, eye_y)
+	eye_far = Vector2(cx + 7.0, eye_y + (1.0 if stage == "adult" else 0.0))
+	if stage == "elder":
+		skin = skin.lerp(Color("#bda98d"), 0.17)
+	else:
+		skin = skin.lerp(Color("#edc89f"), 0.20)
+	skin_ramp = [skin.lerp(Color("#433640"), 0.70), skin.lerp(Color("#795744"), 0.55),
+		skin.darkened(0.29).lerp(Color("#bc9070"), 0.12), skin.darkened(0.14), skin,
+		skin.lightened(0.12).lerp(Color("#ffedcf"), 0.12), skin.lightened(0.25)]
+	hair_ramp = _high_ramp(hair)
+	beard_ramp = _high_ramp(beard_col)
+
+func _high_ramp(base: Color) -> Array[Color]:
+	return [base.lerp(Color("#3e3634"), 0.79), base.darkened(0.53).lerp(Color("#775d46"), 0.12),
+		base.darkened(0.31), base.darkened(0.12), base, base.lightened(0.18), base.lightened(0.38)]
+
+func _high_tone(ramp: Array[Color], light: float) -> Color:
+	# Connected half-tone clusters, without checkerboards or periodic streaks.
+	var step := clampf(floorf(light * 12.0) * 0.5, 0.0, 6.0)
+	var band := int(step)
+	return ramp[band].lerp(ramp[mini(band + 1, 6)], step - float(band))
+
+func _high_soft(x: float, y: float, ax: float, ay: float, w: float, h: float) -> float:
+	var falloff := maxf(0.0, 1.0 - Vector2((x - ax) / w, (y - ay) / h).length_squared())
+	return falloff * falloff
+
+func _high_points(coords: Array) -> PackedVector2Array:
+	var points := PackedVector2Array()
+	for i in range(0, coords.size(), 2):
+		points.append(Vector2(float(coords[i]), float(coords[i + 1])))
+	return points
+
+func _high_poly(coords: Array, ramp: Array[Color], bias: float = 0.0) -> void:
+	var points := _high_points(coords)
+	var bounds := Rect2(points[0], Vector2.ZERO)
+	for p in points:
+		bounds = bounds.expand(p)
+	for y in range(maxi(0, floori(bounds.position.y)), mini(SIZE, ceili(bounds.end.y) + 1)):
+		for x in range(maxi(0, floori(bounds.position.x)), mini(SIZE, ceili(bounds.end.x) + 1)):
+			if Geometry2D.is_point_in_polygon(Vector2(x + 0.5, y + 0.5), points):
+				_px(x, y, _high_tone(ramp, 0.73 - float(x - 29) * 0.004 - float(y - 70) * 0.003 + bias))
+
+func _high_oval(c: Vector2, w: float, h: float, ramp: Array[Color], bias: float = 0.0) -> void:
+	for y in range(maxi(0, floori(c.y - h)), mini(SIZE, ceili(c.y + h) + 1)):
+		for x in range(maxi(0, floori(c.x - w)), mini(SIZE, ceili(c.x + w) + 1)):
+			var u := (float(x) + 0.5 - c.x) / w
+			var v := (float(y) + 0.5 - c.y) / h
+			if u * u + v * v <= 1.0:
+				var lit := 0.56 - u * 0.19 - v * 0.12 + sqrt(maxf(0.0, 1.0 - u * u - v * v)) * 0.12 + bias
+				_px(x, y, _high_tone(ramp, lit))
+
+func _high_line(a: Vector2, b: Vector2, col: Color, radius: float = 0.45) -> void:
+	var steps := maxi(1, ceili(a.distance_to(b) * 2.0))
+	for i in range(steps + 1):
+		var p := a.lerp(b, float(i) / float(steps))
+		if radius <= 0.5:
+			_px(roundi(p.x), roundi(p.y), col)
+		else:
+			for y in range(floori(p.y - radius), ceili(p.y + radius) + 1):
+				for x in range(floori(p.x - radius), ceili(p.x + radius) + 1):
+					if Vector2(x + 0.5, y + 0.5).distance_squared_to(p) <= radius * radius:
+						_px(x, y, col)
+
+func _high_curve(a: Vector2, b: Vector2, c: Vector2, col: Color) -> void:
+	var previous := a
+	for i in range(1, 25):
+		var t := float(i) / 24.0
+		var p := a * (1.0 - t) * (1.0 - t) + b * 2.0 * (1.0 - t) * t + c * t * t
+		_high_line(previous, p, col)
+		previous = p
+
+func _high_lock(a: Vector2, b: Vector2, c: Vector2, r0: float, r1: float, ramp: Array[Color], bias: float = 0.0) -> void:
+	# A tapered curved volume. Light turns across the lock, darkens underneath,
+	# and breaks at its bend; neither x nor y selects a repeating texture.
+	const STEPS := 18
+	var points := PackedVector2Array()
+	var bounds := Rect2(a, Vector2.ZERO)
+	for i in range(STEPS + 1):
+		var t := float(i) / float(STEPS)
+		var p := a * (1.0 - t) * (1.0 - t) + b * 2.0 * (1.0 - t) * t + c * t * t
+		points.append(p)
+		bounds = bounds.expand(p)
+	bounds = bounds.grow(maxf(r0, r1) + 1.0)
+	for y in range(maxi(0, floori(bounds.position.y)), mini(SIZE, ceili(bounds.end.y) + 1)):
+		for x in range(maxi(0, floori(bounds.position.x)), mini(SIZE, ceili(bounds.end.x) + 1)):
+			var p := Vector2(x + 0.5, y + 0.5)
+			var distance := INF
+			var along := 0.0
+			var center := a
+			var tangent := Vector2.DOWN
+			for i in range(STEPS):
+				var segment := points[i + 1] - points[i]
+				var t := clampf((p - points[i]).dot(segment) / maxf(0.001, segment.length_squared()), 0.0, 1.0)
+				var nearest := points[i] + segment * t
+				var d := p.distance_squared_to(nearest)
+				if d < distance:
+					distance = d
+					along = (float(i) + t) / float(STEPS)
+					center = nearest
+					tangent = segment.normalized()
+			var radius := lerpf(r0, r1, pow(along, 1.25)) + sin(along * PI) * r0 * 0.12
+			if distance > radius * radius:
+				continue
+			var normal := Vector2(tangent.y, -tangent.x)
+			if normal.x < 0.0:
+				normal = -normal
+			var across := (p - center).dot(normal) / maxf(0.25, radius)
+			var lit := 0.47 + sqrt(maxf(0.0, 1.0 - across * across)) * 0.19 - across * 0.16
+			lit += bias - along * 0.065 - float(x - 44) * 0.0015
+			var glint := _high_soft(across, along, -0.27, 0.37, 0.32, 0.34)
+			lit += glint * 0.13
+			if across > 0.72:
+				lit -= 0.10
+			if along > 0.90:
+				lit -= (along - 0.90) * 0.55
+			_px(x, y, _high_tone(ramp, lit))
+
+func _high_hlock(a: Vector2, b: Vector2, c: Vector2, r0: float, r1: float, bias: float = 0.0) -> void:
+	_high_lock(a, b, c, r0, r1, hair_ramp, bias)
+
+func _high_half(y: float) -> float:
+	var hollow := 0.76 if stage == "elder" else (0.88 if stage == "young" else 0.83)
+	var jaw_width := 0.60 if sex_f else (0.65 if stage == "young" else 0.74)
+	var profile := [Vector2(17, 0.24), Vector2(23, 0.73), Vector2(32, 0.96), Vector2(41, 1.0),
+		Vector2(46, 0.97), Vector2(51, hollow), Vector2(56, jaw_width), Vector2(61, 0.46),
+		Vector2(chin_y - 1.0, 0.24), Vector2(chin_y + 1.0, 0.06)]
+	for i in range(1, profile.size()):
+		var a: Vector2 = profile[i - 1]
+		var b: Vector2 = profile[i]
+		if y <= b.x:
+			return rx * lerpf(a.y, b.y, clampf((y - a.x) / (b.x - a.x), 0.0, 1.0))
+	return 0.0
+
+func _high_face() -> void:
+	for y in range(17, int(chin_y) + 2):
+		if _lost("jaw") and y > int(mouth_y) + 2:
+			continue
+		var fy := float(y) + 0.5
+		var half := _high_half(fy)
+		var center := cx + smoothstep(38.0, chin_y, fy) * 1.1
+		for x in range(floori(center - half), ceili(center + half)):
+			var fx := float(x) + 0.5
+			var u := (fx - center) / maxf(half, 0.5)
+			if absf(u) > 1.0:
+				continue
+			var lit := 0.63 - u * 0.17 + sqrt(maxf(0.0, 1.0 - u * u)) * 0.095
+			lit += _high_soft(fx, fy, cx - 5, 28, 10, 8) * 0.08
+			lit += _high_soft(fx, fy, cx - 10, 46, 6, 3.5) * 0.12
+			lit += _high_soft(fx, fy, cx + 10, 46, 5, 3) * 0.11
+			lit -= _high_soft(fx, fy, cx - 7, eye_y, 6, 3) * 0.14
+			lit -= _high_soft(fx, fy, cx + 7, eye_y + 1, 6, 3) * 0.15
+			lit -= _high_soft(fx, fy, cx + 3, 48, 3.5, 5) * 0.12
+			var hollow := 0.26 if stage == "elder" else (0.13 if stage == "young" else 0.20)
+			lit -= _high_soft(fx, fy, cx - 11, 52, 5.5, 4.5) * hollow
+			lit -= _high_soft(fx, fy, cx + 12, 52, 5.5, 5) * (hollow + 0.035)
+			lit += _high_soft(fx, fy, cx - 7, 58, 4, 2.5) * 0.085
+			lit -= _high_soft(fx, fy, cx + 1, mouth_y + 3, 6, 2) * 0.12
+			lit += _high_soft(fx, fy, cx, chin_y - 3, 5, 2.5) * 0.11
+			lit -= maxf(0.0, absf(u) - 0.78) * 0.50
+			var col := _high_tone(skin_ramp, lit)
+			if not dead and stage == "young":
+				var warmth := _high_soft(fx, fy, cx - 10, 47, 5, 3.5) + _high_soft(fx, fy, cx + 10, 47, 4, 3)
+				col = col.lerp(Color("#cd947c"), warmth * (0.12 if sex_f else 0.06))
+			_px(x, y, col)
+
+func _high_neck() -> void:
+	if _lost("neck"):
+		_blob(int(cx), 67, 5, FigurePainter.BLOOD)
+		return
+	_high_poly([43,59, 54,59, 54,69, 58,73, 50,77, 39,73, 43,69], skin_ramp, -0.05)
+	_high_poly([51,62, 55,59, 54,69, 57,72, 51,74], skin_ramp, -0.23)
+	_high_curve(Vector2(44,63), Vector2(48,65), Vector2(53,63), skin_ramp[2])
+	_high_line(Vector2(44,69), Vector2(45,73), skin_ramp[5])
+
+func _high_torso() -> void:
+	var cloth := _high_ramp(prim)
+	var gold := _high_ramp(sec)
+	var s := 2.0 if stage == "elder" else (1.0 if sex_f else 0.0)
+	_high_poly([13,96, 17,84+s, 26,77+s, 40,69+s, 55,69+s, 69,77+s, 79,85+s, 85,96], cloth, -0.06)
+	_high_lock(Vector2(34,75+s), Vector2(19,82+s), Vector2(17,96), 5.5, 2.0, cloth, 0.07)
+	_high_lock(Vector2(62,78+s), Vector2(76,83+s), Vector2(81,96), 4.0, 1.0, cloth, -0.16)
+	_high_curve(Vector2(29,81+s), Vector2(22,88), Vector2(23,95), cloth[2])
+	_high_curve(Vector2(67,82+s), Vector2(69,88), Vector2(74,94), cloth[1])
+	if _armored():
+		var metal := _metal_of(body)
+		var dark: Color = metal["dark"]
+		var base: Color = metal["base"]
+		var light: Color = metal["light"]
+		var ramp: Array[Color] = [dark.darkened(0.35), dark, dark.lerp(base, 0.5), base,
+			base.lerp(light, 0.55), light, metal["shine"]]
+		_high_poly([31,96, 34,81, 42,74, 55,74, 65,82, 70,96], ramp, -0.08)
+		_high_lock(Vector2(44,79), Vector2(39,87), Vector2(38,96), 6.5, 4.0, ramp, 0.03)
+		_high_curve(Vector2(49,80), Vector2(56,87), Vector2(55,95), ramp[2])
+		_high_poly([24,79, 32,75, 40,77, 35,84, 24,86, 20,84], ramp)
+		_high_poly([60,78, 68,78, 77,84, 74,88, 64,85], ramp, -0.16)
+		_high_curve(Vector2(23,80), Vector2(31,76), Vector2(37,78), ramp[5])
+		_high_curve(Vector2(64,80), Vector2(71,81), Vector2(75,85), ramp[4])
+	else:
+		_high_poly([38,78+s, 48,81+s, 62,95, 46,96, 33,86+s], cloth, 0.01)
+		_high_curve(Vector2(37,83+s), Vector2(48,87), Vector2(56,94), cloth[2])
+		_high_curve(Vector2(30,85+s), Vector2(42,89), Vector2(49,95), cloth[4])
+	# Leaf clasp and the edge of a draped mantle, rather than a striped breastplate.
+	_high_curve(Vector2(32,78+s), Vector2(44,85), Vector2(61,94), gold[2])
+	_high_oval(Vector2(31,79+s), 2.7, 3.3, gold, 0.01)
+	_high_line(Vector2(30,78+s), Vector2(31,76+s), gold[6])
+	_px(31, int(79+s), prim.lightened(0.35))
+
+func _high_collar() -> void:
+	var cloth := _high_ramp(prim)
+	var gold := _high_ramp(sec)
+	_high_poly([37,68, 42,69, 46,76, 42,79, 36,74], cloth, 0.07)
+	_high_poly([55,69, 60,71, 59,76, 51,80, 49,77], cloth, -0.10)
+	_high_curve(Vector2(38,70), Vector2(41,73), Vector2(44,76), gold[4])
+	_high_curve(Vector2(58,72), Vector2(56,75), Vector2(51,78), gold[3])
+	_high_oval(Vector2(48,79), 1.6, 2.2, gold)
+
+func _high_ear(side: int) -> void:
+	var near := side < 0
+	var d := float(side)
+	var root := Vector2(cx + d * (rx - 1.0), 40)
+	if _lost("ear_r" if near else "ear_l"):
+		_blob(roundi(root.x), 40, 2, FigurePainter.BLOOD)
+		return
+	var tip := root + Vector2(d * (14.5 if near else 12.5), -12.0 if near else -11.0)
+	_high_poly([root.x-d*1.5,44, root.x+d*4,41, tip.x,tip.y,
+		tip.x-d*4,tip.y+2.5, root.x+d*3,35, root.x-d*1.5,34], skin_ramp, 0.02 if near else -0.13)
+	_high_curve(root+Vector2(d,0), root+Vector2(d*6,-2), tip+Vector2(-d*3,3), skin_ramp[2] if near else skin_ramp[1])
+	_high_curve(root+Vector2(-d,1), root+Vector2(d*3,-5), tip+Vector2(-d*2,2), skin_ramp[5] if near else skin_ramp[4])
+	_high_line(root+Vector2(d,0), root+Vector2(d*2,2), skin_ramp[1])
+	if sex_f:
+		var gold := _high_ramp(sec)
+		_high_oval(root+Vector2(d*2,3), 1.2, 2.0, gold, -0.03)
+
+func _high_eye(near: bool) -> void:
+	var c := eye_near if near else eye_far
+	var x := roundi(c.x)
+	var y := roundi(c.y)
+	var outer := -1 if near else 1
+	var lid := skin_ramp[1].lerp(Color("#51423e"), 0.50)
+	var brow := hair_ramp[1].lerp(skin_ramp[2], 0.35)
+	if stage == "elder":
+		brow = hair_ramp[2].lerp(skin_ramp[2], 0.36)
+	for dx in range(-4, 5):
+		var inner := -dx * outer
+		var by := y - 5 - (1 if absi(dx) < 3 else 0)
+		if stage == "adult":
+			by += 1 if inner > 1 else 0
+		elif sex_f and stage == "elder":
+			by -= 1 if near and inner > 0 else 0
+		elif stage == "young" and not sex_f:
+			by -= 1 if near and absi(dx) < 2 else 0
+		_px(x + dx, by, brow)
+		if stage == "adult" and absi(dx) < 3:
+			_px(x + dx, by + 1, brow.lerp(skin_ramp[3], 0.35))
+	if _lost("eye_r" if near else "eye_l"):
+		_blob(x, y, 3, FigurePainter.BLOOD)
+		return
+	if dead:
+		_high_curve(Vector2(x-4,y), Vector2(x,y+2), Vector2(x+4,y), lid)
+		return
+	var iris := _color_of("eyes", EYES[RACE])
+	var gaze := 1 if stage == "young" and not sex_f else 0
+	var height := 3 if stage == "young" else 2
+	for dx in range(-4, 5):
+		var edge := absi(dx) == 4
+		var top := 1 if absi(dx) >= 3 else 0
+		if stage == "adult" and dx * outer < -1:
+			top += 1
+		_px(x + dx, y + top - 1, lid)
+		if not edge:
+			for dy in range(top, height):
+				_px(x + dx, y + dy, SCLERA.darkened(0.04 * dy + (0.0 if near else 0.08)))
+	for dy in range(height):
+		_px(x + gaze, y + dy, iris.darkened(0.18) if dy == 0 else iris)
+		_px(x + gaze + 1, y + dy, iris.darkened(0.48))
+	_px(x + gaze + 1, y, Color("#263541"))
+	_px(x + gaze, y, SCLERA)
+	_high_line(Vector2(x-2,y+height), Vector2(x+2,y+height), skin_ramp[3])
+	_px(x-2, y+height+1, skin_ramp[5] if near else skin_ramp[4])
+	if sex_f:
+		_px(x+outer*5, y, lid)
+
+func _high_nose_mouth() -> void:
+	var nx := cx + 1.0
+	if not _lost("nose"):
+		# A narrow illuminated bridge turns into a small warm tip and nostril.
+		_high_curve(Vector2(nx,42), Vector2(nx-0.5,47), Vector2(nx+1,50), skin_ramp[5])
+		_high_curve(Vector2(nx+2,43), Vector2(nx+1,47), Vector2(nx+3,50), skin_ramp[2])
+		_high_line(Vector2(nx-1,51), Vector2(nx+2,52), skin_ramp[3])
+		_px(roundi(nx+3), 51, skin_ramp[1])
+		_px(roundi(nx), 50, skin_ramp[6])
+	if _lost("jaw"):
+		return
+	var y := mouth_y
+	var lip := skin.lerp(Color("#a66f60"), 0.61)
+	var crease := skin_ramp[1].lerp(Color("#865848"), 0.25)
+	if stage == "young" and sex_f:
+		_high_curve(Vector2(nx-4,y), Vector2(nx,y+2), Vector2(nx+4,y-1), crease)
+		_high_line(Vector2(nx-1,y+2), Vector2(nx+2,y+2), lip)
+	elif stage == "young":
+		_high_curve(Vector2(nx-4,y+1), Vector2(nx,y+1), Vector2(nx+4,y-1), crease)
+		_high_line(Vector2(nx-1,y+2), Vector2(nx+2,y+2), skin_ramp[4].lerp(lip,0.45))
+	elif stage == "adult":
+		_high_curve(Vector2(nx-4,y), Vector2(nx,y-0.5), Vector2(nx+4,y+1), crease)
+		_high_line(Vector2(nx-2,y+1), Vector2(nx+2,y+1), lip)
+	elif not sex_f:
+		_high_curve(Vector2(nx-4,y), Vector2(nx,y+0.5), Vector2(nx+4,y-0.5), crease)
+		_high_line(Vector2(nx-1,y+1), Vector2(nx+2,y+1), lip.lerp(skin_ramp[3],0.35))
+	else:
+		_high_curve(Vector2(nx-4,y+1), Vector2(nx,y-1), Vector2(nx+4,y+1), crease)
+		_high_line(Vector2(nx-2,y+1), Vector2(nx+1,y+1), lip.lerp(skin_ramp[3],0.35))
+	_high_line(Vector2(nx-2,y+3), Vector2(nx+1,y+3), skin_ramp[5])
+
+func _high_age_lines() -> void:
+	if stage == "young":
+		return
+	var crease := skin_ramp[2].lerp(skin_ramp[3], 0.38)
+	if stage == "elder":
+		_high_curve(Vector2(41,29), Vector2(47,31), Vector2(53,29), crease)
+		_high_curve(Vector2(44,33), Vector2(49,34), Vector2(54,32), crease)
+		_high_line(Vector2(43,28), Vector2(47,29), skin_ramp[5])
+		for c in [eye_near, eye_far]:
+			var d := -1.0 if c == eye_near else 1.0
+			_high_line(c+Vector2(d*4,1), c+Vector2(d*6,3), crease)
+			_high_curve(c+Vector2(-2,5), c+Vector2(0,6), c+Vector2(3,4), crease)
+		_high_curve(Vector2(44,52), Vector2(41,54), Vector2(42,58), crease)
+		_high_curve(Vector2(55,52), Vector2(58,54), Vector2(58,58), skin_ramp[2])
+		_high_line(Vector2(42,54), Vector2(42,56), skin_ramp[5])
+	else:
+		_high_line(Vector2(36,44), Vector2(38,45), crease)
+		_high_line(Vector2(60,45), Vector2(62,44), crease)
+
+func _high_hair_back() -> void:
+	if hstyle == "bald":
+		return
+	if sex_f and stage == "elder":
+		_high_oval(Vector2(65,24), 8.0, 9.0, hair_ramp, -0.15)
+		_high_hlock(Vector2(65,17), Vector2(77,25), Vector2(65,34), 3.2, 0.3, -0.13)
+		_high_hlock(Vector2(68,20), Vector2(73,28), Vector2(62,31), 2.7, 0.2, -0.04)
+	if sex_f or stage != "young":
+		_high_poly([30,29, 36,21, 61,23, 68,32, 69,55, 65,73, 58,76, 34,72, 28,53], hair_ramp, -0.22)
+		_high_hlock(Vector2(32,29), Vector2(24,49), Vector2(30,73), 5.0, 0.4, -0.08)
+		_high_hlock(Vector2(64,30), Vector2(73,53), Vector2(65,77), 5.5, 0.5, -0.22)
+		_high_hlock(Vector2(35,39), Vector2(38,55), Vector2(31,71), 3.7, 0.3, -0.02)
+		_high_hlock(Vector2(62,40), Vector2(58,57), Vector2(66,73), 3.8, 0.3, -0.16)
+		if stage == "adult" and not sex_f:
+			_high_hlock(Vector2(65,45), Vector2(75,66), Vector2(66,88), 4.7, 0.2, -0.12)
+	else:
+		_high_hlock(Vector2(33,28), Vector2(26,45), Vector2(34,59), 4.2, 0.3, -0.06)
+		_high_hlock(Vector2(63,29), Vector2(70,44), Vector2(63,60), 4.2, 0.3, -0.19)
+
+func _high_hair_front() -> void:
+	if hstyle == "bald":
+		return
+	if stage == "elder" and not sex_f:
+		# Silver temples frame an exposed, lined forehead and a small widow's peak.
+		_high_hlock(Vector2(43,18), Vector2(32,14), Vector2(29,34), 3.5, 0.6, 0.04)
+		_high_hlock(Vector2(38,22), Vector2(27,28), Vector2(31,46), 3.4, 0.2, -0.04)
+		_high_hlock(Vector2(34,33), Vector2(28,44), Vector2(33,56), 2.5, 0.2, -0.06)
+		_high_hlock(Vector2(52,19), Vector2(65,14), Vector2(67,34), 3.7, 0.4, -0.09)
+		_high_hlock(Vector2(61,25), Vector2(70,35), Vector2(64,49), 3.2, 0.2, -0.16)
+		_high_hlock(Vector2(42,18), Vector2(47,10), Vector2(54,18), 3.0, 0.2, 0.06)
+		_high_hlock(Vector2(46,17), Vector2(52,14), Vector2(56,21), 2.0, 0.15, -0.01)
+		return
+	if not sex_f and stage == "adult":
+		_high_poly([28,34, 29,23, 37,15, 46,12, 56,14, 64,19, 69,31, 65,39,
+			61,29, 53,24, 44,25, 36,30, 33,39], hair_ramp, -0.15)
+		_high_hlock(Vector2(43,15), Vector2(30,13), Vector2(29,33), 4.3, 0.3, 0.05)
+		_high_hlock(Vector2(46,17), Vector2(32,20), Vector2(32,39), 3.8, 0.2, 0.00)
+		_high_hlock(Vector2(45,21), Vector2(36,24), Vector2(35,32), 2.4, 0.15, 0.03)
+		_high_hlock(Vector2(50,14), Vector2(65,12), Vector2(68,32), 4.6, 0.3, -0.07)
+		_high_hlock(Vector2(51,18), Vector2(65,20), Vector2(65,40), 3.7, 0.2, -0.12)
+		_high_hlock(Vector2(55,25), Vector2(65,29), Vector2(64,44), 2.4, 0.1, -0.17)
+		return
+	var d := 1.0 if part_left else -1.0
+	if not sex_f:
+		d = 1.0
+	# Broad, overlapping diagonal sweeps leave a shaped, irregular hairline.
+	_high_poly([cx-d*19,34, cx-d*19,25, cx-d*12,16, cx-d*2,10, cx+d*10,12,
+		cx+d*19,21, cx+d*19,32, cx+d*15,39, cx+d*11,27, cx+d*3,26, cx-d*8,31, cx-d*17,39], hair_ramp, -0.16)
+	_high_hlock(Vector2(cx+d*5,13), Vector2(cx+d*22,14), Vector2(cx+d*19,36), 4.5, 0.2, -0.08)
+	_high_hlock(Vector2(cx+d*12,22), Vector2(cx+d*21,28), Vector2(cx+d*16,43), 3.0, 0.15, -0.12)
+	_high_hlock(Vector2(cx-d*1,12), Vector2(cx-d*13,10), Vector2(cx-d*19,28), 4.0, 0.3, 0.12)
+	_high_hlock(Vector2(cx+d*6,14), Vector2(cx-d*9,13), Vector2(cx-d*20,35), 4.1, 0.2, 0.06)
+	_high_hlock(Vector2(cx+d*10,18), Vector2(cx-d*5,17), Vector2(cx-d*16,39), 3.6, 0.15, -0.01)
+	_high_hlock(Vector2(cx+d*6,23), Vector2(cx-d*3,22), Vector2(cx-d*10,32), 2.4, 0.1, 0.02)
+	if sex_f and stage == "elder":
+		_high_hlock(Vector2(32,44), Vector2(25,58), Vector2(29,72), 4.0, 1.4, -0.04)
+		_high_hlock(Vector2(32,48), Vector2(35,60), Vector2(30,70), 2.8, 0.2, 0.03)
+		_high_hlock(Vector2(29,63), Vector2(36,78), Vector2(25,87), 3.8, 0.2, 0.01)
+		_high_hlock(Vector2(29,64), Vector2(25,77), Vector2(29,81), 2.0, 0.1, 0.05)
+	elif sex_f:
+		_high_hlock(Vector2(31,44), Vector2(24,60), Vector2(29,76), 4.6, 1.5, 0.01)
+		_high_hlock(Vector2(32,48), Vector2(35,60), Vector2(29,72), 2.9, 0.2, 0.06)
+		_high_hlock(Vector2(28,66), Vector2(36,80), Vector2(26,91), 3.7, 0.2, -0.04)
+		_high_hlock(Vector2(65,44), Vector2(72,63), Vector2(65,80), 4.6, 0.9, -0.15)
+		_high_hlock(Vector2(65,49), Vector2(61,62), Vector2(66,75), 2.8, 0.2, -0.11)
+		_high_hlock(Vector2(67,66), Vector2(61,80), Vector2(69,89), 3.0, 0.15, -0.13)
+	else:
+		_high_hlock(Vector2(30,32), Vector2(27,41), Vector2(33,49), 2.5, 0.15, -0.06)
+
+func _high_beard() -> void:
+	if not beard_on or _lost("head") or _lost("jaw"):
+		return
+	var y := mouth_y + 4.0
+	var length := 19.0 if stage == "elder" else 11.0
+	if beard_i == 6:
+		length = 0.0
+	elif beard_i == 7:
+		# A short, contiguous shadow at the jaw rather than dotted stubble.
+		_high_curve(Vector2(41,59), Vector2(49,66), Vector2(57,59), beard_ramp[2].lerp(skin_ramp[3],0.65))
+		return
+	if length > 0.0:
+		_high_lock(Vector2(46,y+1), Vector2(44,y+11), Vector2(50,y+length), 4.2, 0.25, beard_ramp, -0.09)
+		_high_lock(Vector2(53,y+1), Vector2(57,y+10), Vector2(51,y+length-2), 3.8, 0.2, beard_ramp, -0.19)
+		_high_lock(Vector2(49,y+4), Vector2(53,y+11), Vector2(48,y+length+2), 3.5, 0.15, beard_ramp, 0.03)
+		_high_lock(Vector2(42,y-2), Vector2(43,y+4), Vector2(47,y+8), 1.6, 0.1, beard_ramp, 0.01)
+		_high_lock(Vector2(57,y-2), Vector2(57,y+4), Vector2(53,y+8), 1.5, 0.1, beard_ramp, -0.18)
+	_high_lock(Vector2(48,mouth_y-1), Vector2(45,mouth_y-1), Vector2(43,mouth_y+1), 1.6, 0.15, beard_ramp, 0.05)
+	_high_lock(Vector2(51,mouth_y-1), Vector2(54,mouth_y), Vector2(56,mouth_y+1), 1.5, 0.1, beard_ramp, -0.12)
 
 func _read() -> void:
 	race = RACE

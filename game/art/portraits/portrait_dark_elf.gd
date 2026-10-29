@@ -1,6 +1,6 @@
 extends RefCounted
-## dark elf-only 96px bust painter, copied without changing the legacy pixel math.
-## Anatomy, hair, shading and equipment stay local so this race can be edited independently.
+## Dark elf 96px bust painter. Faces and overlapping locks use contiguous shaded planes.
+## Equipment and injury support remain local to this race's paint(spec) API.
 
 const RACE := "dark_elf"
 const SIZE := 96
@@ -105,15 +105,16 @@ func _render(sp: Dictionary) -> Image:
 	cv = PixelCanvas.new(SIZE, SIZE)
 	cv.set_frame(Vector2.ZERO, 1.0, 0.0)
 	_read()
+	_dark_setup()
 	if _lost("head"):
-		_draw_torso()
-		_blob(int(cx), int(cy), 11, FigurePainter.BLOOD)
+		_dark_torso()
+		_blob(int(cx), int(torso_y), 7, FigurePainter.BLOOD)
 		_outline()
 		return cv.to_image()
 	if helm_kind == "closed":
-		_draw_torso()
-		_draw_neck()
-		_draw_collar()
+		_dark_torso()
+		_dark_neck()
+		_dark_collar()
 		_draw_closed_helm()
 		_draw_lost_blood()
 		_outline()
@@ -121,27 +122,433 @@ func _render(sp: Dictionary) -> Image:
 	if helm_kind == "coif":
 		_draw_hood()
 	else:
-		_draw_hair_back()
-	_draw_torso()
-	_draw_neck()
-	_draw_collar()
-	_draw_skull()
-	_blush()
+		_dark_hair_volume(false)
+	_dark_torso()
+	_dark_neck()
+	_dark_collar()
+	_dark_ear(-1)
+	_dark_ear(1)
+	_dark_face()
+	_dark_age()
+	_dark_eye(true)
+	_dark_eye(false)
+	_dark_nose()
+	_dark_mouth()
 	if helm_kind != "coif":
-		_draw_hair_front()
-	_draw_ear(true)
-	_draw_ear(false)
-	_draw_brows_and_eyes()
-	_draw_nose()
-	_draw_mouth()
-	_draw_wrinkles()
-	_stage_marks()
-	_draw_beard()
-	_draw_tusks()
+		_dark_hair_volume(true)
+	_dark_beard_volume()
 	_draw_open_helm()
 	_draw_lost_blood()
 	_outline()
 	return cv.to_image()
+
+func _dark_setup() -> void:
+	# The same anatomical scale as the accepted human sheet, with a longer elf taper.
+	rx = (17.0 if sex_f else (18.1 if stage == "adult" else 17.5))
+	rx += float(int(seed / 7.0) % 3 - 1) * 0.25
+	cy = 40.0
+	ry = 23.0
+	chin_y = 64.0 if sex_f else 65.0
+	eye_y = 39.0 if stage == "young" else 40.0
+	mouth_y = (54.0 if sex_f else 55.0) + (1.0 if stage == "elder" else 0.0)
+	nose_y = mouth_y - 5.0
+	eye_near = Vector2(cx - 7.0, eye_y)
+	eye_far = Vector2(cx + 7.0, eye_y + (0.0 if stage == "young" else 1.0))
+	neck_w = 6.0 if sex_f else 7.0
+	sh_w = 32.0 if sex_f else 35.0
+	torso_y = 72.0 + (1.0 if stage == "elder" else 0.0)
+	# Violet stays in the shadows; the lit planes remain readable on dark skin.
+	skin_ramp = [skin.lerp(Color("#241a31"), 0.72), skin.darkened(0.28), skin,
+		skin.lightened(0.18).lerp(Color("#a994b1"), 0.08),
+		skin.lightened(0.35).lerp(Color("#d6bbce"), 0.06)]
+	hair_ramp = _dark_fiber_ramp(hair)
+	beard_ramp = _dark_fiber_ramp(beard_col)
+
+func _dark_fiber_ramp(base: Color) -> Array[Color]:
+	return [base.darkened(0.64).lerp(Color("#353044"), 0.22),
+		base.darkened(0.40).lerp(Color("#77718b"), 0.12), base.darkened(0.18),
+		base.darkened(0.02), base.lightened(0.10).lerp(Color("#f3e9e5"), 0.08)]
+
+func _dark_tone(ramp: Array[Color], light: float) -> Color:
+	# Half steps soften a plane's edge without checkerboards or alternating pixels.
+	var step := clampf(floorf(light * 24.0) / 6.0, 0.0, 4.0)
+	var lo := int(step)
+	return ramp[lo].lerp(ramp[mini(4, lo + 1)], step - float(lo))
+
+func _dark_soft(x: float, y: float, ax: float, ay: float, sx: float, sy: float) -> float:
+	var d := Vector2((x - ax) / sx, (y - ay) / sy).length_squared()
+	return pow(maxf(0.0, 1.0 - d), 2.0)
+
+func _dark_line(a: Vector2, b: Vector2, col: Color, rad: float = 0.55) -> void:
+	var lo := a.min(b) - Vector2.ONE * rad
+	var hi := a.max(b) + Vector2.ONE * rad
+	for y in range(maxi(0, int(floor(lo.y))), mini(SIZE, int(ceil(hi.y)) + 1)):
+		for x in range(maxi(0, int(floor(lo.x))), mini(SIZE, int(ceil(hi.x)) + 1)):
+			var p := Vector2(x, y)
+			if p.distance_squared_to(Geometry2D.get_closest_point_to_segment(p, a, b)) <= rad * rad:
+				_px(x, y, col)
+
+func _dark_poly(coords: Array, ramp: Array[Color], bias: float = 0.0) -> void:
+	var points := PackedVector2Array()
+	var lo := Vector2(SIZE, SIZE)
+	var hi := Vector2.ZERO
+	for i in range(0, coords.size(), 2):
+		var p := Vector2(float(coords[i]), float(coords[i + 1]))
+		points.append(p)
+		lo = lo.min(p)
+		hi = hi.max(p)
+	for y in range(maxi(0, int(lo.y)), mini(SIZE, int(hi.y) + 1)):
+		for x in range(maxi(0, int(lo.x)), mini(SIZE, int(hi.x) + 1)):
+			if Geometry2D.is_point_in_polygon(Vector2(x + 0.5, y + 0.5), points):
+				var light := 0.70 - (float(x) - 30.0) * 0.005 - (float(y) - 72.0) * 0.003 + bias
+				_px(x, y, _dark_tone(ramp, light))
+
+func _dark_half(y: float) -> float:
+	var cheek := 0.92 if stage == "young" else (0.81 if stage == "elder" else 0.89)
+	var jaw_width := 0.64 if sex_f else (0.79 if stage == "adult" else 0.73)
+	var profile := [Vector2(17, 0.31), Vector2(24, 0.78), Vector2(34, 0.97),
+		Vector2(43, 1.0), Vector2(48, 0.94), Vector2(53, cheek),
+		Vector2(58, jaw_width), Vector2(chin_y - 2, 0.34 if sex_f else 0.45), Vector2(chin_y + 1, 0.13)]
+	for i in range(1, profile.size()):
+		var a: Vector2 = profile[i - 1]
+		var b: Vector2 = profile[i]
+		if y <= b.x:
+			return lerpf(a.y, b.y, clampf((y - a.x) / (b.x - a.x), 0.0, 1.0)) * rx
+	return 0.0
+
+func _dark_face() -> void:
+	for y in range(17, int(chin_y) + 1):
+		if _lost("jaw") and y > int(mouth_y) + 1:
+			continue
+		var half := _dark_half(y + 0.5)
+		var center := cx + smoothstep(38.0, chin_y, float(y)) * 0.8
+		for x in range(int(center - half) - 1, int(center + half) + 1):
+			var fx := float(x) + 0.5
+			var fy := float(y) + 0.5
+			var u := (fx - center) / half
+			if absf(u) > 1.0:
+				continue
+			var light := 0.64 - u * 0.16 + sqrt(maxf(0.0, 1.0 - u * u)) * 0.075
+			light += _dark_soft(fx, fy, cx - 5, 28, 11, 10) * 0.09
+			light += _dark_soft(fx, fy, cx - 10, 46, 7, 4) * 0.12
+			light += _dark_soft(fx, fy, cx + 10, 47, 5, 3) * 0.08
+			light -= _dark_soft(fx, fy, cx - 7, eye_y, 6, 3) * 0.13
+			light -= _dark_soft(fx, fy, cx + 7, eye_y + 1, 5, 3) * 0.14
+			light -= _dark_soft(fx, fy, cx + 4, 48, 3, 6) * 0.12
+			var hollow := 0.23 if stage == "elder" else (0.07 if stage == "young" else 0.15)
+			light -= _dark_soft(fx, fy, cx - 11, 53, 5, 5) * hollow
+			light -= _dark_soft(fx, fy, cx + 11, 53, 5, 5) * (hollow + 0.03)
+			light += _dark_soft(fx, fy, cx - 9, 59, 5, 3) * 0.075
+			light -= _dark_soft(fx, fy, cx + 1, mouth_y + 3, 6, 2) * 0.10
+			light += _dark_soft(fx, fy, cx, chin_y - 2, 6, 2.8) * 0.12
+			light -= maxf(0.0, absf(u) - 0.80) * 0.48
+			if stage == "elder":
+				light -= _dark_soft(fx, fy, cx - 7, eye_y + 4, 5, 2) * 0.08
+				light -= _dark_soft(fx, fy, cx + 7, eye_y + 5, 4, 2) * 0.07
+			var col := _dark_tone(skin_ramp, light)
+			if not dead:
+				var warmth := _dark_soft(fx, fy, cx - 9, 47, 6, 5)
+				col = col.lerp(Color("#a17b98"), warmth * (0.08 if stage == "young" else 0.035))
+			_px(x, y, col)
+
+func _dark_neck() -> void:
+	if _lost("neck"):
+		_blob(int(cx), 69, 5, FigurePainter.BLOOD)
+		return
+	for y in range(59, int(torso_y) + 8):
+		var t := clampf((float(y) - 62.0) / 17.0, 0.0, 1.0)
+		var half := neck_w + t * 1.5
+		for x in range(int(cx + 1 - half), int(cx + 1 + half) + 1):
+			var u := (float(x) - cx - 1.0) / half
+			var light := 0.67 - u * 0.18 - t * 0.04
+			light -= 0.21 if float(y) < chin_y + 3 else 0.0
+			light -= _dark_soft(x, y, cx + 3, 73, 2.0, 6.0) * 0.07
+			_px(x, y, _dark_tone(skin_ramp, light))
+
+func _dark_torso() -> void:
+	var cloth := _ramp(prim, 0.48)
+	var s := torso_y - 72.0
+	_dark_poly([cx-11, 70+s, cx, 75+s, cx+11, 70+s, cx+23, 77+s,
+		cx+sh_w, 89+s, cx+sh_w+2, 95, cx-sh_w-2, 95, cx-sh_w, 89+s, cx-23, 77+s], cloth)
+	_dark_poly([cx-11, 71+s, cx-24, 78+s, cx-32, 91, cx-25, 84+s, cx-16, 80+s, cx-5, 78+s], cloth, 0.13)
+	_dark_poly([cx+10, 75+s, cx+22, 79+s, cx+30, 92, cx+22, 87, cx+16, 83], cloth, -0.15)
+	_dark_poly([cx-18, 84, cx-6, 79+s, cx+7, 90, cx+21, 95, cx+8, 95, cx-5, 86], cloth, -0.10)
+	if _armored():
+		var metal := _metal_ramp(_metal_of(body))
+		_dark_poly([cx-10, 76+s, cx, 80+s, cx+11, 76+s, cx+19, 84+s,
+			cx+23, 95, cx-23, 95, cx-18, 84+s], metal, 0.10)
+		_dark_poly([cx-23, 77+s, cx-13, 75+s, cx-9, 80+s, cx-17, 84+s, cx-29, 83+s], metal, 0.28)
+		_dark_poly([cx+13, 76+s, cx+23, 80+s, cx+29, 85+s, cx+18, 85+s, cx+10, 81+s], metal, -0.02)
+		_dark_line(Vector2(cx-10, 84+s), Vector2(cx-5, 87+s), metal[1])
+		_dark_line(Vector2(cx-5, 87+s), Vector2(cx+4, 87+s), metal[1])
+		_dark_line(Vector2(cx-23, 79+s), Vector2(cx-17, 77+s), metal[4])
+		_dark_line(Vector2(cx+21, 83+s), Vector2(cx+25, 85+s), metal[3])
+
+func _dark_collar() -> void:
+	var cloth := _ramp(prim, 0.48)
+	var s := torso_y - 72.0
+	_dark_poly([cx-11, 69+s, cx-7, 70+s, cx-4, 76+s, cx+1, 79+s,
+		cx-2, 82+s, cx-11, 77+s, cx-14, 73+s], cloth, 0.08)
+	_dark_poly([cx+10, 70+s, cx+14, 73+s, cx+8, 79+s, cx+2, 82+s,
+		cx, 79+s, cx+7, 75+s], cloth, -0.13)
+	_dark_line(Vector2(cx-10, 70+s), Vector2(cx-7, 76+s), cloth[4])
+	var jewel := _dark_fiber_ramp(sec)
+	_dark_poly([cx-11, 75+s, cx-9, 73+s, cx-7, 75+s, cx-9, 78+s], jewel, 0.20)
+	_px(int(cx)-9, int(74+s), jewel[4])
+
+func _dark_ear(side: int) -> void:
+	var d := float(side)
+	var root := Vector2(cx + d * (rx - 1), eye_y + 3)
+	if _lost("ear_r" if side < 0 else "ear_l"):
+		_blob(int(root.x), int(root.y), 2, FigurePainter.BLOOD)
+		return
+	var tip := root + Vector2(d * (13.0 if side < 0 else 11.0), -11.0)
+	_dark_poly([root.x-d*2, root.y-5, root.x+d*4, root.y-3, tip.x, tip.y,
+		root.x+d*9, root.y+1, root.x+d*2, root.y+6, root.x-d*2, root.y+3], skin_ramp,
+		0.04 if side < 0 else -0.10)
+	_dark_poly([root.x+d, root.y-2, tip.x-d*3, tip.y+4, root.x+d*4, root.y+2,
+		root.x+d, root.y+4], skin_ramp, -0.22)
+	_dark_line(tip + Vector2(-d*2, 3), root + Vector2(d*3, 0), skin_ramp[3] if side < 0 else skin_ramp[2])
+	if sex_f and stage == "elder" and side < 0:
+		_dark_line(root + Vector2(-3, 5), root + Vector2(-3, 8), sec.darkened(0.10), 0.8)
+		_px(int(root.x)-3, int(root.y)+6, sec.lightened(0.25))
+
+func _dark_age() -> void:
+	if stage != "elder":
+		return
+	# One shallow, broken fold; the cheek hollows and lid volumes carry the age.
+	var crease := skin_ramp[2].lerp(skin_ramp[3], 0.12)
+	_dark_line(Vector2(cx-6, 30), Vector2(cx-2, 29), crease)
+	_dark_line(Vector2(cx-2, 29), Vector2(cx+2, 30), crease)
+	_dark_line(Vector2(cx+4, 33), Vector2(cx+6, 33), skin_ramp[2])
+	_dark_line(Vector2(cx-12, eye_y+3), Vector2(cx-13, eye_y+4), skin_ramp[2].lerp(skin_ramp[1], 0.25))
+	_dark_line(Vector2(cx+7, mouth_y-5), Vector2(cx+8, mouth_y-2), skin_ramp[1].lerp(skin_ramp[2], 0.5))
+
+func _dark_eye(near: bool) -> void:
+	var center := eye_near if near else eye_far
+	var x := int(center.x)
+	var y := int(center.y)
+	var outer := -1 if near else 1
+	var adult := stage == "adult"
+	var brow := hair_ramp[1].lerp(skin_ramp[2], 0.28)
+	if stage == "elder":
+		brow = hair_ramp[2].lerp(skin_ramp[2], 0.27)
+	for dx in range(-4, 5):
+		var by := y - 5 - (1 if absi(dx) < 3 else 0)
+		if adult:
+			by += 1 if dx * outer < 0 else -1
+		elif stage == "young" and (not near if sex_f else near):
+			by -= 1
+		elif stage == "elder":
+			by += 1 if dx * outer > 2 else 0
+			by -= 1 if near and dx < 0 else 0
+		_px(x+dx, by, brow)
+		if not sex_f and adult and absi(dx) < 4:
+			_px(x+dx, by+1, brow.darkened(0.14))
+	if _lost("eye_r" if near else "eye_l"):
+		_blob(x, y, 3, FigurePainter.BLOOD)
+		return
+	var lid := skin_ramp[0].lerp(Color("#201b2c"), 0.35)
+	if dead:
+		_dark_line(Vector2(x-3, y), Vector2(x, y+1), lid)
+		_dark_line(Vector2(x, y+1), Vector2(x+3, y), lid)
+		return
+	var iris := _color_of("eyes", Color("#c43b50"))
+	var gaze := 1 if sex_f and stage == "young" else 0
+	for dx in range(-4, 5):
+		var corner := absi(dx) >= 3
+		var upper := 0 if corner else -1
+		if adult and dx * outer < -1:
+			upper += 1
+		var bottom := 1 if corner or adult else 2
+		if absi(dx) == 4:
+			_px(x+dx, y+upper, lid.lerp(skin_ramp[2], 0.18))
+			continue
+		for dy in range(upper, bottom+1):
+			var col := SCLERA.lerp(skin, 0.16 if near else 0.23).darkened(0.04 * (dy+1))
+			if dx == gaze or dx == gaze+1:
+				col = iris.lightened(0.14) if dy == bottom else iris.darkened(0.16)
+				if dx == gaze+1 and dy < bottom:
+					col = PUPIL
+			_px(x+dx, y+dy, col)
+		_px(x+dx, y+upper-1, lid)
+	_px(x+gaze, y-1 if not adult else y, SCLERA)
+	_dark_line(Vector2(x-2, y+3), Vector2(x+1, y+3), skin_ramp[2].lerp(skin_ramp[3], 0.25))
+	if sex_f:
+		_px(x+outer*4, y-1, lid)
+
+func _dark_nose() -> void:
+	if _lost("nose"):
+		return
+	var nx := cx + 1.0
+	for y in range(int(eye_y)-1, int(nose_y)+1):
+		var t := clampf((float(y)-eye_y+1) / (nose_y-eye_y+1), 0.0, 1.0)
+		var center := nx - 0.7 + t * 0.7
+		for x in range(int(nx)-3, int(nx)+4):
+			var u := (float(x)+0.5-center) / (2.5 if sex_f else 2.8)
+			if absf(u) >= 1.0:
+				continue
+			var light := 0.77 - u*0.17 - t*0.035
+			var blend := minf(0.92, (1.0-absf(u))*2.0) * minf(1.0, t*3.0)
+			_px(x, y, cv.get_px(x, y).lerp(_dark_tone(skin_ramp, light), blend))
+	_dark_line(Vector2(nx-1, nose_y), Vector2(nx+1, nose_y), skin_ramp[3].lerp(skin_ramp[4], 0.35))
+	_px(int(nx)-2, int(nose_y)+1, skin_ramp[1].lerp(skin_ramp[2], 0.30))
+	_px(int(nx)+2, int(nose_y)+1, skin_ramp[1])
+	_px(int(nx), int(nose_y)+2, skin_ramp[2])
+
+func _dark_mouth() -> void:
+	if _lost("mouth") or _lost("jaw"):
+		return
+	var x := int(cx)+1
+	var y := int(mouth_y)
+	var lip := skin.lerp(Color("#9a657f"), 0.35 if sex_f else 0.20)
+	var seam := skin_ramp[0].lerp(lip, 0.22)
+	var span := 4 if stage == "elder" else 5
+	for dx in range(-span, span+1):
+		var bend := 0
+		if stage == "young" and dx > 2:
+			bend = -1
+		elif stage == "adult" and absi(dx) > 3:
+			bend = 1
+		elif stage == "elder" and not sex_f and dx < -2:
+			bend = 1
+		if absi(dx) < span-1:
+			_px(x+dx, y-1, lip.darkened(0.10))
+		_px(x+dx, y+bend, seam.lerp(skin, 0.26 if absi(dx) == span else 0.0))
+		if absi(dx) < span-1:
+			_px(x+dx, y+1, lip.lerp(skin_ramp[3], 0.24))
+	_dark_line(Vector2(x-2, y+2), Vector2(x+1, y+2), lip.lerp(skin_ramp[4], 0.24))
+
+func _dark_lock(a: Vector2, b: Vector2, c: Vector2, r0: float, r1: float,
+		ramp: Array[Color], bias: float = 0.0) -> void:
+	# A tapered curved solid with a shared light source, never parallel strand strokes.
+	const STEPS := 18
+	var points := PackedVector2Array()
+	var bounds := Rect2(a, Vector2.ZERO)
+	for i in range(STEPS+1):
+		var t := float(i)/STEPS
+		var p := (1.0-t)*(1.0-t)*a + 2.0*(1.0-t)*t*b + t*t*c
+		points.append(p)
+		bounds = bounds.expand(p)
+	bounds = bounds.grow(maxf(r0, r1)+1.0)
+	for y in range(maxi(0, int(floor(bounds.position.y))), mini(SIZE, int(ceil(bounds.end.y))+1)):
+		for x in range(maxi(0, int(floor(bounds.position.x))), mini(SIZE, int(ceil(bounds.end.x))+1)):
+			var p := Vector2(x+0.5, y+0.5)
+			var nearest := INF
+			var along := 0.0
+			var center := a
+			var tangent := Vector2.DOWN
+			for i in range(STEPS):
+				var segment := points[i+1]-points[i]
+				var t := clampf((p-points[i]).dot(segment)/maxf(0.001, segment.length_squared()), 0.0, 1.0)
+				var q := points[i]+segment*t
+				var dist := p.distance_squared_to(q)
+				if dist < nearest:
+					nearest = dist
+					along = (float(i)+t)/STEPS
+					center = q
+					tangent = segment.normalized()
+			var rad := lerpf(r0, r1, pow(along, 1.5)) + sin(along*PI)*r0*0.14
+			if nearest > rad*rad:
+				continue
+			var normal := Vector2(-tangent.y, tangent.x)
+			var across := (p-center).dot(normal)/maxf(0.1, rad)
+			var light := 0.46 + sqrt(maxf(0.0, 1.0-across*across))*0.18
+			light += across*normal.dot(Vector2(-0.7, -0.7))*0.12
+			light += bias - along*0.09 - (float(x)-cx)*0.0025
+			# One broad reflection fades before the root and tapered end.
+			light += _dark_soft(across, along, -0.22, 0.40, 0.65, 0.37)*0.09
+			light -= smoothstep(0.78, 1.0, absf(across))*0.08
+			_px(x, y, _dark_tone(ramp, light))
+
+func _dark_hlock(a: Vector2, b: Vector2, c: Vector2, r0: float, r1: float, bias: float = 0.0) -> void:
+	_dark_lock(a, b, c, r0, r1, hair_ramp, bias)
+
+func _dark_hair_volume(front: bool) -> void:
+	if not front:
+		if sex_f and stage == "elder":
+			_dark_hlock(Vector2(cx+13, 18), Vector2(cx+29, 19), Vector2(cx+19, 33), 6.5, 3.0, -0.12)
+			_dark_hlock(Vector2(cx+18, 21), Vector2(cx+27, 31), Vector2(cx+16, 38), 4.0, 0.5, -0.19)
+			_dark_hlock(Vector2(cx-15, 31), Vector2(cx-24, 46), Vector2(cx-17, 63), 5.5, 3.2, -0.13)
+			_dark_hlock(Vector2(cx-18, 53), Vector2(cx-9, 70), Vector2(cx-19, 84), 4.5, 0.4, -0.16)
+		elif sex_f:
+			_dark_hlock(Vector2(cx-14, 27), Vector2(cx-29, 48), Vector2(cx-20, 72), 7.0, 3.8, -0.16)
+			_dark_hlock(Vector2(cx-21, 57), Vector2(cx-13, 77), Vector2(cx-23, 89), 4.8, 0.4, -0.10)
+			_dark_hlock(Vector2(cx+14, 27), Vector2(cx+28, 48), Vector2(cx+19, 76), 6.5, 2.7, -0.28)
+			_dark_hlock(Vector2(cx+21, 61), Vector2(cx+15, 80), Vector2(cx+24, 86), 3.8, 0.3, -0.21)
+		elif stage == "adult":
+			_dark_hlock(Vector2(cx+15, 33), Vector2(cx+29, 59), Vector2(cx+18, 82), 5.6, 0.7, -0.22)
+			_dark_hlock(Vector2(cx-14, 29), Vector2(cx-24, 42), Vector2(cx-16, 58), 5.0, 0.3, -0.13)
+		elif stage == "elder":
+			_dark_hlock(Vector2(cx-13, 24), Vector2(cx-24, 39), Vector2(cx-17, 55), 4.5, 0.5, -0.12)
+			_dark_hlock(Vector2(cx+13, 26), Vector2(cx+23, 41), Vector2(cx+17, 53), 4.0, 0.3, -0.22)
+		else:
+			_dark_hlock(Vector2(cx-15, 25), Vector2(cx-25, 37), Vector2(cx-17, 49), 4.8, 0.4, -0.08)
+			_dark_hlock(Vector2(cx+14, 26), Vector2(cx+22, 39), Vector2(cx+17, 49), 4.0, 0.3, -0.21)
+		return
+	if not sex_f and stage == "elder":
+		# A high, open forehead and two receding wings replace the old solid cap.
+		_dark_hlock(Vector2(cx-8, 21), Vector2(cx-21, 18), Vector2(cx-20, 35), 4.2, 1.0, 0.04)
+		_dark_hlock(Vector2(cx-17, 28), Vector2(cx-23, 37), Vector2(cx-17, 46), 3.2, 0.2, -0.05)
+		_dark_hlock(Vector2(cx+7, 22), Vector2(cx+23, 24), Vector2(cx+18, 42), 4.0, 0.3, -0.16)
+		_dark_hlock(Vector2(cx-7, 20), Vector2(cx-1, 10), Vector2(cx+8, 19), 3.7, 0.2, 0.12)
+		return
+	if not sex_f and stage == "adult":
+		_dark_poly([cx-19, 34, cx-19, 24, cx-9, 17, cx+4, 14, cx+17, 21,
+			cx+20, 31, cx+17, 39, cx+12, 29, cx+3, 25, cx-9, 28], hair_ramp, -0.15)
+		_dark_hlock(Vector2(cx+5, 18), Vector2(cx+22, 17), Vector2(cx+19, 37), 5.5, 0.4, -0.14)
+		_dark_hlock(Vector2(cx-7, 22), Vector2(cx-8, 8), Vector2(cx+7, 15), 5.9, 1.3, 0.11)
+		_dark_hlock(Vector2(cx-17, 31), Vector2(cx-14, 15), Vector2(cx+6, 20), 5.2, 0.4, 0.01)
+		_dark_hlock(Vector2(cx-18, 30), Vector2(cx-21, 39), Vector2(cx-17, 45), 2.5, 0.1, -0.13)
+		_dark_hlock(Vector2(cx+20, 52), Vector2(cx+26, 66), Vector2(cx+18, 82), 3.8, 0.3, -0.20)
+		_dark_line(Vector2(cx+18, 58), Vector2(cx+23, 59), sec.darkened(0.25), 0.7)
+		return
+	if sex_f and stage == "elder":
+		_dark_poly([cx-19, 34, cx-19, 24, cx-10, 18, cx+2, 15, cx+15, 20,
+			cx+19, 30, cx+16, 39, cx+10, 29, cx+2, 26, cx-11, 31], hair_ramp, -0.13)
+		_dark_hlock(Vector2(cx+4, 18), Vector2(cx+20, 19), Vector2(cx+18, 36), 5.5, 0.3, -0.15)
+		_dark_hlock(Vector2(cx+3, 16), Vector2(cx-10, 11), Vector2(cx-20, 31), 6.0, 0.6, 0.09)
+		_dark_hlock(Vector2(cx+6, 23), Vector2(cx-11, 19), Vector2(cx-16, 37), 4.2, 0.25, 0.01)
+		_dark_hlock(Vector2(cx-18, 45), Vector2(cx-23, 56), Vector2(cx-15, 66), 4.2, 0.3, -0.09)
+		_dark_hlock(Vector2(cx-16, 65), Vector2(cx-10, 73), Vector2(cx-18, 82), 3.4, 0.2, -0.08)
+		_dark_line(Vector2(cx-19, 81), Vector2(cx-16, 82), sec.darkened(0.05), 0.9)
+		return
+	# Younger crowns use a few large, irregular overlapping clumps, not strand bands.
+	_dark_poly([cx-20, 34, cx-18, 23, cx-10, 16, cx+2, 13, cx+15, 18,
+		cx+20, 28, cx+18, 39, cx+12, 28, cx+4, 26, cx-7, 30, cx-16, 38], hair_ramp, -0.12)
+	_dark_hlock(Vector2(cx+6, 18), Vector2(cx+25, 19), Vector2(cx+18, 40), 6.0, 0.3, -0.16)
+	_dark_hlock(Vector2(cx+2, 14), Vector2(cx-12, 7), Vector2(cx-20, 29), 6.6, 0.5, 0.12)
+	_dark_hlock(Vector2(cx+8, 21), Vector2(cx-7, 15), Vector2(cx-16, 37), 5.4, 0.2, 0.035)
+	if sex_f:
+		_dark_hlock(Vector2(cx-18, 43), Vector2(cx-23, 55), Vector2(cx-15, 65), 4.0, 0.3, -0.04)
+		_dark_hlock(Vector2(cx-16, 63), Vector2(cx-12, 76), Vector2(cx-21, 85), 3.8, 0.2, -0.04)
+		_dark_hlock(Vector2(cx+18, 45), Vector2(cx+15, 60), Vector2(cx+22, 68), 3.6, 0.2, -0.19)
+	else:
+		_dark_hlock(Vector2(cx-19, 31), Vector2(cx-22, 38), Vector2(cx-17, 46), 2.6, 0.1, -0.06)
+
+func _dark_beard_volume() -> void:
+	if not beard_on or sex_f or _lost("jaw") or _lost("mouth"):
+		return
+	var x := cx+1.0
+	var y := mouth_y
+	var tip := chin_y + (7.0 if stage == "elder" else 5.0)
+	if stage == "elder" or beard_i not in [1, 6, 7]:
+		_dark_poly([x-12, y-1, x-8, y+4, x-3, y+5, x+4, y+4, x+11, y-1,
+			x+12, y+6, x+7, chin_y+4, x, tip, x-8, chin_y+3, x-13, y+5], beard_ramp, -0.19)
+		_dark_lock(Vector2(x+10, y+1), Vector2(x+12, chin_y), Vector2(x+4, tip-2), 3.5, 0.3, beard_ramp, -0.17)
+		_dark_lock(Vector2(x-10, y+1), Vector2(x-11, chin_y+1), Vector2(x-2, tip-1), 4.0, 0.4, beard_ramp, -0.02)
+		_dark_lock(Vector2(x-2, y+6), Vector2(x+3, chin_y+3), Vector2(x, tip+1), 4.8, 0.3, beard_ramp, 0.025)
+	elif beard_i == 1:
+		_dark_lock(Vector2(x, y+5), Vector2(x+3, chin_y+1), Vector2(x, tip), 4.1, 0.25, beard_ramp)
+	elif beard_i == 7:
+		# A quiet shaded jaw for short stubble; no regular stipple or stroke grid.
+		for yy in range(int(y)+3, int(chin_y)+1):
+			var half := _dark_half(yy+0.5)*0.88
+			for xx in range(int(x-half), int(x+half)+1):
+				var strength := smoothstep(y+2, chin_y, float(yy))*0.33
+				_px(xx, yy, cv.get_px(xx, yy).lerp(beard_ramp[1], strength))
+	_dark_lock(Vector2(x-1, y-2), Vector2(x-5, y-3), Vector2(x-7, y+1), 1.7, 0.2, beard_ramp, 0.02)
+	_dark_lock(Vector2(x+1, y-2), Vector2(x+5, y-2), Vector2(x+7, y+1), 1.6, 0.2, beard_ramp, -0.12)
 
 func _read() -> void:
 	race = RACE
@@ -325,8 +732,8 @@ func _read() -> void:
 	else:
 		eye_near = Vector2(cx - (scl + 2.6) + float(eye_shift), eye_y)
 		eye_far = Vector2(cx + (scl + 1.3) + float(eye_shift), eye_y)
-	skin = _color_of("skin", Color("#e0b090"))
-	hair = _color_of("hair", Color("#3a2a1a"))
+	skin = _color_of("skin", Color("#555066"))
+	hair = _color_of("hair", Color("#e0deeb"))
 	prim = _color_of("prim", Color("#2458a8"))
 	sec = _color_of("sec", Color("#e8b840"))
 	var remain := clampf(float(spec.get("blood", 1.0)), 0.0, 1.0)
@@ -676,9 +1083,8 @@ func _ramp(base: Color, depth: float) -> Array[Color]:
 		_op(base.lightened(lift).lerp(hi, hi_mix)),
 	]
 
-func _shade_band(lit: float, x: int, y: int) -> int:
-	var dither := 0.07 if ((x + y) & 1) == 0 else -0.06
-	return clampi(int(clampf(lit + dither, 0.0, 0.98) * 4.999), 0, 4)
+func _shade_band(lit: float, _x: int, _y: int) -> int:
+	return clampi(int(clampf(lit, 0.0, 0.98) * 4.999), 0, 4)
 
 func _px(x: int, y: int, c: Color) -> void:
 	if c.a < 1.0:
@@ -978,8 +1384,6 @@ func _disc_ramp(ccx: int, ccy: int, erx: int, ery: int, ramp: Array[Color]) -> v
 				continue
 			var z := sqrt(maxf(0.0, 1.0 - u * u - v * v))
 			var band := _lambert(Vector3(u - 0.12, v, z).normalized())
-			if ((x + y) & 1) == 0 and band > 0 and band < 4:
-				band = mini(4, band + 1) if u < 0.0 else maxi(0, band - 1)
 			_px(ccx + x, ccy + y, ramp[band])
 
 func _hair_col(x: int, y: int) -> Color:
