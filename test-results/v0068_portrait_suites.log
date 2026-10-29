@@ -1,0 +1,57 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+== res://tests/test_art_menus.gd: PASS ==
+ART REDESIGN checks=443 failures=0 figures=118 icons=58 elapsed_ms=2367
+== res://tests/test_art_redesign.gd: PASS ==
+Bloodlines ruler art: 36 checks, 0 failures
+== res://tests/test_bloodlines_ruler_art.gd: PASS ==
+humanoid art import: 187 checks, 0 failures
+== res://tests/test_humanoid_art_import.gd: PASS ==
+humanoid interface: 414 checks, 173 native body/bust renders, 0 failures, 3.535s; desktop only
+== res://tests/test_humanoid_interface.gd: PASS ==
+ok   gem catalog has entries
+ok   ruby portrait is non-empty
+ok   ruby fang pixels 251
+ok   sapphire portrait is non-empty
+ok   sapphire fang pixels 251
+ok   black_diamond portrait is non-empty
+ok   black_diamond fang pixels 251
+ok   emerald portrait is non-empty
+ok   emerald fang pixels 251
+ok   amethyst portrait is non-empty
+ok   amethyst fang pixels 251
+ok   opal portrait is non-empty
+ok   opal fang pixels 251
+ok   topaz portrait is non-empty
+ok   topaz fang pixels 251
+ok   garnet portrait is non-empty
+ok   garnet fang pixels 251
+ok   jade portrait is non-empty
+ok   jade fang pixels 251
+ok   aquamarine portrait is non-empty
+ok   aquamarine fang pixels 251
+ok   citrine portrait is non-empty
+ok   citrine fang pixels 251
+ok   moonstone portrait is non-empty
+ok   moonstone fang pixels 251
+ok   pearl portrait is non-empty
+ok   pearl fang pixels 251
+ok   onyx portrait is non-empty
+ok   onyx fang pixels 251
+ok   diamond portrait is non-empty
+ok   diamond fang pixels 251
+ok   tourmaline portrait is non-empty
+ok   tourmaline fang pixels 251
+fangs036: 33 checks, 0 failures
+== res://tests/claude_fangs_v036.gd: PASS ==
+100v100 mixed-race battle frame time: 3.30 ms (p95: 5.78 ms, 302.8 FPS)
+test_races_v065: 256 passed, 0 failed
+== res://tests/test_races_v065.gd: PASS ==
+== block: 7 tests, 0 failing ==
+  test_art_menus.gd PASS (3 s)
+  test_art_redesign.gd PASS (2 s)
+  test_bloodlines_ruler_art.gd PASS (1 s)
+  test_humanoid_art_import.gd PASS (1 s)
+  test_humanoid_interface.gd PASS (4 s)
+  claude_fangs_v036.gd PASS (4 s)
+  test_races_v065.gd PASS (6 s)
