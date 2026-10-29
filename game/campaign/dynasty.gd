@@ -290,31 +290,37 @@ static func portrait_spec(game) -> Dictionary:
 ## Pure candidate/current leader appearance without selecting a campaign house.
 static func portrait_for(game, r: Dictionary, custom: Dictionary = {}) -> Dictionary:
 	if r.is_empty(): return {}
-	var town: Dictionary = game.world.get("towns", {}).get(str(r.get("town_id", "")), {})
-	var race := String(r.get("race", "human"))
-	var cols := FigurePainter.faction_colors(String(town.get("faction", "")))
-	var seed_v := int(hash(String(r.get("person_uid", "")))) & 0x7fffffff
-	var spec := FigurePainter.spec_generic(race, cols[0], cols[1], seed_v)
 	# Reuse an existing registered unit's identity and actual traded equipment.
 	# Household-only people keep their deterministic native person appearance.
 	var bound: Unit = bound_unit(game, r)
-	if bound != null: spec = FigurePainter.spec_for_unit(bound)
-	spec["sex"] = "female" if int(r.get("sex", 0)) == 1 else "male"
-	spec["age"] = int(r.get("age", 30))
-	if int(r.get("sex", 0)) == 1:
-		spec["beard"] = false
-		spec["female_set"] = FigurePainter.female_variant(spec)
-	elif bool(spec.get("beard", false)) and race in ["human", "orc", "dwarf"]:
-		spec["beard_style"] = FigurePainter.beard_style(spec)
-	CharacterDesign.merge_into_spec(spec, CharacterDesign.look_for(game, str(r.get("person_uid", ""))))
-	if int(r.get("sex", 0)) == 1:
-		spec["beard"] = false
-	elif bool(spec.get("beard", false)) and race in ["human", "orc", "dwarf"]:
-		spec["beard_style"] = FigurePainter.beard_style(spec)
+	var spec: Dictionary
+	if bound != null:
+		spec = FigurePainter.spec_for_unit(bound)
+	else:
+		var town: Dictionary = game.world.get("towns", {}).get(str(r.get("town_id", "")), {})
+		var race := String(r.get("race", "human"))
+		var cols := FigurePainter.faction_colors(String(town.get("faction", "")))
+		var person_uid := str(r.get("person_uid", ""))
+		var seed_v := int(hash(person_uid)) & 0x7fffffff
+		spec = FigurePainter.spec_generic(race, cols[0], cols[1], seed_v)
+		spec["sex"] = "female" if int(r.get("sex", 0)) == 1 else "male"
+		spec["age"] = int(r.get("age", 30))
+		# Derive variants after the saved designer seed/explicit choices are merged.
+		CharacterDesign.merge_into_spec(spec, CharacterDesign.look_for(game, person_uid))
+		if int(r.get("sex", 0)) == 1:
+			spec["beard"] = false
+			spec["female_set"] = FigurePainter.female_variant(spec)
+		elif bool(spec.get("beard", false)) and race in ["human", "orc", "dwarf"]:
+			spec["beard_style"] = FigurePainter.beard_style(spec)
+		# The civilian ruler has one saved palette on court, map and popup views.
+		# A bound unit keeps its actual clothing colours, just like its actual kit.
+		var house: Dictionary = game.world.get("player_house", {})
+		if custom.is_empty() and person_uid == str(house.get("ruler_uid", "")):
+			custom = house.get("customization", {})
+		for entry in [["primary_color", "prim"], ["secondary_color", "sec"]]:
+			var color := str(custom.get(entry[0], ""))
+			if color.length() == 7 and Color.html_is_valid(color): spec[entry[1]] = Color(color)
 	spec["dead"] = not bool(r.get("alive", false)); spec["role"] = "ruler"
-	for entry in [["primary_color", "prim"], ["secondary_color", "sec"]]:
-		var color := str(custom.get(entry[0], ""))
-		if color.length() == 7 and Color.html_is_valid(color): spec[entry[1]] = Color(color)
 	return spec
 
 static func bound_unit(game, r: Dictionary) -> Unit:
@@ -325,6 +331,8 @@ static func bound_unit(game, r: Dictionary) -> Unit:
 	if reserve != null and reserve.race == race: return reserve
 	for u in game.company:
 		if u is Unit and u.uid == uid and u.home_town == tid and u.family == fid and u.race == race: return u
+	for u in Prisoners.units(game):
+		if u.uid == uid and u.home_town == tid and u.family == fid and u.race == race: return u
 	for u in game.world.get("towns", {}).get(tid, {}).get("recruits", []):
 		if u is Unit and u.uid == uid and u.home_town == tid and u.family == fid and u.race == race: return u
 	for band in game.world.get("warbands", {}).values():

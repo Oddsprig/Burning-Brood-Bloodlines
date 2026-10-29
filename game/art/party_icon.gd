@@ -55,7 +55,6 @@ func _leader_spec() -> Dictionary:
 		sp["shield"] = {"tid": "x", "sprite": "round", "mat": "copper", "q": 0}
 	sp["team"] = Color(0, 0, 0, 0)
 	sp["role"] = "troop"
-	sp["prim"] = FigurePainter._vivid(color)
 	return sp
 
 ## Frame 0 = standing, 1..4 = walk cycle. Image anchor (feet of the leader) = `_anchor`.
