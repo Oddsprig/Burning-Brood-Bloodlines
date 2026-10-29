@@ -4,6 +4,17 @@ extends SceneTree
 ## Each race job writes only its own PNG; only "all" also writes the overview.
 
 const RACES: Array[String] = ["human", "dwarf", "high_elf", "moon_elf", "dark_elf", "orc", "goblin", "troll"]
+# Last portrait art pass for each row; the fixture version is independent.
+const ROW_VERSIONS := {
+	"human": "0.068",
+	"dwarf": "0.068",
+	"high_elf": "0.069",
+	"moon_elf": "0.069",
+	"dark_elf": "0.069",
+	"orc": "0.068",
+	"goblin": "0.069",
+	"troll": "0.068",
+}
 const SCALE := 4
 const PORTRAIT_SIZE := 96
 const MARGIN := 16
@@ -71,9 +82,8 @@ func _draw_and_quit() -> void:
 		rows[race] = row
 		var sheet := _sheet([race], rows, fixture)
 		_save(sheet, out_dir.path_join("v0068_portrait_%s.png" % race))
-		# Elf checks always run. --verify-v067 also checks the five redo races
-		# during prep; omit that flag once their artwork intentionally changes.
-		if race.ends_with("_elf") or verify_all:
+		# Optional prep check for non-elf races only; elf art has moved beyond v0.067.
+		if verify_all and not race.ends_with("_elf"):
 			_verify_v067(race, row, fixture.helper, out_dir)
 	if requested == "all":
 		_save(_sheet(races, rows, fixture), out_dir.path_join("v0068_portrait_all_races.png"))
@@ -89,7 +99,7 @@ func _sheet(races: Array, rows: Dictionary, fixture) -> Image:
 	for r in races.size():
 		var race: String = races[r]
 		var y0 := MARGIN + r * (ROW_HEIGHT + GAP)
-		fixture.helper._draw_text(image, MARGIN, y0, "V0.068  " + race.replace("_", " "), Color("#f2da94"), 2)
+		fixture.helper._draw_text(image, MARGIN, y0, "V%s  %s" % [ROW_VERSIONS[race], race.replace("_", " ")], Color("#f2da94"), 2)
 		var row: Array = rows[race]
 		for i in 5:
 			var x := MARGIN + i * (bw + GAP)
