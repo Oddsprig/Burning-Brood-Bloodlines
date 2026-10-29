@@ -108,7 +108,7 @@ func set_unit(u: Unit) -> void:
 func set_spec(s: Dictionary) -> void:
 	var started: int = Time.get_ticks_usec()
 	unit = null
-	_spec = s
+	_spec = s.duplicate(true)
 	_spec["team"] = team_color
 	_sig = _spec.hash()
 	_spec_bytes = var_to_bytes(_spec)

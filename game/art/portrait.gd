@@ -20,11 +20,14 @@ func set_unit(u: Unit) -> void:
 
 func set_spec(s: Dictionary) -> void:
 	unit = null
-	_spec = s
+	_spec = s.duplicate(true)
 	_rebuild()
 
 func refresh() -> void:
-	set_unit(unit)
+	if unit != null:
+		set_unit(unit)
+	else:
+		_rebuild()
 
 func build_image() -> Image:
 	if _spec.is_empty():
