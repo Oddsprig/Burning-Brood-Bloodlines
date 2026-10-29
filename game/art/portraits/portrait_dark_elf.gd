@@ -347,10 +347,10 @@ func _dark_age() -> void:
 	if stage != "elder":
 		return
 	# Broken folds follow the socket and mouth volumes, never parallel forehead bars.
-	var crease := skin_ramp[2].lerp(skin_ramp[3], 0.12)
-	_dark_line(Vector2(cx-6, 30), Vector2(cx-2, 29), crease)
-	_dark_line(Vector2(cx-2, 29), Vector2(cx+2, 30), crease)
-	_dark_line(Vector2(cx+4, 33), Vector2(cx+6, 33), skin_ramp[2])
+	var crease := skin_ramp[2].lerp(skin_ramp[3], 0.68)
+	_dark_line(Vector2(cx-10, 32), Vector2(cx-7, 30), crease, 0.45)
+	_dark_line(Vector2(cx-7, 30), Vector2(cx-4, 31), crease, 0.45)
+	_dark_line(Vector2(cx+9, 31), Vector2(cx+12, 33), crease, 0.45)
 	var fold := skin_ramp[1].lerp(skin_ramp[2], 0.58)
 	for center in [eye_near, eye_far]:
 		_dark_line(center + Vector2(-3, 3), center + Vector2(-1, 4), fold)
@@ -526,17 +526,21 @@ func _dark_lock(a: Vector2, b: Vector2, c: Vector2, r0: float, r1: float,
 					along = (float(i)+t)/STEPS
 					center = q
 					tangent = segment.normalized()
-			var rad := lerpf(r0, r1, pow(along, 1.5)) + sin(along*PI)*r0*0.14
+			var rad := lerpf(r0*0.88, r1, pow(along, 1.25)) + sin(along*PI)*r0*0.18
+			rad *= 1.0 + sin(along*7.0+a.x*0.19+c.y*0.11)*0.055
 			if nearest > rad*rad:
 				continue
 			var normal := Vector2(-tangent.y, tangent.x)
 			var across := (p-center).dot(normal)/maxf(0.1, rad)
-			var light := 0.46 + sqrt(maxf(0.0, 1.0-across*across))*0.18
-			light += across*normal.dot(Vector2(-0.7, -0.7))*0.12
-			light += bias - along*0.09 - (float(x)-cx)*0.0025
-			# One broad reflection fades before the root and tapered end.
-			light += _dark_soft(across, along, -0.22, 0.40, 0.65, 0.37)*0.09
-			light -= smoothstep(0.78, 1.0, absf(across))*0.08
+			var light := 0.43 + sqrt(maxf(0.0, 1.0-across*across))*0.19
+			light += across*normal.dot(Vector2(-0.7, -0.7))*0.13
+			light += bias - along*0.065 - (float(x)-cx)*0.0025
+			# The reflection stops at bends; both edges and the root turn into shadow.
+			light += _dark_soft(across, along, -0.20, 0.36, 0.52, 0.25)*0.07
+			light += sin(along*9.0+a.x*0.23+c.x*0.10)*0.045
+			light -= smoothstep(0.62, 1.0, absf(across))*0.12
+			light -= (1.0-smoothstep(0.0, 0.20, along))*0.075
+			light -= smoothstep(0.87, 1.0, along)*0.055
 			_px(x, y, _dark_tone(ramp, light))
 
 func _dark_hlock(a: Vector2, b: Vector2, c: Vector2, r0: float, r1: float, bias: float = 0.0) -> void:
@@ -545,17 +549,27 @@ func _dark_hlock(a: Vector2, b: Vector2, c: Vector2, r0: float, r1: float, bias:
 func _dark_hair_volume(front: bool) -> void:
 	if not front:
 		if sex_f and stage == "elder":
-			_dark_hlock(Vector2(cx+13, 18), Vector2(cx+29, 19), Vector2(cx+19, 33), 6.5, 3.0, -0.12)
-			_dark_hlock(Vector2(cx+18, 21), Vector2(cx+27, 31), Vector2(cx+16, 38), 4.0, 0.5, -0.19)
-			_dark_hlock(Vector2(cx-15, 31), Vector2(cx-24, 46), Vector2(cx-17, 63), 5.5, 3.2, -0.13)
-			_dark_hlock(Vector2(cx-18, 53), Vector2(cx-9, 70), Vector2(cx-19, 84), 4.5, 0.4, -0.16)
+			_dark_hlock(Vector2(cx+14, 19), Vector2(cx+28, 18), Vector2(cx+22, 30), 4.8, 0.3, -0.19)
+			_dark_hlock(Vector2(cx+21, 22), Vector2(cx+27, 30), Vector2(cx+17, 37), 3.0, 0.15, -0.10)
+			_dark_hlock(Vector2(cx-15, 31), Vector2(cx-24, 43), Vector2(cx-21, 55), 3.7, 0.2, -0.21)
+			_dark_hlock(Vector2(cx-22, 49), Vector2(cx-25, 60), Vector2(cx-16, 69), 2.8, 0.15, -0.13)
+			_dark_hlock(Vector2(cx-18, 59), Vector2(cx-10, 73), Vector2(cx-20, 84), 3.1, 0.15, -0.15)
+		elif sex_f and stage == "young":
+			_dark_hlock(Vector2(cx-15, 28), Vector2(cx-27, 42), Vector2(cx-23, 55), 3.8, 0.2, -0.20)
+			_dark_hlock(Vector2(cx-23, 49), Vector2(cx-26, 62), Vector2(cx-19, 73), 3.3, 0.15, -0.14)
+			_dark_hlock(Vector2(cx-21, 61), Vector2(cx-15, 80), Vector2(cx-24, 88), 3.0, 0.15, -0.06)
+			_dark_hlock(Vector2(cx-18, 52), Vector2(cx-20, 67), Vector2(cx-16, 75), 2.4, 0.1, -0.04)
+			_dark_hlock(Vector2(cx+15, 28), Vector2(cx+26, 42), Vector2(cx+23, 54), 3.5, 0.2, -0.26)
+			_dark_hlock(Vector2(cx+23, 48), Vector2(cx+27, 61), Vector2(cx+23, 74), 2.2, 0.1, -0.22)
+			_dark_hlock(Vector2(cx+20, 57), Vector2(cx+16, 77), Vector2(cx+24, 85), 2.7, 0.15, -0.16)
 		elif sex_f:
 			_dark_hlock(Vector2(cx-14, 27), Vector2(cx-29, 48), Vector2(cx-20, 72), 7.0, 3.8, -0.16)
 			_dark_hlock(Vector2(cx-21, 57), Vector2(cx-13, 77), Vector2(cx-23, 89), 4.8, 0.4, -0.10)
 			_dark_hlock(Vector2(cx+14, 27), Vector2(cx+28, 48), Vector2(cx+19, 76), 6.5, 2.7, -0.28)
 			_dark_hlock(Vector2(cx+21, 61), Vector2(cx+15, 80), Vector2(cx+24, 86), 3.8, 0.3, -0.21)
 		elif stage == "adult":
-			_dark_hlock(Vector2(cx+15, 33), Vector2(cx+29, 59), Vector2(cx+18, 82), 5.6, 0.7, -0.22)
+			_dark_hlock(Vector2(cx+15, 33), Vector2(cx+28, 57), Vector2(cx+21, 79), 4.2, 0.2, -0.29)
+			_dark_hlock(Vector2(cx+22, 54), Vector2(cx+27, 67), Vector2(cx+18, 83), 2.5, 0.15, -0.17)
 			_dark_hlock(Vector2(cx-14, 29), Vector2(cx-24, 42), Vector2(cx-16, 58), 5.0, 0.3, -0.13)
 		elif stage == "elder":
 			_dark_hlock(Vector2(cx-13, 24), Vector2(cx-24, 39), Vector2(cx-17, 55), 4.5, 0.5, -0.12)
@@ -572,26 +586,67 @@ func _dark_hair_volume(front: bool) -> void:
 		_dark_hlock(Vector2(cx-7, 20), Vector2(cx-1, 10), Vector2(cx+8, 19), 3.7, 0.2, 0.12)
 		return
 	if not sex_f and stage == "adult":
-		_dark_poly([cx-19, 34, cx-19, 24, cx-9, 17, cx+4, 14, cx+17, 21,
-			cx+20, 31, cx+17, 39, cx+12, 29, cx+3, 25, cx-9, 28], hair_ramp, -0.15)
-		_dark_hlock(Vector2(cx+5, 18), Vector2(cx+22, 17), Vector2(cx+19, 37), 5.5, 0.4, -0.14)
-		_dark_hlock(Vector2(cx-7, 22), Vector2(cx-8, 8), Vector2(cx+7, 15), 5.9, 1.3, 0.11)
-		_dark_hlock(Vector2(cx-17, 31), Vector2(cx-14, 15), Vector2(cx+6, 20), 5.2, 0.4, 0.01)
+		_dark_poly([cx-19, 34, cx-19, 24, cx-9, 17, cx-3, 13, cx+4, 14, cx+17, 21,
+			cx+20, 31, cx+17, 39, cx+12, 29, cx+3, 25, cx-9, 28], hair_ramp, -0.43)
+		_dark_hlock(Vector2(cx+6, 17), Vector2(cx+20, 20), Vector2(cx+19, 36), 3.3, 0.15, -0.20)
+		_dark_hlock(Vector2(cx-14, 25), Vector2(cx-17, 18), Vector2(cx-7, 17), 2.9, 0.1, -0.03)
+		_dark_hlock(Vector2(cx-7, 20), Vector2(cx-5, 9), Vector2(cx+4, 13), 3.2, 0.1, 0.07)
+		_dark_hlock(Vector2(cx+1, 17), Vector2(cx+7, 17), Vector2(cx+12, 22), 2.8, 0.1, 0.01)
+		_dark_hlock(Vector2(cx-4, 18), Vector2(cx-9, 25), Vector2(cx-16, 31), 3.1, 0.1, -0.03)
+		_dark_hlock(Vector2(cx+6, 22), Vector2(cx-2, 25), Vector2(cx-6, 32), 2.6, 0.1, 0.00)
+		_dark_hlock(Vector2(cx+9, 21), Vector2(cx+14, 25), Vector2(cx+13, 33), 2.5, 0.1, -0.09)
 		_dark_hlock(Vector2(cx-18, 30), Vector2(cx-21, 39), Vector2(cx-17, 45), 2.5, 0.1, -0.13)
-		_dark_hlock(Vector2(cx+20, 52), Vector2(cx+26, 66), Vector2(cx+18, 82), 3.8, 0.3, -0.20)
+		_dark_hlock(Vector2(cx+20, 52), Vector2(cx+26, 64), Vector2(cx+20, 76), 2.8, 0.15, -0.08)
+		_dark_hlock(Vector2(cx+23, 63), Vector2(cx+21, 76), Vector2(cx+17, 81), 1.8, 0.1, -0.12)
 		_dark_line(Vector2(cx+18, 58), Vector2(cx+23, 59), sec.darkened(0.25), 0.7)
 		return
 	if sex_f and stage == "elder":
 		_dark_poly([cx-19, 34, cx-19, 24, cx-10, 18, cx+2, 15, cx+15, 20,
-			cx+19, 30, cx+16, 39, cx+10, 29, cx+2, 26, cx-11, 31], hair_ramp, -0.13)
-		_dark_hlock(Vector2(cx+4, 18), Vector2(cx+20, 19), Vector2(cx+18, 36), 5.5, 0.3, -0.15)
-		_dark_hlock(Vector2(cx+3, 16), Vector2(cx-10, 11), Vector2(cx-20, 31), 6.0, 0.6, 0.09)
-		_dark_hlock(Vector2(cx+6, 23), Vector2(cx-11, 19), Vector2(cx-16, 37), 4.2, 0.25, 0.01)
-		_dark_hlock(Vector2(cx-18, 45), Vector2(cx-23, 56), Vector2(cx-15, 66), 4.2, 0.3, -0.09)
-		_dark_hlock(Vector2(cx-16, 65), Vector2(cx-10, 73), Vector2(cx-18, 82), 3.4, 0.2, -0.08)
+			cx+19, 30, cx+16, 39, cx+10, 29, cx+2, 26, cx-11, 31], hair_ramp, -0.43)
+		_dark_hlock(Vector2(cx+5, 18), Vector2(cx+21, 19), Vector2(cx+19, 33), 3.6, 0.15, -0.16)
+		_dark_hlock(Vector2(cx+12, 24), Vector2(cx+19, 29), Vector2(cx+16, 38), 2.4, 0.1, -0.10)
+		_dark_hlock(Vector2(cx-2, 16), Vector2(cx-9, 13), Vector2(cx-16, 24), 2.6, 0.15, 0.06)
+		_dark_hlock(Vector2(cx+5, 16), Vector2(cx-2, 17), Vector2(cx-6, 24), 2.6, 0.1, 0.01)
+		_dark_hlock(Vector2(cx-8, 21), Vector2(cx-16, 25), Vector2(cx-19, 32), 2.7, 0.1, -0.02)
+		_dark_hlock(Vector2(cx+5, 22), Vector2(cx-4, 25), Vector2(cx-11, 35), 2.7, 0.1, -0.03)
+		_dark_hlock(Vector2(cx-7, 28), Vector2(cx-13, 32), Vector2(cx-15, 38), 1.8, 0.1, -0.04)
+		_dark_hlock(Vector2(cx-18, 42), Vector2(cx-23, 53), Vector2(cx-17, 63), 3.0, 0.15, -0.06)
+		_dark_hlock(Vector2(cx-19, 57), Vector2(cx-13, 66), Vector2(cx-15, 74), 2.5, 0.1, 0.00)
+		_dark_hlock(Vector2(cx-15, 68), Vector2(cx-12, 76), Vector2(cx-19, 82), 2.2, 0.1, -0.06)
+		_dark_hlock(Vector2(cx-20, 68), Vector2(cx-20, 77), Vector2(cx-22, 80), 1.6, 0.1, -0.13)
 		_dark_line(Vector2(cx-19, 81), Vector2(cx-16, 82), sec.darkened(0.05), 0.9)
 		return
-	# Younger crowns use a few large, irregular overlapping clumps, not strand bands.
+	if not sex_f:
+		# Different roots, bends and lengths break the crown into overlapping locks.
+		_dark_poly([cx-20, 34, cx-18, 23, cx-10, 16, cx+2, 13, cx+15, 18,
+			cx+20, 28, cx+18, 39, cx+12, 28, cx+4, 26, cx-7, 30, cx-16, 38], hair_ramp, -0.43)
+		_dark_hlock(Vector2(cx+7, 16), Vector2(cx+20, 20), Vector2(cx+20, 33), 3.3, 0.15, -0.16)
+		_dark_hlock(Vector2(cx+10, 23), Vector2(cx+17, 30), Vector2(cx+15, 40), 2.3, 0.1, -0.08)
+		_dark_hlock(Vector2(cx-7, 17), Vector2(cx-18, 17), Vector2(cx-20, 30), 2.8, 0.1, -0.09)
+		_dark_hlock(Vector2(cx-3, 17), Vector2(cx+2, 8), Vector2(cx+8, 15), 3.0, 0.1, 0.08)
+		_dark_hlock(Vector2(cx+4, 17), Vector2(cx-2, 20), Vector2(cx-9, 27), 3.1, 0.1, 0.01)
+		_dark_hlock(Vector2(cx-5, 22), Vector2(cx-14, 27), Vector2(cx-15, 38), 2.5, 0.1, 0.04)
+		_dark_hlock(Vector2(cx+7, 22), Vector2(cx+7, 28), Vector2(cx+2, 33), 2.0, 0.1, -0.03)
+		_dark_hlock(Vector2(cx, 22), Vector2(cx-2, 29), Vector2(cx-6, 34), 2.1, 0.1, -0.02)
+		_dark_hlock(Vector2(cx-19, 31), Vector2(cx-22, 38), Vector2(cx-17, 46), 2.6, 0.1, -0.06)
+		return
+	if stage == "young":
+		_dark_poly([cx-20, 34, cx-18, 23, cx-10, 16, cx+2, 13, cx+15, 18,
+			cx+20, 28, cx+18, 39, cx+12, 28, cx+4, 26, cx-7, 30, cx-16, 38], hair_ramp, -0.43)
+		_dark_hlock(Vector2(cx+6, 18), Vector2(cx+24, 20), Vector2(cx+19, 35), 3.8, 0.15, -0.17)
+		_dark_hlock(Vector2(cx+13, 24), Vector2(cx+20, 31), Vector2(cx+17, 40), 2.6, 0.1, -0.08)
+		_dark_hlock(Vector2(cx-2, 16), Vector2(cx-9, 12), Vector2(cx-16, 22), 2.6, 0.15, 0.07)
+		_dark_hlock(Vector2(cx+5, 15), Vector2(cx-2, 17), Vector2(cx-6, 23), 2.6, 0.1, 0.02)
+		_dark_hlock(Vector2(cx-8, 20), Vector2(cx-16, 23), Vector2(cx-19, 31), 2.8, 0.1, 0.01)
+		_dark_hlock(Vector2(cx+5, 21), Vector2(cx-4, 24), Vector2(cx-11, 34), 2.8, 0.1, 0.00)
+		_dark_hlock(Vector2(cx-7, 27), Vector2(cx-13, 31), Vector2(cx-15, 38), 1.9, 0.1, -0.02)
+		_dark_hlock(Vector2(cx+8, 23), Vector2(cx+1, 25), Vector2(cx-3, 31), 2.1, 0.1, -0.03)
+		_dark_hlock(Vector2(cx-18, 41), Vector2(cx-23, 51), Vector2(cx-17, 62), 3.0, 0.15, -0.02)
+		_dark_hlock(Vector2(cx-18, 57), Vector2(cx-13, 72), Vector2(cx-19, 82), 2.6, 0.1, 0.00)
+		_dark_hlock(Vector2(cx-20, 65), Vector2(cx-20, 77), Vector2(cx-23, 83), 1.8, 0.1, -0.08)
+		_dark_hlock(Vector2(cx+18, 44), Vector2(cx+16, 58), Vector2(cx+22, 68), 2.8, 0.1, -0.15)
+		return
+	# The adult woman's established silhouette remains intact.
 	_dark_poly([cx-20, 34, cx-18, 23, cx-10, 16, cx+2, 13, cx+15, 18,
 		cx+20, 28, cx+18, 39, cx+12, 28, cx+4, 26, cx-7, 30, cx-16, 38], hair_ramp, -0.12)
 	_dark_hlock(Vector2(cx+6, 18), Vector2(cx+25, 19), Vector2(cx+18, 40), 6.0, 0.3, -0.16)
@@ -611,22 +666,21 @@ func _dark_beard_volume() -> void:
 	var y := mouth_y
 	var tip := chin_y + (7.0 if stage == "elder" else 5.0)
 	if stage == "elder":
-		# A recessed root sits behind overlapping, uneven locks in the pale V.
+		# Recessed roots and diagonal, staggered clumps interrupt the beard's pale V.
 		var beard_shadow: Array[Color] = []
 		for col in beard_ramp:
 			beard_shadow.append(col.darkened(0.23))
 		_dark_poly([x-12, y-1, x-8, y+4, x-3, y+5, x+4, y+4, x+11, y-1,
-			x+12, y+6, x+7, chin_y+4, x, tip+1, x-8, chin_y+3, x-13, y+5], beard_ramp, -0.30)
-		_dark_lock(Vector2(x+10, y+1), Vector2(x+12, chin_y), Vector2(x+5, tip-2), 3.5, 0.3, beard_ramp, -0.23)
-		_dark_lock(Vector2(x-10, y+1), Vector2(x-12, chin_y), Vector2(x-4, tip-2), 3.8, 0.3, beard_ramp, -0.08)
-		_dark_poly([x-8, y+2, x-3, y+4, x+3, y+3, x+8, y+2,
-			x+6, y+8, x+1, chin_y+3, x-5, y+8], beard_ramp, -0.39)
-		_dark_lock(Vector2(x-6, y+5), Vector2(x-7, chin_y+2), Vector2(x-1, tip-2), 3.4, 0.3, beard_shadow, -0.06)
-		_dark_lock(Vector2(x+2, y+8), Vector2(x+8, chin_y+4), Vector2(x+1, tip+1), 3.5, 0.3, beard_shadow, -0.13)
-		_dark_lock(Vector2(x+7, y+6), Vector2(x+9, chin_y+2), Vector2(x+3, tip-2), 2.4, 0.2, beard_ramp, -0.12)
-		_dark_lock(Vector2(x-8, y+5), Vector2(x-8, chin_y+1), Vector2(x-3, tip-4), 2.4, 0.2, beard_ramp, 0.035)
-		_dark_lock(Vector2(x, y+9), Vector2(x+5, chin_y+5), Vector2(x, tip+2), 2.5, 0.2, beard_ramp, -0.12)
-		_dark_lock(Vector2(x-3, y+9), Vector2(x-4, chin_y+4), Vector2(x-1, tip-1), 2.1, 0.15, beard_ramp, 0.09)
+			x+12, y+6, x+7, chin_y+4, x, tip+1, x-8, chin_y+3, x-13, y+5], beard_ramp, -0.53)
+		_dark_lock(Vector2(x+11, y+1), Vector2(x+12, chin_y-1), Vector2(x+4, tip-3), 3.1, 0.15, beard_ramp, -0.22)
+		_dark_lock(Vector2(x-11, y), Vector2(x-13, y+8), Vector2(x-5, chin_y+2), 3.5, 0.15, beard_ramp, -0.07)
+		_dark_lock(Vector2(x+7, y+6), Vector2(x+6, chin_y+4), Vector2(x-2, tip+1), 3.6, 0.15, beard_shadow, -0.04)
+		_dark_lock(Vector2(x-8, y+5), Vector2(x-4, chin_y+2), Vector2(x+2, tip-3), 3.2, 0.15, beard_ramp, 0.025)
+		_dark_lock(Vector2(x+5, y+7), Vector2(x+2, chin_y+1), Vector2(x-4, tip-1), 2.8, 0.1, beard_ramp, -0.10)
+		_dark_lock(Vector2(x-9, y+6), Vector2(x-10, chin_y+1), Vector2(x-6, tip-4), 2.2, 0.1, beard_ramp, -0.03)
+		_dark_poly([x-4, y+2, x, y+3, x+3, y+2, x+3, y+4,
+			x, y+5, x-4, y+4], beard_shadow, -0.30)
+		_dark_lock(Vector2(x-2, y+7), Vector2(x+3, chin_y+3), Vector2(x+1, tip+1), 3.6, 0.1, beard_ramp, -0.015)
 	elif beard_i not in [1, 6, 7]:
 		_dark_poly([x-12, y-1, x-8, y+4, x-3, y+5, x+4, y+4, x+11, y-1,
 			x+12, y+6, x+7, chin_y+4, x, tip, x-8, chin_y+3, x-13, y+5], beard_ramp, -0.19)
