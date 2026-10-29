@@ -35,6 +35,7 @@ static var _wound_shader: Shader
 ## The bonded rider, drawn seated on the saddle at human scale (FigurePainter.PX world px per unit; never the
 ## dragon's size). Far leg/arm behind the dragon, saddle and near side in front.
 var _rider_uid: String = ""
+var _rider_spec: Dictionary = {}
 var _rider_layers: Dictionary = {}
 var _rider_far: Sprite2D
 var _rider_front: Node2D
@@ -226,15 +227,15 @@ func _resolve_rider() -> void:
 	var uid: String = str(_record.get("rider_person_uid", ""))
 	var person: Dictionary = Dragons._person(Game, uid) if uid != "" else {}
 	if person.is_empty() or not bool(person.get("alive", true)) or _dead: uid = ""
-	if uid == _rider_uid: return
+	var spec: Dictionary = Dynasty.portrait_for(Game, person) if uid != "" else {}
+	if uid == _rider_uid and spec == _rider_spec: return
 	_rider_uid = uid
+	_rider_spec = spec
 	_rider_layers = {}
 	for node in [_rider_far, _rider_front]:
 		if node != null: node.queue_free()
 	_rider_far = null; _rider_front = null; _rider_saddle = null; _rider_near = null
 	if uid == "": return
-	var spec: Dictionary = Dynasty.portrait_for(Game, person)
-	spec["dead"] = false
 	_rider_layers = MountedRiderArt.render_layers(spec)
 	if not bool(_rider_layers.get("ok", false)): _rider_layers = {}; return
 	_rider_far = _sprite(_rider_layers["far"])

@@ -1,0 +1,34 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+balance070 race human: n=24 score=0.417 kills=96 efficiency=0.394
+balance070 race orc: n=24 score=0.688 kills=112 efficiency=0.557
+balance070 race goblin: n=24 score=0.146 kills=56 efficiency=0.242
+balance070 race moon_elf: n=24 score=0.563 kills=99 efficiency=0.458
+balance070 race dwarf: n=24 score=0.688 kills=95 efficiency=0.461
+balance070 unit sword: n=20 score=0.200 kills=44 efficiency=0.224
+balance070 unit spear: n=20 score=0.600 kills=79 efficiency=0.497
+balance070 unit archer: n=20 score=0.700 kills=45 efficiency=0.457
+balance070 native dwarf_holds/axedwarf: n=16 score=0.375 efficiency=0.445
+balance070 native dwarf_holds/hammerdwarf: n=16 score=0.125 efficiency=0.127
+balance070 native eastern_khanate/keshig: n=16 score=0.250 efficiency=0.379
+balance070 native goblin_warren/goblin skulker: n=16 score=0.625 efficiency=0.300
+balance070 native middle_kingdom/spearman: n=16 score=0.750 efficiency=0.443
+balance070 native middle_kingdom/March bowman: n=16 score=0.500 efficiency=0.373
+balance070 native moon_court/moon archer: n=16 score=0.375 efficiency=0.402
+balance070 native northern_clans/huscarl: n=16 score=0.313 efficiency=0.508
+balance070 native orc_horde/orc warrior: n=16 score=0.813 efficiency=0.551
+balance070 native dwarf_holds/hold guard: n=16 score=0.313 efficiency=0.253
+balance070 native eastern_khanate/lancer: n=16 score=0.813 efficiency=0.536
+balance070 native goblin_warren/goblin spear: n=16 score=0.688 efficiency=0.480
+balance070 native middle_kingdom/man-at-arms: n=16 score=0.313 efficiency=0.303
+balance070 native moon_court/glaive dancer: n=16 score=0.750 efficiency=0.590
+balance070 native moon_court/moon blade: n=16 score=0.563 efficiency=0.349
+balance070 native orc_horde/orc brute: n=16 score=0.625 efficiency=0.505
+balance070 native eastern_khanate/steppe archer: n=16 score=0.219 efficiency=0.173
+balance070 native northern_clans/clansman: n=16 score=0.563 efficiency=0.481
+balance070 native goblin_warren/goblin archer: n=16 score=0.250 efficiency=0.194
+balance070 native northern_clans/fell hunter: n=16 score=0.781 efficiency=0.539
+balance070 mount foot: n=30 score=0.800
+balance070 mount horse: n=30 score=0.200
+balance070 evidence: C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v070a/game/../test-results/balance_v070/regression_1793281452_23172.json
+== res://tests/test_balance_v070.gd: PASS ==

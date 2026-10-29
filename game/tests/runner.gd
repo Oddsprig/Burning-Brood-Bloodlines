@@ -90,9 +90,8 @@ func _ready() -> void:
 	if paths.size() > 1:
 		print("== block%s: %d tests, %d failing ==\n  %s" % [(" " + block) if block != "" else "", paths.size(),
 			results.filter(func(r): return not String(r).contains("PASS")).size(), "\n  ".join(PackedStringArray(results))])
-	for p in [Game.SAVE_PATH, Game.SETTINGS_PATH]:
-		if FileAccess.file_exists(p):
-			DirAccess.remove_absolute(ProjectSettings.globalize_path(p))
+	# Save and settings files are kept. _run_one gives each process its own user:// paths,
+	# so later tests stay isolated without deleting anything. --keep-test-files is accepted and ignored.
 	get_tree().quit(mini(total, 125))
 
 ## Runs one test script; its failure count, or -1 when it could not run.

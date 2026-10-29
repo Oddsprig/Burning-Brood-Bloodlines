@@ -1,0 +1,71 @@
+Burning Brood: Bloodlines - v0.070 part B identity consistency
+Branch: v0.070b; base: 64c633d0545ef444887accb056ebc9ff2abd98f6
+
+Visual input audit
+- art/portrait.gd -> FigurePainter.spec_for_unit or an explicit registered-person spec.
+  figure_painter.gd -> portrait_bust.gd -> portraits/portrait_{human,dwarf,high_elf,
+  moon_elf,dark_elf,orc,goblin,troll}.gd; all consume that spec without new identities.
+- UI Unit paths: company roster, UnitSheet character/recruit header, town recruit
+  and unit panels, town healer -> UiKit.portrait -> Portrait.set_unit.
+- UI person paths: court family tiles, person popup and marriage matches; house,
+  house laws/heirs, muster, house selection/designer/onboarding, dragon bonded-person
+  and bond-candidate portraits -> Dynasty.portrait_for -> Portrait.set_spec.
+- Campaign ruler/commander portrait: DynastyCard -> Dynasty.portrait_spec.
+  Current campaign force markers are MapToken symbols/badges, not people; selected
+  force commander lines and prisoner bargain tables are text. They do not roll art.
+  Retained PartyIcon leader figures use FigurePainter.spec_for_unit and are tested.
+- Battle UnitView -> Paperdoll; HorseDoll -> MountedRiderArt.spec_for_unit.
+  DragonView rider -> Dynasty.portrait_for -> MountedRiderArt.render_layers.
+  Dragon roost people -> Dynasty.portrait_for -> Paperdoll.set_spec.
+  DragonCard previews consume a copied supplied rider spec. Dragon animal portraits
+  use their separate saved registry appearance; no humanoid identity is generated.
+
+Mismatches fixed
+1. Prisoner/captive physical holders were absent from Dynasty.bound_unit: their
+   court/map portraits fell back to civilian seeds and default/empty equipment.
+   Lookup now uses both held-unit collections with UID/home/family/race guards.
+2. Dragon rider layers were cached by person UID alone. Compare the full saved
+   display spec too, rebuilding for changed face, equipment, age or wounds.
+3. Portrait.refresh erased set_spec portraits, and set_spec retained the caller's
+   mutable dictionary. Preserve the portrait snapshot and copy incoming specs.
+4. Paperdoll.set_spec overwrote the caller's team field. Copy before adapting it.
+5. PartyIcon recoloured a real leader's clothing using an extra vivid-colour pass.
+6. Civilian designer variants were derived before the final seed override.
+7. Custom house colours differed between civilian court and campaign portraits,
+   and could replace a bound unit's actual clothing palette on the campaign card.
+   Civilian readers share the saved palette; bound readers retain the native spec.
+8. Field/captive units' cached ages could disagree with registered-person portraits.
+   Unit display inputs now derive age from the saved birthday/current campaign day.
+
+Tests and actual results (all engine jobs serial, shared Submit-GameTest queue)
+- Every job: --headless --audio-driver Dummy; --watchdog=60; queue timeout 60 s.
+- Import verified: job d59da5224bc841cb894ca6f977d5b5ca, exit 0, 6.146 s.
+  Earlier import 775120d23c5c43859d1cdce87d4b2ef3 exited 0 but queue report
+  verification failed (an output report was incorrectly requested). Not a pass.
+- Initial baseline a had fixture errors (missing non-settlement race cultures and
+  scene-tree/deferred-label timing). It is preserved, not used as game evidence.
+- Corrected baseline b: job 5f1a7dac71de43ad8ebab764a1fe8609, exit 125,
+  24 samples / 5811 checks / 139 failed field comparisons, 4.577 s; no script errors.
+- First fixed run: job 9267e684268c47eeb38992cdf0c52f54, exit 0,
+  24 samples / 5811 checks / zero failures, 4.381 s.
+- Final expanded regression job b1f2962e7c574a9e9131a69681d6ef88: exit 0,
+  whole engine process 9.972 s, four tests passed:
+    test_bloodlines_ruler_art.gd: 36 checks, zero failures.
+    test_mounted_rider_art.gd: 288 checks, zero failures.
+    claude_designer_v039.gd: 30 checks, zero failures.
+    test_identity_consistency_v070.gd: 24 samples / 6027 checks / zero failures,
+      4.284 s. Registered as block identity_v070 in tests/blocks.json.
+- Samples cover all eight humanoid races, both sexes, child/adult/elder ages,
+  bare/clothed/armoured kits, sword/spear/glaive/bow, shield, all armour slots,
+  maker/material/quality/wear and wounds. Actual screen controls are built headlessly;
+  appearance fields, seed, complete visible item specs and purity are compared.
+  Reserve/recruit/army/prisoner/captive moves and refresh/cache cases are explicit.
+  Test-only cultures for the three art races without settlement cultures are restored.
+- Final log: v070b-identity-regressions-20261029a.log. Earlier logs remain intact.
+- git diff --check: clean. No visual/GPU run, downloads, deletions, push or merge.
+
+Preserved generated files (untracked, excluded from commit)
+Import created .gd.uid files for portrait_bust, the eight art/portraits scripts,
+and tests/_portrait_before_447d266, portrait_quick_render, render_portrait_sheet,
+test_portraits_v067 and verify_elf_portrait_split. They are importer-generated
+metadata, not authored changes; leave them out of integration. No files were deleted.

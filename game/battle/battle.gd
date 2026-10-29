@@ -877,7 +877,7 @@ func _banner(title: String, sub: String, secs: float) -> void:
 	box.size.x = get_viewport_rect().size.x
 	box.position.x = 0
 	box.modulate.a = 0.0
-	var tw := create_tween()
+	var tw := box.create_tween() # The title can leave while the battle screen stays alive.
 	tw.tween_property(box, "modulate:a", 1.0, 0.5)
 	tw.tween_interval(secs)
 	tw.tween_property(box, "modulate:a", 0.0, 0.8)

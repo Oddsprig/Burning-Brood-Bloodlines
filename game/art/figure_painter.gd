@@ -136,7 +136,7 @@ static func spec_for_unit(u: Unit, team: Color = Color(0, 0, 0, 0)) -> Dictionar
 	var s := {"race": u.race, "skin": Color(u.look.get("skin", skins[0])), "hair": Color(u.look.get("hair", hairs[0])),
 		"beard": bool(u.look.get("beard", false)), "seed": int(u.look.get("seed", u.uid)), "prim": cols[0],
 		"sec": cols[1], "team": team, "role": u.role, "dead": u.dead,
-		"sex": "female" if u.sex == 1 else "male", "age": u.age}
+		"sex": "female" if u.sex == 1 else "male", "age": People.age_on(u, float(Game.day))}
 	if u.sex == 1:
 		s["female_set"] = female_variant(u.look)
 	elif bool(s["beard"]) and u.race in ["human","orc","dwarf"]:

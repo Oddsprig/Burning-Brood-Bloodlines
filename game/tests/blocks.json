@@ -4,6 +4,16 @@
 		"res://tests/test_sapphire_spirewing_v061.gd",
 		"res://tests/test_dragon_concepts.gd"
 	],
+	"balance_v070": [
+		"res://tests/test_balance_v070.gd"
+	],
+	"identity_v070": [
+		"res://tests/test_identity_consistency_v070.gd"
+	],
+	"popup_cleanup_v070": [
+		"res://tests/test_popup_cleanup_v070.gd",
+		"res://tests/test_ui_modal.gd"
+	],
 	"headless": [
 		"res://tests/claude_population_v034.gd",
 		"res://tests/claude_prisoners_v033.gd",

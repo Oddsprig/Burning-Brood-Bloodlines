@@ -1,0 +1,799 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[   0% ] first_scan_filesystem | Started Project initialization (5 steps)
+[   0% ] first_scan_filesystem | Scanning file structure...
+[  16% ] first_scan_filesystem | Loading global class names...
+[  33% ] first_scan_filesystem | Verifying GDExtensions...
+[  50% ] first_scan_filesystem | Creating autoload scripts...
+[  66% ] first_scan_filesystem | Initializing plugins...
+[  83% ] first_scan_filesystem | Starting file scan...
+[ DONE ] first_scan_filesystem
+
+[   0% ] update_scripts_classes | Started Registering global classes... (615 steps)
+[   0% ] update_scripts_classes | 
+[   0% ] update_scripts_classes | 
+[   0% ] update_scripts_classes | 
+[   0% ] update_scripts_classes | 
+[   0% ] update_scripts_classes | 
+[   0% ] update_scripts_classes | 
+[   0% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | CreaturePainter
+[   1% ] update_scripts_classes | DragonArt
+[   1% ] update_scripts_classes | DragonConcepts
+[   1% ] update_scripts_classes | DragonDamageArt
+[   1% ] update_scripts_classes | DragonMountPreviewArt
+[   2% ] update_scripts_classes | DragonRigArt
+[   2% ] update_scripts_classes | DragonSpriteCatalog
+[   2% ] update_scripts_classes | DwarfArt
+[   2% ] update_scripts_classes | ElfArt
+[   2% ] update_scripts_classes | FigurePainter
+[   2% ] update_scripts_classes | GoblinArt
+[   3% ] update_scripts_classes | HorseArt
+[   3% ] update_scripts_classes | HumanArt
+[   3% ] update_scripts_classes | GameIcon
+[   3% ] update_scripts_classes | ItemIcon
+[   3% ] update_scripts_classes | ItemIconArt
+[   3% ] update_scripts_classes | 
+[   4% ] update_scripts_classes | MapToken
+[   4% ] update_scripts_classes | MapTokens
+[   4% ] update_scripts_classes | MountedRiderArt
+[   4% ] update_scripts_classes | OrcArt
+[   4% ] update_scripts_classes | Paperdoll
+[   4% ] update_scripts_classes | PartyIcon
+[   5% ] update_scripts_classes | PixelCanvas
+[   5% ] update_scripts_classes | Portrait
+[   5% ] update_scripts_classes | 
+[   5% ] update_scripts_classes | 
+[   5% ] update_scripts_classes | SapphireSpirewingArt
+[   5% ] update_scripts_classes | TrollArt
+[   6% ] update_scripts_classes | WeaponArt
+[   6% ] update_scripts_classes | 
+[   6% ] update_scripts_classes | ArrowLayer
+[   6% ] update_scripts_classes | 
+[   6% ] update_scripts_classes | BreathFx
+[   6% ] update_scripts_classes | CombatLogBrowser
+[   6% ] update_scripts_classes | DragonView
+[   7% ] update_scripts_classes | 
+[   7% ] update_scripts_classes | 
+[   7% ] update_scripts_classes | HorseDoll
+[   7% ] update_scripts_classes | 
+[   7% ] update_scripts_classes | 
+[   7% ] update_scripts_classes | 
+[   8% ] update_scripts_classes | 
+[   8% ] update_scripts_classes | BattleResultSummary
+[   8% ] update_scripts_classes | 
+[   8% ] update_scripts_classes | 
+[   8% ] update_scripts_classes | Academy
+[   8% ] update_scripts_classes | Ambitions
+[   9% ] update_scripts_classes | ArmsPool
+[   9% ] update_scripts_classes | ArmsSalvage
+[   9% ] update_scripts_classes | ArmsTrade
+[   9% ] update_scripts_classes | Army
+[   9% ] update_scripts_classes | ArmyRanks
+[   9% ] update_scripts_classes | Backstory
+[  10% ] update_scripts_classes | Bandits
+[  10% ] update_scripts_classes | Barge
+[  10% ] update_scripts_classes | BargeViews
+[  10% ] update_scripts_classes | BattleRounds
+[  10% ] update_scripts_classes | BattleTactics
+[  10% ] update_scripts_classes | BowsEcon
+[  11% ] update_scripts_classes | Businesses
+[  11% ] update_scripts_classes | Calendar
+[  11% ] update_scripts_classes | Caravans
+[  11% ] update_scripts_classes | Census
+[  11% ] update_scripts_classes | CharacterDesign
+[  11% ] update_scripts_classes | ClashRounds
+[  12% ] update_scripts_classes | Contracts
+[  12% ] update_scripts_classes | CourtEvents
+[  12% ] update_scripts_classes | CropRotation
+[  12% ] update_scripts_classes | 
+[  12% ] update_scripts_classes | DevTools
+[  12% ] update_scripts_classes | Diplomacy
+[  12% ] update_scripts_classes | Dragons
+[  13% ] update_scripts_classes | DragonBond
+[  13% ] update_scripts_classes | DragonBreeding
+[  13% ] update_scripts_classes | DragonCare
+[  13% ] update_scripts_classes | DragonCombat
+[  13% ] update_scripts_classes | DragonFear
+[  13% ] update_scripts_classes | DragonGrowth
+[  14% ] update_scripts_classes | DragonLife
+[  14% ] update_scripts_classes | Dynasty
+[  14% ] update_scripts_classes | Economy
+[  14% ] update_scripts_classes | EconomyAudit
+[  14% ] update_scripts_classes | EconomyRules
+[  14% ] update_scripts_classes | EconGen
+[  15% ] update_scripts_classes | Ennoble
+[  15% ] update_scripts_classes | Families
+[  15% ] update_scripts_classes | Feudal
+[  15% ] update_scripts_classes | Goods
+[  15% ] update_scripts_classes | HarvestClaims
+[  15% ] update_scripts_classes | Herds
+[  16% ] update_scripts_classes | HerdsMarket
+[  16% ] update_scripts_classes | HerdsViews
+[  16% ] update_scripts_classes | HerdRaids
+[  16% ] update_scripts_classes | Horses
+[  16% ] update_scripts_classes | HouseOnboarding
+[  16% ] update_scripts_classes | HouseUpkeep
+[  17% ] update_scripts_classes | Intrigue
+[  17% ] update_scripts_classes | Lairs
+[  17% ] update_scripts_classes | Legends
+[  17% ] update_scripts_classes | LivestockCare
+[  17% ] update_scripts_classes | Loans
+[  17% ] update_scripts_classes | 
+[  18% ] update_scripts_classes | 
+[  18% ] update_scripts_classes | 
+[  18% ] update_scripts_classes | Marriage
+[  18% ] update_scripts_classes | Metallurgy
+[  18% ] update_scripts_classes | Migration
+[  18% ] update_scripts_classes | Militia
+[  18% ] update_scripts_classes | Mobilization
+[  19% ] update_scripts_classes | Monsters
+[  19% ] update_scripts_classes | MonsterContracts
+[  19% ] update_scripts_classes | People
+[  19% ] update_scripts_classes | Persons
+[  19% ] update_scripts_classes | Plots
+[  19% ] update_scripts_classes | PlotsBuildings
+[  20% ] update_scripts_classes | Population
+[  20% ] update_scripts_classes | Prisoners
+[  20% ] update_scripts_classes | RankRules
+[  20% ] update_scripts_classes | Recruits
+[  20% ] update_scripts_classes | Renown
+[  20% ] update_scripts_classes | Salvage
+[  21% ] update_scripts_classes | ServiceIdentity
+[  21% ] update_scripts_classes | Settlement
+[  21% ] update_scripts_classes | Shelter
+[  21% ] update_scripts_classes | Sickness
+[  21% ] update_scripts_classes | SicknessGroups
+[  21% ] update_scripts_classes | Supplies
+[  22% ] update_scripts_classes | SupplyOrders
+[  22% ] update_scripts_classes | TownDefence
+[  22% ] update_scripts_classes | TownEcon
+[  22% ] update_scripts_classes | TownEconViews
+[  22% ] update_scripts_classes | TownHousing
+[  22% ] update_scripts_classes | TownSanitation
+[  23% ] update_scripts_classes | Tracks
+[  23% ] update_scripts_classes | 
+[  23% ] update_scripts_classes | TroopUpkeep
+[  23% ] update_scripts_classes | WageClaims
+[  23% ] update_scripts_classes | Warfare
+[  23% ] update_scripts_classes | WarAI
+[  24% ] update_scripts_classes | CampaignWorld
+[  24% ] update_scripts_classes | WorldGen
+[  24% ] update_scripts_classes | 
+[  24% ] update_scripts_classes | WorldPresim
+[  24% ] update_scripts_classes | WorldWarbands
+[  24% ] update_scripts_classes | Baggage
+[  25% ] update_scripts_classes | BodyState
+[  25% ] update_scripts_classes | Creatures
+[  25% ] update_scripts_classes | 
+[  25% ] update_scripts_classes | Factory
+[  25% ] update_scripts_classes | Food
+[  25% ] update_scripts_classes | 
+[  25% ] update_scripts_classes | Item
+[  26% ] update_scripts_classes | Loot
+[  26% ] update_scripts_classes | MemoryOwners
+[  26% ] update_scripts_classes | PerformanceTracker
+[  26% ] update_scripts_classes | SaveSnapshot
+[  26% ] update_scripts_classes | 
+[  26% ] update_scripts_classes | Unit
+[  27% ] update_scripts_classes | Archery
+[  27% ] update_scripts_classes | BattleDamage
+[  27% ] update_scripts_classes | BattleMorale
+[  27% ] update_scripts_classes | BattleSim
+[  27% ] update_scripts_classes | CombatJournal
+[  27% ] update_scripts_classes | CombatText
+[  28% ] update_scripts_classes | DragonBreath
+[  28% ] update_scripts_classes | Fighter
+[  28% ] update_scripts_classes | Formulas
+[  28% ] update_scripts_classes | Healing
+[  28% ] update_scripts_classes | HealthReport
+[  28% ] update_scripts_classes | Learning
+[  29% ] update_scripts_classes | MountedCombat
+[  29% ] update_scripts_classes | NaturalAttacks
+[  29% ] update_scripts_classes | ArmyV045Baseline
+[  29% ] update_scripts_classes | 
+[  29% ] update_scripts_classes | 
+[  29% ] update_scripts_classes | 
+[  30% ] update_scripts_classes | 
+[  30% ] update_scripts_classes | 
+[  30% ] update_scripts_classes | 
+[  30% ] update_scripts_classes | 
+[  30% ] update_scripts_classes | 
+[  30% ] update_scripts_classes | 
+[  31% ] update_scripts_classes | 
+[  31% ] update_scripts_classes | 
+[  31% ] update_scripts_classes | 
+[  31% ] update_scripts_classes | 
+[  31% ] update_scripts_classes | 
+[  31% ] update_scripts_classes | 
+[  31% ] update_scripts_classes | 
+[  32% ] update_scripts_classes | 
+[  32% ] update_scripts_classes | 
+[  32% ] update_scripts_classes | 
+[  32% ] update_scripts_classes | 
+[  32% ] update_scripts_classes | 
+[  32% ] update_scripts_classes | 
+[  33% ] update_scripts_classes | 
+[  33% ] update_scripts_classes | 
+[  33% ] update_scripts_classes | 
+[  33% ] update_scripts_classes | 
+[  33% ] update_scripts_classes | 
+[  33% ] update_scripts_classes | 
+[  34% ] update_scripts_classes | 
+[  34% ] update_scripts_classes | 
+[  34% ] update_scripts_classes | 
+[  34% ] update_scripts_classes | 
+[  34% ] update_scripts_classes | 
+[  34% ] update_scripts_classes | 
+[  35% ] update_scripts_classes | 
+[  35% ] update_scripts_classes | 
+[  35% ] update_scripts_classes | 
+[  35% ] update_scripts_classes | 
+[  35% ] update_scripts_classes | 
+[  35% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  41% ] update_scripts_classes | 
+[  41% ] update_scripts_classes | 
+[  41% ] update_scripts_classes | 
+[  41% ] update_scripts_classes | 
+[  41% ] update_scripts_classes | 
+[  41% ] update_scripts_classes | 
+[  42% ] update_scripts_classes | 
+[  42% ] update_scripts_classes | 
+[  42% ] update_scripts_classes | 
+[  42% ] update_scripts_classes | 
+[  42% ] update_scripts_classes | 
+[  42% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | 
+[  66% ] update_scripts_classes | 
+[  66% ] update_scripts_classes | 
+[  66% ] update_scripts_classes | 
+[  66% ] update_scripts_classes | 
+[  66% ] update_scripts_classes | 
+[  66% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | AmbitionsView
+[  88% ] update_scripts_classes | ArmyPanel
+[  88% ] update_scripts_classes | AttrBar
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | UiCompat
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | DevTown
+[  89% ] update_scripts_classes | DragonsView
+[  89% ] update_scripts_classes | DragonCard
+[  90% ] update_scripts_classes | DragonRoost
+[  90% ] update_scripts_classes | DynastyCard
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | GuideView
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | HouseBanner
+[  91% ] update_scripts_classes | HouseLaws
+[  91% ] update_scripts_classes | HouseSelectView
+[  91% ] update_scripts_classes | UiKit
+[  91% ] update_scripts_classes | LandMap
+[  91% ] update_scripts_classes | Market
+[  91% ] update_scripts_classes | MusterView
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | Outfit
+[  92% ] update_scripts_classes | PerformancePanel
+[  92% ] update_scripts_classes | PoliticsView
+[  92% ] update_scripts_classes | PopulationView
+[  92% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | RecruitBrief
+[  93% ] update_scripts_classes | RecCells
+[  93% ] update_scripts_classes | RecChart
+[  93% ] update_scripts_classes | RecCivic
+[  94% ] update_scripts_classes | RecData
+[  94% ] update_scripts_classes | RecFlows
+[  94% ] update_scripts_classes | RecKit
+[  94% ] update_scripts_classes | RecMarket
+[  94% ] update_scripts_classes | RecPages
+[  94% ] update_scripts_classes | RecRaces
+[  95% ] update_scripts_classes | RecRegions
+[  95% ] update_scripts_classes | RecRow
+[  95% ] update_scripts_classes | RecTable
+[  95% ] update_scripts_classes | RecTown
+[  95% ] update_scripts_classes | RecWorld
+[  95% ] update_scripts_classes | Relations
+[  96% ] update_scripts_classes | Roster
+[  96% ] update_scripts_classes | RoundSummary
+[  96% ] update_scripts_classes | SaveIndicator
+[  96% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | SettlementSelectMap
+[  96% ] update_scripts_classes | TalentStars
+[  97% ] update_scripts_classes | UiTheme
+[  97% ] update_scripts_classes | 
+[  97% ] update_scripts_classes | 
+[  97% ] update_scripts_classes | TownBuildingsTab
+[  97% ] update_scripts_classes | TownContractsTab
+[  97% ] update_scripts_classes | TownEconTab
+[  98% ] update_scripts_classes | TownHealerTab
+[  98% ] update_scripts_classes | TownMarketTab
+[  98% ] update_scripts_classes | TownOrdersTab
+[  98% ] update_scripts_classes | TownProvisionsTab
+[  98% ] update_scripts_classes | TownResearchTab
+[  98% ] update_scripts_classes | TreasureRoom
+[  99% ] update_scripts_classes | UnitSheet
+[  99% ] update_scripts_classes | 
+[  99% ] update_scripts_classes | WoodBg
+[  99% ] update_scripts_classes | UiWords
+[  99% ] update_scripts_classes | 
+[ DONE ] update_scripts_classes
+
+[   0% ] _update_scan_actions | Started Scanning actions... (51 steps)
+[   0% ] _update_scan_actions | dragon_amethyst_v006.webp
+[   1% ] _update_scan_actions | dragon_aquamarine_v006.webp
+[   3% ] _update_scan_actions | dragon_black_diamond_v006.webp
+[   5% ] _update_scan_actions | dragon_citrine_v006.webp
+[   7% ] _update_scan_actions | dragon_diamond_v006.webp
+[   9% ] _update_scan_actions | dragon_emerald_v006.webp
+[  11% ] _update_scan_actions | dragon_garnet_v006.webp
+[  13% ] _update_scan_actions | dragon_jade_v006.webp
+[  15% ] _update_scan_actions | dragon_moonstone_v006.webp
+[  17% ] _update_scan_actions | dragon_onyx_v006.webp
+[  19% ] _update_scan_actions | dragon_opal_v006.webp
+[  21% ] _update_scan_actions | dragon_pearl_v006.webp
+[  23% ] _update_scan_actions | dragon_ruby_v006.webp
+[  25% ] _update_scan_actions | dragon_sapphire_v006.webp
+[  26% ] _update_scan_actions | dragon_topaz_v006.webp
+[  28% ] _update_scan_actions | dragon_tourmaline_v006.webp
+[  30% ] _update_scan_actions | broadmantle_source_v006.png
+[  32% ] _update_scan_actions | duskfin_source_v006.png
+[  34% ] _update_scan_actions | ironcrest_source_v006.png
+[  36% ] _update_scan_actions | reedrunner_source_v006.png
+[  38% ] _update_scan_actions | spirewing_source_v006.png
+[  40% ] _update_scan_actions | stormkeel_source_v006.png
+[  42% ] _update_scan_actions | icon_32.png
+[  44% ] _update_scan_actions | icon_48.png
+[  46% ] _update_scan_actions | icon_256.png
+[  48% ] _update_scan_actions | breath_fire.ogg
+[  50% ] _update_scan_actions | breath_frost.ogg
+[  51% ] _update_scan_actions | breath_storm.ogg
+[  53% ] _update_scan_actions | breath_venom.ogg
+[  55% ] _update_scan_actions | clash_0.ogg
+[  57% ] _update_scan_actions | clash_1.ogg
+[  59% ] _update_scan_actions | clash_2.ogg
+[  61% ] _update_scan_actions | clash_3.ogg
+[  63% ] _update_scan_actions | event_fanfare.ogg
+[  65% ] _update_scan_actions | fall.ogg
+[  67% ] _update_scan_actions | hit_0.ogg
+[  69% ] _update_scan_actions | hit_1.ogg
+[  71% ] _update_scan_actions | hit_2.ogg
+[  73% ] _update_scan_actions | music_battle.ogg
+[  75% ] _update_scan_actions | music_map.ogg
+[  76% ] _update_scan_actions | music_title.ogg
+[  78% ] _update_scan_actions | roar_0.ogg
+[  80% ] _update_scan_actions | roar_1.ogg
+[  82% ] _update_scan_actions | ui_confirm.ogg
+[  84% ] _update_scan_actions | Alegreya.ttf
+[  86% ] _update_scan_actions | Cinzel.ttf
+[  88% ] _update_scan_actions | LiberationSans-Bold.ttf
+[  90% ] _update_scan_actions | LiberationSans-Regular.ttf
+[  92% ] _update_scan_actions | title_dragon.png
+[  94% ] _update_scan_actions | icon.png
+[  96% ] _update_scan_actions | icon_claude.png
+[ DONE ] _update_scan_actions
+
+[   0% ] reimport | Started (Re)Importing Assets (51 steps)
+[   0% ] reimport | Preparing files to reimport...
+[   1% ] reimport | Preparing files to reimport...
+[   3% ] reimport | Preparing files to reimport...
+[   5% ] reimport | Preparing files to reimport...
+[   7% ] reimport | Preparing files to reimport...
+[   9% ] reimport | Preparing files to reimport...
+[  11% ] reimport | Preparing files to reimport...
+[  13% ] reimport | Preparing files to reimport...
+[  15% ] reimport | Preparing files to reimport...
+[  17% ] reimport | Preparing files to reimport...
+[  19% ] reimport | Preparing files to reimport...
+[  21% ] reimport | Preparing files to reimport...
+[  23% ] reimport | Preparing files to reimport...
+[  25% ] reimport | Preparing files to reimport...
+[  26% ] reimport | Preparing files to reimport...
+[  28% ] reimport | Preparing files to reimport...
+[  30% ] reimport | Preparing files to reimport...
+[  32% ] reimport | Preparing files to reimport...
+[  34% ] reimport | Preparing files to reimport...
+[  36% ] reimport | Preparing files to reimport...
+[  38% ] reimport | Preparing files to reimport...
+[  40% ] reimport | Preparing files to reimport...
+[  42% ] reimport | Preparing files to reimport...
+[  44% ] reimport | Preparing files to reimport...
+[  46% ] reimport | Preparing files to reimport...
+[  48% ] reimport | Preparing files to reimport...
+[  50% ] reimport | Preparing files to reimport...
+[  51% ] reimport | Preparing files to reimport...
+[  53% ] reimport | Preparing files to reimport...
+[  55% ] reimport | Preparing files to reimport...
+[  57% ] reimport | Preparing files to reimport...
+[  59% ] reimport | Preparing files to reimport...
+[  61% ] reimport | Preparing files to reimport...
+[  63% ] reimport | Preparing files to reimport...
+[  65% ] reimport | Preparing files to reimport...
+[  67% ] reimport | Preparing files to reimport...
+[  69% ] reimport | Preparing files to reimport...
+[  71% ] reimport | Preparing files to reimport...
+[  73% ] reimport | Preparing files to reimport...
+[  75% ] reimport | Preparing files to reimport...
+[  76% ] reimport | Preparing files to reimport...
+[  78% ] reimport | Preparing files to reimport...
+[  80% ] reimport | Preparing files to reimport...
+[  82% ] reimport | Preparing files to reimport...
+[  84% ] reimport | Preparing files to reimport...
+[  86% ] reimport | Preparing files to reimport...
+[  88% ] reimport | Preparing files to reimport...
+[  90% ] reimport | Preparing files to reimport...
+[  92% ] reimport | Preparing files to reimport...
+[  94% ] reimport | Preparing files to reimport...
+[  96% ] reimport | Preparing files to reimport...
+[   0% ] reimport | Executing pre-reimport operations...
+[   0% ] reimport | LiberationSans-Regular.ttf
+[   1% ] reimport | LiberationSans-Bold.ttf
+[   3% ] reimport | Cinzel.ttf
+[   5% ] reimport | Alegreya.ttf
+[   7% ] reimport | LiberationSans-Regular.ttf
+[   9% ] reimport | LiberationSans-Bold.ttf
+[  11% ] reimport | Cinzel.ttf
+[  13% ] reimport | Alegreya.ttf
+[  15% ] reimport | breath_fire.ogg
+[  17% ] reimport | breath_frost.ogg
+[  19% ] reimport | breath_storm.ogg
+[  21% ] reimport | breath_venom.ogg
+[  23% ] reimport | clash_0.ogg
+[  25% ] reimport | clash_1.ogg
+[  26% ] reimport | clash_2.ogg
+[  28% ] reimport | clash_3.ogg
+[  30% ] reimport | event_fanfare.ogg
+[  32% ] reimport | fall.ogg
+[  34% ] reimport | hit_0.ogg
+[  36% ] reimport | hit_1.ogg
+[  38% ] reimport | hit_2.ogg
+[  40% ] reimport | music_battle.ogg
+[  42% ] reimport | music_map.ogg
+[  44% ] reimport | LiberationSans-Regular.ttf
+[  46% ] reimport | LiberationSans-Bold.ttf
+[  48% ] reimport | Cinzel.ttf
+[  50% ] reimport | Alegreya.ttf
+[  51% ] reimport | breath_fire.ogg
+[  53% ] reimport | breath_frost.ogg
+[  55% ] reimport | breath_storm.ogg
+[  57% ] reimport | breath_venom.ogg
+[  59% ] reimport | clash_0.ogg
+[  61% ] reimport | clash_1.ogg
+[  63% ] reimport | clash_2.ogg
+[  65% ] reimport | clash_3.ogg
+[  67% ] reimport | event_fanfare.ogg
+[  69% ] reimport | fall.ogg
+[  71% ] reimport | hit_0.ogg
+[  73% ] reimport | hit_1.ogg
+[  75% ] reimport | hit_2.ogg
+[  76% ] reimport | music_battle.ogg
+[  78% ] reimport | music_map.ogg
+[  80% ] reimport | music_title.ogg
+[  82% ] reimport | roar_0.ogg
+[  84% ] reimport | roar_1.ogg
+[  86% ] reimport | ui_confirm.ogg
+[  88% ] reimport | title_dragon.png
+[  90% ] reimport | icon.png
+[  92% ] reimport | icon_claude.png
+[  94% ] reimport | dragon_amethyst_v006.webp
+[  96% ] reimport | dragon_aquamarine_v006.webp
+[  98% ] reimport | Finalizing Asset Import...
+[ DONE ] reimport
+
+[   0% ] reimport | Started (Re)Importing Assets (51 steps)
+[   0% ] reimport | Executing post-reimport operations...
+[ DONE ] reimport
+
+[   0% ] loading_editor_layout | Started Loading editor (5 steps)
+[   0% ] loading_editor_layout | Loading editor layout...
+[  16% ] loading_editor_layout | Loading docks...
+[ DONE ] loading_editor_layout
+

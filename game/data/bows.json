@@ -2,7 +2,7 @@
   "_note": "bows (docs/specs/bows.md). Bows are the only ranged weapon. Bows are Items (template x material x quality), held in the 'ranged' equip slot; arrows are counted goods (economy goods of the same id) carried in a quiver (Unit.quiver {arrow id: count}, max 50). Bow stats: draw_n = draw weight in newtons at full draw, draw_m = draw length in metres, eff = efficiency (arrow energy / energy drawn) for a reference 60 g arrow, virt_kg = virtual mass of the limbs (a heavier arrow takes more of the bow's energy, src: bow physics, values ours), cm3 = wood volume (mass = cm3 x wood density), min_range = tiles inside which the archer goes to his sidearm (spec ~2, tune), value = base gold. inputs = goods one bow takes (bowyer), rate = bows per bowyer worker-day. Stored energy ~ 0.5 x draw weight x draw length (spec). Anchors (not targets): hunting bow ~50 J, war bow ~100-130 J. All values ours [tuned].",
   "bows": {
     "middle": {
-      "self_bow":   {"name": "self bow", "style": "self", "draw_n": 250, "draw_m": 0.70, "eff": 0.70, "virt_kg": 0.025, "cm3": 1300, "min_range": 2, "value": 18, "inputs": {"staves": 1}, "rate": 0.5, "sprite": "bow", "len": 1.5},
+      "self_bow":   {"name": "self bow", "style": "self", "draw_n": 250, "draw_m": 0.70, "eff": 0.70, "virt_kg": 0.025, "cm3": 1300, "min_range": 2, "value": 30, "inputs": {"staves": 1}, "rate": 0.5, "sprite": "bow", "len": 1.5},
       "march_longbow": {"name": "longbow", "style": "long", "draw_n": 470, "draw_m": 0.74, "eff": 0.70, "virt_kg": 0.035, "cm3": 2000, "min_range": 2, "value": 34, "inputs": {"staves": 1}, "rate": 0.35, "sprite": "longbow", "len": 1.85}
     },
     "northern": {

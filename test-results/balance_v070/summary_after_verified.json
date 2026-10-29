@@ -1,0 +1,661 @@
+{
+  "phase": "after_verified",
+  "suites": {
+    "campaign": {
+      "complete": true,
+      "data_sha256": {
+        "armor": "9299fc78ce6a6762d439631724ca9b431f8eff66b08564a8d9bddb948e92ec1e",
+        "bows": "e2f2aa43ffb28996875b0500f9ce3ad53405086ff145c66c170bf720404299b9",
+        "creatures": "240e4979cdc869b0b81c190ba2f63a6ac5c6a65729bbc88cc672d53c5ddff87d",
+        "economy": "4471ef41720941026c0b902ea9e49c8acf8b1ca7337312d4cf928c3f15ef636a",
+        "factions": "b880f7c1eb84d66d8698aab83255f2fb1ff3be89754ebc7032906e41f263ed4a",
+        "materials": "617d44cefd627c3bbb625483d5dd5d5ccb2d3c3bb6cb7f1bcf6be07f85d5e20a",
+        "weapons": "c4ea4fb2ed5e2015d8010e8d9227df5a833339b304b8c845c8c3084a42544ac8"
+      },
+      "disabled_included": false,
+      "elapsed_ms": 6004,
+      "history_days": 1,
+      "max_cost_gap": 0.05,
+      "max_ticks": 6000,
+      "phase": "after_verified",
+      "samples": 4,
+      "schema": "balance_v070/1",
+      "seed": 4242,
+      "shard": 0,
+      "shards": 1,
+      "size": "normal",
+      "snapshots": [
+        {
+          "day": 1,
+          "races": {
+            "dwarf": {
+              "food_stock": 8410,
+              "population": 6485,
+              "towns": 2,
+              "treasury": 344326.12354879995
+            },
+            "goblin": {
+              "food_stock": 31343,
+              "population": 24662,
+              "towns": 8,
+              "treasury": 1532129.0416986386
+            },
+            "human": {
+              "food_stock": 22807,
+              "population": 17685,
+              "towns": 7,
+              "treasury": 1281502.314825339
+            },
+            "moon_elf": {
+              "food_stock": 7706,
+              "population": 6068,
+              "towns": 3,
+              "treasury": 315571.84488073766
+            },
+            "orc": {
+              "food_stock": 9885,
+              "population": 7819,
+              "towns": 3,
+              "treasury": 371668.33028745424
+            }
+          }
+        },
+        {
+          "day": 2,
+          "races": {
+            "dwarf": {
+              "food_stock": 9017,
+              "population": 6485,
+              "towns": 2,
+              "treasury": 354986.84769838443
+            },
+            "goblin": {
+              "food_stock": 32615,
+              "population": 24661,
+              "towns": 8,
+              "treasury": 1514436.302657562
+            },
+            "human": {
+              "food_stock": 24167,
+              "population": 17683,
+              "towns": 7,
+              "treasury": 1575705.022434893
+            },
+            "moon_elf": {
+              "food_stock": 8100,
+              "population": 6068,
+              "towns": 3,
+              "treasury": 309246.95971052535
+            },
+            "orc": {
+              "food_stock": 10288,
+              "population": 7819,
+              "towns": 3,
+              "treasury": 348239.4591029871
+            }
+          }
+        },
+        {
+          "day": 3,
+          "races": {
+            "dwarf": {
+              "food_stock": 9627,
+              "population": 6485,
+              "towns": 2,
+              "treasury": 578832.10580259
+            },
+            "goblin": {
+              "food_stock": 33802,
+              "population": 24663,
+              "towns": 8,
+              "treasury": 1462637.50301769
+            },
+            "human": {
+              "food_stock": 25525,
+              "population": 17682,
+              "towns": 7,
+              "treasury": 1738712.8231611454
+            },
+            "moon_elf": {
+              "food_stock": 8501,
+              "population": 6068,
+              "towns": 3,
+              "treasury": 467991.14649194264
+            },
+            "orc": {
+              "food_stock": 10662,
+              "population": 7819,
+              "towns": 3,
+              "treasury": 380339.06164506543
+            }
+          }
+        },
+        {
+          "day": 4,
+          "races": {
+            "dwarf": {
+              "food_stock": 10237,
+              "population": 6486,
+              "towns": 2,
+              "treasury": 573167.9713256159
+            },
+            "goblin": {
+              "food_stock": 34999,
+              "population": 24663,
+              "towns": 8,
+              "treasury": 1172188.3321197021
+            },
+            "human": {
+              "food_stock": 26889,
+              "population": 17682,
+              "towns": 7,
+              "treasury": 1716609.598994922
+            },
+            "moon_elf": {
+              "food_stock": 8896,
+              "population": 6068,
+              "towns": 3,
+              "treasury": 630281.0347581411
+            },
+            "orc": {
+              "food_stock": 11027,
+              "population": 7819,
+              "towns": 3,
+              "treasury": 377679.30967798724
+            }
+          }
+        }
+      ],
+      "suite": "campaign",
+      "turns": 3
+    },
+    "mount": {
+      "battles": 240,
+      "mirrors": 120,
+      "duplicate_mirrors": 0,
+      "tick_capped": 0,
+      "elapsed_ms": null,
+      "groups": {
+        "foot": {
+          "n": 120,
+          "won": 84,
+          "draw": 0,
+          "kills": 383,
+          "damage_dealt": 10745.252875963155,
+          "damage_taken": 6078.314198933143,
+          "value_killed": 1347385.5999999994,
+          "cost_spent": 3881280,
+          "win_pct": 70,
+          "score_pct": 70,
+          "efficiency": 0.3471,
+          "damage_dealt_per_battle": 89.544,
+          "damage_taken_per_battle": 50.653
+        },
+        "horse": {
+          "n": 120,
+          "won": 36,
+          "draw": 0,
+          "kills": 297,
+          "damage_dealt": 6078.314198933143,
+          "damage_taken": 10745.252875963155,
+          "value_killed": 1165293,
+          "cost_spent": 3852255.999999997,
+          "win_pct": 30,
+          "score_pct": 30,
+          "efficiency": 0.3025,
+          "damage_dealt_per_battle": 50.653,
+          "damage_taken_per_battle": 89.544
+        }
+      }
+    },
+    "race": {
+      "battles": 360,
+      "mirrors": 120,
+      "duplicate_mirrors": 0,
+      "tick_capped": 10,
+      "elapsed_ms": null,
+      "groups": {
+        "human": {
+          "n": 96,
+          "won": 40,
+          "draw": 1,
+          "kills": 374,
+          "damage_dealt": 5721.276352443003,
+          "damage_taken": 6616.849627455356,
+          "value_killed": 1255958,
+          "cost_spent": 3185024,
+          "win_pct": 41.67,
+          "score_pct": 42.19,
+          "efficiency": 0.3943,
+          "damage_dealt_per_battle": 59.597,
+          "damage_taken_per_battle": 68.926
+        },
+        "orc": {
+          "n": 96,
+          "won": 67,
+          "draw": 5,
+          "kills": 449,
+          "damage_dealt": 6733.375179123504,
+          "damage_taken": 6633.260317219467,
+          "value_killed": 1708840,
+          "cost_spent": 3185024,
+          "win_pct": 69.79,
+          "score_pct": 72.4,
+          "efficiency": 0.5365,
+          "damage_dealt_per_battle": 70.139,
+          "damage_taken_per_battle": 69.096
+        },
+        "goblin": {
+          "n": 96,
+          "won": 20,
+          "draw": 2,
+          "kills": 241,
+          "damage_dealt": 5151.572919521438,
+          "damage_taken": 6169.722179636011,
+          "value_killed": 803075,
+          "cost_spent": 3185024,
+          "win_pct": 20.83,
+          "score_pct": 21.88,
+          "efficiency": 0.2521,
+          "damage_dealt_per_battle": 53.662,
+          "damage_taken_per_battle": 64.268
+        },
+        "moon_elf": {
+          "n": 96,
+          "won": 52,
+          "draw": 2,
+          "kills": 416,
+          "damage_dealt": 6823.516426499293,
+          "damage_taken": 6224.8571718740295,
+          "value_killed": 1505973,
+          "cost_spent": 3185024,
+          "win_pct": 54.17,
+          "score_pct": 55.21,
+          "efficiency": 0.4728,
+          "damage_dealt_per_battle": 71.078,
+          "damage_taken_per_battle": 64.842
+        },
+        "dwarf": {
+          "n": 96,
+          "won": 55,
+          "draw": 2,
+          "kills": 364,
+          "damage_dealt": 7599.04452922368,
+          "damage_taken": 6384.0961106260565,
+          "value_killed": 1385216,
+          "cost_spent": 3185024,
+          "win_pct": 57.29,
+          "score_pct": 58.33,
+          "efficiency": 0.4349,
+          "damage_dealt_per_battle": 79.157,
+          "damage_taken_per_battle": 66.501
+        }
+      }
+    },
+    "roster_matrix": {
+      "battles": 1680,
+      "mirrors": 160,
+      "duplicate_mirrors": 0,
+      "tick_capped": 8,
+      "elapsed_ms": null,
+      "groups": {
+        "dwarf_holds/axedwarf": {
+          "n": 152,
+          "won": 28,
+          "draw": 0,
+          "kills": 338,
+          "damage_dealt": 5933.291070020978,
+          "damage_taken": 7409.232405422385,
+          "value_killed": 1622795,
+          "cost_spent": 5174962,
+          "win_pct": 18.42,
+          "score_pct": 18.42,
+          "efficiency": 0.3136,
+          "damage_dealt_per_battle": 39.035,
+          "damage_taken_per_battle": 48.745
+        },
+        "dwarf_holds/hammerdwarf": {
+          "n": 152,
+          "won": 34,
+          "draw": 0,
+          "kills": 196,
+          "damage_dealt": 5080.350987574379,
+          "damage_taken": 7283.6518666563725,
+          "value_killed": 906749,
+          "cost_spent": 4941650,
+          "win_pct": 22.37,
+          "score_pct": 22.37,
+          "efficiency": 0.1835,
+          "damage_dealt_per_battle": 33.423,
+          "damage_taken_per_battle": 47.919
+        },
+        "eastern_khanate/steppe archer": {
+          "n": 152,
+          "won": 34,
+          "draw": 5,
+          "kills": 289,
+          "damage_dealt": 5538.534810629612,
+          "damage_taken": 11011.185231621497,
+          "value_killed": 1185896,
+          "cost_spent": 4818004,
+          "win_pct": 22.37,
+          "score_pct": 24.01,
+          "efficiency": 0.2461,
+          "damage_dealt_per_battle": 36.438,
+          "damage_taken_per_battle": 72.442
+        },
+        "eastern_khanate/keshig": {
+          "n": 152,
+          "won": 44,
+          "draw": 1,
+          "kills": 356,
+          "damage_dealt": 6778.415022832319,
+          "damage_taken": 8042.202675812213,
+          "value_killed": 1476344,
+          "cost_spent": 4767376,
+          "win_pct": 28.95,
+          "score_pct": 29.28,
+          "efficiency": 0.3097,
+          "damage_dealt_per_battle": 44.595,
+          "damage_taken_per_battle": 52.909
+        },
+        "goblin_warren/goblin spear": {
+          "n": 152,
+          "won": 120,
+          "draw": 0,
+          "kills": 504,
+          "damage_dealt": 10422.63287358685,
+          "damage_taken": 8200.86580994623,
+          "value_killed": 2176458,
+          "cost_spent": 4328040,
+          "win_pct": 78.95,
+          "score_pct": 78.95,
+          "efficiency": 0.5029,
+          "damage_dealt_per_battle": 68.57,
+          "damage_taken_per_battle": 53.953
+        },
+        "middle_kingdom/spearman": {
+          "n": 152,
+          "won": 98,
+          "draw": 0,
+          "kills": 507,
+          "damage_dealt": 9530.235485584166,
+          "damage_taken": 5997.101260638704,
+          "value_killed": 2266755,
+          "cost_spent": 4818726,
+          "win_pct": 64.47,
+          "score_pct": 64.47,
+          "efficiency": 0.4704,
+          "damage_dealt_per_battle": 62.699,
+          "damage_taken_per_battle": 39.455
+        },
+        "middle_kingdom/March bowman": {
+          "n": 152,
+          "won": 51,
+          "draw": 4,
+          "kills": 450,
+          "damage_dealt": 7207.235041167248,
+          "damage_taken": 12129.17007724992,
+          "value_killed": 1930361,
+          "cost_spent": 4789772,
+          "win_pct": 33.55,
+          "score_pct": 34.87,
+          "efficiency": 0.403,
+          "damage_dealt_per_battle": 47.416,
+          "damage_taken_per_battle": 79.797
+        },
+        "moon_court/moon blade": {
+          "n": 152,
+          "won": 96,
+          "draw": 0,
+          "kills": 566,
+          "damage_dealt": 12446.733269290558,
+          "damage_taken": 6476.367913605375,
+          "value_killed": 2441287,
+          "cost_spent": 4924890,
+          "win_pct": 63.16,
+          "score_pct": 63.16,
+          "efficiency": 0.4957,
+          "damage_dealt_per_battle": 81.886,
+          "damage_taken_per_battle": 42.608
+        },
+        "northern_clans/clansman": {
+          "n": 152,
+          "won": 110,
+          "draw": 0,
+          "kills": 596,
+          "damage_dealt": 10295.307588312207,
+          "damage_taken": 7916.369263625234,
+          "value_killed": 2599912,
+          "cost_spent": 4780164,
+          "win_pct": 72.37,
+          "score_pct": 72.37,
+          "efficiency": 0.5439,
+          "damage_dealt_per_battle": 67.732,
+          "damage_taken_per_battle": 52.081
+        },
+        "northern_clans/fell hunter": {
+          "n": 152,
+          "won": 93,
+          "draw": 1,
+          "kills": 610,
+          "damage_dealt": 10809.367746276683,
+          "damage_taken": 13547.8557592565,
+          "value_killed": 2676730,
+          "cost_spent": 4838064,
+          "win_pct": 61.18,
+          "score_pct": 61.51,
+          "efficiency": 0.5533,
+          "damage_dealt_per_battle": 71.114,
+          "damage_taken_per_battle": 89.131
+        },
+        "orc_horde/orc brute": {
+          "n": 152,
+          "won": 88,
+          "draw": 0,
+          "kills": 472,
+          "damage_dealt": 6929.418963076149,
+          "damage_taken": 7469.59284046212,
+          "value_killed": 2266353,
+          "cost_spent": 4925108,
+          "win_pct": 57.89,
+          "score_pct": 57.89,
+          "efficiency": 0.4602,
+          "damage_dealt_per_battle": 45.588,
+          "damage_taken_per_battle": 49.142
+        },
+        "dwarf_holds/hold guard": {
+          "n": 152,
+          "won": 31,
+          "draw": 0,
+          "kills": 269,
+          "damage_dealt": 4932.99267651295,
+          "damage_taken": 5941.568697449552,
+          "value_killed": 1195316,
+          "cost_spent": 4837504,
+          "win_pct": 20.39,
+          "score_pct": 20.39,
+          "efficiency": 0.2471,
+          "damage_dealt_per_battle": 32.454,
+          "damage_taken_per_battle": 39.089
+        },
+        "eastern_khanate/lancer": {
+          "n": 152,
+          "won": 112,
+          "draw": 1,
+          "kills": 540,
+          "damage_dealt": 11102.670776457442,
+          "damage_taken": 7763.766373220658,
+          "value_killed": 2373834,
+          "cost_spent": 4838360,
+          "win_pct": 73.68,
+          "score_pct": 74.01,
+          "efficiency": 0.4906,
+          "damage_dealt_per_battle": 73.044,
+          "damage_taken_per_battle": 51.077
+        },
+        "goblin_warren/goblin skulker": {
+          "n": 152,
+          "won": 108,
+          "draw": 0,
+          "kills": 236,
+          "damage_dealt": 11197.774444228435,
+          "damage_taken": 9647.370723113345,
+          "value_killed": 1023809,
+          "cost_spent": 3479568,
+          "win_pct": 71.05,
+          "score_pct": 71.05,
+          "efficiency": 0.2942,
+          "damage_dealt_per_battle": 73.67,
+          "damage_taken_per_battle": 63.47
+        },
+        "goblin_warren/goblin archer": {
+          "n": 152,
+          "won": 84,
+          "draw": 0,
+          "kills": 220,
+          "damage_dealt": 10221.151862328305,
+          "damage_taken": 12658.901677637805,
+          "value_killed": 937611,
+          "cost_spent": 3842186,
+          "win_pct": 55.26,
+          "score_pct": 55.26,
+          "efficiency": 0.244,
+          "damage_dealt_per_battle": 67.244,
+          "damage_taken_per_battle": 83.282
+        },
+        "middle_kingdom/man-at-arms": {
+          "n": 152,
+          "won": 50,
+          "draw": 0,
+          "kills": 323,
+          "damage_dealt": 6237.57130227013,
+          "damage_taken": 7015.085536668565,
+          "value_killed": 1499002,
+          "cost_spent": 5057544,
+          "win_pct": 32.89,
+          "score_pct": 32.89,
+          "efficiency": 0.2964,
+          "damage_dealt_per_battle": 41.037,
+          "damage_taken_per_battle": 46.152
+        },
+        "moon_court/glaive dancer": {
+          "n": 152,
+          "won": 97,
+          "draw": 0,
+          "kills": 541,
+          "damage_dealt": 12242.141785718668,
+          "damage_taken": 7725.182809853278,
+          "value_killed": 2341558,
+          "cost_spent": 4913372,
+          "win_pct": 63.82,
+          "score_pct": 63.82,
+          "efficiency": 0.4766,
+          "damage_dealt_per_battle": 80.54,
+          "damage_taken_per_battle": 50.824
+        },
+        "moon_court/moon archer": {
+          "n": 152,
+          "won": 46,
+          "draw": 0,
+          "kills": 418,
+          "damage_dealt": 7926.840563105281,
+          "damage_taken": 8562.26966068082,
+          "value_killed": 1793349,
+          "cost_spent": 4940656,
+          "win_pct": 30.26,
+          "score_pct": 30.26,
+          "efficiency": 0.363,
+          "damage_dealt_per_battle": 52.15,
+          "damage_taken_per_battle": 56.331
+        },
+        "northern_clans/huscarl": {
+          "n": 152,
+          "won": 83,
+          "draw": 0,
+          "kills": 611,
+          "damage_dealt": 8841.498825629147,
+          "damage_taken": 9433.29747711852,
+          "value_killed": 2776260,
+          "cost_spent": 4816668,
+          "win_pct": 54.61,
+          "score_pct": 54.61,
+          "efficiency": 0.5764,
+          "damage_dealt_per_battle": 58.168,
+          "damage_taken_per_battle": 62.061
+        },
+        "orc_horde/orc warrior": {
+          "n": 152,
+          "won": 107,
+          "draw": 0,
+          "kills": 600,
+          "damage_dealt": 10353.376602090477,
+          "damage_taken": 9796.503636652866,
+          "value_killed": 2644267,
+          "cost_spent": 4911810,
+          "win_pct": 70.39,
+          "score_pct": 70.39,
+          "efficiency": 0.5383,
+          "damage_dealt_per_battle": 68.114,
+          "damage_taken_per_battle": 64.451
+        }
+      }
+    },
+    "unit": {
+      "battles": 240,
+      "mirrors": 120,
+      "duplicate_mirrors": 0,
+      "tick_capped": 1,
+      "elapsed_ms": null,
+      "groups": {
+        "sword": {
+          "n": 80,
+          "won": 12,
+          "draw": 0,
+          "kills": 150,
+          "damage_dealt": 3171.6966780469256,
+          "damage_taken": 5298.442628054755,
+          "value_killed": 461380,
+          "cost_spent": 2458280,
+          "win_pct": 15,
+          "score_pct": 15,
+          "efficiency": 0.1877,
+          "damage_dealt_per_battle": 39.646,
+          "damage_taken_per_battle": 66.231
+        },
+        "spear": {
+          "n": 80,
+          "won": 51,
+          "draw": 0,
+          "kills": 300,
+          "damage_dealt": 5059.083471622777,
+          "damage_taken": 3232.0935028607705,
+          "value_killed": 1163658,
+          "cost_spent": 2457400,
+          "win_pct": 63.75,
+          "score_pct": 63.75,
+          "efficiency": 0.4735,
+          "damage_dealt_per_battle": 63.239,
+          "damage_taken_per_battle": 40.401
+        },
+        "archer": {
+          "n": 80,
+          "won": 57,
+          "draw": 0,
+          "kills": 195,
+          "damage_dealt": 5285.224361974978,
+          "damage_taken": 4985.468380729152,
+          "value_killed": 1089283,
+          "cost_spent": 2200000,
+          "win_pct": 71.25,
+          "score_pct": 71.25,
+          "efficiency": 0.4951,
+          "damage_dealt_per_battle": 66.065,
+          "damage_taken_per_battle": 62.318
+        }
+      }
+    }
+  },
+  "incomplete": [],
+  "failed_attempts": []
+}
