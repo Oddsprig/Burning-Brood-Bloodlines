@@ -342,12 +342,22 @@ func _marry(sample: Dictionary) -> void:
 		woman[Persons.SPOUSE_UID] = ""
 	if String(woman[7]) == "":
 		woman[7] = "Krusha " + String(bride_f["name"])
-	var used := {}
-	for q in groom_f.get("pp", []):
-		if int(q[0]) != int(woman[0]) and int(q[2]) == 1:
-			used[int(q[1])] = true
-	if used.has(int(woman[1])):
-		woman[1] = 9001
+	# marriages() refuses a bride whose given-name index is already held by any
+	# woman or girl of the groom's surname (adults in pp and children in kp).
+	# Troll lists are short, so an adult-only check still blocks the wedding.
+	var blocked := {}
+	var sur := String(groom_f.get("name", ""))
+	for gf in e.get("fams", []):
+		if String(gf.get("name", "")) != sur:
+			continue
+		for key in ["pp", "kp"]:
+			for q in gf.get(key, []):
+				if int(q[2]) == 1:
+					blocked[int(q[1])] = true
+	var fi := 9001
+	while blocked.has(fi):
+		fi += 1
+	woman[1] = fi
 	for f in houses:
 		for p in f.get("pp", []):
 			if int(p[0]) == int(man[0]) or int(p[0]) == int(woman[0]):
