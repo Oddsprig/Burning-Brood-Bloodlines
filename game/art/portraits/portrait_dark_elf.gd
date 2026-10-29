@@ -148,7 +148,7 @@ func _dark_setup() -> void:
 	rx += float(int(seed / 7.0) % 3 - 1) * 0.25
 	cy = 40.0
 	ry = 23.0
-	chin_y = 64.0 if sex_f else 65.0
+	chin_y = (65.0 if stage == "elder" else 64.0) if sex_f else 65.0
 	eye_y = 39.0 if stage == "young" else 40.0
 	mouth_y = (54.0 if sex_f else 55.0) + (1.0 if stage == "elder" else 0.0)
 	nose_y = mouth_y - 5.0
@@ -204,11 +204,11 @@ func _dark_poly(coords: Array, ramp: Array[Color], bias: float = 0.0) -> void:
 				_px(x, y, _dark_tone(ramp, light))
 
 func _dark_half(y: float) -> float:
-	var cheek := 0.92 if stage == "young" else (0.81 if stage == "elder" else 0.89)
-	var jaw_width := 0.64 if sex_f else (0.79 if stage == "adult" else 0.73)
+	var cheek := (0.88 if sex_f else 0.86) if stage == "young" else (0.75 if stage == "elder" else 0.84)
+	var jaw_width := (0.70 if stage == "elder" else 0.64) if sex_f else (0.85 if stage == "adult" else 0.75)
 	var profile := [Vector2(17, 0.31), Vector2(24, 0.78), Vector2(34, 0.97),
 		Vector2(43, 1.0), Vector2(48, 0.94), Vector2(53, cheek),
-		Vector2(58, jaw_width), Vector2(chin_y - 2, 0.34 if sex_f else 0.45), Vector2(chin_y + 1, 0.13)]
+		Vector2(58, jaw_width), Vector2(chin_y - 2, (0.38 if stage == "elder" else 0.34) if sex_f else 0.45), Vector2(chin_y + 1, 0.13)]
 	for i in range(1, profile.size()):
 		var a: Vector2 = profile[i - 1]
 		var b: Vector2 = profile[i]
@@ -217,6 +217,10 @@ func _dark_half(y: float) -> float:
 	return 0.0
 
 func _dark_face() -> void:
+	var near_bone := PackedVector2Array([Vector2(cx-15, 45), Vector2(cx-10, 44),
+		Vector2(cx-4, 47), Vector2(cx-10, 49), Vector2(cx-14, 48)])
+	var far_bone := PackedVector2Array([Vector2(cx+5, 48), Vector2(cx+11, 45),
+		Vector2(cx+15, 47), Vector2(cx+12, 50), Vector2(cx+8, 50)])
 	for y in range(17, int(chin_y) + 1):
 		if _lost("jaw") and y > int(mouth_y) + 1:
 			continue
@@ -230,21 +234,47 @@ func _dark_face() -> void:
 				continue
 			var light := 0.64 - u * 0.16 + sqrt(maxf(0.0, 1.0 - u * u)) * 0.075
 			light += _dark_soft(fx, fy, cx - 5, 28, 11, 10) * 0.09
-			light += _dark_soft(fx, fy, cx - 10, 46, 7, 4) * 0.12
-			light += _dark_soft(fx, fy, cx + 10, 47, 5, 3) * 0.08
+			# The cheekbone slopes into the nose; its underside turns into a broad hollow.
+			var cheek_y := 47.0 if sex_f and stage == "young" else 46.0
+			var ridge_y := fy + (absf(fx - cx) - 10.0) * 0.35
+			var cheek_width := 6.0 if sex_f else 7.0
+			light += _dark_soft(fx, ridge_y, cx - 10, cheek_y, cheek_width, 2.8) * ((0.16 if stage == "elder" else 0.20) if sex_f else 0.17)
+			light += _dark_soft(fx, ridge_y, cx + 10, cheek_y + 1, 5.5, 2.7) * (0.17 if sex_f else 0.12)
+			if not sex_f:
+				# Broad polygonal planes keep the male malar ridge from reading as a soft oval.
+				if Geometry2D.is_point_in_polygon(Vector2(fx, fy), near_bone):
+					light += 0.11
+				if Geometry2D.is_point_in_polygon(Vector2(fx, fy), far_bone):
+					light += 0.08
 			light -= _dark_soft(fx, fy, cx - 7, eye_y, 6, 3) * 0.13
 			light -= _dark_soft(fx, fy, cx + 7, eye_y + 1, 5, 3) * 0.14
 			light -= _dark_soft(fx, fy, cx + 4, 48, 3, 6) * 0.12
-			var hollow := 0.23 if stage == "elder" else (0.07 if stage == "young" else 0.15)
-			light -= _dark_soft(fx, fy, cx - 11, 53, 5, 5) * hollow
-			light -= _dark_soft(fx, fy, cx + 11, 53, 5, 5) * (hollow + 0.03)
-			light += _dark_soft(fx, fy, cx - 9, 59, 5, 3) * 0.075
+			var hollow := (0.22 if sex_f else 0.29) if stage == "elder" else (0.14 if sex_f and stage == "young" else 0.21)
+			light -= _dark_soft(fx, ridge_y, cx - 11, 52, 6.5, 6.5 if sex_f and stage == "elder" else 5.5) * hollow
+			light -= _dark_soft(fx, ridge_y, cx + 11, 53, 6.5, 6) * (hollow + 0.02)
+			light += _dark_soft(fx, fy, cx - 9, 58, 5, 2.5) * (0.10 if sex_f else 0.16)
+			light -= _dark_soft(fx, fy, cx + 10, 59, 4, 3) * 0.10
 			light -= _dark_soft(fx, fy, cx + 1, mouth_y + 3, 6, 2) * 0.10
-			light += _dark_soft(fx, fy, cx, chin_y - 2, 6, 2.8) * 0.12
+			light += _dark_soft(fx, fy, cx, chin_y - 3, 6, 2.3) * 0.16
+			light -= smoothstep(chin_y - 3.5, chin_y + 0.5, fy) * 0.27
 			light -= maxf(0.0, absf(u) - 0.80) * 0.48
+			if stage == "adult" and not sex_f:
+				# A projecting brow, nasal sidewall and angular mandibular plane.
+				light += _dark_soft(fx, fy, cx - 7, eye_y - 5, 6, 2.2) * 0.16
+				light += _dark_soft(fx, fy, cx + 7, eye_y - 4, 5, 2) * 0.10
+				light -= _dark_soft(fx, fy, cx - 7, eye_y - 2, 6, 2) * 0.12
+				light -= _dark_soft(fx, fy, cx + 4, nose_y - 3, 2.5, 5) * 0.16
+				light += _dark_soft(fx, fy, cx - 10, 58, 5, 2) * 0.10
 			if stage == "elder":
-				light -= _dark_soft(fx, fy, cx - 7, eye_y + 4, 5, 2) * 0.08
-				light -= _dark_soft(fx, fy, cx + 7, eye_y + 5, 4, 2) * 0.07
+				light -= _dark_soft(fx, fy, cx - 7, eye_y + 3, 5.5, 3.5) * 0.16
+				light -= _dark_soft(fx, fy, cx + 7, eye_y + 4, 5, 3.5) * 0.16
+				light += _dark_soft(fx, fy, cx - 7, eye_y + 6, 4, 1.7) * 0.10
+				light -= _dark_soft(fx, fy, cx - 5, mouth_y - 1, 2.5, 4.5) * 0.12
+				light -= _dark_soft(fx, fy, cx + 6, mouth_y, 3, 5) * 0.14
+				if sex_f:
+					# Soft jowls below the sunken cheek, with a longer, less taut chin.
+					light += _dark_soft(fx, fy, cx - 8, 59, 4, 3) * 0.08
+					light -= _dark_soft(fx, fy, cx + 6, 61, 4, 3) * 0.12
 			var col := _dark_tone(skin_ramp, light)
 			if not dead:
 				var warmth := _dark_soft(fx, fy, cx - 9, 47, 6, 5)
@@ -316,13 +346,23 @@ func _dark_ear(side: int) -> void:
 func _dark_age() -> void:
 	if stage != "elder":
 		return
-	# One shallow, broken fold; the cheek hollows and lid volumes carry the age.
+	# Broken folds follow the socket and mouth volumes, never parallel forehead bars.
 	var crease := skin_ramp[2].lerp(skin_ramp[3], 0.12)
 	_dark_line(Vector2(cx-6, 30), Vector2(cx-2, 29), crease)
 	_dark_line(Vector2(cx-2, 29), Vector2(cx+2, 30), crease)
 	_dark_line(Vector2(cx+4, 33), Vector2(cx+6, 33), skin_ramp[2])
-	_dark_line(Vector2(cx-12, eye_y+3), Vector2(cx-13, eye_y+4), skin_ramp[2].lerp(skin_ramp[1], 0.25))
-	_dark_line(Vector2(cx+7, mouth_y-5), Vector2(cx+8, mouth_y-2), skin_ramp[1].lerp(skin_ramp[2], 0.5))
+	var fold := skin_ramp[1].lerp(skin_ramp[2], 0.58)
+	for center in [eye_near, eye_far]:
+		_dark_line(center + Vector2(-3, 3), center + Vector2(-1, 4), fold)
+		_dark_line(center + Vector2(-1, 4), center + Vector2(2, 4), fold)
+		_dark_line(center + Vector2(-1, 5), center + Vector2(1, 5), skin_ramp[2].lerp(skin_ramp[3], 0.30))
+	_dark_line(Vector2(cx-12, eye_y+2), Vector2(cx-14, eye_y+4), fold)
+	_dark_line(Vector2(cx+12, eye_y+3), Vector2(cx+14, eye_y+4), fold)
+	if sex_f:
+		_dark_line(Vector2(cx-4, nose_y+2), Vector2(cx-6, mouth_y-1), fold)
+		_dark_line(Vector2(cx-6, mouth_y-1), Vector2(cx-5, mouth_y+2), fold)
+		_dark_line(Vector2(cx+5, nose_y+3), Vector2(cx+7, mouth_y), fold)
+		_dark_line(Vector2(cx+7, mouth_y), Vector2(cx+6, mouth_y+3), fold)
 
 func _dark_eye(near: bool) -> void:
 	var center := eye_near if near else eye_far
@@ -330,12 +370,17 @@ func _dark_eye(near: bool) -> void:
 	var y := int(center.y)
 	var outer := -1 if near else 1
 	var adult := stage == "adult"
+	var worried := adult and not sex_f
+	var elder := stage == "elder"
+	var young_f := sex_f and stage == "young"
 	var brow := hair_ramp[1].lerp(skin_ramp[2], 0.28)
 	if stage == "elder":
 		brow = hair_ramp[2].lerp(skin_ramp[2], 0.27)
 	for dx in range(-4, 5):
 		var by := y - 5 - (1 if absi(dx) < 3 else 0)
-		if adult:
+		if worried:
+			by += -1 if dx * outer < 0 else 1
+		elif adult:
 			by += 1 if dx * outer < 0 else -1
 		elif stage == "young" and (not near if sex_f else near):
 			by -= 1
@@ -358,9 +403,18 @@ func _dark_eye(near: bool) -> void:
 	for dx in range(-4, 5):
 		var corner := absi(dx) >= 3
 		var upper := 0 if corner else -1
-		if adult and dx * outer < -1:
+		if worried:
+			upper = -1 if dx * outer < -1 else (1 if dx * outer >= 3 else 0)
+		elif adult and dx * outer < -1:
 			upper += 1
-		var bottom := 1 if corner or adult else 2
+		elif elder:
+			upper = 1 if corner else 0
+		elif young_f:
+			upper = -1 if absi(dx) < 2 else 0
+			upper -= 1 if dx * outer >= 3 else 0
+		var bottom := 1 if corner or adult or elder or young_f else 2
+		if worried and dx * outer > 0:
+			bottom = maxi(upper, 0 if dx * outer < 3 else 1)
 		if absi(dx) == 4:
 			_px(x+dx, y+upper, lid.lerp(skin_ramp[2], 0.18))
 			continue
@@ -372,8 +426,16 @@ func _dark_eye(near: bool) -> void:
 					col = PUPIL
 			_px(x+dx, y+dy, col)
 		_px(x+dx, y+upper-1, lid)
-	_px(x+gaze, y-1 if not adult else y, SCLERA)
-	_dark_line(Vector2(x-2, y+3), Vector2(x+1, y+3), skin_ramp[2].lerp(skin_ramp[3], 0.25))
+		if elder:
+			_px(x+dx, y+upper-2, skin_ramp[2].lerp(skin_ramp[3], 0.20 if near else 0.0))
+			_px(x+dx, y+upper-1, lid.lerp(skin_ramp[2], 0.32))
+		elif worried and absi(dx) < 3:
+			_px(x+dx, y+upper-2, skin_ramp[2].lerp(skin_ramp[3], 0.35))
+	_px(x+gaze, y if adult or elder else y-1, SCLERA)
+	if worried:
+		_dark_line(Vector2(x-2, y+2), Vector2(x+1, y+2), skin_ramp[1].lerp(skin_ramp[2], 0.55))
+	elif not elder:
+		_dark_line(Vector2(x-2, y+3), Vector2(x+1, y+3), skin_ramp[2].lerp(skin_ramp[3], 0.25))
 	if sex_f:
 		_px(x+outer*4, y-1, lid)
 
@@ -381,6 +443,7 @@ func _dark_nose() -> void:
 	if _lost("nose"):
 		return
 	var nx := cx + 1.0
+	var mature_m := not sex_f and stage != "young"
 	for y in range(int(eye_y)-1, int(nose_y)+1):
 		var t := clampf((float(y)-eye_y+1) / (nose_y-eye_y+1), 0.0, 1.0)
 		var center := nx - 0.7 + t * 0.7
@@ -388,13 +451,18 @@ func _dark_nose() -> void:
 			var u := (float(x)+0.5-center) / (2.5 if sex_f else 2.8)
 			if absf(u) >= 1.0:
 				continue
-			var light := 0.77 - u*0.17 - t*0.035
+			var light := 0.77 - u*(0.27 if mature_m else 0.17) - t*0.035
+			if mature_m:
+				light += _dark_soft(u, t, -0.35, 0.65, 0.5, 0.7) * 0.09
 			var blend := minf(0.92, (1.0-absf(u))*2.0) * minf(1.0, t*3.0)
 			_px(x, y, cv.get_px(x, y).lerp(_dark_tone(skin_ramp, light), blend))
 	_dark_line(Vector2(nx-1, nose_y), Vector2(nx+1, nose_y), skin_ramp[3].lerp(skin_ramp[4], 0.35))
 	_px(int(nx)-2, int(nose_y)+1, skin_ramp[1].lerp(skin_ramp[2], 0.30))
 	_px(int(nx)+2, int(nose_y)+1, skin_ramp[1])
 	_px(int(nx), int(nose_y)+2, skin_ramp[2])
+	if mature_m:
+		_dark_line(Vector2(nx+2, nose_y-3), Vector2(nx+3, nose_y), skin_ramp[1].lerp(skin_ramp[2], 0.35))
+		_px(int(nx)+1, int(nose_y)+2, skin_ramp[1])
 
 func _dark_mouth() -> void:
 	if _lost("mouth") or _lost("jaw"):
@@ -403,21 +471,31 @@ func _dark_mouth() -> void:
 	var y := int(mouth_y)
 	var lip := skin.lerp(Color("#9a657f"), 0.35 if sex_f else 0.20)
 	var seam := skin_ramp[0].lerp(lip, 0.22)
-	var span := 4 if stage == "elder" else 5
+	var span := 4 if stage == "elder" or sex_f and stage == "young" else 5
 	for dx in range(-span, span+1):
 		var bend := 0
-		if stage == "young" and dx > 2:
+		if stage == "young" and sex_f:
+			bend = -1 if dx < -1 else (1 if dx > 2 else 0)
+		elif stage == "young" and dx > 2:
 			bend = -1
 		elif stage == "adult" and absi(dx) > 3:
 			bend = 1
-		elif stage == "elder" and not sex_f and dx < -2:
+		elif stage == "elder" and absi(dx) > 2:
 			bend = 1
 		if absi(dx) < span-1:
-			_px(x+dx, y-1, lip.darkened(0.10))
+			_px(x+dx, y+bend-1, lip.darkened(0.18 if stage == "elder" else 0.10))
 		_px(x+dx, y+bend, seam.lerp(skin, 0.26 if absi(dx) == span else 0.0))
 		if absi(dx) < span-1:
-			_px(x+dx, y+1, lip.lerp(skin_ramp[3], 0.24))
-	_dark_line(Vector2(x-2, y+2), Vector2(x+1, y+2), lip.lerp(skin_ramp[4], 0.24))
+			_px(x+dx, y+bend+1, lip.lerp(skin_ramp[3], 0.18 if stage == "elder" else 0.24))
+	_dark_line(Vector2(x-2, y+2), Vector2(x, y+2), lip.lerp(skin_ramp[4], 0.18 if stage == "elder" else 0.24))
+	if stage == "adult" and not sex_f:
+		# Compressed lower lip and dropped corners carry the worry below the eyes.
+		_dark_line(Vector2(x-5, y+1), Vector2(x-5, y+2), seam.lerp(skin, 0.35))
+		_dark_line(Vector2(x+5, y+1), Vector2(x+6, y+2), seam.lerp(skin, 0.35))
+		_dark_line(Vector2(x-2, y+3), Vector2(x+2, y+3), skin_ramp[1].lerp(skin_ramp[2], 0.60))
+	elif stage == "elder" and sex_f:
+		_dark_line(Vector2(x-5, y+1), Vector2(x-5, y+3), seam.lerp(skin, 0.55))
+		_dark_line(Vector2(x+5, y+1), Vector2(x+5, y+4), seam.lerp(skin, 0.55))
 
 func _dark_lock(a: Vector2, b: Vector2, c: Vector2, r0: float, r1: float,
 		ramp: Array[Color], bias: float = 0.0) -> void:
@@ -532,7 +610,24 @@ func _dark_beard_volume() -> void:
 	var x := cx+1.0
 	var y := mouth_y
 	var tip := chin_y + (7.0 if stage == "elder" else 5.0)
-	if stage == "elder" or beard_i not in [1, 6, 7]:
+	if stage == "elder":
+		# A recessed root sits behind overlapping, uneven locks in the pale V.
+		var beard_shadow: Array[Color] = []
+		for col in beard_ramp:
+			beard_shadow.append(col.darkened(0.23))
+		_dark_poly([x-12, y-1, x-8, y+4, x-3, y+5, x+4, y+4, x+11, y-1,
+			x+12, y+6, x+7, chin_y+4, x, tip+1, x-8, chin_y+3, x-13, y+5], beard_ramp, -0.30)
+		_dark_lock(Vector2(x+10, y+1), Vector2(x+12, chin_y), Vector2(x+5, tip-2), 3.5, 0.3, beard_ramp, -0.23)
+		_dark_lock(Vector2(x-10, y+1), Vector2(x-12, chin_y), Vector2(x-4, tip-2), 3.8, 0.3, beard_ramp, -0.08)
+		_dark_poly([x-8, y+2, x-3, y+4, x+3, y+3, x+8, y+2,
+			x+6, y+8, x+1, chin_y+3, x-5, y+8], beard_ramp, -0.39)
+		_dark_lock(Vector2(x-6, y+5), Vector2(x-7, chin_y+2), Vector2(x-1, tip-2), 3.4, 0.3, beard_shadow, -0.06)
+		_dark_lock(Vector2(x+2, y+8), Vector2(x+8, chin_y+4), Vector2(x+1, tip+1), 3.5, 0.3, beard_shadow, -0.13)
+		_dark_lock(Vector2(x+7, y+6), Vector2(x+9, chin_y+2), Vector2(x+3, tip-2), 2.4, 0.2, beard_ramp, -0.12)
+		_dark_lock(Vector2(x-8, y+5), Vector2(x-8, chin_y+1), Vector2(x-3, tip-4), 2.4, 0.2, beard_ramp, 0.035)
+		_dark_lock(Vector2(x, y+9), Vector2(x+5, chin_y+5), Vector2(x, tip+2), 2.5, 0.2, beard_ramp, -0.12)
+		_dark_lock(Vector2(x-3, y+9), Vector2(x-4, chin_y+4), Vector2(x-1, tip-1), 2.1, 0.15, beard_ramp, 0.09)
+	elif beard_i not in [1, 6, 7]:
 		_dark_poly([x-12, y-1, x-8, y+4, x-3, y+5, x+4, y+4, x+11, y-1,
 			x+12, y+6, x+7, chin_y+4, x, tip, x-8, chin_y+3, x-13, y+5], beard_ramp, -0.19)
 		_dark_lock(Vector2(x+10, y+1), Vector2(x+12, chin_y), Vector2(x+4, tip-2), 3.5, 0.3, beard_ramp, -0.17)
@@ -547,8 +642,8 @@ func _dark_beard_volume() -> void:
 			for xx in range(int(x-half), int(x+half)+1):
 				var strength := smoothstep(y+2, chin_y, float(yy))*0.33
 				_px(xx, yy, cv.get_px(xx, yy).lerp(beard_ramp[1], strength))
-	_dark_lock(Vector2(x-1, y-2), Vector2(x-5, y-3), Vector2(x-7, y+1), 1.7, 0.2, beard_ramp, 0.02)
-	_dark_lock(Vector2(x+1, y-2), Vector2(x+5, y-2), Vector2(x+7, y+1), 1.6, 0.2, beard_ramp, -0.12)
+	_dark_lock(Vector2(x-1, y-2), Vector2(x-5, y-3), Vector2(x-7, y+1), 1.9 if stage == "elder" else 1.7, 0.2, beard_ramp, 0.06)
+	_dark_lock(Vector2(x+1, y-2), Vector2(x+5, y-2), Vector2(x+7, y+1), 1.7 if stage == "elder" else 1.6, 0.2, beard_ramp, -0.12)
 
 func _read() -> void:
 	race = RACE
