@@ -15,7 +15,11 @@ func run(_tree: SceneTree) -> int:
 	print("Dragon source model forms: " + ",".join(form_ids))
 	var sources: Dictionary = {}
 	for form: Dictionary in selected:
-		var row: Dictionary = {"stage": "adult", "alive": true, "gem_id": "sapphire", "morph_id": form["id"], "size_class": "medium", "appearance_seed": 27}
+		var code_row: Dictionary = {"stage": "adult", "alive": true, "gem_id": "sapphire", "morph_id": form["id"], "size_class": "medium", "appearance_seed": 27}
+		var code_img: Image = DragonArt.source_image(code_row)
+		var code_rebuilt: Image = DragonArt.reconstruct_source(code_row)
+		_assert(code_img != null and code_img.get_size() == Vector2i(128, 96) and code_img.get_data() == code_rebuilt.get_data(), "default v0.064 code-drawn source reconstructs cleanly: " + String(form["id"]))
+		var row: Dictionary = {"stage": "adult", "alive": true, "gem_id": "sapphire", "morph_id": form["id"], "size_class": "medium", "appearance_seed": 27, "sprite_id": "classic"}
 		var copied: Dictionary = row.duplicate(true)
 		var original: Image = DragonArt.source_image(row)
 		var reconstructed: Image = DragonArt.reconstruct_source(row)

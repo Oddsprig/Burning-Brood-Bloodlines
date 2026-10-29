@@ -298,13 +298,16 @@ func _sprite_controls(row: Dictionary) -> void:
 	var controls := UiKit.flow()
 	body.add_child(controls)
 	controls.add_child(UiKit.label("Dragon sprite", "Muted"))
-	var choices: Array = [{"id": "", "name": "Classic Spirewing"}] + variants
+	var morph_name := _catalog_name("morphs", String(row.get("morph_id", "spirewing")))
+	var choices: Array = variants + [{"id": "classic", "name": "Classic " + morph_name}]
+	var active_variant := DragonSpriteCatalog.variant_for(row)
+	var active_id: String = "classic" if active_variant.is_empty() else String(active_variant.get("id", ""))
 	var picker := OptionButton.new()
 	picker.name = "DragonSpriteSelection"
 	picker.custom_minimum_size = Vector2(210, UiKit.TAP)
 	for choice: Dictionary in choices:
 		picker.add_item(String(choice["name"]))
-		if choice["id"] == row.get("sprite_id", ""): picker.select(picker.item_count - 1)
+		if choice["id"] == active_id: picker.select(picker.item_count - 1)
 	picker.disabled = not bool(Dragons.authority(Game, row).get("ok", false))
 	picker.item_selected.connect(func(index: int): _set_sprite(String(row["id"]), String(choices[index]["id"])))
 	controls.add_child(picker)
@@ -314,7 +317,7 @@ func _set_sprite(uid: String, sprite_id: String) -> void:
 	if live.is_empty() or not bool(Dragons.authority(Game, live).get("ok", false)): return
 	var candidate := live.duplicate(true)
 	candidate["sprite_id"] = sprite_id
-	if sprite_id != "" and DragonSpriteCatalog.variant_for(candidate).is_empty(): return
+	if sprite_id != "" and sprite_id != "classic" and DragonSpriteCatalog.variant_for(candidate).is_empty(): return
 	live["sprite_id"] = sprite_id
 	Game.changed.emit()
 	Game.save_game_async()
@@ -843,12 +846,18 @@ func _catalog() -> void:
 		words.add_child(UiKit.label(String(gem["name"]) + " Dragon\n" + String(gem["name"]) + " Egg", "", true))
 		words.add_child(UiKit.label(String(example["morph_name"]) + " type portrait", "Muted", true))
 	body.add_child(UiKit.label("Dragon appearances", "H2", true))
+	var app_grid := GridContainer.new()
+	app_grid.columns = grid.columns
+	app_grid.size_flags_horizontal = SIZE_EXPAND_FILL
+	app_grid.add_theme_constant_override("h_separation", 8); app_grid.add_theme_constant_override("v_separation", 8)
+	body.add_child(app_grid)
 	for variant: Dictionary in DragonSpriteCatalog.variants():
-		var image := DragonCard.new(); image.custom_minimum_size = Vector2(0, 230)
+		var app_panel := UiKit.panel("Card"); app_panel.size_flags_horizontal = SIZE_EXPAND_FILL; app_grid.add_child(app_panel)
+		var app_words := UiKit.vbox(4); app_panel.add_child(app_words)
+		var image := DragonCard.new(); image.custom_minimum_size = Vector2(0, 170)
 		image.set_record({"stage": "adult", "alive": true, "gem_id": variant["gem_id"], "morph_id": variant["morph_id"], "size_class": "medium", "sprite_id": variant["id"]})
-		image.set_preview("idle", {}, {}, false, true)
-		body.add_child(image)
-		body.add_child(UiKit.label(String(variant["name"]) + " - choose this sprite in a matching dragon holding.", "Muted", true))
+		app_words.add_child(image)
+		app_words.add_child(UiKit.label(String(variant["name"]) + " - 2.5D code art", "Muted", true))
 	body.add_child(UiKit.label("Body forms", "H2", true))
 	for morph: Dictionary in Dragons.catalogs().get("morphs", []):
 		var words := UiKit.vbox(4); body.add_child(words)

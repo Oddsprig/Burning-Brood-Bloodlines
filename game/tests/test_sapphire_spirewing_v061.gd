@@ -16,11 +16,14 @@ func run(tree: SceneTree) -> int:
 	var next_item: int = Item._next_uid
 	var row: Dictionary = {"stage": "adult", "alive": true, "gem_id": "sapphire", "morph_id": "spirewing", "size_class": "medium", "appearance_seed": 27, "sprite_id": "sapphire_spirewing"}
 	var copied := row.duplicate(true)
+	var default_row := row.duplicate(true)
+	default_row.erase("sprite_id")
 	var original := row.duplicate(true)
-	original["sprite_id"] = ""
+	original["sprite_id"] = "classic"
 	check(DragonSpriteCatalog.variants_for(row).size() == 1 and DragonSpriteCatalog.variant_for(row).get("name") == "Sapphire Spirewing", "catalog registers an eligible, selectable variant")
+	check(DragonSpriteCatalog.variant_for(default_row).get("id") == "sapphire_spirewing", "default sprite_id selects the v0.064 code-drawn variant")
 	check(DragonSpriteCatalog.entry("sapphire_spirewing").get("generator") == "sapphire_spirewing", "catalog resolves the code-generated source")
-	check(DragonSpriteCatalog.entries().size() == 6 and DragonSpriteCatalog.variant_for(original).is_empty(), "original six source forms retain their default art")
+	check(DragonSpriteCatalog.entries().size() == 6 and DragonSpriteCatalog.variant_for(original).is_empty(), "classic sprite_id retains the original six source forms")
 	var wrong := row.duplicate(true)
 	wrong["gem_id"] = "ruby"
 	check(DragonSpriteCatalog.variant_for(wrong).is_empty(), "sapphire sprite cannot override a different gem")
@@ -55,7 +58,42 @@ func run(tree: SceneTree) -> int:
 	check(rest.get("frames") == 1 and rest["seat"].is_equal_approx(Vector2.ZERO), "still rest uses the raised-wing source and original seat origin")
 	var meta_rest := SapphireSpirewingArt.metadata(1)
 	var seat_x := float(meta_rest["seat_px"][0])
-	check(seat_x > float(meta_rest["wing_roots_px"]["left"][0]) and seat_x > float(meta_rest["wing_roots_px"]["right"][0]) and seat_x <= float(meta_rest["neck_root_px"][0]), "saddle seat is positioned at the base of the neck in front of the wing roots")
+	var seat_y := float(meta_rest["seat_px"][1])
+	check(seat_x > float(meta_rest["wing_roots_px"]["right"][0]) and float(meta_rest["wing_roots_px"]["right"][0]) > float(meta_rest["wing_roots_px"]["left"][0]) and absf(seat_x - float(meta_rest["neck_root_px"][0])) <= 4.0 and absf(seat_y - float(meta_rest["neck_root_px"][1])) <= 4.0, "saddle seat sits at the base of the neck, clearly forward of the wing roots")
+	var gem_hashes := {}
+	for gem: Dictionary in Dragons.catalogs().get("gems", []):
+		var gid := String(gem.get("id", ""))
+		var mid := String(DragonConcepts.entry(gid).get("morph_id", "spirewing"))
+		var f_img := SapphireSpirewingArt.frame_for(gid, mid, 1)
+		check(f_img != null and f_img.get_size() == Vector2i(128, 96) and f_img.get_used_rect().size.x > 80, "v0.064 code-drawn gem/breed frame builds: " + gid + "/" + mid)
+		if f_img != null: gem_hashes[f_img.get_data().hex_encode().sha256_text()] = true
+	check(gem_hashes.size() == 16, "all 16 dragon gem colours produce distinct 2.5D code-drawn art")
+	var morph_hashes := {}
+	var morph_spec_hashes := {}
+	var morph_opaque_counts := {}
+	for morph: Dictionary in Dragons.catalogs().get("morphs", []):
+		var mid := String(morph.get("id", ""))
+		var bspec := SapphireSpirewingArt.breed_spec(mid)
+		var spec_sig := JSON.stringify([bspec.get("torso_points"), bspec.get("torso_radii"), bspec.get("neck_points"), bspec.get("head_pos"), bspec.get("wing_scale"), bspec.get("tail_points"), bspec.get("seat_px"), bspec.get("wing_roots_px")])
+		morph_spec_hashes[spec_sig] = true
+		var bmeta := SapphireSpirewingArt.metadata_for("emerald", mid, 1)
+		var b_seat_x := float(bmeta["seat_px"][0])
+		var b_seat_y := float(bmeta["seat_px"][1])
+		var b_wing_r_x := float(bmeta["wing_roots_px"]["right"][0])
+		var b_wing_l_x := float(bmeta["wing_roots_px"]["left"][0])
+		var b_neck_x := float(bmeta["neck_root_px"][0])
+		var b_neck_y := float(bmeta["neck_root_px"][1])
+		check(b_seat_x >= b_wing_r_x + 10.0 and b_wing_r_x > b_wing_l_x and absf(b_seat_x - b_neck_x) <= 4.0 and absf(b_seat_y - b_neck_y) <= 4.0, mid + " seat point is at neck base and clearly forward of wing roots")
+		var m_img := SapphireSpirewingArt.frame_for("emerald", mid, 1)
+		if m_img != null:
+			morph_hashes[m_img.get_data().hex_encode().sha256_text()] = true
+			var opaque := 0
+			for py in m_img.get_height():
+				for px in m_img.get_width():
+					if m_img.get_pixel(px, py).a > 0.0:
+						opaque += 1
+			morph_opaque_counts[opaque] = true
+	check(morph_hashes.size() == 6 and morph_spec_hashes.size() == 6 and morph_opaque_counts.size() >= 5, "all 6 dragon breeds have distinct silhouette parameters and distinct 2.5D silhouettes")
 	var seat_ys := {}
 	var seat_angles := {}
 	for i in SapphireSpirewingArt.FRAME_COUNT:
