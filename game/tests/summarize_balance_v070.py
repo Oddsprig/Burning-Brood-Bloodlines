@@ -3,25 +3,64 @@ import argparse
 import json
 from pathlib import Path
 
+FAMILIES = ("race", "unit", "mount", "roster_matrix")
 
-def summarize(directory, phase, allow_partial=False):
-    reports = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(directory.glob("*.json"))]
+
+def _same_param(group, key):
+    present = [report for report in group if key in report]
+    if not present:
+        return True
+    if len(present) != len(group):
+        return False
+    return len({report[key] for report in present}) == 1
+
+
+def _sweep_coverage_gaps(reports):
+    """Declared sweep selected_cases must match rows before the family split."""
+    gaps = []
+    for report in reports:
+        if report.get("suite") != "sweep" or not report.get("complete"):
+            continue
+        rows = report.get("rows", [])
+        selected = report.get("selected_cases")
+        if selected is None or len(rows) != selected * 2 or any(row.get("suite") not in FAMILIES for row in rows):
+            gaps.append("sweep")
+    return gaps
+
+
+def summarize(directory, phase, allow_partial=False, reports=None):
+    if reports is None:
+        reports = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(Path(directory).glob("*.json"))]
     reports = [r for r in reports if r.get("phase") == phase and "suite" in r]
+    sweep_gaps = _sweep_coverage_gaps(reports)
     expanded = []
     for report in reports:
         if report["suite"] != "sweep":
             expanded.append(report)
             continue
-        for family in ["race", "unit", "mount", "roster_matrix"]:
+        for family in FAMILIES:
             part = dict(report)
             part["suite"] = family
             part["rows"] = [row for row in report["rows"] if row["suite"] == family]
-            part["selected_cases"] = len(part["rows"]) // 2
+            # Declared selected_cases and total_cases stay on the sweep shard.
+            # Family row counts are not written back over that declaration.
             part["shared_run"] = True
             expanded.append(part)
     reports = expanded
     if not reports:
         raise ValueError(f"{phase}: no survey results")
+    if not allow_partial:
+        if sweep_gaps:
+            raise ValueError(f"{phase}/sweep: incomplete case coverage")
+        for suite in sorted({r["suite"] for r in reports}):
+            group = [r for r in reports if r["suite"] == suite]
+            for key in ("samples", "total_cases"):
+                if not _same_param(group, key):
+                    raise ValueError(f"{phase}/{suite}: mixed {key}")
+            complete = [r for r in group if r.get("complete")]
+            if complete and all("selected_cases" in r and "total_cases" in r for r in complete):
+                if sum(r["selected_cases"] for r in complete) != complete[0]["total_cases"]:
+                    raise ValueError(f"{phase}/{suite}: incomplete case coverage")
     required = {"race", "unit", "mount", "roster_matrix", "campaign"}
     missing = required - {r["suite"] for r in reports}
     if missing and not allow_partial:
@@ -32,8 +71,13 @@ def summarize(directory, phase, allow_partial=False):
     output = {"phase": phase, "suites": {}, "incomplete": sorted(missing), "failed_attempts": [
         {"suite": r["suite"], "shard": r["shard"], "errors": r.get("errors", [])}
         for r in reports if not r["complete"]]}
+    if sweep_gaps:
+        output["incomplete"].append("sweep")
+        if not allow_partial:
+            raise ValueError(f"{phase}/sweep: incomplete case coverage")
     for suite in sorted({r["suite"] for r in reports}):
-        shards = [r for r in reports if r["suite"] == suite and r["complete"]]
+        group = [r for r in reports if r["suite"] == suite]
+        shards = [r for r in group if r["complete"]]
         if not shards:
             output["incomplete"].append(suite)
             if not allow_partial:
@@ -49,6 +93,23 @@ def summarize(directory, phase, allow_partial=False):
             output["incomplete"].append(suite)
             if not allow_partial:
                 raise ValueError(f"{phase}/{suite}: incomplete survey")
+            continue
+        mixed_key = None
+        for key in ("samples", "total_cases"):
+            if not _same_param(group, key):
+                mixed_key = key
+                break
+        if mixed_key is not None:
+            output["incomplete"].append(suite)
+            if not allow_partial:
+                raise ValueError(f"{phase}/{suite}: mixed {mixed_key}")
+            continue
+        if all("selected_cases" in r and "total_cases" in r for r in shards):
+            if sum(r["selected_cases"] for r in shards) != shards[0]["total_cases"]:
+                output["incomplete"].append(suite)
+                if not allow_partial:
+                    raise ValueError(f"{phase}/{suite}: incomplete case coverage")
+                continue
         signatures = {json.dumps(r["data_sha256"], sort_keys=True) for r in shards}
         if len(signatures) != 1:
             raise ValueError(f"{phase}/{suite}: mixed data fingerprints")
@@ -62,7 +123,7 @@ def summarize(directory, phase, allow_partial=False):
         seen = set()
         duplicate_mirrors = 0
         for report in shards:
-            if report["complete"] and len(report["rows"]) != report["selected_cases"] * 2:
+            if not report.get("shared_run") and report["complete"] and len(report["rows"]) != report["selected_cases"] * 2:
                 raise ValueError("a complete shard omitted battles")
             for row in report["rows"]:
                 identity = (row["a"]["id"], row["b"]["id"], row["seed"], row["swap"])

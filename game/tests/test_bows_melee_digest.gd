@@ -8,13 +8,14 @@ const U = preload("res://tests/sim_util.gd")
 
 ## Recorded before bows (5f8d605); re-recorded at v0.014: the v0.013 anatomy had already changed every digest, and
 ## v0.014 gear damage (bends, chips, dents, snaps change later blows) and the new log wording change them by design.
-## A mismatch means melee results (or the log text) changed.
+## Re-recorded at v0.070 from the live headless run: sword thrust and spear recovery in the weapon tables
+## changed these melee digests on purpose. A mismatch means melee results (or the log text) changed.
 const EXPECT := {
-	"soldiers": "b21ac38f64a829dd097fc63552b1147d",
-	"middle_vs_goblins": "92271bbf0d54afa8cdfe4d847823ec6f",
-	"elves_vs_orcs": "da78cdc64447b3a6ccc6788328655cd1",
-	"corridor_stream": "2c835105d788e9fd343d8b3e9ebcfa3e",
-	"wolves": "34c7893b5eb78b811c5efca0d15be76e",
+	"soldiers": "43b8a3143e684a60899f436dd9c17e17",
+	"middle_vs_goblins": "4c9c7903c5520585f1c70413f5ce4d44",
+	"elves_vs_orcs": "8ad711a865626d0df1f519c3e902f2a7",
+	"corridor_stream": "d5ca0b8be20e29ba561ecef3c2d2c28e",
+	"wolves": "fdc3a834ed869c105c13e89671dba725",
 }
 
 const T_SPEAR := {"name": "spearman", "skills": {"spear": [2, 5], "shield_user": [1, 4], "dodger": [0, 2], "armor_user": [1, 3], "fighter": [1, 3]},
