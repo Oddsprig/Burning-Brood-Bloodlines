@@ -1,0 +1,89 @@
+v0.070 part C: popup close leaves nothing running
+Branch: v0.070c, starting at 64c633d. Scope: popup lifecycle only.
+
+ANIMATED POPUP INVENTORY
+Scanned production game/**/*.gd, *.tscn and *.tres for tweens, animation players,
+timers, deferred continuations, fade/slide and processing-driven transitions.
+There are two animated overlay builders:
+1. game/ui/kit.gd, UiKit.toast: immediate appearance, 2.2-second hold, then
+   0.6-second fade-out and queue_free. Replacements also queue_free the old toast.
+   Its existing p.create_tween() already binds animation to the popup. No leak
+   reproduced during hold, fade-out, repeated close, host exit or six replacements.
+2. game/battle/battle.gd, _banner: 0.5-second fade-in, caller-selected hold,
+   0.8-second fade-out and queue_free. Used for initial/round battle titles,
+   Aftermath, round results, Victory/Defeat/draw. Closing during fade-in left
+   the tween alive on the longer-lived battle screen. Fixed by creating the
+   tween on box instead, so Godot kills it when that popup leaves the tree.
+
+UiKit.modal/picker/confirm/message, settings overlays, combat log, inspector,
+readability legend, records and round-summary panels have no open/close animation.
+The UiKit modal callers in ui/ and campaign/world_map.gd add no transition tween
+or Timer. Sound's crossfade and actor/map/effect/portrait animation are unrelated
+to popup opening/closing. No popup-specific Timer or AnimationPlayer was found.
+
+REGRESSION
+game/tests/test_popup_cleanup_v070.gd exercises the real toast and banner builders
+without world generation or combat. It interrupts both banner fades, toast hold
+and fade-out, closes twice, removes each host, and replaces toasts six times.
+It also closes modal/picker/confirm/message/settings through their close paths.
+It compares Performance.OBJECT_NODE_COUNT and OBJECT_ORPHAN_NODE_COUNT, exact
+live node IDs, Timer IDs, processing node IDs and signal connection counts to
+baseline. Owned popup descendants must be freed, all remaining signal callables
+valid, and get_processed_tweens() empty (including paused tweens).
+Tween.custom_step crosses long holds without real-time waits or new timers;
+each interruption still advances real process frames before/after close.
+No RenderingServer.frame_post_draw wait is used, including in headless mode.
+Registered block: popup_cleanup_v070 (new regression plus test_ui_modal.gd).
+Existing runner already supports both block registration and --tests paths.
+
+ACTUAL SERIAL QUEUE RESULTS
+All engine jobs submitted only via the shared Submit-GameTest.ps1 entry point,
+headless with Dummy audio, --watchdog=60 and a 60-second bridge timeout.
+Read-only process detector: succeeded, 656 processes inspected, no engines.
+The queue acquired the shared lane for each job; no window was opened.
+
+Import job fc6992697b364b43a44eb0ab73d2c09e:
+  Godot --headless --audio-driver Dummy --editor --quit --path game.
+  Engine exit 0, 9.976 seconds, import complete; no ERROR/WARNING in engine log.
+  Bridge outcome FAILED because the submission incorrectly requested a JSON
+  report which Godot does not write. This is not reported as a passed queue job.
+  Log: test-results/v070c_import_20261029_01.log (retained, untracked).
+
+Pre-fix reproduction job 1f6f22c35966456c99ba1cf70fe5f407:
+  --tests=res://tests/test_popup_cleanup_v070.gd --watchdog=60
+  Expected FAIL, exit 1: 361 checks, one failure, 3.563 seconds in the test;
+  7.757 seconds in the bridge. Failure: banner fade-in / double close left a
+  processed tween. No runtime script errors or node/orphan/timer failures.
+  Log: test-results/v070c_popup_reproduction_20261029_01.log (retained, untracked).
+
+Fixed verification job 2073e2c70df448e5b76b28e174ec4b2c:
+  --tests=res://tests/test_popup_cleanup_v070.gd,res://tests/test_ui_modal.gd
+  --watchdog=60
+  PASS, exit 0: 361 checks / zero failures in 3.573 seconds; existing modal
+  regression also PASS. Two tests, zero failing; bridge duration 7.760 seconds.
+  Zero runtime script errors, warnings or leaked-object messages in engine log.
+  Log: test-results/v070c_popup_verification_20261029_01.log (retained, untracked).
+
+git diff --check: PASS. No saves/settings written by these tests; the runner's
+conditional file removal paths therefore had no test files to remove. No files
+were deleted. No commits include import-generated .uid sidecars.
+
+RETAINED IMPORT SIDECARS (untracked; unrelated to this task, not authored here)
+game/art/portrait_bust.gd.uid
+game/art/portraits/portrait_dark_elf.gd.uid
+game/art/portraits/portrait_dwarf.gd.uid
+game/art/portraits/portrait_goblin.gd.uid
+game/art/portraits/portrait_high_elf.gd.uid
+game/art/portraits/portrait_human.gd.uid
+game/art/portraits/portrait_moon_elf.gd.uid
+game/art/portraits/portrait_orc.gd.uid
+game/art/portraits/portrait_troll.gd.uid
+game/tests/_portrait_before_447d266.gd.uid
+game/tests/portrait_quick_render.gd.uid
+game/tests/render_portrait_sheet.gd.uid
+game/tests/test_portraits_v067.gd.uid
+game/tests/verify_elf_portrait_split.gd.uid
+
+Unfinished implementation/testing: none for the enumerated popup transitions.
+The initial bridge import-report verification error is preserved above; no
+rendered/GPU test or unrelated campaign suite was run for this headless task.
