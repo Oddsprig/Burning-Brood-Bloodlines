@@ -58,6 +58,9 @@ func run(_tree: SceneTree) -> int:
 	for race: String in FigurePainter.DETAILED_RACES:
 		var given := FigurePainter.spec_generic(race, Color("#397e92"), Color("#d9bd71"), 63)
 		var frame := DragonMountPreviewArt.framing(original_row, given, "ground", true)
+		if not MountedRiderArt.can_mount_race(race):
+			check(not bool(frame["rider_layers"].get("ok", false)) and frame["seat_width"] == 0.0 and frame["mount_grips"].is_empty(), race + " fights on foot only and is rejected by DragonMountPreviewArt")
+			continue
 		var fp := FigurePainter.new(given)
 		check(frame["seat_width"] == fp.hipw + 2.0 and frame["rider_layers"]["race"] == race, race + " actual native race saddle width")
 		seat_widths[race] = frame["seat_width"]
@@ -65,7 +68,7 @@ func run(_tree: SceneTree) -> int:
 		for grip: Dictionary in frame["mount_grips"]:
 			check(frame["rider_layers"]["socket_presence"][grip["hand"]] and (grip["hand_point"] as Vector2).is_equal_approx(grip["handle_point"]), race + " native hand meets actual nearby saddle handle")
 		check(not frame.has("reins") and not frame.has("bridle"), race + " no head or neck rope/bridle exists")
-	check(seat_widths["troll"] != seat_widths["human"], "race saddle fit is not a normalized universal rider")
+	check(seat_widths["orc"] != seat_widths["human"] and seat_widths["dwarf"] != seat_widths["human"], "race saddle fit is not a normalized universal rider")
 	check(DragonMountPreviewArt.framing(original_row, spec)["mount_grips"].is_empty(), "two-handed native weapon does not acquire forced mount-handle grip")
 	var loss := spec.duplicate(true); loss["weapon"] = {}; loss["lost"] = ["arm_upper_r", "arm_lower_r", "hand_r", "leg_upper_l", "leg_lower_l", "foot_l", "head"]
 	var lost := DragonMountPreviewArt.framing(original_row, loss, "ground", true)

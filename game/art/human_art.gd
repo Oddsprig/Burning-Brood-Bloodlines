@@ -97,84 +97,103 @@ static func _shaded_head_inner(f, hc: Vector2, skin: Color, hair: Color, female:
 		sh.capsule(hc + Vector2(-1.85, -1.4), hc + Vector2(-2.55, 2.8), 1.35, 1.05, m_hair, -1.5)
 		if style == 4:
 			sh.capsule(hc + Vector2(-2.4, 0.2), hc + Vector2(-3.5, 4.3), 0.72, 0.48, m_hair, -1.2)
-	# Cranium & cheek/jaw 2.5D volumes
-	sh.ellipsoid(hc + Vector2(-0.08, -0.78), 2.22 if female else 2.34, 2.28, m_skin, 2.0)
+	# Unified full-head 2.5D volume (avoids mid-face shadow crease) + jaw/chin taper
+	var chin_y: float = (2.25 if female else 2.45) if not jaw_lost else 0.95
+	var skull_pts := PackedVector2Array([
+		hc + Vector2(-2.15, -1.55), hc + Vector2(-1.45, -2.70), hc + Vector2(0.25, -2.82),
+		hc + Vector2(1.65, -2.25), hc + Vector2(2.08, -0.85), hc + Vector2(2.05, 0.35),
+		hc + Vector2(1.65 if not jaw_lost else 1.45, 1.55 if not jaw_lost else 0.85),
+		hc + Vector2(0.65, chin_y),
+		hc + Vector2(-0.55, chin_y - 0.18),
+		hc + Vector2(-1.68, 1.25 if not jaw_lost else 0.75), hc + Vector2(-2.12, 0.10)
+	])
+	sh.poly(skull_pts, m_skin, 1.8, 2.1)
+	sh.ellipsoid(hc + Vector2(0.02, -0.22 if not jaw_lost else -0.65), 2.12 if female else 2.24, (2.45 if female else 2.60) if not jaw_lost else 1.85, m_skin, 2.0, 0.90)
 	if not jaw_lost:
-		sh.ellipsoid(hc + Vector2(0.18, 0.82), jaw_w, 1.78 if female else 1.92, m_skin, 2.2, 1.0, 0.10)
-		sh.capsule(hc + Vector2(-0.45, 1.25), hc + Vector2(0.88, 2.15 if female else 2.35), 1.05, 0.85 if female else 1.02, m_skin, 2.4)
-	# Brow & cheekbone volumes
-	sh.capsule(hc + Vector2(-0.4, -1.18), hc + Vector2(1.95, -1.12), 0.58, 0.52, m_skin, 2.7)
-	sh.ellipsoid(hc + Vector2(0.65, 0.35), 1.15, 0.78, m_skin, 2.65)
-	# Nose bridge & tip
+		sh.capsule(hc + Vector2(-0.45, 1.18), hc + Vector2(0.72, chin_y - 0.35), jaw_w * 0.56, 0.78 if female else 0.92, m_skin, 2.15, 0.75)
+	# Brow & cheekbone volumes on the front face plane
+	sh.capsule(hc + Vector2(-0.68, -0.76), hc + Vector2(1.52, -0.74), 0.38 if female else 0.46, 0.36 if female else 0.42, m_skin, 2.45, 0.65)
+	sh.ellipsoid(hc + Vector2(-0.28, 0.32), 0.78, 0.58, m_skin, 2.35, 0.55)
+	sh.ellipsoid(hc + Vector2(1.18, 0.30), 0.68, 0.54, m_skin, 2.35, 0.55)
+	# Nose bridge & tip centered between the two eyes on the front plane
+	var n_tip := hc + Vector2((0.78 if female else 0.88) + nose_ext, 0.52 if female else 0.58)
 	if not f._lost("nose"):
-		sh.capsule(hc + Vector2(1.75, -0.95), hc + Vector2(2.48 + nose_ext, 0.28), 0.48, 0.42, m_skin, 3.1)
+		sh.capsule(hc + Vector2(0.55, -0.24), n_tip, 0.32 if female else 0.38, 0.38 if female else 0.46, m_skin, 2.9, 0.85)
+		sh.ellipsoid(n_tip, 0.42 if female else 0.50, 0.34 if female else 0.40, m_skin, 3.05, 0.85)
 	# Ear
 	if not coif and not f._lost("ear_r"):
-		sh.ellipsoid(hc + Vector2(-1.88, 0.02), 0.56, 0.82, m_skin, 2.5)
+		sh.ellipsoid(hc + Vector2(-1.88, -0.05), 0.56, 0.82, m_skin, 2.3, 0.80)
 	# Top & temple hair volume
 	if style != 3:
-		sh.ellipsoid(hc + Vector2(-0.22, -2.15), 2.38, 1.35, m_hair, 3.2)
+		sh.ellipsoid(hc + Vector2(-0.22, -2.18), 2.35, 1.28, m_hair, 3.2)
 		if style != 2:
 			sh.capsule(hc + Vector2(-2.05, -1.75), hc + Vector2(-1.82, 0.15), 0.78, 0.55, m_hair, 3.1)
-			sh.capsule(hc + Vector2(-1.2, -2.55), hc + Vector2(1.65, -2.15), 0.85, 0.62, m_hair, 3.3)
+			sh.capsule(hc + Vector2(-1.2, -2.55), hc + Vector2(1.65, -2.15), 0.82, 0.58, m_hair, 3.3)
 		if style == 5:
 			sh.capsule(hc + Vector2(-1.1, -3.1), hc + Vector2(0.55, -2.95), 0.72, 0.55, m_hair, 3.5)
-	# Beard volume (for bearded men)
+	# Beard volume (for bearded men: lower beard starts below mouth y=1.22 so mouth remains visible)
 	var bstyle: int = FigurePainter.beard_style(f.spec) if bearded else -1
 	if bearded and bstyle != 6 and bstyle != 7:
 		var blen: float = 0.7 + 0.35 * float((seed / 5) % 3)
+		sh.capsule(hc + Vector2(-1.35, 0.65), hc + Vector2(-0.35, 1.95), 0.62, 0.78, m_hair, 3.15)
+		sh.capsule(hc + Vector2(1.65, 0.75), hc + Vector2(1.15, 1.95), 0.58, 0.72, m_hair, 3.15)
 		if bstyle == 1:
-			sh.capsule(hc + Vector2(-1.15, 1.05), hc + Vector2(0.95, 2.45), 0.95, 1.12, m_hair, 3.2)
-			sh.capsule(hc + Vector2(0.45, 2.35), hc + Vector2(1.75, 1.55), 1.08, 0.85, m_hair, 3.2)
+			sh.capsule(hc + Vector2(-0.75, 1.78), hc + Vector2(0.85, 2.45), 0.82, 0.92, m_hair, 3.25)
+			sh.capsule(hc + Vector2(0.35, 2.38), hc + Vector2(1.45, 1.75), 0.88, 0.72, m_hair, 3.25)
 		elif bstyle == 2:
-			sh.ellipsoid(hc + Vector2(0.52, 2.28), 1.92, 1.52, m_hair, 3.3)
+			sh.ellipsoid(hc + Vector2(0.45, 2.45), 1.78, 1.25, m_hair, 3.3)
 		elif bstyle == 3:
-			sh.capsule(hc + Vector2(-0.85, 1.35), hc + Vector2(0.75, 4.15), 1.25, 0.52, m_hair, 3.3)
-			sh.capsule(hc + Vector2(1.65, 1.45), hc + Vector2(0.75, 4.15), 1.05, 0.48, m_hair, 3.3)
+			sh.capsule(hc + Vector2(-0.75, 1.72), hc + Vector2(0.68, 4.15), 1.05, 0.48, m_hair, 3.3)
+			sh.capsule(hc + Vector2(1.45, 1.75), hc + Vector2(0.68, 4.15), 0.95, 0.45, m_hair, 3.3)
 		elif bstyle == 4:
-			sh.capsule(hc + Vector2(-0.75, 1.45), hc + Vector2(-0.15, 3.95), 1.05, 0.52, m_hair, 3.3)
-			sh.capsule(hc + Vector2(1.45, 1.45), hc + Vector2(1.18, 3.95), 1.05, 0.52, m_hair, 3.3)
+			sh.capsule(hc + Vector2(-0.65, 1.72), hc + Vector2(-0.15, 3.95), 0.92, 0.48, m_hair, 3.3)
+			sh.capsule(hc + Vector2(1.35, 1.72), hc + Vector2(1.12, 3.95), 0.92, 0.48, m_hair, 3.3)
 		elif bstyle == 5:
-			sh.ellipsoid(hc + Vector2(0.48, 2.15), 1.68, 1.22, m_hair, 3.3)
-			sh.capsule(hc + Vector2(0.72, 2.55), hc + Vector2(0.84, 4.35), 0.62, 0.45, m_hair, 3.4)
+			sh.ellipsoid(hc + Vector2(0.45, 2.32), 1.55, 1.02, m_hair, 3.3)
+			sh.capsule(hc + Vector2(0.65, 2.65), hc + Vector2(0.75, 4.35), 0.58, 0.42, m_hair, 3.4)
 		else:
-			sh.ellipsoid(hc + Vector2(0.48, 2.15 + blen * 0.35), 1.75, 1.25 + blen * 0.4, m_hair, 3.3)
+			sh.ellipsoid(hc + Vector2(0.45, 2.35 + blen * 0.35), 1.65, 1.05 + blen * 0.38, m_hair, 3.3)
 	sh.composite(FigurePainter.ol(skin), true)
-	# Facial features (eyes, brows, mouth, age creases, stubble/moustache)
+	# Facial features: both eyes on the front plane at mid-head height, straddling nose, mouth below
 	var shadow: Color = skin.darkened(0.26).lerp(Color("#693d37"), 0.14)
 	var deep: Color = skin.darkened(0.48).lerp(Color("#49302b"), 0.22)
-	var lip: Color = skin.darkened(0.24 if female else 0.34).lerp(Color("#944642" if female else "#7a3836"), 0.28)
+	var lip: Color = skin.darkened(0.24 if female else 0.34).lerp(Color("#944642" if female else "#7a3836"), 0.34)
 	var iris: Color = [Color("#574632"), Color("#45534b"), Color("#4e5966"), Color("#634e39")][(seed / 7) % 4]
-	var brow_y: float = -0.78 if female else -0.86
+	var eye_y: float = -0.20 if female else -0.18
 	for eye_side in ["r", "l"]:
 		if f._lost("eye_" + eye_side):
 			continue
 		var near: bool = eye_side == "r"
-		var ex: float = (0.58 if female else 0.78) if near else (1.82 if female else 2.04)
-		var ey: float = brow_y + (0.03 if near else -0.04)
-		var ew: float = 0.68 if near else 0.32
+		var ex: float = (-0.18 if female else -0.15) if near else (1.15 if female else 1.22)
+		var ey: float = eye_y
+		var ew: float = (0.54 if female else 0.52) if near else (0.36 if female else 0.35)
 		var brow_c: Color = hair.darkened(0.22).lerp(deep, 0.35)
-		cv.capsule(hc + Vector2(ex - ew, ey - 0.48), hc + Vector2(ex + ew * 0.78, ey - 0.56), 0.13 if female else 0.18, brow_c)
+		cv.capsule(hc + Vector2(ex - ew, ey - 0.44), hc + Vector2(ex + ew * 0.85, ey - 0.48), 0.12 if female else 0.16, brow_c)
 		if dead:
-			cv.capsule(hc + Vector2(ex - ew * 0.8, ey + 0.06), hc + Vector2(ex + ew * 0.7, ey + 0.14), 0.15, deep)
+			cv.capsule(hc + Vector2(ex - ew * 0.8, ey + 0.02), hc + Vector2(ex + ew * 0.8, ey + 0.04), 0.14, deep)
 		else:
-			cv.ellipse(hc + Vector2(ex, ey + 0.04), ew, 0.30, Color("#eee6d8"))
-			cv.ellipse(hc + Vector2(ex + ew * 0.34, ey + 0.05), 0.25 if near else 0.15, 0.25, iris)
-			cv.ellipse(hc + Vector2(ex + ew * 0.44, ey + 0.04), 0.12, 0.19, Color("#1c1817"))
-			cv.capsule(hc + Vector2(ex - ew, ey - 0.12), hc + Vector2(ex + ew * 0.78, ey - 0.18), 0.12, deep)
+			cv.ellipse(hc + Vector2(ex, ey), ew, 0.27, Color("#eee6d8"))
+			cv.ellipse(hc + Vector2(ex + ew * 0.22, ey + 0.01), 0.23 if near else 0.15, 0.23, iris)
+			cv.ellipse(hc + Vector2(ex + ew * 0.28, ey + 0.01), 0.11, 0.17, Color("#1c1817"))
+			cv.capsule(hc + Vector2(ex - ew, ey - 0.14), hc + Vector2(ex + ew * 0.82, ey - 0.16), 0.11, deep)
+	if not f._lost("nose"):
+		cv.capsule(n_tip + Vector2(-0.22, 0.12), n_tip + Vector2(0.12, 0.10), 0.10, deep)
 	if age >= 42:
 		var w_col := shadow.darkened(clampf(float(age - 38) * 0.012, 0.05, 0.32))
-		cv.capsule(hc + Vector2(-0.25, -1.65), hc + Vector2(1.25, -1.62), 0.11, w_col)
-		cv.capsule(hc + Vector2(-0.15, 0.35), hc + Vector2(0.55, 0.68), 0.11, w_col)
-		cv.capsule(hc + Vector2(1.55, 0.75), hc + Vector2(1.35, 1.35), 0.11, w_col)
+		cv.capsule(hc + Vector2(-0.35, -1.15), hc + Vector2(1.05, -1.12), 0.10, w_col)
+		cv.capsule(hc + Vector2(-0.45, 0.42), hc + Vector2(-0.15, 0.85), 0.10, w_col)
+		cv.capsule(hc + Vector2(1.35, 0.45), hc + Vector2(1.18, 0.88), 0.10, w_col)
 	elif age <= 20:
-		cv.ellipse(hc + Vector2(0.65, 0.42), 0.55, 0.35, skin.lightened(0.12).lerp(Color("#e88a7d"), 0.18))
+		cv.ellipse(hc + Vector2(-0.32, 0.36), 0.45, 0.28, skin.lightened(0.12).lerp(Color("#e88a7d"), 0.18))
 	if bearded and bstyle in [6, 7]:
 		_male_beard(f, hc, bstyle)
 	elif bearded and not f._lost("mouth"):
 		_male_moustache(cv, hc, hair, false)
-	if not f._lost("mouth"):
-		cv.capsule(hc + Vector2(0.88 if female else 1.08, 1.42), hc + Vector2(1.88 if female else 2.12, 1.36), 0.15, lip)
+	if not jaw_lost and not f._lost("mouth"):
+		var my: float = 1.16 if female else 1.22
+		cv.capsule(hc + Vector2(0.16 if female else 0.18, my), hc + Vector2(1.14 if female else 1.22, my - 0.02), 0.15, lip)
+		if female:
+			cv.capsule(hc + Vector2(0.32, my + 0.12), hc + Vector2(0.98, my + 0.11), 0.11, lip.lightened(0.18))
 	if String(f.spec.get("role", "")) == "ruler" and f._it("helm").is_empty():
 		var gold := FigurePainter.metal("copper", 3)
 		cv.begin()
@@ -979,7 +998,7 @@ static func _male_beard(f, hc: Vector2, style: int) -> void:
 			Vector2(1.08,2.5),Vector2(1.62,2.08),Vector2(1.94,1.75)]:
 			cv.capsule(hc+p,hc+p+Vector2(0.04,0.18),0.045,hair.lerp(skin,0.42))
 		if not f._lost("mouth"):
-			cv.capsule(hc+Vector2(1.02,0.99),hc+Vector2(2.2,1.05),0.12,hair.lerp(skin,0.4))
+			cv.capsule(hc+Vector2(0.10,0.96),hc+Vector2(1.28,0.98),0.11,hair.lerp(skin,0.4))
 		return
 	cv.begin()
 	match style:
@@ -1038,16 +1057,16 @@ static func _male_moustache(cv: PixelCanvas, hc: Vector2, hair: Color, curled: b
 	cv.begin()
 	if curled:
 		# Moustache-only keeps the whole jaw visible; its curved ends are real hair.
-		_poly(cv,hc,[[-0.62,0.98],[-0.4,1.46],[0.02,1.58],[0.58,1.23],[1.2,0.89],[1.5,0.84],
-			[2.14,1.01],[2.51,1.37],[2.63,0.98],[2.48,0.58],[2.67,0.69],[2.87,1.01],
-			[2.79,1.48],[2.46,1.68],[2.12,1.52],[1.58,1.2],[1.14,1.22],[0.62,1.62],
-			[0.06,1.85],[-0.54,1.57],[-0.76,1.25]],hair)
+		_poly(cv,hc,[[-0.85,0.92],[-0.62,1.28],[-0.22,1.38],[0.18,1.05],[0.55,0.82],[0.88,0.80],
+			[1.35,0.96],[1.68,1.25],[1.82,0.92],[1.68,0.58],[1.88,0.68],[2.02,0.96],
+			[1.92,1.36],[1.62,1.52],[1.28,1.35],[0.88,1.06],[0.48,1.08],[0.12,1.38],
+			[-0.32,1.58],[-0.75,1.38],[-0.95,1.12]],hair)
 	else:
-		_poly(cv,hc,[[0.52,1.13],[1.05,0.87],[1.48,0.83],[2.12,0.97],[2.44,1.22],[2.25,1.38],
-			[1.67,1.15],[1.19,1.19],[0.69,1.38]],hair)
+		_poly(cv,hc,[[-0.08,1.04],[0.38,0.82],[0.82,0.80],[1.32,0.92],[1.58,1.12],[1.38,1.24],
+			[0.95,1.04],[0.45,1.05],[0.06,1.22]],hair)
 	cv.end(FigurePainter.ol(hair),0.025)
-	cv.capsule(hc+Vector2(0.81,1.07),hc+Vector2(1.3,0.98),0.08,hair.lightened(0.22))
-	cv.capsule(hc+Vector2(1.61,0.99),hc+Vector2(2.04,1.13),0.07,hair.lightened(0.17))
+	cv.capsule(hc+Vector2(0.18,0.95),hc+Vector2(0.62,0.88),0.08,hair.lightened(0.22))
+	cv.capsule(hc+Vector2(0.85,0.88),hc+Vector2(1.26,0.98),0.07,hair.lightened(0.17))
 
 
 static func _garment_shape(f, hem: float, kind: String, dwarf: bool) -> PackedVector2Array:

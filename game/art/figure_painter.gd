@@ -20,6 +20,15 @@ const POSES := ["idle", "walk", "prepare", "strike", "recover", "hit", "block", 
 
 ## Company (player faction) colours; menus may overwrite.
 static var company_colors := {"primary": "#1f8f88", "secondary": "#e0a040"}
+static var force_legacy_v064: bool = false
+
+static func set_legacy_v064(enabled: bool) -> void:
+	force_legacy_v064 = enabled
+	DwarfArt._force_legacy_v064 = enabled
+	ElfArt._force_legacy_v064 = enabled
+	OrcArt._force_legacy_v064 = enabled
+	GoblinArt._force_legacy_v064 = enabled
+	TrollArt._force_legacy_v064 = enabled
 
 const RACE_ART := {
 	"human":    {"head": 6.0, "headw": 6.0, "arm": 2.0, "leg": 2.6, "ears": "round", "nose": 1, "eye": "#1c1424",
@@ -337,9 +346,89 @@ func _sparkle(p: Vector2, m: Dictionary) -> void:
 
 # --- rig ----------------------------------------------------------------------------------------
 
+static func head_landmarks(sp: Dictionary) -> Dictionary:
+	var race := String(sp.get("race", "human"))
+	var female := String(sp.get("sex", "")).to_lower() in ["female", "f", "woman", "1"]
+	var seed := absi(int(sp.get("seed", 0)))
+	match race:
+		"human":
+			var n_ext := (0.04 if female else 0.11) * float((seed / 4) % 4)
+			return {
+				"head_top": -2.75 if female else -2.85,
+				"head_bottom": 2.25 if female else 2.45,
+				"eye_r": Vector2(-0.18 if female else -0.15, -0.20 if female else -0.18),
+				"eye_l": Vector2(1.15 if female else 1.22, -0.20 if female else -0.18),
+				"nose_bridge": Vector2(0.55, -0.24),
+				"nose_tip": Vector2((0.78 if female else 0.88) + n_ext, 0.52 if female else 0.58),
+				"mouth": Vector2(0.65 if female else 0.70, 1.16 if female else 1.22),
+			}
+		"dwarf":
+			var n_ext := 0.08 * float((seed / 13) % 4)
+			return {
+				"head_top": -2.75 if female else -2.85,
+				"head_bottom": 2.25 if female else 2.45,
+				"eye_r": Vector2(-0.20 if female else -0.18, -0.22 if female else -0.18),
+				"eye_l": Vector2(1.20 if female else 1.28, -0.22 if female else -0.18),
+				"nose_bridge": Vector2(0.56, -0.24),
+				"nose_tip": Vector2((0.85 if female else 0.95) + n_ext * (0.6 if female else 1.0), 0.52 if female else 0.56),
+				"mouth": Vector2(0.68 if female else 0.72, 1.18 if female else 1.25),
+			}
+		"high_elf", "moon_elf", "dark_elf":
+			return {
+				"head_top": -3.00,
+				"head_bottom": 2.20 if female else 2.35,
+				"eye_r": Vector2(-0.24 if female else -0.22, -0.26 if female else -0.24),
+				"eye_l": Vector2(1.08 if female else 1.12, -0.26 if female else -0.24),
+				"nose_bridge": Vector2(0.46, -0.30),
+				"nose_tip": Vector2(0.70 if female else 0.76, 0.48 if female else 0.52),
+				"mouth": Vector2(0.64, 1.12 if female else 1.18),
+			}
+		"orc":
+			return {
+				"head_top": -3.15,
+				"head_bottom": 2.55 if female else 2.85,
+				"eye_r": Vector2(-0.20 if female else -0.22, -0.22 if female else -0.18),
+				"eye_l": Vector2(1.22 if female else 1.32, -0.22 if female else -0.18),
+				"nose_bridge": Vector2(0.58, -0.26),
+				"nose_tip": Vector2(0.86 if female else 0.96, 0.50 if female else 0.56),
+				"mouth": Vector2(0.75 if female else 0.85, 1.24 if female else 1.38),
+			}
+		"goblin":
+			var n_len := (0.06 if female else 0.10) * float((seed / 5) % 3)
+			return {
+				"head_top": -2.90,
+				"head_bottom": 2.25 if female else 2.45,
+				"eye_r": Vector2(-0.22, -0.25 if female else -0.22),
+				"eye_l": Vector2(1.10 if female else 1.15, -0.25 if female else -0.22),
+				"nose_bridge": Vector2(0.48, -0.28),
+				"nose_tip": Vector2((0.82 if female else 0.95) + n_len, 0.54 if female else 0.62),
+				"mouth": Vector2(0.68, 1.18 if female else 1.25),
+			}
+		"troll":
+			return {
+				"head_top": -3.65,
+				"head_bottom": 3.35,
+				"eye_r": Vector2(-0.25, -0.15),
+				"eye_l": Vector2(1.58, -0.15),
+				"nose_bridge": Vector2(0.68, -0.22),
+				"nose_tip": Vector2(1.15, 0.68),
+				"mouth": Vector2(1.10, 1.68),
+			}
+	return {
+		"head_top": -2.85,
+		"head_bottom": 2.45,
+		"eye_r": Vector2(-0.15, -0.18),
+		"eye_l": Vector2(1.22, -0.18),
+		"nose_bridge": Vector2(0.55, -0.24),
+		"nose_tip": Vector2(0.88, 0.58),
+		"mouth": Vector2(0.70, 1.22),
+	}
+
 func _stance(wk: String, which: String, A: float) -> Dictionary:
 	var is_hum := String(spec.get("race", "human")) == "human"
-	var hl_rest := Vector2(tw * 0.5 + 1.5, 0.42 * A) if not _it("shield").is_empty() else (Vector2(2.35, 0.85 + 0.988 * A) if is_hum else Vector2(2.5, 0.8 * A))
+	var hr_side := Vector2(-2.25, 0.85 + 0.988 * A) if is_hum else Vector2(-maxf(2.25, tw * 0.44), 1.0 + 0.90 * A)
+	var hl_side := Vector2(2.35, 0.85 + 0.988 * A) if is_hum else Vector2(maxf(2.45, tw * 0.44), 1.0 + 0.90 * A)
+	var hl_rest := Vector2(tw * 0.5 + 1.5, 0.42 * A) if not _it("shield").is_empty() else hl_side
 	var d := {"hl": hl_rest, "lean": 0.0, "wa": 0.0}
 	if wk == "bow":   # bows: bow arm out front, string hand at the bow (rest), at the chin (draw), flung back (loose)
 		match which:
@@ -350,7 +439,7 @@ func _stance(wk: String, which: String, A: float) -> Dictionary:
 	match which:
 		"rest":
 			match wk:
-				"none": d.merge({"hr": Vector2(-1.75, 0.85 + 0.988 * A) if is_hum else Vector2(1.5, 0.85 * A), "wa": 60.0}, true)
+				"none": d.merge({"hr": hr_side, "wa": 60.0}, true)
 				"swing1": d.merge({"hr": Vector2(1.8, 0.68 * A) if is_hum else Vector2(3.0, 0.6 * A), "wa": -62.0}, true)
 				"swing2": d.merge({"hr": Vector2(2.0, 0.68 * A) if is_hum else Vector2(2.5, 0.68 * A), "wa": -58.0}, true)
 				"thrust1": d.merge({"hr": Vector2(2.4, 0.60 * A) if is_hum else Vector2(3.5, 0.55 * A), "wa": -82.0}, true)
@@ -370,7 +459,7 @@ func _stance(wk: String, which: String, A: float) -> Dictionary:
 				"thrust1": d.merge({"hr": Vector2(A + 0.5, 0.25 * A), "wa": -4.0, "lean": 2.0}, true)
 				"thrust2": d.merge({"hr": Vector2(A, 0.3 * A), "wa": -6.0, "lean": 2.0}, true)
 	if not d.has("hr"):
-		d["hr"] = Vector2(-1.75, 0.85 + 0.988 * A) if is_hum else Vector2(1.5, 0.85 * A)
+		d["hr"] = hr_side
 	return d
 
 static func _mix(a: Dictionary, b: Dictionary, f: float) -> Dictionary:
@@ -465,7 +554,7 @@ func _rig() -> void:
 	if wk == "swing2" or wk == "thrust2":
 		lt = (j["hr"] as Vector2) + wdir * (3.0 if wk == "swing2" else 4.0) * gs
 	j["hl"] = _reach(j["sl"], lt, reach)
-	j["el"] = _ik(j["sl"], j["hl"], arm_a, arm_b, -1.0 if (is_hum and wk == "none" and _it("shield").is_empty() and pose in ["idle", "walk"]) else 1.0)
+	j["el"] = _ik(j["sl"], j["hl"], arm_a, arm_b, -1.0 if (wk == "none" and _it("shield").is_empty() and pose in ["idle", "walk"]) else 1.0)
 	# legs (r = near leg, l = far leg)
 	var thigh := leg_len * 0.5
 	var shin := leg_len * 0.5
@@ -957,9 +1046,15 @@ func _head() -> void:
 		var hc: Vector2 = j["hc"]
 		var sc: Vector2 = j["sc"]
 		# The closed visor conceals the face, ears and hair. Preserve the neck and rig.
-		cv.begin()
-		cv.capsule(hc+Vector2(0.0,1.40 if _human() else 1.80),sc+Vector2(0.0,0.15 if _human() else -0.24),0.69,skin)
-		_skin_end()
+		if force_legacy_v064 and not _human():
+			cv.begin()
+			cv.capsule(hc+Vector2(0.0,1.40 if _human() else 1.80),sc+Vector2(0.0,0.15 if _human() else -0.24),0.69,skin)
+			_skin_end()
+		else:
+			var sh_neck := cv.shaded()
+			var c_sk: int = sh_neck.add_color(skin.darkened(0.14), 0.10, 1.06)
+			sh_neck.capsule(hc+Vector2(0.0,1.40 if _human() else 1.80),sc+Vector2(0.0,0.15 if _human() else -0.24),0.72,0.82,c_sk,-1.0,0.9)
+			sh_neck.composite(FigurePainter.ol(skin), true)
 		var previous := cv.xf
 		var previous_k := cv.k
 		if String(spec.get("race","")) == "dwarf":

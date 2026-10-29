@@ -5,9 +5,13 @@ extends RefCounted
 const GRAIN_DAY := 3 # [ours] counted grain portions, through the existing army stores
 const COIN_DAY := 20 # [ours] groom/farrier payment in native coins
 const COATS := ["bay", "chestnut", "black", "grey"]
+const NO_MOUNT_RACES := ["troll", "giant"]
+
+static func can_mount_race(race: String) -> bool:
+	return race in FigurePainter.DETAILED_RACES and race not in NO_MOUNT_RACES
 
 static func can_field(u: Unit) -> bool:
-	return u != null and not u.dead and u.horse != null and not u.horse.dead \
+	return u != null and not u.dead and can_mount_race(u.race) and u.horse != null and not u.horse.dead \
 		and u.horse.race == "horse" and bool(u.horse_care.get("fed", false)) and bool(u.horse_care.get("paid", false))
 
 static func count(units: Array) -> int:
@@ -38,7 +42,8 @@ static func quote(game, town: Dictionary, u: Unit) -> Dictionary:
 	if not TownEcon.has_econ(town): reason = "No livestock market."
 	elif not Mobilization._here(game, str(town["id"])): reason = "Visit this settlement to trade horses."
 	elif u == null or not game.company.has(u) or u.dead: reason = "Select a living field soldier."
-	elif u.race not in FigurePainter.DETAILED_RACES: reason = "This body cannot ride."
+	elif u.race in NO_MOUNT_RACES: reason = "Trolls and giants fight on foot only."
+	elif not can_mount_race(u.race): reason = "This body cannot ride."
 	elif u.horse != null: reason = "This soldier already owns a mount."
 	elif Mobilization.is_medic(game, u) or _dragon_rider(game, u): reason = "This soldier has another assignment."
 	elif offered(town["econ"]) < 1: reason = "No grown horses are offered."
@@ -65,7 +70,7 @@ static func buy(game, town: Dictionary, u: Unit) -> Dictionary:
 ## AI supply provisioning and player purchases share this one native stock transfer.
 static func buy_for(game, town: Dictionary, u: Unit, payer: Dictionary, purchase_day: int = -1) -> Dictionary:
 	var trade_day := int(game.day) if purchase_day < 0 else purchase_day
-	if u == null or u.dead or u.horse != null or not TownEcon.has_econ(town):
+	if u == null or u.dead or not can_mount_race(u.race) or u.horse != null or not TownEcon.has_econ(town):
 		return {"ok": false, "reason": "No eligible rider or market."}
 	var e: Dictionary = town["econ"]
 	var cost := price(town)
@@ -190,7 +195,7 @@ static func band_day(game, wb: Dictionary, payer: Dictionary, day: int) -> void:
 		var bought := 0
 		for u: Unit in wb.get("units", []):
 			if bought >= 2: break # bounded acquisitions through the existing army-supply turn
-			if u.dead or u.horse != null or u.race not in FigurePainter.DETAILED_RACES: continue
+			if u.dead or u.horse != null or not can_mount_race(u.race): continue
 			if not u.is_officer() and not u.title.to_lower().contains("cavalry"): continue
 			if bool(buy_for(game, town, u, payer, day).get("ok", false)): bought += 1
 	var st := Supplies.stores(wb)

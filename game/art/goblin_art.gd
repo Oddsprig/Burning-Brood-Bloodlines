@@ -3,6 +3,8 @@ extends RefCounted
 ## Goblin surfaces use the original FigurePainter rig and the supplied look palette.
 ## Equipped items retain their material and quality; wounds are FigurePainter's final pass.
 
+static var _force_legacy_v064: bool = false
+
 static func _poly(cv: PixelCanvas, origin: Vector2, points: Array, color: Color) -> void:
 	var vertices: PackedVector2Array = PackedVector2Array()
 	for point in points:
@@ -10,6 +12,128 @@ static func _poly(cv: PixelCanvas, origin: Vector2, points: Array, color: Color)
 	cv.poly(vertices, color)
 
 static func head(f) -> void:
+	if f._lost("head"):
+		return
+	if _force_legacy_v064:
+		_legacy_head(f)
+		return
+	var cv: PixelCanvas = f.cv
+	var hc: Vector2 = f.j["hc"]
+	var skin: Color = f.skin
+	var hair: Color = f.hair
+	var seed: int = absi(int(f.spec.get("seed", 0)))
+	var female: bool = _female(f)
+	var fvar: int = FigurePainter.female_variant(f.spec) if female else 0
+	var style: int = seed % 5
+	var nose_length: float = (0.06 if female else 0.13) * float((seed / 5) % 3)
+	var ear_lift: float = (0.10 if female else 0.17) * float((seed / 7) % 3)
+	var dead: bool = f.pose == "dead" or bool(f.spec.get("dead", false))
+	var coif: bool = String(f._it("helm").get("sprite", "")) == "coif"
+	var helm_open: bool = f._it("helm").is_empty() or String(f._it("helm").get("sprite", "")) in ["crown", "circlet"]
+	var jaw_lost: bool = f._lost("jaw")
+
+	var sh := cv.shaded()
+	var c_skin: int = sh.add_color(skin, 0.14, 1.08)
+	var c_skin_d: int = c_skin
+	var c_skin_l: int = c_skin
+	var c_ear_in: int = c_skin
+	var c_hair: int = sh.add_color(hair, 0.18, 1.12, hair.lightened(0.35))
+	var c_hair_d: int = c_hair
+	var c_hair_l: int = c_hair
+
+	# Female back hair behind neck & ears
+	if female and not coif:
+		sh.capsule(hc + Vector2(-1.65, -0.85), hc + Vector2(-2.45, 2.85 if style in [0, 4] else 4.15), 1.05, 0.72, c_hair_d, -1.8, 0.95)
+		if style in [1, 2, 3]:
+			sh.capsule(hc + Vector2(-2.35, -0.45), hc + Vector2(-3.15, 3.85), 0.85, 0.52, c_hair, -1.4, 0.95)
+
+	# Signature huge sweeping bat-like pointed goblin ears (ear_l far, ear_r near)
+	if not coif:
+		if not f._lost("ear_l"):
+			var el_pts := PackedVector2Array([
+				hc + Vector2(1.25, -1.65), hc + Vector2(4.45, -2.95 - ear_lift),
+				hc + Vector2(3.55, -1.15), hc + Vector2(2.20, 0.25), hc + Vector2(1.25, -0.25)
+			])
+			sh.poly(el_pts, c_skin_d, -0.8, 1.4)
+		if not f._lost("ear_r"):
+			var er_pts := PackedVector2Array([
+				hc + Vector2(-1.55, -1.35), hc + Vector2(-2.95, -1.68),
+				hc + Vector2(-5.95, -2.65 - ear_lift), hc + Vector2(-4.45, -0.68),
+				hc + Vector2(-2.60, 0.65), hc + Vector2(-1.65, 0.10)
+			])
+			sh.poly(er_pts, c_skin, 1.8, 1.6)
+			sh.capsule(hc + Vector2(-1.85, -1.25), hc + Vector2(-5.45, -2.35 - ear_lift), 0.36, 0.14, c_skin_l, 2.2, 0.9)
+			sh.capsule(hc + Vector2(-2.05, -0.65), hc + Vector2(-4.45, -1.45 - ear_lift * 0.7), 0.38, 0.16, c_ear_in, 2.1, 0.7)
+
+	# Angular wedge cranium, unified face plane & small pointed goblin jaw
+	var chin_y: float = (2.25 if female else 2.45) if not jaw_lost else 1.15
+	var skull_pts := PackedVector2Array([
+		hc + Vector2(-1.98, -1.82), hc + Vector2(-1.38, -2.75), hc + Vector2(-0.05, -2.90),
+		hc + Vector2(1.38, -2.62), hc + Vector2(2.02, -1.88), hc + Vector2(2.08, -0.85),
+		hc + Vector2(2.12, 0.45),
+		hc + Vector2(1.62 if not jaw_lost else 1.55, 1.52 if not jaw_lost else 0.95),
+		hc + Vector2(0.68, chin_y),
+		hc + Vector2(-0.35, (chin_y - 0.25) if not jaw_lost else 0.95),
+		hc + Vector2(-1.68, 0.32), hc + Vector2(-2.12, -0.75)
+	])
+	sh.poly(skull_pts, c_skin, 0.0, 1.95)
+	sh.ellipsoid(hc + Vector2(0.0, -0.22 if not jaw_lost else -0.75), 1.98, (2.48 if female else 2.62) if not jaw_lost else 1.85, c_skin, 0.3, 0.88)
+	if not jaw_lost:
+		sh.capsule(hc + Vector2(-0.32, 1.15), hc + Vector2(0.68, chin_y - 0.32), 0.88 if not female else 0.78, 0.58 if not female else 0.52, c_skin, 0.45, 0.75)
+	sh.ellipsoid(hc + Vector2(-0.32, 0.25), 0.78, 0.56, c_skin_l, 0.7, 0.55)
+	sh.ellipsoid(hc + Vector2(1.18, 0.24), 0.68, 0.52, c_skin_l, 0.7, 0.55)
+
+	# Hooked goblin nose centered between the eyes on the front face plane
+	var n_tip := hc + Vector2((0.82 if female else 0.95) + nose_length, 0.54 if female else 0.62)
+	if not f._lost("nose"):
+		sh.capsule(hc + Vector2(0.48, -0.28), n_tip, 0.32 if female else 0.38, 0.42 if female else 0.50, c_skin_l, 2.1, 0.90)
+		sh.ellipsoid(n_tip + Vector2(0.06, 0.06), 0.44 if female else 0.54, 0.32 if female else 0.38, c_skin_l, 2.35, 0.90)
+
+	# Goblin hair (female styles 0..4, male jagged top-tuft when seed % 3 == 1)
+	if not coif and helm_open:
+		if female:
+			sh.ellipsoid(hc + Vector2(-0.25, -2.25), 1.95, 1.08, c_hair, 1.6, 1.0)
+			sh.capsule(hc + Vector2(-1.75, -1.65), hc + Vector2(1.55, -2.25), 0.68, 0.52, c_hair_l, 2.1, 0.95)
+		elif seed % 3 == 1:
+			sh.capsule(hc + Vector2(-1.35, -2.55), hc + Vector2(-0.95, -3.95), 0.58, 0.28, c_hair, 1.9, 0.95)
+			sh.capsule(hc + Vector2(-0.45, -2.65), hc + Vector2(-0.15, -4.15), 0.62, 0.30, c_hair_l, 2.1, 1.0)
+			sh.capsule(hc + Vector2(0.35, -2.55), hc + Vector2(0.85, -3.75), 0.55, 0.26, c_hair, 2.0, 0.95)
+
+	sh.composite(FigurePainter.ol(skin), true)
+
+	# Oblique amber slit eyes on the front plane at mid-head height, arched brows & sharp grin
+	var deep: Color = skin.darkened(0.55).lerp(Color("#27301b"), 0.18)
+	var brow: Color = hair.darkened(0.20).lerp(deep, 0.50)
+	var ey: float = -0.25 if female else -0.22
+	if female:
+		if fvar == 0:
+			_retained_female_eye(f, hc + Vector2(-0.22, ey), 0.62, skin, deep, brow, dead, "eye_r")
+			_retained_female_eye(f, hc + Vector2(1.10, ey), 0.38, skin, deep, brow, dead, "eye_l")
+		else:
+			_female_eye(f, hc + Vector2(-0.22, ey), 0.64, skin, deep, brow, dead, "eye_r")
+			_female_eye(f, hc + Vector2(1.10, ey), 0.38, skin, deep, brow, dead, "eye_l")
+	else:
+		_eye(f, hc + Vector2(-0.22, ey), 0.62, skin, deep, dead, "eye_r")
+		_eye(f, hc + Vector2(1.15, ey), 0.38, skin, deep, dead, "eye_l")
+		cv.capsule(hc + Vector2(-0.85, ey - 0.52), hc + Vector2(0.32, ey - 0.38), 0.15, brow)
+		cv.capsule(hc + Vector2(0.82, ey - 0.38), hc + Vector2(1.52, ey - 0.52), 0.13, brow)
+
+	if not f._lost("nose"):
+		cv.capsule(n_tip + Vector2(-0.20, 0.14), n_tip + Vector2(0.16, 0.12), 0.10, deep)
+
+	if not f._lost("mouth") and not jaw_lost:
+		var lip_c: Color = skin.darkened(0.22).lerp(Color("#9e5868"), 0.38) if female else deep
+		var my: float = 1.18 if female else 1.25
+		cv.capsule(hc + Vector2(0.12, my), hc + Vector2(1.24, my - 0.03), 0.14, lip_c)
+		if female:
+			cv.capsule(hc + Vector2(0.26, my + 0.12), hc + Vector2(1.02, my + 0.10), 0.10, lip_c.lightened(0.18))
+		else:
+			cv.capsule(hc + Vector2(0.22, my + 0.02), hc + Vector2(0.28, my - 0.18), 0.09, Color("#ece2be"))
+			cv.capsule(hc + Vector2(1.12, my - 0.01), hc + Vector2(1.16, my - 0.20), 0.09, Color("#ece2be"))
+
+	f._helm(hc, -float(f.head_w) * 0.5, float(f.head_w) * 0.5, -float(f.head_h) * 0.5, float(f.head_h) * 0.5)
+
+static func _legacy_head(f) -> void:
 	if _female(f):
 		_female_head(f)
 		return
@@ -117,6 +241,75 @@ static func _body(f, skirt: float) -> PackedVector2Array:
 		_tp(f,0.12,length+skirt+0.15),_tp(f,-hem,length+skirt-0.2),_tp(f,-h+0.2,length*0.75),_tp(f,-w+0.5,length*0.37)])
 
 static func torso(f) -> bool:
+	if _force_legacy_v064:
+		return _legacy_torso(f)
+	var cv: PixelCanvas = f.cv
+	var sc: Vector2 = f.j["sc"]
+	var hip: Vector2 = f.j["hip"]
+	var female: bool = _female(f)
+	var mounted: bool = f.pose == "mounted"
+	var w: float = float(f.tw) * 0.5
+	var h: float = float(f.hipw) * (0.42 if female else 0.38)
+	var clothing: Dictionary = f._it("clothing")
+	var body: Dictionary = f._it("body")
+	var has_cloth: bool = not clothing.is_empty()
+	var has_armor: bool = not body.is_empty()
+
+	var sh := cv.shaded()
+	var c_skin: int = sh.add_color(f.skin, 0.14, 1.08)
+	var c_leath: int = sh.add_color(FigurePainter.LEATHER, 0.20, 1.12)
+	var c_brass: int = sh.add_color(FigurePainter.metal("copper", 1)["light"], 0.34, 1.18, FigurePainter.metal("copper", 1)["shine"])
+
+	if not f._lost("neck"):
+		sh.capsule(f.j["hc"] + Vector2(0.05, 1.25), sc + Vector2(0.10, 0.45), 0.52 if female else 0.58, 0.62 if female else 0.68, c_skin, -0.8, 0.95)
+
+	# Wiry lean goblin ribcage & waist
+	var bare_pts: PackedVector2Array = _female_body(f, 0.24) if female else _body(f, 0.25)
+	sh.poly(bare_pts, c_skin, 0.0, 1.9)
+	sh.ellipsoid(sc + Vector2(0.0, 1.25), w * 0.72, 1.35, c_skin, 0.5, 1.0)
+
+	if has_cloth:
+		var padded: bool = String(clothing.get("tid", "")) == "gambeson"
+		var cloth_c: Color = _wardrobe_cloth(f, clothing)
+		var c_cloth: int = sh.add_color(cloth_c, 0.09 if padded else 0.11, 1.08)
+		var c_sec: int = sh.add_color(f.sec, 0.16, 1.10)
+		var c_skirt: float = 0.65 if mounted else (float(f.leg_len) * (0.30 if padded else 0.28))
+		var c_pts: PackedVector2Array = _female_body(f, c_skirt) if female else _wardrobe_shape(f, c_skirt, padded)
+		sh.poly(c_pts, c_cloth, 0.5, 2.0)
+		sh.ellipsoid(sc + Vector2(0.0, 1.30), w * 0.76, 1.45, c_cloth, 0.9, 1.0)
+		sh.capsule(_tp(f, -0.85, 0.05), _tp(f, 0.05, 0.95), 0.18, 0.18, c_sec, 1.3, 0.9)
+		sh.capsule(_tp(f, 0.05, 0.95), _tp(f, 0.95, 0.12), 0.18, 0.18, c_sec, 1.3, 0.9)
+
+	if has_armor:
+		var kind: String = String(body.get("sprite", ""))
+		var m: Dictionary = FigurePainter.metal(String(body.get("mat", "copper")), int(body.get("q", 0)))
+		var mail: bool = kind in ["mail", "byrnie"]
+		var scale_a: bool = kind == "scale"
+		var lamellar: bool = kind == "lamellar"
+		var scrap: bool = kind == "scrap"
+		var c_arm: int = sh.add_color(m["base"], 0.28 if mail else 0.34, 1.18, m["shine"], 0.12 if mail else (0.10 if scale_a or lamellar else 0.05))
+		var c_arm_d: int = sh.add_color(m["dark"], 0.24, 1.14, m["shine"])
+		var c_trim: int = sh.add_color(m["trim"], 0.36, 1.18, m["shine"])
+		var a_skirt: float = 0.62 if mounted else (float(f.leg_len) * (0.38 if kind == "mail" else (0.32 if lamellar else 0.15)))
+		var a_pts: PackedVector2Array = _female_body(f, a_skirt, true) if female else _wardrobe_shape(f, a_skirt, false)
+		sh.poly(a_pts, c_leath if scrap else c_arm, 1.1, 2.2)
+		sh.ellipsoid(sc + Vector2(0.05, 1.30), w * 0.80, 1.52, c_arm, 1.5, 1.1)
+		if scrap:
+			for ri in 3:
+				var ry: float = sc.y + 0.85 + float(ri) * 1.15
+				sh.capsule(Vector2(-w * 0.72, ry), Vector2(w * 0.72, ry - 0.12), 0.38, 0.36, c_arm if ri % 2 == 0 else c_arm_d, 2.0, 0.95)
+		var belt_p: Vector2 = hip.lerp(sc, 0.20)
+		sh.capsule(belt_p + Vector2(-h - 0.12, 0.0), belt_p + Vector2(h + 0.12, 0.0), 0.30, 0.30, c_leath, 2.4, 1.0)
+		sh.ellipsoid(belt_p + Vector2(0.45, 0.0), 0.38, 0.30, c_trim, 2.7, 1.0)
+	elif has_cloth:
+		var belt_p: Vector2 = hip.lerp(sc, 0.20)
+		sh.capsule(belt_p + Vector2(-h - 0.10, 0.0), belt_p + Vector2(h + 0.10, 0.0), 0.28, 0.28, c_leath, 2.0, 0.95)
+		sh.ellipsoid(belt_p + Vector2(0.45, 0.0), 0.36, 0.28, c_brass, 2.3, 0.95)
+
+	sh.composite(FigurePainter.ol(f.skin), true)
+	return true
+
+static func _legacy_torso(f) -> bool:
 	if not f._it("body").is_empty() or not f._it("clothing").is_empty():
 		return _wardrobe_torso(f)
 	if _female(f):
@@ -172,6 +365,64 @@ static func _limb(cv: PixelCanvas, a: Vector2, b: Vector2, ra: float, rb: float,
 	cv.capsule(a-n*ra*0.62,b-n*rb*0.53,0.11,color.darkened(0.23))
 
 static func arm(f, side: String) -> bool:
+	if _force_legacy_v064:
+		return _legacy_arm(f, side)
+	var cv: PixelCanvas = f.cv
+	var sh_pt: Vector2 = f.j["s" + side]
+	var el: Vector2 = f.j["e" + side]
+	var hd: Vector2 = f.j["h" + side]
+	if f._lost("arm_upper_" + side):
+		cv.dot(sh_pt, FigurePainter.BLOOD)
+		return true
+	var r: float = float(f.arm_r)
+	var skin_c: Color = f.skin.darkened(0.12) if side == "l" else f.skin
+	var lower_lost: bool = f._lost("arm_lower_" + side)
+	var hand_lost: bool = f._lost("hand_" + side)
+	var clothing: Dictionary = f._it("clothing")
+	var body: Dictionary = f._it("body")
+	var hands_it: Dictionary = f._it("hands")
+
+	var sh := cv.shaded()
+	var c_skin: int = sh.add_color(skin_c, 0.14, 1.08)
+	sh.capsule(sh_pt, el, r * 0.94, r * 0.70, c_skin, 0.0, 1.0)
+	if not lower_lost:
+		sh.capsule(el, hd, r * 0.78, r * 0.54, c_skin, 0.2, 1.0)
+
+	if not clothing.is_empty():
+		var padded: bool = String(clothing.get("tid", "")) == "gambeson"
+		var c_cloth: int = sh.add_color(_wardrobe_cloth(f, clothing).darkened(0.08 if side == "l" else 0.0), 0.09, 1.08)
+		sh.capsule(sh_pt, sh_pt.lerp(el, 0.78 if padded else 0.67), r * (1.16 if padded else 1.06), r * (0.94 if padded else 0.82), c_cloth, 0.5, 1.0)
+
+	if not body.is_empty():
+		var b_kind: String = String(body.get("sprite", ""))
+		var m: Dictionary = FigurePainter.metal(String(body.get("mat", "copper")), int(body.get("q", 0)))
+		var mail: bool = b_kind in ["mail", "byrnie"]
+		var c_arm: int = sh.add_color(m["base"].darkened(0.08 if side == "l" else 0.0), 0.28 if mail else 0.34, 1.16, m["shine"], 0.12 if mail else 0.05)
+		sh.capsule(sh_pt, sh_pt.lerp(el, 0.85 if b_kind == "mail" else 0.52), r * 1.14, r * 0.88, c_arm, 1.1, 1.05)
+		if b_kind in ["scrap", "lamellar", "scale", "plate"]:
+			sh.ellipsoid(sh_pt + Vector2(0.0, 0.08), r * 1.26, r * 1.08, c_arm, 1.5, 1.1)
+
+	if not lower_lost:
+		if not hands_it.is_empty():
+			var hm: Dictionary = FigurePainter.metal(String(hands_it.get("mat", "copper")), int(hands_it.get("q", 0)))
+			var h_tid: String = String(hands_it.get("tid", ""))
+			var c_hnd: int = sh.add_color(hm["base"].darkened(0.08 if side == "l" else 0.0), 0.32, 1.16, hm["shine"])
+			sh.capsule(el.lerp(hd, 0.22), el.lerp(hd, 0.82), r * 0.94, r * 0.72, c_hnd, 1.3, 1.0)
+			if h_tid.contains("gauntlet") and not hand_lost:
+				sh.ellipsoid(hd, r * 0.86, r * 0.94, c_hnd, 1.6, 1.0)
+			elif not hand_lost:
+				sh.ellipsoid(hd, r * 0.82, r * 0.92, c_skin, 0.8, 1.0)
+		elif not hand_lost:
+			sh.ellipsoid(hd, r * 0.82, r * 0.92, c_skin, 0.8, 1.0)
+
+	sh.composite(FigurePainter.ol(skin_c), true)
+	if lower_lost:
+		cv.dot(el, FigurePainter.BLOOD)
+	elif hand_lost:
+		cv.dot(hd, FigurePainter.BLOOD)
+	return true
+
+static func _legacy_arm(f, side: String) -> bool:
 	var cv: PixelCanvas = f.cv
 	var sh: Vector2 = f.j["s"+side]
 	var el: Vector2 = f.j["e"+side]
@@ -200,6 +451,52 @@ static func arm(f, side: String) -> bool:
 	return true
 
 static func leg(f, side: String) -> bool:
+	if _force_legacy_v064:
+		return _legacy_leg(f, side)
+	var cv: PixelCanvas = f.cv
+	var hp: Vector2 = f.j["p" + side]
+	var kn: Vector2 = f.j["k" + side]
+	var ft: Vector2 = f.j["f" + side]
+	if f._lost("leg_upper_" + side):
+		cv.dot(hp, FigurePainter.BLOOD)
+		return true
+	var trousers: bool = not f._it("legs_under").is_empty()
+	var color: Color = f._trouser_col() if trousers else f.skin
+	if side == "l":
+		color = color.darkened(0.10)
+	var radius: float = float(f.leg_r)
+	var lower_lost: bool = f._lost("leg_lower_" + side)
+	var foot_lost: bool = f._lost("foot_" + side)
+	var greaves: Dictionary = f._it("legs")
+	var shoes: Dictionary = f._it("feet")
+
+	var sh := cv.shaded()
+	var c_leg: int = sh.add_color(color, 0.10 if trousers else 0.14, 1.08)
+	sh.capsule(hp, kn, radius * 0.96, radius * 0.68, c_leg, 0.0, 1.05)
+	if not lower_lost:
+		sh.capsule(kn, ft, radius * 0.76, radius * 0.52, c_leg, 0.2, 1.0)
+		if not greaves.is_empty():
+			var gm: Dictionary = FigurePainter.metal(String(greaves.get("mat", "copper")), int(greaves.get("q", 0)))
+			var c_grv: int = sh.add_color(gm["base"].darkened(0.08 if side == "l" else 0.0), 0.32, 1.18, gm["shine"])
+			sh.ellipsoid(kn, radius * 0.85, radius * 0.72, c_grv, 1.2, 1.0)
+			sh.capsule(kn.lerp(ft, 0.10), kn.lerp(ft, 0.88), radius * 0.86, radius * 0.60, c_grv, 1.0, 1.05)
+		if not foot_lost:
+			var boot_c: Color = f.skin if shoes.is_empty() else FigurePainter.LEATHER.darkened(0.20)
+			if not shoes.is_empty() and String(shoes.get("mat", "")) in ["copper", "tin", "iron", "steel", "bronze", "silver", "gold"]:
+				boot_c = FigurePainter.metal(String(shoes.get("mat", "iron")), int(shoes.get("q", 0)))["base"]
+			if side == "l":
+				boot_c = boot_c.darkened(0.10)
+			var c_boot: int = sh.add_color(boot_c, 0.18 if not shoes.is_empty() else 0.14, 1.12)
+			sh.capsule(ft + Vector2(-0.50, -0.25), ft + Vector2(1.55, 0.65), radius * 0.68, radius * 0.56, c_boot, 1.3, 1.0)
+
+	sh.composite(FigurePainter.ol(color), true)
+	if lower_lost:
+		cv.dot(kn, FigurePainter.BLOOD)
+	elif foot_lost:
+		cv.dot(ft, FigurePainter.BLOOD)
+	return true
+
+static func _legacy_leg(f, side: String) -> bool:
 	var cv: PixelCanvas = f.cv
 	var hp: Vector2 = f.j["p"+side]
 	var kn: Vector2 = f.j["k"+side]
