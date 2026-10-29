@@ -1,0 +1,5 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+balance070 evidence: C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v070a/game/../test-results/balance_v070/after_verified_sweep_06of08_1793280889_33536.json
+balance070 sweep 6/8: complete=true elapsed=26202 ms battles=314
+== res://tests/balance_v070.gd: PASS ==

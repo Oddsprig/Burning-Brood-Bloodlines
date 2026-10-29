@@ -1,5 +1,6 @@
 {
   "_note": "Town economy (docs/specs/economy-1-town.md; code campaign/town_econ.gd, families.gd, businesses.gd, goods.gd). Every number is a tuned default [ours]. Goods are integer counts held by a town market, a town barn (harvest stores), a granary, a family, a caravan or the company; gold is held by markets, businesses, families, treasuries, caravans and the company. Food units are meals' worth (a person eats 2 a day); beer is mugs, wine is cups (the company's own units). price = base gold; weight = kg per unit; spoils = days a stock lasts on its own (0 = never).",
+  "item_quality_value_growth": 1.25,
   "goods": {
     "_goods_note": "Prices in coins (coinage: 100 coins = a labourer's day). Barge base prices converted to our units where a good matches (grain 52 a peck of 5 kg -> a meal of 0.35 kg = 3.6; pork 30 a catty -> a 0.4 kg meal = 20; firewood 10; wine 20; clothes 350; hoe 200); the rest are the old gold prices x20 (the coin factor) [ours]. bcat: barge goods category (data barge.categories: target days, elasticity, ceiling, perish days); perish overrides the category's perish days (0 = keeps).",
     "grain": {
@@ -1155,7 +1156,7 @@
       "horses": {
         "name": "horses",
         "one": "horse",
-        "price": 8000,
+        "price": 2400,
         "grow": 3.0,
         "prime": 12.0,
         "die": 0.02,

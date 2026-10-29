@@ -1,0 +1,3939 @@
+{
+	"complete": true,
+	"data_sha256": {
+		"armor": "9299fc78ce6a6762d439631724ca9b431f8eff66b08564a8d9bddb948e92ec1e",
+		"bows": "3c7d5133c641c7503c7acbb03d90ceeb16bf385779ee2c354bdbcf39da4b6713",
+		"creatures": "240e4979cdc869b0b81c190ba2f63a6ac5c6a65729bbc88cc672d53c5ddff87d",
+		"economy": "0430a98852721a0f0600dc2e25bbb4403994e75cb2a0b1c7ab7315659346d9e8",
+		"factions": "d44abd1173a5fc5be2f750613c0c4dd763cc4d02f0945b503b75d91b9a00566f",
+		"materials": "617d44cefd627c3bbb625483d5dd5d5ccb2d3c3bb6cb7f1bcf6be07f85d5e20a",
+		"weapons": "93d2c7732a499b4b575e5d4d860e366d60010aaed41aa6fbd5ee7074bd05b975"
+	},
+	"disabled_included": false,
+	"elapsed_ms": 4774,
+	"errors": [],
+	"max_cost_gap": 0.05,
+	"max_ticks": 6000,
+	"mirrors": {
+		"mount": {
+			"horse": {
+				"cost_efficiency": 0.22953982999589068,
+				"cost_spent": 1732663.9999999998,
+				"damage_dealt": 1880.4919166189275,
+				"damage_taken": 1880.4919166189275,
+				"draw": 0,
+				"kills": 73,
+				"n": 60,
+				"score_rate": 0.5,
+				"value_killed": 397715.39999999985,
+				"win_rate": 0.5,
+				"won": 30
+			}
+		},
+		"profile": {
+			"dwarf/archer/horse": {
+				"cost_efficiency": 0.2026232387643667,
+				"cost_spent": 125707.20000000001,
+				"damage_dealt": 289.0286257439456,
+				"damage_taken": 289.0286257439456,
+				"draw": 0,
+				"kills": 6,
+				"n": 4,
+				"score_rate": 0.5,
+				"value_killed": 25471.2,
+				"win_rate": 0.5,
+				"won": 2
+			},
+			"dwarf/spear/horse": {
+				"cost_efficiency": 0.3511731373998232,
+				"cost_spent": 110404.79999999999,
+				"damage_dealt": 84.95667371015071,
+				"damage_taken": 84.95667371015071,
+				"draw": 0,
+				"kills": 6,
+				"n": 4,
+				"score_rate": 0.5,
+				"value_killed": 38771.2,
+				"win_rate": 0.5,
+				"won": 2
+			},
+			"dwarf/sword/horse": {
+				"cost_efficiency": 0.5,
+				"cost_spent": 110420.79999999999,
+				"damage_dealt": 123.86628676341968,
+				"damage_taken": 123.86628676341968,
+				"draw": 0,
+				"kills": 8,
+				"n": 4,
+				"score_rate": 0.5,
+				"value_killed": 55210.399999999994,
+				"win_rate": 0.5,
+				"won": 2
+			},
+			"goblin/archer/horse": {
+				"cost_efficiency": 0.22060152481321674,
+				"cost_spent": 125707.20000000001,
+				"damage_dealt": 177.60502084371967,
+				"damage_taken": 177.60502084371967,
+				"draw": 0,
+				"kills": 7,
+				"n": 4,
+				"score_rate": 0.5,
+				"value_killed": 27731.2,
+				"win_rate": 0.5,
+				"won": 2
+			},
+			"goblin/spear/horse": {
+				"cost_efficiency": 0.2261731373998232,
+				"cost_spent": 110404.79999999999,
+				"damage_dealt": 74.6001944265077,
+				"damage_taken": 74.6001944265077,
+				"draw": 0,
+				"kills": 4,
+				"n": 4,
+				"score_rate": 0.5,
+				"value_killed": 24970.6,
+				"win_rate": 0.5,
+				"won": 2
+			},
+			"goblin/sword/horse": {
+				"cost_efficiency": 0.1517920536710475,
+				"cost_spent": 110420.79999999999,
+				"damage_dealt": 93.91513396566735,
+				"damage_taken": 93.91513396566735,
+				"draw": 0,
+				"kills": 3,
+				"n": 4,
+				"score_rate": 0.5,
+				"value_killed": 16761.0,
+				"win_rate": 0.5,
+				"won": 2
+			},
+			"human/archer/horse": {
+				"cost_efficiency": 0.26797828604885005,
+				"cost_spent": 125707.20000000001,
+				"damage_dealt": 109.38490750374191,
+				"damage_taken": 109.3849075037419,
+				"draw": 0,
+				"kills": 7,
+				"n": 4,
+				"score_rate": 0.5,
+				"value_killed": 33686.8,
+				"win_rate": 0.5,
+				"won": 2
+			},
+			"human/spear/horse": {
+				"cost_efficiency": 0.25000000000000006,
+				"cost_spent": 110404.79999999999,
+				"damage_dealt": 76.58068466115805,
+				"damage_taken": 76.58068466115805,
+				"draw": 0,
+				"kills": 4,
+				"n": 4,
+				"score_rate": 0.5,
+				"value_killed": 27601.2,
+				"win_rate": 0.5,
+				"won": 2
+			},
+			"human/sword/horse": {
+				"cost_efficiency": 0.3244026487763176,
+				"cost_spent": 110420.79999999999,
+				"damage_dealt": 112.73728229225162,
+				"damage_taken": 112.73728229225162,
+				"draw": 0,
+				"kills": 5,
+				"n": 4,
+				"score_rate": 0.5,
+				"value_killed": 35820.8,
+				"win_rate": 0.5,
+				"won": 2
+			},
+			"moon_elf/archer/horse": {
+				"cost_efficiency": 0.1372681914798834,
+				"cost_spent": 125707.20000000001,
+				"damage_dealt": 115.76592806215308,
+				"damage_taken": 115.76592806215308,
+				"draw": 0,
+				"kills": 5,
+				"n": 4,
+				"score_rate": 0.5,
+				"value_killed": 17255.6,
+				"win_rate": 0.5,
+				"won": 2
+			},
+			"moon_elf/spear/horse": {
+				"cost_efficiency": 0.3511731373998232,
+				"cost_spent": 110404.79999999999,
+				"damage_dealt": 159.36325260913588,
+				"damage_taken": 159.36325260913588,
+				"draw": 0,
+				"kills": 6,
+				"n": 4,
+				"score_rate": 0.5,
+				"value_killed": 38771.2,
+				"win_rate": 0.5,
+				"won": 2
+			},
+			"moon_elf/sword/horse": {
+				"cost_efficiency": 0.0505973512236825,
+				"cost_spent": 110420.79999999999,
+				"damage_dealt": 137.38454254424224,
+				"damage_taken": 137.38454254424224,
+				"draw": 0,
+				"kills": 1,
+				"n": 4,
+				"score_rate": 0.5,
+				"value_killed": 5587.0,
+				"win_rate": 0.5,
+				"won": 2
+			},
+			"orc/archer/horse": {
+				"cost_efficiency": 0.08989143024425013,
+				"cost_spent": 125707.20000000001,
+				"damage_dealt": 142.57843176714988,
+				"damage_taken": 142.57843176714985,
+				"draw": 0,
+				"kills": 5,
+				"n": 4,
+				"score_rate": 0.5,
+				"value_killed": 11300.0,
+				"win_rate": 0.5,
+				"won": 2
+			},
+			"orc/spear/horse": {
+				"cost_efficiency": 0.12500000000000003,
+				"cost_spent": 110404.79999999999,
+				"damage_dealt": 53.70999438627864,
+				"damage_taken": 53.70999438627864,
+				"draw": 0,
+				"kills": 2,
+				"n": 4,
+				"score_rate": 0.5,
+				"value_killed": 13800.6,
+				"win_rate": 0.5,
+				"won": 2
+			},
+			"orc/sword/horse": {
+				"cost_efficiency": 0.226194702447365,
+				"cost_spent": 110420.79999999999,
+				"damage_dealt": 129.0149573394051,
+				"damage_taken": 129.0149573394051,
+				"draw": 0,
+				"kills": 4,
+				"n": 4,
+				"score_rate": 0.5,
+				"value_killed": 24976.6,
+				"win_rate": 0.5,
+				"won": 2
+			}
+		},
+		"race": {
+			"dwarf": {
+				"cost_efficiency": 0.3447084951265797,
+				"cost_spent": 346532.8,
+				"damage_dealt": 497.851586217516,
+				"damage_taken": 497.851586217516,
+				"draw": 0,
+				"kills": 20,
+				"n": 12,
+				"score_rate": 0.5,
+				"value_killed": 119452.80000000002,
+				"win_rate": 0.5,
+				"won": 6
+			},
+			"goblin": {
+				"cost_efficiency": 0.20045086641149124,
+				"cost_spent": 346532.8,
+				"damage_dealt": 346.1203492358947,
+				"damage_taken": 346.12034923589476,
+				"draw": 0,
+				"kills": 14,
+				"n": 12,
+				"score_rate": 0.5,
+				"value_killed": 69462.8,
+				"win_rate": 0.5,
+				"won": 6
+			},
+			"human": {
+				"cost_efficiency": 0.2802297502574071,
+				"cost_spent": 346532.8,
+				"damage_dealt": 298.70287445715155,
+				"damage_taken": 298.70287445715155,
+				"draw": 0,
+				"kills": 16,
+				"n": 12,
+				"score_rate": 0.5,
+				"value_killed": 97108.8,
+				"win_rate": 0.5,
+				"won": 6
+			},
+			"moon_elf": {
+				"cost_efficiency": 0.17780077383728177,
+				"cost_spent": 346532.8,
+				"damage_dealt": 412.5137232155312,
+				"damage_taken": 412.5137232155312,
+				"draw": 0,
+				"kills": 12,
+				"n": 12,
+				"score_rate": 0.5,
+				"value_killed": 61613.799999999996,
+				"win_rate": 0.5,
+				"won": 6
+			},
+			"orc": {
+				"cost_efficiency": 0.14450926434669387,
+				"cost_spent": 346532.8,
+				"damage_dealt": 325.30338349283363,
+				"damage_taken": 325.30338349283363,
+				"draw": 0,
+				"kills": 11,
+				"n": 12,
+				"score_rate": 0.5,
+				"value_killed": 50077.2,
+				"win_rate": 0.5,
+				"won": 6
+			}
+		},
+		"unit": {
+			"archer": {
+				"cost_efficiency": 0.18367253427011343,
+				"cost_spent": 628536.0,
+				"damage_dealt": 834.3629139207101,
+				"damage_taken": 834.3629139207101,
+				"draw": 0,
+				"kills": 30,
+				"n": 20,
+				"score_rate": 0.5,
+				"value_killed": 115444.80000000002,
+				"win_rate": 0.5,
+				"won": 10
+			},
+			"spear": {
+				"cost_efficiency": 0.2607038824398939,
+				"cost_spent": 552024.0000000001,
+				"damage_dealt": 449.21079979323105,
+				"damage_taken": 449.21079979323093,
+				"draw": 0,
+				"kills": 22,
+				"n": 20,
+				"score_rate": 0.5,
+				"value_killed": 143914.80000000002,
+				"win_rate": 0.5,
+				"won": 10
+			},
+			"sword": {
+				"cost_efficiency": 0.25059735122368243,
+				"cost_spent": 552104.0000000001,
+				"damage_dealt": 596.918202904986,
+				"damage_taken": 596.918202904986,
+				"draw": 0,
+				"kills": 21,
+				"n": 20,
+				"score_rate": 0.5,
+				"value_killed": 138355.8,
+				"win_rate": 0.5,
+				"won": 10
+			}
+		}
+	},
+	"phase": "before_full",
+	"rows": [
+		{
+			"a": {
+				"id": "human/sword/foot",
+				"mount": "foot",
+				"race": "human",
+				"unit": "sword"
+			},
+			"b": {
+				"id": "human/sword/horse",
+				"mount": "horse",
+				"race": "human",
+				"unit": "sword"
+			},
+			"cost_match": {
+				"cost0": 27935.0,
+				"cost1": 27605.2,
+				"gap": 0.011805978163594032,
+				"n0": 5,
+				"n1": 2
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 77919,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 27935.0,
+					"damage_dealt": 41.1938740952091,
+					"damage_taken": 1.3112041491741884,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 8215.6,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 1.3112041491741884,
+					"damage_taken": 41.1938740952091,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 114
+		},
+		{
+			"a": {
+				"id": "human/sword/foot",
+				"mount": "foot",
+				"race": "human",
+				"unit": "sword"
+			},
+			"b": {
+				"id": "human/sword/horse",
+				"mount": "horse",
+				"race": "human",
+				"unit": "sword"
+			},
+			"cost_match": {
+				"cost0": 27935.0,
+				"cost1": 27605.2,
+				"gap": 0.011805978163594032,
+				"n0": 5,
+				"n1": 2
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 77919,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 27935.0,
+					"damage_dealt": 54.83287242833454,
+					"damage_taken": 0.9245212288247548,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 13802.6,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 0.9245212288247548,
+					"damage_taken": 54.83287242833454,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 166
+		},
+		{
+			"a": {
+				"id": "human/sword/horse",
+				"mount": "horse",
+				"race": "human",
+				"unit": "sword"
+			},
+			"b": {
+				"id": "human/sword/horse",
+				"mount": "horse",
+				"race": "human",
+				"unit": "sword"
+			},
+			"cost_match": {
+				"cost0": 27605.2,
+				"cost1": 27605.2,
+				"gap": 0.0,
+				"n0": 2,
+				"n1": 2
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 78020,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 20.868680768642974,
+					"damage_taken": 54.68865181424112,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 54.68865181424112,
+					"damage_taken": 20.868680768642974,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 13802.6,
+					"won": 1
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 250
+		},
+		{
+			"a": {
+				"id": "human/sword/horse",
+				"mount": "horse",
+				"race": "human",
+				"unit": "sword"
+			},
+			"b": {
+				"id": "human/sword/horse",
+				"mount": "horse",
+				"race": "human",
+				"unit": "sword"
+			},
+			"cost_match": {
+				"cost0": 27605.2,
+				"cost1": 27605.2,
+				"gap": 0.0,
+				"n0": 2,
+				"n1": 2
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 78020,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 13.373287888222366,
+					"damage_taken": 23.80666182114515,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 1,
+					"value_killed": 8215.6,
+					"won": 0
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 23.80666182114515,
+					"damage_taken": 13.373287888222366,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 2,
+					"value_killed": 13802.6,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 199
+		},
+		{
+			"a": {
+				"id": "human/spear/foot",
+				"mount": "foot",
+				"race": "human",
+				"unit": "spear"
+			},
+			"b": {
+				"id": "human/spear/horse",
+				"mount": "horse",
+				"race": "human",
+				"unit": "spear"
+			},
+			"cost_match": {
+				"cost0": 27925.0,
+				"cost1": 27601.2,
+				"gap": 0.011595344673231846,
+				"n0": 5,
+				"n1": 2
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 78121,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 27925.0,
+					"damage_dealt": 42.1003057597353,
+					"damage_taken": 8.250737897022104,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 13800.6,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 8.250737897022104,
+					"damage_taken": 42.1003057597353,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 133
+		},
+		{
+			"a": {
+				"id": "human/spear/foot",
+				"mount": "foot",
+				"race": "human",
+				"unit": "spear"
+			},
+			"b": {
+				"id": "human/spear/horse",
+				"mount": "horse",
+				"race": "human",
+				"unit": "spear"
+			},
+			"cost_match": {
+				"cost0": 27925.0,
+				"cost1": 27601.2,
+				"gap": 0.011595344673231846,
+				"n0": 5,
+				"n1": 2
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 78121,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 27925.0,
+					"damage_dealt": 41.75926097296709,
+					"damage_taken": 3.9101499499851995,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 8215.6,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 3.9101499499851995,
+					"damage_taken": 41.75926097296709,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 98
+		},
+		{
+			"a": {
+				"id": "human/spear/horse",
+				"mount": "horse",
+				"race": "human",
+				"unit": "spear"
+			},
+			"b": {
+				"id": "human/spear/horse",
+				"mount": "horse",
+				"race": "human",
+				"unit": "spear"
+			},
+			"cost_match": {
+				"cost0": 27601.2,
+				"cost1": 27601.2,
+				"gap": 0.0,
+				"n0": 2,
+				"n1": 2
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 78222,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 30.27936287725343,
+					"damage_taken": 13.335973573570225,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 2,
+					"value_killed": 13800.6,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 13.335973573570225,
+					"damage_taken": 30.27936287725343,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 1,
+					"value_killed": 8215.6,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 182
+		},
+		{
+			"a": {
+				"id": "human/spear/horse",
+				"mount": "horse",
+				"race": "human",
+				"unit": "spear"
+			},
+			"b": {
+				"id": "human/spear/horse",
+				"mount": "horse",
+				"race": "human",
+				"unit": "spear"
+			},
+			"cost_match": {
+				"cost0": 27601.2,
+				"cost1": 27601.2,
+				"gap": 0.0,
+				"n0": 2,
+				"n1": 2
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 78222,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 13.942338077388811,
+					"damage_taken": 19.02301013294558,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 19.02301013294558,
+					"damage_taken": 13.942338077388811,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 5585.0,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 117
+		},
+		{
+			"a": {
+				"id": "human/archer/foot",
+				"mount": "foot",
+				"race": "human",
+				"unit": "archer"
+			},
+			"b": {
+				"id": "human/archer/horse",
+				"mount": "horse",
+				"race": "human",
+				"unit": "archer"
+			},
+			"cost_match": {
+				"cost0": 31640.0,
+				"cost1": 31426.800000000003,
+				"gap": 0.006738305941845673,
+				"n0": 14,
+				"n1": 3
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 78323,
+			"sides": [
+				{
+					"bodies": 14,
+					"cost_spent": 31640.0,
+					"damage_dealt": 55.57810109027659,
+					"damage_taken": 16.366750853173794,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 4520.0,
+					"won": 1
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 16.366750853173794,
+					"damage_taken": 55.57810109027659,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 2260.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 1125
+		},
+		{
+			"a": {
+				"id": "human/archer/foot",
+				"mount": "foot",
+				"race": "human",
+				"unit": "archer"
+			},
+			"b": {
+				"id": "human/archer/horse",
+				"mount": "horse",
+				"race": "human",
+				"unit": "archer"
+			},
+			"cost_match": {
+				"cost0": 31640.0,
+				"cost1": 31426.800000000003,
+				"gap": 0.006738305941845673,
+				"n0": 14,
+				"n1": 3
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 78323,
+			"sides": [
+				{
+					"bodies": 14,
+					"cost_spent": 31640.0,
+					"damage_dealt": 102.74044769256275,
+					"damage_taken": 227.2625481201884,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 18691.2,
+					"won": 0
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 227.2625481201884,
+					"damage_taken": 102.74044769256275,
+					"draw": 0,
+					"horse_deaths": 2,
+					"kills": 7,
+					"value_killed": 15820.0,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 5255
+		},
+		{
+			"a": {
+				"id": "human/archer/horse",
+				"mount": "horse",
+				"race": "human",
+				"unit": "archer"
+			},
+			"b": {
+				"id": "human/archer/horse",
+				"mount": "horse",
+				"race": "human",
+				"unit": "archer"
+			},
+			"cost_match": {
+				"cost0": 31426.800000000003,
+				"cost1": 31426.800000000003,
+				"gap": 0.0,
+				"n0": 3,
+				"n1": 3
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 78424,
+			"sides": [
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 50.4891503730384,
+					"damage_taken": 13.833816689066564,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 4,
+					"value_killed": 20951.2,
+					"won": 1
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 13.833816689066564,
+					"damage_taken": 50.4891503730384,
+					"draw": 0,
+					"horse_deaths": 2,
+					"kills": 1,
+					"value_killed": 2260.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 1703
+		},
+		{
+			"a": {
+				"id": "human/archer/horse",
+				"mount": "horse",
+				"race": "human",
+				"unit": "archer"
+			},
+			"b": {
+				"id": "human/archer/horse",
+				"mount": "horse",
+				"race": "human",
+				"unit": "archer"
+			},
+			"cost_match": {
+				"cost0": 31426.800000000003,
+				"cost1": 31426.800000000003,
+				"gap": 0.0,
+				"n0": 3,
+				"n1": 3
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 78424,
+			"sides": [
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 40.96017603145755,
+					"damage_taken": 4.101764410179392,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 10475.6,
+					"won": 1
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 4.101764410179392,
+					"damage_taken": 40.96017603145755,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 1853
+		},
+		{
+			"a": {
+				"id": "orc/sword/foot",
+				"mount": "foot",
+				"race": "orc",
+				"unit": "sword"
+			},
+			"b": {
+				"id": "orc/sword/horse",
+				"mount": "horse",
+				"race": "orc",
+				"unit": "sword"
+			},
+			"cost_match": {
+				"cost0": 27935.0,
+				"cost1": 27605.2,
+				"gap": 0.011805978163594032,
+				"n0": 5,
+				"n1": 2
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 78525,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 27935.0,
+					"damage_dealt": 57.51809491219688,
+					"damage_taken": 1.676246470715093,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 19389.6,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 1.676246470715093,
+					"damage_taken": 57.51809491219688,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 145
+		},
+		{
+			"a": {
+				"id": "orc/sword/foot",
+				"mount": "foot",
+				"race": "orc",
+				"unit": "sword"
+			},
+			"b": {
+				"id": "orc/sword/horse",
+				"mount": "horse",
+				"race": "orc",
+				"unit": "sword"
+			},
+			"cost_match": {
+				"cost0": 27935.0,
+				"cost1": 27605.2,
+				"gap": 0.011805978163594032,
+				"n0": 5,
+				"n1": 2
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 78525,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 27935.0,
+					"damage_dealt": 58.577431279783056,
+					"damage_taken": 2.2416791983111013,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 5587.0,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 2.2416791983111013,
+					"damage_taken": 58.577431279783056,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 155
+		},
+		{
+			"a": {
+				"id": "orc/sword/horse",
+				"mount": "horse",
+				"race": "orc",
+				"unit": "sword"
+			},
+			"b": {
+				"id": "orc/sword/horse",
+				"mount": "horse",
+				"race": "orc",
+				"unit": "sword"
+			},
+			"cost_match": {
+				"cost0": 27605.2,
+				"cost1": 27605.2,
+				"gap": 0.0,
+				"n0": 2,
+				"n1": 2
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 78626,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 11.992793224591862,
+					"damage_taken": 51.1189355948369,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 51.1189355948369,
+					"damage_taken": 11.992793224591862,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 11174.0,
+					"won": 1
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 227
+		},
+		{
+			"a": {
+				"id": "orc/sword/horse",
+				"mount": "horse",
+				"race": "orc",
+				"unit": "sword"
+			},
+			"b": {
+				"id": "orc/sword/horse",
+				"mount": "horse",
+				"race": "orc",
+				"unit": "sword"
+			},
+			"cost_match": {
+				"cost0": 27605.2,
+				"cost1": 27605.2,
+				"gap": 0.0,
+				"n0": 2,
+				"n1": 2
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 78626,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 16.548724042307214,
+					"damage_taken": 49.354504477669124,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 49.354504477669124,
+					"damage_taken": 16.548724042307214,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 13802.6,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 178
+		},
+		{
+			"a": {
+				"id": "orc/spear/foot",
+				"mount": "foot",
+				"race": "orc",
+				"unit": "spear"
+			},
+			"b": {
+				"id": "orc/spear/horse",
+				"mount": "horse",
+				"race": "orc",
+				"unit": "spear"
+			},
+			"cost_match": {
+				"cost0": 27925.0,
+				"cost1": 27601.2,
+				"gap": 0.011595344673231846,
+				"n0": 5,
+				"n1": 2
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 78727,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 27925.0,
+					"damage_dealt": 35.353835756955334,
+					"damage_taken": 0.0,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 5585.0,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 0.0,
+					"damage_taken": 35.353835756955334,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 92
+		},
+		{
+			"a": {
+				"id": "orc/spear/foot",
+				"mount": "foot",
+				"race": "orc",
+				"unit": "spear"
+			},
+			"b": {
+				"id": "orc/spear/horse",
+				"mount": "horse",
+				"race": "orc",
+				"unit": "spear"
+			},
+			"cost_match": {
+				"cost0": 27925.0,
+				"cost1": 27601.2,
+				"gap": 0.011595344673231846,
+				"n0": 5,
+				"n1": 2
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 78727,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 27925.0,
+					"damage_dealt": 27.673226175426997,
+					"damage_taken": 3.389644720279741,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 5585.0,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 3.389644720279741,
+					"damage_taken": 27.673226175426997,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 71
+		},
+		{
+			"a": {
+				"id": "orc/spear/horse",
+				"mount": "horse",
+				"race": "orc",
+				"unit": "spear"
+			},
+			"b": {
+				"id": "orc/spear/horse",
+				"mount": "horse",
+				"race": "orc",
+				"unit": "spear"
+			},
+			"cost_match": {
+				"cost0": 27601.2,
+				"cost1": 27601.2,
+				"gap": 0.0,
+				"n0": 2,
+				"n1": 2
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 78828,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 6.213071084777525,
+					"damage_taken": 19.378313417424238,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 19.378313417424238,
+					"damage_taken": 6.213071084777525,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 1
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 182
+		},
+		{
+			"a": {
+				"id": "orc/spear/horse",
+				"mount": "horse",
+				"race": "orc",
+				"unit": "spear"
+			},
+			"b": {
+				"id": "orc/spear/horse",
+				"mount": "horse",
+				"race": "orc",
+				"unit": "spear"
+			},
+			"cost_match": {
+				"cost0": 27601.2,
+				"cost1": 27601.2,
+				"gap": 0.0,
+				"n0": 2,
+				"n1": 2
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 78828,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 6.687687460006838,
+					"damage_taken": 21.430922424070037,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 21.430922424070037,
+					"damage_taken": 6.687687460006838,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 13800.6,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 121
+		},
+		{
+			"a": {
+				"id": "orc/archer/foot",
+				"mount": "foot",
+				"race": "orc",
+				"unit": "archer"
+			},
+			"b": {
+				"id": "orc/archer/horse",
+				"mount": "horse",
+				"race": "orc",
+				"unit": "archer"
+			},
+			"cost_match": {
+				"cost0": 31640.0,
+				"cost1": 31426.800000000003,
+				"gap": 0.006738305941845673,
+				"n0": 14,
+				"n1": 3
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 78929,
+			"sides": [
+				{
+					"bodies": 14,
+					"cost_spent": 31640.0,
+					"damage_dealt": 102.54633531393172,
+					"damage_taken": 42.38190166811829,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 10475.6,
+					"won": 1
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 42.38190166811829,
+					"damage_taken": 102.54633531393172,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 1,
+					"value_killed": 2260.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 2805
+		},
+		{
+			"a": {
+				"id": "orc/archer/foot",
+				"mount": "foot",
+				"race": "orc",
+				"unit": "archer"
+			},
+			"b": {
+				"id": "orc/archer/horse",
+				"mount": "horse",
+				"race": "orc",
+				"unit": "archer"
+			},
+			"cost_match": {
+				"cost0": 31640.0,
+				"cost1": 31426.800000000003,
+				"gap": 0.006738305941845673,
+				"n0": 14,
+				"n1": 3
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 78929,
+			"sides": [
+				{
+					"bodies": 14,
+					"cost_spent": 31640.0,
+					"damage_dealt": 60.43112446082301,
+					"damage_taken": 289.58432438099953,
+					"draw": 1,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 10475.6,
+					"won": 0
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 289.58432438099953,
+					"damage_taken": 60.43112446082301,
+					"draw": 1,
+					"horse_deaths": 1,
+					"kills": 1,
+					"value_killed": 2260.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": true,
+			"ticks": 6000
+		},
+		{
+			"a": {
+				"id": "orc/archer/horse",
+				"mount": "horse",
+				"race": "orc",
+				"unit": "archer"
+			},
+			"b": {
+				"id": "orc/archer/horse",
+				"mount": "horse",
+				"race": "orc",
+				"unit": "archer"
+			},
+			"cost_match": {
+				"cost0": 31426.800000000003,
+				"cost1": 31426.800000000003,
+				"gap": 0.0,
+				"n0": 3,
+				"n1": 3
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 79030,
+			"sides": [
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 25.54870231670727,
+					"damage_taken": 52.02781308665854,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 52.02781308665854,
+					"damage_taken": 25.54870231670727,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 4520.0,
+					"won": 1
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 1616
+		},
+		{
+			"a": {
+				"id": "orc/archer/horse",
+				"mount": "horse",
+				"race": "orc",
+				"unit": "archer"
+			},
+			"b": {
+				"id": "orc/archer/horse",
+				"mount": "horse",
+				"race": "orc",
+				"unit": "archer"
+			},
+			"cost_match": {
+				"cost0": 31426.800000000003,
+				"cost1": 31426.800000000003,
+				"gap": 0.0,
+				"n0": 3,
+				"n1": 3
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 79030,
+			"sides": [
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 15.240561598852972,
+					"damage_taken": 49.76135476493107,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 2260.0,
+					"won": 0
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 49.76135476493107,
+					"damage_taken": 15.240561598852972,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 4520.0,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 1677
+		},
+		{
+			"a": {
+				"id": "goblin/sword/foot",
+				"mount": "foot",
+				"race": "goblin",
+				"unit": "sword"
+			},
+			"b": {
+				"id": "goblin/sword/horse",
+				"mount": "horse",
+				"race": "goblin",
+				"unit": "sword"
+			},
+			"cost_match": {
+				"cost0": 27935.0,
+				"cost1": 27605.2,
+				"gap": 0.011805978163594032,
+				"n0": 5,
+				"n1": 2
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 79131,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 27935.0,
+					"damage_dealt": 58.59479305686175,
+					"damage_taken": 6.632789160166189,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 11174.0,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 6.632789160166189,
+					"damage_taken": 58.59479305686175,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 5587.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 232
+		},
+		{
+			"a": {
+				"id": "goblin/sword/foot",
+				"mount": "foot",
+				"race": "goblin",
+				"unit": "sword"
+			},
+			"b": {
+				"id": "goblin/sword/horse",
+				"mount": "horse",
+				"race": "goblin",
+				"unit": "sword"
+			},
+			"cost_match": {
+				"cost0": 27935.0,
+				"cost1": 27605.2,
+				"gap": 0.011805978163594032,
+				"n0": 5,
+				"n1": 2
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 79131,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 27935.0,
+					"damage_dealt": 49.58015467973179,
+					"damage_taken": 8.738623786634417,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 8.738623786634417,
+					"damage_taken": 49.58015467973179,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 186
+		},
+		{
+			"a": {
+				"id": "goblin/sword/horse",
+				"mount": "horse",
+				"race": "goblin",
+				"unit": "sword"
+			},
+			"b": {
+				"id": "goblin/sword/horse",
+				"mount": "horse",
+				"race": "goblin",
+				"unit": "sword"
+			},
+			"cost_match": {
+				"cost0": 27605.2,
+				"cost1": 27605.2,
+				"gap": 0.0,
+				"n0": 2,
+				"n1": 2
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 79232,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 28.96513921843242,
+					"damage_taken": 15.957237460990418,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 11174.0,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 15.957237460990418,
+					"damage_taken": 28.96513921843242,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 202
+		},
+		{
+			"a": {
+				"id": "goblin/sword/horse",
+				"mount": "horse",
+				"race": "goblin",
+				"unit": "sword"
+			},
+			"b": {
+				"id": "goblin/sword/horse",
+				"mount": "horse",
+				"race": "goblin",
+				"unit": "sword"
+			},
+			"cost_match": {
+				"cost0": 27605.2,
+				"cost1": 27605.2,
+				"gap": 0.0,
+				"n0": 2,
+				"n1": 2
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 79232,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 18.283341390157776,
+					"damage_taken": 30.709415896086742,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 30.709415896086742,
+					"damage_taken": 18.283341390157776,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 5587.0,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 141
+		},
+		{
+			"a": {
+				"id": "goblin/spear/foot",
+				"mount": "foot",
+				"race": "goblin",
+				"unit": "spear"
+			},
+			"b": {
+				"id": "goblin/spear/horse",
+				"mount": "horse",
+				"race": "goblin",
+				"unit": "spear"
+			},
+			"cost_match": {
+				"cost0": 27925.0,
+				"cost1": 27601.2,
+				"gap": 0.011595344673231846,
+				"n0": 5,
+				"n1": 2
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 79333,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 27925.0,
+					"damage_dealt": 33.49511292396883,
+					"damage_taken": 0.0,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 8215.6,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 0.0,
+					"damage_taken": 33.49511292396883,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 97
+		},
+		{
+			"a": {
+				"id": "goblin/spear/foot",
+				"mount": "foot",
+				"race": "goblin",
+				"unit": "spear"
+			},
+			"b": {
+				"id": "goblin/spear/horse",
+				"mount": "horse",
+				"race": "goblin",
+				"unit": "spear"
+			},
+			"cost_match": {
+				"cost0": 27925.0,
+				"cost1": 27601.2,
+				"gap": 0.011595344673231846,
+				"n0": 5,
+				"n1": 2
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 79333,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 27925.0,
+					"damage_dealt": 43.2673983550318,
+					"damage_taken": 6.8197256831794455,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 22016.2,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 6.8197256831794455,
+					"damage_taken": 43.2673983550318,
+					"draw": 0,
+					"horse_deaths": 2,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 138
+		},
+		{
+			"a": {
+				"id": "goblin/spear/horse",
+				"mount": "horse",
+				"race": "goblin",
+				"unit": "spear"
+			},
+			"b": {
+				"id": "goblin/spear/horse",
+				"mount": "horse",
+				"race": "goblin",
+				"unit": "spear"
+			},
+			"cost_match": {
+				"cost0": 27601.2,
+				"cost1": 27601.2,
+				"gap": 0.0,
+				"n0": 2,
+				"n1": 2
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 79434,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 33.05580305246136,
+					"damage_taken": 2.390552189140805,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 5585.0,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 2.390552189140805,
+					"damage_taken": 33.05580305246136,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 196
+		},
+		{
+			"a": {
+				"id": "goblin/spear/horse",
+				"mount": "horse",
+				"race": "goblin",
+				"unit": "spear"
+			},
+			"b": {
+				"id": "goblin/spear/horse",
+				"mount": "horse",
+				"race": "goblin",
+				"unit": "spear"
+			},
+			"cost_match": {
+				"cost0": 27601.2,
+				"cost1": 27601.2,
+				"gap": 0.0,
+				"n0": 2,
+				"n1": 2
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 79434,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 29.197078816003188,
+					"damage_taken": 9.95676036890235,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 19385.6,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 9.95676036890235,
+					"damage_taken": 29.197078816003188,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 127
+		},
+		{
+			"a": {
+				"id": "goblin/archer/foot",
+				"mount": "foot",
+				"race": "goblin",
+				"unit": "archer"
+			},
+			"b": {
+				"id": "goblin/archer/horse",
+				"mount": "horse",
+				"race": "goblin",
+				"unit": "archer"
+			},
+			"cost_match": {
+				"cost0": 31640.0,
+				"cost1": 31426.800000000003,
+				"gap": 0.006738305941845673,
+				"n0": 14,
+				"n1": 3
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 79535,
+			"sides": [
+				{
+					"bodies": 14,
+					"cost_spent": 31640.0,
+					"damage_dealt": 70.07447780024725,
+					"damage_taken": 143.78769689066408,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 2260.0,
+					"won": 0
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 143.78769689066408,
+					"damage_taken": 70.07447780024725,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 4,
+					"value_killed": 9040.0,
+					"won": 1
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 4170
+		},
+		{
+			"a": {
+				"id": "goblin/archer/foot",
+				"mount": "foot",
+				"race": "goblin",
+				"unit": "archer"
+			},
+			"b": {
+				"id": "goblin/archer/horse",
+				"mount": "horse",
+				"race": "goblin",
+				"unit": "archer"
+			},
+			"cost_match": {
+				"cost0": 31640.0,
+				"cost1": 31426.800000000003,
+				"gap": 0.006738305941845673,
+				"n0": 14,
+				"n1": 3
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 79535,
+			"sides": [
+				{
+					"bodies": 14,
+					"cost_spent": 31640.0,
+					"damage_dealt": 89.20226898438966,
+					"damage_taken": 11.771453672830916,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 10475.6,
+					"won": 1
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 11.771453672830916,
+					"damage_taken": 89.20226898438966,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 1,
+					"value_killed": 2260.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 720
+		},
+		{
+			"a": {
+				"id": "goblin/archer/horse",
+				"mount": "horse",
+				"race": "goblin",
+				"unit": "archer"
+			},
+			"b": {
+				"id": "goblin/archer/horse",
+				"mount": "horse",
+				"race": "goblin",
+				"unit": "archer"
+			},
+			"cost_match": {
+				"cost0": 31426.800000000003,
+				"cost1": 31426.800000000003,
+				"gap": 0.0,
+				"n0": 3,
+				"n1": 3
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 79636,
+			"sides": [
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 70.18025241425313,
+					"damage_taken": 20.895789491924027,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 12735.6,
+					"won": 1
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 20.895789491924027,
+					"damage_taken": 70.18025241425313,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 1341
+		},
+		{
+			"a": {
+				"id": "goblin/archer/horse",
+				"mount": "horse",
+				"race": "goblin",
+				"unit": "archer"
+			},
+			"b": {
+				"id": "goblin/archer/horse",
+				"mount": "horse",
+				"race": "goblin",
+				"unit": "archer"
+			},
+			"cost_match": {
+				"cost0": 31426.800000000003,
+				"cost1": 31426.800000000003,
+				"gap": 0.0,
+				"n0": 3,
+				"n1": 3
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 79636,
+			"sides": [
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 48.481926671697444,
+					"damage_taken": 38.04705226584508,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 1,
+					"value_killed": 2260.0,
+					"won": 0
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 38.04705226584508,
+					"damage_taken": 48.481926671697444,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 12735.6,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 1733
+		},
+		{
+			"a": {
+				"id": "moon_elf/sword/foot",
+				"mount": "foot",
+				"race": "moon_elf",
+				"unit": "sword"
+			},
+			"b": {
+				"id": "moon_elf/sword/horse",
+				"mount": "horse",
+				"race": "moon_elf",
+				"unit": "sword"
+			},
+			"cost_match": {
+				"cost0": 27935.0,
+				"cost1": 27605.2,
+				"gap": 0.011805978163594032,
+				"n0": 5,
+				"n1": 2
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 79737,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 27935.0,
+					"damage_dealt": 36.32569572197988,
+					"damage_taken": 3.4393234971793505,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 5587.0,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 3.4393234971793505,
+					"damage_taken": 36.32569572197988,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 116
+		},
+		{
+			"a": {
+				"id": "moon_elf/sword/foot",
+				"mount": "foot",
+				"race": "moon_elf",
+				"unit": "sword"
+			},
+			"b": {
+				"id": "moon_elf/sword/horse",
+				"mount": "horse",
+				"race": "moon_elf",
+				"unit": "sword"
+			},
+			"cost_match": {
+				"cost0": 27935.0,
+				"cost1": 27605.2,
+				"gap": 0.011805978163594032,
+				"n0": 5,
+				"n1": 2
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 79737,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 27935.0,
+					"damage_dealt": 34.847619772632996,
+					"damage_taken": 0.0,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 0.0,
+					"damage_taken": 34.847619772632996,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 132
+		},
+		{
+			"a": {
+				"id": "moon_elf/sword/horse",
+				"mount": "horse",
+				"race": "moon_elf",
+				"unit": "sword"
+			},
+			"b": {
+				"id": "moon_elf/sword/horse",
+				"mount": "horse",
+				"race": "moon_elf",
+				"unit": "sword"
+			},
+			"cost_match": {
+				"cost0": 27605.2,
+				"cost1": 27605.2,
+				"gap": 0.0,
+				"n0": 2,
+				"n1": 2
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 79838,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 17.61774090211337,
+					"damage_taken": 53.12073713060579,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 53.12073713060579,
+					"damage_taken": 17.61774090211337,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 5587.0,
+					"won": 1
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 236
+		},
+		{
+			"a": {
+				"id": "moon_elf/sword/horse",
+				"mount": "horse",
+				"race": "moon_elf",
+				"unit": "sword"
+			},
+			"b": {
+				"id": "moon_elf/sword/horse",
+				"mount": "horse",
+				"race": "moon_elf",
+				"unit": "sword"
+			},
+			"cost_match": {
+				"cost0": 27605.2,
+				"cost1": 27605.2,
+				"gap": 0.0,
+				"n0": 2,
+				"n1": 2
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 79838,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 42.019255002435905,
+					"damage_taken": 24.626809509087174,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 24.626809509087174,
+					"damage_taken": 42.019255002435905,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 209
+		},
+		{
+			"a": {
+				"id": "moon_elf/spear/foot",
+				"mount": "foot",
+				"race": "moon_elf",
+				"unit": "spear"
+			},
+			"b": {
+				"id": "moon_elf/spear/horse",
+				"mount": "horse",
+				"race": "moon_elf",
+				"unit": "spear"
+			},
+			"cost_match": {
+				"cost0": 27925.0,
+				"cost1": 27601.2,
+				"gap": 0.011595344673231846,
+				"n0": 5,
+				"n1": 2
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 79939,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 27925.0,
+					"damage_dealt": 27.244855357792094,
+					"damage_taken": 0.0,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 0.0,
+					"damage_taken": 27.244855357792094,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 80
+		},
+		{
+			"a": {
+				"id": "moon_elf/spear/foot",
+				"mount": "foot",
+				"race": "moon_elf",
+				"unit": "spear"
+			},
+			"b": {
+				"id": "moon_elf/spear/horse",
+				"mount": "horse",
+				"race": "moon_elf",
+				"unit": "spear"
+			},
+			"cost_match": {
+				"cost0": 27925.0,
+				"cost1": 27601.2,
+				"gap": 0.011595344673231846,
+				"n0": 5,
+				"n1": 2
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 79939,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 27925.0,
+					"damage_dealt": 28.778388406412283,
+					"damage_taken": 0.0,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 11170.0,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 0.0,
+					"damage_taken": 28.778388406412283,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 82
+		},
+		{
+			"a": {
+				"id": "moon_elf/spear/horse",
+				"mount": "horse",
+				"race": "moon_elf",
+				"unit": "spear"
+			},
+			"b": {
+				"id": "moon_elf/spear/horse",
+				"mount": "horse",
+				"race": "moon_elf",
+				"unit": "spear"
+			},
+			"cost_match": {
+				"cost0": 27601.2,
+				"cost1": 27601.2,
+				"gap": 0.0,
+				"n0": 2,
+				"n1": 2
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 80040,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 36.104664544641416,
+					"damage_taken": 58.3063995313767,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 1,
+					"value_killed": 5585.0,
+					"won": 0
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 58.3063995313767,
+					"damage_taken": 36.104664544641416,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 13800.6,
+					"won": 1
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 536
+		},
+		{
+			"a": {
+				"id": "moon_elf/spear/horse",
+				"mount": "horse",
+				"race": "moon_elf",
+				"unit": "spear"
+			},
+			"b": {
+				"id": "moon_elf/spear/horse",
+				"mount": "horse",
+				"race": "moon_elf",
+				"unit": "spear"
+			},
+			"cost_match": {
+				"cost0": 27601.2,
+				"cost1": 27601.2,
+				"gap": 0.0,
+				"n0": 2,
+				"n1": 2
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 80040,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 35.26364860563692,
+					"damage_taken": 29.68853992748086,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 19385.6,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 29.68853992748086,
+					"damage_taken": 35.26364860563692,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 253
+		},
+		{
+			"a": {
+				"id": "moon_elf/archer/foot",
+				"mount": "foot",
+				"race": "moon_elf",
+				"unit": "archer"
+			},
+			"b": {
+				"id": "moon_elf/archer/horse",
+				"mount": "horse",
+				"race": "moon_elf",
+				"unit": "archer"
+			},
+			"cost_match": {
+				"cost0": 31640.0,
+				"cost1": 31426.800000000003,
+				"gap": 0.006738305941845673,
+				"n0": 14,
+				"n1": 3
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 80141,
+			"sides": [
+				{
+					"bodies": 14,
+					"cost_spent": 31640.0,
+					"damage_dealt": 87.87998851598475,
+					"damage_taken": 11.071024634761077,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 12735.6,
+					"won": 1
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 11.071024634761077,
+					"damage_taken": 87.87998851598475,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 1797
+		},
+		{
+			"a": {
+				"id": "moon_elf/archer/foot",
+				"mount": "foot",
+				"race": "moon_elf",
+				"unit": "archer"
+			},
+			"b": {
+				"id": "moon_elf/archer/horse",
+				"mount": "horse",
+				"race": "moon_elf",
+				"unit": "archer"
+			},
+			"cost_match": {
+				"cost0": 31640.0,
+				"cost1": 31426.800000000003,
+				"gap": 0.006738305941845673,
+				"n0": 14,
+				"n1": 3
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 80141,
+			"sides": [
+				{
+					"bodies": 14,
+					"cost_spent": 31640.0,
+					"damage_dealt": 91.67089189609354,
+					"damage_taken": 59.40570990132868,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 5,
+					"value_killed": 29166.800000000003,
+					"won": 1
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 59.40570990132868,
+					"damage_taken": 91.67089189609354,
+					"draw": 0,
+					"horse_deaths": 3,
+					"kills": 6,
+					"value_killed": 13560.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 1484
+		},
+		{
+			"a": {
+				"id": "moon_elf/archer/horse",
+				"mount": "horse",
+				"race": "moon_elf",
+				"unit": "archer"
+			},
+			"b": {
+				"id": "moon_elf/archer/horse",
+				"mount": "horse",
+				"race": "moon_elf",
+				"unit": "archer"
+			},
+			"cost_match": {
+				"cost0": 31426.800000000003,
+				"cost1": 31426.800000000003,
+				"gap": 0.0,
+				"n0": 3,
+				"n1": 3
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 80242,
+			"sides": [
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 59.792314152075996,
+					"damage_taken": 10.437072454038516,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 4520.0,
+					"won": 1
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 10.437072454038516,
+					"damage_taken": 59.792314152075996,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 1492
+		},
+		{
+			"a": {
+				"id": "moon_elf/archer/horse",
+				"mount": "horse",
+				"race": "moon_elf",
+				"unit": "archer"
+			},
+			"b": {
+				"id": "moon_elf/archer/horse",
+				"mount": "horse",
+				"race": "moon_elf",
+				"unit": "archer"
+			},
+			"cost_match": {
+				"cost0": 31426.800000000003,
+				"cost1": 31426.800000000003,
+				"gap": 0.0,
+				"n0": 3,
+				"n1": 3
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 80242,
+			"sides": [
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 5.324367285841507,
+					"damage_taken": 40.21217417019705,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 40.21217417019705,
+					"damage_taken": 5.324367285841507,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 12735.6,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 1472
+		},
+		{
+			"a": {
+				"id": "dwarf/sword/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"unit": "sword"
+			},
+			"b": {
+				"id": "dwarf/sword/horse",
+				"mount": "horse",
+				"race": "dwarf",
+				"unit": "sword"
+			},
+			"cost_match": {
+				"cost0": 27935.0,
+				"cost1": 27605.2,
+				"gap": 0.011805978163594032,
+				"n0": 5,
+				"n1": 2
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 80343,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 27935.0,
+					"damage_dealt": 36.67893235656009,
+					"damage_taken": 3.9322119229972783,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 5587.0,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 3.9322119229972783,
+					"damage_taken": 36.67893235656009,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 150
+		},
+		{
+			"a": {
+				"id": "dwarf/sword/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"unit": "sword"
+			},
+			"b": {
+				"id": "dwarf/sword/horse",
+				"mount": "horse",
+				"race": "dwarf",
+				"unit": "sword"
+			},
+			"cost_match": {
+				"cost0": 27935.0,
+				"cost1": 27605.2,
+				"gap": 0.011805978163594032,
+				"n0": 5,
+				"n1": 2
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 80343,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 27935.0,
+					"damage_dealt": 37.236051802124095,
+					"damage_taken": 5.591929851149416,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 11174.0,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 5.591929851149416,
+					"damage_taken": 37.236051802124095,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 147
+		},
+		{
+			"a": {
+				"id": "dwarf/sword/horse",
+				"mount": "horse",
+				"race": "dwarf",
+				"unit": "sword"
+			},
+			"b": {
+				"id": "dwarf/sword/horse",
+				"mount": "horse",
+				"race": "dwarf",
+				"unit": "sword"
+			},
+			"cost_match": {
+				"cost0": 27605.2,
+				"cost1": 27605.2,
+				"gap": 0.0,
+				"n0": 2,
+				"n1": 2
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 80444,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 3.9253541284019944,
+					"damage_taken": 38.69681453579945,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 38.69681453579945,
+					"damage_taken": 3.9253541284019944,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 13802.6,
+					"won": 1
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 178
+		},
+		{
+			"a": {
+				"id": "dwarf/sword/horse",
+				"mount": "horse",
+				"race": "dwarf",
+				"unit": "sword"
+			},
+			"b": {
+				"id": "dwarf/sword/horse",
+				"mount": "horse",
+				"race": "dwarf",
+				"unit": "sword"
+			},
+			"cost_match": {
+				"cost0": 27605.2,
+				"cost1": 27605.2,
+				"gap": 0.0,
+				"n0": 2,
+				"n1": 2
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 80444,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 49.36817818185926,
+					"damage_taken": 31.875939917358977,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 4,
+					"value_killed": 27605.199999999997,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27605.199999999997,
+					"damage_dealt": 31.875939917358977,
+					"damage_taken": 49.36817818185926,
+					"draw": 0,
+					"horse_deaths": 2,
+					"kills": 2,
+					"value_killed": 13802.6,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 297
+		},
+		{
+			"a": {
+				"id": "dwarf/spear/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"unit": "spear"
+			},
+			"b": {
+				"id": "dwarf/spear/horse",
+				"mount": "horse",
+				"race": "dwarf",
+				"unit": "spear"
+			},
+			"cost_match": {
+				"cost0": 27925.0,
+				"cost1": 27601.2,
+				"gap": 0.011595344673231846,
+				"n0": 5,
+				"n1": 2
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 80545,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 27925.0,
+					"damage_dealt": 31.675146865504036,
+					"damage_taken": 0.0,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 5585.0,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 0.0,
+					"damage_taken": 31.675146865504036,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 96
+		},
+		{
+			"a": {
+				"id": "dwarf/spear/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"unit": "spear"
+			},
+			"b": {
+				"id": "dwarf/spear/horse",
+				"mount": "horse",
+				"race": "dwarf",
+				"unit": "spear"
+			},
+			"cost_match": {
+				"cost0": 27925.0,
+				"cost1": 27601.2,
+				"gap": 0.011595344673231846,
+				"n0": 5,
+				"n1": 2
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 80545,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 27925.0,
+					"damage_dealt": 20.978008228230163,
+					"damage_taken": 0.0,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 5585.0,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 0.0,
+					"damage_taken": 20.978008228230163,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 79
+		},
+		{
+			"a": {
+				"id": "dwarf/spear/horse",
+				"mount": "horse",
+				"race": "dwarf",
+				"unit": "spear"
+			},
+			"b": {
+				"id": "dwarf/spear/horse",
+				"mount": "horse",
+				"race": "dwarf",
+				"unit": "spear"
+			},
+			"cost_match": {
+				"cost0": 27601.2,
+				"cost1": 27601.2,
+				"gap": 0.0,
+				"n0": 2,
+				"n1": 2
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 80646,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 41.88270060255673,
+					"damage_taken": 9.106973512114925,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 19385.6,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 9.106973512114925,
+					"damage_taken": 41.88270060255673,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 138
+		},
+		{
+			"a": {
+				"id": "dwarf/spear/horse",
+				"mount": "horse",
+				"race": "dwarf",
+				"unit": "spear"
+			},
+			"b": {
+				"id": "dwarf/spear/horse",
+				"mount": "horse",
+				"race": "dwarf",
+				"unit": "spear"
+			},
+			"cost_match": {
+				"cost0": 27601.2,
+				"cost1": 27601.2,
+				"gap": 0.0,
+				"n0": 2,
+				"n1": 2
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 80646,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 21.33904562158402,
+					"damage_taken": 12.627953973895032,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 19385.6,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 27601.199999999997,
+					"damage_dealt": 12.627953973895032,
+					"damage_taken": 21.33904562158402,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 125
+		},
+		{
+			"a": {
+				"id": "dwarf/archer/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"unit": "archer"
+			},
+			"b": {
+				"id": "dwarf/archer/horse",
+				"mount": "horse",
+				"race": "dwarf",
+				"unit": "archer"
+			},
+			"cost_match": {
+				"cost0": 31640.0,
+				"cost1": 31426.800000000003,
+				"gap": 0.006738305941845673,
+				"n0": 14,
+				"n1": 3
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 80747,
+			"sides": [
+				{
+					"bodies": 14,
+					"cost_spent": 31640.0,
+					"damage_dealt": 120.34150343542987,
+					"damage_taken": 70.06925084965816,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 4520.0,
+					"won": 1
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 70.06925084965816,
+					"damage_taken": 120.34150343542987,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 6780.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 2605
+		},
+		{
+			"a": {
+				"id": "dwarf/archer/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"unit": "archer"
+			},
+			"b": {
+				"id": "dwarf/archer/horse",
+				"mount": "horse",
+				"race": "dwarf",
+				"unit": "archer"
+			},
+			"cost_match": {
+				"cost0": 31640.0,
+				"cost1": 31426.800000000003,
+				"gap": 0.006738305941845673,
+				"n0": 14,
+				"n1": 3
+			},
+			"mirror": false,
+			"sample": 1,
+			"seed": 80747,
+			"sides": [
+				{
+					"bodies": 14,
+					"cost_spent": 31640.0,
+					"damage_dealt": 52.37077938531993,
+					"damage_taken": 9.07703813785967,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 2260.0,
+					"won": 1
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 9.07703813785967,
+					"damage_taken": 52.37077938531993,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 599
+		},
+		{
+			"a": {
+				"id": "dwarf/archer/horse",
+				"mount": "horse",
+				"race": "dwarf",
+				"unit": "archer"
+			},
+			"b": {
+				"id": "dwarf/archer/horse",
+				"mount": "horse",
+				"race": "dwarf",
+				"unit": "archer"
+			},
+			"cost_match": {
+				"cost0": 31426.800000000003,
+				"cost1": 31426.800000000003,
+				"gap": 0.0,
+				"n0": 3,
+				"n1": 3
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 80848,
+			"sides": [
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 138.12613902791816,
+					"damage_taken": 23.990293346640144,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 12735.6,
+					"won": 1
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 23.990293346640144,
+					"damage_taken": 138.12613902791816,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 1989
+		},
+		{
+			"a": {
+				"id": "dwarf/archer/horse",
+				"mount": "horse",
+				"race": "dwarf",
+				"unit": "archer"
+			},
+			"b": {
+				"id": "dwarf/archer/horse",
+				"mount": "horse",
+				"race": "dwarf",
+				"unit": "archer"
+			},
+			"cost_match": {
+				"cost0": 31426.800000000003,
+				"cost1": 31426.800000000003,
+				"gap": 0.0,
+				"n0": 3,
+				"n1": 3
+			},
+			"mirror": true,
+			"sample": 1,
+			"seed": 80848,
+			"sides": [
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 79.83164221160317,
+					"damage_taken": 47.08055115778413,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 10475.6,
+					"won": 1
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 31426.800000000003,
+					"damage_dealt": 47.08055115778413,
+					"damage_taken": 79.83164221160317,
+					"draw": 0,
+					"horse_deaths": 1,
+					"kills": 1,
+					"value_killed": 2260.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 1916
+		}
+	],
+	"samples": 4,
+	"schema": "balance_v070/1",
+	"selected_cases": 30,
+	"shard": 1,
+	"shards": 4,
+	"suite": "mount",
+	"summary": {
+		"mount": {
+			"foot": {
+				"cost_efficiency": 0.31069165714285724,
+				"cost_spent": 875000.0,
+				"damage_dealt": 1630.5469774824971,
+				"damage_taken": 937.6364866252009,
+				"draw": 1,
+				"kills": 49,
+				"n": 30,
+				"score_rate": 0.9166666666666666,
+				"value_killed": 271855.20000000007,
+				"win_rate": 0.9,
+				"won": 27
+			},
+			"horse": {
+				"cost_efficiency": 0.06905782078925864,
+				"cost_spent": 866331.9999999999,
+				"damage_dealt": 937.6364866252009,
+				"damage_taken": 1630.5469774824971,
+				"draw": 1,
+				"kills": 25,
+				"n": 30,
+				"score_rate": 0.08333333333333333,
+				"value_killed": 59827.0,
+				"win_rate": 0.06666666666666667,
+				"won": 2
+			}
+		},
+		"profile": {
+			"dwarf/archer/foot": {
+				"cost_efficiency": 0.10714285714285714,
+				"cost_spent": 63280.0,
+				"damage_dealt": 172.7122828207498,
+				"damage_taken": 79.14628898751783,
+				"draw": 0,
+				"kills": 3,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 6780.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"dwarf/archer/horse": {
+				"cost_efficiency": 0.10786971629310015,
+				"cost_spent": 62853.600000000006,
+				"damage_dealt": 79.14628898751783,
+				"damage_taken": 172.7122828207498,
+				"draw": 0,
+				"kills": 3,
+				"n": 2,
+				"score_rate": 0.0,
+				"value_killed": 6780.0,
+				"win_rate": 0.0,
+				"won": 0
+			},
+			"dwarf/spear/foot": {
+				"cost_efficiency": 0.2,
+				"cost_spent": 55850.0,
+				"damage_dealt": 52.6531550937342,
+				"damage_taken": 0.0,
+				"draw": 0,
+				"kills": 2,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 11170.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"dwarf/spear/horse": {
+				"cost_efficiency": 0.0,
+				"cost_spent": 55202.399999999994,
+				"damage_dealt": 0.0,
+				"damage_taken": 52.6531550937342,
+				"draw": 0,
+				"kills": 0,
+				"n": 2,
+				"score_rate": 0.0,
+				"value_killed": 0.0,
+				"win_rate": 0.0,
+				"won": 0
+			},
+			"dwarf/sword/foot": {
+				"cost_efficiency": 0.3,
+				"cost_spent": 55870.0,
+				"damage_dealt": 73.91498415868418,
+				"damage_taken": 9.524141774146695,
+				"draw": 0,
+				"kills": 3,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 16761.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"dwarf/sword/horse": {
+				"cost_efficiency": 0.0,
+				"cost_spent": 55210.399999999994,
+				"damage_dealt": 9.524141774146695,
+				"damage_taken": 73.91498415868418,
+				"draw": 0,
+				"kills": 0,
+				"n": 2,
+				"score_rate": 0.0,
+				"value_killed": 0.0,
+				"win_rate": 0.0,
+				"won": 0
+			},
+			"goblin/archer/foot": {
+				"cost_efficiency": 0.20125790139064476,
+				"cost_spent": 63280.0,
+				"damage_dealt": 159.2767467846369,
+				"damage_taken": 155.559150563495,
+				"draw": 0,
+				"kills": 3,
+				"n": 2,
+				"score_rate": 0.5,
+				"value_killed": 12735.6,
+				"win_rate": 0.5,
+				"won": 1
+			},
+			"goblin/archer/horse": {
+				"cost_efficiency": 0.17978286048850026,
+				"cost_spent": 62853.600000000006,
+				"damage_dealt": 155.559150563495,
+				"damage_taken": 159.2767467846369,
+				"draw": 0,
+				"kills": 5,
+				"n": 2,
+				"score_rate": 0.5,
+				"value_killed": 11300.0,
+				"win_rate": 0.5,
+				"won": 1
+			},
+			"goblin/spear/foot": {
+				"cost_efficiency": 0.5413034914950762,
+				"cost_spent": 55850.0,
+				"damage_dealt": 76.76251127900063,
+				"damage_taken": 6.8197256831794455,
+				"draw": 0,
+				"kills": 4,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 30231.800000000003,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"goblin/spear/horse": {
+				"cost_efficiency": 0.0,
+				"cost_spent": 55202.399999999994,
+				"damage_dealt": 6.8197256831794455,
+				"damage_taken": 76.76251127900063,
+				"draw": 0,
+				"kills": 0,
+				"n": 2,
+				"score_rate": 0.0,
+				"value_killed": 0.0,
+				"win_rate": 0.0,
+				"won": 0
+			},
+			"goblin/sword/foot": {
+				"cost_efficiency": 0.2,
+				"cost_spent": 55870.0,
+				"damage_dealt": 108.17494773659354,
+				"damage_taken": 15.371412946800605,
+				"draw": 0,
+				"kills": 2,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 11174.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"goblin/sword/horse": {
+				"cost_efficiency": 0.101194702447365,
+				"cost_spent": 55210.399999999994,
+				"damage_dealt": 15.371412946800605,
+				"damage_taken": 108.17494773659354,
+				"draw": 0,
+				"kills": 1,
+				"n": 2,
+				"score_rate": 0.0,
+				"value_killed": 5587.0,
+				"win_rate": 0.0,
+				"won": 0
+			},
+			"human/archer/foot": {
+				"cost_efficiency": 0.3668015170670038,
+				"cost_spent": 63280.0,
+				"damage_dealt": 158.31854878283934,
+				"damage_taken": 243.62929897336218,
+				"draw": 0,
+				"kills": 5,
+				"n": 2,
+				"score_rate": 0.5,
+				"value_killed": 23211.2,
+				"win_rate": 0.5,
+				"won": 1
+			},
+			"human/archer/horse": {
+				"cost_efficiency": 0.2876525767816004,
+				"cost_spent": 62853.600000000006,
+				"damage_dealt": 243.62929897336218,
+				"damage_taken": 158.31854878283934,
+				"draw": 0,
+				"kills": 8,
+				"n": 2,
+				"score_rate": 0.5,
+				"value_killed": 18080.0,
+				"win_rate": 0.5,
+				"won": 1
+			},
+			"human/spear/foot": {
+				"cost_efficiency": 0.3942023276633841,
+				"cost_spent": 55850.0,
+				"damage_dealt": 83.85956673270239,
+				"damage_taken": 12.160887847007302,
+				"draw": 0,
+				"kills": 3,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 22016.2,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"human/spear/horse": {
+				"cost_efficiency": 0.0,
+				"cost_spent": 55202.399999999994,
+				"damage_dealt": 12.160887847007302,
+				"damage_taken": 83.85956673270239,
+				"draw": 0,
+				"kills": 0,
+				"n": 2,
+				"score_rate": 0.0,
+				"value_killed": 0.0,
+				"win_rate": 0.0,
+				"won": 0
+			},
+			"human/sword/foot": {
+				"cost_efficiency": 0.394097010918203,
+				"cost_spent": 55870.0,
+				"damage_dealt": 96.02674652354364,
+				"damage_taken": 2.235725377998943,
+				"draw": 0,
+				"kills": 3,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 22018.2,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"human/sword/horse": {
+				"cost_efficiency": 0.0,
+				"cost_spent": 55210.399999999994,
+				"damage_dealt": 2.235725377998943,
+				"damage_taken": 96.02674652354364,
+				"draw": 0,
+				"kills": 0,
+				"n": 2,
+				"score_rate": 0.0,
+				"value_killed": 0.0,
+				"win_rate": 0.0,
+				"won": 0
+			},
+			"moon_elf/archer/foot": {
+				"cost_efficiency": 0.6621744627054362,
+				"cost_spent": 63280.0,
+				"damage_dealt": 179.5508804120783,
+				"damage_taken": 70.47673453608975,
+				"draw": 0,
+				"kills": 8,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 41902.4,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"moon_elf/archer/horse": {
+				"cost_efficiency": 0.2157394325862003,
+				"cost_spent": 62853.600000000006,
+				"damage_dealt": 70.47673453608975,
+				"damage_taken": 179.5508804120783,
+				"draw": 0,
+				"kills": 6,
+				"n": 2,
+				"score_rate": 0.0,
+				"value_killed": 13560.0,
+				"win_rate": 0.0,
+				"won": 0
+			},
+			"moon_elf/spear/foot": {
+				"cost_efficiency": 0.2,
+				"cost_spent": 55850.0,
+				"damage_dealt": 56.02324376420438,
+				"damage_taken": 0.0,
+				"draw": 0,
+				"kills": 2,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 11170.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"moon_elf/spear/horse": {
+				"cost_efficiency": 0.0,
+				"cost_spent": 55202.399999999994,
+				"damage_dealt": 0.0,
+				"damage_taken": 56.02324376420438,
+				"draw": 0,
+				"kills": 0,
+				"n": 2,
+				"score_rate": 0.0,
+				"value_killed": 0.0,
+				"win_rate": 0.0,
+				"won": 0
+			},
+			"moon_elf/sword/foot": {
+				"cost_efficiency": 0.1,
+				"cost_spent": 55870.0,
+				"damage_dealt": 71.17331549461288,
+				"damage_taken": 3.4393234971793505,
+				"draw": 0,
+				"kills": 1,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 5587.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"moon_elf/sword/horse": {
+				"cost_efficiency": 0.0,
+				"cost_spent": 55210.399999999994,
+				"damage_dealt": 3.4393234971793505,
+				"damage_taken": 71.17331549461288,
+				"draw": 0,
+				"kills": 0,
+				"n": 2,
+				"score_rate": 0.0,
+				"value_killed": 0.0,
+				"win_rate": 0.0,
+				"won": 0
+			},
+			"orc/archer/foot": {
+				"cost_efficiency": 0.3310872313527181,
+				"cost_spent": 63280.0,
+				"damage_dealt": 162.97745977475472,
+				"damage_taken": 331.96622604911784,
+				"draw": 1,
+				"kills": 4,
+				"n": 2,
+				"score_rate": 0.75,
+				"value_killed": 20951.2,
+				"win_rate": 0.5,
+				"won": 1
+			},
+			"orc/archer/horse": {
+				"cost_efficiency": 0.0719131441954001,
+				"cost_spent": 62853.600000000006,
+				"damage_dealt": 331.96622604911784,
+				"damage_taken": 162.97745977475472,
+				"draw": 1,
+				"kills": 2,
+				"n": 2,
+				"score_rate": 0.25,
+				"value_killed": 4520.0,
+				"win_rate": 0.0,
+				"won": 0
+			},
+			"orc/spear/foot": {
+				"cost_efficiency": 0.2,
+				"cost_spent": 55850.0,
+				"damage_dealt": 63.02706193238233,
+				"damage_taken": 3.389644720279741,
+				"draw": 0,
+				"kills": 2,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 11170.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"orc/spear/horse": {
+				"cost_efficiency": 0.0,
+				"cost_spent": 55202.399999999994,
+				"damage_dealt": 3.389644720279741,
+				"damage_taken": 63.02706193238233,
+				"draw": 0,
+				"kills": 0,
+				"n": 2,
+				"score_rate": 0.0,
+				"value_killed": 0.0,
+				"win_rate": 0.0,
+				"won": 0
+			},
+			"orc/sword/foot": {
+				"cost_efficiency": 0.44704850545910146,
+				"cost_spent": 55870.0,
+				"damage_dealt": 116.09552619197993,
+				"damage_taken": 3.9179256690261943,
+				"draw": 0,
+				"kills": 4,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 24976.6,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"orc/sword/horse": {
+				"cost_efficiency": 0.0,
+				"cost_spent": 55210.399999999994,
+				"damage_dealt": 3.9179256690261943,
+				"damage_taken": 116.09552619197993,
+				"draw": 0,
+				"kills": 0,
+				"n": 2,
+				"score_rate": 0.0,
+				"value_killed": 0.0,
+				"win_rate": 0.0,
+				"won": 0
+			}
+		},
+		"race": {
+			"dwarf": {
+				"cost_efficiency": 0.11913581097688437,
+				"cost_spent": 348266.39999999997,
+				"damage_dealt": 387.9508528348327,
+				"damage_taken": 387.9508528348327,
+				"draw": 0,
+				"kills": 11,
+				"n": 12,
+				"score_rate": 0.5,
+				"value_killed": 41491.0,
+				"win_rate": 0.5,
+				"won": 6
+			},
+			"goblin": {
+				"cost_efficiency": 0.20394847162976393,
+				"cost_spent": 348266.39999999997,
+				"damage_dealt": 521.9644949937061,
+				"damage_taken": 521.9644949937061,
+				"draw": 0,
+				"kills": 15,
+				"n": 12,
+				"score_rate": 0.5,
+				"value_killed": 71028.40000000001,
+				"win_rate": 0.5,
+				"won": 6
+			},
+			"human": {
+				"cost_efficiency": 0.24500095329322616,
+				"cost_spent": 348266.39999999997,
+				"damage_dealt": 596.2307742374538,
+				"damage_taken": 596.2307742374538,
+				"draw": 0,
+				"kills": 19,
+				"n": 12,
+				"score_rate": 0.5,
+				"value_killed": 85325.6,
+				"win_rate": 0.5,
+				"won": 6
+			},
+			"moon_elf": {
+				"cost_efficiency": 0.20736826751015888,
+				"cost_spent": 348266.39999999997,
+				"damage_dealt": 380.6634977041647,
+				"damage_taken": 380.6634977041647,
+				"draw": 0,
+				"kills": 17,
+				"n": 12,
+				"score_rate": 0.5,
+				"value_killed": 72219.4,
+				"win_rate": 0.5,
+				"won": 6
+			},
+			"orc": {
+				"cost_efficiency": 0.17692720285390726,
+				"cost_spent": 348266.39999999997,
+				"damage_dealt": 681.3738443375407,
+				"damage_taken": 681.3738443375407,
+				"draw": 2,
+				"kills": 12,
+				"n": 12,
+				"score_rate": 0.5,
+				"value_killed": 61617.799999999996,
+				"win_rate": 0.4166666666666667,
+				"won": 5
+			}
+		},
+		"unit": {
+			"archer": {
+				"cost_efficiency": 0.2534144748108355,
+				"cost_spent": 630668.0,
+				"damage_dealt": 1713.6136176846412,
+				"damage_taken": 1713.6136176846417,
+				"draw": 2,
+				"kills": 47,
+				"n": 20,
+				"score_rate": 0.5,
+				"value_killed": 159820.40000000002,
+				"win_rate": 0.45,
+				"won": 9
+			},
+			"spear": {
+				"cost_efficiency": 0.15444600927129895,
+				"cost_spent": 555262.0,
+				"damage_dealt": 354.69579705249043,
+				"damage_taken": 354.69579705249043,
+				"draw": 0,
+				"kills": 13,
+				"n": 20,
+				"score_rate": 0.5,
+				"value_killed": 85758.0,
+				"win_rate": 0.5,
+				"won": 10
+			},
+			"sword": {
+				"cost_efficiency": 0.15502969020637306,
+				"cost_spent": 555402.0,
+				"damage_dealt": 499.87404937056596,
+				"damage_taken": 499.874049370566,
+				"draw": 0,
+				"kills": 14,
+				"n": 20,
+				"score_rate": 0.5,
+				"value_killed": 86103.8,
+				"win_rate": 0.5,
+				"won": 10
+			}
+		}
+	},
+	"total_cases": 120
+}

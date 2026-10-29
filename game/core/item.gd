@@ -131,16 +131,17 @@ const COIN := 20
 const LEGEND_VALUE := 20.0
 const GEM_PRICES := {"quartz": 150.0, "amethyst": 400.0, "garnet": 600.0, "topaz": 900.0, "sapphire": 3000.0, "ruby": 3500.0, "emerald": 3200.0}
 
-## Base price in coins (tuned): material value * mass, times 1.6^quality (handoff sketch), x COIN.
+## Base price in coins: material value * mass, times the data's quality premium, x COIN.
 func value() -> int:
 	var tv := tmpl()
 	var q := mini(quality, 5)
+	var quality_value := pow(float(TownEcon.data().get("item_quality_value_growth", 1.6)), q)
 	var lm := LEGEND_VALUE if is_legend() else 1.0
 	var gem := float(GEM_PRICES.get(String(legend.get("gem", "")), 0.0)) if is_legend() else 0.0
 	if tv.has("value"):   # bows: a bow is worth its making, not its wood
-		return int(round(float(tv["value"]) * vr * pow(1.6, q) * COIN * lm + gem))
+		return int(round(float(tv["value"]) * vr * quality_value * COIN * lm + gem))
 	var v: float = float(mat().get("value", 1)) * maxf(mass(), 0.2) * 6.0 + 4.0
-	return int(round(v * pow(1.6, q) * COIN * lm + gem))
+	return int(round(v * quality_value * COIN * lm + gem))
 
 func to_dict() -> Dictionary:
 	var d := {"uid": uid, "tid": tid, "mat": material, "q": quality, "wear": wear}

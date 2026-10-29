@@ -1,0 +1,168 @@
+{
+	"complete": true,
+	"data_sha256": {
+		"armor": "9299fc78ce6a6762d439631724ca9b431f8eff66b08564a8d9bddb948e92ec1e",
+		"bows": "3c7d5133c641c7503c7acbb03d90ceeb16bf385779ee2c354bdbcf39da4b6713",
+		"creatures": "240e4979cdc869b0b81c190ba2f63a6ac5c6a65729bbc88cc672d53c5ddff87d",
+		"economy": "0430a98852721a0f0600dc2e25bbb4403994e75cb2a0b1c7ab7315659346d9e8",
+		"factions": "d44abd1173a5fc5be2f750613c0c4dd763cc4d02f0945b503b75d91b9a00566f",
+		"materials": "617d44cefd627c3bbb625483d5dd5d5ccb2d3c3bb6cb7f1bcf6be07f85d5e20a",
+		"weapons": "93d2c7732a499b4b575e5d4d860e366d60010aaed41aa6fbd5ee7074bd05b975"
+	},
+	"disabled_included": false,
+	"elapsed_ms": 5697,
+	"history_days": 1,
+	"max_cost_gap": 0.05,
+	"max_ticks": 6000,
+	"phase": "before_full",
+	"samples": 4,
+	"schema": "balance_v070/1",
+	"seed": 4242,
+	"shard": 0,
+	"shards": 1,
+	"size": "normal",
+	"snapshots": [
+		{
+			"day": 1.0,
+			"races": {
+				"dwarf": {
+					"food_stock": 8410,
+					"population": 6485,
+					"towns": 2,
+					"treasury": 343522.53024560004
+				},
+				"goblin": {
+					"food_stock": 31336,
+					"population": 24662,
+					"towns": 8,
+					"treasury": 1542493.8428301185
+				},
+				"human": {
+					"food_stock": 22745,
+					"population": 17685,
+					"towns": 7,
+					"treasury": 1278339.066996307
+				},
+				"moon_elf": {
+					"food_stock": 7706,
+					"population": 6068,
+					"towns": 3,
+					"treasury": 314281.2082097776
+				},
+				"orc": {
+					"food_stock": 9973,
+					"population": 7819,
+					"towns": 3,
+					"treasury": 370093.8921338542
+				}
+			}
+		},
+		{
+			"day": 2.0,
+			"races": {
+				"dwarf": {
+					"food_stock": 8981,
+					"population": 6485,
+					"towns": 2,
+					"treasury": 354086.57925260183
+				},
+				"goblin": {
+					"food_stock": 32611,
+					"population": 24661,
+					"towns": 8,
+					"treasury": 1528614.401318329
+				},
+				"human": {
+					"food_stock": 24054,
+					"population": 17684,
+					"towns": 7,
+					"treasury": 1551632.9402908434
+				},
+				"moon_elf": {
+					"food_stock": 8107,
+					"population": 6068,
+					"towns": 3,
+					"treasury": 308054.6700849648
+				},
+				"orc": {
+					"food_stock": 10395,
+					"population": 7819,
+					"towns": 3,
+					"treasury": 346658.96655921894
+				}
+			}
+		},
+		{
+			"day": 3.0,
+			"races": {
+				"dwarf": {
+					"food_stock": 9568,
+					"population": 6485,
+					"towns": 2,
+					"treasury": 482251.95948369766
+				},
+				"goblin": {
+					"food_stock": 33815,
+					"population": 24662,
+					"towns": 8,
+					"treasury": 1471764.4452051765
+				},
+				"human": {
+					"food_stock": 25363,
+					"population": 17684,
+					"towns": 7,
+					"treasury": 1717878.2819793029
+				},
+				"moon_elf": {
+					"food_stock": 8508,
+					"population": 6068,
+					"towns": 3,
+					"treasury": 424031.6421913827
+				},
+				"orc": {
+					"food_stock": 10796,
+					"population": 7819,
+					"towns": 3,
+					"treasury": 396342.56361404515
+				}
+			}
+		},
+		{
+			"day": 4.0,
+			"races": {
+				"dwarf": {
+					"food_stock": 10142,
+					"population": 6486,
+					"towns": 2,
+					"treasury": 476849.5064643201
+				},
+				"goblin": {
+					"food_stock": 35026,
+					"population": 24662,
+					"towns": 8,
+					"treasury": 1182438.2483849418
+				},
+				"human": {
+					"food_stock": 26678,
+					"population": 17684,
+					"towns": 7,
+					"treasury": 1688501.6253725952
+				},
+				"moon_elf": {
+					"food_stock": 8906,
+					"population": 6068,
+					"towns": 3,
+					"treasury": 526892.1729076453
+				},
+				"orc": {
+					"food_stock": 11176,
+					"population": 7819,
+					"towns": 3,
+					"treasury": 385743.7392754799
+				}
+			}
+		}
+	],
+	"suite": "campaign",
+	"turns": 3
+}

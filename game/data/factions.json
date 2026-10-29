@@ -58,7 +58,7 @@
       "troops": [
         {"name": "spearman", "w": 4, "skills": {"spear": [2, 5], "shield_user": [1, 4], "dodger": [0, 2], "armor_user": [1, 3], "fighter": [1, 3]},
           "loadout": {"main_hand": ["boar_spear"], "off_hand": ["kite_shield"], "helm": ["nasal_helm", "mail_coif"], "body": ["mail_shirt", ""], "clothing": ["tunic"], "legs_under": ["trousers"], "feet": ["shoes"]}},
-        {"name": "man-at-arms", "w": 2, "skills": {"sword": [3, 6], "shield_user": [2, 5], "armor_user": [2, 5], "fighter": [2, 4], "dodger": [1, 3]},
+        {"name": "man-at-arms", "w": 2, "skills": {"sword": [6, 9], "mace": [6, 9], "shield_user": [2, 5], "armor_user": [2, 5], "fighter": [2, 4], "dodger": [1, 3]},
           "loadout": {"main_hand": ["arming_sword", "flanged_mace"], "off_hand": ["kite_shield"], "helm": ["nasal_helm"], "body": ["mail_shirt"], "legs": ["splint_greaves", ""], "clothing": ["tunic"], "legs_under": ["trousers"], "feet": ["shoes"]}},
         {"name": "March bowman", "w": 2, "_note": "bows: sidearm in main_hand, bow in ranged, quiver in arrows", "skills": {"bow": [2, 5], "sword": [1, 3], "mace": [0, 2], "dodger": [1, 3], "fighter": [1, 2]},
           "arrows": {"arrow_copper_bodkin": 30, "arrow_copper_broad": 20},

@@ -3,7 +3,7 @@
   "middle": {
     "arming_sword":   {"name": "arming sword", "skill": "sword", "head_cm3": 300, "haft_kg": 0.0, "two_handed": false, "reach": 90, "drag": 1.0, "parry": 1.0, "sprite": "sword",
       "attacks": [{"verb": "slash", "type": "edge", "contact": 20000, "penetration": 4000, "vel": 1.25, "prep": 3, "rec": 3, "w": 5},
-                  {"verb": "stab", "type": "edge", "contact": 50, "penetration": 2000, "vel": 1.0, "prep": 3, "rec": 3, "w": 3},
+                  {"verb": "stab", "type": "edge", "contact": 20, "penetration": 6000, "vel": 1.0, "prep": 3, "rec": 2, "w": 24},
                   {"verb": "strike with the pommel", "type": "blunt", "contact": 100, "vel": 1.0, "prep": 3, "rec": 3, "w": 1}]},
     "boar_spear":     {"name": "boar spear", "lodge": 1.0, "skill": "spear", "head_cm3": 120, "haft_kg": 1.6, "two_handed": false, "reach": 200, "drag": 1.1, "parry": 0.7, "sprite": "spear",
       "attacks": [{"verb": "stab", "type": "edge", "contact": 20, "penetration": 10000, "vel": 1.0, "prep": 3, "rec": 3, "w": 6},
@@ -35,7 +35,7 @@
   },
   "goblin": {
     "short_spear":    {"name": "short spear", "skill": "spear", "head_cm3": 70, "haft_kg": 0.8, "two_handed": false, "reach": 150, "drag": 1.0, "parry": 0.6, "sprite": "spear",
-      "attacks": [{"verb": "stab", "type": "edge", "contact": 15, "penetration": 8000, "vel": 1.0, "prep": 2, "rec": 3, "w": 1}]},
+      "attacks": [{"verb": "stab", "type": "edge", "contact": 15, "penetration": 8000, "vel": 1.0, "prep": 2, "rec": 10, "w": 1}]},
     "shiv":           {"name": "shiv", "skill": "dagger", "head_cm3": 60, "haft_kg": 0.05, "two_handed": false, "reach": 35, "drag": 0.8, "parry": 0.2, "sprite": "knife",
       "attacks": [{"verb": "stab", "type": "edge", "contact": 10, "penetration": 1500, "vel": 1.0, "prep": 2, "rec": 2, "w": 4},
                   {"verb": "slash", "type": "edge", "contact": 5000, "penetration": 1000, "vel": 1.25, "prep": 2, "rec": 2, "w": 1}]},

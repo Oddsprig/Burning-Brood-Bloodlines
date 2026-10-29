@@ -1,0 +1,185 @@
+{
+  "schema": "balance_v070/validation/1",
+  "branch": "v0.070a",
+  "base": "64c633d",
+  "engine": "Godot 4.7.2 stable",
+  "lane": "Submit-GameTest.ps1 / Game Test Bridge",
+  "launch": {
+    "headless": true,
+    "audio_driver": "Dummy",
+    "watchdog_seconds": 60,
+    "process_timeout_seconds": 55,
+    "parallel_own_jobs": 1,
+    "kept_test_files": true
+  },
+  "canonical_phases": {
+    "before": "before_full",
+    "after": "after_verified",
+    "battles_per_phase": 2520,
+    "mirrors_per_phase": 520,
+    "replications": 4,
+    "cost_gap_max": 0.05,
+    "source_data_sha256": {
+      "armor": "9299fc78ce6a6762d439631724ca9b431f8eff66b08564a8d9bddb948e92ec1e",
+      "bows": "e2f2aa43ffb28996875b0500f9ce3ad53405086ff145c66c170bf720404299b9",
+      "creatures": "240e4979cdc869b0b81c190ba2f63a6ac5c6a65729bbc88cc672d53c5ddff87d",
+      "economy": "4471ef41720941026c0b902ea9e49c8acf8b1ca7337312d4cf928c3f15ef636a",
+      "factions": "b880f7c1eb84d66d8698aab83255f2fb1ff3be89754ebc7032906e41f263ed4a",
+      "materials": "617d44cefd627c3bbb625483d5dd5d5ccb2d3c3bb6cb7f1bcf6be07f85d5e20a",
+      "weapons": "c4ea4fb2ed5e2015d8010e8d9227df5a833339b304b8c845c8c3084a42544ac8"
+    }
+  },
+  "final_survey": {
+    "status": "passed",
+    "shards": 8,
+    "engine_max_seconds": 37.1788,
+    "aggregation_checks": "complete required suites, distinct cross trials, homogeneous data hashes and <=5% army cost gap"
+  },
+  "regression": {
+    "status": "PASS",
+    "test_elapsed_ms": 23478,
+    "battles": 280,
+    "failures": 0,
+    "score_band": [
+      0.1,
+      0.9
+    ],
+    "native_score_band": [
+      0.05,
+      0.95
+    ],
+    "draw_limit": 0.25,
+    "evidence": "regression_1793281452_23172.json",
+    "log": "test-results/v070a_Regression_verified_race_0of8_20261029_094338_770.log",
+    "bridge_receipt": "Not retained; PASS and elapsed time are from the engine log and raw test evidence."
+  },
+  "related": {
+    "status": "passed",
+    "engine_seconds": 12.7024,
+    "checks": {
+      "campaign": "3 turns, seed 4242, Normal world, 1-day history; complete 6004 ms",
+      "determinism": "same seed identical; different seed changed native combat signature",
+      "horses_v056": "114 checks, 0 failures"
+    }
+  },
+  "static_checks": {
+    "status": "passed",
+    "checks": [
+      "canonical summaries reproduce from raw shards",
+      "final file SHA-256 values match recorded data",
+      "30 before/after CSV rows",
+      "final regression hashes match final survey",
+      "JSON tables and blocks parse",
+      "Python AST parses",
+      "Windows PowerShell 5.1 AST parses",
+      "git diff --check for source, docs and structured results; verbatim import log retains engine-emitted trailing whitespace"
+    ]
+  },
+  "excluded_failed_attempt": {
+    "file": "before_full_roster_matrix_06of08_1793273616_29604.json",
+    "status": "failed",
+    "elapsed_ms": 1722,
+    "battles_completed": 42,
+    "reason": "No <=5% cost match within 16 bodies",
+    "resolution": "Retried identical seeded prefixes with bounded 32-body fallback; completed shard retained separately."
+  },
+  "limits": [
+    "Disabled high_elf, dark_elf and troll races not activated or tuned.",
+    "Dragon purchase/replacement value undefined: dragon equal-cost balance unfinished.",
+    "Open-map battle screen, four seeds per pairing; not universal parity.",
+    "Three campaign turns do not establish multi-year economy balance; quality-price changes affect loot/resale/smith revenue.",
+    "Rejected candidate results and unrelated import-generated portrait UID files are preserved outside the canonical commit evidence."
+  ],
+  "jobs": [
+    {
+      "id": "b08fbe70690d450fb65daf197aaace1e",
+      "name": "v070a_Survey_after_verified_sweep_0of8_20261029_092053_775",
+      "status": "passed",
+      "exit_code": 0,
+      "started_at": 1793280070.3127263,
+      "finished_at": 1793280105.51183,
+      "engine_seconds": 35.1991,
+      "log": "test-results/v070a_Survey_after_verified_sweep_0of8_20261029_092053_775.log"
+    },
+    {
+      "id": "5dd9cc27fa5d4e0ca10f6525cef024ae",
+      "name": "v070a_Survey_after_verified_sweep_1of8_20261029_092145_823",
+      "status": "passed",
+      "exit_code": 0,
+      "started_at": 1793280114.7095208,
+      "finished_at": 1793280151.8882978,
+      "engine_seconds": 37.1788,
+      "log": "test-results/v070a_Survey_after_verified_sweep_1of8_20261029_092145_823.log"
+    },
+    {
+      "id": "2cbcccb858b14214b778087d4aa070c6",
+      "name": "v070a_Survey_after_verified_sweep_2of8_20261029_092232_080",
+      "status": "passed",
+      "exit_code": 0,
+      "started_at": 1793280287.270432,
+      "finished_at": 1793280319.5802503,
+      "engine_seconds": 32.3098,
+      "log": "test-results/v070a_Survey_after_verified_sweep_2of8_20261029_092232_080.log"
+    },
+    {
+      "id": "935bb3a44a144df2b9aba21fb84ff0c0",
+      "name": "v070a_Survey_after_verified_sweep_3of8_20261029_092519_874",
+      "status": "passed",
+      "exit_code": 0,
+      "started_at": 1793280488.806947,
+      "finished_at": 1793280521.5291393,
+      "engine_seconds": 32.7222,
+      "log": "test-results/v070a_Survey_after_verified_sweep_3of8_20261029_092519_874.log"
+    },
+    {
+      "id": "bd5c15dc8f454857809aa4037edad6d2",
+      "name": "v070a_Survey_after_verified_sweep_4of8_20261029_092841_719",
+      "status": "passed",
+      "exit_code": 0,
+      "started_at": 1793280596.019598,
+      "finished_at": 1793280627.2397861,
+      "engine_seconds": 31.2202,
+      "log": "test-results/v070a_Survey_after_verified_sweep_4of8_20261029_092841_719.log"
+    },
+    {
+      "id": "b7e38cf81e9f47a4b6c81e57d7d54971",
+      "name": "v070a_Survey_after_verified_sweep_5of8_20261029_093027_536",
+      "status": "passed",
+      "exit_code": 0,
+      "started_at": 1793280649.889583,
+      "finished_at": 1793280678.682301,
+      "engine_seconds": 28.7927,
+      "log": "test-results/v070a_Survey_after_verified_sweep_5of8_20261029_093027_536.log"
+    },
+    {
+      "id": "4b0e8eb37289496aaa4aa592527ee516",
+      "name": "v070a_Survey_after_verified_sweep_6of8_20261029_093118_931",
+      "status": "passed",
+      "exit_code": 0,
+      "started_at": 1793280859.2458186,
+      "finished_at": 1793280889.7771363,
+      "engine_seconds": 30.5313,
+      "log": "test-results/v070a_Survey_after_verified_sweep_6of8_20261029_093118_931.log"
+    },
+    {
+      "id": "16a873e658b849f39e2b485c1ad8c307",
+      "name": "v070a_Survey_after_verified_sweep_7of8_20261029_093450_054",
+      "status": "passed",
+      "exit_code": 0,
+      "started_at": 1793281135.8498206,
+      "finished_at": 1793281165.158991,
+      "engine_seconds": 29.3092,
+      "log": "test-results/v070a_Survey_after_verified_sweep_7of8_20261029_093450_054.log"
+    },
+    {
+      "id": "c48ab08acf1b47d1b2d834feeb4ed499",
+      "name": "v070a_FinalChecks_after_verified_campaign_0of1_20261029_094011_149",
+      "status": "passed",
+      "exit_code": 0,
+      "started_at": 1793281359.4188333,
+      "finished_at": 1793281372.1212347,
+      "engine_seconds": 12.7024,
+      "log": "test-results/v070a_FinalChecks_after_verified_campaign_0of1_20261029_094011_149.log"
+    }
+  ]
+}

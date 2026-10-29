@@ -1,0 +1,3031 @@
+{
+	"complete": false,
+	"data_sha256": {
+		"armor": "9299fc78ce6a6762d439631724ca9b431f8eff66b08564a8d9bddb948e92ec1e",
+		"bows": "3c7d5133c641c7503c7acbb03d90ceeb16bf385779ee2c354bdbcf39da4b6713",
+		"creatures": "240e4979cdc869b0b81c190ba2f63a6ac5c6a65729bbc88cc672d53c5ddff87d",
+		"economy": "0430a98852721a0f0600dc2e25bbb4403994e75cb2a0b1c7ab7315659346d9e8",
+		"factions": "d44abd1173a5fc5be2f750613c0c4dd763cc4d02f0945b503b75d91b9a00566f",
+		"materials": "617d44cefd627c3bbb625483d5dd5d5ccb2d3c3bb6cb7f1bcf6be07f85d5e20a",
+		"weapons": "93d2c7732a499b4b575e5d4d860e366d60010aaed41aa6fbd5ee7074bd05b975"
+	},
+	"disabled_included": false,
+	"elapsed_ms": 1722,
+	"errors": [
+		{
+			"case": {
+				"a": {
+					"faction": "dwarf_holds",
+					"id": "dwarf_holds/hold guard/foot",
+					"mount": "foot",
+					"race": "dwarf",
+					"troop": 2,
+					"unit": "dwarf_holds/hold guard"
+				},
+				"b": {
+					"faction": "goblin_warren",
+					"id": "goblin_warren/goblin skulker/foot",
+					"mount": "foot",
+					"race": "goblin",
+					"troop": 0,
+					"unit": "goblin_warren/goblin skulker"
+				},
+				"sample": 2,
+				"seed": 90181
+			},
+			"error": "No <=5% cost match within 16 bodies"
+		}
+	],
+	"max_cost_gap": 0.05,
+	"max_ticks": 6000,
+	"mirrors": {
+		"mount": {
+			"foot": {
+				"cost_efficiency": 0.34638734822365463,
+				"cost_spent": 266840.0,
+				"damage_dealt": 138.20968167334607,
+				"damage_taken": 138.20968167334607,
+				"draw": 0,
+				"kills": 6,
+				"n": 4,
+				"score_rate": 0.5,
+				"value_killed": 92430.0,
+				"win_rate": 0.5,
+				"won": 2
+			}
+		},
+		"profile": {
+			"dwarf_holds/hold guard/foot": {
+				"cost_efficiency": 0.34638734822365463,
+				"cost_spent": 266840.0,
+				"damage_dealt": 138.20968167334607,
+				"damage_taken": 138.20968167334607,
+				"draw": 0,
+				"kills": 6,
+				"n": 4,
+				"score_rate": 0.5,
+				"value_killed": 92430.0,
+				"win_rate": 0.5,
+				"won": 2
+			}
+		},
+		"race": {
+			"dwarf": {
+				"cost_efficiency": 0.34638734822365463,
+				"cost_spent": 266840.0,
+				"damage_dealt": 138.20968167334607,
+				"damage_taken": 138.20968167334607,
+				"draw": 0,
+				"kills": 6,
+				"n": 4,
+				"score_rate": 0.5,
+				"value_killed": 92430.0,
+				"win_rate": 0.5,
+				"won": 2
+			}
+		},
+		"unit": {
+			"dwarf_holds/hold guard": {
+				"cost_efficiency": 0.34638734822365463,
+				"cost_spent": 266840.0,
+				"damage_dealt": 138.20968167334607,
+				"damage_taken": 138.20968167334607,
+				"draw": 0,
+				"kills": 6,
+				"n": 4,
+				"score_rate": 0.5,
+				"value_killed": 92430.0,
+				"win_rate": 0.5,
+				"won": 2
+			}
+		}
+	},
+	"phase": "before_full",
+	"rows": [
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/axedwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 0,
+				"unit": "dwarf_holds/axedwarf"
+			},
+			"b": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hammerdwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 1,
+				"unit": "dwarf_holds/hammerdwarf"
+			},
+			"cost_match": {
+				"cost0": 50477.0,
+				"cost1": 49034.0,
+				"gap": 0.02858727737385344,
+				"n0": 4,
+				"n1": 3
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 85939,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 50477.0,
+					"damage_dealt": 27.11710821673244,
+					"damage_taken": 39.606362278993494,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 32659.0,
+					"won": 0
+				},
+				{
+					"bodies": 3,
+					"cost_spent": 49034.0,
+					"damage_dealt": 39.606362278993494,
+					"damage_taken": 27.11710821673244,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 26303.0,
+					"won": 1
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 553
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/axedwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 0,
+				"unit": "dwarf_holds/axedwarf"
+			},
+			"b": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hammerdwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 1,
+				"unit": "dwarf_holds/hammerdwarf"
+			},
+			"cost_match": {
+				"cost0": 50477.0,
+				"cost1": 49034.0,
+				"gap": 0.02858727737385344,
+				"n0": 4,
+				"n1": 3
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 85939,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 50477.0,
+					"damage_dealt": 27.251291225049336,
+					"damage_taken": 28.006725135937344,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 49034.0,
+					"won": 1
+				},
+				{
+					"bodies": 3,
+					"cost_spent": 49034.0,
+					"damage_dealt": 28.006725135937344,
+					"damage_taken": 27.251291225049336,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 9948.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 421
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/axedwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 0,
+				"unit": "dwarf_holds/axedwarf"
+			},
+			"b": {
+				"faction": "eastern_khanate",
+				"id": "eastern_khanate/steppe archer/foot",
+				"mount": "foot",
+				"race": "human",
+				"troop": 0,
+				"unit": "eastern_khanate/steppe archer"
+			},
+			"cost_match": {
+				"cost0": 58091.0,
+				"cost1": 59196.0,
+				"gap": 0.01866680181093317,
+				"n0": 4,
+				"n1": 9
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 86141,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 58091.0,
+					"damage_dealt": 50.57478274667616,
+					"damage_taken": 60.13063769760923,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 19590.0,
+					"won": 0
+				},
+				{
+					"bodies": 9,
+					"cost_spent": 59196.0,
+					"damage_dealt": 60.13063769760923,
+					"damage_taken": 50.57478274667616,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 18050.0,
+					"won": 1
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 357
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/axedwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 0,
+				"unit": "dwarf_holds/axedwarf"
+			},
+			"b": {
+				"faction": "eastern_khanate",
+				"id": "eastern_khanate/steppe archer/foot",
+				"mount": "foot",
+				"race": "human",
+				"troop": 0,
+				"unit": "eastern_khanate/steppe archer"
+			},
+			"cost_match": {
+				"cost0": 58091.0,
+				"cost1": 59196.0,
+				"gap": 0.01866680181093317,
+				"n0": 4,
+				"n1": 9
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 86141,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 58091.0,
+					"damage_dealt": 31.602681104759636,
+					"damage_taken": 50.60263868268341,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 19907.0,
+					"won": 0
+				},
+				{
+					"bodies": 9,
+					"cost_spent": 59196.0,
+					"damage_dealt": 50.60263868268341,
+					"damage_taken": 31.602681104759636,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 40041.0,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 335
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/axedwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 0,
+				"unit": "dwarf_holds/axedwarf"
+			},
+			"b": {
+				"faction": "eastern_khanate",
+				"id": "eastern_khanate/keshig/foot",
+				"mount": "foot",
+				"race": "human",
+				"troop": 2,
+				"unit": "eastern_khanate/keshig"
+			},
+			"cost_match": {
+				"cost0": 35460.0,
+				"cost1": 33875.0,
+				"gap": 0.04469825155104343,
+				"n0": 3,
+				"n1": 4
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 86343,
+			"sides": [
+				{
+					"bodies": 3,
+					"cost_spent": 35460.0,
+					"damage_dealt": 52.8665526079498,
+					"damage_taken": 12.404714502032094,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 26252.0,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 33875.0,
+					"damage_dealt": 12.404714502032094,
+					"damage_taken": 52.8665526079498,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 315
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/axedwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 0,
+				"unit": "dwarf_holds/axedwarf"
+			},
+			"b": {
+				"faction": "eastern_khanate",
+				"id": "eastern_khanate/keshig/foot",
+				"mount": "foot",
+				"race": "human",
+				"troop": 2,
+				"unit": "eastern_khanate/keshig"
+			},
+			"cost_match": {
+				"cost0": 35460.0,
+				"cost1": 33875.0,
+				"gap": 0.04469825155104343,
+				"n0": 3,
+				"n1": 4
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 86343,
+			"sides": [
+				{
+					"bodies": 3,
+					"cost_spent": 35460.0,
+					"damage_dealt": 37.90348315965687,
+					"damage_taken": 36.16783079033635,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 26252.0,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 33875.0,
+					"damage_dealt": 36.16783079033635,
+					"damage_taken": 37.90348315965687,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 10376.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 396
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/axedwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 0,
+				"unit": "dwarf_holds/axedwarf"
+			},
+			"b": {
+				"faction": "goblin_warren",
+				"id": "goblin_warren/goblin spear/foot",
+				"mount": "foot",
+				"race": "goblin",
+				"troop": 1,
+				"unit": "goblin_warren/goblin spear"
+			},
+			"cost_match": {
+				"cost0": 23129.0,
+				"cost1": 23739.0,
+				"gap": 0.025696111883398626,
+				"n0": 2,
+				"n1": 12
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 86545,
+			"sides": [
+				{
+					"bodies": 2,
+					"cost_spent": 23129.0,
+					"damage_dealt": 0.0,
+					"damage_taken": 30.301487319395115,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 12,
+					"cost_spent": 23739.0,
+					"damage_dealt": 30.301487319395115,
+					"damage_taken": 0.0,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 23129.0,
+					"won": 1
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 100
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/axedwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 0,
+				"unit": "dwarf_holds/axedwarf"
+			},
+			"b": {
+				"faction": "goblin_warren",
+				"id": "goblin_warren/goblin spear/foot",
+				"mount": "foot",
+				"race": "goblin",
+				"troop": 1,
+				"unit": "goblin_warren/goblin spear"
+			},
+			"cost_match": {
+				"cost0": 23129.0,
+				"cost1": 23739.0,
+				"gap": 0.025696111883398626,
+				"n0": 2,
+				"n1": 12
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 86545,
+			"sides": [
+				{
+					"bodies": 2,
+					"cost_spent": 23129.0,
+					"damage_dealt": 0.0,
+					"damage_taken": 26.382812143229778,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 12,
+					"cost_spent": 23739.0,
+					"damage_dealt": 26.382812143229778,
+					"damage_taken": 0.0,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 11602.0,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 91
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/axedwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 0,
+				"unit": "dwarf_holds/axedwarf"
+			},
+			"b": {
+				"faction": "middle_kingdom",
+				"id": "middle_kingdom/spearman/foot",
+				"mount": "foot",
+				"race": "human",
+				"troop": 0,
+				"unit": "middle_kingdom/spearman"
+			},
+			"cost_match": {
+				"cost0": 22717.0,
+				"cost1": 22287.0,
+				"gap": 0.018928555707179644,
+				"n0": 2,
+				"n1": 3
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 86747,
+			"sides": [
+				{
+					"bodies": 2,
+					"cost_spent": 22717.0,
+					"damage_dealt": 0.0,
+					"damage_taken": 26.709367878815822,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 3,
+					"cost_spent": 22287.0,
+					"damage_dealt": 26.709367878815822,
+					"damage_taken": 0.0,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 10183.0,
+					"won": 1
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 143
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/axedwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 0,
+				"unit": "dwarf_holds/axedwarf"
+			},
+			"b": {
+				"faction": "middle_kingdom",
+				"id": "middle_kingdom/spearman/foot",
+				"mount": "foot",
+				"race": "human",
+				"troop": 0,
+				"unit": "middle_kingdom/spearman"
+			},
+			"cost_match": {
+				"cost0": 22717.0,
+				"cost1": 22287.0,
+				"gap": 0.018928555707179644,
+				"n0": 2,
+				"n1": 3
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 86747,
+			"sides": [
+				{
+					"bodies": 2,
+					"cost_spent": 22717.0,
+					"damage_dealt": 11.936094953442165,
+					"damage_taken": 28.24387116768361,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 6877.0,
+					"won": 0
+				},
+				{
+					"bodies": 3,
+					"cost_spent": 22287.0,
+					"damage_dealt": 28.24387116768361,
+					"damage_taken": 11.936094953442165,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 22717.0,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 165
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/axedwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 0,
+				"unit": "dwarf_holds/axedwarf"
+			},
+			"b": {
+				"faction": "middle_kingdom",
+				"id": "middle_kingdom/March bowman/foot",
+				"mount": "foot",
+				"race": "human",
+				"troop": 2,
+				"unit": "middle_kingdom/March bowman"
+			},
+			"cost_match": {
+				"cost0": 44272.0,
+				"cost1": 45383.0,
+				"gap": 0.024480532357931385,
+				"n0": 4,
+				"n1": 10
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 86949,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 44272.0,
+					"damage_dealt": 50.49009744138297,
+					"damage_taken": 48.64358509305316,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 14081.0,
+					"won": 0
+				},
+				{
+					"bodies": 10,
+					"cost_spent": 45383.0,
+					"damage_dealt": 48.64358509305316,
+					"damage_taken": 50.49009744138297,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 4,
+					"value_killed": 44272.0,
+					"won": 1
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 470
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/axedwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 0,
+				"unit": "dwarf_holds/axedwarf"
+			},
+			"b": {
+				"faction": "middle_kingdom",
+				"id": "middle_kingdom/March bowman/foot",
+				"mount": "foot",
+				"race": "human",
+				"troop": 2,
+				"unit": "middle_kingdom/March bowman"
+			},
+			"cost_match": {
+				"cost0": 44272.0,
+				"cost1": 45383.0,
+				"gap": 0.024480532357931385,
+				"n0": 4,
+				"n1": 10
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 86949,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 44272.0,
+					"damage_dealt": 43.68194759500619,
+					"damage_taken": 66.60765537160532,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 9497.0,
+					"won": 0
+				},
+				{
+					"bodies": 10,
+					"cost_spent": 45383.0,
+					"damage_dealt": 66.60765537160532,
+					"damage_taken": 43.68194759500619,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 24090.0,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 525
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/axedwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 0,
+				"unit": "dwarf_holds/axedwarf"
+			},
+			"b": {
+				"faction": "moon_court",
+				"id": "moon_court/moon blade/foot",
+				"mount": "foot",
+				"race": "moon_elf",
+				"troop": 1,
+				"unit": "moon_court/moon blade"
+			},
+			"cost_match": {
+				"cost0": 12702.0,
+				"cost1": 12959.0,
+				"gap": 0.019831777143298094,
+				"n0": 1,
+				"n1": 2
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 87151,
+			"sides": [
+				{
+					"bodies": 1,
+					"cost_spent": 12702.0,
+					"damage_dealt": 16.276612255733,
+					"damage_taken": 2.219959310397125,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 12959.0,
+					"won": 1
+				},
+				{
+					"bodies": 2,
+					"cost_spent": 12959.0,
+					"damage_dealt": 2.219959310397125,
+					"damage_taken": 16.276612255733,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 142
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/axedwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 0,
+				"unit": "dwarf_holds/axedwarf"
+			},
+			"b": {
+				"faction": "moon_court",
+				"id": "moon_court/moon blade/foot",
+				"mount": "foot",
+				"race": "moon_elf",
+				"troop": 1,
+				"unit": "moon_court/moon blade"
+			},
+			"cost_match": {
+				"cost0": 12702.0,
+				"cost1": 12959.0,
+				"gap": 0.019831777143298094,
+				"n0": 1,
+				"n1": 2
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 87151,
+			"sides": [
+				{
+					"bodies": 1,
+					"cost_spent": 12702.0,
+					"damage_dealt": 23.348546716707958,
+					"damage_taken": 6.009889150369825,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 12959.0,
+					"won": 1
+				},
+				{
+					"bodies": 2,
+					"cost_spent": 12959.0,
+					"damage_dealt": 6.009889150369825,
+					"damage_taken": 23.348546716707958,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 261
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/axedwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 0,
+				"unit": "dwarf_holds/axedwarf"
+			},
+			"b": {
+				"faction": "northern_clans",
+				"id": "northern_clans/clansman/foot",
+				"mount": "foot",
+				"race": "human",
+				"troop": 0,
+				"unit": "northern_clans/clansman"
+			},
+			"cost_match": {
+				"cost0": 30543.0,
+				"cost1": 31962.0,
+				"gap": 0.04439647080908579,
+				"n0": 2,
+				"n1": 7
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 87353,
+			"sides": [
+				{
+					"bodies": 2,
+					"cost_spent": 30543.0,
+					"damage_dealt": 18.754671258798012,
+					"damage_taken": 20.400679016873767,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 8366.0,
+					"won": 0
+				},
+				{
+					"bodies": 7,
+					"cost_spent": 31962.0,
+					"damage_dealt": 20.400679016873767,
+					"damage_taken": 18.754671258798012,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 15131.0,
+					"won": 1
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 159
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/axedwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 0,
+				"unit": "dwarf_holds/axedwarf"
+			},
+			"b": {
+				"faction": "northern_clans",
+				"id": "northern_clans/clansman/foot",
+				"mount": "foot",
+				"race": "human",
+				"troop": 0,
+				"unit": "northern_clans/clansman"
+			},
+			"cost_match": {
+				"cost0": 30543.0,
+				"cost1": 31962.0,
+				"gap": 0.04439647080908579,
+				"n0": 2,
+				"n1": 7
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 87353,
+			"sides": [
+				{
+					"bodies": 2,
+					"cost_spent": 30543.0,
+					"damage_dealt": 5.158977244376317,
+					"damage_taken": 21.30643650362203,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 7,
+					"cost_spent": 31962.0,
+					"damage_dealt": 21.30643650362203,
+					"damage_taken": 5.158977244376317,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 15131.0,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 173
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/axedwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 0,
+				"unit": "dwarf_holds/axedwarf"
+			},
+			"b": {
+				"faction": "northern_clans",
+				"id": "northern_clans/fell hunter/foot",
+				"mount": "foot",
+				"race": "human",
+				"troop": 2,
+				"unit": "northern_clans/fell hunter"
+			},
+			"cost_match": {
+				"cost0": 48310.0,
+				"cost1": 47831.0,
+				"gap": 0.009915131442765472,
+				"n0": 4,
+				"n1": 14
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 87555,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 48310.0,
+					"damage_dealt": 29.416918664569877,
+					"damage_taken": 57.4477199480548,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 2793.0,
+					"won": 0
+				},
+				{
+					"bodies": 14,
+					"cost_spent": 47831.0,
+					"damage_dealt": 57.4477199480548,
+					"damage_taken": 29.416918664569877,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 10281.0,
+					"won": 1
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 348
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/axedwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 0,
+				"unit": "dwarf_holds/axedwarf"
+			},
+			"b": {
+				"faction": "northern_clans",
+				"id": "northern_clans/fell hunter/foot",
+				"mount": "foot",
+				"race": "human",
+				"troop": 2,
+				"unit": "northern_clans/fell hunter"
+			},
+			"cost_match": {
+				"cost0": 48310.0,
+				"cost1": 47831.0,
+				"gap": 0.009915131442765472,
+				"n0": 4,
+				"n1": 14
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 87555,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 48310.0,
+					"damage_dealt": 25.260135725243842,
+					"damage_taken": 70.01547884197988,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 2793.0,
+					"won": 0
+				},
+				{
+					"bodies": 14,
+					"cost_spent": 47831.0,
+					"damage_dealt": 70.01547884197988,
+					"damage_taken": 25.260135725243842,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 38029.0,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 297
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/axedwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 0,
+				"unit": "dwarf_holds/axedwarf"
+			},
+			"b": {
+				"faction": "orc_horde",
+				"id": "orc_horde/orc brute/foot",
+				"mount": "foot",
+				"race": "orc",
+				"troop": 1,
+				"unit": "orc_horde/orc brute"
+			},
+			"cost_match": {
+				"cost0": 32031.0,
+				"cost1": 31540.0,
+				"gap": 0.015328900128001,
+				"n0": 2,
+				"n1": 4
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 87757,
+			"sides": [
+				{
+					"bodies": 2,
+					"cost_spent": 32031.0,
+					"damage_dealt": 12.933258371989096,
+					"damage_taken": 14.850717854953809,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 5037.0,
+					"won": 0
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 31540.0,
+					"damage_dealt": 14.850717854953809,
+					"damage_taken": 12.933258371989096,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 32031.0,
+					"won": 1
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 188
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/axedwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 0,
+				"unit": "dwarf_holds/axedwarf"
+			},
+			"b": {
+				"faction": "orc_horde",
+				"id": "orc_horde/orc brute/foot",
+				"mount": "foot",
+				"race": "orc",
+				"troop": 1,
+				"unit": "orc_horde/orc brute"
+			},
+			"cost_match": {
+				"cost0": 32031.0,
+				"cost1": 31540.0,
+				"gap": 0.015328900128001,
+				"n0": 2,
+				"n1": 4
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 87757,
+			"sides": [
+				{
+					"bodies": 2,
+					"cost_spent": 32031.0,
+					"damage_dealt": 11.417959323186064,
+					"damage_taken": 11.075934426077245,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 31540.0,
+					"damage_dealt": 11.075934426077245,
+					"damage_taken": 11.417959323186064,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 18227.0,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 199
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hammerdwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 1,
+				"unit": "dwarf_holds/hammerdwarf"
+			},
+			"b": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hold guard/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 2,
+				"unit": "dwarf_holds/hold guard"
+			},
+			"cost_match": {
+				"cost0": 62048.0,
+				"cost1": 59117.0,
+				"gap": 0.047237622485817435,
+				"n0": 6,
+				"n1": 4
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 87959,
+			"sides": [
+				{
+					"bodies": 6,
+					"cost_spent": 62048.0,
+					"damage_dealt": 60.44836920912005,
+					"damage_taken": 16.111219194055696,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 4,
+					"value_killed": 59117.0,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 59117.0,
+					"damage_dealt": 16.111219194055696,
+					"damage_taken": 60.44836920912005,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 17851.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 328
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hammerdwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 1,
+				"unit": "dwarf_holds/hammerdwarf"
+			},
+			"b": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hold guard/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 2,
+				"unit": "dwarf_holds/hold guard"
+			},
+			"cost_match": {
+				"cost0": 62048.0,
+				"cost1": 59117.0,
+				"gap": 0.047237622485817435,
+				"n0": 6,
+				"n1": 4
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 87959,
+			"sides": [
+				{
+					"bodies": 6,
+					"cost_spent": 62048.0,
+					"damage_dealt": 49.810285849044085,
+					"damage_taken": 16.307652897214034,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 48738.0,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 59117.0,
+					"damage_dealt": 16.307652897214034,
+					"damage_taken": 49.810285849044085,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 10204.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 346
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hammerdwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 1,
+				"unit": "dwarf_holds/hammerdwarf"
+			},
+			"b": {
+				"faction": "eastern_khanate",
+				"id": "eastern_khanate/lancer/foot",
+				"mount": "foot",
+				"race": "human",
+				"troop": 1,
+				"unit": "eastern_khanate/lancer"
+			},
+			"cost_match": {
+				"cost0": 33942.0,
+				"cost1": 34083.0,
+				"gap": 0.004136959774667723,
+				"n0": 3,
+				"n1": 8
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 88161,
+			"sides": [
+				{
+					"bodies": 3,
+					"cost_spent": 33942.0,
+					"damage_dealt": 0.0,
+					"damage_taken": 35.870041170748415,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 8,
+					"cost_spent": 34083.0,
+					"damage_dealt": 35.870041170748415,
+					"damage_taken": 0.0,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 13020.0,
+					"won": 1
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 119
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hammerdwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 1,
+				"unit": "dwarf_holds/hammerdwarf"
+			},
+			"b": {
+				"faction": "eastern_khanate",
+				"id": "eastern_khanate/lancer/foot",
+				"mount": "foot",
+				"race": "human",
+				"troop": 1,
+				"unit": "eastern_khanate/lancer"
+			},
+			"cost_match": {
+				"cost0": 33942.0,
+				"cost1": 34083.0,
+				"gap": 0.004136959774667723,
+				"n0": 3,
+				"n1": 8
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 88161,
+			"sides": [
+				{
+					"bodies": 3,
+					"cost_spent": 33942.0,
+					"damage_dealt": 1.5788435052836318,
+					"damage_taken": 57.364223725537464,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 8,
+					"cost_spent": 34083.0,
+					"damage_dealt": 57.364223725537464,
+					"damage_taken": 1.5788435052836318,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 13020.0,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 158
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hammerdwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 1,
+				"unit": "dwarf_holds/hammerdwarf"
+			},
+			"b": {
+				"faction": "goblin_warren",
+				"id": "goblin_warren/goblin skulker/foot",
+				"mount": "foot",
+				"race": "goblin",
+				"troop": 0,
+				"unit": "goblin_warren/goblin skulker"
+			},
+			"cost_match": {
+				"cost0": 16076.0,
+				"cost1": 15481.0,
+				"gap": 0.03701169445135606,
+				"n0": 2,
+				"n1": 10
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 88363,
+			"sides": [
+				{
+					"bodies": 2,
+					"cost_spent": 16076.0,
+					"damage_dealt": 10.635873325235663,
+					"damage_taken": 55.583764587864536,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 10,
+					"cost_spent": 15481.0,
+					"damage_dealt": 55.583764587864536,
+					"damage_taken": 10.635873325235663,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 9192.0,
+					"won": 1
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 224
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hammerdwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 1,
+				"unit": "dwarf_holds/hammerdwarf"
+			},
+			"b": {
+				"faction": "goblin_warren",
+				"id": "goblin_warren/goblin skulker/foot",
+				"mount": "foot",
+				"race": "goblin",
+				"troop": 0,
+				"unit": "goblin_warren/goblin skulker"
+			},
+			"cost_match": {
+				"cost0": 16076.0,
+				"cost1": 15481.0,
+				"gap": 0.03701169445135606,
+				"n0": 2,
+				"n1": 10
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 88363,
+			"sides": [
+				{
+					"bodies": 2,
+					"cost_spent": 16076.0,
+					"damage_dealt": 9.3538564258604,
+					"damage_taken": 35.63690031844917,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 10,
+					"cost_spent": 15481.0,
+					"damage_dealt": 35.63690031844917,
+					"damage_taken": 9.3538564258604,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 158
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hammerdwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 1,
+				"unit": "dwarf_holds/hammerdwarf"
+			},
+			"b": {
+				"faction": "goblin_warren",
+				"id": "goblin_warren/goblin archer/foot",
+				"mount": "foot",
+				"race": "goblin",
+				"troop": 2,
+				"unit": "goblin_warren/goblin archer"
+			},
+			"cost_match": {
+				"cost0": 26544.0,
+				"cost1": 26082.0,
+				"gap": 0.01740506329113924,
+				"n0": 3,
+				"n1": 14
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 88565,
+			"sides": [
+				{
+					"bodies": 3,
+					"cost_spent": 26544.0,
+					"damage_dealt": 21.336882099658677,
+					"damage_taken": 60.17945876590522,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 1999.0,
+					"won": 0
+				},
+				{
+					"bodies": 14,
+					"cost_spent": 26082.0,
+					"damage_dealt": 60.17945876590522,
+					"damage_taken": 21.336882099658677,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 11575.0,
+					"won": 1
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 320
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hammerdwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 1,
+				"unit": "dwarf_holds/hammerdwarf"
+			},
+			"b": {
+				"faction": "goblin_warren",
+				"id": "goblin_warren/goblin archer/foot",
+				"mount": "foot",
+				"race": "goblin",
+				"troop": 2,
+				"unit": "goblin_warren/goblin archer"
+			},
+			"cost_match": {
+				"cost0": 26544.0,
+				"cost1": 26082.0,
+				"gap": 0.01740506329113924,
+				"n0": 3,
+				"n1": 14
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 88565,
+			"sides": [
+				{
+					"bodies": 3,
+					"cost_spent": 26544.0,
+					"damage_dealt": 1.3833142802087022,
+					"damage_taken": 50.642082927504156,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 14,
+					"cost_spent": 26082.0,
+					"damage_dealt": 50.642082927504156,
+					"damage_taken": 1.3833142802087022,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 9546.0,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 257
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hammerdwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 1,
+				"unit": "dwarf_holds/hammerdwarf"
+			},
+			"b": {
+				"faction": "middle_kingdom",
+				"id": "middle_kingdom/man-at-arms/foot",
+				"mount": "foot",
+				"race": "human",
+				"troop": 1,
+				"unit": "middle_kingdom/man-at-arms"
+			},
+			"cost_match": {
+				"cost0": 50796.0,
+				"cost1": 51280.0,
+				"gap": 0.009438377535101404,
+				"n0": 5,
+				"n1": 6
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 88767,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 50796.0,
+					"damage_dealt": 59.9547165544963,
+					"damage_taken": 47.42984741888074,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 4,
+					"value_killed": 33447.0,
+					"won": 1
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 51280.0,
+					"damage_dealt": 47.42984741888074,
+					"damage_taken": 59.9547165544963,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 18319.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 431
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hammerdwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 1,
+				"unit": "dwarf_holds/hammerdwarf"
+			},
+			"b": {
+				"faction": "middle_kingdom",
+				"id": "middle_kingdom/man-at-arms/foot",
+				"mount": "foot",
+				"race": "human",
+				"troop": 1,
+				"unit": "middle_kingdom/man-at-arms"
+			},
+			"cost_match": {
+				"cost0": 50796.0,
+				"cost1": 51280.0,
+				"gap": 0.009438377535101404,
+				"n0": 5,
+				"n1": 6
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 88767,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 50796.0,
+					"damage_dealt": 50.29605329849999,
+					"damage_taken": 78.74901113034554,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 16267.0,
+					"won": 0
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 51280.0,
+					"damage_dealt": 78.74901113034554,
+					"damage_taken": 50.29605329849999,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 7127.0,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 455
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hammerdwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 1,
+				"unit": "dwarf_holds/hammerdwarf"
+			},
+			"b": {
+				"faction": "moon_court",
+				"id": "moon_court/glaive dancer/foot",
+				"mount": "foot",
+				"race": "moon_elf",
+				"troop": 0,
+				"unit": "moon_court/glaive dancer"
+			},
+			"cost_match": {
+				"cost0": 25534.0,
+				"cost1": 26592.0,
+				"gap": 0.039786401925391096,
+				"n0": 2,
+				"n1": 3
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 88969,
+			"sides": [
+				{
+					"bodies": 2,
+					"cost_spent": 25534.0,
+					"damage_dealt": 1.3464328520907407,
+					"damage_taken": 22.33124841396969,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 3,
+					"cost_spent": 26592.0,
+					"damage_dealt": 22.33124841396969,
+					"damage_taken": 1.3464328520907407,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 1
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 184
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hammerdwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 1,
+				"unit": "dwarf_holds/hammerdwarf"
+			},
+			"b": {
+				"faction": "moon_court",
+				"id": "moon_court/glaive dancer/foot",
+				"mount": "foot",
+				"race": "moon_elf",
+				"troop": 0,
+				"unit": "moon_court/glaive dancer"
+			},
+			"cost_match": {
+				"cost0": 25534.0,
+				"cost1": 26592.0,
+				"gap": 0.039786401925391096,
+				"n0": 2,
+				"n1": 3
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 88969,
+			"sides": [
+				{
+					"bodies": 2,
+					"cost_spent": 25534.0,
+					"damage_dealt": 9.764686397734668,
+					"damage_taken": 26.556027205265515,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 8262.0,
+					"won": 0
+				},
+				{
+					"bodies": 3,
+					"cost_spent": 26592.0,
+					"damage_dealt": 26.556027205265515,
+					"damage_taken": 9.764686397734668,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 25534.0,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 243
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hammerdwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 1,
+				"unit": "dwarf_holds/hammerdwarf"
+			},
+			"b": {
+				"faction": "moon_court",
+				"id": "moon_court/moon archer/foot",
+				"mount": "foot",
+				"race": "moon_elf",
+				"troop": 2,
+				"unit": "moon_court/moon archer"
+			},
+			"cost_match": {
+				"cost0": 37942.0,
+				"cost1": 37800.0,
+				"gap": 0.0037425544251752673,
+				"n0": 3,
+				"n1": 4
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 89171,
+			"sides": [
+				{
+					"bodies": 3,
+					"cost_spent": 37942.0,
+					"damage_dealt": 80.09172593392164,
+					"damage_taken": 17.76005241418772,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 29052.0,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 37800.0,
+					"damage_dealt": 17.76005241418772,
+					"damage_taken": 80.09172593392164,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 12697.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 1669
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hammerdwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 1,
+				"unit": "dwarf_holds/hammerdwarf"
+			},
+			"b": {
+				"faction": "moon_court",
+				"id": "moon_court/moon archer/foot",
+				"mount": "foot",
+				"race": "moon_elf",
+				"troop": 2,
+				"unit": "moon_court/moon archer"
+			},
+			"cost_match": {
+				"cost0": 37942.0,
+				"cost1": 37800.0,
+				"gap": 0.0037425544251752673,
+				"n0": 3,
+				"n1": 4
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 89171,
+			"sides": [
+				{
+					"bodies": 3,
+					"cost_spent": 37942.0,
+					"damage_dealt": 52.39554930294673,
+					"damage_taken": 28.447322091316565,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 4,
+					"value_killed": 37800.0,
+					"won": 1
+				},
+				{
+					"bodies": 4,
+					"cost_spent": 37800.0,
+					"damage_dealt": 28.447322091316565,
+					"damage_taken": 52.39554930294673,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 12280.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 794
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hammerdwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 1,
+				"unit": "dwarf_holds/hammerdwarf"
+			},
+			"b": {
+				"faction": "northern_clans",
+				"id": "northern_clans/huscarl/foot",
+				"mount": "foot",
+				"race": "human",
+				"troop": 1,
+				"unit": "northern_clans/huscarl"
+			},
+			"cost_match": {
+				"cost0": 51982.0,
+				"cost1": 51793.0,
+				"gap": 0.0036358739563695126,
+				"n0": 5,
+				"n1": 11
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 89373,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 51982.0,
+					"damage_dealt": 13.128650754825728,
+					"damage_taken": 66.77289250461763,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 4476.0,
+					"won": 0
+				},
+				{
+					"bodies": 11,
+					"cost_spent": 51793.0,
+					"damage_dealt": 66.77289250461763,
+					"damage_taken": 13.128650754825728,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 4,
+					"value_killed": 41935.0,
+					"won": 1
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 207
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hammerdwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 1,
+				"unit": "dwarf_holds/hammerdwarf"
+			},
+			"b": {
+				"faction": "northern_clans",
+				"id": "northern_clans/huscarl/foot",
+				"mount": "foot",
+				"race": "human",
+				"troop": 1,
+				"unit": "northern_clans/huscarl"
+			},
+			"cost_match": {
+				"cost0": 51982.0,
+				"cost1": 51793.0,
+				"gap": 0.0036358739563695126,
+				"n0": 5,
+				"n1": 11
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 89373,
+			"sides": [
+				{
+					"bodies": 5,
+					"cost_spent": 51982.0,
+					"damage_dealt": 19.801123378422112,
+					"damage_taken": 50.93710290290642,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 11,
+					"cost_spent": 51793.0,
+					"damage_dealt": 50.93710290290642,
+					"damage_taken": 19.801123378422112,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 4,
+					"value_killed": 44894.0,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 221
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hammerdwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 1,
+				"unit": "dwarf_holds/hammerdwarf"
+			},
+			"b": {
+				"faction": "orc_horde",
+				"id": "orc_horde/orc warrior/foot",
+				"mount": "foot",
+				"race": "orc",
+				"troop": 0,
+				"unit": "orc_horde/orc warrior"
+			},
+			"cost_match": {
+				"cost0": 41137.0,
+				"cost1": 40691.0,
+				"gap": 0.01084182123149476,
+				"n0": 4,
+				"n1": 7
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 89575,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 41137.0,
+					"damage_dealt": 9.389657904408326,
+					"damage_taken": 46.05491926704498,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 7,
+					"cost_spent": 40691.0,
+					"damage_dealt": 46.05491926704498,
+					"damage_taken": 9.389657904408326,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 4,
+					"value_killed": 41137.0,
+					"won": 1
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 236
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hammerdwarf/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 1,
+				"unit": "dwarf_holds/hammerdwarf"
+			},
+			"b": {
+				"faction": "orc_horde",
+				"id": "orc_horde/orc warrior/foot",
+				"mount": "foot",
+				"race": "orc",
+				"troop": 0,
+				"unit": "orc_horde/orc warrior"
+			},
+			"cost_match": {
+				"cost0": 41137.0,
+				"cost1": 40691.0,
+				"gap": 0.01084182123149476,
+				"n0": 4,
+				"n1": 7
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 89575,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 41137.0,
+					"damage_dealt": 3.18560581076882,
+					"damage_taken": 29.769623407245717,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 7,
+					"cost_spent": 40691.0,
+					"damage_dealt": 29.769623407245717,
+					"damage_taken": 3.18560581076882,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 4,
+					"value_killed": 41137.0,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 138
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hold guard/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 2,
+				"unit": "dwarf_holds/hold guard"
+			},
+			"b": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hold guard/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 2,
+				"unit": "dwarf_holds/hold guard"
+			},
+			"cost_match": {
+				"cost0": 67020.0,
+				"cost1": 66400.0,
+				"gap": 0.00925096985974336,
+				"n0": 4,
+				"n1": 5
+			},
+			"mirror": true,
+			"sample": 2,
+			"seed": 89777,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 67020.0,
+					"damage_dealt": 52.58242580132786,
+					"damage_taken": 7.500176539632392,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 11797.0,
+					"won": 1
+				},
+				{
+					"bodies": 5,
+					"cost_spent": 66400.0,
+					"damage_dealt": 7.500176539632392,
+					"damage_taken": 52.58242580132786,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 353
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hold guard/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 2,
+				"unit": "dwarf_holds/hold guard"
+			},
+			"b": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hold guard/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 2,
+				"unit": "dwarf_holds/hold guard"
+			},
+			"cost_match": {
+				"cost0": 67020.0,
+				"cost1": 66400.0,
+				"gap": 0.00925096985974336,
+				"n0": 4,
+				"n1": 5
+			},
+			"mirror": true,
+			"sample": 2,
+			"seed": 89777,
+			"sides": [
+				{
+					"bodies": 4,
+					"cost_spent": 67020.0,
+					"damage_dealt": 50.05309812139878,
+					"damage_taken": 28.07398121098703,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 3,
+					"value_killed": 44073.0,
+					"won": 1
+				},
+				{
+					"bodies": 5,
+					"cost_spent": 66400.0,
+					"damage_dealt": 28.07398121098703,
+					"damage_taken": 50.05309812139878,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 2,
+					"value_killed": 36560.0,
+					"won": 0
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 440
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hold guard/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 2,
+				"unit": "dwarf_holds/hold guard"
+			},
+			"b": {
+				"faction": "eastern_khanate",
+				"id": "eastern_khanate/lancer/foot",
+				"mount": "foot",
+				"race": "human",
+				"troop": 1,
+				"unit": "eastern_khanate/lancer"
+			},
+			"cost_match": {
+				"cost0": 26702.0,
+				"cost1": 26215.0,
+				"gap": 0.018238334207175494,
+				"n0": 2,
+				"n1": 6
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 89979,
+			"sides": [
+				{
+					"bodies": 2,
+					"cost_spent": 26702.0,
+					"damage_dealt": 15.556634852271474,
+					"damage_taken": 19.089365572926713,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 26215.0,
+					"damage_dealt": 19.089365572926713,
+					"damage_taken": 15.556634852271474,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 10891.0,
+					"won": 1
+				}
+			],
+			"swap": false,
+			"tick_capped": false,
+			"ticks": 127
+		},
+		{
+			"a": {
+				"faction": "dwarf_holds",
+				"id": "dwarf_holds/hold guard/foot",
+				"mount": "foot",
+				"race": "dwarf",
+				"troop": 2,
+				"unit": "dwarf_holds/hold guard"
+			},
+			"b": {
+				"faction": "eastern_khanate",
+				"id": "eastern_khanate/lancer/foot",
+				"mount": "foot",
+				"race": "human",
+				"troop": 1,
+				"unit": "eastern_khanate/lancer"
+			},
+			"cost_match": {
+				"cost0": 26702.0,
+				"cost1": 26215.0,
+				"gap": 0.018238334207175494,
+				"n0": 2,
+				"n1": 6
+			},
+			"mirror": false,
+			"sample": 2,
+			"seed": 89979,
+			"sides": [
+				{
+					"bodies": 2,
+					"cost_spent": 26702.0,
+					"damage_dealt": 0.0,
+					"damage_taken": 28.27374413017157,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 0,
+					"value_killed": 0.0,
+					"won": 0
+				},
+				{
+					"bodies": 6,
+					"cost_spent": 26215.0,
+					"damage_dealt": 28.27374413017157,
+					"damage_taken": 0.0,
+					"draw": 0,
+					"horse_deaths": 0,
+					"kills": 1,
+					"value_killed": 10891.0,
+					"won": 1
+				}
+			],
+			"swap": true,
+			"tick_capped": false,
+			"ticks": 117
+		}
+	],
+	"samples": 4,
+	"schema": "balance_v070/1",
+	"selected_cases": 105,
+	"shard": 6,
+	"shards": 8,
+	"suite": "roster_matrix",
+	"summary": {
+		"mount": {
+			"foot": {
+				"cost_efficiency": 0.4147885753495154,
+				"cost_spent": 2914750.0,
+				"damage_dealt": 2392.4503835059177,
+				"damage_taken": 2392.4503835059186,
+				"draw": 0,
+				"kills": 116,
+				"n": 80,
+				"score_rate": 0.5,
+				"value_killed": 1209005.0,
+				"win_rate": 0.5,
+				"won": 40
+			}
+		},
+		"profile": {
+			"dwarf_holds/axedwarf/foot": {
+				"cost_efficiency": 0.34810416736551386,
+				"cost_spent": 715464.0,
+				"damage_dealt": 475.9911186112598,
+				"damage_taken": 657.1345031137032,
+				"draw": 0,
+				"kills": 32,
+				"n": 20,
+				"score_rate": 0.25,
+				"value_killed": 249056.0,
+				"win_rate": 0.25,
+				"won": 5
+			},
+			"dwarf_holds/hammerdwarf/foot": {
+				"cost_efficiency": 0.3485880997886263,
+				"cost_spent": 790070.0,
+				"damage_dealt": 521.5147142974572,
+				"damage_taken": 796.871789784841,
+				"draw": 0,
+				"kills": 26,
+				"n": 20,
+				"score_rate": 0.3,
+				"value_killed": 275409.0,
+				"win_rate": 0.3,
+				"won": 6
+			},
+			"dwarf_holds/hold guard/foot": {
+				"cost_efficiency": 0.1634544797772055,
+				"cost_spent": 171638.0,
+				"damage_dealt": 47.975506943541205,
+				"damage_taken": 157.62176476126243,
+				"draw": 0,
+				"kills": 2,
+				"n": 4,
+				"score_rate": 0.0,
+				"value_killed": 28055.0,
+				"win_rate": 0.0,
+				"won": 0
+			},
+			"eastern_khanate/keshig/foot": {
+				"cost_efficiency": 0.15315129151291512,
+				"cost_spent": 67750.0,
+				"damage_dealt": 48.572545292368446,
+				"damage_taken": 90.77003576760667,
+				"draw": 0,
+				"kills": 1,
+				"n": 2,
+				"score_rate": 0.0,
+				"value_killed": 10376.0,
+				"win_rate": 0.0,
+				"won": 0
+			},
+			"eastern_khanate/lancer/foot": {
+				"cost_efficiency": 0.3965471491591761,
+				"cost_spent": 120596.0,
+				"damage_dealt": 140.59737459938415,
+				"damage_taken": 17.135478357555105,
+				"draw": 0,
+				"kills": 4,
+				"n": 4,
+				"score_rate": 1.0,
+				"value_killed": 47822.0,
+				"win_rate": 1.0,
+				"won": 4
+			},
+			"eastern_khanate/steppe archer/foot": {
+				"cost_efficiency": 0.4906665990945334,
+				"cost_spent": 118392.0,
+				"damage_dealt": 110.73327638029264,
+				"damage_taken": 82.1774638514358,
+				"draw": 0,
+				"kills": 4,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 58091.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"goblin_warren/goblin archer/foot": {
+				"cost_efficiency": 0.40489609692508244,
+				"cost_spent": 52164.0,
+				"damage_dealt": 110.82154169340937,
+				"damage_taken": 22.720196379867378,
+				"draw": 0,
+				"kills": 2,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 21121.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"goblin_warren/goblin skulker/foot": {
+				"cost_efficiency": 0.2968800465086235,
+				"cost_spent": 30962.0,
+				"damage_dealt": 91.22066490631371,
+				"damage_taken": 19.989729751096064,
+				"draw": 0,
+				"kills": 1,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 9192.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"goblin_warren/goblin spear/foot": {
+				"cost_efficiency": 0.7315177555920637,
+				"cost_spent": 47478.0,
+				"damage_dealt": 56.68429946262489,
+				"damage_taken": 0.0,
+				"draw": 0,
+				"kills": 3,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 34731.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"middle_kingdom/March bowman/foot": {
+				"cost_efficiency": 0.7531674856223696,
+				"cost_spent": 90766.0,
+				"damage_dealt": 115.25124046465848,
+				"damage_taken": 94.17204503638916,
+				"draw": 0,
+				"kills": 6,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 68362.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"middle_kingdom/man-at-arms/foot": {
+				"cost_efficiency": 0.24810842433697347,
+				"cost_spent": 102560.0,
+				"damage_dealt": 126.17885854922628,
+				"damage_taken": 110.25076985299629,
+				"draw": 0,
+				"kills": 3,
+				"n": 2,
+				"score_rate": 0.5,
+				"value_killed": 25446.0,
+				"win_rate": 0.5,
+				"won": 1
+			},
+			"middle_kingdom/spearman/foot": {
+				"cost_efficiency": 0.7380984430385427,
+				"cost_spent": 44574.0,
+				"damage_dealt": 54.953239046499434,
+				"damage_taken": 11.936094953442165,
+				"draw": 0,
+				"kills": 3,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 32900.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"moon_court/glaive dancer/foot": {
+				"cost_efficiency": 0.48010679903730447,
+				"cost_spent": 53184.0,
+				"damage_dealt": 48.887275619235204,
+				"damage_taken": 11.111119249825409,
+				"draw": 0,
+				"kills": 2,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 25534.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"moon_court/moon archer/foot": {
+				"cost_efficiency": 0.3303835978835979,
+				"cost_spent": 75600.0,
+				"damage_dealt": 46.20737450550428,
+				"damage_taken": 132.48727523686836,
+				"draw": 0,
+				"kills": 2,
+				"n": 2,
+				"score_rate": 0.0,
+				"value_killed": 24977.0,
+				"win_rate": 0.0,
+				"won": 0
+			},
+			"moon_court/moon blade/foot": {
+				"cost_efficiency": 0.0,
+				"cost_spent": 25918.0,
+				"damage_dealt": 8.22984846076695,
+				"damage_taken": 39.62515897244096,
+				"draw": 0,
+				"kills": 0,
+				"n": 2,
+				"score_rate": 0.0,
+				"value_killed": 0.0,
+				"win_rate": 0.0,
+				"won": 0
+			},
+			"northern_clans/clansman/foot": {
+				"cost_efficiency": 0.4734059195294412,
+				"cost_spent": 63924.0,
+				"damage_dealt": 41.7071155204958,
+				"damage_taken": 23.91364850317433,
+				"draw": 0,
+				"kills": 2,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 30262.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"northern_clans/fell hunter/foot": {
+				"cost_efficiency": 0.5050072128954025,
+				"cost_spent": 95662.0,
+				"damage_dealt": 127.46319879003468,
+				"damage_taken": 54.67705438981372,
+				"draw": 0,
+				"kills": 4,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 48310.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"northern_clans/huscarl/foot": {
+				"cost_efficiency": 0.8382310350819608,
+				"cost_spent": 103586.0,
+				"damage_dealt": 117.70999540752405,
+				"damage_taken": 32.92977413324784,
+				"draw": 0,
+				"kills": 8,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 86829.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"orc_horde/orc brute/foot": {
+				"cost_efficiency": 0.7967343056436271,
+				"cost_spent": 63080.0,
+				"damage_dealt": 25.926652281031053,
+				"damage_taken": 24.35121769517516,
+				"draw": 0,
+				"kills": 3,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 50258.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"orc_horde/orc warrior/foot": {
+				"cost_efficiency": 1.0109606546902263,
+				"cost_spent": 81382.0,
+				"damage_dealt": 75.8245426742907,
+				"damage_taken": 12.575263715177146,
+				"draw": 0,
+				"kills": 8,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 82274.0,
+				"win_rate": 1.0,
+				"won": 2
+			}
+		},
+		"race": {
+			"dwarf": {
+				"cost_efficiency": 0.3294355021428929,
+				"cost_spent": 1677172.0,
+				"damage_dealt": 1045.4813398522579,
+				"damage_taken": 1611.6280576598067,
+				"draw": 0,
+				"kills": 60,
+				"n": 44,
+				"score_rate": 0.25,
+				"value_killed": 552520.0,
+				"win_rate": 0.25,
+				"won": 11
+			},
+			"goblin": {
+				"cost_efficiency": 0.49802456280052676,
+				"cost_spent": 130604.0,
+				"damage_dealt": 258.726506062348,
+				"damage_taken": 42.709926130963446,
+				"draw": 0,
+				"kills": 6,
+				"n": 6,
+				"score_rate": 1.0,
+				"value_killed": 65044.0,
+				"win_rate": 1.0,
+				"won": 6
+			},
+			"human": {
+				"cost_efficiency": 0.5055619514489793,
+				"cost_spent": 807810.0,
+				"damage_dealt": 883.166844050484,
+				"damage_taken": 517.9623648456611,
+				"draw": 0,
+				"kills": 35,
+				"n": 20,
+				"score_rate": 0.85,
+				"value_killed": 408398.0,
+				"win_rate": 0.85,
+				"won": 17
+			},
+			"moon_elf": {
+				"cost_efficiency": 0.32650515184031237,
+				"cost_spent": 154702.0,
+				"damage_dealt": 103.32449858550645,
+				"damage_taken": 183.22355345913473,
+				"draw": 0,
+				"kills": 4,
+				"n": 6,
+				"score_rate": 0.3333333333333333,
+				"value_killed": 50511.0,
+				"win_rate": 0.3333333333333333,
+				"won": 2
+			},
+			"orc": {
+				"cost_efficiency": 0.9174177292298321,
+				"cost_spent": 144462.0,
+				"damage_dealt": 101.75119495532175,
+				"damage_taken": 36.9264814103523,
+				"draw": 0,
+				"kills": 11,
+				"n": 4,
+				"score_rate": 1.0,
+				"value_killed": 132532.0,
+				"win_rate": 1.0,
+				"won": 4
+			}
+		},
+		"unit": {
+			"dwarf_holds/axedwarf": {
+				"cost_efficiency": 0.34810416736551386,
+				"cost_spent": 715464.0,
+				"damage_dealt": 475.9911186112598,
+				"damage_taken": 657.1345031137032,
+				"draw": 0,
+				"kills": 32,
+				"n": 20,
+				"score_rate": 0.25,
+				"value_killed": 249056.0,
+				"win_rate": 0.25,
+				"won": 5
+			},
+			"dwarf_holds/hammerdwarf": {
+				"cost_efficiency": 0.3485880997886263,
+				"cost_spent": 790070.0,
+				"damage_dealt": 521.5147142974572,
+				"damage_taken": 796.871789784841,
+				"draw": 0,
+				"kills": 26,
+				"n": 20,
+				"score_rate": 0.3,
+				"value_killed": 275409.0,
+				"win_rate": 0.3,
+				"won": 6
+			},
+			"dwarf_holds/hold guard": {
+				"cost_efficiency": 0.1634544797772055,
+				"cost_spent": 171638.0,
+				"damage_dealt": 47.975506943541205,
+				"damage_taken": 157.62176476126243,
+				"draw": 0,
+				"kills": 2,
+				"n": 4,
+				"score_rate": 0.0,
+				"value_killed": 28055.0,
+				"win_rate": 0.0,
+				"won": 0
+			},
+			"eastern_khanate/keshig": {
+				"cost_efficiency": 0.15315129151291512,
+				"cost_spent": 67750.0,
+				"damage_dealt": 48.572545292368446,
+				"damage_taken": 90.77003576760667,
+				"draw": 0,
+				"kills": 1,
+				"n": 2,
+				"score_rate": 0.0,
+				"value_killed": 10376.0,
+				"win_rate": 0.0,
+				"won": 0
+			},
+			"eastern_khanate/lancer": {
+				"cost_efficiency": 0.3965471491591761,
+				"cost_spent": 120596.0,
+				"damage_dealt": 140.59737459938415,
+				"damage_taken": 17.135478357555105,
+				"draw": 0,
+				"kills": 4,
+				"n": 4,
+				"score_rate": 1.0,
+				"value_killed": 47822.0,
+				"win_rate": 1.0,
+				"won": 4
+			},
+			"eastern_khanate/steppe archer": {
+				"cost_efficiency": 0.4906665990945334,
+				"cost_spent": 118392.0,
+				"damage_dealt": 110.73327638029264,
+				"damage_taken": 82.1774638514358,
+				"draw": 0,
+				"kills": 4,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 58091.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"goblin_warren/goblin archer": {
+				"cost_efficiency": 0.40489609692508244,
+				"cost_spent": 52164.0,
+				"damage_dealt": 110.82154169340937,
+				"damage_taken": 22.720196379867378,
+				"draw": 0,
+				"kills": 2,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 21121.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"goblin_warren/goblin skulker": {
+				"cost_efficiency": 0.2968800465086235,
+				"cost_spent": 30962.0,
+				"damage_dealt": 91.22066490631371,
+				"damage_taken": 19.989729751096064,
+				"draw": 0,
+				"kills": 1,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 9192.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"goblin_warren/goblin spear": {
+				"cost_efficiency": 0.7315177555920637,
+				"cost_spent": 47478.0,
+				"damage_dealt": 56.68429946262489,
+				"damage_taken": 0.0,
+				"draw": 0,
+				"kills": 3,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 34731.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"middle_kingdom/March bowman": {
+				"cost_efficiency": 0.7531674856223696,
+				"cost_spent": 90766.0,
+				"damage_dealt": 115.25124046465848,
+				"damage_taken": 94.17204503638916,
+				"draw": 0,
+				"kills": 6,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 68362.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"middle_kingdom/man-at-arms": {
+				"cost_efficiency": 0.24810842433697347,
+				"cost_spent": 102560.0,
+				"damage_dealt": 126.17885854922628,
+				"damage_taken": 110.25076985299629,
+				"draw": 0,
+				"kills": 3,
+				"n": 2,
+				"score_rate": 0.5,
+				"value_killed": 25446.0,
+				"win_rate": 0.5,
+				"won": 1
+			},
+			"middle_kingdom/spearman": {
+				"cost_efficiency": 0.7380984430385427,
+				"cost_spent": 44574.0,
+				"damage_dealt": 54.953239046499434,
+				"damage_taken": 11.936094953442165,
+				"draw": 0,
+				"kills": 3,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 32900.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"moon_court/glaive dancer": {
+				"cost_efficiency": 0.48010679903730447,
+				"cost_spent": 53184.0,
+				"damage_dealt": 48.887275619235204,
+				"damage_taken": 11.111119249825409,
+				"draw": 0,
+				"kills": 2,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 25534.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"moon_court/moon archer": {
+				"cost_efficiency": 0.3303835978835979,
+				"cost_spent": 75600.0,
+				"damage_dealt": 46.20737450550428,
+				"damage_taken": 132.48727523686836,
+				"draw": 0,
+				"kills": 2,
+				"n": 2,
+				"score_rate": 0.0,
+				"value_killed": 24977.0,
+				"win_rate": 0.0,
+				"won": 0
+			},
+			"moon_court/moon blade": {
+				"cost_efficiency": 0.0,
+				"cost_spent": 25918.0,
+				"damage_dealt": 8.22984846076695,
+				"damage_taken": 39.62515897244096,
+				"draw": 0,
+				"kills": 0,
+				"n": 2,
+				"score_rate": 0.0,
+				"value_killed": 0.0,
+				"win_rate": 0.0,
+				"won": 0
+			},
+			"northern_clans/clansman": {
+				"cost_efficiency": 0.4734059195294412,
+				"cost_spent": 63924.0,
+				"damage_dealt": 41.7071155204958,
+				"damage_taken": 23.91364850317433,
+				"draw": 0,
+				"kills": 2,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 30262.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"northern_clans/fell hunter": {
+				"cost_efficiency": 0.5050072128954025,
+				"cost_spent": 95662.0,
+				"damage_dealt": 127.46319879003468,
+				"damage_taken": 54.67705438981372,
+				"draw": 0,
+				"kills": 4,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 48310.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"northern_clans/huscarl": {
+				"cost_efficiency": 0.8382310350819608,
+				"cost_spent": 103586.0,
+				"damage_dealt": 117.70999540752405,
+				"damage_taken": 32.92977413324784,
+				"draw": 0,
+				"kills": 8,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 86829.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"orc_horde/orc brute": {
+				"cost_efficiency": 0.7967343056436271,
+				"cost_spent": 63080.0,
+				"damage_dealt": 25.926652281031053,
+				"damage_taken": 24.35121769517516,
+				"draw": 0,
+				"kills": 3,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 50258.0,
+				"win_rate": 1.0,
+				"won": 2
+			},
+			"orc_horde/orc warrior": {
+				"cost_efficiency": 1.0109606546902263,
+				"cost_spent": 81382.0,
+				"damage_dealt": 75.8245426742907,
+				"damage_taken": 12.575263715177146,
+				"draw": 0,
+				"kills": 8,
+				"n": 2,
+				"score_rate": 1.0,
+				"value_killed": 82274.0,
+				"win_rate": 1.0,
+				"won": 2
+			}
+		}
+	},
+	"total_cases": 840
+}
