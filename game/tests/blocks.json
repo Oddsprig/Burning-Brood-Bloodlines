@@ -7,6 +7,9 @@
 	"balance_v070": [
 		"res://tests/test_balance_v070.gd"
 	],
+	"trolls_giants_v071": [
+		"res://tests/test_trolls_giants_v071.gd"
+	],
 	"identity_v070": [
 		"res://tests/test_identity_consistency_v070.gd"
 	],

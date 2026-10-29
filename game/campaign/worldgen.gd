@@ -141,9 +141,20 @@ static func use_world(w: Dictionary) -> void:
 static func map_px() -> Vector2:
 	return Vector2(W, H) * CELL
 
+static func is_sovereign_faction(fid: String) -> bool:
+	if not DB.factions.has(fid):
+		return false
+	var f: Dictionary = DB.factions[fid]
+	if bool(f.get("minor_only", false)) or bool(f.get("wild", false)):
+		return false
+	return true
+
 static func region_faction(region: String) -> String:
 	for fid in DB.factions:
-		if DB.factions[fid].get("region", "") == region:
+		var fac: Dictionary = DB.factions[fid]
+		if bool(fac.get("minor_only", false)) or not fac.has("region"):
+			continue
+		if String(fac.get("region", "")) == region:
 			if fid == "eastern_khanate" and not steppe_enabled:
 				return "goblin_warren"
 			return fid

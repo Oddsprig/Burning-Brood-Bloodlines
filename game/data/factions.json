@@ -49,7 +49,13 @@
       "attrs": {"STR": 1250, "AGI": 750, "TOU": 1500, "END": 1250, "REC": 1500, "WIL": 1000, "FOC": 750, "SPA": 900, "KIN": 900},
       "gait": [439, 600, 750], "learn": 60, "attr_cost": 700, "src": "size and gait df_wiki; tiers ours",
       "personality": {"courage": 80, "nerve": 60, "aggression": 85, "caution": 15, "temper": 70, "protectiveness": 10, "loyalty": 15, "cohesion": 20, "glory": 40, "greed": 30, "appetite": 80, "scruples": 10},
-      "bravery": 90, "speed": 900, "skin": ["#6b6f5e"], "hair": ["#3a3a30"], "hide": true, "miniboss": true, "nofear": false, "enabled": false}
+      "bravery": 90, "speed": 900, "food_mult": 2.2, "skin": ["#6b6f5e"], "hair": ["#3a3a30"], "hide": true, "miniboss": true, "nofear": false, "enabled": false},
+    "giant":    {"name": "giant", "plural": "giants", "body": "humanoid", "natural_attacks": {"bite": 4.0}, "mass": 450, "height": 2.15, "width": 1.9,
+      "tiers": {"STR": "++", "AGI": "--", "TOU": "++", "END": "+", "REC": "+", "WIL": "0", "FOC": "--", "SPA": "-", "KIN": "-"},
+      "attrs": {"STR": 1750, "AGI": 650, "TOU": 1750, "END": 1400, "REC": 1250, "WIL": 1000, "FOC": 700, "SPA": 850, "KIN": 800},
+      "gait": [500, 700, 850], "learn": 50, "attr_cost": 800, "src": "ours v0.071: rare heavyweight families, on foot only",
+      "personality": {"courage": 75, "nerve": 55, "aggression": 70, "caution": 20, "temper": 60, "protectiveness": 25, "loyalty": 30, "cohesion": 25, "glory": 45, "greed": 25, "appetite": 85, "scruples": 20},
+      "bravery": 85, "speed": 800, "food_mult": 3.0, "skin": ["#c4b49a", "#a89078", "#8a7864"], "hair": ["#4a3a28", "#2a2218"], "hide": true, "miniboss": true, "nofear": false, "enabled": false}
   },
 
   "factions": {
@@ -78,6 +84,10 @@
       ]},
     "orc_horde": {"name": "The Red Tusk Horde", "race": "orc", "culture": "orc", "region": "east", "wealth": 2, "steel_knowhow": 0,
       "colors": {"primary": "#8a2a1f", "secondary": "#2a2a2a"}, "player_hostile": true,
+      "minority_families": [
+        {"race": "troll", "families_per_town": [1, 2], "roles": ["hunter", "guard", "laborer"]},
+        {"race": "giant", "families_per_town": [0, 1], "roles": ["herder", "guard"]}
+      ],
       "troops": [
         {"name": "orc warrior", "w": 4, "skills": {"axe": [2, 5], "mace": [2, 5], "fighter": [2, 4], "shield_user": [0, 2]},
           "loadout": {"main_hand": ["hacking_cleaver", "spiked_club"], "off_hand": ["slab_shield", ""], "helm": ["skull_cap", ""], "body": ["scrap_plates", ""], "hands": ["crude_bracers", ""], "clothing": ["tunic"], "legs_under": ["trousers"]}},
@@ -86,6 +96,9 @@
       ]},
     "goblin_warren": {"name": "The Warrens of Skrag", "race": "goblin", "culture": "goblin", "region": "south", "wealth": 1, "steel_knowhow": 0,
       "colors": {"primary": "#6b5a1f", "secondary": "#3a2a10"}, "player_hostile": true,
+      "minority_families": [
+        {"race": "troll", "families_per_town": [1, 1], "roles": ["guard", "miner"]}
+      ],
       "troops": [
         {"name": "goblin skulker", "w": 3, "skills": {"dagger": [1, 4], "dodger": [2, 5], "fighter": [0, 2]},
           "loadout": {"main_hand": ["shiv", "hook_sickle"], "off_hand": ["buckler", ""], "helm": ["pot_helm", ""], "clothing": ["tunic"], "legs_under": ["trousers"]}},
@@ -129,6 +142,12 @@
         {"name": "keshig", "w": 1, "skills": {"sword": [3, 6], "bow": [2, 5], "shield_user": [1, 3], "armor_user": [2, 4], "fighter": [2, 4], "dodger": [1, 3], "discipline": [2, 4]},
           "arrows": {"arrow_copper_bodkin": 30},
           "loadout": {"ranged": ["steppe_bow"], "main_hand": ["steppe_sabre"], "off_hand": ["steppe_shield", ""], "helm": ["steppe_helm"], "body": ["steppe_lamellar"], "hands": ["steppe_bracers", ""], "clothing": ["gambeson"], "legs_under": ["trousers"], "feet": ["shoes"]}}
+      ]},
+    "troll_den": {"name": "Troll Den", "race": "troll", "culture": "orc", "minor_only": true, "wealth": 1, "steel_knowhow": 0,
+      "colors": {"primary": "#4a5240", "secondary": "#2a2a22"}, "player_hostile": true,
+      "troops": [
+        {"name": "den brute", "w": 1, "skills": {"hammer": [2, 5], "fighter": [2, 4]},
+          "loadout": {"main_hand": ["war_maul"], "helm": ["skull_cap"], "clothing": ["tunic"], "legs_under": ["trousers"]}}
       ]}
   },
 
@@ -141,6 +160,10 @@
     "dwarf":    {"first": ["Urist", "Kadol", "Bomrek", "Doren", "Ingish", "Litast", "Mafol", "Solon", "Tobul", "Zasit", "Rigoth", "Asmel", "Kogan", "Ezum"],
                  "last": ["Stonebeard", "Ironfist", "Deepdelver", "Anvilbrow", "Copperhand", "Oakenshield", "Coalhearth", "Granitejaw", "Hammerfall", "Orevein", "Tinbender", "Gravelfoot", "Ashforge", "Deepmantle"]},
     "eastern":  {"first": ["Batu", "Temur", "Arslan", "Bora", "Khulan", "Altan", "Jochi", "Sorkhan", "Ayla", "Sarnai", "Kasim", "Yesui"],
-                 "last": ["Arslanid", "of the Grey Horse", "Bayan", "Khasar", "Tolui", "Yeke", "Saran", "of the Nine Tents", "Ordu", "Borjin", "Kerei", "Tengri-son", "Ulagan", "Qara"]}
+                 "last": ["Arslanid", "of the Grey Horse", "Bayan", "Khasar", "Tolui", "Yeke", "Saran", "of the Nine Tents", "Ordu", "Borjin", "Kerei", "Tengri-son", "Ulagan", "Qara"]},
+    "troll":    {"first": ["Grish", "Molgur", "Thrund", "Bolg", "Skarn", "Hogrim", "Krusha", "Mazruk", "Durg", "Gnarl"],
+                 "last": ["Rockhide", "of the Deep Den", "Boneclub", "Mossback", "Stonegut", "Creephand"]},
+    "giant":    {"first": ["Bromm", "Hroth", "Kolgar", "Sturm", "Venda", "Ogma", "Thrymm", "Halda", "Jotun", "Berga", "Wulda", "Skadi"],
+                 "last": ["Hillborn", "of the High Crag", "Cloudstep", "Longshadow", "Earthshoulder", "Frostmeal"]}
   }
 }

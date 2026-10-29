@@ -366,7 +366,7 @@ static func eaters(e: Dictionary, f: Dictionary, day: float, cache: bool = true)
 	# Age classification needs a race only when actual child records exist.
 	# Missing/empty legacy registers use the documented younger-child share.
 	if kids > 0 and f.has("kp") and not (f["kp"] as Array).is_empty():
-		var race := Persons.race_of(e)
+		var race := Persons.family_race(e, f)
 		# Native array hashing detects replacement/repair of a same-sized child register.
 		# Older saves lack this fingerprint and rebuild their derived count once.
 		var signature := hash(f.get("kp", []))
@@ -397,6 +397,11 @@ static func eaters(e: Dictionary, f: Dictionary, day: float, cache: bool = true)
 	var small := kids - k1014
 	var KE: Array = B()["household"]["kid_eat"]
 	var eq := float(Families.adults(f) + int(f["old"])) + float(small) * float(KE[0]) + float(k1014) * float(KE[1])
+	var mult := float(DB.races.get(Persons.family_race(e, f), {}).get("food_mult", 1.0))
+	if mult <= 0.0:
+		mult = 1.0
+	if mult != 1.0:
+		eq *= mult
 	return [eq, k1014, small, int(f["old"])]
 
 ## Actual meal shares supplied by the household pool today. Broth families are
@@ -409,9 +414,12 @@ static func household_eaters(e: Dictionary, day: float, cache: bool = true) -> f
 	for f in e["fams"]:
 		if f.get("gone", false) or f.get("estate", false) or (f.get("shel", false) and f.get("broth", false)):
 			continue
+		var mult := float(DB.races.get(Persons.family_race(e, f), {}).get("food_mult", 1.0))
+		if mult <= 0.0:
+			mult = 1.0
 		var eq := float(eaters(e, f, day, cache)[0])
 		for role in ["army", "bandit", "deserter"]:
-			eq -= float(f.get("serve", {}).get(role, 0))
+			eq -= float(f.get("serve", {}).get(role, 0)) * mult
 		total += maxf(0.0, eq)
 	return total
 

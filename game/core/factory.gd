@@ -166,6 +166,51 @@ static func roll_look(rng: RandomNumberGenerator, u: Unit) -> void:
 	u.look = {"skin": skin.to_html(false), "hair": hairs[rng.randi() % hairs.size()],
 		"beard": (u.race in ["human", "orc"] and rng.randf() < 0.55) or bool(u.race_def().get("beard", false)), "seed": rng.randi()}
 
+## A bound recruit keeps the household race. Retarget only when it differs, on a
+## private RNG. Trolls and giants lose any mount and fight with a heavy weapon.
+static func adopt_family_race(u: Unit, race: String) -> void:
+	if u == null or race == "":
+		return
+	var foot := Horses.fights_on_foot_only(race)
+	if u.race == race:
+		if foot:
+			u.horse = null
+			u.horse_care = {}
+		return
+	var prev_wage := u.wage
+	var prev_hire := u.hire_cost
+	u.race = race
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash([u.uid, race, "family-body"])
+	var rd: Dictionary = DB.races.get(race, DB.races["human"])
+	if u.body == null:
+		u.body = BodyState.new()
+	u.body.plan_id = rd.get("body", "humanoid")
+	roll_attrs(rng, u)
+	roll_size(rng, u)
+	roll_look(rng, u)
+	if foot:
+		var wid := "war_maul" if rng.randi() % 2 == 0 else "dane_axe"
+		var wealth := int(DB.factions.get(u.faction, {}).get("wealth", 2))
+		u.equip["main_hand"] = make_item(rng, wid, wealth)
+		u.equip.erase("off_hand")
+		u.equip.erase("ranged")
+		u.quiver.clear()
+		var skill := "hammer" if wid == "war_maul" else "axe"
+		if int(u.skills.get(skill, 0)) < 2:
+			u.skills[skill] = 3
+		var title := String(u.title).to_lower()
+		if title.contains("caval") or title.contains("lancer") or title.contains("rider") or title.contains("horse"):
+			u.title = "heavy foot"
+		u.horse = null
+		u.horse_care = {}
+		var mult := float(rd.get("food_mult", 1.0))
+		if mult > 1.0:
+			if prev_wage > 0:
+				u.wage = maxi(1, int(round(float(prev_wage) * mult)))
+			if prev_hire > 0:
+				u.hire_cost = maxi(1, int(round(float(prev_hire) * mult)))
+
 ## One troop from a faction troop template (uniform rule), equipped from its loadout choices.
 static func make_troop(rng: RandomNumberGenerator, faction_id: String, troop: Dictionary, wealth: int = -1) -> Unit:
 	if troop.has("creature"):   # monsters wave 1: creature "troops" (faction beasts) are animals, not people

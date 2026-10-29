@@ -10,6 +10,10 @@ const NO_MOUNT_RACES := ["troll", "giant"]
 static func can_mount_race(race: String) -> bool:
 	return race in FigurePainter.DETAILED_RACES and race not in NO_MOUNT_RACES
 
+## Trolls and giants never ride. This is not can_mount_race: wolves and other bodies also fail that.
+static func fights_on_foot_only(race: String) -> bool:
+	return race in NO_MOUNT_RACES
+
 static func can_field(u: Unit) -> bool:
 	return u != null and not u.dead and can_mount_race(u.race) and u.horse != null and not u.horse.dead \
 		and u.horse.race == "horse" and bool(u.horse_care.get("fed", false)) and bool(u.horse_care.get("paid", false))

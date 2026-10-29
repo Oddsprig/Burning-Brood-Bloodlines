@@ -91,6 +91,8 @@ static func generate(w: Dictionary, town: Dictionary, rng: RandomNumberGenerator
 	e["fams"] = fams
 	for f in fams:
 		if f.has("households"): Population.initialize(e, f)
+	# v0.071: troll/giant households. Own RNG, so the economy stream is unchanged.
+	_assign_minority_families(w, town, fams, race)
 	# The same real ages used for household meals must exist before food acreage
 	# is sized. These household/pregnancy RNG streams are independent of land.
 	for f in fams:
@@ -147,7 +149,7 @@ static func generate(w: Dictionary, town: Dictionary, rng: RandomNumberGenerator
 	brng.seed = hash([int(w.get("seed", 0)), String(town.get("id", "")), "barge-gen"])   # own stream: the rolls above stay
 	Barge.gen_town(w, town, e, brng)
 	# ---------------------------------------------------------------- head of the town (richest family, named)
-	var head := Families.richest(e)
+	var head := Families.richest(e, race)
 	var head_fam: Dictionary = fams[head]
 	head_fam["named"] = true
 	head_fam["purse"] = float(head_fam["purse"]) + 400.0 * TownEcon.COIN * (int(town["size"]) + 1)
@@ -202,6 +204,71 @@ static func generate(w: Dictionary, town: Dictionary, rng: RandomNumberGenerator
 
 ## Adult meal equivalents, using the household's existing age shares exactly
 ## once. Reserving home-grown food changes its destination, not mouths to feed.
+## Rare heavyweight households inside a faction (factions[].minority_families).
+## Replaces tracked families already rolled; it does not add households or touch the town RNG.
+static func _assign_minority_families(w: Dictionary, town: Dictionary, fams: Array, town_race: String) -> void:
+	var spec: Array = DB.factions.get(String(town.get("faction", "")), {}).get("minority_families", [])
+	if spec.is_empty():
+		return
+	var tracked: Array = []
+	for f in fams:
+		if f.get("estate", false) or f.get("gone", false) or f.has("households"):
+			continue
+		if String(f.get("race", "")) == "":
+			f["race"] = town_race
+		tracked.append(f)
+	if tracked.is_empty():
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash([String(town.get("id", "")), int(w.get("seed", 0)), "minority-v071"])
+	var used := {}
+	for f in tracked:
+		used[String(f.get("name", ""))] = true
+	var taken := {}
+	for row in spec:
+		var rr := String(row.get("race", ""))
+		if rr == "" or not DB.races.has(rr):
+			continue
+		var span: Array = row.get("families_per_town", [0, 0])
+		var lo := int(span[0]) if span.size() > 0 else 0
+		var hi := int(span[1]) if span.size() > 1 else lo
+		if hi < lo:
+			var swap := lo
+			lo = hi
+			hi = swap
+		var n := lo if lo == hi else rng.randi_range(lo, hi)
+		var roles: Array = row.get("roles", [])
+		var free: Array = []
+		for f in tracked:
+			if not taken.has(int(f["id"])):
+				free.append(f)
+		for i in free.size():
+			var j := rng.randi() % free.size()
+			var tmp = free[i]
+			free[i] = free[j]
+			free[j] = tmp
+		var give := mini(n, free.size())
+		for k in give:
+			var fam: Dictionary = free[k]
+			taken[int(fam["id"])] = true
+			fam["race"] = rr
+			if not roles.is_empty():
+				fam["minority_role"] = String(roles[k % roles.size()])
+			_rename_minority(fam, rr, rng, used)
+
+static func _rename_minority(f: Dictionary, race: String, rng: RandomNumberGenerator, used: Dictionary) -> void:
+	var lasts: Array = DB.names.get(race, {}).get("last", [])
+	if lasts.is_empty():
+		return
+	used.erase(String(f.get("name", "")))
+	var nm := String(lasts[rng.randi() % lasts.size()])
+	for _t in 6:
+		if not used.has(nm):
+			break
+		nm = String(lasts[rng.randi() % lasts.size()])
+	used[nm] = true
+	f["name"] = nm
+
 static func food_eaters(e: Dictionary) -> float:
 	var total := 0.0
 	for f in e["fams"]:

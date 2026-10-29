@@ -910,7 +910,10 @@ static func succession_day(game) -> void:
 			var fac: Dictionary = game.world.get("factions", {}).get(str(town.get("faction", "")), {})
 			if str(fac.get("capital", "")) == str(tid): continue
 			var best: Unit = null; var power := -INF
+			var primary := String(DB.factions.get(str(town.get("faction", "")), {}).get("race", ""))
 			for u in Militia.units_of(game, str(tid)):
+				if primary != "" and u.race != primary:
+					continue
 				var score := CampaignWorld.unit_power(u)
 				if score > power and not Persons.by_uid(People.fam_of(town, u.family), u.uid).is_empty(): best = u; power = score
 			if best != null:
@@ -922,10 +925,12 @@ static func succession_day(game) -> void:
 			var native_best: Unit = null
 			var native_score: float = -INF
 			var rule: String = policy.trim_prefix("native_")
+			var primary := String(DB.factions.get(str(town.get("faction", "")), {}).get("race", ""))
 			var candidates: Array = Militia.units_of(game, str(tid)).duplicate()
 			candidates.sort_custom(func(a, b): return a.uid < b.uid)
 			for u: Unit in candidates:
 				if u.dead: continue
+				if primary != "" and u.race != primary: continue
 				var value: float = RankRules.score(game, rule, u, str(town.get("faction", "")))
 				if value > native_score: native_best = u; native_score = value
 			if native_best != null: appoint_unit(game, str(tid), native_best)

@@ -2323,6 +2323,12 @@
       "lifespan": 120,
       "mother_max": 60
     },
+    "giant": {
+      "adult": 28,
+      "elder": 110,
+      "lifespan": 180,
+      "mother_max": 90
+    },
     "dwarf": {
       "adult": 25,
       "elder": 120,
@@ -2719,6 +2725,14 @@
         "Yesugen",
         "Zaya"
       ]
+    },
+    "troll": {
+      "m": ["Grish", "Molgur", "Thrund", "Bolg", "Skarn", "Hogrim", "Krusha", "Mazruk", "Durg", "Gnarl"],
+      "f": ["Urza", "Drogna", "Vulga", "Thokka", "Brunda", "Skalla", "Mogga", "Rukka", "Hulda", "Groma"]
+    },
+    "giant": {
+      "m": ["Bromm", "Hroth", "Kolgar", "Sturm", "Ogma", "Thrymm", "Jotun", "Halvar", "Berg", "Wulfgar"],
+      "f": ["Venda", "Halda", "Berga", "Wulda", "Skadi", "Thrya", "Jora", "Hulda", "Ormi", "Svala"]
     }
   },
   "_eastern_names_note": "v0.012: the Eastern humans' given names. A person's name is an index into one human list (person_names.human then person_names.eastern, joined: Persons.names_for), so a person keeps the name he was born with wherever he moves or marries (culture is never a wall). Babies take a name from their family's culture's part of the list (f.cul, else the town's culture). Add new human names at the END of the eastern list (or a new culture's list after it), never in the middle, or the names already given shift.",

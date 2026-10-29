@@ -267,10 +267,10 @@ static func draft_pool(town: Dictionary) -> Array:
 	if e.is_empty():
 		return out
 	var day := float(e.get("day", 0))
-	var ar := draft_ages(Persons.race_of(e))
 	for f in e["fams"]:
 		if f["gone"] or f.has("estate") or Population.spare(f) <= 0:
 			continue
+		var ar := draft_ages(Persons.family_race(e, f))
 		Persons.sync(e, f, day)
 		if Population.is_cohort(f):
 			var casual := 0
@@ -584,6 +584,16 @@ static func adopt_company(game) -> void:
 		Families.reassign(e, f)
 		Persons.track_jobs(e, f, float(game.day))
 
+## A faction town can house a heavyweight family even though the town race differs.
+static func hosts_family_race(town: Dictionary, race: String) -> bool:
+	if race == "":
+		return false
+	var rows: Array = DB.factions.get(String(town.get("faction", "")), {}).get("minority_families", [])
+	for row in rows:
+		if String(row.get("race", "")) == race:
+			return true
+	return false
+
 ## Starting companies consume native residents; prehistory kit/wallet remain their actual owners.
 static func _adopt_resident_company(game, u: Unit) -> bool:
 	var towns: Dictionary = game.world["towns"]
@@ -594,7 +604,7 @@ static func _adopt_resident_company(game, u: Unit) -> bool:
 	for tid in ids:
 		var town: Dictionary = towns[tid]
 		var e := _e(town)
-		if e.is_empty() or Persons.race_of(e) != u.race: continue
+		if e.is_empty() or (Persons.race_of(e) != u.race and not hosts_family_race(town, u.race)): continue
 		for f in e["fams"]:
 			if not Population.is_cohort(f) or String(f.get("race", Persons.race_of(e))) != u.race: continue
 			var p := Population.promote(e, f, float(game.day), rng)
@@ -663,7 +673,8 @@ static func _town_for(w: Dictionary, u: Unit) -> String:
 	var best := ""
 	for tid in w["towns"]:
 		var t: Dictionary = w["towns"][tid]
-		if (Persons.race_of(t["econ"]) if TownEcon.has_econ(t) else String(DB.factions.get(t["faction"], {}).get("race", ""))) == u.race:
+		var town_race := Persons.race_of(t["econ"]) if TownEcon.has_econ(t) else String(DB.factions.get(t["faction"], {}).get("race", ""))
+		if town_race == u.race or hosts_family_race(t, u.race):
 			if best == "" or tid == start:
 				best = tid
 	return best if best != "" else start

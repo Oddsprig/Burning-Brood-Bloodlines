@@ -56,6 +56,36 @@ static func is_people_band(wb: Dictionary) -> bool:
 	return not Monsters.is_monster_band(wb) and not Monsters.is_monster_faction(String(wb.get("faction", ""))) \
 		and String(wb.get("kind", "")) != "caravan"
 
+## v0.071: trolls and giants are at most 15% of a band's slots. No forced minimum of one.
+static func heavy_cap(n: int) -> int:
+	return maxi(0, int(floor(float(n) * 0.15)))
+
+static func is_heavy_unit(u: Unit) -> bool:
+	return u != null and _heavy_race(u.race)
+
+static func _heavy_race(race: String) -> bool:
+	if race in ["troll", "giant"]:
+		return true
+	var rd: Dictionary = DB.races.get(race, {})
+	return float(rd.get("height", 1.0)) >= 1.4 or float(rd.get("food_mult", 1.0)) >= 2.0
+
+static func bound_heavies(units: Array) -> int:
+	var n := 0
+	for u in units:
+		if u is Unit and not u.dead and int(u.family) >= 0 and is_heavy_unit(u):
+			n += 1
+	return n
+
+static func drop_heavy_drafts(town: Dictionary, pool: Array) -> void:
+	var e: Dictionary = town.get("econ", {})
+	var i := pool.size() - 1
+	while i >= 0:
+		var row = pool[i]
+		var f := People.fam_of(town, int(row[2]))
+		if not f.is_empty() and _heavy_race(Persons.family_race(e, f)):
+			pool.remove_at(i)
+		i -= 1
+
 ## The living soldiers of a faction's field army (every field band on the map).
 static func members(game, fid: String) -> Array:
 	var out := []
@@ -146,6 +176,8 @@ static func enlist_some(game, wb: Dictionary, ctx: Dictionary, k: int) -> bool:
 				var _t0 := Time.get_ticks_usec()
 				pools[tid] = People.draft_pool(town)
 				if TownEcon.prof_on: TownEcon._prof("en_pool", _t0)
+			if bound_heavies(units) >= heavy_cap(units.size()):
+				drop_heavy_drafts(town, pools[tid])
 			fid = People.draft(town, pools[tid], role)
 			if fid < 0:
 				(ctx["unraised"] as Array).append(ui)   # never a made-up family for a soldier
