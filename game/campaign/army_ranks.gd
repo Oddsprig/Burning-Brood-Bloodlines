@@ -176,6 +176,10 @@ static func update_tree(game, fid: String, units: Array, prehistory: bool, day: 
 			posts[i] = -1
 			_demote(u)
 			continue
+		if i == 0 and String(cul.get("rank_rule", "")) == "strength" and _ruled_out(fid, u):
+			posts[i] = -1
+			_demote(u)
+			continue
 		holds[uid] = i
 		u.rank = rank_at(level_of(i, span), rl)
 		u.role = "officer"
@@ -314,6 +318,29 @@ static func _reports(by: Dictionary, lv: int, span: int, fo: int) -> Dictionary:
 	Army._rep_map[-2] = ranked
 	return Army._rep_map
 
+static func _faction_primary(fid: String) -> String:
+	return String(DB.factions.get(fid, {}).get("race", ""))
+
+static func _unit_family_race(u: Unit) -> String:
+	if u == null:
+		return ""
+	var town: Dictionary = Game.world.get("towns", {}).get(u.home_town, {})
+	var f: Dictionary = People.fam_of(town, u.family)
+	if f.is_empty():
+		return String(u.race)
+	return Persons.family_race(town.get("econ", {}), f)
+
+## True when this soldier must not hold the faction's ruler post. Champions are not checked here.
+static func _ruled_out(fid: String, u: Unit) -> bool:
+	var primary := _faction_primary(fid)
+	if primary == "":
+		return false
+	if u == null:
+		return true
+	if String(u.race) != primary:
+		return true
+	return _unit_family_race(u) != primary
+
 static func fill(game, fid: String, p: int, by: Dictionary, prehistory: bool, day: int, relink: bool = true) -> void:
 	var w: Dictionary = game.world
 	var r := Army.rec(w, fid)
@@ -331,6 +358,15 @@ static func fill(game, fid: String, p: int, by: Dictionary, prehistory: bool, da
 				var uid := int(r["posts"][gc])
 				if uid >= 0 and by.has(uid) and (by[uid] as Unit).renown >= float(Army.A()["renown_join"]) and not cands.has(by[uid]):
 					cands.append(by[uid])
+		# The warlord post (and its duel) stays with the primary race. Lower posts stay open.
+		if p == 0:
+			var kept := []
+			for cand in cands:
+				if not _ruled_out(fid, cand):
+					kept.append(cand)
+			cands = kept
+		if cands.is_empty():
+			return
 		if cands.size() == 1 or prehistory:
 			var best: Unit = cands[0]
 			for c2 in cands:
@@ -444,6 +480,12 @@ static func _fight_one(game, fid: String, by: Dictionary) -> void:
 	var fights: Array = r["fights"]
 	var fgt: Dictionary = fights[0]
 	var alive: Array = (fgt["c"] as Array).filter(func(uid): return by.has(int(uid)))
+	if int(fgt["p"]) == 0 and String(Army.cul_of_faction(fid).get("rank_rule", "")) == "strength":
+		var kept_uids := []
+		for uid in alive:
+			if not _ruled_out(fid, by[int(uid)]):
+				kept_uids.append(uid)
+		alive = kept_uids
 	fgt["c"] = alive
 	if alive.size() >= 2:
 		var a: Unit = by[int(alive[0])]
@@ -520,18 +562,25 @@ static func update_band_tree(game, town: Dictionary, wb: Dictionary, tier: Strin
 	while posts.size() < n:
 		posts.append(-1)
 	var holds := {}
+	var rule := String(cul.get("rank_rule", "renown"))
+	var band_faction := String(town.get("faction", ""))
 	for i in posts.size():
 		if int(posts[i]) >= 0 and not by.has(int(posts[i])):
 			posts[i] = -1
 		if int(posts[i]) >= 0:
-			holds[int(posts[i])] = true
-			(by[int(posts[i])] as Unit).rank = rank_at(level_of(i, span), rl)
-			(by[int(posts[i])] as Unit).role = "officer"
+			var holder: Unit = by[int(posts[i])]
+			if i == 0 and rule == "strength" and _ruled_out(band_faction, holder):
+				posts[i] = -1
+				holder.rank = 0
+				holder.role = "troop"
+				continue
+			holds[holder.uid] = true
+			holder.rank = rank_at(level_of(i, span), rl)
+			holder.role = "officer"
 	for u in units:
 		if not holds.has(u.uid) and u.rank > 0:
 			u.rank = 0
 			u.role = "troop"
-	var rule := String(cul.get("rank_rule", "renown"))
 	for i in posts.size():
 		if int(posts[i]) >= 0:
 			continue
@@ -541,9 +590,13 @@ static func update_band_tree(game, town: Dictionary, wb: Dictionary, tier: Strin
 		var best: Unit = null
 		var bv := -INF
 		for u in cands:
-			var v := RankRules.score(game, rule, u, String(town["faction"])) if rule != "strength" else CampaignWorld.unit_power(u)
+			if i == 0 and rule == "strength" and _ruled_out(band_faction, u):
+				continue
+			var v := RankRules.score(game, rule, u, band_faction) if rule != "strength" else CampaignWorld.unit_power(u)
 			if v > bv:
 				bv = v; best = u
+		if best == null:
+			continue
 		posts[i] = best.uid
 		holds[best.uid] = true
 		best.rank = rank_at(level_of(i, span), rl)

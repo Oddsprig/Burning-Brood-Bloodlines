@@ -726,21 +726,27 @@ static func marriages(e: Dictionary, day: float, most: int = -1) -> int:
 	var race := race_of(e)
 	var ab := People.ages(race)
 	var yd := People.year_days()
-	var A := float(ab["adult"]); var M := float(ab.get("mother_max", float(ab["elder"]) - 10.0))
+	var A := float(ab["adult"])
 	var men := []; var women := []
 	for f in e["fams"]:
 		if f.get("gone", false) or f.get("estate", false) or not f.has("pp"):
 			continue
 		var is_house: bool = not f.get("cohort", false) and not f.get("estate", false) and not f.get("gone", false) and str(f.get("household_uid", "")) != ""
+		var fr := family_race(e, f)
+		var fab := People.ages(fr)
+		var fa := float(fab["adult"])
+		var fm := float(fab.get("mother_max", float(fab["elder"]) - 10.0))
+		var minority := fr != race
 		# (v0.011: no "the house cannot spare her": a daughter or widow whose house would keep fewer than 2 grown-ups at
 		# home stayed single, 30-60 women a year. She marries and moves to her husband's house; a house left with no
 		# grown-up at work falls to the hardship rules like any other: casual work, the poorhouse, the coping ladder.)
 		for p in f["pp"]:
 			# A promoted noble retains his Unit's full-name override and local
 			# militia/reserve service. Neither makes a resident groom absent.
+			# A minority bride keeps the frozen given name in p[7]; that name is hers, not a noble override.
 			# Brides keep the existing eligibility/movement rules below.
 			var home_groom: bool = is_house and int(p[2]) == 0 and String(p[4]) in AT_HOME
-			if int(p[6]) != 0 or (String(p[4]) != "" and not home_groom) or (p as Array).size() < SIZE or (String(p[7]) != "" and not home_groom):
+			if int(p[6]) != 0 or (String(p[4]) != "" and not home_groom) or (p as Array).size() < SIZE or (String(p[7]) != "" and not home_groom and not minority):
 				continue
 			if not by_pid(f, int(p[SP])).is_empty():
 				continue
@@ -748,9 +754,9 @@ static func marriages(e: Dictionary, day: float, most: int = -1) -> int:
 				var spouse_uid: String = str(g(p, SPOUSE_UID, ""))
 				if spouse_uid != "" and not Dynasty._person(Game, spouse_uid).is_empty(): continue
 			var age := (day - float(p[3])) / yd
-			if int(p[2]) == 0 and age >= A + 2.0:
+			if int(p[2]) == 0 and age >= fa + 2.0:
 				men.append([f, p, age, is_house])
-			elif int(p[2]) == 1 and age >= A and age < M - 5.0:
+			elif int(p[2]) == 1 and age >= fa and age < fm - 5.0:
 				women.append([f, p, age, is_house])
 	if men.is_empty() or women.is_empty():
 		return 0

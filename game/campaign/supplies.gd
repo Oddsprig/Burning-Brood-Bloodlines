@@ -206,9 +206,11 @@ static func dragon_meat_plan(game) -> Dictionary:
 		"short": short, "line": line}
 
 ## Prehistory stores (world gen, old saves): what the band set out with.
+## Meal-shares, not heads, so a troll or giant band is seeded for its food_mult.
+## An all-orc band still matches the old headcount (each share is 1).
 static func seed_stores(wb: Dictionary) -> void:
-	var n := men(wb)
-	if n <= 0 or not stores(wb).is_empty():
+	var n := meal_shares(wb)
+	if n <= 0.0 or not stores(wb).is_empty():
 		return
 	var dd := int(A()["store_days"])
 	wb["stores"] = {"grain": 2 * n * dd * 3 / 4, "meat": 2 * n * dd / 4, "beer": n * dd}

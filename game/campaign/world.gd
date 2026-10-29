@@ -871,6 +871,7 @@ static func after_load(game) -> void:
 	ServiceIdentity.after_load(game) # exact migration copies, before any legacy guessed binding
 	People.rebind_all(game)      # economy: every named person of an older save gets his register record
 	Army.after_load(game)   # economy spec 2: older saves get families for every soldier, rank trees and war chests
+	Horses.after_load(game)   # v0.071: a legacy troll or giant mount goes back to stock
 	ArmsTrade.after_load(game)   # arms trade: older saves get armories (their old gear keeps no maker's mark)
 	Tracks.after_load(game)   # tracks and sightings: JSON types back
 	WarAI.after_load(game)   # war interception: JSON types back

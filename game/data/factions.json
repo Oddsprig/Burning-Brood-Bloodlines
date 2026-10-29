@@ -97,7 +97,7 @@
     "goblin_warren": {"name": "The Warrens of Skrag", "race": "goblin", "culture": "goblin", "region": "south", "wealth": 1, "steel_knowhow": 0,
       "colors": {"primary": "#6b5a1f", "secondary": "#3a2a10"}, "player_hostile": true,
       "minority_families": [
-        {"race": "troll", "families_per_town": [1, 1], "roles": ["guard", "miner"]}
+        {"race": "troll", "families_per_town": [2, 2], "roles": ["guard", "miner"]}
       ],
       "troops": [
         {"name": "goblin skulker", "w": 3, "skills": {"dagger": [1, 4], "dodger": [2, 5], "fighter": [0, 2]},

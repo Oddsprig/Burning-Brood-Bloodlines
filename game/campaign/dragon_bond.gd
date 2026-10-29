@@ -496,6 +496,22 @@ static func after_load(game) -> void:
 		approach["last_reason"] = str(approach.get("last_reason", ""))
 		for flag in ["keeper", "hungry", "hurt", "present"]:
 			approach[flag] = bool(approach.get(flag, false))
+	# A legacy bond can still name a troll or giant. Separate that rider. An
+	# unknown person is left alone: a missing lookup is not proof of race.
+	var registry: Dictionary = game.world.get("dragons", {}).get("records", {})
+	var ids: Array = registry.keys()
+	ids.sort()
+	for dragon_id in ids:
+		var bond: Dictionary = registry[dragon_id]
+		var rider_uid := str(bond.get("rider_person_uid", ""))
+		if rider_uid == "":
+			continue
+		var person := _person(game, rider_uid)
+		if person.is_empty():
+			continue
+		var bound: Unit = Dynasty.bound_unit(game, person)
+		if Horses.fights_on_foot_only(str(person.get("race", ""))) or (bound != null and Horses.fights_on_foot_only(bound.race)):
+			_separate(game, bond, "foot_only")
 
 ## One person approaches one dragon. Higher familiarity wins; a tie keeps the lower dragon id.
 static func _dedupe_approaches(game) -> void:

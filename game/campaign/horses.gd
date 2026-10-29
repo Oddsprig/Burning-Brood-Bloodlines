@@ -152,6 +152,34 @@ static func return_mount(game, u: Unit) -> void:
 	u.horse = null
 	u.horse_care = {}
 
+## Legacy saves can still list a troll or giant as mounted. The living horse goes
+## back into town stock and the link is cleared. No horse record is deleted.
+static func after_load(game) -> void:
+	var seen := {}
+	var pending: Array = []
+	for u in game.company:
+		pending.append(u)
+	for wb in game.world.get("warbands", {}).values():
+		for u in wb.get("units", []):
+			pending.append(u)
+	for town in game.world.get("towns", {}).values():
+		for u in town.get("recruits", []):
+			pending.append(u)
+	for u in Prisoners.units(game):
+		pending.append(u)
+	for u in CampaignWorld.mustering_units(game.world):
+		pending.append(u)
+	for item in pending:
+		if not item is Unit:
+			continue
+		var rider: Unit = item
+		var id := rider.get_instance_id()
+		if seen.has(id):
+			continue
+		seen[id] = true
+		if fights_on_foot_only(rider.race) and rider.horse != null:
+			return_mount(game, rider)
+
 ## The native death event calls this once, after BattleMorale marks this exact horse dead.
 static func casualty(rider: Unit, horse: Unit) -> bool:
 	if rider.horse != horse or not horse.dead: return false
