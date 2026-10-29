@@ -165,7 +165,10 @@ static func name_of(f: Dictionary, p: Array, race: String) -> String:
 	var own := String(g(p, 7, ""))
 	if own != "":
 		return own
-	var fl := names_for(race, int(p[2]))
+	var use := String(f.get("race", ""))
+	if use == "":
+		use = race
+	var fl := names_for(use, int(p[2]))
 	return "%s %s" % [fl[int(p[1]) % fl.size()], f["name"]]
 
 static func age_of(p: Array, day: float) -> int:
@@ -173,6 +176,13 @@ static func age_of(p: Array, day: float) -> int:
 
 static func race_of(e: Dictionary) -> String:
 	return String(TownEcon.culture_of(e)["race"])
+
+## Household race. Old saves have no f.race and stay the town race.
+static func family_race(e: Dictionary, f: Dictionary) -> String:
+	var r := String(f.get("race", ""))
+	if r == "":
+		return race_of(e)
+	return r
 
 static func by_pid(f: Dictionary, pid: int) -> Array:
 	if pid < 0:
@@ -206,7 +216,7 @@ static func upgrade(e: Dictionary, f: Dictionary) -> void:
 static func generate(e: Dictionary, f: Dictionary, day: float) -> void:
 	if f.get("estate", false) or f.get("gone", false) or Population.is_cohort(f):
 		return
-	var race := race_of(e)
+	var race := family_race(e, f)
 	var ab := People.ages(race)
 	var A := float(ab["adult"]); var E := float(ab["elder"]); var L := float(ab["lifespan"])
 	var M := float(ab.get("mother_max", E - 10.0))
@@ -311,7 +321,7 @@ static func sync(e: Dictionary, f: Dictionary, day: float) -> void:
 	if not a.is_empty() and (a[0] as Array).size() < SIZE:
 		upgrade(e, f)
 	var k: Array = kp(f)
-	var race := race_of(e)
+	var race := family_race(e, f)
 	var ab := People.ages(race)
 	var yd := People.year_days()
 	var want := [int(f["m"]), int(f["f"]), int(f["old"]), int(f["kids"])]
@@ -406,7 +416,8 @@ static func can_lose(f: Dictionary, cat: int) -> bool:
 static func _new(e: Dictionary, f: Dictionary, race: String, sex: int, born: float, kind: int, rng: RandomNumberGenerator) -> Array:
 	var pid := int(e.get("next_pid", 1))
 	e["next_pid"] = pid + 1
-	var fl := names_for(race, sex)
+	var use := family_race(e, f)
+	var fl := names_for(use, sex)
 	var taken := {}
 	for gf in e["fams"]:   # no two people of one surname in a town share a given name (two houses may share a surname)
 		if String(gf.get("name", "")) == String(f["name"]):
@@ -416,7 +427,7 @@ static func _new(e: Dictionary, f: Dictionary, race: String, sex: int, born: flo
 			for p in gf.get("kp", []):
 				if int(p[2]) == sex:
 					taken[int(p[1])] = true
-	var rg := name_range(e, f, race, sex)   # v0.012: the family's culture's part of the list
+	var rg := name_range(e, f, use, sex)   # v0.012: the family's culture's part of the list
 	var lo := int(rg[0]); var span := maxi(1, int(rg[1]) - lo)
 	var fi := lo + rng.randi() % span
 	for _t in span:
@@ -434,13 +445,16 @@ static func _new(e: Dictionary, f: Dictionary, race: String, sex: int, born: flo
 			fi = lo + (fi - lo + 1) % span
 	var p := [pid, fi, sex, int(round(born)), "", -1, kind, "", -1, -1, -1, "", []]
 	identity(e, f, p)
+	# Freeze a minority given name. Majority and old saves keep an empty p[7].
+	if use != race_of(e):
+		p[7] = "%s %s" % [fl[int(p[1]) % fl.size()], String(f.get("name", ""))]
 	return p
 
 # ================================================================== births, ageing, deaths, marriages
 ## A married woman of the family at home, of an age to bear a child (race ages: adult .. mother_max), whose husband
 ## is alive. [] when there is none.
 static func mother_for(e: Dictionary, f: Dictionary, day: float) -> Array:
-	var ab := People.ages(race_of(e))
+	var ab := People.ages(family_race(e, f))
 	var lo := float(ab["adult"]); var hi := float(ab.get("mother_max", float(ab["elder"]) - 10.0))
 	var yd := People.year_days()
 	for p in pp(f):
@@ -459,7 +473,7 @@ static func mother_for(e: Dictionary, f: Dictionary, day: float) -> Array:
 static func birth(e: Dictionary, f: Dictionary, mother: Array, day: float, father: int = -2, nth: int = 0) -> Array:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash([int(f.get("seed", 0)), int(day), int(mother[0]), "born"]) if nth == 0 else hash([int(f.get("seed", 0)), int(day), int(mother[0]), "born", nth])
-	var p := _new(e, f, race_of(e), rng.randi() % 2, day, 2, rng)
+	var p := _new(e, f, family_race(e, f), rng.randi() % 2, day, 2, rng)
 	p[MO] = int(mother[0]); p[FA] = int(g(mother, SP, -1)) if father == -2 else father
 	kp(f).append(p)
 	identity_kin(e, p)
@@ -548,14 +562,14 @@ static func childbearing(e: Dictionary, f: Dictionary, day: float, days: float, 
 				if not mo.is_empty():
 					var lr := RandomNumberGenerator.new()
 					lr.seed = hash([int(f.get("seed", 0)), int(day), int(mo[0]), "litter"])
-					for k in litter(race_of(e), lr):   # twins, triplets: the race's litter
+					for k in litter(family_race(e, f), lr):   # twins, triplets: the race's litter
 						born.append(birth(e, f, mo, day, int(x[2]), k))
 			i -= 1
 		if pr.is_empty():
 			f.erase("preg")
 	if hungry or int(f["f"]) <= 0 or int(f["m"]) <= 0:
 		return born
-	var race := race_of(e)
+	var race := family_race(e, f)
 	var ab := People.ages(race)
 	var bear := bearing(race)
 	var yd := People.year_days()
@@ -596,7 +610,7 @@ static func childbed(game, t: Dictionary, e: Dictionary, f: Dictionary, kid: Arr
 ## World gen: the women who would be with child on the first day (the steady share of a married woman's years that
 ## she is carrying: gestation / (gestation + conceive), among those not nursing), due within the gestation.
 static func gen_preg(e: Dictionary, f: Dictionary, day: float) -> void:
-	var race := race_of(e)
+	var race := family_race(e, f)
 	var ab := People.ages(race)
 	var bear := bearing(race)
 	var yd := People.year_days()
@@ -630,7 +644,7 @@ static func age_up(e: Dictionary, f: Dictionary, day: float) -> bool:
 		return false
 	if day < float(f.get("nxa", -1.0)):
 		return false   # nobody reaches an age threshold before f.nxa (the soonest, worked out last time)
-	var ab := People.ages(race_of(e))
+	var ab := People.ages(family_race(e, f))
 	var yd := People.year_days()
 	var A := float(ab["adult"]) * yd; var E := float(ab["elder"]) * yd; var L := float(ab["lifespan"]) * yd
 	var changed := false
@@ -712,21 +726,27 @@ static func marriages(e: Dictionary, day: float, most: int = -1) -> int:
 	var race := race_of(e)
 	var ab := People.ages(race)
 	var yd := People.year_days()
-	var A := float(ab["adult"]); var M := float(ab.get("mother_max", float(ab["elder"]) - 10.0))
+	var A := float(ab["adult"])
 	var men := []; var women := []
 	for f in e["fams"]:
 		if f.get("gone", false) or f.get("estate", false) or not f.has("pp"):
 			continue
 		var is_house: bool = not f.get("cohort", false) and not f.get("estate", false) and not f.get("gone", false) and str(f.get("household_uid", "")) != ""
+		var fr := family_race(e, f)
+		var fab := People.ages(fr)
+		var fa := float(fab["adult"])
+		var fm := float(fab.get("mother_max", float(fab["elder"]) - 10.0))
+		var minority := fr != race
 		# (v0.011: no "the house cannot spare her": a daughter or widow whose house would keep fewer than 2 grown-ups at
 		# home stayed single, 30-60 women a year. She marries and moves to her husband's house; a house left with no
 		# grown-up at work falls to the hardship rules like any other: casual work, the poorhouse, the coping ladder.)
 		for p in f["pp"]:
 			# A promoted noble retains his Unit's full-name override and local
 			# militia/reserve service. Neither makes a resident groom absent.
+			# A minority bride keeps the frozen given name in p[7]; that name is hers, not a noble override.
 			# Brides keep the existing eligibility/movement rules below.
 			var home_groom: bool = is_house and int(p[2]) == 0 and String(p[4]) in AT_HOME
-			if int(p[6]) != 0 or (String(p[4]) != "" and not home_groom) or (p as Array).size() < SIZE or (String(p[7]) != "" and not home_groom):
+			if int(p[6]) != 0 or (String(p[4]) != "" and not home_groom) or (p as Array).size() < SIZE or (String(p[7]) != "" and not home_groom and not minority):
 				continue
 			if not by_pid(f, int(p[SP])).is_empty():
 				continue
@@ -734,9 +754,9 @@ static func marriages(e: Dictionary, day: float, most: int = -1) -> int:
 				var spouse_uid: String = str(g(p, SPOUSE_UID, ""))
 				if spouse_uid != "" and not Dynasty._person(Game, spouse_uid).is_empty(): continue
 			var age := (day - float(p[3])) / yd
-			if int(p[2]) == 0 and age >= A + 2.0:
+			if int(p[2]) == 0 and age >= fa + 2.0:
 				men.append([f, p, age, is_house])
-			elif int(p[2]) == 1 and age >= A and age < M - 5.0:
+			elif int(p[2]) == 1 and age >= fa and age < fm - 5.0:
 				women.append([f, p, age, is_house])
 	if men.is_empty() or women.is_empty():
 		return 0
@@ -787,6 +807,8 @@ static func marriages(e: Dictionary, day: float, most: int = -1) -> int:
 			if groom_house != bride_house and float(mm[2] if groom_house else ww[2]) < A + 2.0:
 				continue
 			if used.has(int(wp[0])) or touched.has(int(wf["id"])) or int(wf["id"]) == int(hf["id"]) or absf(float(mm[2]) - float(ww[2]) - 3.0) > 8.0:
+				continue
+			if family_race(e, hf) != family_race(e, wf):
 				continue
 			var sur := String(hf["name"])
 			if String(wf["name"]) == sur:
@@ -884,6 +906,7 @@ static func by_name_any(e: Dictionary, f: Dictionary, uname: String) -> Array:
 
 ## The Unit takes the person's identity: his name, his birth day (and age).
 static func bind(e: Dictionary, f: Dictionary, p: Array, u: Unit, state: String, day: float) -> void:
+	Factory.adopt_family_race(u, family_race(e, f))
 	if String(p[4]) != state and state != "hire":
 		log_life(p, day, "serve", state)   # his own life history: when he joined which service
 	p[4] = state

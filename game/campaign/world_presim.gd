@@ -205,6 +205,8 @@ static func _generate_realms(game) -> void:
 	w["last_day"] = 0
 	w["factions"] = {}
 	for fid in DB.factions:
+		if bool(DB.factions[fid].get("minor_only", false)):
+			continue
 		var towns := []
 		var capital := ""
 		for tid in w["towns"]:

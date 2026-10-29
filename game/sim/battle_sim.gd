@@ -317,8 +317,35 @@ func _squad_order(units: Array) -> Array:
 			groups[k].append(u)
 	var out := []
 	for k in keys:
-		out.append_array(groups[k])
+		var g: Array = groups[k]
+		var head := []
+		var heavy := []
+		var tail := []
+		var i0 := 0
+		if g.size() > 0 and g[0].is_officer():
+			head.append(g[0])
+			i0 = 1
+		for i in range(i0, g.size()):
+			var member = g[i]
+			if _heavy_foot(member):
+				heavy.append(member)
+			else:
+				tail.append(member)
+		if heavy.is_empty():
+			out.append_array(g)
+		else:
+			out.append_array(head)
+			out.append_array(heavy)
+			out.append_array(tail)
 	return out
+
+## Trolls and giants stand in the front column. Everyone else keeps squad order.
+func _heavy_foot(u) -> bool:
+	var race := String(u.race)
+	if race in ["troll", "giant"]:
+		return true
+	var rd: Dictionary = u.race_def()
+	return float(rd.get("height", 1.0)) >= 1.4 or float(rd.get("food_mult", 1.0)) >= 2.0
 
 ## Side 0 deploys on the left, side 1 on the right, in columns facing the enemy; squads stay contiguous.
 func _deploy(s: int, cells: Array) -> void:
@@ -438,7 +465,7 @@ func _reach_of(f: Fighter) -> int:
 	return 1
 
 ## v0.014: the culture whose battle cries and taunts a fighter uses (his faction's culture, else his race's).
-const RACE_CULTURE := {"orc": "orc", "troll": "orc", "goblin": "goblin", "dwarf": "dwarf", "moon_elf": "elf", "high_elf": "elf", "dark_elf": "elf"}
+const RACE_CULTURE := {"orc": "orc", "troll": "orc", "giant": "orc", "goblin": "goblin", "dwarf": "dwarf", "moon_elf": "elf", "high_elf": "elf", "dark_elf": "elf"}
 func _culture_of(u: Unit) -> String:
 	var c := String(DB.factions.get(u.faction, {}).get("culture", ""))
 	if c in ["moon_elf", "high_elf", "dark_elf"]:

@@ -66,6 +66,7 @@ static func make_family(id: int, race: String, cul: Dictionary, rng: RandomNumbe
 	f["cond"] = snappedf(rng.randf_range(0.55, 1.0), 0.01)
 	f["purse"] = snappedf(rng.randf_range(8.0, 60.0), 0.01)
 	f["seed"] = rng.randi()
+	f["race"] = race
 	return f
 
 static func people(f: Dictionary) -> int:
@@ -290,14 +291,20 @@ static func _aggregate_land(e: Dictionary) -> void:
 		if not f["cum"].has("herd"):
 			f["cum"]["herd"] = float(e["cum"]["herd"])
 
-static func richest(e: Dictionary) -> int:
+static func richest(e: Dictionary, primary_race: String = "") -> int:
 	var best := 1; var bv := -1.0
+	var any := false
 	for f in e["fams"]:
 		if f.get("estate", false) or f.get("gone", false) or Population.is_cohort(f):
 			continue
+		# Missing race is the town race (old saves). A set primary skips other races.
+		if primary_race != "" and String(f.get("race", primary_race)) != primary_race:
+			continue
 		var v := float(f["purse"]) + (float(acres(f)) * 60.0 + float(heads(f)) * 25.0) * TownEcon.COIN
 		if v > bv:
-			bv = v; best = int(f["id"])
+			bv = v; best = int(f["id"]); any = true
+	if not any and primary_race != "":
+		return richest(e, "")
 	return best
 
 static func person_name(f: Dictionary, rng: RandomNumberGenerator, race: String) -> String:

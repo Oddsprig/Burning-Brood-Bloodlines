@@ -95,7 +95,8 @@ static func recruitable(e: Dictionary, f: Dictionary, day: float) -> int:
 
 static func promote(e: Dictionary, f: Dictionary, day: float, rng: RandomNumberGenerator, draft_only: bool = false) -> Array:
 	if eligible_slots(e, f, day, draft_only) <= 0: return []
-	var ar := People.draft_ages(String(f.get("race", Persons.race_of(e))))
+	var race := Persons.family_race(e, f)
+	var ar := People.draft_ages(race)
 	var keys: Array = f["age_bins"].keys(); keys.sort()
 	var start := rng.randi() % maxi(1, keys.size())
 	for i in keys.size():
@@ -104,11 +105,11 @@ static func promote(e: Dictionary, f: Dictionary, day: float, rng: RandomNumberG
 		var parts := key.split(":")
 		var age := int(floor(day / People.year_days())) - int(parts[1])
 		if cat >= 2 or int(f["age_bins"][key]) <= 0 or (draft_only and (age < ar.x or age > ar.y)): continue
-		var p := Persons._new(e, f, String(f["race"]), int(parts[0]), float(parts[1].to_int()) * People.year_days(), 0, rng)
+		var p := Persons._new(e, f, race, int(parts[0]), float(parts[1].to_int()) * People.year_days(), 0, rng)
 		# Collective workforce labels are economic owners, never a person's
 		# surname. Materialize his native cultural surname with his identity.
 		var culture: Dictionary = TownEcon.data()["cultures"].get(String(f.get("cul", e.get("culture", "middle"))), TownEcon.culture_of(e))
-		var names: Dictionary = DB.names.get(String(culture.get("names", f["race"])), DB.names.get(String(f["race"]), DB.names.get("human", {})))
+		var names: Dictionary = DB.names.get(String(culture.get("names", race)), DB.names.get(race, DB.names.get("human", {})))
 		var surnames: Array = names.get("last", ["Smith"])
 		p[7] = "%s %s" % [Persons.first_of(e, p), surnames[rng.randi() % surnames.size()]]
 		f["age_bins"][key] = int(f["age_bins"][key]) - 1

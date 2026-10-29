@@ -142,8 +142,8 @@ static func _row(loc: Dictionary, day: float, title: String = "") -> Dictionary:
 		"house_uid": str(Persons.g(p, Persons.HOUSE_UID, "")), "town_id": String(town.get("id", "")),
 		"town_name": String(town.get("name", "")), "family_id": int(f["id"]),
 		"household_uid": String(f.get("household_uid", "")), "family_name": String(f.get("name", "")),
-		"pid": int(p[0]), "name": Persons.name_of(f, p, Persons.race_of(e)), "sex": int(p[2]),
-		"race": Persons.race_of(e), "age": Persons.age_of(p, day), "state": String(p[4]),
+		"pid": int(p[0]), "name": Persons.name_of(f, p, Persons.family_race(e, f)), "sex": int(p[2]),
+		"race": Persons.family_race(e, f), "age": Persons.age_of(p, day), "state": String(p[4]),
 		"unit_uid": int(p[5]), "alive": bool(loc["alive"]), "title": title,
 		"spouse_pid": int(Persons.g(p, Persons.SP, -1)), "mother_pid": int(Persons.g(p, Persons.MO, -1)),
 		"father_pid": int(Persons.g(p, Persons.FA, -1)), "spouse_uid": str(Persons.g(p, Persons.SPOUSE_UID, "")),
@@ -357,7 +357,7 @@ static func _remember(w: Dictionary, e: Dictionary, f: Dictionary, p: Array, ali
 	if f.get("cohort", false) and not b["houses"].has(house) and house != str(w.get("player_house", {}).get("house_uid", "")): return
 	var old: Dictionary = b["kin"].get(uid, {})
 	b["kin"][uid] = {"house_uid": house, "born": float(p[3]), "sex": int(p[2]),
-		"race": race if race != "" else Persons.race_of(e), "mother_uid": str(Persons.g(p, Persons.MOTHER_UID, old.get("mother_uid", ""))),
+		"race": race if race != "" else Persons.family_race(e, f), "mother_uid": str(Persons.g(p, Persons.MOTHER_UID, old.get("mother_uid", ""))),
 		"father_uid": str(Persons.g(p, Persons.FATHER_UID, old.get("father_uid", ""))), "alive": alive}
 
 ## Native birth/death callers preserve ancestry before household memory trimming.
@@ -383,7 +383,6 @@ static func _index_world(game) -> void:
 		if str(h.get("house_uid", "")) != "": b["houses"][str(h["house_uid"])] = true
 		if str(h.get("person_uid", "")) != "": b["rulers"][str(h["person_uid"])] = str(h.get("house_uid", ""))
 	for uid in kin: kin[uid]["alive"] = false
-	var races := {}
 	# Memories first; the single current living record wins over migration copies.
 	for memory in [true, false]:
 		var is_memory: bool = memory
@@ -392,8 +391,8 @@ static func _index_world(game) -> void:
 			var town: Dictionary = game.world["towns"][tid]
 			var town_id := str(town.get("id", ""))
 			var e: Dictionary = town.get("econ", {})
-			var race := str(races.get(tid, ""))
 			for f in e.get("fams", []):
+				var race := Persons.family_race(e, f)
 				var cohort: bool = f.get("cohort", false)
 				var estate: bool = f.get("estate", false)
 				var gone: bool = f.get("gone", false)
@@ -413,7 +412,6 @@ static func _index_world(game) -> void:
 								live = not gone or _living(game, town_id, f, p)
 						var old: Dictionary = kin.get(uid, {})
 						if not live and old.get("alive", false): continue
-						if race == "": race = Persons.race_of(e); races[tid] = race
 						# Already-validated _remember construction. Avoid resolving
 						# identities/flags twice, and read remembered parent fallback
 						# only when the native slot is genuinely absent.
@@ -483,6 +481,7 @@ static func _house_adult_heirs(game, uid: String, house: String, policy: String)
 	var candidates: Array = []
 	var seen: Dictionary = {uid: true} if uid != "" else {}
 	var day: float = float(game.day)
+	var blocked := false
 	var town_ids: Array = game.world.get("towns", {}).keys()
 	town_ids.sort()
 	for tid_v in town_ids:
@@ -490,24 +489,33 @@ static func _house_adult_heirs(game, uid: String, house: String, policy: String)
 		var town: Dictionary = game.world["towns"][tid]
 		var e: Dictionary = town.get("econ", {})
 		if e.is_empty(): continue
-		var race: String = Persons.race_of(e)
-		var adult_age: int = int(People.ages(race)["adult"])
+		var primary := String(DB.factions.get(str(town.get("faction", "")), {}).get("race", ""))
 		for f in e.get("fams", []):
+			var fr := Persons.family_race(e, f)
+			var adult_age: int = int(People.ages(fr)["adult"])
 			for p in f.get("pp", []) + f.get("kp", []):
 				var puid: String = str(Persons.g(p, Persons.PERSON_UID, ""))
 				if puid == "" or seen.has(puid) or str(Persons.g(p, Persons.HOUSE_UID, "")) != house: continue
 				if not _living(game, tid, f, p): continue
+				if primary != "" and fr != primary:
+					blocked = true
+					continue
 				var age: int = Persons.age_of(p, day)
 				if age < adult_age: continue
 				var loc: Dictionary = {"town": town, "econ": e, "family": f, "person": p, "alive": true}
 				var row: Dictionary = _row(loc, day)
 				var u: Unit = bound_unit(game, row)
 				if u != null and u.dead: continue
+				if u != null and primary != "" and String(u.race) != primary:
+					blocked = true
+					continue
 				seen[puid] = true
 				var score: float = _ability_score(game, e, f, p, row, u)
 				row["ability"] = score
 				candidates.append({"row": row, "born": float(p[3]), "age": age, "ability": score, "uid": puid})
 	if candidates.is_empty():
+		if blocked:
+			return []
 		return _lineage_query(game, uid, house, "absolute", {})
 	if policy == "seniority":
 		candidates.sort_custom(func(a, b):
@@ -873,11 +881,35 @@ static func appoint(game, town_id: String, person_uid: String, title: String = "
 	_index_world(game)
 	return true
 
+## Family race of a soldier. A missing family record keeps the unit's own race,
+## so an old save without f.race still cannot seat a troll body.
+static func _unit_line_race(u: Unit) -> String:
+	if u == null:
+		return ""
+	var town: Dictionary = Game.world.get("towns", {}).get(u.home_town, {})
+	var f: Dictionary = People.fam_of(town, u.family)
+	if f.is_empty():
+		return String(u.race)
+	return Persons.family_race(town.get("econ", {}), f)
+
+## Ruler posts stay with the faction's primary race. Empty primary means no gate.
+static func _not_primary_ruler(town: Dictionary, u: Unit) -> bool:
+	var primary := String(DB.factions.get(str(town.get("faction", "")), {}).get("race", ""))
+	if primary == "":
+		return false
+	if u == null:
+		return true
+	if String(u.race) != primary:
+		return true
+	return _unit_line_race(u) != primary
+
 ## Existing army contest winner is the orc sovereign, even when his household
 ## is in another town. No civilian names or capital wallets are substituted.
 static func appoint_unit(game, town_id: String, u: Unit, title: String = "") -> bool:
-	var h: Dictionary = game.world.get("towns", {}).get(town_id, {}).get("econ", {}).get("head", {})
+	var office: Dictionary = game.world.get("towns", {}).get(town_id, {})
+	var h: Dictionary = office.get("econ", {}).get("head", {})
 	if h.is_empty() or u == null or u.dead: return false
+	if _not_primary_ruler(office, u): return false
 	if Population.promote_ruler(game, u).is_empty(): return false
 	var town: Dictionary = game.world.get("towns", {}).get(u.home_town, {})
 	var f: Dictionary = People.fam_of(town, u.family)
@@ -911,6 +943,8 @@ static func succession_day(game) -> void:
 			if str(fac.get("capital", "")) == str(tid): continue
 			var best: Unit = null; var power := -INF
 			for u in Militia.units_of(game, str(tid)):
+				if _not_primary_ruler(town, u):
+					continue
 				var score := CampaignWorld.unit_power(u)
 				if score > power and not Persons.by_uid(People.fam_of(town, u.family), u.uid).is_empty(): best = u; power = score
 			if best != null:
@@ -926,6 +960,7 @@ static func succession_day(game) -> void:
 			candidates.sort_custom(func(a, b): return a.uid < b.uid)
 			for u: Unit in candidates:
 				if u.dead: continue
+				if _not_primary_ruler(town, u): continue
 				var value: float = RankRules.score(game, rule, u, str(town.get("faction", "")))
 				if value > native_score: native_best = u; native_score = value
 			if native_best != null: appoint_unit(game, str(tid), native_best)

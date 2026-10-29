@@ -56,8 +56,15 @@ static func _bind_gate(game, row: Dictionary, skip_player_visit: bool = false) -
 	if not skip_player_visit and not Mobilization._here(game, town_id): return "Visit the dragon's recorded settlement before forming a bond."
 	return ""
 
+static func _foot_only(person: Dictionary) -> String:
+	if Horses.fights_on_foot_only(str(person.get("race", ""))):
+		return "Trolls and giants fight on foot only."
+	return ""
+
 static func _eligibility(game, row: Dictionary, person: Dictionary, skip_player_visit: bool = false) -> String:
 	if person.is_empty(): return "Choose a living tracked person with a real household."
+	var foot := _foot_only(person)
+	if foot != "": return foot
 	if not _adult(person): return "This person has not reached their native race's adult age."
 	if skip_player_visit:
 		if not _with_dragon(game, person, row): return "This person is not actually with the dragon."
@@ -71,6 +78,8 @@ static func _eligibility(game, row: Dictionary, person: Dictionary, skip_player_
 ## when they leave the owning household, the holding is unclaimed, or a bond rule excludes them.
 static func _approach_eligibility(game, row: Dictionary, person: Dictionary) -> String:
 	if person.is_empty(): return "Choose a living tracked person with a real household."
+	var foot := _foot_only(person)
+	if foot != "": return foot
 	if not _adult(person): return "This person has not reached their native race's adult age."
 	if str(row.get("owner_status", "claimed")) != "claimed" or str(person.get("household_uid", "")) == "" or str(person.get("household_uid", "")) != str(row.get("owner_household_uid", "")):
 		return "Only an adult of the owning household may approach this dragon."
@@ -103,7 +112,7 @@ static func candidates(game, dragon_uid: String) -> Array:
 		var rider_uid: String = str(other.get("rider_person_uid", ""))
 		if rider_uid != "": linked[rider_uid] = true
 	for person: Dictionary in Dragons.people(game):
-		if linked.has(str(person["person_uid"])) or not _adult(person): continue
+		if linked.has(str(person["person_uid"])) or not _adult(person) or _foot_only(person) != "": continue
 		if _physical_dead(game, person): continue
 		if _present(game, person, str(row["location_town_id"])): out.append(person.duplicate(true))
 	return out
@@ -487,6 +496,22 @@ static func after_load(game) -> void:
 		approach["last_reason"] = str(approach.get("last_reason", ""))
 		for flag in ["keeper", "hungry", "hurt", "present"]:
 			approach[flag] = bool(approach.get(flag, false))
+	# A legacy bond can still name a troll or giant. Separate that rider. An
+	# unknown person is left alone: a missing lookup is not proof of race.
+	var registry: Dictionary = game.world.get("dragons", {}).get("records", {})
+	var ids: Array = registry.keys()
+	ids.sort()
+	for dragon_id in ids:
+		var bond: Dictionary = registry[dragon_id]
+		var rider_uid := str(bond.get("rider_person_uid", ""))
+		if rider_uid == "":
+			continue
+		var person := _person(game, rider_uid)
+		if person.is_empty():
+			continue
+		var bound: Unit = Dynasty.bound_unit(game, person)
+		if Horses.fights_on_foot_only(str(person.get("race", ""))) or (bound != null and Horses.fights_on_foot_only(bound.race)):
+			_separate(game, bond, "foot_only")
 
 ## One person approaches one dragon. Higher familiarity wins; a tie keeps the lower dragon id.
 static func _dedupe_approaches(game) -> void:

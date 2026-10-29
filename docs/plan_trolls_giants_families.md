@@ -1,6 +1,8 @@
 # Plan: Trolls & Giants as Families Inside Orc and Goblin Factions
 
-**Status:** PLAN ONLY (Do Not Implement Yet)  
+**Status:** IMPLEMENTED v0.071  
+
+Owner approved this plan for v0.071. Trolls and giants are rare heavyweight families inside orc and goblin towns. They fight on foot only: no horse and no dragon rider. `troll_den` is `minor_only` and is not a sovereign realm. Old saves with no family race stay the town race.
 **Target Scope:** `factions.json`, `races.json`, `economy.json`, `EconGen`, `Population`, `Persons`, `Families`, `Recruits`, `People`, `Army`, `WarAI`
 
 ---

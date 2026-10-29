@@ -26,6 +26,16 @@ static func men(wb: Dictionary) -> int:
 			n += 1
 	return n
 
+## Meal-shares. Races without food_mult count as one, so an all-orc band matches men().
+static func meal_shares(wb: Dictionary) -> float:
+	var s := 0.0
+	for u in wb.get("units", []):
+		if u.dead or u.race_def().get("creature", false):
+			continue
+		var mult := float(DB.races.get(u.race, {}).get("food_mult", 1.0))
+		s += 1.0 if mult <= 0.0 else mult
+	return s
+
 static func weight(st: Dictionary) -> float:
 	var t: Dictionary = Goods.table()
 	var kg := 0.0
@@ -44,15 +54,16 @@ static func days(wb: Dictionary) -> float:
 	var food := 0
 	for g in FOOD:
 		food += int(st.get(g, 0))
-	return float(food) / (2.0 * n)
+	return float(food) / (2.0 * meal_shares(wb))
 
 ## The day's meals and mugs out of the stores; a band short of food counts hungry days (wb.hungry).
 static func eat(wb: Dictionary) -> void:
 	var n := men(wb)
 	if n <= 0:
 		return
+	var shares := meal_shares(wb)
 	var st := stores(wb)
-	var need := 2 * n
+	var need := int(round(2.0 * shares))
 	for g in FOOD:
 		var t := mini(need, int(st.get(g, 0)))
 		if t > 0:
@@ -67,7 +78,7 @@ static func eat(wb: Dictionary) -> void:
 	for g in st.keys():
 		if int(st[g]) <= 0:
 			st.erase(g)
-	wb["hungry"] = int(wb.get("hungry", 0)) + 1 if need > n else 0
+	wb["hungry"] = int(wb.get("hungry", 0)) + 1 if float(need) > shares else 0
 
 ## Top the stores up to store_days from the home market (the payer pays the market). payer as Army.pay_units.
 static func provision(game, wb: Dictionary, payer: Dictionary, supply_day: int = -1) -> void:
@@ -85,7 +96,7 @@ static func provision(game, wb: Dictionary, payer: Dictionary, supply_day: int =
 	var room := capacity(n) - weight(st)
 	var t: Dictionary = Goods.table()
 	var mkt: Dictionary = e["biz"][int(e["mkt"])]
-	var want_food := int((2.0 * n + Horses.count(wb.get("units", [])) * Horses.GRAIN_DAY) * dd) - (int(st.get("grain", 0)) + int(st.get("fruit", 0)) + int(st.get("meat", 0)))
+	var want_food := int((2.0 * meal_shares(wb) + Horses.count(wb.get("units", [])) * Horses.GRAIN_DAY) * dd) - (int(st.get("grain", 0)) + int(st.get("fruit", 0)) + int(st.get("meat", 0)))
 	var want_drink := int(n * dd) - (int(st.get("beer", 0)) + int(st.get("wine", 0)))
 	for pair in [[["grain", "meat", "fruit"], want_food], [["beer", "wine"], want_drink]]:
 		var want: int = pair[1]
@@ -195,9 +206,11 @@ static func dragon_meat_plan(game) -> Dictionary:
 		"short": short, "line": line}
 
 ## Prehistory stores (world gen, old saves): what the band set out with.
+## Meal-shares, not heads, so a troll or giant band is seeded for its food_mult.
+## An all-orc band still matches the old headcount (each share is 1).
 static func seed_stores(wb: Dictionary) -> void:
-	var n := men(wb)
-	if n <= 0 or not stores(wb).is_empty():
+	var n := meal_shares(wb)
+	if n <= 0.0 or not stores(wb).is_empty():
 		return
 	var dd := int(A()["store_days"])
 	wb["stores"] = {"grain": 2 * n * dd * 3 / 4, "meat": 2 * n * dd / 4, "beer": n * dd}
