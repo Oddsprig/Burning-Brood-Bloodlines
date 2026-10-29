@@ -840,7 +840,10 @@ static func torso(f) -> bool:
 	elif race == "moon_elf":
 		sh.capsule(sc + Vector2(-0.85, 0.58), sc.lerp(hip, 0.58) + Vector2(0.65, 0.0), 0.18, 0.18, c_sec, 1.2, 0.85)
 	else:
-		sh.capsule(sc + Vector2(0.80, 0.52), hip + Vector2(-0.62, 0.05), 0.18, 0.18, c_sec, 1.2, 0.85)
+		if FigurePainter.snapshot_v066_bust:
+			sh.capsule(sc + Vector2(0.80, 0.52), hip + Vector2(-0.62, 0.05), 0.18, 0.18, c_sec, 1.2, 0.85)
+		else:
+			sh.capsule(sc + Vector2(-0.10, 0.78), sc + Vector2(0.18, 1.12), 0.14, 0.14, c_sec, 1.2, 0.85)
 	if not mounted:
 		sh.capsule(hip + Vector2(-float(f.hipw) * 0.42 - spread, c_hem - 0.12), hip + Vector2(float(f.hipw) * 0.42 + spread, c_hem - 0.12), 0.18, 0.18, c_sec, 1.1, 0.85)
 
@@ -864,7 +867,10 @@ static func torso(f) -> bool:
 			for ri in 3:
 				var ry: float = sc.y + 1.15 + float(ri) * 1.25
 				var rw: float = float(f.tw) * 0.38
-				sh.capsule(Vector2(-rw, ry), Vector2(rw, ry), 0.22, 0.22, c_sec if ri == 1 else c_arm_t, 2.2, 0.9)
+				if FigurePainter.snapshot_v066_bust:
+					sh.capsule(Vector2(-rw, ry), Vector2(rw, ry), 0.22, 0.22, c_sec if ri == 1 else c_arm_t, 2.2, 0.9)
+				else:
+					sh.capsule(sc + Vector2(-rw, 1.15 + float(ri) * 1.25), sc + Vector2(rw, 1.15 + float(ri) * 1.25), 0.16, 0.16, c_arm_t, 2.2, 0.9)
 		elif plate:
 			sh.capsule(sc + Vector2(0.10, 0.45), sc.lerp(hip, 0.68) + Vector2(0.10, 0.0), 0.32, 0.26, c_arm, 2.4, 1.1)
 		if not mounted:
