@@ -8,7 +8,8 @@ extends RefCounted
 ##     Settings -> Frame rate -> Battery saver (any platform; Game "battery_saver", saved with the settings)
 ##   low processor mode on menu screens: the engine redraws only when something on screen changes
 ##   no 2D MSAA, screen-space AA or debanding on the root viewport
-##   cheap_fx(): effect layers draw fewer, cheaper shapes (blood droplets, breath puffs)
+##   cheap_fx(): false for 10v10-20v20 battles (full blood droplets/trails and round splats are already cheap at <=40 fighters;
+##     players who want less gore have Settings -> Gore: Reduced)
 ##   the shared battle sprite cache is trimmed when a battle closes (Paperdoll.trim_cache)
 ## Renderer: gl_compatibility on every platform (project.godot). This is a 2D canvas game; the Compatibility
 ## renderer has the lowest per-draw cost and no Vulkan pipeline-compile stutters on Android.
@@ -29,9 +30,10 @@ static func active() -> bool:
 		_forced = 1 if "--mobile-profile" in OS.get_cmdline_user_args() else 0
 	return _forced == 1 or OS.has_feature("mobile")
 
-## Effect layers use their cheaper drawing (fewer droplets/puffs, batched shapes).
+## Effect layers keep full droplet counts and shapes on phones: at 10v10-20v20 (<=40 fighters), full GoreLayer effects
+## are cheap, and Settings -> Gore already offers Full / Reduced.
 static func cheap_fx() -> bool:
-	return active()
+	return false
 
 ## Engine frame cap for the current platform and battery-saver choice.
 static func apply_frame_cap(battery_saver: bool) -> void:

@@ -1,6 +1,6 @@
 extends Node
-## Headless phone benchmark body (launcher and options: tools/bench_mobile.gd). Two benchmarks, N frames each:
-##   battle: native Factory forces, 100 a side on the large field, real battle screen (sim, actors, gore, fx, HUD)
+## Headless phone benchmark body (launcher and options: tools/bench_mobile.gd). Two light benchmarks, N frames each:
+##   battle: native Factory forces, 20 a side (max 20, --size=N) on the small field, real battle screen (sim, actors, gore, fx, HUD)
 ##   map:    the saved DevTools start world (Normal, one-day history), a house chosen, the party travelling far
 ## Each frame advances game time by a FIXED 1/60 s (the screen's own _process is driven with that delta), and the
 ## engine runs uncapped, so the frame time is the CPU work for one 60 FPS frame: the same game work before and after
@@ -8,12 +8,13 @@ extends Node
 ## Prints one line per benchmark and a final "BENCH_MOBILE {json}" line. Nothing is saved over the player's game.
 
 const FIXED_DT := 1.0 / 60.0
+const MAX_SIZE := 20
 
-var frames := 600
+var frames := 180
 var warmup := 30
 var battle_speed := 1.0
 var map_speed := 1
-var per_side := 100
+var per_side := 20
 var only := ""
 
 func _ready() -> void:
@@ -22,7 +23,18 @@ func _ready() -> void:
 		elif a.begins_with("--warmup="): warmup = maxi(0, int(a.trim_prefix("--warmup=")))
 		elif a.begins_with("--speed="): battle_speed = float(a.trim_prefix("--speed="))
 		elif a.begins_with("--map-speed="): map_speed = int(a.trim_prefix("--map-speed="))
-		elif a.begins_with("--per-side="): per_side = clampi(int(a.trim_prefix("--per-side=")), 2, 200)
+		elif a.begins_with("--size=") or a.begins_with("--per-side="):
+			var raw := a.trim_prefix("--size=") if a.begins_with("--size=") else a.trim_prefix("--per-side=")
+			if not raw.is_valid_int():
+				printerr("bench_mobile: invalid battle size '%s' (expected integer 1..%d)" % [raw, MAX_SIZE])
+				get_tree().quit(2)
+				return
+			var n := int(raw)
+			if n < 1 or n > MAX_SIZE:
+				printerr("bench_mobile: battle size %d rejected (max %d per side allowed; >20v20 disabled)" % [n, MAX_SIZE])
+				get_tree().quit(2)
+				return
+			per_side = n
 		elif a.begins_with("--only="): only = a.trim_prefix("--only=")
 	_run.call_deferred()
 
@@ -127,13 +139,14 @@ func _print_line(what: String, r: Dictionary) -> void:
 # ------------------------------------------------------------------ battle
 func _bench_battle() -> Dictionary:
 	_uncap()
+	per_side = clampi(per_side, 1, MAX_SIZE)
 	var started := Time.get_ticks_usec()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 1010
 	Game.company = Factory.make_warband(rng, "middle_kingdom", per_side)
 	Game.invalidate_deploy()
 	Game.pending_battle = {"enemy": Factory.make_warband(rng, "orc_horde", per_side), "allies": [], "seed": 1010,
-		"terrain": "grassland", "map": "large"}
+		"terrain": "grassland", "map": "small"}
 	var battle: Node = (load("res://battle/battle.tscn") as PackedScene).instantiate()
 	add_child(battle)
 	var setup_ms := float(Time.get_ticks_usec() - started) / 1000.0
@@ -143,6 +156,7 @@ func _bench_battle() -> Dictionary:
 	var r: Dictionary = await _measure(func(dt: float): battle._process(dt))
 	r["setup_ms"] = snappedf(setup_ms, 0.1)
 	r["speed"] = battle_speed
+	r["per_side"] = per_side
 	r["fighters"] = battle.sim.fighters.size()
 	r["sim_ticks"] = battle.sim.tick
 	r["over"] = battle.sim.is_over()
