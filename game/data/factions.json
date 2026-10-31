@@ -13,10 +13,10 @@
       "gait": [260, 500, 700], "learn": 100, "attr_cost": 500, "src": "ours",
       "personality": {"courage": 70, "nerve": 45, "aggression": 80, "caution": 25, "temper": 75, "protectiveness": 35, "loyalty": 35, "cohesion": 60, "glory": 65, "cruelty": 60, "appetite": 70, "scruples": 25},
       "bravery": 65, "speed": 900, "skin": ["#5fae3a", "#4f9a30", "#6cbf45", "#478a2c", "#7ac24a", "#7d9453", "#416c53", "#a69555", "#937150", "#61716d", "#46575c"], "hair": ["#1a1a1a", "#3a2a1a", "#673d25", "#8d582e", "#b59a6c", "#959d9a", "#d5d1b8", "#463b55"], "enabled": true},
-    "goblin":   {"name": "goblin", "plural": "goblins", "body": "humanoid", "mass": 40, "height": 0.80, "width": 0.85,
+    "goblin":   {"name": "goblin", "plural": "goblins", "body": "humanoid", "mass": 44, "height": 0.82, "width": 0.85,
       "tiers": {"STR": "0", "AGI": "++", "TOU": "0", "END": "+", "REC": "0", "WIL": "--", "FOC": "0", "SPA": "+", "KIN": "+"},
       "attrs": {"STR": 1000, "AGI": 1500, "TOU": 1000, "END": 1250, "REC": 1000, "WIL": 750, "FOC": 1000, "SPA": 1250, "KIN": 1250},
-      "gait": [200, 400, 600], "learn": 100, "skill_learn": {"dodger": 125}, "attr_cost": 500, "src": "ours (DF goblins are human-sized; ours follow the handoff: small, fast, fragile). v0.080: STR and TOU sit on the human tier and the body is a notch larger so the seven-race copper probe stays inside the screen; still well under a man",
+      "gait": [200, 400, 600], "learn": 100, "skill_learn": {"dodger": 125}, "attr_cost": 500, "src": "ours (DF goblins are human-sized; ours follow the handoff: small, fast, fragile). v0.080: the race screen fields the same copper kit for every race, so warren troop lines do not move that score. STR and TOU sit on the human tier and the body is 44 kg and 0.82 tall, still well under a man, so the seven-race probe stays inside the band",
       "personality": {"courage": 25, "nerve": 30, "aggression": 60, "caution": 55, "temper": 55, "protectiveness": 20, "loyalty": 35, "cohesion": 80, "glory": 30, "cruelty": 75, "greed": 70, "scruples": 15}, "outnumber_morale": true,
       "bravery": 25, "speed": 900, "skin": ["#9cc23c", "#aacf4a", "#88b035", "#b5d65a"], "hair": ["#1a1a1a"], "enabled": true},
     "moon_elf": {"name": "moon elf", "plural": "moon elves", "body": "humanoid", "mass": 55, "height": 1.05, "width": 0.88,
@@ -100,11 +100,11 @@
         {"race": "troll", "families_per_town": [2, 2], "roles": ["guard", "miner"]}
       ],
       "troops": [
-        {"name": "goblin skulker", "w": 3, "skills": {"dagger": [2, 5], "dodger": [3, 6], "fighter": [1, 3]},
+        {"name": "goblin skulker", "w": 3, "skills": {"dagger": [1, 4], "dodger": [2, 5], "fighter": [0, 2]},
           "loadout": {"main_hand": ["shiv", "hook_sickle"], "off_hand": ["buckler", ""], "helm": ["pot_helm", ""], "clothing": ["tunic"], "legs_under": ["trousers"]}},
         {"name": "goblin spear", "w": 4, "skills": {"spear": [1, 4], "dodger": [1, 3], "fighter": [0, 2]},
           "loadout": {"main_hand": ["short_spear"], "off_hand": ["buckler", ""], "helm": ["pot_helm", ""], "body": ["scale_vest", ""], "clothing": ["tunic"], "legs_under": ["trousers"]}},
-        {"name": "goblin archer", "w": 2, "_note": "bows", "skills": {"bow": [2, 5], "dagger": [2, 4], "dodger": [3, 5], "fighter": [1, 3]},
+        {"name": "goblin archer", "w": 2, "_note": "bows", "skills": {"bow": [1, 4], "dagger": [1, 3], "dodger": [2, 4], "fighter": [0, 2]},
           "arrows": {"arrow_wood": 30, "arrow_tin_broad": 15},
           "loadout": {"ranged": ["goblin_shortbow"], "main_hand": ["shiv"], "helm": ["pot_helm", ""], "clothing": ["tunic"], "legs_under": ["trousers"]}}
       ]},

@@ -48,6 +48,8 @@ const ASSAULT_P := 0.25           # weekly, per side of a war: send a war band a
 const TRUCE_MIN := 60             # war pick 2 (Douglas): a peace brings a truce of 60-120 days, rolled per treaty;
 const TRUCE_MAX := 120            #   the pair does not fight at all (no clashes, raids, interceptions, war)
 const MILITIA_PER_SIZE := 3       # town militia = (size + 1) * this when the town has no militia field
+## Reused pair list so the day step does not allocate a new array of pair dicts every morning.
+static var _walk_buf: Array = []
 
 # ---------------------------------------------------------------- layer 2 tuning [ours]
 const EARNED_DRIFT := 0.995
@@ -328,12 +330,17 @@ static func enemies_at_war(w: Dictionary, fid: String) -> Array:
 	return out
 
 ## w["wars"] mirrors the WAR pairs for any code that still reads the old list.
+## Same result as at_war on a stored pair: a sworn tie or a live pact hides the war, and the pair is not looked up again.
 static func _sync_wars(w: Dictionary) -> void:
+	var dp: Dictionary = w["diplo"]
+	var day := int(dp["day"])
+	var pairs: Dictionary = dp["pairs"]
 	var wars := []
-	for k in w["diplo"]["pairs"]:
-		var p: Dictionary = w["diplo"]["pairs"][k]
-		if at_war(w, p["a"], p["b"]):
-			wars.append([p["a"], p["b"]])
+	for k in pairs:
+		var p: Dictionary = pairs[k]
+		if p["state"] != WAR or _bound(p) or int(p.get("pact_until", 0)) > day:
+			continue
+		wars.append([p["a"], p["b"]])
 	w["wars"] = wars
 
 # ================================================================== dynasty ties / player treaties
@@ -566,28 +573,49 @@ static func daily(game, d: int) -> void:
 				assault_busy[job[1]] = true
 	# Who is at WAR with whom at the start of the day, as faction-index bits. A shared enemy is a bit in
 	# both masks; the pair's own war bit is not in either mask, so it does not count (same as the old nested walk).
+	# Indexes, pact days and the sworn flag are read once here. Nine factions fit in the bit mask.
+	_walk_buf.clear()
+	for k in pairs:
+		_walk_buf.append(pairs[k])
+	var n := _walk_buf.size()
 	var nfac := fl.size()
 	var ix := {}
 	var mask := PackedInt32Array()
+	var sz := PackedFloat64Array()
 	mask.resize(nfac)
+	sz.resize(nfac)
 	for i in nfac:
 		ix[fl[i]] = i
-	var walk: Array = pairs.values()
-	for q in walk:
-		if q["state"] != WAR or int(q.get("pact_until", 0)) > d:
+		sz[i] = float(sizes.get(fl[i], 1.0))
+	var ia := PackedInt32Array()
+	var ib := PackedInt32Array()
+	var pact_at := PackedInt32Array()
+	var sworn_at := PackedByteArray()
+	ia.resize(n)
+	ib.resize(n)
+	pact_at.resize(n)
+	sworn_at.resize(n)
+	for i in n:
+		var q: Dictionary = _walk_buf[i]
+		var qa := int(ix[q["a"]])
+		var qb := int(ix[q["b"]])
+		ia[i] = qa
+		ib[i] = qb
+		var until := int(q.get("pact_until", 0))
+		pact_at[i] = until
+		var sworn: int = 1 if (q.get("treaty_alliance", false) or q.get("dynasty", false)) else 0
+		sworn_at[i] = sworn
+		if q["state"] != WAR or until > d or sworn != 0:
 			continue
-		if bool(q.get("treaty_alliance", false)) or bool(q.get("dynasty", false)):
-			continue
-		var ia := int(ix[q["a"]])
-		var ib := int(ix[q["b"]])
-		mask[ia] = mask[ia] | (1 << ib)
-		mask[ib] = mask[ib] | (1 << ia)
-	for p in walk:
+		mask[qa] = mask[qa] | (1 << qb)
+		mask[qb] = mask[qb] | (1 << qa)
+	for i in n:
+		var p: Dictionary = _walk_buf[i]
 		var a: String = p["a"]; var b: String = p["b"]
 		var st: String = p["state"]
 		var rel: float = p["rel"]
 		rel += (float(p["base"]) - rel) * DRIFT
-		var bits: int = mask[int(ix[a])] & mask[int(ix[b])]
+		var bits: int = mask[ia[i]] & mask[ib[i]]
 		if bits != 0:
 			var cnt := 0
 			var bv := bits
@@ -595,19 +623,22 @@ static func daily(game, d: int) -> void:
 				cnt += 1
 				bv &= bv - 1
 			rel += SHARED_ENEMY * float(cnt)
-		var sworn := bool(p.get("treaty_alliance", false)) or bool(p.get("dynasty", false))
-		var pact_until := int(p.get("pact_until", 0))
+		var pact_until := pact_at[i]
 		if st == WAR:
 			var losses: float = float(p["losses"]) * LOSS_DECAY
 			p["losses"] = losses
-			var size := maxf(1.0, minf(float(sizes.get(a, 1.0)), float(sizes.get(b, 1.0))))
+			var sa0 := sz[ia[i]]
+			var sb0 := sz[ib[i]]
+			var size := sa0 if sa0 < sb0 else sb0
+			if size < 1.0:
+				size = 1.0
 			rel += minf(1.0, losses / size * WEARINESS)
 		var ceiling: float = CAP_REL[clampi(int(p["cap"]), 0, 4)]
 		rel = clampf(rel, -100.0, minf(100.0, ceiling))
 		p["rel"] = rel
 		var held := int(p["held"]) + 1
 		p["held"] = held
-		if sworn:
+		if sworn_at[i] != 0:
 			continue   # sworn alliances last until broken; marriages last while their couple does
 		var bd := band(rel)
 		if st == WAR:
@@ -627,7 +658,8 @@ static func daily(game, d: int) -> void:
 					_set_state(game, p, target)
 					changed = true
 			if weekly and p["state"] == HOSTILE and int(p["held"]) >= HOLD_DAYS and int(p.get("truce", 0)) <= d and pact_until <= d:
-				var sa := float(sizes.get(a, 1.0)); var sb := float(sizes.get(b, 1.0))
+				var sa := sz[ia[i]]
+				var sb := sz[ib[i]]
 				var pa := WAR_P_BASE + WAR_P_STRENGTH * maxf(0.0, sa / maxf(1.0, sb) - 1.0)
 				if pa > WAR_P_CAP:
 					pa = WAR_P_CAP
