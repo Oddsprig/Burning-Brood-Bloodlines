@@ -301,7 +301,7 @@ v0.070b cross-view identity - DELIVERED (Claude Edition): the same character sta
 v0.070c battle popup cleanup - DELIVERED (Claude Edition): leaving a battle mid-popup no longer leaves a banner tween running.
 v0.071 trolls and giants as rare on-foot families inside orc and goblin towns, not a sovereign troll den: per-family race, births, recruit traceability, no mounts or dragon riders, and old saves default to the town race. Plan: docs/plan_trolls_giants_families.md.
 v0.072 Android mobile port: touch controls (tap, drag pan, pinch zoom, long-press info), phone UI scaling and safe areas, back button / pause / autosave on background, mobile performance pass (60 FPS cap, 30 FPS battery saver), Android export preset.
-v0.073 rider fit and version tidy: this branch merges the mount-scaled rider fit and the payroll land-sale refresh skip, commits the v0.067-v0.071 uid sidecars, sets the project version, and fills the missing roadmap lines. Not marked delivered until the tests pass.
+v0.073 rider fit and version tidy - DELIVERED (Claude Edition): merges the mount-scaled rider fit and the payroll land-sale refresh skip, commits the v0.067-v0.071 uid sidecars, sets the project version, and fills the missing roadmap lines. The prisoner test now enlists a non-ruler house member.
 v0.074 save and reload - planned. A whole-world save and reload round trip with zero drift.
 v0.075 money and stock - planned. A daily whole-world check that coins and counted goods are conserved.
 v0.076 old tests - planned. Fix test_dragon_care_release, test_dragon_release, test_dragon_care_ui (5 checks), the test_econ_army draft pool, and the test_dynasty_ui phone size.
