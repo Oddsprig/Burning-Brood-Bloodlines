@@ -2,8 +2,8 @@ class_name DragonMountPreviewArt
 extends RefCounted
 ## Pure mounting-fit illustration. These previews do not assign an actual rider,
 ## create a bond/Unit/Item or change any dragon, person, inventory or campaign.
-## Dragon model and native seated person share world units; camera zoom scales
-## the complete scene equally. No enlarged person on a huge dragon is substituted.
+## The seated composite is scaled to the back by RiderFit. The camera then scales
+## the whole scene. On-foot figures are not resized.
 const IMAGE_SIZE := Vector2i(720, 420)
 
 static func _transformed_bounds(area: Rect2, transform: Transform2D) -> Rect2:
@@ -15,8 +15,8 @@ static func _transformed_bounds(area: Rect2, transform: Transform2D) -> Rect2:
 	return Rect2(low, high - low)
 
 ## Bounds come from the actual native seated raster, including carried equipment
-## and missing limbs. Close-up uses a local back/neck patch at unchanged world
-## scale, rather than shrinking the mount or enlarging the person independently.
+## and missing limbs, scaled so the person matches the back. Close-up uses a
+## local patch around that back anchor.
 static func framing(row: Dictionary, spec: Dictionary, pose: String = "ground", closeup: bool = false, progress: float = 0.0, state: Dictionary = {}) -> Dictionary:
 	var model: Dictionary = DragonArt.model(row, pose, progress, state)
 	if not bool(model.get("valid", false)):
@@ -27,10 +27,14 @@ static func framing(row: Dictionary, spec: Dictionary, pose: String = "ground", 
 	var rider: Dictionary = MountedRiderArt.render_layers(spec.duplicate(true)) if mountable else {"ok": false, "reason": "No attached upright body mount is available."}
 	var bounds: Rect2 = model["bounds"]
 	var rider_bounds := Rect2()
+	var logical := 1.0
 	var seat: Vector2 = model["seat"]
 	var seat_width := 0.0
 	if bool(rider.get("ok", false)):
-		var placement := Transform2D(float(model["seat_angle"]), Vector2.ONE, 0.0, seat)
+		RiderFit.decorate(model, row)
+		seat = RiderFit.dragon_contact(model)
+		logical = RiderFit.dragon_logical_scale(model, rider)
+		var placement := Transform2D(float(model["seat_angle"]), Vector2(logical, logical), 0.0, seat)
 		rider_bounds = _transformed_bounds(rider["bounds"], placement)
 		seat_width = float(rider["seat_width"])
 		if closeup:
@@ -44,12 +48,12 @@ static func framing(row: Dictionary, spec: Dictionary, pose: String = "ground", 
 	var origin := Vector2(IMAGE_SIZE) * 0.5 - bounds.get_center() * pixels
 	var mount_grips: Array = []
 	if bool(rider.get("ok", false)):
-		var local_to_world := Transform2D(float(model["seat_angle"]), Vector2.ONE, 0.0, seat)
+		var local_to_world := Transform2D(float(model["seat_angle"]), Vector2(logical, logical), 0.0, seat)
 		for key: String in rider["mount_grip_hands"]:
 			if bool(rider["socket_presence"].get(key, false)): mount_grips.append({"hand": key, "hand_point": local_to_world * rider[key], "handle_point": local_to_world * rider["mount_handles"][key]})
 	return {"valid": true, "supported_poses": model["supported_poses"].duplicate(), "origin": origin, "pixels_per_unit": pixels, "bounds": bounds, "model": model,
 		"pose": str(model["pose"]), "progress": progress, "mountable": mountable, "closeup": closeup, "rider_layers": rider,
-		"rider_bounds": rider_bounds, "seat_width": seat_width, "host_seat_width": float(model["seat_width"]),
+		"rider_bounds": rider_bounds, "rider_logical_scale": logical, "seat_width": seat_width, "host_seat_width": float(model["seat_width"]),
 		"seat": seat, "seat_angle": float(model["seat_angle"]), "mount_grips": mount_grips,
 		"visual_preview_only": true, "layer_order": ["far_rider", "dragon", "saddle", "near_rider"]}
 
@@ -73,10 +77,9 @@ static func image_for(row: Dictionary, spec: Dictionary, pose: String = "ground"
 	var cv := PixelCanvas.new(IMAGE_SIZE.x, IMAGE_SIZE.y)
 	if not bool(frame.get("valid", false)): return cv.to_image()
 	var rider: Dictionary = frame["rider_layers"]
-	var seat: Vector2 = frame["origin"] + frame["seat"] * float(frame["pixels_per_unit"])
 	var transform := Transform2D.IDENTITY
 	if bool(rider.get("ok", false)):
-		transform = MountedRiderArt.placement(rider, seat, float(frame["pixels_per_unit"]), float(frame["seat_angle"]))
+		transform = RiderFit.dragon_placement(frame["model"], rider, frame["origin"], float(frame["pixels_per_unit"]))
 		_blend(cv, rider["far"], transform)
 	var drawn: Dictionary = DragonArt.draw(cv, row, str(frame["pose"]), frame["origin"], float(frame["pixels_per_unit"]), progress, state)
 	if not bool(drawn.get("valid", false)): return PixelCanvas.new(IMAGE_SIZE.x, IMAGE_SIZE.y).to_image()
