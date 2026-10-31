@@ -6,8 +6,9 @@ extends RefCounted
 ##   carries off coin from the treasury and from common households, burns stored grain, kills some residents,
 ##   and leaves grievance behind: the town's loyalty to its own lord falls, its realm turns hostile.
 ## Siege: the army assaults the walls. Defenders hold their ground (they never leave the walls). If the army
-##   wins, the settlement swears to the player's realm: forces of that town change sides, the old realm becomes
-##   an enemy, and the conquered town starts resentful (low loyalty, high grievance) and can rebel later.
+##   wins, the settlement swears to the winner's realm: the old lord loses the seat, forces change sides, the
+##   conquering liege keeps the town or grants it, and the old realm becomes an enemy. A player conquest starts
+##   resentful (low loyalty, high grievance) unless a marriage claim makes it rightful.
 ## Every person, coin and piece of gear stays in the same native records as everywhere else.
 const NEAR := 90.0
 const RAID_COOLDOWN := 30
@@ -155,36 +156,49 @@ static func _plunder(game, tid: String) -> Dictionary:
 	return {"coin": gained, "grain_burned": burned, "killed": killed, "text": text}
 
 static func _conquer(game, tid: String) -> Dictionary:
+	return _apply_siege(game, tid, player_faction(game), true)
+
+## Ownership transfer for a won siege. The player assault records a conquest; an offscreen
+## victor does not. Loyalty stays 60/10 on the player's own marriage claim and 30/45 otherwise.
+## The liege's grant uses its own day counter, so this last_action stamp does not block it.
+static func _apply_siege(game, tid: String, winner_fid: String, record_conquest: bool = false) -> Dictionary:
 	var w: Dictionary = game.world
-	var town: Dictionary = w["towns"][tid]
-	var old := str(town["faction"])
-	var target := player_faction(game)
+	var town: Dictionary = w.get("towns", {}).get(tid, {})
+	if town.is_empty(): return {"text": "Unknown settlement."}
+	var old := str(town.get("faction", ""))
+	var target := winner_fid
 	if target == "" or target == old: return {"text": "%s is already yours." % town["name"]}
+	if not w.get("factions", {}).has(target): return {"text": "No realm can take %s." % town["name"]}
 	var was_capital := str(w["factions"].get(old, {}).get("capital", "")) == tid
 	town["faction"] = target
 	if town.has("econ") and town["econ"] is Dictionary: town["econ"]["faction"] = target
 	Feudal._transfer_forces(game, tid, old, target)
 	var row: Dictionary = Feudal._state(w)["towns"].get(tid, {})
-	var claimed := Marriage.has_claim(game, tid)
+	var claimed := target == player_faction(game) and Marriage.has_claim(game, tid)
 	if not row.is_empty():
 		row["loyalty"] = 60.0 if claimed else 30.0; row["grievance"] = 10.0 if claimed else 45.0
 		row["last_defection"] = int(game.day); row["last_action"] = int(game.day)
 	Feudal.prepare_world(game)
+	var handed := Feudal.after_conquest(game, tid, old, target)
 	Academy.sync_towns(w, old); Academy.sync_towns(w, target)
 	Diplomacy._push(w, old, target, -50.0)
 	if w.has("diplo"): w["diplo"]["size"] = {}
 	if w.has("war"): w["war"]["intel"] = {}; w["war"]["avg"] = {}
-	var st := _state(game)
-	st["conquests"].append({"town_id": tid, "day": int(game.day), "from": old})
+	if record_conquest:
+		var st := _state(game)
+		st["conquests"].append({"town_id": tid, "day": int(game.day), "from": old})
 	var text := "%s has fallen! It now swears to %s.%s %s" % [town["name"], CampaignWorld.faction_name(target),
 		" %s has lost its seat." % CampaignWorld.faction_the(old).capitalize() if was_capital else "",
 		"Your house's marriage claim makes the conquest a rightful one; the town accepts you." if claimed else "Its people resent the conquest."]
+	var holder := str(handed.get("holder_name", ""))
+	if holder != "": text += " %s holds it." % holder
 	Feudal._history(game, tid, text)
 	if w["factions"].get(old, {}).get("towns", []).is_empty():
 		var gone := "%s has no settlements left and is broken." % CampaignWorld.faction_the(old).capitalize()
 		CampaignWorld.log_event(game, gone)
 		text += " " + gone
-	return {"text": text, "from": old, "to": target}
+	if not record_conquest: game.changed.emit()
+	return {"text": text, "from": old, "to": target, "holder_uid": str(handed.get("holder_uid", ""))}
 
 ## Game.finish_battle hook: records the battle, settles a pending assault.
 static func after_battle(game, result: Dictionary, assault: Dictionary) -> void:   # assault = the pending battle

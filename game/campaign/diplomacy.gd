@@ -793,6 +793,7 @@ static func war_assault_arrives(game, wid: String) -> void:
 			if units.size() > 1:
 				fallen.append(units.pop_at(r.randi() % units.size()))
 		ArmsTrade.field(game, fallen, {"band": wb}, town["pos"])
+		Warfare._apply_siege(game, str(wb["target_town"]), str(wb["faction"]))
 	else:
 		add_war_losses(w, town["faction"], wb["faction"], mil / 4 + n / 2)
 		CampaignWorld.log_event(game, "The defenders of %s beat back %s." % [town["name"], CampaignWorld.faction_the(wb["faction"])])

@@ -94,6 +94,7 @@ func _refresh() -> void:
 	tree_view.build(data, ruler_uid)
 	body.add_child(tree_view)
 	body.add_child(_politics_strip())
+	body.add_child(_lordship_panel())
 	body.add_child(_plots_panel())
 	body.add_child(_prisoners_panel())
 
@@ -138,6 +139,52 @@ func _politics_strip() -> Control:
 		for e: Dictionary in st["betrothals"]: b.append("%s & %s" % [Marriage.me_name(Game, str(e["a"])), str(Dynasty.person(Game, str(e["b"])).get("name", "?"))])
 		box.add_child(UiKit.label("Betrothed: " + ", ".join(b), "Muted", true))
 	return box
+
+func _lordship_panel() -> Control:
+	var panel := UiKit.panel("Inset")
+	var box := UiKit.vbox(6)
+	panel.add_child(box)
+	box.add_child(UiKit.label("Conquered towns", "H2"))
+	var towns: Array = Feudal.lordship_towns(Game)
+	if towns.is_empty():
+		box.add_child(UiKit.label("No conquered town is waiting on your grant.", "Muted", true))
+		return panel
+	for row in towns:
+		var town_id := str(row["town_id"])
+		box.add_child(UiKit.label("%s — held by %s." % [row["town_name"], row["holder_name"]], "", true))
+		var line := UiKit.hbox(8)
+		box.add_child(line)
+		line.add_child(UiKit.button("Keep", _lordship_keep.bind(town_id), "Row", 90))
+		line.add_child(UiKit.button("Grant to house", _lordship_choices.bind(town_id, "house"), "Row", 170))
+		line.add_child(UiKit.button("Grant to vassal", _lordship_choices.bind(town_id, "vassal"), "Row", 180))
+		if not bool(row.get("kept", false)):
+			line.add_child(UiKit.button("Revoke", _lordship_revoke.bind(town_id), "Row", 100))
+	return panel
+
+func _lordship_keep(town_id: String) -> void:
+	notice = str(Feudal.keep_lordship(Game, town_id).get("reason", ""))
+	_refresh()
+
+func _lordship_revoke(town_id: String) -> void:
+	notice = str(Feudal.revoke_lordship(Game, town_id).get("reason", ""))
+	_refresh()
+
+func _lordship_choices(town_id: String, kind: String) -> void:
+	var people: Array = Feudal.lordship_candidates(Game, town_id, kind)
+	var title := "Grant to the house" if kind == "house" else "Grant to a loyal vassal"
+	var window := UiKit.modal(self, title, 720)
+	if people.is_empty(): window.add_child(UiKit.label("Nobody eligible.", "Muted", true))
+	for person in people:
+		var uid := str(person["person_uid"])
+		var label := str(person["name"])
+		if kind == "vassal": label = "%s (loyalty %d)" % [person["name"], int(round(float(person.get("loyalty", 0.0))))]
+		window.add_child(UiKit.button(label, _lordship_grant.bind(town_id, uid, window), "Row", 0))
+	window.add_child(UiKit.button("Close", func(): UiKit.close_modal(window), "Row", 120))
+
+func _lordship_grant(town_id: String, person_uid: String, window: Node) -> void:
+	notice = str(Feudal.grant_lordship(Game, town_id, person_uid).get("reason", ""))
+	UiKit.close_modal(window)
+	_refresh()
 
 func _plots_panel() -> Control:
 	var panel := UiKit.panel("Inset")
