@@ -362,6 +362,7 @@ static func plunder_cargo(game, win: Dictionary, car: Dictionary) -> void:
 		if not lit.is_legend():
 			continue
 		items.remove_at(i)
+		WorldAudit.book(game.world, "arms", "-legend out of caravan cargo", -1)   # v0.075: out of the wagons (a town that gets it books it made)
 		Legends.note(lit, float(game.day), "Taken from a plundered caravan by %s." % holder_name({"band": win}) if not Monsters.is_monster_band(win) else "Its caravan was overrun by beasts.")
 		if Monsters.is_monster_band(win):
 			_legend_found(game, lit, null, car["pos"])
@@ -375,7 +376,7 @@ static func plunder_cargo(game, win: Dictionary, car: Dictionary) -> void:
 		return
 	for i in keep:
 		var it: Item = items.pop_front()
-		ArmsTrade.armory(town).append(it)
+		ArmsTrade.armory(town).append(it)   # (wagons to an armory: both are counted holdings, nothing to book)
 		ArmsTrade.led("cargo_looted")
 
 ## The company's battle is over (CampaignWorld.on_battle_result, before the dead are filtered out): the AI winner

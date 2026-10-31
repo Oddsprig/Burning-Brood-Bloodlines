@@ -126,9 +126,11 @@ static func on_plunder(game, winner: Dictionary, caravan: Dictionary) -> void:
 	if l.is_empty():
 		return
 	var stock: Array = l["stock"]
-	for it in caravan.get("cargo", {}).get("items", []):
+	var cargo_items: Array = caravan.get("cargo", {}).get("items", [])
+	for it in cargo_items:
 		if stock.size() < STOCK_MAX or (it as Item).is_legend():   # v0.014: a legendary piece is always carried off
 			stock.append(it)
+	WorldAudit.book(game.world, "arms", "-carried off by outlaws", -cargo_items.size())   # v0.075: out of the wagons (camp or broken)
 	caravan["cargo"]["items"] = []
 
 ## Daily: garrison and gangs near the camp re-arm from the stock.

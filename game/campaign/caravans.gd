@@ -698,6 +698,18 @@ static func _consign_unpaid(game, wb: Dictionary) -> void:
 	wb["state"] = "home"
 	_finish_receipt(game, wb, "consigned")
 
+## v0.075: a caravan that never took the road (its muster raised nobody, or its band could not be made). Spawn had
+## already paid its purse out of the treasury and bought its cargo; dropping the record lost both (the world audit's
+## coin and goods). They come back the way a caravan whose crew would not sign on comes home (_come_home): the cargo
+## sells back to the home market, the purse goes back to the treasury; what the market cannot pay for goes into its
+## stock unpaid (_consign_unpaid), since there are no wagons left to wait. wb: the caravan record (or its spawn extra).
+static func unraised(game, wb: Dictionary) -> void:
+	if not wb.has("cargo"): return
+	wb["crew_home"] = true   # nobody signed on, nobody was kitted
+	if not wb.has("units"): wb["units"] = []
+	if not _come_home(game, wb):
+		_consign_unpaid(game, wb)
+
 ## Material adoption: merchants from a town that knows bronze better spread a little of it (more if they carry
 ## bronze gear). Never more than the origin knows.
 static func _carry_knowhow(origin: Dictionary, dest: Dictionary, cargo: Dictionary) -> void:
@@ -731,6 +743,7 @@ static func lost(game, wid: String, by_faction: String) -> void:
 		if (citems[i] as Item).is_legend():
 			var lit: Item = citems[i]
 			citems.remove_at(i)
+			WorldAudit.book(w, "arms", "-legend out of caravan cargo", -1)   # v0.075: out of the wagons (a town books it made)
 			ArmsTrade._legend_found(game, lit, null, wb["pos"])
 	ArmsTrade.field(game, (wb["units"] as Array).filter(func(u): return not u.equip.is_empty()), {}, wb["pos"])   # kit nobody took: left
 	_record_loss(wb, 1.0)
@@ -771,12 +784,14 @@ static func plunder(game, wid: String, witnesses: bool = false) -> Dictionary:
 			items.remove_at(i)
 			game.stash.append(lit)
 			took["items"].append(lit)
+			WorldAudit.book(w, "arms", "-plundered by the company", -1)   # v0.075: out of the wagons into the company's stash
 			Legends.note(lit, float(game.day), "Taken from a plundered caravan by your company.")
 	var keep_n := int(ceil(items.size() * PLUNDER_SHARE))
 	for i in items.size():
 		if i < keep_n:
 			game.stash.append(items[i])
 			took["items"].append(items[i])
+	WorldAudit.book(w, "arms", "-plundered by the company", -mini(keep_n, items.size()))   # (the rest is lost with the wagons)
 	var lg: Dictionary = TownEcon.goods_lost
 	lg["arms"] = int(lg.get("arms", 0)) + items.size() - keep_n
 	for g in cargo.get("goods", {}):

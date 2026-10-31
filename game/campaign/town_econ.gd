@@ -836,6 +836,7 @@ static func outfit_units(town: Dictionary, units: Array, share: float = 0.5, arm
 					got += 1
 				else:
 					(town["shop"] as Array).append(it)   # does not fit him: back on the stalls
+					if has_econ(town): led(town["econ"], "used", "arms", -1)   # v0.075: take_arms booked it used; it never left
 	if quivers:
 		BowsEcon.fill_quivers(town, units)   # bows: quivers from the town's arrows (shortfall ordered)
 	return got
