@@ -10,6 +10,9 @@
 	"trolls_giants_v071": [
 		"res://tests/test_trolls_giants_v071.gd"
 	],
+	"rider_fit_v072": [
+		"res://tests/test_rider_fit_v072.gd"
+	],
 	"mobile_v072": [
 		"res://tests/test_touch_ui_v072.gd",
 		"res://tests/test_battle_screen.gd",

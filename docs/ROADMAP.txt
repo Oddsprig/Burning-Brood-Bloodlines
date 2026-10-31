@@ -254,8 +254,8 @@ v0.024 breath - DELIVERED (Claude Edition).
 v0.025 campaign deployment - DELIVERED (Claude Edition): dragons march, feed from the army purse.
 v0.026 raid - DELIVERED (Claude Edition).
 v0.027 siege - DELIVERED (Claude Edition).
-v0.028 finish feudal consequences: fear of dragons.
-v0.029 equipment refits and balance: levies get armour.
+v0.028 finish feudal consequences: fear of dragons - DELIVERED.
+v0.029 equipment refits and balance: levies get armour - DELIVERED.
 v0.030 dynasty alliances and diplomacy - DELIVERED (Claude Edition).
 v0.031 army markers, slower travel and army objectives - DELIVERED (Claude Edition).
 v0.032 intrigue: plots, schemes and assassinations - DELIVERED (Claude Edition).
@@ -270,6 +270,7 @@ v0.040 broader settlement sim - DELIVERED (Claude Edition): town building projec
 v0.041 tactical battle systems - DELIVERED (Claude Edition): orders before each battle round (charge, hold, flank, skirmish, feint) with counters, terrain and commander skill.
 v0.042 balance pass - DELIVERED (Claude Edition): measured and tuned buildings (x10 cost), seasonal harvests so granaries matter, softer AI counter-picks and capped tactic edges.
 v0.043 economy pass - DELIVERED (Claude Edition): a labour market where people choose paid work, household spending, a treasure room, fixes so noble houses survive, and faster household turns.
+v0.044 structural file splits and a project map - DELIVERED (Claude Edition): nine large scripts were split into focused files, PROJECT_MAP.md was added, and a campaign day on this PC dropped from 673 ms to 493 ms.
 v0.045 town land market - DELIVERED (Claude Edition): farms short of wage money sell land to the town in one daily batch, and only families who want land and can afford it buy from the town once a day; household income step 137 to 44 ms per day.
 v0.046 faster campaign days - DELIVERED (Claude Edition): household lookups for court and upkeep use a cached index instead of scanning every family; household income step about 38% faster, a game day about 15% faster (529 to 451 ms paired on this PC).
 v0.047 trade on the map - DELIVERED (Claude Edition): a map toggle (grain, meat, metal) marks each town short, balanced or in surplus and draws caravans carrying that good along their roads; tapping opens the market or caravan records.
@@ -282,6 +283,7 @@ v0.053 delivered: The dragon roost. A Roost view on the dragon screen shows eggs
 v0.054 riders share the danger - DELIVERED (Claude Edition): when a dragon is brought down in flight, its rider can be wounded or killed, with the same fate when the same battle is replayed; the aftermath shows what happened to the rider.
 v0.055 clearer battles - DELIVERED (Claude Edition): terrain patterns, short combat cues and an on-screen legend make battles easier to read; these visual changes leave battle results unchanged.
 v0.056 horses - DELIVERED (Claude Edition): horses graze and breed in town herds, while officers and cavalry buy mounts and pay their upkeep in grain. Mounted fighters fight from horseback; horses can be killed, flee with their riders and return to the herd.
+v0.057 mobilization test and screen fit - DELIVERED (Claude Edition): the Relations world view no longer runs off the side of the screen, and the mobilization test matches that layout.
 v0.058 farm hands - DELIVERED (Claude Edition): a farm's wage ceiling now follows net sales (after grain tax, broker share and tribute) spread over the year's seasonal hands; hired hands keep their own hunger and sickness, owners' fields follow their staff, and a working mint keeper still casts after paid minters leave.
 v0.059 guard record fix - DELIVERED (Claude Edition): opening a unit's record page (a caravan guard's, a militiaman's) no longer adds an empty records list to the household it reads; record pages read the register without creating it, so cohort and older-save households stay as they were.
 v0.060 test fixes (Claude Edition): producer checks follow weekly labour-band wage bids and keep full-market fixtures stocked with equipment that is not recycled; migration conservation counts wage-paying business tills with a strict coin tolerance, and the deadliness format string is escaped.
@@ -290,9 +292,24 @@ v0.062 Mounted proportions, saddle & straddling riders (Claude Edition): recalib
 v0.063 2.5D shaded human rider, clothing & saddle (Claude Edition): normal-mapped 2.5D heightfield human base body, head/face/hair/beard, clothing (`tunic`, `robe`, `padded_jack`), armour (`cuirass`, `lamellar_cuirass`, `hauberk`, `scale_hauberk`, `plate_harness`), helms (`closed_helm`, `nasal_helm`, `kettle_hat`, `coif`) and mounted saddle/harness in `HumanArt` and `MountedRiderArt`.
 v0.064 All dragon colours & distinct breed silhouettes drawn in code + neck-base rider seat & wing-root fix (Claude Edition): all 16 dragon gem colours (`ruby`, `sapphire`, `black_diamond`, `emerald`, `amethyst`, `opal`, `topaz`, `garnet`, `jade`, `aquamarine`, `citrine`, `moonstone`, `pearl`, `onyx`, `diamond`, `tourmaline`) and all 6 distinct breed silhouettes (`spirewing`, `broadmantle`, `reedrunner`, `ironcrest`, `stormkeel`, `duskfin`) rendered in 2.5D normal-mapped 6-frame wingbeat code art with data-driven per-breed body, neck, head/horn, wing, tail and leg geometry (`SapphireSpirewingArt.BREEDS`); rooted wings further back on the dorsal body (`wing_roots_px`) and placed rider and saddle at the base of the neck (`seat_px` at `neck_root_px`, 12–16 px forward of `wing_roots_px["right"]`) with chest girth around the chest barrel.
 v0.065 Other humanoid races in the 2.5D shaded human style (Claude Edition): ported all seven non-human humanoid races (`dwarf`, `high_elf`, `moon_elf`, `dark_elf`, `orc`, `goblin`, `troll`) in `DwarfArt`, `ElfArt`, `OrcArt`, `GoblinArt` and `TrollArt` to the `PixelCanvas.ShadedLayer` 2.5D normal-mapped heightfield pipeline for body, head/face/hair/beard, limbs, clothing and armour while preserving each race's distinctive proportions, features, joint rig, wounds/severing, `MountedRiderArt` and portraits.
+v0.066 portrait eye placement, idle arms and the dragon forward-merge - folded into v0.065. Portrait sheets are under test-results/v0066. There is no separate code delivery.
+v0.067 front-facing bust portraits - DELIVERED (Claude Edition): 96 by 96 shaded front-facing busts for all eight races, across age and sex.
+v0.068 per-race portrait split - DELIVERED (Claude Edition): busts live in one script per race, and the human, dwarf, orc, goblin and troll busts were sculpted again.
+v0.069 elf and goblin portrait redraw - DELIVERED (Claude Edition): high elf, moon elf, dark elf and goblin busts were redrawn, and headless frame_post_draw no longer assumes a window.
 v0.070 measured combat balance (part A): seeded equal-cost race, troop and horse surveys, native roster round-robin, coarse campaign snapshots, data-only outlier tuning and a sub-minute regression gate. Method and evidence: docs/balance_v070.md.
+v0.070b cross-view identity - DELIVERED (Claude Edition): the same character stays the same person across the views that show them.
+v0.070c battle popup cleanup - DELIVERED (Claude Edition): leaving a battle mid-popup no longer leaves a banner tween running.
 v0.071 trolls and giants as rare on-foot families inside orc and goblin towns, not a sovereign troll den: per-family race, births, recruit traceability, no mounts or dragon riders, and old saves default to the town race. Plan: docs/plan_trolls_giants_families.md.
 v0.072 Android mobile port: touch controls (tap, drag pan, pinch zoom, long-press info), phone UI scaling and safe areas, back button / pause / autosave on background, mobile performance pass (60 FPS cap, 30 FPS battery saver), Android export preset.
+v0.073 rider fit and version tidy: this branch merges the mount-scaled rider fit and the payroll land-sale refresh skip, commits the v0.067-v0.071 uid sidecars, sets the project version, and fills the missing roadmap lines. Not marked delivered until the tests pass.
+v0.074 save and reload - planned. A whole-world save and reload round trip with zero drift.
+v0.075 money and stock - planned. A daily whole-world check that coins and counted goods are conserved.
+v0.076 old tests - planned. Fix test_dragon_care_release, test_dragon_release, test_dragon_care_ui (5 checks), the test_econ_army draft pool, and the test_dynasty_ui phone size.
+v0.077 ransom and upkeep - planned. Prisoners cost food and coin, and AI realms offer, demand and exchange ransoms.
+v0.078 conquered towns - planned. A conquered town's lord loses the seat; the liege grants or revokes it, and the AI does the same.
+v0.079 AI marriage and dragons - planned. AI houses marry across towns and realms, and AI warbands march adult bonded dragons.
+v0.080 high and dark elves - planned. Turn on the high elf and dark elf realms with their existing art, and check them in the v0.070 balance gate.
+v0.081 rider targeting - planned. Riders can be targeted during live battle ticks.
 Proposed next passes for 2.5D normal-mapped code-drawn humanoid units, clothing and armour (assessed in v0.062, scoped as three focused releases):
 - v0.063 Shared `ShadedLayer` 2.5D heightfield rasterizer & Human base body + clothing (`tunic`, `robe`, `padded_jack`, trousers/boots, hair/beard/face shading) with full `Paperdoll` / `MountedRiderArt` / `Portrait` cache parity.
 - v0.064 Code-drawn metallic/leather body armour, helms, shields & weapons (`cuirass`, `lamellar_cuirass`, `hauberk`, `scale_hauberk`, `plate_harness`, `closed_helm`, `nasal_helm`, `kettle_hat`, shields, material specular ramps for bronze/iron/steel).
