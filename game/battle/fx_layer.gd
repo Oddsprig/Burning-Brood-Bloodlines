@@ -28,9 +28,11 @@ func _process(delta: float) -> void:
 func _process_fx(delta: float) -> void:
 	if items.is_empty():
 		return
-	for it in items:
+	# v0.072: age and drop in place (no new array and lambda call per frame)
+	for i in range(items.size() - 1, -1, -1):
+		var it: Dictionary = items[i]
 		it["t"] += delta
-	items = items.filter(func(it): return it["t"] < LIFE)
+		if it["t"] >= LIFE: items.remove_at(i)
 	queue_redraw()
 
 func _draw() -> void:

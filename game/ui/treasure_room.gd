@@ -144,7 +144,7 @@ func _open_buy() -> void:
 	amount.max_value = 1000
 	amount.step = 1
 	amount.value = 1
-	amount.custom_minimum_size = Vector2(0, 48)
+	amount.custom_minimum_size = Vector2(0, UiKit.touch_min(48))
 	modal.add_child(amount)
 	var pick := {"id": str(Dragons.catalogs()["gems"][0]["id"])}
 	var gem_label := UiKit.label("Gem: " + _gem_name(str(pick["id"])), "", true)
