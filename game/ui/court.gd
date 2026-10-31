@@ -214,6 +214,10 @@ func _prisoners_panel() -> Control:
 	var panel := UiKit.panel("Inset")
 	var box := UiKit.vbox(6); panel.add_child(box)
 	box.add_child(UiKit.label("Prisoners", "H2"))
+	box.add_child(UiKit.label("Each prisoner costs %d meal and %d coin a day from the captor's army or town. The coin is paid into that town's market. If either is short, the prisoner is released. Nothing is invented." % [Prisoners.RATION, Prisoners.UPKEEP_COINS], "Muted", true))
+	var up: Dictionary = Prisoners.state(Game).get("upkeep", {})
+	if int(up.get("day", -1)) == int(Game.day):
+		box.add_child(UiKit.label("Today: fed %d (%d meals, %d coins). Released %d because stores ran out." % [int(up.get("fed", 0)), int(up.get("meals", 0)), int(up.get("coins", 0)), int(up.get("released", 0))], "Muted", true))
 	var held := Prisoners.held(Game)
 	var caps := Prisoners.captives(Game)
 	if held.is_empty() and caps.is_empty():
@@ -243,9 +247,26 @@ func _prisoner_line(r: Dictionary) -> String:
 
 func _open_prisoners(fid: String) -> void:
 	var v := UiKit.modal(self, "Prisoners: %s" % CampaignWorld.faction_name(fid), 980)
-	v.add_child(UiKit.label("Ransoms move real coin between your house purse and their house or realm. An exchange trades one for one: they give back no one worth more than the prisoner you return.", "Muted", true))
+	v.add_child(UiKit.label("Ransoms move real coin between your house purse and their house or realm. An exchange trades one for one: they give back no one worth more than the prisoner you return. They accept only when the coin or the trade is really there.", "Muted", true))
 	var sc := UiKit.scroll(); sc.custom_minimum_size = Vector2(0, 480); v.add_child(sc)
 	var rows := UiKit.vbox(8); rows.size_flags_horizontal = SIZE_EXPAND_FILL; sc.add_child(rows)
+	var offers: Array = Prisoners.offers(Game).filter(func(o): return str(o.get("fid", "")) == fid)
+	if not offers.is_empty():
+		rows.add_child(UiKit.label("Their offers", "H2"))
+		for offer: Dictionary in offers:
+			var kind := str(offer.get("kind", ""))
+			var ouid := int(offer.get("uid", -1))
+			var oother := int(offer.get("other", -1))
+			var line := UiKit.hbox(8); rows.add_child(line)
+			var l := UiKit.label(str(offer.get("text", "")), "", true); l.size_flags_horizontal = SIZE_EXPAND_FILL; line.add_child(l)
+			if kind == "demand":
+				line.add_child(UiKit.button("Accept", func(): _bargain(v, "pay", ouid), "Row", 120))
+			elif kind == "exchange":
+				line.add_child(UiKit.button("Accept", func(): _bargain(v, "exchange", ouid, oother), "Row", 120))
+			line.add_child(UiKit.button("Decline", func():
+				notice = str(Prisoners.decline(Game, ouid, kind).get("text", ""))
+				UiKit.close_modal(v)
+				_refresh(), "Row", 120))
 	var caps := Prisoners.captives(Game).filter(func(r): return str(r.get("held_by", "")) == fid)
 	var held := Prisoners.held(Game).filter(func(r): return str(r.get("faction", "")) == fid)
 	var seats := Prisoners.ruling(Game)
@@ -271,6 +292,8 @@ func _open_prisoners(fid: String) -> void:
 		var uid := int(r["uid"])
 		line.add_child(UiKit.button("Ransom", func(): _bargain(v, "ransom", uid), "Row", 130))
 		line.add_child(UiKit.button("Release", func(): _bargain(v, "release", uid), "Row", 130))
+		line.add_child(UiKit.button("Execute", func(): _bargain(v, "execute", uid), "Row", 120))
+		line.add_child(UiKit.button("Sell", func(): _bargain(v, "sell", uid), "Row", 100))
 	if held.size() > PRISONER_ROWS: rows.add_child(UiKit.label("and %d more" % (held.size() - PRISONER_ROWS), "Muted", true))
 	var footer := UiKit.hbox(8); v.add_child(footer)
 	if held.size() > 1:
@@ -282,7 +305,7 @@ func _open_prisoners(fid: String) -> void:
 ## Review one bargain, then confirm it.
 func _bargain(parent: Control, action: String, uid: int, other: int = -1) -> void:
 	var offer := Prisoners.preview(Game, action, uid, other)
-	var titles := {"ransom": "Ransom", "release": "Release", "pay": "Pay ransom", "exchange": "Exchange"}
+	var titles := {"ransom": "Ransom", "release": "Release", "pay": "Pay ransom", "exchange": "Exchange", "execute": "Execute", "sell": "Sell to slavers"}
 	var v := UiKit.modal(self, "%s: %s" % [titles.get(action, action), str(offer.get("name", "?"))], 720)
 	v.add_child(UiKit.label(str(offer.get("text", "")), "" if offer.get("ok", false) else "Muted", true))
 	var footer := UiKit.hbox(8); v.add_child(footer)

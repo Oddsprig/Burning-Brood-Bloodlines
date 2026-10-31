@@ -515,6 +515,8 @@ static func casualty_rec(game, tid: String, fid: int, uname: String, kind: Strin
 			e["adults"] = int(e["adults"]) - 1
 		_census_death(e, f, p, uname, day, fate, Families.people(f) < before)
 		var death_text := "%s was murdered." % uname if murdered else "%s died %s." % [uname, String(Backstory.data()["how"].get(role, "in battle"))]
+		if fate.size() > 0 and String(fate[0]) == "executed": death_text = "%s was executed in captivity." % uname
+		elif fate.size() > 0 and String(fate[0]) == "sold": death_text = "%s was sold to slavers." % uname
 		Families.add_hist(f, death_text, day)
 		Families.event(f, "died", [uname, role, ("f" if not p.is_empty() and int(p[2]) == 1 else ("f" if s == "f" else "m"))], day)
 		Families.reassign(e, f)

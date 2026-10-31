@@ -323,3 +323,22 @@ V0.035 CREATURE REVIEW (2026-10-17, cloud session)
 - Tests: claude_creatures_v035.gd (headless) and claude_creatures_ui_v035.gd
   (display) start from DevTools.start_world(..., creatures = true), a second
   saved start world. The other main checks keep the creature-free start world.
+
+V0.077 PRISONER UPKEEP AND AI RANSOM
+- Each living prisoner costs one meal and one coin a day. The meal comes from
+  the holding army's stores, or else the holding town (market shelf, then
+  granary, then barn). The coin leaves the captor (your house purse, or their
+  realm treasury) and enters that town's market till. If the meal, the coin, or
+  the till is missing, that prisoner is released and nothing is invented.
+  Someone already dead is not fed, so a death day does not spend and its log
+  line stays last.
+- After ten days, a realm makes one bargain a day: a fair one-for-one exchange,
+  else a ransom of the dearest kin it can pay, else a demand for someone it
+  holds. It accepts your ransom, payment, or fair exchange only when the coin
+  or the trade is really there. Declining a demand leaves the captive.
+- Execute and Sell are on the Court prisoner list. Execution lowers standing
+  by one per head and stops after ten heads that day. A sale is paid by the
+  richest realm that does not oppose slavery and is neither yours nor the
+  prisoner's; realms that oppose slavery lose standing. Coin is only moved.
+- Test (not run here): game/tests/test_ransom_upkeep_v077.gd, block
+  ransom_upkeep_v077. The v0.033 prisoner checks are unchanged.

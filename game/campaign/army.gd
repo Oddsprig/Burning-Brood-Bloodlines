@@ -303,6 +303,8 @@ static func release(game, u: Unit, why: String, force: String = "") -> void:
 		Families.add_hist(f, "%s came home from %s, unpaid." % [u.name, force], float(game.day))
 	elif why in ["ransomed", "released", "exchanged"]:   # v0.033 (campaign/prisoners.gd)
 		Families.add_hist(f, "%s came home, %s from captivity." % [u.name, why], float(game.day))
+	elif why == "unfed":   # v0.077: the captor's stores ran out
+		Families.add_hist(f, "%s came home, set free when their captor's stores ran out." % u.name, float(game.day))
 	else:
 		Families.add_hist(f, "%s came home after a lost fight." % u.name, float(game.day))
 
