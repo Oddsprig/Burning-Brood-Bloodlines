@@ -553,11 +553,12 @@ static func _heads_any(game, person_uid: String) -> bool:
 		if str(town.get("econ", {}).get("head", {}).get("person_uid", "")) == person_uid: return true
 	return false
 
-static func _house_adults(game, house_uid: String) -> Array:
+static func _house_adults(game, house_uid: String, faction: String = "") -> Array:
 	var out := []
-	if house_uid == "": return out
+	if house_uid == "" or faction == "": return out
 	var day := float(game.day)
 	for town in game.world.get("towns", {}).values():
+		if str(town.get("faction", "")) != faction: continue
 		var e: Dictionary = town.get("econ", {})
 		for f in e.get("fams", []):
 			if f.get("estate", false) or f.get("gone", false): continue
@@ -587,7 +588,10 @@ static func _loyal_vassals(game, town_id: String) -> Array:
 		var uid := _head_uid(game, tid)
 		var loc := Dynasty._person(game, uid)
 		if loc.is_empty(): continue
-		out.append({"person_uid": uid, "name": str(Dynasty.town_office(game, tid).get("name", "vassal")), "loyalty": float(row["loyalty"]), "age": Persons.age_of(loc["person"], float(game.day))})
+		if not Dynasty._living(game, str(loc["town"].get("id", "")), loc["family"], loc["person"]): continue
+		var age := Persons.age_of(loc["person"], float(game.day))
+		if age < int(People.ages(Persons.race_of(loc["econ"]))["adult"]): continue
+		out.append({"person_uid": uid, "name": str(Dynasty.town_office(game, tid).get("name", "vassal")), "loyalty": float(row["loyalty"]), "age": age})
 	out.sort_custom(func(a, b):
 		if float(a["loyalty"]) != float(b["loyalty"]): return float(a["loyalty"]) > float(b["loyalty"])
 		return str(a["person_uid"]) < str(b["person_uid"]))
@@ -596,7 +600,8 @@ static func _loyal_vassals(game, town_id: String) -> Array:
 static func lordship_candidates(game, town_id: String, kind: String) -> Array:
 	var liege := _sovereign_uid(game, town_id)
 	var current := _head_uid(game, town_id)
-	var rows: Array = _loyal_vassals(game, town_id) if kind == "vassal" else _house_adults(game, _liege_house(game, town_id))
+	var faction := str(game.world.get("towns", {}).get(town_id, {}).get("faction", ""))
+	var rows: Array = _loyal_vassals(game, town_id) if kind == "vassal" else _house_adults(game, _liege_house(game, town_id), faction)
 	var out := []
 	for row in rows:
 		var uid := str(row["person_uid"])
@@ -606,9 +611,12 @@ static func lordship_candidates(game, town_id: String, kind: String) -> Array:
 
 static func _ai_pick(game, town_id: String, liege_uid: String) -> String:
 	var seated := _seated(game)
-	for row in _house_adults(game, _liege_house(game, town_id)):
+	var faction := str(game.world.get("towns", {}).get(town_id, {}).get("faction", ""))
+	for row in _house_adults(game, _liege_house(game, town_id), faction):
 		var uid := str(row["person_uid"])
 		if uid != "" and uid != liege_uid and not seated.has(uid): return uid
+	# A loyal vassal already holds another town. Dynasty.appoint writes only this
+	# town's head, so that other town keeps its lord.
 	var vassals := _loyal_vassals(game, town_id)
 	if not vassals.is_empty(): return str(vassals[0]["person_uid"])
 	return liege_uid
@@ -651,7 +659,8 @@ static func grant_lordship(game, town_id: String, person_uid: String) -> Diction
 	if Persons.age_of(loc["person"], float(game.day)) < int(People.ages(Persons.race_of(loc["econ"]))["adult"]):
 		return _result(false, "Only an adult can hold this town.")
 	var allowed := false
-	for row_p in _house_adults(game, _liege_house(game, town_id)) + _loyal_vassals(game, town_id):
+	var faction := str(town.get("faction", ""))
+	for row_p in _house_adults(game, _liege_house(game, town_id), faction) + _loyal_vassals(game, town_id):
 		if str(row_p["person_uid"]) == person_uid: allowed = true; break
 	if not allowed: return _result(false, "Grant the town to an adult of your house or a loyal vassal.")
 	if _head_uid(game, town_id) == person_uid: return _result(false, "They already hold this town.")
@@ -697,13 +706,21 @@ static func after_conquest(game, tid: String, old_fid: String, winner_fid: Strin
 	row["conquered_from"] = old_fid
 	var liege := _sovereign_uid(game, tid)
 	var holder := liege
+	var seated := false
 	if _player_is_sovereign(game, winner_fid):
-		if liege != "" and liege != old_uid: Dynasty.appoint(game, tid, liege)
+		seated = _seat_holder(game, tid, liege, old_uid)
+		if not seated:
+			return _seat_failed(game, tid, old_uid, "The liege could not take the seat.")
 		_history(game, tid, "%s is yours to keep or grant." % town.get("name", tid))
 	else:
 		holder = _ai_pick(game, tid, liege)
 		if holder == "": holder = liege
-		if holder != "" and holder != old_uid: Dynasty.appoint(game, tid, holder)
+		seated = _seat_holder(game, tid, holder, old_uid)
+		if not seated and holder != liege:
+			holder = liege
+			seated = _seat_holder(game, tid, liege, old_uid)
+		if not seated:
+			return _seat_failed(game, tid, old_uid, "No lord could be seated.")
 		if holder != "" and holder != liege: _apply_grant_delta(row, false)
 		var who := str(Dynasty.town_office(game, tid).get("name", "the liege"))
 		_history(game, tid, ("%s grants the seat to %s." % [town.get("name", tid), who]) if holder != liege else ("%s stays with the liege." % town.get("name", tid)))
@@ -714,11 +731,28 @@ static func after_conquest(game, tid: String, old_fid: String, winner_fid: Strin
 	return {"ok": true, "reason": "Lordship settled.", "cost": 0.0, "holder_uid": str(office.get("person_uid", "")),
 		"holder_name": str(office.get("name", "")), "disposition": disposition}
 
+## True only when this town's head is holder. The liege may already be that head.
+## Anyone else must be appointed, and a false return leaves the old lord seated.
+static func _seat_holder(game, tid: String, holder: String, old_uid: String) -> bool:
+	if holder == "": return false
+	if holder == old_uid:
+		return holder == _sovereign_uid(game, tid) and _head_uid(game, tid) == holder
+	if not Dynasty.appoint(game, tid, holder): return false
+	return _head_uid(game, tid) == holder
+
+static func _seat_failed(game, tid: String, old_uid: String, reason: String) -> Dictionary:
+	var town: Dictionary = game.world.get("towns", {}).get(tid, {})
+	_history(game, tid, "%s keeps its old lord; the new seat could not be filled." % town.get("name", tid))
+	var office := Dynasty.town_office(game, tid)
+	return {"ok": false, "reason": reason, "cost": 0.0, "holder_uid": str(office.get("person_uid", old_uid)),
+		"holder_name": "", "disposition": ""}
+
 static func _dispose_conquered_lord(game, tid: String, old_uid: String, old_fid: String) -> String:
 	if _heads_any(game, old_uid): return "still seated"
 	var loc := Dynasty._person(game, old_uid)
 	if loc.is_empty(): return "gone"
 	var unit = Dynasty.bound_unit(game, Dynasty._row(loc, float(game.day)))
+	# A prisoner loses the seat only. The household keeps its land, herd and businesses.
 	if unit is Unit and not (unit as Unit).dead:
 		_take_ruler_prisoner(game, loc, unit as Unit, old_fid)
 		return "captive"
@@ -777,23 +811,73 @@ static func _exile_lord(game, loc: Dictionary, old_fid: String) -> bool:
 	if not _exile_ready(from, family) or not _exile_ready(dest, family): return false
 	return not Barge.move_family(game, from, family, dest, "war", float(game.day)).is_empty()
 
+## A stayed lord who cannot be exiled stops collecting dues in the lost town.
+## Land, herds and businesses go to the town estate. Counts are rounded to the
+## nearest whole unit first: move_land and move_herd take ints, and int() would
+## drop a fraction and then erase the key. A captive's household is not seized.
 static func _make_landless(game, loc: Dictionary) -> String:
 	var f: Dictionary = loc["family"]
 	if not (f.has("land") and f.has("herd") and f.has("owns")): return "unseated"
 	var e: Dictionary = loc["econ"]
-	if Families.acres(f) > 0:
-		var fams: Array = e.get("fams", [])
-		var estate: Dictionary = fams[0] if not fams.is_empty() else {}
-		if e.has("wacres") and e.has("cum") and not estate.is_empty() and estate != f and bool(estate.get("estate", false)):
-			for crop in f["land"].keys():
-				Families.move_land(e, f, estate, str(crop), int(f["land"][crop]))
-			return "landless"
-		return "still landed"
-	if Families.acres(f) == 0 and Families.heads(f) == 0 and (f.get("owns", []) as Array).is_empty():
+	if _has_dues(f):
+		if not _release_dues(e, f): return "still landed"
+		if _has_dues(f): return "still landed"
+	if not _has_dues(f):
 		f["ruined"] = true
 		Families.add_hist(f, "Ruined: landless labourers now.", float(game.day))
 		return "landless"
 	return "unseated"
+
+static func _has_dues(f: Dictionary) -> bool:
+	for crop in f.get("land", {}).keys():
+		if absf(float(f["land"][crop])) > 0.0001: return true
+	for animal in f.get("herd", {}).keys():
+		if absf(float(f["herd"][animal])) > 0.0001: return true
+	return not (f.get("owns", []) as Array).is_empty()
+
+static func _whole_count(value) -> int:
+	return int(round(float(value)))
+
+static func _release_dues(e: Dictionary, f: Dictionary) -> bool:
+	var fams: Array = e.get("fams", [])
+	var estate: Dictionary = fams[0] if not fams.is_empty() else {}
+	var estate_ok := e.has("wacres") and e.has("cum") and not estate.is_empty() and estate != f and bool(estate.get("estate", false))
+	if _land_or_herd(f) and not estate_ok: return false
+	if _land_or_herd(f) and not e.has("wherd") and _herd_dues(f): return false
+	if not (f.get("owns", []) as Array).is_empty() and not e.has("biz"): return false
+	if estate_ok:
+		for crop in f["land"].keys().duplicate():
+			var whole := _whole_count(f["land"][crop])
+			f["land"][crop] = whole
+			if whole > 0: Families.move_land(e, f, estate, str(crop), whole)
+			if f["land"].has(crop): f["land"].erase(crop)
+		if e.has("wherd"):
+			for animal in f["herd"].keys().duplicate():
+				var heads := _whole_count(f["herd"][animal])
+				f["herd"][animal] = heads
+				if heads > 0: Families.move_herd(e, f, estate, str(animal), heads)
+				if f["herd"].has(animal): f["herd"].erase(animal)
+	if e.has("biz"):
+		var left: Array = []
+		var biz: Array = e["biz"]
+		for bid in (f.get("owns", []) as Array).duplicate():
+			var i := int(bid)
+			if i < 0 or i >= biz.size():
+				left.append(bid)
+				continue
+			Businesses.town_inherits(biz[i])
+		f["owns"] = left
+	return true
+
+static func _land_or_herd(f: Dictionary) -> bool:
+	for crop in f.get("land", {}).keys():
+		if absf(float(f["land"][crop])) > 0.0001: return true
+	return _herd_dues(f)
+
+static func _herd_dues(f: Dictionary) -> bool:
+	for animal in f.get("herd", {}).keys():
+		if absf(float(f["herd"][animal])) > 0.0001: return true
+	return false
 
 
 

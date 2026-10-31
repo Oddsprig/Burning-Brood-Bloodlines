@@ -114,6 +114,33 @@ func ai_vassals() -> void:
 	Warfare._apply_siege(Game, "village", "moon_court")
 	check(head("village") == vassal and head("village") != liege, "an AI conqueror grants to the most loyal vassal when no adult of the house is free")
 
+func child_vassal() -> void:
+	native.fixture()
+	Game.world["towns"]["county"]["faction"] = "moon_court"
+	Game.world["towns"]["county"]["econ"]["faction"] = "moon_court"
+	Feudal.prepare_world(Game)
+	var e: Dictionary = Game.world["towns"]["county"]["econ"]
+	var ruler: Array = e["fams"][0]["pp"][0]
+	var adult := adult_of(e)
+	ruler[3] = -int((adult - 1) * People.year_days())
+	ruler[6] = 2
+	Game.world["feudal"]["towns"]["county"]["loyalty"] = 80.0
+	var liege := head("foreign")
+	var child := head("county")
+	Warfare._apply_siege(Game, "village", "moon_court")
+	check(head("village") == liege and head("village") != child and head("county") == child and is_equal_approx(loyalty("village"), 30.0), "a child vassal is never granted the conquered town")
+
+func failed_appoint() -> void:
+	native.fixture()
+	Game.world["towns"]["village"]["faction"] = "moon_court"
+	Game.world["towns"]["village"]["econ"]["faction"] = "moon_court"
+	Feudal.prepare_world(Game)
+	var old := head("village")
+	Game.world["towns"]["foreign"]["econ"]["fams"][0]["pp"] = []
+	var before_l := loyalty("village")
+	var result: Dictionary = Feudal.after_conquest(Game, "village", "middle_kingdom", "moon_court")
+	check(result.get("ok", true) == false and head("village") == old and str(result.get("holder_uid", "")) == old and is_equal_approx(loyalty("village"), before_l), "a failed appoint does not report success")
+
 func prisoner() -> void:
 	native.fixture()
 	var town: Dictionary = Game.world["towns"]["foreign"]
@@ -146,6 +173,8 @@ func run(_tree: SceneTree) -> int:
 	outside_authority()
 	ai_child()
 	ai_vassals()
+	child_vassal()
+	failed_appoint()
 	prisoner()
 	print("Conquered towns v0.078: %d checks, %d failures" % [checks, fails])
 	return fails
