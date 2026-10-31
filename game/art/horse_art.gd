@@ -31,6 +31,15 @@ static func seat(animation: String, index: int) -> Vector2:
 	# Mid-back saddle hollow just behind the withers (x=44.5), over the front legs.
 	return Vector2(37.5, 25.5 + bob(animation, index)) - ANCHOR
 
+static func dorsal_y(animation: String, index: int) -> float:
+	return 25.5 + bob(animation, index)
+
+static func withers_px(animation: String, index: int) -> float:
+	return ANCHOR.y - dorsal_y(animation, index)
+
+static func back_anchor(animation: String, index: int) -> Vector2:
+	return seat(animation, index)
+
 static func _draw_foreleg(sh: PixelCanvas.ShadedLayer, cv: PixelCanvas, m_coat: int, m_hoof: int, origin: Vector2, k_off: Vector2, f_off: Vector2, fall: bool) -> void:
 	var knee := origin + Vector2(k_off.x, 11.5 + k_off.y)
 	var fetlock := origin + Vector2(f_off.x, 19.5 + f_off.y)
