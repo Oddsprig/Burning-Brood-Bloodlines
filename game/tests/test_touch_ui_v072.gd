@@ -151,8 +151,8 @@ func run(tree: SceneTree) -> int:
 	var mobile_btn := UiKit.button("Test", func(): pass)
 	var mobile_h := mobile_btn.custom_minimum_size.y
 	mobile_btn.free()
-	check(mobile_fs == UiTheme.MOBILE_FONT_SIZE and mobile_fs > desktop_fs, "mobile theme raises base font size (%d > %d)" % [mobile_fs, desktop_fs])
-	check(mobile_h >= 56 and mobile_h > desktop_h, "mobile button min height raised (%d > %d)" % [int(mobile_h), int(desktop_h)])
+	check(mobile_fs == UiTheme.MOBILE_FONT_SIZE and mobile_fs >= 30 and mobile_fs > desktop_fs, "mobile theme raises base font size (%d > %d)" % [mobile_fs, desktop_fs])
+	check(int(mobile_h) == UiKit.MOBILE_TAP and mobile_h >= 96 and mobile_h > desktop_h, "mobile button min height raised (%d > %d)" % [int(mobile_h), int(desktop_h)])
 
 	UiKit.set_safe_area_override(Rect2i(72, 24, 1456, 840))
 	var screen := Control.new()

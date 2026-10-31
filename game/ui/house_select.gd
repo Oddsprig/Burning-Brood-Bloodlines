@@ -74,7 +74,7 @@ func _ready() -> void:
 	role_label = UiKit.label("","Small",true); role_label.name = "SelectedHouseRole"; words.add_child(role_label)
 	purse_label = UiKit.label("","Small",true); purse_label.name = "SelectedHousePurse"; words.add_child(purse_label)
 	_side_card = _card(workspace)
-	search = LineEdit.new(); search.name = "OnboardingSearch"; search.custom_minimum_size.y = 48
+	search = LineEdit.new(); search.name = "OnboardingSearch"; search.custom_minimum_size.y = UiKit.touch_min(48)
 	search.text_changed.connect(func(_text): page_index = 0; _refresh_list())
 	# List pages sit beside the search box, away from the step's Continue button.
 	var top_row := UiKit.hbox(8); _side_card.add_child(top_row)
@@ -205,7 +205,7 @@ func _build_customization() -> void:
 	editor.add_child(UiKit.label("Customize House","H2",true))
 	editor.add_child(UiKit.label("Keep your household, people, property and role. Choose how your house is displayed.","Small",true))
 	editor.add_child(UiKit.label("House name","Small"))
-	name_input = LineEdit.new(); name_input.name = "HouseDisplayName"; name_input.max_length = 40; name_input.custom_minimum_size.y = 48
+	name_input = LineEdit.new(); name_input.name = "HouseDisplayName"; name_input.max_length = 40; name_input.custom_minimum_size.y = UiKit.touch_min(48)
 	name_input.text = String(custom.get("display_name","")); editor.add_child(name_input)
 	name_input.text_changed.connect(func(value): update_customization({"display_name":value}))
 	emblem_input = _picker("Emblem",HouseOnboarding.EMBLEMS.map(func(value): return String(value).capitalize()))
@@ -217,7 +217,7 @@ func _build_customization() -> void:
 
 func _picker(title: String, choices: Array) -> OptionButton:
 	editor.add_child(UiKit.label(title,"Small"))
-	var button := OptionButton.new(); button.custom_minimum_size.y = 48; button.size_flags_horizontal = SIZE_EXPAND_FILL
+	var button := OptionButton.new(); button.custom_minimum_size.y = UiKit.touch_min(48); button.size_flags_horizontal = SIZE_EXPAND_FILL
 	for choice in choices: button.add_item(String(choice))
 	editor.add_child(button)
 	return button
@@ -396,7 +396,7 @@ func _build_design() -> void:
 	design_portrait = Portrait.new(); design_portrait.name = "DesignPortrait"; design_portrait.custom_minimum_size = Vector2(96,112)
 	editor.add_child(design_portrait)
 	editor.add_child(UiKit.label("First name","Small"))
-	design_name = LineEdit.new(); design_name.name = "DesignFirstName"; design_name.max_length = 20; design_name.custom_minimum_size.y = 48
+	design_name = LineEdit.new(); design_name.name = "DesignFirstName"; design_name.max_length = 20; design_name.custom_minimum_size.y = UiKit.touch_min(48)
 	design_name.text = String((custom["design"] as Dictionary).get("first_name",""))
 	editor.add_child(design_name)
 	design_name.text_changed.connect(func(_value): _apply_design_state())
@@ -407,7 +407,7 @@ func _build_design() -> void:
 		_select_design_value(button,String(key),look.get(key,null))
 		button.item_selected.connect(func(_index): _apply_design_state())
 	editor.add_child(UiKit.label("Focus","Small"))
-	design_focus = OptionButton.new(); design_focus.name = "DesignFocus"; design_focus.custom_minimum_size.y = 48
+	design_focus = OptionButton.new(); design_focus.name = "DesignFocus"; design_focus.custom_minimum_size.y = UiKit.touch_min(48)
 	design_focus.size_flags_horizontal = SIZE_EXPAND_FILL
 	var focus_values: Array = []
 	for item in opts.get("focuses",[]):
@@ -424,7 +424,7 @@ func _build_design() -> void:
 
 func _design_picker(key: String, items: Array) -> OptionButton:
 	editor.add_child(UiKit.label(key.capitalize(),"Small"))
-	var button := OptionButton.new(); button.name = "DesignPick_"+key; button.custom_minimum_size.y = 48
+	var button := OptionButton.new(); button.name = "DesignPick_"+key; button.custom_minimum_size.y = UiKit.touch_min(48)
 	button.size_flags_horizontal = SIZE_EXPAND_FILL
 	var values: Array = []
 	for item in items:

@@ -442,7 +442,7 @@ func _button(text: String, cb: Callable) -> Button:
 	b.text = text
 	var min_h := float(UiKit.MOBILE_TAP) if UiTheme.is_mobile() else 48.0   # desktop keeps its 48 px map buttons
 	b.custom_minimum_size = Vector2(maxf(64.0, min_h), min_h)
-	b.add_theme_font_size_override("font_size", 20 if UiTheme.is_mobile() else 18)
+	b.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE if UiTheme.is_mobile() else 18)
 	b.focus_mode = Control.FOCUS_NONE
 	b.pressed.connect(cb)
 	return b
@@ -566,10 +566,10 @@ func _build_hud() -> void:
 	var eb := UiKit.flow(8)
 	ev.add_child(eb)
 	enc_fight = _button("Fight", _on_fight)
-	enc_fight.custom_minimum_size = Vector2(110, 52)
+	enc_fight.custom_minimum_size = Vector2(UiKit.touch_min(110), UiKit.touch_min(52))
 	eb.add_child(enc_fight)
 	var flee := _button("Retreat", _on_retreat)
-	flee.custom_minimum_size = Vector2(110, 52)
+	flee.custom_minimum_size = Vector2(UiKit.touch_min(110), UiKit.touch_min(52))
 	eb.add_child(flee)
 	modal_host = Control.new()
 	modal_host.set_anchors_preset(Control.PRESET_FULL_RECT)

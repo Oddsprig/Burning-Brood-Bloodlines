@@ -69,7 +69,7 @@ func _ready() -> void:
 	slider.step = 1
 	slider.value = span_index(history_days)
 	slider.tooltip_text = "1–30 days · 60 and 90 days · 1–100 years"
-	slider.custom_minimum_size = Vector2(80, UiKit.TAP)
+	slider.custom_minimum_size = Vector2(80, UiKit.tap_height())
 	slider.focus_mode = Control.FOCUS_NONE
 	UiKit.expand(slider)
 	slider.value_changed.connect(func(x: float): _set_days(span_days(int(x))))
@@ -94,7 +94,7 @@ func _ready() -> void:
 	steppe_check.text = "Steppe peoples (the Dust-Wind Khanate)"
 	steppe_check.tooltip_text = "Off: the south-east is settled by the Warrens instead; no steppe houses or towns."
 	steppe_check.button_pressed = bool(Game.settings.get("steppe_enabled", false))
-	steppe_check.custom_minimum_size = Vector2(80, UiKit.TAP)
+	steppe_check.custom_minimum_size = Vector2(80, UiKit.tap_height())
 	steppe_check.focus_mode = Control.FOCUS_NONE
 	v.add_child(steppe_check)
 	creatures_check = CheckButton.new()
@@ -102,7 +102,7 @@ func _ready() -> void:
 	creatures_check.text = "Creatures and lairs (wolves, bears and worse roam the wilds)"
 	creatures_check.tooltip_text = "On: creature lairs and roaming packs on the map; they fight your army, towns' militia and travellers. Off: no creatures."
 	creatures_check.button_pressed = bool(Game.settings.get("creatures_enabled", true))
-	creatures_check.custom_minimum_size = Vector2(80, UiKit.TAP)
+	creatures_check.custom_minimum_size = Vector2(80, UiKit.tap_height())
 	creatures_check.focus_mode = Control.FOCUS_NONE
 	v.add_child(creatures_check)
 	var cap_row := UiKit.hbox(10); v.add_child(cap_row)
@@ -112,7 +112,7 @@ func _ready() -> void:
 	cap_l.mouse_filter = Control.MOUSE_FILTER_PASS
 	cap_row.add_child(cap_l)
 	house_cap_spin = SpinBox.new(); house_cap_spin.min_value = 0; house_cap_spin.max_value = 5000; house_cap_spin.step = 10
-	house_cap_spin.value = int(Game.settings.get("house_cap", 0)); house_cap_spin.custom_minimum_size = Vector2(140, UiKit.TAP)
+	house_cap_spin.value = int(Game.settings.get("house_cap", 0)); house_cap_spin.custom_minimum_size = Vector2(140, UiKit.tap_height())
 	cap_row.add_child(house_cap_spin)
 	# ------------------------------------------------------------------ sickness (v0.034)
 	v.add_child(UiKit.label("Sickness", "H2"))
@@ -126,7 +126,7 @@ func _ready() -> void:
 	var chosen := Sickness.DEADLINESS_STEPS.find(float(Game.settings.get("sickness_deadliness", 1.0)))
 	sick_slider.value = chosen if chosen >= 0 else Sickness.DEADLINESS_STEPS.find(1.0)
 	sick_slider.tooltip_text = "How deadly sickness is: each sick person's daily risk of dying x this. How often people fall sick does not change."
-	sick_slider.custom_minimum_size = Vector2(80, UiKit.TAP)
+	sick_slider.custom_minimum_size = Vector2(80, UiKit.tap_height())
 	sick_slider.focus_mode = Control.FOCUS_NONE
 	UiKit.expand(sick_slider)
 	sick_slider.value_changed.connect(func(_x: float): _sick_text())
@@ -137,7 +137,7 @@ func _ready() -> void:
 	est = UiKit.label("", "", true)
 	v.add_child(est)
 	var go := UiKit.button("Create world", _begin, "", 0)
-	go.custom_minimum_size.y = 64
+	go.custom_minimum_size.y = UiKit.touch_min(64)
 	v.add_child(go)
 	_refresh()
 

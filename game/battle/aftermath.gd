@@ -54,7 +54,7 @@ func _ready() -> void:
 	for key: String in SECTIONS: _build_section(content, key, tabs)
 	continue_button = UiKit.button("Continue", func(): Game.goto("map"), "", 180)
 	continue_button.name = "ResultsContinue"
-	continue_button.add_theme_font_size_override("font_size", 22)
+	continue_button.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE if UiTheme.is_mobile() else 22)
 	continue_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	frame.add_child(continue_button)
 	resized.connect(_layout)
@@ -157,8 +157,8 @@ func _build_section(parent: Control, key: String, tabs: Control) -> void:
 	parent.add_child(box)
 	var title: String = {"fallen": "Fallen", "wounded": "Wounded · status & recovery", "lessons": "Lessons learned", "loot": "Loot & supplies", "log": "Combat log"}[key]
 	var toggle := UiKit.button(title + "  ▶", func(): toggle_section(key), "Tab", 0)
-	toggle.add_theme_font_size_override("font_size", 20)
-	toggle.custom_minimum_size.y = 48
+	toggle.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE if UiTheme.is_mobile() else 20)
+	toggle.custom_minimum_size.y = UiKit.touch_min(48)
 	toggle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	toggle.name = key.capitalize() + "Toggle"
 	tabs.add_child(toggle)

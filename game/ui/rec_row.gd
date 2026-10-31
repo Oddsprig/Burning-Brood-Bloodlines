@@ -6,6 +6,9 @@ extends Button
 var lines: Array[TextLine] = []
 var right_width := 0.0
 var right_color := UiTheme.INK
+var _row_a := 4.0
+var _row_b := 28.0
+var _slot := 24.0
 
 func set_content(left: String, right: String, details: String, col: Variant) -> void:
 	set_meta("rec_row", [left, right, details])
@@ -13,11 +16,17 @@ func set_content(left: String, right: String, details: String, col: Variant) -> 
 	accessibility_name = (left + " " + right).strip_edges()
 	accessibility_description = details
 	right_color = UiTheme.readable(col if col is Color else UiTheme.INK)
+	var mobile := UiTheme.is_mobile()
+	var primary := UiTheme.MOBILE_FONT_SIZE if mobile else UiTheme.FONT_SIZE
+	var detail_size := 26 if mobile else 18
+	_slot = 40.0 if mobile else 24.0
+	_row_a = 8.0 if mobile else 4.0
+	_row_b = 52.0 if mobile else 28.0
 	for value in [left, right, details]:
 		var line := TextLine.new()
 		line.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		line.add_string(value, UiTheme.bold() if lines.size() < 2 else UiTheme.regular_font(),
-			UiTheme.FONT_SIZE if lines.size() < 2 else 18)
+			primary if lines.size() < 2 else detail_size)
 		lines.append(line)
 	right_width = lines[1].get_line_width() + 6.0 if right != "" else 0.0
 	resized.connect(_fit_lines)
@@ -36,6 +45,6 @@ func _fit_lines() -> void:
 func _draw() -> void:
 	if lines.is_empty(): return
 	var canvas := get_canvas_item()
-	lines[0].draw(canvas, Vector2(12.0, 4.0 + (24.0 - lines[0].get_size().y) / 2.0), UiTheme.INK)
-	lines[1].draw(canvas, Vector2(size.x - 12.0 - lines[1].width, 4.0 + (24.0 - lines[1].get_size().y) / 2.0), UiTheme.readable(right_color,UiTheme.button_surface(self)))
-	lines[2].draw(canvas, Vector2(12.0, 28.0 + (24.0 - lines[2].get_size().y) / 2.0), UiTheme.INK_SOFT)
+	lines[0].draw(canvas, Vector2(12.0, _row_a + (_slot - lines[0].get_size().y) / 2.0), UiTheme.INK)
+	lines[1].draw(canvas, Vector2(size.x - 12.0 - lines[1].width, _row_a + (_slot - lines[1].get_size().y) / 2.0), UiTheme.readable(right_color,UiTheme.button_surface(self)))
+	lines[2].draw(canvas, Vector2(12.0, _row_b + (_slot - lines[2].get_size().y) / 2.0), UiTheme.INK_SOFT)

@@ -278,7 +278,19 @@ func _build_ui() -> void:
 	bar.position = Vector2(10, 8)
 	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	bar.add_theme_constant_override("separation", 6)
-	ui.add_child(bar)
+	if UiTheme.is_mobile():
+		# A wide playback row scrolls sideways instead of leaving the screen.
+		var bar_scroll := ScrollContainer.new()
+		bar_scroll.name = "PlaybackScroll"
+		bar_scroll.position = Vector2(10, 8)
+		bar_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		bar_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+		bar_scroll.mouse_filter = Control.MOUSE_FILTER_PASS
+		bar.position = Vector2.ZERO
+		ui.add_child(bar_scroll)
+		bar_scroll.add_child(bar)
+	else:
+		ui.add_child(bar)
 	var labels := ["||", "1x", "2x", "4x"]
 	for i in labels.size():
 		var b := _big_button(labels[i], Vector2(68, 56))
@@ -292,7 +304,7 @@ func _build_ui() -> void:
 	bar.add_child(sk)
 	# settings (gear) as an overlay; playback pauses while it is open
 	var gear: Button = UiKit.settings_button(ui, "", true)
-	gear.custom_minimum_size = Vector2(120, 56)
+	gear.custom_minimum_size = Vector2(maxf(120.0, UiKit.touch_min(56)), UiKit.touch_min(56))
 	gear.pressed.connect(_on_settings_opened)   # connected after UiKit's, so the overlay already exists
 	bar.add_child(gear)
 	var history := _big_button("Combat log", Vector2(116, 56))
@@ -354,7 +366,16 @@ func _layout_diagnostics() -> void:
 	ui.offset_right = -(lane + safe["right"])
 	ui.offset_bottom = -safe["bottom"]
 	if _playback_bar != null:
-		_playback_bar.size.x = maxf(0.0, get_viewport_rect().size.x - lane - float(safe["left"] + safe["right"]) - 20.0)
+		var span := maxf(0.0, get_viewport_rect().size.x - lane - float(safe["left"] + safe["right"]) - 20.0)
+		var sc := _playback_bar.get_parent()
+		if UiTheme.is_mobile() and sc is ScrollContainer:
+			var bar_h := _playback_bar.get_combined_minimum_size().y
+			(sc as ScrollContainer).size = Vector2(span, bar_h)
+			_playback_bar.size.x = maxf(span, _playback_bar.get_combined_minimum_size().x)
+			if feed_box != null:
+				feed_box.position.y = (sc as Control).position.y + bar_h + 8.0
+		else:
+			_playback_bar.size.x = span
 
 func _big_button(text: String, min_size: Vector2) -> Button:
 	var b := Button.new()
@@ -433,7 +454,7 @@ func open_combat_log(participant: int = -1) -> void:
 	title.add_theme_font_size_override("font_size", 28)
 	header.add_child(title)
 	var back := UiKit.button("Back to battle", close_combat_log, "", 170)
-	back.add_theme_font_size_override("font_size", 18)
+	back.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE if UiTheme.is_mobile() else 18)
 	back.name = "BattleLogClose"
 	header.add_child(back)
 	var browser := LogBrowser.new()
@@ -783,6 +804,12 @@ func _add_feed(e: Dictionary) -> void:
 	b.custom_minimum_size = Vector2(440, 36)
 	b.focus_mode = Control.FOCUS_NONE
 	b.add_theme_font_size_override("font_size", 15)
+	if UiTheme.is_mobile():
+		b.custom_minimum_size.y = float(UiKit.MOBILE_TAP)
+		b.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE)
+		b.autowrap_mode = TextServer.AUTOWRAP_OFF
+		b.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		b.clip_text = true
 	if b.text.length() > 150: b.text = b.text.substr(0, 147) + "..."   # the Combat log keeps the full line
 	var a: int = int(e.get("actor", -1))
 	var col := Color(1.0, 0.92, 0.6)
@@ -1035,7 +1062,7 @@ func show_result() -> void:
 	info.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(info)
 	var cont := _big_button("Continue", Vector2(280, 72))
-	cont.add_theme_font_size_override("font_size", 26)
+	cont.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE if UiTheme.is_mobile() else 26)
 	cont.pressed.connect(finish)
 	v.add_child(cont)
 	ui.add_child(result_panel)

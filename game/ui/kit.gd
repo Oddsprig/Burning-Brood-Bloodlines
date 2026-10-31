@@ -2,13 +2,19 @@ class_name UiKit
 extends RefCounted
 ## Small builders for the menu screens (code-built Control trees) plus modal picker / confirm / toast.
 
-const TAP := 52  # minimum control height (phone tap target >= 48 px)
-const MOBILE_TAP := 56  # >= 48dp touch target on mobile
+const TAP := 52  # desktop control height
+const MOBILE_TAP := 96  # phone tap target for primary buttons, list rows and HUD controls
 
 static var _safe_area_override: Variant = null
 
 static func tap_height() -> int:
 	return MOBILE_TAP if UiTheme.is_mobile() else TAP
+
+## Desktop keeps `desktop_px`. Phones use at least MOBILE_TAP so a later size write cannot shrink the finger target.
+static func touch_min(desktop_px: float) -> float:
+	if UiTheme.is_mobile():
+		return maxf(desktop_px, float(MOBILE_TAP))
+	return desktop_px
 
 static func set_safe_area_override(rect: Variant) -> void:
 	_safe_area_override = rect
@@ -433,7 +439,7 @@ static func thousands(n: int) -> String:
 
 static func purse(game) -> Label:
 	var l := label(purse_text(game), "Header")
-	l.add_theme_font_size_override("font_size", 22)
+	l.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE if UiTheme.is_mobile() else 22)
 	l.add_theme_color_override("font_color", UiTheme.BRASS)
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT

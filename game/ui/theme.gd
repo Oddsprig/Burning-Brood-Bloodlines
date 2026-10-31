@@ -1,7 +1,7 @@
 class_name UiTheme
 extends RefCounted
 ## Shared Bloodlines theme. Historical token names retain the native UI API.
-## Large type and >= 48 px controls for phones. Type variations:
+## Large type and finger targets for phones (96 px controls, 30 px type). Type variations:
 ##   Label: "Header" (light, bold, on wood), "Title", "H2" (bold ink on parchment), "Muted", "Good", "Bad", "Small"
 ##   Button: "Row" (parchment list row), "RowOn" (selected row), "Danger", "Tab", "TabOn"
 ##   PanelContainer: "Card" (lighter parchment), "Bar" (wood strip), "Inset" (sunken parchment)
@@ -28,7 +28,7 @@ const PURPLE := Color("6a2c38")
 const PURPLE_TEXT := Color("f0c98a")
 
 const FONT_SIZE := 20
-const MOBILE_FONT_SIZE := 22
+const MOBILE_FONT_SIZE := 30
 
 static var _theme: Theme
 static var _bold: Font
@@ -205,7 +205,8 @@ static func _build() -> Theme:
 	t.set_color("font_hover_color", "PopupMenu", INK)
 	t.set_color("font_disabled_color", "PopupMenu", INK_SOFT)
 	t.set_font_size("font_size", "PopupMenu", 22 + bonus)
-	t.set_constant("v_separation", "PopupMenu", 22 + bonus)
+	# Item hit height is about the font plus v_separation. Phones need a full finger row.
+	t.set_constant("v_separation", "PopupMenu", 64 if is_mobile() else (22 + bonus))
 	t.set_constant("item_start_padding", "PopupMenu", 14)
 	# Panels
 	t.set_stylebox("panel", "PanelContainer", sb(PARCH, BORDER, 3, 8, 14, 12))

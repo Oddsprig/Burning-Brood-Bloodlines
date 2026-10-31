@@ -19,7 +19,8 @@ func configure(values: Array, shares: Array, titles: Array, is_header: bool = fa
 		colors.append(UiTheme.readable(value.get("color",tone) if value is Dictionary else tone))
 		var line := TextLine.new()
 		line.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-		line.add_string(txt, UiTheme.bold() if is_header else UiTheme.regular_font(), 17 if is_header else 18)
+		var fs := UiTheme.MOBILE_FONT_SIZE if UiTheme.is_mobile() else (17 if is_header else 18)
+		line.add_string(txt, UiTheme.bold() if is_header else UiTheme.regular_font(), fs)
 		cells.append(line)
 	set_meta("rec_values", plain)
 	var descriptions := []
@@ -30,7 +31,7 @@ func configure(values: Array, shares: Array, titles: Array, is_header: bool = fa
 	accessibility_description = tooltip_text
 	focus_mode = Control.FOCUS_NONE
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	custom_minimum_size = Vector2(0, 48 if is_header else 56)
+	custom_minimum_size = Vector2(0, UiKit.touch_min(48 if is_header else 56))
 	add_theme_stylebox_override("normal", UiTheme.sb(UiTheme.PARCH_2, UiTheme.PARCH_3, 1, 3, 8, 4))
 	add_theme_stylebox_override("hover", UiTheme.sb(UiTheme.PARCH_3 if is_header else UiTheme.PARCH, UiTheme.PARCH_3, 1, 3, 8, 4))
 	add_theme_stylebox_override("pressed", UiTheme.sb(UiTheme.PURPLE, UiTheme.PURPLE_TEXT, 2, 3, 8, 4))

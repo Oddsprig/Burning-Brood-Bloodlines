@@ -277,7 +277,7 @@ func _row(u: Unit, count_text: String, leader: bool) -> Button:
 	if st in ["wounded", "badly wounded", "unconscious"]:
 		_wounded += 1
 	var b := UiKit.button("", select.bind(u.uid), "RowOn" if u.uid == selected_uid else "Row")
-	b.custom_minimum_size = Vector2(0, 84)
+	b.custom_minimum_size = Vector2(0, UiKit.touch_min(84))
 	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var kind: String = u.title if u.title != "" else u.role
 	b.tooltip_text = "%s, %s - %s. Select for the full sheet." % [u.name, kind, st] + (" Leads this squad." if leader else "")
@@ -320,7 +320,7 @@ func _row(u: Unit, count_text: String, leader: bool) -> Button:
 	col.add_child(detail)
 	var why: String = Game.deploy_block_reason(u, rep)
 	if why != "" and why != "dead":
-		b.custom_minimum_size.y = 108
+		b.custom_minimum_size.y = UiKit.touch_min(108)
 		var tr := UiKit.hbox(4)
 		tr.name = "RosterTags"
 		tr.mouse_filter = Control.MOUSE_FILTER_IGNORE

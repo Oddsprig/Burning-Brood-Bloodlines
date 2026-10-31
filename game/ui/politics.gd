@@ -44,7 +44,7 @@ func _ready() -> void:
 	var root: VBoxContainer = frame["root"]
 	var search := LineEdit.new()
 	search.placeholder_text = "Search settlements or lords"
-	search.custom_minimum_size.y = 48
+	search.custom_minimum_size.y = UiKit.touch_min(48)
 	search.text_changed.connect(func(value): query = String(value).to_lower(); _queue_refresh())
 	root.add_child(search)
 	var scroll := UiKit.scroll()
@@ -249,7 +249,7 @@ func _choose_funding(action: String) -> void:
 	modal.add_child(UiKit.label("%s's house purse: %.2f coins\nPublic funds remain separate from your army wallet." % [values.get("payer_name", "Your ruler"), float(values.get("payer_purse", 0))], "", true))
 	var amount := SpinBox.new()
 	amount.min_value = 1; amount.max_value = maxf(1, floor(float(values.get("payer_purse", 0))))
-	amount.step = 1; amount.value = minf(100, amount.max_value); amount.custom_minimum_size.y = 48
+	amount.step = 1; amount.value = minf(100, amount.max_value); amount.custom_minimum_size.y = UiKit.touch_min(48)
 	modal.add_child(amount)
 	var controls := UiKit.flow()
 	modal.add_child(controls)

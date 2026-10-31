@@ -8,7 +8,7 @@ extends RefCounted
 const WINDOWS := [Vector2i(1280, 720), Vector2i(1366, 768), Vector2i(1920, 1080), Vector2i(2560, 1440),
 	Vector2i(2000, 1250)]
 ## v0.072 phones, landscape only (project.godot locks the orientation): the Pixel 10 (2424x1080 -> 2020x900 content)
-## and a common 20:9 panel (2400x1080 -> 2000x900). Checked with the phone theme (UiTheme mobile: larger type, 56 px
+## and a common 20:9 panel (2400x1080 -> 2000x900). Checked with the phone theme (UiTheme mobile: larger type, 96 px
 ## tap targets), as the phone build draws them.
 const PHONES := [Vector2i(2424, 1080), Vector2i(2400, 1080)]
 const TOL := 1.5
