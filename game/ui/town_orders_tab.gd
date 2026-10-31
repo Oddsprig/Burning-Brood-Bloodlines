@@ -13,7 +13,7 @@ static func _field(parent: Container, title: String, control: Control) -> void:
 	var box := UiKit.vbox(2)
 	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.add_child(UiKit.label(title, "Small", true))
-	control.custom_minimum_size = Vector2(120, 48)
+	control.custom_minimum_size = Vector2(120, UiKit.touch_min(48))
 	box.add_child(control)
 	parent.add_child(box)
 

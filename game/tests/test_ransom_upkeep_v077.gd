@@ -237,8 +237,8 @@ func run(tree: SceneTree) -> int:
 	var left: Array = Prisoners.held(Game)
 	if left.size() != 1: return _finish()
 	var left_uid := int(left[0]["uid"])
-	var gone_uid := _pool[1].uid if left_uid == _pool[0].uid else _pool[0].uid
-	var gone_price := price1 if gone_uid == _pool[1].uid else price0
+	var gone_uid: int = int(_pool[1].uid) if left_uid == int(_pool[0].uid) else int(_pool[0].uid)
+	var gone_price: int = price1 if gone_uid == int(_pool[1].uid) else price0
 	_ransomed = _pool[1] if gone_uid == _pool[1].uid else _pool[0]
 	if price0 != price1: check(gone_price == maxi(price0, price1), "they ransom the dearer kin, not the cheaper one")
 	check(is_equal_approx(_purse(), purse - 2.0 * upkeep + float(gone_price)), "your purse gains the ransom and pays two coins of upkeep")
