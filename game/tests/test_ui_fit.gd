@@ -4,10 +4,13 @@ extends RefCounted
 ## inside the viewport. Inside a ScrollContainer only the non-scrolling axis is checked (against the scroll
 ## container's own rect). Reports the worst offenders per screen/size.
 
-const BASE := Vector2(1280, 720)
-## Window sizes Douglas plays at, plus a phone in both orientations (landscape is the target).
+## Window sizes Douglas plays at.
 const WINDOWS := [Vector2i(1280, 720), Vector2i(1366, 768), Vector2i(1920, 1080), Vector2i(2560, 1440),
-	Vector2i(2000, 1250), Vector2i(2400, 1080), Vector2i(1080, 2400)]
+	Vector2i(2000, 1250)]
+## v0.072 phones, landscape only (project.godot locks the orientation): the Pixel 10 (2424x1080 -> 2020x900 content)
+## and a common 20:9 panel (2400x1080 -> 2000x900). Checked with the phone theme (UiTheme mobile: larger type, 96 px
+## tap targets), as the phone build draws them.
+const PHONES := [Vector2i(2424, 1080), Vector2i(2400, 1080)]
 const TOL := 1.5
 
 var fails := 0
@@ -15,10 +18,18 @@ var cases := 0
 var tree: SceneTree
 var town_id := ""
 
-## Content area of a window under stretch mode canvas_items + aspect expand (base 1280x720).
+## The design size from project.godot (1600x900): the smallest content area canvas_items + expand gives.
+static func base() -> Vector2:
+	return Vector2(float(ProjectSettings.get_setting("display/window/size/viewport_width", 1600)),
+		float(ProjectSettings.get_setting("display/window/size/viewport_height", 900)))
+
+## Content area of a window under stretch mode canvas_items + aspect expand (base from project.godot).
 static func effective(win: Vector2i) -> Vector2:
-	var s := minf(win.x / BASE.x, win.y / BASE.y)
-	return (Vector2(win) / s).floor()
+	var b := base()
+	# The limiting axis is exactly the base (no float round-trip that could floor 900 to 899).
+	if float(win.x) * b.y >= float(win.y) * b.x:
+		return Vector2(floorf(float(win.x) * b.y / float(win.y)), b.y)
+	return Vector2(b.x, floorf(float(win.y) * b.x / float(win.x)))
 
 func run(t: SceneTree) -> int:
 	tree = t
@@ -40,19 +51,28 @@ func run(t: SceneTree) -> int:
 	Game.last_result = {"winner": 0, "player_units": Game.company.duplicate(), "enemy_units": foes,
 		"enemy_fallen": foes.slice(0, 4), "events": [], "dead_names": ["Somebody Unlucky"], "loot_gold": 120}
 	if OS.get_cmdline_user_args().has("--battle-only"):
-		for size: Vector2 in [Vector2(1280,720), Vector2(1920,1080), Vector2(2560,1440)]:
-			await _battle(size)
-		print("Battle UI fit: 3 desktop sizes, 9 inspector/legend fit cases, %d failures" % fails)
+		_set_phone(false)
+		await _battle(effective(Vector2i(1920, 1080)))
+		_set_phone(true)
+		await _battle(effective(PHONES[0]))
+		_set_phone(false)
+		print("Battle UI fit: desktop + phone sizes, 6 inspector/legend fit cases, %d failures" % fails)
 		return fails
-	var sizes := []
+	var sizes := []    # [content size, phone theme]
 	for w in WINDOWS:
 		var e := effective(w)
-		if not sizes.has(e):
-			sizes.append(e)
-	if OS.get_environment("FIT_QUICK") != "":   # iteration aid: only the smallest content area
-		sizes = [sizes[0]]
-	for size in sizes:
-		print("-- viewport %s" % [size])
+		if not sizes.any(func(s): return s[0] == e and not s[1]):
+			sizes.append([e, false])
+	for w in PHONES:
+		var e := effective(w)
+		if not sizes.any(func(s): return s[0] == e and s[1]):
+			sizes.append([e, true])
+	if OS.get_environment("FIT_QUICK") != "":   # iteration aid: the smallest desktop area and the Pixel 10
+		sizes = [sizes[0], sizes.filter(func(s): return s[1])[0]]
+	for entry in sizes:
+		var size: Vector2 = entry[0]
+		_set_phone(bool(entry[1]))
+		print("-- viewport %s%s" % [size, " (phone theme)" if entry[1] else ""])
 		await _screen(size, "res://ui/title.tscn", [])
 		await _screen(size, "res://ui/settings.tscn", [])
 		await _screen(size, "res://ui/newgame.tscn", [])   # New Campaign options (world size, the years before)
@@ -89,8 +109,15 @@ func run(t: SceneTree) -> int:
 		await _screen(size, "res://ui/gameover.tscn", [])
 		await _screen(size, "res://battle/aftermath.tscn", [])
 		await _battle(size)
+	_set_phone(false)
 	print("Menu UI fit: %d content sizes, %d fit cases, %d failures" % [sizes.size(), cases, fails])
 	return fails
+
+## Phone sizes are built with the phone theme (UiTheme/UiKit read it when each screen is built); null restores the
+## platform default afterwards.
+func _set_phone(on: bool) -> void:
+	if on: UiTheme.set_mobile_override(true)
+	else: UiTheme.set_mobile_override(null)
 
 func _sample_units() -> Array:
 	var out := [Roster.leaders(Game)[0].uid]
@@ -198,6 +225,7 @@ func _settle() -> void:
 ## A world-space banner is centered by its camera; moving that camera away must
 ## still expose real screen overflow. This guards against simply skipping map Controls.
 func _canvas_bounds() -> void:
+	var BASE := base()
 	var sv := _viewport(BASE)
 	var world := Node2D.new()
 	sv.add_child(world)

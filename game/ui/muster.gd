@@ -53,7 +53,7 @@ func _ready() -> void:
 	funding.add_child(UiKit.label("Move coin from your house purse:", "", true))
 	fund_input = SpinBox.new(); fund_input.name = "MusterFundingAmount"
 	fund_input.min_value = 0; fund_input.max_value = 999999999; fund_input.step = 1
-	fund_input.custom_minimum_size = Vector2(170,48)
+	fund_input.custom_minimum_size = Vector2(170, UiKit.touch_min(48))
 	fund_input.value_changed.connect(func(_value: float): _queue_refresh())
 	funding.add_child(fund_input)
 	fund_button = UiKit.button("Review transfer",request_funding,"Row",160); fund_button.name = "MusterFund"
@@ -72,7 +72,7 @@ func _ready() -> void:
 	selection.add_child(UiKit.label("How many to raise:", "", true))
 	count_input = SpinBox.new(); count_input.name = "MusterCount"
 	count_input.min_value = 1; count_input.max_value = 200; count_input.step = 1; count_input.value = 100
-	count_input.custom_minimum_size = Vector2(150,48)
+	count_input.custom_minimum_size = Vector2(150, UiKit.touch_min(48))
 	count_input.value_changed.connect(func(_value: float): _queue_refresh())
 	selection.add_child(count_input)
 	cost_label = _line(settlement, "MusterCost")
@@ -296,7 +296,7 @@ func _refresh_mounts() -> void:
 	var row := UiKit.flow(6)
 	mounts_flow.add_child(row)
 	var picker := OptionButton.new()
-	picker.custom_minimum_size = Vector2(260, 48)
+	picker.custom_minimum_size = Vector2(260, UiKit.touch_min(48))
 	for u: Unit in riders:
 		var text := "cavalry" if Horses.can_field(u) else ("mount needs care" if u.horse != null else "on foot")
 		picker.add_item("%s: %s" % [u.name, text])
