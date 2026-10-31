@@ -24,10 +24,10 @@ func _ready() -> void:
 		add_child(bg)
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(PRESET_FULL_RECT)
-	for edge in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + edge, 16)
 	add_child(margin)
-	var fit_margin: Callable = func(): margin.offset_right = -UiKit.diagnostics_lane(size.x)
+	var fit_margin: Callable = func():
+		UiKit.apply_safe_area(margin, 16, 16, 16, 16)
+		margin.offset_right = -UiKit.diagnostics_lane(size.x)
 	resized.connect(fit_margin)
 	fit_margin.call()
 	var scroll := UiKit.scroll()

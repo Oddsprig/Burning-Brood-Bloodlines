@@ -7,10 +7,15 @@ config/use_custom_user_dir=true
 config/custom_user_dir_name="Burning Brood Bloodlines Claude Edition"
 
 config/name="Burning Brood: Bloodlines - Claude Edition"
-config/version="0.065-claude"
+config/version="0.072-claude"
+config/quit_on_go_back=false
 config/icon="res://icon_claude.png"
 run/main_scene="res://main.tscn"
 config/features=PackedStringArray("4.7")
+boot_splash/bg_color=Color(0.0823529, 0.0627451, 0.0509804, 1)
+boot_splash/image="res://icon_mobile/splash.png"
+boot_splash/fullsize=false
+boot_splash/show_image=true
 
 [autoload]
 
@@ -18,6 +23,7 @@ DB="*res://core/db.gd"
 Game="*res://core/game.gd"
 Perf="*res://core/perf_tracker.gd"
 Sound="*res://core/sound.gd"
+MobileApp="*res://core/mobile_app.gd"
 
 [display]
 
@@ -31,7 +37,7 @@ window/handheld/orientation=6
 
 [input_devices]
 
-pointing/emulate_touch_from_mouse=true
+pointing/emulate_mouse_from_touch=true
 
 [input]
 
@@ -63,6 +69,7 @@ cam_down={
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
+textures/vram_compression/import_etc2_astc=true
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 

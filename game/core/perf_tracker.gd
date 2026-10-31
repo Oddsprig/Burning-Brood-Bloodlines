@@ -81,10 +81,20 @@ static func _record(stat: Dictionary, elapsed_us: int, now: int) -> void:
 	bucket["sum"] = float(bucket["sum"]) + float(elapsed_us)
 	bucket["peak"] = maxi(int(bucket["peak"]), elapsed_us)
 
+## v0.072: cleaned label per raw label, so the dozens of record_us calls a frame build no new strings.
+const NAME_CACHE_LIMIT := 256
+var _clean_names: Dictionary = {}
+
+func _clean(label: String) -> String:
+	if _clean_names.has(label): return _clean_names[label]
+	var clean: String = _name(label)
+	if _clean_names.size() < NAME_CACHE_LIMIT: _clean_names[label] = clean
+	return clean
+
 func record_us(label: String, elapsed_us: int, overall: bool = false) -> void:
 	if elapsed_us < 0: _invalid += 1; return
 	var now: int = Time.get_ticks_usec()
-	var clean: String = _name(label)
+	var clean: String = _clean(label)
 	if overall:
 		# One inclusive source, recorded once per non-overlapping main work slice.
 		# Never derive this total by adding inclusive nested label measurements.
@@ -101,7 +111,7 @@ func record_queue(size: int, oldest_days: float = 0.0) -> void:
 	_queue_age = maxf(0.0, oldest_days) if is_finite(oldest_days) and _queue_size > 0 else 0.0
 
 func set_stage(stage: String) -> void:
-	_stage = _name(stage)
+	_stage = _clean(stage)
 
 func mark_open() -> void:
 	_opened_us = Time.get_ticks_usec()

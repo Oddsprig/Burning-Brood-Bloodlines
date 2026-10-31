@@ -3,6 +3,50 @@ extends RefCounted
 ## Small builders for the menu screens (code-built Control trees) plus modal picker / confirm / toast.
 
 const TAP := 52  # minimum control height (phone tap target >= 48 px)
+const MOBILE_TAP := 56  # >= 48dp touch target on mobile
+
+static var _safe_area_override: Variant = null
+
+static func tap_height() -> int:
+	return MOBILE_TAP if UiTheme.is_mobile() else TAP
+
+static func set_safe_area_override(rect: Variant) -> void:
+	_safe_area_override = rect
+
+## Safe-area insets (left, top, right, bottom) in viewport canvas coordinates from DisplayServer.get_display_safe_area().
+## Zero on desktop; a test sets a fake safe area with set_safe_area_override.
+static func safe_area_margins(viewport: Viewport = null) -> Dictionary:
+	if not UiTheme.is_mobile() and _safe_area_override == null:
+		return {"left": 0, "top": 0, "right": 0, "bottom": 0}
+	var safe_rect := Rect2(_safe_area_override) if (_safe_area_override is Rect2i or _safe_area_override is Rect2) else Rect2(DisplayServer.get_display_safe_area())
+	var win_size := Vector2(DisplayServer.window_get_size())
+	if viewport != null and (win_size.x <= 0.0 or win_size.y <= 0.0):
+		win_size = viewport.get_visible_rect().size
+	if win_size.x <= 0.0 or win_size.y <= 0.0 or safe_rect.size.x <= 0.0 or safe_rect.size.y <= 0.0:
+		return {"left": 0, "top": 0, "right": 0, "bottom": 0}
+	if safe_rect.end.x > win_size.x or safe_rect.end.y > win_size.y:
+		if _safe_area_override == null and not OS.has_feature("mobile"):
+			return {"left": 0, "top": 0, "right": 0, "bottom": 0}
+		win_size = win_size.max(safe_rect.end)
+	var vp_size := viewport.get_visible_rect().size if viewport != null else win_size
+	if vp_size.x <= 0.0 or vp_size.y <= 0.0:
+		vp_size = win_size
+	var sx := vp_size.x / win_size.x
+	var sy := vp_size.y / win_size.y
+	var left := maxi(0, roundi(maxf(0.0, safe_rect.position.x) * sx))
+	var top := maxi(0, roundi(maxf(0.0, safe_rect.position.y) * sy))
+	var right := maxi(0, roundi(maxf(0.0, win_size.x - safe_rect.end.x) * sx))
+	var bottom := maxi(0, roundi(maxf(0.0, win_size.y - safe_rect.end.y) * sy))
+	return {"left": left, "top": top, "right": right, "bottom": bottom}
+
+static func apply_safe_area(margin: MarginContainer, base_left: int = 16, base_top: int = 16, base_right: int = 16, base_bottom: int = 16) -> Dictionary:
+	var safe := safe_area_margins(margin.get_viewport() if margin != null and margin.is_inside_tree() else null)
+	if margin != null:
+		margin.add_theme_constant_override("margin_left", base_left + int(safe["left"]))
+		margin.add_theme_constant_override("margin_top", base_top + int(safe["top"]))
+		margin.add_theme_constant_override("margin_right", base_right + int(safe["right"]))
+		margin.add_theme_constant_override("margin_bottom", base_bottom + int(safe["bottom"]))
+	return safe
 
 ## 1,156,074 -> "1.16M", 52,375 -> "52.4K" (coins as the HUD shows them: Item.COIN units are already whole coins here).
 static func compact_coins(v: float) -> String:
@@ -24,7 +68,9 @@ static func label(text: String, variation: String = "", wrap: bool = false) -> L
 static func button(text: String, cb: Callable, variation: String = "", min_w: int = 0) -> Button:
 	var b := Button.new()
 	b.text = text
-	b.custom_minimum_size = Vector2(min_w, TAP)
+	var th := tap_height()
+	var tw := maxi(min_w, th) if UiTheme.is_mobile() and min_w > 0 else (th if UiTheme.is_mobile() else min_w)
+	b.custom_minimum_size = Vector2(tw, th)
 	if variation != "":
 		b.theme_type_variation = variation
 	b.focus_mode = Control.FOCUS_NONE
@@ -112,9 +158,10 @@ static func kv(key: String, value: String, value_color: Color = UiTheme.INK) -> 
 ## Tabs keep their full names (no "Ma / Pro" truncation); a narrow window scrolls the strip sideways.
 static func tab_strip(names: Array, current: String, cb: Callable) -> HBoxContainer:
 	var h := hbox(6)
+	var th := tap_height()
 	for n in names:
 		var b := button(String(n), cb.bind(n), "TabOn" if n == current else "Tab", 0)
-		b.custom_minimum_size = Vector2(0, 52)
+		b.custom_minimum_size = Vector2(th if UiTheme.is_mobile() else 0, th)
 		h.add_child(b)
 	return h
 
@@ -326,7 +373,12 @@ static func screen_frame(host: Control, title: String) -> Dictionary:
 	host.add_child(outer)
 	# Leave desktop navigation beside the persistent diagnostics overlay. The
 	# backdrop and host still fill the viewport; narrow layouts retain their width.
-	var fit_content: Callable = func(): outer.offset_right = -diagnostics_lane(host.size.x)
+	var fit_content: Callable = func():
+		var safe := safe_area_margins(host.get_viewport() if host.is_inside_tree() else null)
+		outer.offset_left = safe["left"]
+		outer.offset_top = safe["top"]
+		outer.offset_right = -(diagnostics_lane(host.size.x) + safe["right"])
+		outer.offset_bottom = -safe["bottom"]
 	host.resized.connect(fit_content)
 	fit_content.call()
 	var bar_p := panel("Bar")

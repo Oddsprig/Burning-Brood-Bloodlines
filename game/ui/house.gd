@@ -211,6 +211,7 @@ func _account(title: String, amount: float, owner: String, private: bool) -> voi
 
 func _fit_layout() -> void:
 	if margin != null:
+		UiKit.apply_safe_area(margin, 16, 16, 16, 16)
 		margin.offset_right = -UiKit.diagnostics_lane(size.x)
 	if accounts_grid != null:
 		accounts_grid.columns = 1 if size.x < 600 else (2 if size.x < 1200 else 4)

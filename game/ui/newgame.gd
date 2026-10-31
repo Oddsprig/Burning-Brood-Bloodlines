@@ -33,8 +33,8 @@ func _ready() -> void:
 	add_child(bg)
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(PRESET_FULL_RECT)
-	for edge in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + edge, 16)
+	UiKit.apply_safe_area(margin, 16, 16, 16, 16)
+	resized.connect(func(): UiKit.apply_safe_area(margin, 16, 16, 16, 16))
 	add_child(margin)
 	var sc := UiKit.scroll()
 	margin.add_child(sc)

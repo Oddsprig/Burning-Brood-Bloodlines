@@ -19,6 +19,7 @@ const LogBrowser := preload("res://battle/combat_log.gd")
 const GoreLayer := preload("res://battle/gore_layer.gd")
 const ReadabilityFx := preload("res://battle/readability_fx.gd")
 const ReadabilityLegend := preload("res://battle/readability_legend.gd")
+const MobilePerf := preload("res://core/mobile_perf.gd")
 
 const TICKS_PER_SEC := 20.0           # sim ticks per real second at 1x (1 tick = 0.05 s: 1x is real time)
 const SPEEDS := [0.0, 1.0, 2.0, 4.0]
@@ -71,6 +72,7 @@ var cam_zoom := 1.0
 var _nudge_target := Vector2.ZERO
 var _nudge_amount := 0.0
 var _nudge := 0.0
+var touch_input: TouchInput
 var _press_pos := Vector2.ZERO
 var _pressing := false
 var _dragging := false
@@ -121,6 +123,7 @@ func _ready() -> void:
 		speed = 1.0
 	_build_world(bseed)
 	_build_ui()
+	touch_input = TouchInput.attach(self, tap_screen, _on_pan_screen, zoom_at, inspect_screen, 20.0)
 	_fit_camera()
 	_update_status()
 	Game.setting_changed.connect(_on_setting_changed)
@@ -137,6 +140,7 @@ func _exit_tree() -> void:
 		Game.setting_changed.disconnect(_on_setting_changed)
 	# Finish the bounded native image tasks before their scene/definitions leave.
 	if not _handing_over: Paperdoll.end_background()   # the next round's field keeps the shared raster workers
+	if not _handing_over and MobilePerf.active(): Paperdoll.trim_cache(MobilePerf.SPRITE_CACHE_IDLE_BYTES)   # v0.072: free battle frames on phones
 	if sim != null and sim.combat_journal != null and not _journal_transferred and not is_same(Game.last_result.get("combat_journal"), sim.combat_journal):
 		sim.combat_journal.dispose()
 		Perf.record_combat_history()
@@ -265,7 +269,7 @@ func _build_ui() -> void:
 	ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var th := Theme.new()
 	th.default_font = UiTheme.get_theme().default_font
-	th.default_font_size = 20
+	th.default_font_size = UiTheme.base_font_size()
 	ui.theme = th
 	layer.add_child(ui)
 	# top bar: playback controls + status
@@ -343,15 +347,22 @@ func _build_ui() -> void:
 
 func _layout_diagnostics() -> void:
 	if ui == null: return
+	var safe := UiKit.safe_area_margins(get_viewport())
 	var lane: float = UiKit.diagnostics_lane(get_viewport_rect().size.x)
-	ui.offset_right = -lane
+	ui.offset_left = safe["left"]
+	ui.offset_top = safe["top"]
+	ui.offset_right = -(lane + safe["right"])
+	ui.offset_bottom = -safe["bottom"]
 	if _playback_bar != null:
-		_playback_bar.size.x = maxf(0.0, get_viewport_rect().size.x - lane - 20.0)
+		_playback_bar.size.x = maxf(0.0, get_viewport_rect().size.x - lane - float(safe["left"] + safe["right"]) - 20.0)
 
 func _big_button(text: String, min_size: Vector2) -> Button:
 	var b := Button.new()
 	b.text = text
 	b.custom_minimum_size = min_size
+	if UiTheme.is_mobile():   # v0.072: phone tap targets; desktop keeps the sizes it asked for
+		var min_h := float(UiKit.MOBILE_TAP)
+		b.custom_minimum_size = Vector2(maxf(min_size.x, min_h), maxf(min_size.y, min_h))
 	b.focus_mode = Control.FOCUS_NONE
 	b.add_theme_stylebox_override("normal", _box(Color(0.12, 0.1, 0.09, 0.85), 6))
 	b.add_theme_stylebox_override("hover", _box(Color(0.2, 0.17, 0.14, 0.9), 6))
@@ -380,6 +391,7 @@ func _on_settings_opened() -> void:
 	_refresh_speed_buttons()
 	_pressing = false
 	_dragging = false
+	if touch_input != null: touch_input.reset()
 
 func _toggle_settings() -> void:
 	if is_instance_valid(_log_overlay): return
@@ -399,6 +411,7 @@ func open_combat_log(participant: int = -1) -> void:
 	Perf.set_stage("Battle · paused")
 	_refresh_speed_buttons()
 	_pressing = false; _dragging = false
+	if touch_input != null: touch_input.reset()
 	_log_overlay = Control.new()
 	_log_overlay.name = "BattleLogOverlay"
 	_log_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -439,6 +452,7 @@ func close_combat_log() -> void:
 	paused = _paused_before_log
 	_refresh_speed_buttons()
 	_pressing = false; _dragging = false
+	if touch_input != null: touch_input.reset()
 
 func _on_setting_changed(key: String, value: Variant) -> void:
 	if key == "battle_event_slowmo" and not bool(value):
@@ -817,6 +831,28 @@ func tap_screen(screen_pos: Vector2) -> void:
 	var world := get_viewport().get_canvas_transform().affine_inverse() * screen_pos
 	tap_world(world)
 
+## Long-press (~0.5s) or right-click inspects the fighter at screen_pos.
+func inspect_screen(screen_pos: Vector2) -> void:
+	var world := get_viewport().get_canvas_transform().affine_inverse() * screen_pos
+	var best := -1
+	var bd := maxf(44.0, 52.0 / cam_zoom)
+	for v in views:
+		if v.gone or not v.visible:
+			continue
+		var d: float = v.body_center().distance_to(world)
+		if v.fighter.state == "dead":
+			d += 8.0
+		if d < bd:
+			bd = d
+			best = v.fighter.idx
+	select(best)
+	if best >= 0:
+		_keep_visible(best)
+
+func _on_pan_screen(screen_delta: Vector2) -> void:
+	cam_pos -= screen_delta / cam_zoom
+	auto_cam = false
+
 func tap_world(p: Vector2) -> void:
 	var best := -1
 	var bd := 34.0
@@ -1101,7 +1137,9 @@ func zoom_at(screen_pos: Vector2, factor: float) -> void:
 	# keep the point under the finger fixed
 	var vp := get_viewport_rect().size
 	cam_pos = before - (screen_pos - vp * 0.5) / cam_zoom
+	auto_cam = false
 
+## v0.072: mouse, touch (tap, one-finger pan, pinch) and long-press / right-click inspect go through TouchInput.
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") and not event.is_echo():
 		if readability_legend != null and readability_legend.is_open(): readability_legend.close()
@@ -1110,41 +1148,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if settings_open or is_instance_valid(_log_overlay): return
-	if event is InputEventMouseButton:
-		var mb := event as InputEventMouseButton
-		if mb.button_index == MOUSE_BUTTON_LEFT:
-			if mb.pressed:
-				_pressing = true
-				_dragging = false
-				_press_pos = mb.position
-			else:
-				if _pressing and not _dragging:
-					tap_screen(mb.position)
-				_pressing = false
-				_dragging = false
-		elif mb.pressed and mb.button_index == MOUSE_BUTTON_WHEEL_UP:
-			zoom_at(mb.position, 1.12)
-		elif mb.pressed and mb.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			zoom_at(mb.position, 1.0 / 1.12)
-	elif event is InputEventMouseMotion and _pressing:
-		var mm := event as InputEventMouseMotion
-		if not _dragging and mm.position.distance_to(_press_pos) > DRAG_THRESHOLD:
-			_dragging = true
-		if _dragging:
-			cam_pos -= mm.relative / cam_zoom
-	elif event is InputEventMagnifyGesture:
-		var g := event as InputEventMagnifyGesture
-		zoom_at(g.position, g.factor)
-	elif event is InputEventPanGesture:
-		cam_pos += (event as InputEventPanGesture).delta * 20.0 / cam_zoom
-		auto_cam = false
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_C:
 		auto_cam = not auto_cam
 		_follow_clock = 0.0
-	if event is InputEventMouseButton and (event as InputEventMouseButton).button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
-		auto_cam = false
-	if _dragging or event is InputEventMagnifyGesture:
-		auto_cam = false
+		return
+	if touch_input != null and touch_input.handle_input(event):
+		_pressing = touch_input.pressing
+		_dragging = touch_input.dragging
+		_press_pos = touch_input.press_pos
+		if _dragging or event is InputEventMagnifyGesture or (event is InputEventMouseButton and (event as InputEventMouseButton).button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]):
+			auto_cam = false
 
 ## Battle sounds: only what happens on screen is heard, louder when zoomed in; rate-limited per kind.
 func _sound(type: String, e: Dictionary, av, dv) -> void:
@@ -1200,27 +1213,58 @@ func _follow(delta: float) -> void:
 
 
 ## Every living fighter's ground shadow in one canvas item (dragons get a larger one).
+## v0.072: all shadows go out as ONE triangle-array draw (was one polygon draw per fighter, with a copied
+## polygon each); the vertex/colour/index buffers are kept and reused between frames.
 class ShadowLayer:
 	extends Node2D
 	var host
 	var _unit_poly := PackedVector2Array()
+	var _pts := PackedVector2Array()
+	var _cols := PackedColorArray()
+	var _idx := PackedInt32Array()
 	func _ready() -> void:
 		for i in 14:
 			var a := TAU * i / 14.0
 			_unit_poly.append(Vector2(cos(a) * 15.0, sin(a) * 6.0))
+	## Fan indices (centre + rim) for `cap` shadows.
+	func _reserve(cap: int) -> void:
+		var rim := _unit_poly.size()
+		var per := rim + 1
+		if _pts.size() >= cap * per: return
+		_pts.resize(cap * per); _cols.resize(cap * per)
+		_idx.resize(cap * rim * 3)
+		for k in cap:
+			var base := k * per
+			for i in rim:
+				var j := (k * rim + i) * 3
+				_idx[j] = base; _idx[j + 1] = base + 1 + i; _idx[j + 2] = base + 1 + (i + 1) % rim
 	func _draw() -> void:
 		var col := Color(0, 0, 0, 0.28)
+		var dragon_col := Color(0, 0, 0, 0.22)
 		var rect: Rect2 = host._raster_view_rect()
+		var rim := _unit_poly.size()
+		var per := rim + 1
+		var count: int = host.views.size()
+		_reserve(count)
+		var n := 0
 		for v in host.views:
 			if not v.visible or v.gone or v.fighter.state in ["dead", "fled"]: continue
 			var p: Vector2 = v.position
 			if not rect.has_point(p): continue
+			var o := p
+			var sc := Vector2.ONE
+			var c := col
 			if v.doll is DragonView:
 				var b: Rect2 = v.doll.visual_bounds()
-				draw_set_transform(p + Vector2(v.doll.body_center_offset().x * 0.3, 0), 0.0, Vector2(absf(b.size.x) / 110.0, absf(b.size.x) / 140.0))
-				draw_colored_polygon(_unit_poly, Color(0, 0, 0, 0.22))
-				draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-				continue
-			var poly := _unit_poly.duplicate()
-			for i in poly.size(): poly[i] += p
-			draw_colored_polygon(poly, col)
+				o = p + Vector2(v.doll.body_center_offset().x * 0.3, 0)
+				sc = Vector2(absf(b.size.x) / 110.0, absf(b.size.x) / 140.0)
+				c = dragon_col
+			var base := n * per
+			_pts[base] = o; _cols[base] = c
+			for i in rim:
+				_pts[base + 1 + i] = o + _unit_poly[i] * sc
+				_cols[base + 1 + i] = c
+			n += 1
+		if n == 0: return
+		RenderingServer.canvas_item_add_triangle_array(get_canvas_item(), _idx.slice(0, n * rim * 3),
+			_pts.slice(0, n * per), _cols.slice(0, n * per))

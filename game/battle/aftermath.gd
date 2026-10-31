@@ -63,8 +63,11 @@ func _ready() -> void:
 
 func _layout() -> void:
 	if frame == null: return
-	frame.offset_left = 24; frame.offset_top = 16; frame.offset_bottom = -16
-	frame.offset_right = -24 - UiKit.diagnostics_lane(get_viewport_rect().size.x)
+	var safe := UiKit.safe_area_margins(get_viewport())
+	frame.offset_left = 24 + int(safe["left"])
+	frame.offset_top = 16 + int(safe["top"])
+	frame.offset_bottom = -(16 + int(safe["bottom"]))
+	frame.offset_right = -(24 + int(safe["right"]) + UiKit.diagnostics_lane(get_viewport_rect().size.x))
 
 func _build_overview(parent: Control) -> void:
 	var card := UiKit.panel("Card")

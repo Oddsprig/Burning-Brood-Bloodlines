@@ -31,6 +31,7 @@ const SCREENS := {
 	"presim": "res://ui/presim.tscn",   # a new campaign: the years before (campaign/world.gd presim_step)
 	"newgame": "res://ui/newgame.tscn",   # New Campaign options: world size and the years before (then presim)
 }
+const MobilePerf := preload("res://core/mobile_perf.gd")   # v0.072 phone performance profile
 const LOOT_FRACTION := 0.25   # loot gold = fraction of defeated enemy gear value (handoff decision)
 const START_COMPANY_SIZE := 100
 
@@ -64,6 +65,11 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS   # capture slices keep running while the campaign is held
 	rng.randomize()
 	load_settings()
+	# v0.072 phone profile (core/mobile_perf.gd): frame cap / battery saver, viewport AA off on phones.
+	MobilePerf.apply_frame_cap(bool(setting("battery_saver")))
+	MobilePerf.apply_viewport(get_tree().root)
+	setting_changed.connect(func(key: String, value: Variant):
+		if key == "battery_saver": MobilePerf.apply_frame_cap(bool(value)))
 
 # ---------------------------------------------------------------- screens
 func goto(screen: String, params: Dictionary = {}) -> void:
@@ -72,6 +78,7 @@ func goto(screen: String, params: Dictionary = {}) -> void:
 		last_result = {}   # results have been consumed; release their combatants and event payload
 	_active_screen = screen
 	screen_params = params
+	MobilePerf.on_screen(screen)   # phones: menus idle in low processor mode
 	if main != null:
 		main.show_screen(SCREENS.get(screen, screen))
 	screen_changed.emit(screen)
@@ -786,6 +793,7 @@ const DEFAULT_SETTINGS := {
 	"music_volume": 0.5,
 	"sfx_volume": 0.5,
 	"gore": "full",   # v0.014 (Douglas 22:51): "full" | "reduced" (a later phone-store build): blood, decals and log words
+	"battery_saver": false,   # v0.072: true caps the game at 30 FPS (core/mobile_perf.gd)
 }
 ## Settings with named choices (the screen cycles through them): key -> {label, options [value, shown name]}.
 const SETTING_CHOICES := {
@@ -795,6 +803,8 @@ const SETTING_CHOICES := {
 		"hint": "Battle sounds, dragons, interface clicks and event fanfares."},
 	"gore": {"label": "Gore", "options": [["full", "Full"], ["reduced", "Reduced"]],
 		"hint": "Full: blood sprays, pools, trails and wounds on the fighters, severed parts stay on the field, vivid log. Reduced: less blood, no severed-part decals, milder log words."},
+	"battery_saver": {"label": "Frame rate", "options": [[false, "Smooth"], [true, "Battery saver"]],
+		"hint": "Battery saver caps the game at 30 frames a second: less heat and longer battery life on phones. Smooth runs at up to 60 on phones."},
 }
 
 func gore_full() -> bool:
