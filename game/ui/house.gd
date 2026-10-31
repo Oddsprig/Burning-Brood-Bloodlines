@@ -26,7 +26,7 @@ func _ready() -> void:
 	var root := UiKit.vbox(10)
 	margin.add_child(root)
 	var heading := UiKit.hbox()
-	heading.add_child(UiKit.label("Your bloodline", "H2", true))
+	heading.add_child(UiKit.wrap(UiKit.label("Your bloodline", "H2", true), 80))
 	heading.add_child(UiKit.button("Back", _back, "Row", 72))
 	root.add_child(heading)
 	var scroll := UiKit.scroll()
@@ -72,7 +72,7 @@ func _refresh() -> void:
 	standard.custom_minimum_size = Vector2(84, 100)
 	standard.set_style(selected.get("customization", {}))
 	identity_row.add_child(standard)
-	var house_title := UiKit.label("House " + String(selected.get("house_name", "Your house")), "H2", true)
+	var house_title := UiKit.wrap(UiKit.label("House " + String(selected.get("house_name", "Your house")), "H2", true), 80)
 	house_title.add_theme_font_size_override("font_size", 34)
 	house_title.size_flags_vertical = SIZE_SHRINK_CENTER
 	identity_row.add_child(house_title)
@@ -112,7 +112,7 @@ func _refresh() -> void:
 	if todo != "":
 		var tp := UiKit.panel("Inset"); var tl := UiKit.label(todo, "", true); tl.add_theme_font_size_override("font_size", 22); tl.add_theme_color_override("font_color", UiTheme.WARN); tp.add_child(tl); body.add_child(tp)
 	var accounts: Dictionary = Dynasty.accounts(Game)
-	var arms := UiKit.label("House arms (your common soldiers): %s" % ArmsPool.summary(Game, "player"), "", true)
+	var arms := UiKit.wrap(UiKit.label("House arms (your common soldiers): %s" % ArmsPool.summary(Game, "player"), "", true), 80)
 	arms.mouse_filter = MOUSE_FILTER_PASS
 	arms.tooltip_text = "Each pool runs 0-100 and is applied to every commoner you raise. Skill grows each day the army is mustered (drill), experience with every round fought (more for a win), conditioning with each day on campaign. Skilled commoners who die drain all three. Commoners never rise in rank; only house members can be officers."
 	body.add_child(arms)
@@ -143,7 +143,7 @@ func _refresh() -> void:
 		words.add_child(UiKit.label("Income & defence" if commands_settlement else "Settlement income & defence", "H2", true))
 		words.add_child(UiKit.label(PoliticsView.tax_text(budget), "", true))
 		words.add_child(UiKit.label(PoliticsView.defence_text(budget), "", true))
-		words.add_child(UiKit.label("Field army unraised · No field payroll" if Game.company.is_empty() else "Field army: %d soldiers · Pay %d coins/day from army wallet · %d unpaid" % [Game.company.filter(func(u): return not u.dead).size(), Game.daily_wages(), Game.unpaid_count()], "", true))
+		words.add_child(UiKit.wrap(UiKit.label("Field army unraised · No field payroll" if Game.company.is_empty() else "Field army: %d soldiers · Pay %d coins/day from army wallet · %d unpaid" % [Game.company.filter(func(u): return not u.dead).size(), Game.daily_wages(), Game.unpaid_count()], "", true), 80))
 		var warning := PoliticsView.budget_warnings(budget)
 		if warning != "": words.add_child(UiKit.label(warning, "Bad", true))
 		var manage_button := UiKit.button("Manage taxes & defence", func(): PoliticsView.open_view("politics", tid, "house"), "Row")

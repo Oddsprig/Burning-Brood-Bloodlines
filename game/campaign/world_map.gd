@@ -439,6 +439,8 @@ func _build_hud() -> void:
 	controls.add_child(_button("Find", _on_center))
 	lbl_gold = _label(20, UiTheme.BRASS)
 	lbl_gold.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	lbl_gold.custom_minimum_size.x = 40
+	lbl_gold.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_child(lbl_gold)
 	lbl_wages = _label(16, UiTheme.GOOD)
 	lbl_wages.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

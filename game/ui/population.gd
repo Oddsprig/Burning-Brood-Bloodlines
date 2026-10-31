@@ -121,12 +121,12 @@ func _health_card() -> Control:
 	var push := String(r["push"])
 	if push != "":
 		var why: String = {"war": "fear of war", "hunger": "hunger", "crowd": "crowding, with no house to be had"}[push]
-		words.add_child(UiKit.label("Common households are leaving for other towns, driven by %s." % why, "Bad", true))
+		words.add_child(UiKit.wrap(UiKit.label("Common households are leaving for other towns, driven by %s." % why, "Bad", true), 80))
 	var top: Array = []
 	for row: Array in (r["diseases"] as Array).slice(0, 3): top.append("%s %d" % [row[0], int(row[1])])
-	words.add_child(UiKit.label("Sick now: %d%s · died of sickness this year: %d" % [int(r["sick"]), (" (" + ", ".join(PackedStringArray(top)) + ")") if not top.is_empty() else "", int(r["sick_deaths"])], "", true))
-	words.add_child(UiKit.label("%s households in %s homes (room for %d each) · %s without a home of their own · %d empty town houses" % [UiKit.thousands(int(r["households"])), UiKit.thousands(int(r["homes"])), int(r["room"]), UiKit.thousands(int(r["unhoused"])), int(r["empty_homes"])], "", true))
-	words.add_child(UiKit.label("This season: left %s · arrived %s" % [Migration.whys(r["left"]), Migration.whys(r["arrived"])], "Muted", true))
+	words.add_child(UiKit.wrap(UiKit.label("Sick now: %d%s · died of sickness this year: %d" % [int(r["sick"]), (" (" + ", ".join(PackedStringArray(top)) + ")") if not top.is_empty() else "", int(r["sick_deaths"])], "", true), 80))
+	words.add_child(UiKit.wrap(UiKit.label("%s households in %s homes (room for %d each) · %s without a home of their own · %d empty town houses" % [UiKit.thousands(int(r["households"])), UiKit.thousands(int(r["homes"])), int(r["room"]), UiKit.thousands(int(r["unhoused"])), int(r["empty_homes"])], "", true), 80))
+	words.add_child(UiKit.wrap(UiKit.label("This season: left %s · arrived %s" % [Migration.whys(r["left"]), Migration.whys(r["arrived"])], "Muted", true), 80))
 	card.tooltip_text = "The common folk catch the same diseases as the named families. Households leave towns at war, in famine, or too crowded with no house to buy, for a town of their own people with room."
 	card.mouse_filter = MOUSE_FILTER_PASS
 	return card
@@ -150,7 +150,11 @@ func _fact(title: String, value: String, tip: String) -> void:
 	var big := UiKit.label(value, "H2")
 	big.add_theme_font_size_override("font_size", 30)
 	words.add_child(big)
-	words.add_child(UiKit.label(title, "Muted"))
+	var title_label := UiKit.label(title, "Muted")
+	title_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	title_label.custom_minimum_size.x = 40
+	title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	words.add_child(title_label)
 
 func _fit() -> void:
 	if fact_grid != null: fact_grid.columns = maxi(2, mini(6, int(size.x / 250.0)))

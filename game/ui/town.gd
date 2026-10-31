@@ -270,7 +270,7 @@ func _recruit_card(t: Dictionary, r: Unit) -> Control:
 	v.add_child(HSeparator.new())
 	v.add_child(UiKit.kv("Signing pay", "%s coins" % UiKit.thousands(cost), UiTheme.COPPER_LO if cost <= Game.gold else UiTheme.BAD))
 	v.add_child(UiKit.kv("Daily wage", "%d coins" % int(o["wage"]), UiTheme.COPPER_LO))
-	var row := UiKit.hbox()
+	var row := UiKit.flow()
 	row.add_child(UiKit.button("Details", func(): _recruit_details(r), "Row", 120))
 	var family_index := RecruitBrief.family_index(r, t)
 	if family_index >= 0:

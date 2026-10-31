@@ -91,22 +91,26 @@ func _ready() -> void:
 	# ------------------------------------------------------------------ peoples
 	v.add_child(UiKit.label("Peoples", "H2"))
 	steppe_check = CheckButton.new()
-	steppe_check.text = "Steppe peoples (the Dust-Wind Khanate)"
+	steppe_check.focus_mode = Control.FOCUS_NONE
 	steppe_check.tooltip_text = "Off: the south-east is settled by the Warrens instead; no steppe houses or towns."
 	steppe_check.button_pressed = bool(Game.settings.get("steppe_enabled", false))
-	steppe_check.custom_minimum_size = Vector2(80, UiKit.TAP)
-	steppe_check.focus_mode = Control.FOCUS_NONE
-	v.add_child(steppe_check)
+	steppe_check.custom_minimum_size = Vector2(UiKit.TAP, UiKit.TAP)
+	var steppe_row := UiKit.hbox(8)
+	steppe_row.add_child(steppe_check)
+	steppe_row.add_child(UiKit.wrap(UiKit.label("Steppe peoples (the Dust-Wind Khanate)", "", true), 80))
+	v.add_child(steppe_row)
 	creatures_check = CheckButton.new()
 	creatures_check.name = "CreaturesEnabled"
-	creatures_check.text = "Creatures and lairs (wolves, bears and worse roam the wilds)"
+	creatures_check.focus_mode = Control.FOCUS_NONE
 	creatures_check.tooltip_text = "On: creature lairs and roaming packs on the map; they fight your army, towns' militia and travellers. Off: no creatures."
 	creatures_check.button_pressed = bool(Game.settings.get("creatures_enabled", true))
-	creatures_check.custom_minimum_size = Vector2(80, UiKit.TAP)
-	creatures_check.focus_mode = Control.FOCUS_NONE
-	v.add_child(creatures_check)
+	creatures_check.custom_minimum_size = Vector2(UiKit.TAP, UiKit.TAP)
+	var creature_row := UiKit.hbox(8)
+	creature_row.add_child(creatures_check)
+	creature_row.add_child(UiKit.wrap(UiKit.label("Creatures and lairs (wolves, bears and worse roam the wilds)", "", true), 80))
+	v.add_child(creature_row)
 	var cap_row := UiKit.hbox(10); v.add_child(cap_row)
-	var cap_l := UiKit.label("Most noble houses alive at once (0 = the starting houses plus 60)", "", true)
+	var cap_l := UiKit.wrap(UiKit.label("Most noble houses alive at once (0 = the starting houses plus 60)", "", true), 80)
 	cap_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cap_l.tooltip_text = "Each battle won raises the commoner with the greatest contribution to found a house. At this cap nobody new is raised until a house dies out."
 	cap_l.mouse_filter = Control.MOUSE_FILTER_PASS
@@ -116,9 +120,8 @@ func _ready() -> void:
 	cap_row.add_child(house_cap_spin)
 	# ------------------------------------------------------------------ sickness (v0.034)
 	v.add_child(UiKit.label("Sickness", "H2"))
-	var sick_row := UiKit.hbox(10); v.add_child(sick_row)
-	sick_lbl = UiKit.label("", "", false)
-	sick_lbl.custom_minimum_size.x = 300
+	var sick_row := UiKit.vbox(6); v.add_child(sick_row)
+	sick_lbl = UiKit.wrap(UiKit.label("", "", true), 80)
 	sick_row.add_child(sick_lbl)
 	sick_slider = HSlider.new()
 	sick_slider.name = "SicknessDeadliness"
@@ -134,7 +137,7 @@ func _ready() -> void:
 	_sick_text()
 	# ------------------------------------------------------------------ the estimate and Begin
 	v.add_child(HSeparator.new())
-	est = UiKit.label("", "", true)
+	est = UiKit.wrap(UiKit.label("", "", true), 80)
 	v.add_child(est)
 	var go := UiKit.button("Create world", _begin, "", 0)
 	go.custom_minimum_size.y = 64

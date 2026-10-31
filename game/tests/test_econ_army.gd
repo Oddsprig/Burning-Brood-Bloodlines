@@ -694,7 +694,18 @@ func _test_days_run() -> void:
 # ---------------------------------------------------------------- war pick 4: the draft
 ## An army takes only real free people of its home town aged 17-30 (race-scaled), labourers first, never a hand
 ## the family land or herd needs; when the town can spare too few the band is smaller, when none it is not raised;
-## no family is ever made up for it.
+## no family is ever made up for it. Cohort families also send unnamed draft-age slots, capped by Population.spare.
+func _draft_bins(econ: Dictionary, f: Dictionary, day: float) -> int:
+	var n := 0
+	var window := People.draft_ages(String(f.get("race", Persons.race_of(econ))))
+	for key in f.get("age_bins", {}):
+		if Population.bin_category(econ, f, String(key), day) >= 2:
+			continue
+		var age := int(floor(day / People.year_days())) - int(String(key).split(":")[1])
+		if age >= window.x and age <= window.y:
+			n += int(f["age_bins"][key])
+	return n
+
 func _test_draft() -> void:
 	Game.new_game(5155)
 	var w: Dictionary = Game.world
@@ -711,33 +722,59 @@ func _test_draft() -> void:
 	var tiers := {}
 	var day := float(e.get("day", 0))
 	var prev := -1
-	var places := {}   # pid -> work place kind before the draft
+	var spare_left := {}
+	var bins_left := {}
 	for f in e["fams"]:
 		if f["gone"] or f.has("estate"):
 			continue
-		var wk := Persons.work(e, f)
-		for pid in wk:
-			places[int(pid)] = String(wk[pid]["kind"])
+		spare_left[int(f["id"])] = Population.spare(f)
+		if Population.is_cohort(f):
+			bins_left[int(f["id"])] = _draft_bins(e, f, day)
 	for r in pool:
 		tiers[int(r[0])] = int(tiers.get(int(r[0]), 0)) + 1
 		check(int(r[0]) >= prev, "draft pool not labourers first")
 		prev = int(r[0])
-		var p := Persons.by_pid(People.fam_of(town, int(r[2])), int(r[3]))
-		var age := Persons.age_of(p, day)
-		check(age >= 17 and age <= 30, "a %d-year-old in the draft pool" % age)
-		check(not places.get(int(r[3]), "") in ["land", "herd"], "a needed land hand in the draft pool")
+		var fam := People.fam_of(town, int(r[2]))
+		var race := Persons.family_race(e, fam)
+		var window := People.draft_ages(race)
+		var pid := int(r[3])
+		if pid < 0:
+			check(Population.is_cohort(fam), "an unnamed draft slot from a family that is not a cohort")
+			check(int(bins_left.get(int(r[2]), 0)) > 0, "an unnamed draft slot the family cannot name")
+		else:
+			var p := Persons.by_pid(fam, pid)
+			var age := Persons.age_of(p, day)
+			check(age >= window.x and age <= window.y, "a %d-year-old in the %s draft pool" % [age, race])
+			var kind := String(People._work_kinds(fam).get(pid, ""))
+			check(not kind in ["land", "herd", "keeper"], "a needed land hand in the draft pool")
 	print("draft pool of %s: %d (by tier idle/casual/job: %s)" % [town["name"], pool.size(), str(tiers)])
 	check(not pool.is_empty(), "a town at world generation can spare nobody")
 	var fams0 := (e["fams"] as Array).size()
 	var pop0 := int(e["pop"])
-	# who can go: each family keeps two grown-ups at home, so it sends at most adults - serving - 1 of its pool
-	var per := {}
-	for r in pool:
-		per[int(r[2])] = int(per.get(int(r[2]), 0)) + 1
+	# Who can go: walk the pool the way People.draft does. A family keeps two grown-ups
+	# and every land hand and keeper (Population.spare). Cohort rows are unnamed slots.
 	var can := 0
-	for fid in per:
-		var f := People.fam_of(town, fid)
-		can += mini(int(per[fid]), Families.adults(f) - Families.serving(f) - 1)
+	var first_sim_tier := -1
+	for r in pool:
+		var fid := int(r[2])
+		var pid := int(r[3])
+		if int(spare_left.get(fid, 0)) <= 0:
+			continue
+		var fam := People.fam_of(town, fid)
+		var take := false
+		if pid < 0:
+			take = int(bins_left.get(fid, 0)) > 0
+			if take:
+				bins_left[fid] = int(bins_left[fid]) - 1
+		else:
+			var p := Persons.by_pid(fam, pid)
+			take = not p.is_empty() and String(p[4]) == "" and int(p[5]) < 0 and int(p[6]) == 0
+		if not take:
+			continue
+		spare_left[fid] = int(spare_left[fid]) - 1
+		if first_sim_tier < 0:
+			first_sim_tier = int(r[0])
+		can += 1
 	# ask for more men than it can spare: the band is as big as the pool
 	var rng := RandomNumberGenerator.new(); rng.seed = 3
 	var ask := can + 6
@@ -754,13 +791,15 @@ func _test_draft() -> void:
 			var p := Persons.by_uid(f, u.uid)
 			check(not p.is_empty() and String(p[4]) == "army", "a soldier who is not a register person of his town")
 			if not p.is_empty():
+				var window := People.draft_ages(Persons.family_race(e, f))
 				var age := Persons.age_of(p, day)
-				check(age >= 17 and age <= 30, "a soldier aged %d" % age)
-				check(not places.get(int(p[0]), "") in ["land", "herd"], "a land hand was drafted")
+				check(age >= window.x and age <= window.y, "a soldier aged %d" % age)
+				var kind := String(People._work_kinds(f).get(int(p[0]), ""))
+				check(not kind in ["land", "herd", "keeper"], "a land hand was drafted")
 				if first_tier < 0:
-					first_tier = ["none", "casual", "job"].find(places.get(int(p[0]), ""))
+					first_tier = int(People.DRAFT_TIER[kind]) if People.DRAFT_TIER.has(kind) else first_sim_tier
 	if not pool.is_empty():
-		check(first_tier == int(pool[0][0]), "the first man drafted is not from the first tier (%d vs %d)" % [first_tier, int(pool[0][0])])
+		check(first_tier == first_sim_tier, "the first man drafted is not from the first tier the town can spare (%d vs %d)" % [first_tier, first_sim_tier])
 	check((e["fams"] as Array).size() == fams0 and int(e["pop"]) == pop0, "the draft made up families or people (%d -> %d families)" % [fams0, (e["fams"] as Array).size()])
 	# nobody left: the next band is not raised
 	var wid2 := CampaignWorld.spawn_warband(Game, "middle_kingdom", town["pos"], 6, "patrol", rng, {"home": town["id"]})

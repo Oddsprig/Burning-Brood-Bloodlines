@@ -34,7 +34,7 @@ func _ready() -> void:
 	_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_subtitle.add_theme_color_override("font_color", UiTheme.PURPLE_TEXT)
 	_column.add_child(_subtitle)
-	var vow := UiKit.label("A house. A city. A bloodline.   ·   Claude Edition", "Muted")
+	var vow := UiKit.wrap(UiKit.label("A house. A city. A bloodline.   ·   Claude Edition", "Muted", true), 120)
 	vow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vow.add_theme_font_size_override("font_size", 18)
 	_column.add_child(vow)

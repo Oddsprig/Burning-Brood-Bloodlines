@@ -72,6 +72,10 @@ func _ready() -> void:
 	house_name = _word("", "")
 	house_name.add_theme_font_override("font", UiTheme.bold())
 	house_name.add_theme_font_size_override("font_size", 18)
+	house_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	house_name.clip_text = true
+	house_name.custom_minimum_size.x = 40
+	house_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(house_name)
 	ruler_name = _word("", "", true)
 	ruler_name.add_theme_font_size_override("font_size", 19)
