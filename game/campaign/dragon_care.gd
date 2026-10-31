@@ -62,8 +62,21 @@ static func food_need_units(game, row: Dictionary) -> int:
 	var mass := float(Dragons.physical_profile(game, row).get("body_mass_kg", 0.0))
 	return int(ceil(mass * FEED_MASS_SHARE / FOOD_UNIT_KG)) if mass > 0.0 else 0
 
-static func _on_march(game, row: Dictionary) -> bool:
+static func _player_marching(game, row: Dictionary) -> bool:
 	return bool(row.get("campaign_march", {}).get("enabled", false)) and not game.company.is_empty() and bool(row.get("alive", false))
+
+## The assault army named on ai_march, while it is still that kind of army and still has soldiers.
+static func _ai_band(game, row: Dictionary) -> Dictionary:
+	var march: Dictionary = row.get("ai_march", {})
+	if not bool(march.get("enabled", false)) or not bool(row.get("alive", false)): return {}
+	var band: Dictionary = game.world.get("warbands", {}).get(str(march.get("warband_id", "")), {})
+	if band.is_empty() or str(band.get("kind", "")) != "assault": return {}
+	var units: Array = band.get("units", [])
+	if units.is_empty(): return {}
+	return band
+
+static func _on_march(game, row: Dictionary) -> bool:
+	return _player_marching(game, row) or not _ai_band(game, row).is_empty()
 
 static func _market_ready(e: Dictionary) -> bool:
 	for key in ["stock", "price", "stats", "req", "led"]:
@@ -207,6 +220,10 @@ static func settle(game, row: Dictionary, day: int, uid: String = "") -> bool:
 	var care: Dictionary = row["care"]
 	if int(care["last_day"]) >= day or not row.get("alive", false): return false
 	if uid == "": uid = str(row.get("id", ""))
+	# A dissolved field army must not fall through into household market care on the same day.
+	if bool(row.get("ai_march", {}).get("enabled", false)) and _ai_band(game, row).is_empty() and not _player_marching(game, row):
+		row.erase("ai_march")
+		return false
 	if _on_march(game, row): return _settle_march(game, row, day, uid)
 	return _settle_home(game, row, day, uid)
 
@@ -241,6 +258,9 @@ static func _settle_home(game, row: Dictionary, day: int, uid: String) -> bool:
 	return _close_day(game, row, day, uid, egg, food_ratio, care_ratio, receipt)
 
 static func _settle_march(game, row: Dictionary, day: int, uid: String) -> bool:
+	if not _player_marching(game, row):
+		var band := _ai_band(game, row)
+		if not band.is_empty(): return _settle_ai_march(game, row, day, uid, band)
 	var egg := str(row.get("stage", "")) == "egg"
 	var need := food_need_units(game, row)
 	var drawn := {"taken": 0, "by_good": {}, "lots": [], "spoiled": 0}
@@ -253,6 +273,34 @@ static func _settle_march(game, row: Dictionary, day: int, uid: String) -> bool:
 	var receipt := {"day": day, "payer_household_uid": str(row.get("owner_household_uid", "")), "source": "army",
 		"food_units": taken, "food_cost": 0.0, "upkeep_units": 0, "upkeep_cost": 0.0,
 		"goods": drawn.get("by_good", {}), "lots": drawn.get("lots", []), "spoiled": int(drawn.get("spoiled", 0)),
+		"food_ratio": food_ratio, "care_ratio": 1.0,
+		"health_before": clampf(float(care.get("health", 1.0)), 0.0, 1.0), "growth_before": growth_before, "reason": reason}
+	return _close_day(game, row, day, uid, egg, food_ratio, 1.0, receipt)
+
+## Spare meat from that assault army, then a matching share of the realm treasury. Never the player's packed stores.
+static func _settle_ai_march(game, row: Dictionary, day: int, uid: String, band: Dictionary) -> bool:
+	var egg := str(row.get("stage", "")) == "egg"
+	var need := food_need_units(game, row)
+	var drawn := {"taken": 0, "by_good": {}}
+	if need > 0: drawn = Supplies.draw_band_meat(band, need)
+	var taken := int(drawn.get("taken", 0))
+	var cost := Warfare.feed_cost(row)
+	var coin := 0
+	var fac: Dictionary = game.world.get("factions", {}).get(str(band.get("faction", "")), {})
+	if need > taken and cost > 0 and not fac.is_empty():
+		var due := int(round(float(cost) * float(need - taken) / float(maxi(1, need))))
+		var have := int(floor(maxf(0.0, float(fac.get("treasury", 0.0)))))
+		coin = mini(maxi(0, due), have)
+		if coin > 0: fac["treasury"] = float(fac["treasury"]) - float(coin)
+	var meat_ratio := 1.0 if need <= 0 else float(taken) / float(need)
+	var coin_ratio := float(coin) / float(cost) if cost > 0 else 0.0
+	var food_ratio := 1.0 if egg or need <= 0 else clampf(meat_ratio + coin_ratio, 0.0, 1.0)
+	var growth_before := float(DragonGrowth.metrics(row).get("growth_points", 0.0))
+	var reason := "The field army's stores and treasury cover this day's feed." if food_ratio >= 1.0 else "The field army is short of spare meat and coin."
+	var care: Dictionary = row["care"]
+	var receipt := {"day": day, "payer_household_uid": str(row.get("owner_household_uid", "")), "source": "ai_army",
+		"warband_id": str(band.get("id", "")), "food_units": taken, "food_cost": float(coin), "coin": coin,
+		"upkeep_units": 0, "upkeep_cost": 0.0, "goods": drawn.get("by_good", {}),
 		"food_ratio": food_ratio, "care_ratio": 1.0,
 		"health_before": clampf(float(care.get("health", 1.0)), 0.0, 1.0), "growth_before": growth_before, "reason": reason}
 	return _close_day(game, row, day, uid, egg, food_ratio, 1.0, receipt)

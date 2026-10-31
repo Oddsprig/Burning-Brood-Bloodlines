@@ -254,6 +254,45 @@ static func set_march(game, uid: String, on: bool) -> Dictionary:
 	Dragons._history(game, live, "march", {"enabled": false})
 	return {"ok": true, "reason": "%s flies home to %s." % [live.get("name", "The dragon"), str(game.world.get("towns", {}).get(str(live.get("location_town_id", "")), {}).get("name", "its roost"))]}
 
+## Player march when warband_id is empty (the existing set_march path). An AI field army passes its assault id.
+## AI dragons are not gated on your company, a visit, or your household's ownership, and they do not use campaign_march.
+static func set_dragon_march(game, uid: String, on: bool, warband_id: String = "") -> Dictionary:
+	if warband_id == "": return set_march(game, uid, on)
+	var live: Dictionary = game.world.get("dragons", {}).get("records", {}).get(uid, {})
+	if live.is_empty(): return {"ok": false, "reason": "Unknown dragon."}
+	if not on:
+		live.erase("ai_march")
+		return {"ok": true, "reason": "%s leaves the field army." % live.get("name", "The dragon")}
+	var reason := _ai_march_reason(game, live, warband_id)
+	if reason != "": return {"ok": false, "reason": reason}
+	live["ai_march"] = {"enabled": true, "day": float(game.day), "warband_id": warband_id, "rider_person_uid": str(live.get("rider_person_uid", ""))}
+	return {"ok": true, "reason": "%s marches with the field army." % live.get("name", "The dragon"), "warband_id": warband_id}
+
+static func _ai_march_reason(game, row: Dictionary, warband_id: String) -> String:
+	if not bool(row.get("alive", false)): return "This dragon is dead."
+	if str(row.get("stage", "")) != "adult": return "Only an adult dragon can go to war."
+	if bool(row.get("campaign_march", {}).get("enabled", false)): return "This dragon is already marching with your army."
+	var player_hh := str(game.world.get("player_house", {}).get("household_uid", ""))
+	if player_hh != "" and str(row.get("owner_household_uid", "")) == player_hh: return "This dragon belongs to your house."
+	var bond: Dictionary = DragonBond.status(game, str(row.get("id", "")))
+	if not bool(bond.get("active", false)): return "It needs a bonded rider."
+	var rider := Dynasty._person(game, str(row.get("rider_person_uid", "")))
+	if rider.is_empty(): return "It needs a bonded rider."
+	if Horses.fights_on_foot_only(Persons.family_race(rider["econ"], rider["family"])): return "Trolls and giants fight on foot only."
+	var band: Dictionary = game.world.get("warbands", {}).get(warband_id, {})
+	if band.is_empty(): return "That army is not in the field."
+	if str(band.get("kind", "")) != "assault": return "Only a marching field army takes a dragon."
+	var units: Array = band.get("units", [])
+	if units.is_empty(): return "That army has no soldiers."
+	var realm := str(game.world.get("towns", {}).get(str(row.get("location_town_id", "")), {}).get("faction", ""))
+	if realm == "" or str(band.get("faction", "")) != realm: return "The dragon's realm is not the army's realm."
+	var unit: Unit = DragonCombat._unit(game, str(row.get("id", "")))
+	if unit == null or unit.dead: return "No living body."
+	var health: Dictionary = HealthReport.describe(unit)
+	if str(health.get("fitness", "")) == "cannot fight": return "Too badly hurt to fight."
+	if float(row.get("care", {}).get("health", 1.0)) <= 0.05: return "Starving: it needs feeding."
+	return ""
+
 ## Dragons marching with the army that may fight this battle (in addition to home-defence dragons).
 static func marching_units(game) -> Array:
 	var out: Array = []
@@ -271,6 +310,7 @@ static func daily(game, days: int) -> void:
 		Intrigue.daily(game, int(game.day) - days + d + 1)
 		Prisoners.daily(game, int(game.day) - days + d + 1)
 	_recall_idle_marchers(game)
+	WarAI.march_dragons(game)
 
 ## One morning boundary. The previous evening has already spoiled, and this morning's meals have not been served.
 static func feed_march_day(game, day: int) -> void:

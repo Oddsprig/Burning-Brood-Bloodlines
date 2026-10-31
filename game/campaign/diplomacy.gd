@@ -366,12 +366,17 @@ static func sync_dynasty(game) -> void:
 	var w: Dictionary = game.world
 	var dp: Dictionary = w.get("diplo", {})
 	if dp.is_empty(): return
-	if w.get("marriage", {}).get("alliances", {}).is_empty() and dp.get("dynasty_realms", {}).is_empty(): return
+	var ai_links: Dictionary = w.get("marriage", {}).get("ai_links", {})
+	var ai_saved: Dictionary = dp.get("ai_dynasty_realms", {})
+	if w.get("marriage", {}).get("alliances", {}).is_empty() and dp.get("dynasty_realms", {}).is_empty() and ai_links.is_empty() and ai_saved.is_empty(): return
 	var mine := player_realm(w)
 	var realms := Marriage.realm_allies(game)
+	var ai_realms := Marriage.ai_realm_pairs(game)
 	dp["dynasty_realms"] = realms
+	if ai_realms.is_empty(): dp.erase("ai_dynasty_realms")
+	else: dp["ai_dynasty_realms"] = ai_realms
 	for p: Dictionary in dp["pairs"].values():
-		var tied := (str(p["a"]) == mine and realms.has(p["b"])) or (str(p["b"]) == mine and realms.has(p["a"]))
+		var tied := (str(p["a"]) == mine and realms.has(p["b"])) or (str(p["b"]) == mine and realms.has(p["a"])) or ai_realms.has(pair_key(str(p["a"]), str(p["b"])))
 		p["dynasty"] = tied
 		if tied and p["state"] == WAR:
 			_set_state(game, p, NEUTRAL)
