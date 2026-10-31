@@ -596,7 +596,9 @@ static func _write_save(path: String, d: Dictionary) -> Dictionary:
 		result["error"] = FileAccess.get_open_error()
 		return result
 	var started := Time.get_ticks_usec()
-	var text := JSON.stringify(d)
+	# v0.074: every float in full (the default writer kept 15 digits, so a reload moved values in their last bits)
+	# and keys in their live order (a sorted file reloaded every dictionary in another iteration order).
+	var text := JSON.stringify(d, "", false, true)
 	result["encode_us"] = Time.get_ticks_usec()-started
 	started = Time.get_ticks_usec()
 	f.store_string(text)
@@ -641,6 +643,9 @@ func load_game() -> bool:
 	_release_result_history()
 	pending_battle = {}; last_result = {}
 	Unit._next_uid = maxi(1, int(d.get("next_unit_uid", 1)))
+	# v0.074: the piece counter is the saved one, not this process's (Item.from_dict still lifts it over every
+	# loaded uid; a save from before v0.074 starts it there).
+	Item._next_uid = maxi(1, int(d.get("next_item_uid", 1)))
 	seed_value = int(d.get("seed", 0)); rng.seed = seed_value
 	var rng_state := str(d.get("rng_state", ""))   # v0.074: older saves restart the stream from the seed
 	if rng_state.is_valid_int(): rng.state = rng_state.to_int()

@@ -654,8 +654,7 @@ static func _household(_game, _t: Dictionary, e: Dictionary, b: Dictionary, f: D
 					nm = Persons.name_of(f, p, Persons.race_of(e))
 				_push(b, [ceilf(from + dt), 1, int(f["id"]), int(q[0]), dis, "home:%s (household)" % nm])
 
-static var _hc_day := -1   # (the week of _hc)
-static var _hc: Dictionary = {}   # a week's job-holding families per business ({town: {business: [families, places]}})
+# (v0.074: the week's job-holding families per business are kept in e["_hc"]: {"wk": week, "b": {business: [family ids, places]}})
 
 ## Workmates at his business: a thinned draw over its staff (the job holders of every family working there).
 static func _workplace(_game, _t: Dictionary, e: Dictionary, b: Dictionary, f: Dictionary, p: Array, c: Array, rng: RandomNumberGenerator) -> void:
@@ -680,15 +679,15 @@ static func _workplace(_game, _t: Dictionary, e: Dictionary, b: Dictionary, f: D
 	if k <= 0:
 		return
 	var key := str(biz)
-	var tn := String(e["fams"][0]["name"])   # (families[0], the town estate, carries the town's name)
 	var wk := int(e.get("day", 0)) / 7
-	if _hc_day != wk:
-		_hc_day = wk
-		_hc = {}
 	# one pass over the town's families a week: every business's job-holding families (a family that took a place
 	# there since is missed until the next week's list; one that left is skipped: its place there counts 0 and the
 	# person drawn must hold a place there now)
-	if not _hc.has(tn):
+	# v0.074: the week's list lives in the town's economy as family ids (e["_hc"]), so it is saved with the town.
+	# It was a static cache keyed by the town's name: a reload mid-week drew from a list made after the load, and a
+	# second load in the same process drew from the families of the world it replaced.
+	var hc: Dictionary = e.get("_hc", {}) if e.get("_hc") is Dictionary else {}
+	if int(hc.get("wk", -1)) != wk or not hc.get("b") is Dictionary:
 		var all := {}
 		for f3 in e["fams"]:
 			if f3["gone"]:
@@ -697,21 +696,25 @@ static func _workplace(_game, _t: Dictionary, e: Dictionary, b: Dictionary, f: D
 			for kk in jb:
 				if not all.has(kk):
 					all[kk] = [[], 0]
-				all[kk][0].append(f3)
+				all[kk][0].append(int(f3["id"]))
 				all[kk][1] = int(all[kk][1]) + int(jb[kk])
-		_hc[tn] = all
-	if not _hc[tn].has(key):
+		hc = {"wk": wk, "b": all}
+		e["_hc"] = hc
+	var by: Dictionary = hc["b"]
+	if not by.has(key):
 		return
-	var holders: Array = _hc[tn][key][0]
-	var tot: int = _hc[tn][key][1]
-	if tot <= 0:
+	var holders: Array = by[key][0]
+	var tot: int = int(by[key][1])
+	if tot <= 0 or holders.is_empty():
 		return
+	var fams: Array = e["fams"]
 	var nm := ""
 	var rm := _rm_town(e, b, dis, r)
 	for j in k:
 		var x := rng.randi() % tot
-		var f2: Dictionary = holders[0]
-		for h in holders:
+		var f2: Dictionary = fams[int(holders[0])]
+		for hi in holders:
+			var h: Dictionary = fams[int(hi)]
 			x -= int(h["jobs"].get(key, 0))   # (a place left since the day's list was made counts 0)
 			if x < 0:
 				f2 = h

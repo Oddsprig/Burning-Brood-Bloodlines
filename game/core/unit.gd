@@ -230,6 +230,15 @@ func to_dict() -> Dictionary:
 		out["native_dragon_profile"] = native_dragon_profile.duplicate(true)
 	return out
 
+## A saved int table (attributes, skills, traits) with its whole-number values as ints again; other values as read.
+static func _int_values(src) -> Dictionary:
+	if not src is Dictionary: return {}
+	var out: Dictionary = src
+	for k in out:
+		var v = out[k]
+		if v is float and v == floorf(v) and absf(v) < 9.0e15: out[k] = int(v)
+	return out
+
 static func from_dict(d: Dictionary) -> Unit:
 	var u := Unit.new()
 	u.uid = int(d["uid"])
@@ -244,12 +253,14 @@ static func from_dict(d: Dictionary) -> Unit:
 	u.role = d.get("role", "troop")
 	u.title = d.get("title", "")
 	u.squad = int(d.get("squad", -1))
-	u.attrs = d.get("attrs", {})
+	# v0.074: the int tables come back as ints (JSON reads every number as a float; a reloaded man's sums and
+	# divisions on his attributes and skills must be the ones he had before the save).
+	u.attrs = _int_values(d.get("attrs", {}))
 	u.attr_xp = d.get("attr_xp", {})
-	u.attr_base = d.get("attr_base", u.attrs.duplicate())
-	u.attr_cap = d.get("attr_cap", {})
-	u.talent = d.get("talent", {})
-	u.personality = d.get("personality", {})
+	u.attr_base = _int_values(d.get("attr_base", u.attrs.duplicate()))
+	u.attr_cap = _int_values(d.get("attr_cap", {}))
+	u.talent = _int_values(d.get("talent", {}))
+	u.personality = _int_values(d.get("personality", {}))
 	u.size_h = int(d.get("size_h", 100))
 	u.size_b = int(d.get("size_b", 100))
 	u.arm_len = int(d.get("arm_len", 100))
@@ -257,7 +268,7 @@ static func from_dict(d: Dictionary) -> Unit:
 	for a in u.attr_base:
 		if not u.attr_cap.has(a):
 			u.attr_cap[a] = DB.attr_ceiling(int(u.attr_base[a]), int(Factory.att_range(u.race, a)[3]), DB.TALENT_LEVELS[int(u.talent.get(a, 1))])
-	u.skills = d.get("skills", {})
+	u.skills = _int_values(d.get("skills", {}))
 	u.skill_xp = d.get("skill_xp", {})
 	for s in d.get("equip", {}):
 		u.equip[s] = Item.from_dict(d["equip"][s])
@@ -280,8 +291,8 @@ static func from_dict(d: Dictionary) -> Unit:
 	u.last_pay = float(d.get("last_pay", 0.0))
 	u.born = float(d.get("born", -1.0e9))
 	u.rank = int(d.get("rank", 0)); u.renown = float(d.get("renown", 0.0)); u.notable = d.get("notable", [])
-	u.mind = d.get("mind", {}); u.values = d.get("values", {}); u.ambition = d.get("ambition", "")
-	u.needs = d.get("needs", {}); u.stress = float(d.get("stress", 0.0)); u.hardness = int(d.get("hardness", 0))
+	u.mind = _int_values(d.get("mind", {})); u.values = _int_values(d.get("values", {})); u.ambition = d.get("ambition", "")
+	u.needs = _int_values(d.get("needs", {})); u.stress = float(d.get("stress", 0.0)); u.hardness = int(d.get("hardness", 0))
 	u.pref_weapon = d.get("pref_weapon", ""); u.pref_material = d.get("pref_material", ""); u.age = int(d.get("age", 25))
 	u.kill_list = d.get("kill_list", []); u.skill_idle = d.get("skill_idle", {})
 	u.belly = float(d.get("belly", 60.0)); u.buzz = float(d.get("buzz", 0.0)); u.hungover = bool(d.get("hungover", false))

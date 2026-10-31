@@ -365,6 +365,9 @@ static func econ_daily(game, town: Dictionary, e: Dictionary, day: int = -1, eve
 	if game != null:
 		# Stock only shrinks within this pass: identical missing slots stay missing.
 		rekit_units(game, town, mil, false, {}, true)   # first what the armory already holds
+		# v0.074: the surplus over what the reserve could carry is melted here, at the head's look (it was done
+		# at every load, so a reloaded game held a different armory).
+		Militia.trim_armory(game, tid)
 	Perf.record_us("Equipment existing issue", Time.get_ticks_usec() - phase_started)
 	phase_started = Time.get_ticks_usec()
 	var tgt := targets(game, town)
@@ -997,8 +1000,15 @@ static func after_load(game) -> void:
 	if not w.has("arms"):
 		w["arms"] = new_state()
 	retire_contracts(game)
+	# v0.074: only a save without the head's figures gets them worked out now. The saved ones are what the last
+	# look decided; working them out again at a load changed the shortfalls caravans and contracts read.
 	for town in w["towns"].values():
-		if TownEcon.has_econ(town): refresh_reserve(game, town)
+		if not TownEcon.has_econ(town): continue
+		var e2: Dictionary = town["econ"]
+		if not (e2.has("arms_tgt") and e2.has("arms_have") and e2.has("arms_short") and e2.has("arrow_reserve")):
+			refresh_reserve(game, town)
+		else:
+			e2["arrow_reserve"] = int(e2["arrow_reserve"])
 
 # ================================================================== the market: caravans
 ## Pieces on the origin's stalls the destination's armory is short of (and the origin is not), up to n.

@@ -379,17 +379,19 @@ static func trim(game, tid: String) -> int:
 	if not touched.is_empty(): Families.match_idle(e)
 	return release.size()
 
+## v0.074: the armories are no longer trimmed here. A load melted every armory over its cap (and re-sorted it), so a
+## reloaded game had other pieces, other targets and more scrap than the same game played on; the head's own armory
+## look (ArmsTrade.econ_daily, every ARMORY_EVERY days) trims it now, the same whether or not the game was reloaded.
 static func trim_all(game) -> int:
 	var n := 0
 	for tid in game.world.get("militia", {}):
 		n += trim(game, str(tid))
-	for tid in game.world.get("towns", {}):
-		trim_armory(game, str(tid))
 	return n
 
 ## Claude Edition: a town armory keeps what its reserve could ever carry (its arms target, at least 4 pieces per
 ## reservist); surplus pieces are melted into the town's scrap metal stock by their real mass (legendary pieces are
 ## always kept). The uncapped armories of a large world held 178,000 Item objects.
+## Called by the head's armory look (ArmsTrade.econ_daily), so an old save's oversized armory shrinks within days.
 static func trim_armory(game, tid: String) -> int:
 	var town: Dictionary = game.world["towns"].get(tid, {})
 	if not TownEcon.has_econ(town) or not town.has("armory_items"): return 0
