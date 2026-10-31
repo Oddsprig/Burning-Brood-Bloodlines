@@ -21,14 +21,21 @@ func joint_contract(spec: Dictionary, layers: Dictionary, label: String) -> void
 	var fp := FigurePainter.new(spec)
 	check(layers["standing_height"] == fp.H and layers["raster_scale"] == FigurePainter.raster_scale(spec["race"]), label + " native height/detail scale unchanged")
 	check(layers["seat"] == Vector2.ZERO and layers["hip"] == Vector2.ZERO and layers["shoulder"].y < 0 and layers["head"].y < layers["shoulder"].y, label + " hips sit on saddle, torso/head above")
+	check(str(layers.get("pose", "")) == "straddle", label + " straddle pose")
 	var joints: Dictionary = layers["joints"]
 	for side: String in ["r", "l"]:
 		var hip: Vector2 = joints["p" + side]; var knee: Vector2 = joints["k" + side]; var foot: Vector2 = joints["f" + side]
-		check(knee.x > hip.x and knee.y > hip.y and foot.y > knee.y and foot.x < knee.x, label + " forward bent knee and downward shin " + side)
-		check((knee - hip).y > (knee - hip).x and (knee - hip).x > (knee - hip).y * 0.45 and (foot - knee).y > absf((foot - knee).x) * 3.0, label + " straddling downward-forward thigh and vertical stirrup shin " + side)
+		var thigh := knee - hip
+		var shin := foot - knee
+		if side == "r":
+			check(thigh.x > 0.0 and thigh.y > thigh.x and thigh.x > thigh.y * 0.2 and foot.y > knee.y, label + " near thigh down the flank " + side)
+		else:
+			check(thigh.x < 0.0 and thigh.y > absf(thigh.x) * 0.5 and foot.y > knee.y, label + " far thigh behind the body " + side)
+		check(shin.y > absf(shin.x) * 3.0, label + " shin hangs " + side)
 		check(is_equal_approx(hip.distance_to(knee), fp.leg_len * 0.5) and is_equal_approx(knee.distance_to(foot), fp.leg_len * 0.5), label + " original thigh/shin lengths " + side)
 		var shoulder: Vector2 = joints["s" + side]; var elbow: Vector2 = joints["e" + side]; var hand: Vector2 = joints["h" + side]
 		check(is_equal_approx(shoulder.distance_to(elbow), fp.arm_a) and is_equal_approx(elbow.distance_to(hand), fp.arm_b), label + " reachable native arm IK " + side)
+	check((joints["kr"] - joints["pr"]).x * (joints["kl"] - joints["pl"]).x < 0.0, label + " legs are not on the same side")
 	var pixel_to_local: Transform2D = layers["image_to_local"]
 	var local_to_pixel: Transform2D = layers["local_to_image"]
 	check((pixel_to_local * layers["image_anchor"]).is_equal_approx(Vector2.ZERO) and (pixel_to_local * (local_to_pixel * joints["hc"])).is_equal_approx(joints["hc"]), label + " cropped seat/head transform roundtrip")
@@ -107,8 +114,8 @@ func run(_tree: SceneTree) -> int:
 		changed["weapon"] = {"tid": weapon, "sprite": weapon, "mat": "steel", "q": 2, "reach": 220.0, "two": weapon != "longbow"}
 		var armed := MountedRiderArt.render_layers(changed)
 		joint_contract(changed, armed, "mounted " + weapon)
-		check(armed["image"].get_data() != young["image"].get_data(), "native " + weapon + " equipment retained")
 		if weapon != "longbow": check(armed["mount_grip_hands"].is_empty(), "two-hand weapon has no forced saddle-handle grip " + weapon)
+		check(armed["image"].get_data() != young["image"].get_data(), "native " + weapon + " equipment retained")
 	check(not MountedRiderArt.render_layers({"race": "wolf"})["ok"], "non-humanoid mount is not converted into a rider")
 	check(snapshot() == native and Game.rng.state == rs and Unit._next_uid == next_unit and Item._next_uid == next_item, "all art operations conserve campaign/RNG/counters after explicit native test fixtures")
 	Unit._next_uid = original_unit_uid; Item._next_uid = original_item_uid

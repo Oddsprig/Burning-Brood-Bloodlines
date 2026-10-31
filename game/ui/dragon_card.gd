@@ -94,8 +94,11 @@ func _prepare_frame() -> void:
 		var intact: Dictionary = model if injury.is_empty() else _model(pose, float(i) / maxf(1, frames), {})
 		var bounds: Rect2 = intact["bounds"] if bool(intact.get("valid", false)) else model["bounds"]
 		if bool(_rider.get("ok", false)) and bool(model.get("mountable", false)):
-			var seat: Vector2 = model["seat"]
-			var placement: Transform2D = Transform2D(float(model["seat_angle"]), Vector2.ONE, 0, seat)
+			var fitted: Dictionary = model.duplicate()
+			RiderFit.decorate(fitted, record)
+			var seat: Vector2 = RiderFit.dragon_contact(fitted)
+			var logical := RiderFit.dragon_logical_scale(fitted, _rider)
+			var placement: Transform2D = Transform2D(float(model["seat_angle"]), Vector2(logical, logical), 0, seat)
 			var human: Rect2 = DragonMountPreviewArt._transformed_bounds(_rider["bounds"], placement)
 			if closeup: bounds = Rect2(seat + Vector2(-20, -12), Vector2(52, 36)).merge(human.grow(4))
 			else: bounds = bounds.merge(human)
@@ -123,14 +126,15 @@ func _draw() -> void:
 	if not _model_cache.has(model_key):
 		if _model_cache.size() > 16: _model_cache.clear()
 		_model_cache[model_key] = _model(pose, float(floori(progress * frames_n)) / frames_n, injury)
-	var model: Dictionary = _model_cache[model_key]
+	var model: Dictionary = (_model_cache[model_key] as Dictionary).duplicate()
 	if not bool(model.get("valid", false)): return
+	RiderFit.decorate(model, record)
 	var ppu: float = minf((size.x - 30) / maxf(1, _bounds.size.x), (size.y - 26) / maxf(1, _bounds.size.y))
 	var origin: Vector2 = size * 0.5 - _bounds.get_center() * ppu
 	var mounted: bool = bool(_rider.get("ok", false)) and bool(model.get("mountable", false))
 	var placement: Transform2D = Transform2D.IDENTITY
 	if mounted:
-		placement = MountedRiderArt.placement(_rider, origin + model["seat"] * ppu, ppu, float(model["seat_angle"]))
+		placement = RiderFit.dragon_placement(model, _rider, origin, ppu)
 		draw_set_transform_matrix(placement)
 		draw_texture(_rider_textures["far"], Vector2.ZERO)
 		draw_set_transform_matrix(Transform2D.IDENTITY)

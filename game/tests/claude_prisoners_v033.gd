@@ -71,10 +71,17 @@ func run(tree: SceneTree) -> int:
 	Feudal._payer(Game)["purse"] = 1000.0 * Item.COIN
 	Mobilization.fund(Game, 600 * Item.COIN)
 	# Household officers and a few registered men of the seat ride with the army.
+	# A seated ruler may ride, and is priced as a ruler. This noble is another adult of the house.
 	var noble: Unit = null
-	for row in Mobilization.household_candidates(Game).slice(0, 3):
+	var seats := Prisoners.ruling(Game)
+	var taken := 0
+	for row in Mobilization.household_candidates(Game):
+		if seats["people"].has(str(row.get("person_uid", ""))): continue
 		var er: Dictionary = Mobilization.enlist_household(Game, str(row["person_uid"]))
-		if er.get("ok", false) and noble == null: noble = er["unit"]
+		if not er.get("ok", false): continue
+		taken += 1
+		if noble == null: noble = er["unit"]
+		if taken >= 3: break
 	check(noble != null, "a member of your house rides with the army")
 	var quote := Mobilization.quote(Game, seat, 12)
 	print("prisoners033: quote ", quote.get("ok", false), " ", quote.get("reason", ""), " planned ", quote.get("planned", 0))
