@@ -1,9 +1,9 @@
 class_name MountedRiderArt
 extends RefCounted
-## Additive seated native figure, for visual previews only. Hip/seat is logical
-## (0,0), facing right, y down; native human standing height remains 24 units.
-## Never scale this rider by the dragon's physical body scale. No live rider
-## assignment, Units, Items, campaign RNG or battle state is created here.
+## Additive seated native figure. Hip/seat is logical (0,0), facing right, y down.
+## Native standing height stays the released race height. RiderFit chooses the
+## mounted pixels-per-unit. This painter does not read a dragon's body scale.
+## No live rider assignment, Units, Items, campaign RNG or battle state is created here.
 
 const NO_MOUNT_RACES := ["troll", "giant"]
 
@@ -39,17 +39,20 @@ static func _seated_rig(fp: FigurePainter) -> void:
 	fp.j["hc"] = shoulder + Vector2((0.38 if is_hum else 0.85) + fp.hunch, -fp.head_h * 0.5 + fp.hunch * 0.6)
 	fp.j["sr"] = shoulder + (Vector2(-1.65, 0.85) if is_hum else Vector2(-0.85, 1.0))
 	fp.j["sl"] = shoulder + (Vector2(1.55, 0.85) if is_hum else Vector2(1.45, 0.95))
-	# Deep cavalry/dragon straddle: thigh angles down the flank (~25 deg from vertical),
-	# lower leg hangs down the barrel with heel aligned under the hip-shoulder line.
+	# Straddle: near thigh down the near flank, far thigh back on the far side.
 	var half_leg := fp.leg_len * 0.5
-	for side: String in ["r", "l"]:
-		var near: bool = side == "r"
-		var thigh_dir := Vector2(0.425, 0.905).normalized() if near else Vector2(0.435, 0.900).normalized()
-		var shin_dir := Vector2(-0.15, 0.989).normalized() if near else Vector2(-0.17, 0.985).normalized()
-		var pelvis := hip + Vector2(-0.35, 0.15) if near else hip + Vector2(-0.65, -0.25)
-		var knee := pelvis + thigh_dir * half_leg
-		fp.j["p" + side] = pelvis; fp.j["k" + side] = knee
-		fp.j["f" + side] = knee + shin_dir * half_leg
+	var near_pelvis := hip + Vector2(0.25, 0.55)
+	var far_pelvis := hip + Vector2(-0.85, -0.10)
+	var near_thigh := Vector2(0.34, 0.94).normalized()
+	var far_thigh := Vector2(-0.72, 0.70).normalized()
+	var near_shin := Vector2(-0.06, 0.998).normalized()
+	var far_shin := Vector2(-0.05, 0.999).normalized()
+	fp.j["pr"] = near_pelvis
+	fp.j["kr"] = near_pelvis + near_thigh * half_leg
+	fp.j["fr"] = (fp.j["kr"] as Vector2) + near_shin * half_leg
+	fp.j["pl"] = far_pelvis
+	fp.j["kl"] = far_pelvis + far_thigh * half_leg
+	fp.j["fl"] = (fp.j["kl"] as Vector2) + far_shin * half_leg
 	var reach := fp.arm_a + fp.arm_b - 0.05
 	var weapon_kind := fp._wkind()
 	var weapon_hand: bool = weapon_kind != "none" and _hand_present(fp, "r") and not bool(fp.spec.get("dead", false))
@@ -223,7 +226,7 @@ static func _draw_layer(fp: FigurePainter, kind: String, size: Vector2i, anchor:
 	fp.cv = PixelCanvas.new(size.x, size.y); fp.cv.set_frame(anchor, raster)
 	match kind:
 		"far":
-			# Far leg is occluded behind the mount's body in a true straddle; draw far arm & far saddle rim.
+			# Far leg is on this layer so the mount covers it. Far arm and far saddle rim stay here too.
 			var hw := fp.hipw * 0.5
 			fp.cv.begin()
 			fp.cv.capsule(Vector2(-hw * 0.95, -0.2), Vector2(hw * 1.10, -2.65), 0.52, FigurePainter.LEATHER.darkened(0.28))
@@ -232,6 +235,7 @@ static func _draw_layer(fp: FigurePainter, kind: String, size: Vector2i, anchor:
 				fp.cv.begin()
 				fp.cv.ellipse(fp.j["pl"], fp.leg_r * 0.85, fp.leg_r * 0.75, fp._trouser_col().darkened(0.20))
 				fp.cv.end(FigurePainter.ol(fp._trouser_col()), 0.04)
+			fp._leg("l")
 			fp._arm("l")
 			_wounds_for(fp, true)
 		"saddle":
@@ -288,7 +292,8 @@ static func render_layers(spec: Dictionary) -> Dictionary:
 	var weapon_kind := fp._wkind()
 	if present["hand_r"] and weapon_kind == "none" and not bool(copied.get("dead", false)): mount_grip_hands.append("hand_r")
 	if present["hand_l"] and fp._it("shield").is_empty() and weapon_kind not in ["swing2", "thrust2"] and not bool(copied.get("dead", false)): mount_grip_hands.append("hand_l")
-	return {"ok": true, "race": race, "far": images["far"], "saddle": images["saddle"], "near": images["near"], "image": combined,
+	return {"ok": true, "race": race, "pose": "straddle", "leg_side": {"r": 1, "l": -1},
+		"far": images["far"], "saddle": images["saddle"], "near": images["near"], "image": combined,
 		"seat": Vector2.ZERO, "hip": fp.j["hip"], "shoulder": fp.j["sc"], "head": fp.j["hc"],
 		"hand_r": fp.j["hr"], "hand_l": fp.j["hl"], "knee_r": fp.j["kr"], "knee_l": fp.j["kl"], "foot_r": fp.j["fr"], "foot_l": fp.j["fl"],
 		"joints": fp.j.duplicate(true), "socket_presence": present, "mount_grip_hands": mount_grip_hands, "mount_handles": _mount_handles(fp),
@@ -298,8 +303,8 @@ static func render_layers(spec: Dictionary) -> Dictionary:
 		"crop_rect": crop, "bounds": Rect2(image_to_local * Vector2.ZERO, Vector2(crop.size) / raster),
 		"layer_order": ["far", "saddle", "near"], "visual_preview_only": true}
 
-## Image-pixel to composite-pixel transform. Only scene pixels-per-unit enters;
-## the host dragon's size multiplier must never be supplied as rider scaling.
+## Image-pixel to composite-pixel transform. The pixels-per-unit argument is the
+## only scale. Callers pass RiderFit's mounted scale; this function does not look up a host.
 static func placement(layers: Dictionary, seat: Vector2, pixels_per_unit: float = 1.0, seat_angle: float = 0.0) -> Transform2D:
 	var world := Transform2D(seat_angle, Vector2.ONE * pixels_per_unit, 0.0, seat)
 	return world * (layers["image_to_local"] as Transform2D)
