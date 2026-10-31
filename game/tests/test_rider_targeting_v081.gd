@@ -27,6 +27,11 @@ func suitable(choice: Dictionary) -> bool:
 	var person := Dynasty.person(Game, str(choice["ruler_uid"]))
 	return str(person.get("race", "")) == "human" and int(person.get("unit_uid", -1)) < 0 and str(person.get("state", "")) == ""
 
+## v0.081: a suitable house that also has a second adult without a Unit (dragon two's rider, the battle-body checks).
+## The start world is rebuilt from the current fixture, so the test looks for such a house instead of assuming one.
+func suitable_with_kin(choice: Dictionary) -> bool:
+	return suitable(choice) and house_adult_without_unit(str(choice["town_id"]), str(choice["household_uid"]), str(choice["ruler_uid"])) != ""
+
 func enemies(n: int, seed: int) -> Array:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed
@@ -69,8 +74,8 @@ func result_of(sim: BattleSim) -> Dictionary:
 	screen.free()
 	return result
 
-func house_adult_without_unit(house: String, skip: String) -> String:
-	var town: Dictionary = Game.world["towns"][town_id]
+func house_adult_without_unit(tid: String, house: String, skip: String) -> String:
+	var town: Dictionary = Game.world["towns"][tid]
 	for family in town["econ"]["fams"]:
 		if str(family.get("household_uid", "")) != house: continue
 		for person in family.get("pp", []):
@@ -87,13 +92,14 @@ func run(tree: SceneTree) -> int:
 	if not await DevTools.start_world(tree, Game.SAVE_PATH):
 		check(false, "DevTools start world loads")
 		return fails
-	town_id = DevTools.choose_house(Game, suitable)
+	town_id = DevTools.choose_house(Game, suitable_with_kin)
+	if town_id == "": town_id = DevTools.choose_house(Game, suitable)   # none has one: the battle-body checks report it
 	check(town_id != "", "a human ruler without a Unit is available")
 	if town_id == "": return fails
 	DevTools.stand_at(Game, town_id)
 	person_uid = str(Dynasty.selected(Game)["ruler_uid"])
 	var house := str(Dynasty.person(Game, person_uid).get("household_uid", ""))
-	person2_uid = house_adult_without_unit(house, person_uid)
+	person2_uid = house_adult_without_unit(town_id, house, person_uid)
 	var enlisted := Mobilization.enlist_household(Game, person_uid)
 	check(bool(enlisted.get("ok", false)), "the ruler enlists through native service")
 	if not bool(enlisted.get("ok", false)): return fails
@@ -111,7 +117,7 @@ func run(tree: SceneTree) -> int:
 	dragon = DragonCombat._unit(Game, dragon_uid)
 	dragon2 = DragonCombat._unit(Game, dragon2_uid)
 	fresh = {dragon_uid: dragon.body.to_dict(), dragon2_uid: dragon2.body.to_dict()}
-	for uid in [dragon_uid, dragon2_uid]:
+	for uid in ([dragon_uid, dragon2_uid] if person2_uid != "" else [dragon_uid]):   # (dragon two needs its rider)
 		check(bool(DragonCombat.participation_order(Game, uid, true, DragonCombat.participation_preview(Game, uid, true)).get("ok", false)), "the defence order admits dragon " + uid)
 
 	# --- The rider is on the field as a live target, at his dragon's cell, holding no tile of his own.
