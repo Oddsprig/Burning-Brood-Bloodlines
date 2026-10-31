@@ -97,7 +97,8 @@ func _wed(pair: Dictionary, cross_realm: bool) -> void:
 	var purse_sum := float(groom_f["purse"]) + float(bride_f["purse"])
 	var expected := floorf(2000.0 * Item.COIN * Marriage.DOWRY_SHARE)
 	var bride_hh := str(bride_f.get("household_uid", ""))
-	var had_alliance := Marriage.state(Game)["alliances"].has(bride_hh)
+	var alliances: Dictionary = Marriage.state(Game).get("alliances", {})
+	var had_alliance: bool = alliances.has(bride_hh)
 	var loyalty_row: Dictionary = Game.world.get("feudal", {}).get("towns", {}).get(str(woman["tid"]), {})
 	if not loyalty_row.is_empty(): loyalty_row["loyalty"] = 40.0
 	var before_loyalty := float(loyalty_row.get("loyalty", -1.0))
@@ -112,7 +113,8 @@ func _wed(pair: Dictionary, cross_realm: bool) -> void:
 	check(absf(float(groom_f["purse"]) - (1000.0 * Item.COIN + expected)) < 0.01, "the groom's house receives the dowry share")
 	var links: Dictionary = Marriage.state(Game).get("ai_links", {})
 	check(links.has(str(wed.get("key", ""))), "the match is stored on ai_links, apart from the player's alliances")
-	check(had_alliance or not Marriage.state(Game)["alliances"].has(bride_hh), "an AI match does not take a player alliance row")
+	var alliances_after: Dictionary = Marriage.state(Game).get("alliances", {})
+	check(had_alliance or not alliances_after.has(bride_hh), "an AI match does not take a player alliance row")
 	var fa := str(man["faction"]); var fb := str(woman["faction"])
 	if cross_realm:
 		var rel := Diplomacy.relation(Game.world, fa, fb)

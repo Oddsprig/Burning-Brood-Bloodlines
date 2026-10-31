@@ -137,6 +137,10 @@ func reset_between(keep: Array) -> void:
 	BattleTactics._pending_picks = ["", ""]
 	WorldGen.gen_size = WorldGen.WORLD_SIZE
 	CampaignWorld.presim_span_days = CampaignWorld.PRESIM_DEFAULT_DAYS
+	UiTheme.set_mobile_override(null)
+	UiKit.set_safe_area_override(null)
+	MobileApp.reset()
+	Engine.max_fps = int(ProjectSettings.get_setting("application/run/max_fps", 0))   # a battery-saver test leaves 30 FPS
 	var root := get_tree().root
 	root.position = Vector2i.ZERO
 
