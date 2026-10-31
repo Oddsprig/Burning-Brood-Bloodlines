@@ -217,7 +217,9 @@ func _funded_camp() -> String:
 		if gtown.is_empty() or htown.is_empty():
 			best_note = "a camp has no town of the race its recruiters draw"
 			continue
-		var resident := w["warbands"].has(String(l.get("resident", "")))
+		# Subscript is a Variant, so := cannot infer .has(). A typed Dictionary makes the call a bool.
+		var bands: Dictionary = w["warbands"]
+		var resident: bool = bands.has(String(l.get("resident", "")))
 		var shared := String(gtown.get("id", "")) == String(htown.get("id", ""))
 		# Count without moving coin yet: one household is kept to receive the transfers.
 		var g_n := _count_ready(gtown, pay)
