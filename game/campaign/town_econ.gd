@@ -1508,7 +1508,7 @@ static func after_load(game) -> void:
 			if String(b["type"]) == "farm" and int(b["owner"]) < 0:
 				Businesses.town_inherits(b)
 		WageClaims.after_load(t["econ"])
-		HarvestClaims.after_load(t["econ"])
+		HarvestClaims.load_saved(t["econ"])   # v0.074: a sound book loads as saved; others get the shipped repair
 		t["econ"]["faction"] = String(t["faction"])
 		for f in t["econ"]["fams"]:   # register person records (older saves get them made from the rows)
 			if not f.has("pp"):

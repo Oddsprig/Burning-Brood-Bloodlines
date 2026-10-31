@@ -400,7 +400,9 @@ static func trim_armory(game, tid: String) -> int:
 	var tgt := 0
 	for c in town["econ"].get("arms_tgt", {}): tgt += int(town["econ"]["arms_tgt"][c])
 	var cap := TownDefence.militia_cap(town)
-	var keep_n := maxi(tgt, cap * 4)
+	# v0.074: the daily look keeps a spare kit's worth over the reserve (the ten-day supply hands that surplus to
+	# short towns of the faction); only pieces past twice the reserve are melted, so memory stays bounded.
+	var keep_n := maxi(tgt, cap * 4) * 2 + 16
 	if items.size() <= keep_n: return 0
 	# Melt the most worn first; keep legends and the best pieces (value computed once per piece).
 	var ranked: Array = []

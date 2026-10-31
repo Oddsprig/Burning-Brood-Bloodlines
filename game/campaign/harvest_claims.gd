@@ -479,15 +479,9 @@ static func transfer_units(e: Dictionary, good: String, from_owner: String, to_w
 
 ## Saved caches are derived. Missing physical provenance is preserved as
 ## unknown; excess claims lose backing proportionally, never inventing goods.
-## v0.074: a book that already agrees with the barn, the carry and its own lots loads as it was saved (JSON types
-## back only). Rebuilding it at every load re-summed the balances in another order and set every family's food
-## reserve afresh, so a reloaded town held other reserves than the same town played on.
 static func after_load(e: Dictionary) -> void:
 	ensure(e)
 	var b := _book(e)
-	if b.is_empty(): return
-	_fix_types(e, b)
-	if _consistent(e, b): return
 	b["balances"] = {}
 	for f in e.get("fams", []): f["hv"] = 0.0
 	for good in b["lots"].keys():
@@ -530,6 +524,18 @@ static func after_load(e: Dictionary) -> void:
 	b["unattributed_cash"] = maxf(0.0, float(b["unattributed_cash"]))
 	for key in b["cash"]: b["cash"][key] = maxf(0.0, float(b["cash"][key]))
 	reserve_all(e)
+
+## v0.074: the game's own load. A book that already agrees with the barn, the carry and its own lots loads as it was
+## saved (JSON types back only); anything else gets the shipped repair (after_load). Repairing a sound book at every
+## load re-summed the balances in another order and set every family's food reserve afresh, so a reloaded town
+## held other reserves than the same town played on. after_load itself stays the shipped repair.
+static func load_saved(e: Dictionary) -> void:
+	ensure(e)
+	var b := _book(e)
+	if not b.is_empty():
+		_fix_types(e, b)
+		if _consistent(e, b): return
+	after_load(e)
 
 ## JSON types back, values untouched (days are ints, amounts floats).
 static func _fix_types(e: Dictionary, b: Dictionary) -> void:
