@@ -36,6 +36,19 @@ func self_check(tid: String) -> void:
 	e["led"]["made"]["grain"] = int(e["led"]["made"]["grain"]) - 7
 	e["treasury"] = float(e["treasury"]) - 3.5
 	check(WorldAudit.compare(a, WorldAudit.census(Game))["ok"], "self-check: the planted changes are undone")
+	# A piece moved from the armoury to the stalls stays in the town's holdings; one that leaves unbooked is a leak.
+	var town: Dictionary = Game.world["towns"][tid]
+	var arm: Array = ArmsTrade.armory(town)
+	if not arm.is_empty():
+		var it: Item = arm.pop_back()
+		if not town.has("shop"): town["shop"] = []
+		town["shop"].append(it)
+		check(WorldAudit.compare(a, WorldAudit.census(Game))["arms"]["ok"], "self-check: armoury to stalls is not a leak")
+		town["shop"].erase(it)
+		var gone := WorldAudit.compare(a, WorldAudit.census(Game))
+		check(not gone["arms"]["ok"] and int(gone["arms"]["residual"]) == -1, "self-check: a piece leaving unbooked is a leak of -1 (%d)" % int(gone["arms"]["residual"]))
+		arm.append(it)
+	check(not WorldAudit.scan(Game).has("/factions/%s/treasury" % str(Game.world.get("factions", {}).keys()[0]) if not Game.world.get("factions", {}).is_empty() else ""), "self-check: realm treasuries are counted holders (no scan note)")
 
 func run(tree: SceneTree) -> int:
 	var started := Time.get_ticks_msec()

@@ -105,6 +105,7 @@ static func trade(game, records: Array, pos: Vector2, retained: Array, recipient
 					shop_indexed = true
 				if int(shop_members.get(instance, 0)) == 0:
 					town["shop"].append(it); shop_members[instance] = 1
+					if TownEcon.has_econ(town): TownEcon.led(town["econ"], "made", "arms", 1)   # v0.075: into the town's holdings
 				row["destination"] = "market_inventory"
 			if not retained_indexed:
 				retained_members = shop_members if shop_indexed and is_same(town.get("shop", []), retained) else _members(retained)

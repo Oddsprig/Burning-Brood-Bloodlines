@@ -436,7 +436,9 @@ static func muster(game, town_id: String, count: int = 100, review: Dictionary =
 				if item != null: break
 			if item != null:
 				town[owner].erase(item); u.equip["main_hand"] = item
-				if owner == "armory_items": entry["borrowed"].append({"item_uid": item.uid, "town_id": town_id})
+				if owner == "armory_items":
+					entry["borrowed"].append({"item_uid": item.uid, "town_id": town_id})
+					TownEcon.led(town["econ"], "used", "arms", 1)   # v0.075: lent out of the town's holdings
 				else:
 					game.gold -= int(row[6]); cost += int(row[6]); Goods.pay_market(town, float(row[6])); TownEcon.led(town["econ"], "used", "arms", 1)
 		# v0.029: the body piece (row 8/9) and helmet (row 10/11) the quote planned, issued
@@ -451,7 +453,9 @@ static func muster(game, town_id: String, count: int = 100, review: Dictionary =
 					if piece != null: break
 				if piece != null:
 					town[piece_owner].erase(piece); u.equip[str(spec[2])] = piece
-					if piece_owner == "armory_items": entry["borrowed"].append({"item_uid": piece.uid, "town_id": town_id})
+					if piece_owner == "armory_items":
+						entry["borrowed"].append({"item_uid": piece.uid, "town_id": town_id})
+						TownEcon.led(town["econ"], "used", "arms", 1)   # v0.075: lent out of the town's holdings
 					else:
 						game.gold -= int(row[int(spec[1])]); cost += int(row[int(spec[1])]); Goods.pay_market(town, float(row[int(spec[1])])); TownEcon.led(town["econ"], "used", "arms", 1)
 		if row.size() > 12 and str(row[12]) != "":
@@ -466,6 +470,7 @@ static func muster(game, town_id: String, count: int = 100, review: Dictionary =
 	for purchase in order["orders"]:
 		var n := int(purchase["quantity"]); var coins := int(purchase["cost"])
 		Goods.take(town, str(purchase["good"]), n); Goods.pay_market(town, coins); game.gold -= coins; cost += coins
+		TownEcon.led(town["econ"], "used", str(purchase["good"]), n)   # v0.075: out of the town's books, as provisions are
 		Food.add_stock(game, "meal", n, 0, str(purchase["good"]), Food.food_name(town, str(purchase["good"])))
 	command_plan(game); Food.sync(game); Diplomacy.roster_changed(game); game.invalidate_deploy()
 	_history(game, "Raised %d people at %s for %d coins." % [raised, town["name"], cost]); game.changed.emit()
@@ -531,6 +536,7 @@ static func refit(game, town_id, review) -> Dictionary:
 		if owner == "armory_items":
 			var a: Dictionary = _address(game, u)
 			if not a.is_empty(): _entry(game, u, a)["borrowed"].append({"item_uid": item.uid, "town_id": tid})
+			TownEcon.led(town["econ"], "used", "arms", 1)   # v0.075: lent out of the town's holdings
 		else:
 			game.gold -= int(row[3]); cost += int(row[3]); Goods.pay_market(town, float(row[3])); TownEcon.led(town["econ"], "used", "arms", 1)
 		fitted[u.uid] = true; pieces += 1
@@ -614,7 +620,9 @@ static func _return_loans(game, entry: Dictionary) -> void:
 		if actual == null:
 			for it in game.stash:
 				if it.uid == int(loan["item_uid"]): actual = it; game.stash.erase(it); break
-		if actual != null: ArmsTrade.armory(owner).append(actual)
+		if actual != null:
+			ArmsTrade.armory(owner).append(actual)
+			if TownEcon.has_econ(owner): TownEcon.led(owner["econ"], "made", "arms", 1)   # v0.075: back into the town's holdings
 	entry["borrowed"] = entry["borrowed"].filter(func(loan): return not game.world.get("towns", {}).has(str(loan["town_id"])))
 
 static func stand_down(game, town_id: String = "", review: Dictionary = {}) -> Dictionary:

@@ -9,12 +9,14 @@ extends RefCounted
 ## realm treasuries and loot chests, lair hoards, caravan purses, other bands' purses, the company's army purse.
 ##   change in held = cast - melted - drained   (Barge's world coin ledger: the mint casts, melting and wear drain)
 ## Goods (grain, meat, fresh meat, wood, ores, bars, scrap; "metal" is the ores, bars and scrap together).
-## Held: town markets, barns, households, families' stones, the granary (grain); caravan cargo, band stores, the
-## company's own goods.
+## Held: town markets, barns, households, families' stones, the granary (grain); caravan cargo, the company's own
+## goods. Band stores are the army's mess (Supplies.provision books what it buys as used in the town), so they are
+## outside the counted holders, like the company's provisions; their change is reported, not balanced.
 ##   change in held = made - used - spoil (every town's ledger) - lost (goods destroyed outside a town)
 ##                    + moved in - moved out (the world flow book below: a town booked the good used, but it went to
 ##                    another counted holder, or a holder outside the towns made or ate it)
-## Arms (finished weapons and armour in town armouries): change in held = made - used (town ledgers, good "arms").
+## Arms (finished weapons and armour a town holds: its armoury and its stalls): change in held = made - used (town
+## ledgers, good "arms"; moves between the armoury and the stalls are inside the holdings).
 ## Treasure pieces (house treasure rooms, merchants' court stock, realms' carried-off hoards): reported.
 
 const GOODS := ["grain", "meat", "fresh_meat", "wood", "copper_ore", "tin_ore", "iron_ore", "copper_bars", "tin_bars",
@@ -56,12 +58,14 @@ static func census(game) -> Dictionary:
 		used[g] = 0
 		spoil[g] = 0
 	var arms := {"armoury": 0, "made": 0, "used": 0, "shop": 0}
+	var outside := {}   # goods outside the counted holders (band stores), reported only
+	var bands := {}   # warband id -> its purse (a leak report names bands that came or went with coin)
 	var treasure := {}
 	for tid in w.get("towns", {}):
 		var t: Dictionary = w["towns"][tid]
+		if not TownEcon.has_econ(t): continue   # (a stand-in town without an economy keeps no ledger: not counted)
 		arms["armoury"] += (t.get("armory_items", []) as Array).size()
 		arms["shop"] += (t.get("shop", []) as Array).size()
-		if not TownEcon.has_econ(t): continue
 		var e: Dictionary = t["econ"]
 		_add(coin, "town treasury", float(e["treasury"]))
 		_add(coin, "farm till", float(e["farm_till"]))
@@ -101,11 +105,12 @@ static func census(game) -> Dictionary:
 		var wb: Dictionary = w["warbands"][wid]
 		var caravan := str(wb.get("kind", "")) == "caravan"
 		_add(coin, "caravan purse" if caravan else "band purse", float(wb.get("gold", 0.0)))
+		bands[str(wid)] = float(wb.get("gold", 0.0))
 		var cg: Dictionary = wb.get("cargo", {}).get("goods", {})
 		var st: Dictionary = wb.get("stores", {})
 		for g in GOODS:
 			_add(goods[g], "caravan cargo", int(cg.get(g, 0)))
-			_add(goods[g], "band stores", int(st.get(g, 0)))
+			_add(outside, g, int(st.get(g, 0)))
 	_add(coin, "army purse", float(game.gold))
 	var cgoods: Dictionary = w.get("company_goods", {})
 	for g in GOODS:
@@ -122,7 +127,7 @@ static func census(game) -> Dictionary:
 		lost[g] = int(TownEcon.goods_lost.get(g, 0))
 	return {"day": float(game.day), "coin": coin, "goods": goods, "arms": arms, "treasure": treasure,
 		"cast": float(L.get("cast", 0.0)), "melted": float(L.get("melted", 0.0)), "drained": float(L.get("drained", 0.0)),
-		"made": made, "used": used, "spoil": spoil, "lost": lost, "book": book_in,
+		"made": made, "used": used, "spoil": spoil, "lost": lost, "book": book_in, "outside": outside, "bands": bands,
 		"book_names": (w.get("flow", {}).get("goods", {}) as Dictionary).duplicate(true)}
 
 static func total(d: Dictionary) -> float:
@@ -163,11 +168,24 @@ static func compare(a: Dictionary, b: Dictionary) -> Dictionary:
 		row["ok"] = int(row["residual"]) == 0
 		if not row["ok"]: out["ok"] = false
 		out["goods"][g] = row
-	var ar := int(b["arms"]["armoury"]) - int(a["arms"]["armoury"])
+	var ar := int(b["arms"]["armoury"]) + int(b["arms"]["shop"]) - int(a["arms"]["armoury"]) - int(a["arms"]["shop"])
 	var am := int(b["arms"]["made"]) - int(a["arms"]["made"])
 	var au := int(b["arms"]["used"]) - int(a["arms"]["used"])
 	out["arms"] = {"held": ar, "made": am, "used": au, "residual": ar - (am - au), "ok": ar == am - au,
-		"shop": int(b["arms"]["shop"]) - int(a["arms"]["shop"])}
+		"armoury": int(b["arms"]["armoury"]) - int(a["arms"]["armoury"]), "shop": int(b["arms"]["shop"]) - int(a["arms"]["shop"])}
+	var outside := {}
+	for g in b.get("outside", {}): outside[g] = int(b["outside"][g]) - int(a.get("outside", {}).get(g, 0))
+	for g in a.get("outside", {}):
+		if not b.get("outside", {}).has(g): outside[g] = -int(a["outside"][g])
+	out["outside"] = outside
+	var came := {}
+	var went := {}
+	for wid in b.get("bands", {}):
+		if not a.get("bands", {}).has(wid) and float(b["bands"][wid]) != 0.0: came[wid] = float(b["bands"][wid])
+	for wid in a.get("bands", {}):
+		if not b.get("bands", {}).has(wid) and float(a["bands"][wid]) != 0.0: went[wid] = float(a["bands"][wid])
+	out["coin"]["bands_came"] = came
+	out["coin"]["bands_went"] = went
 	if not out["arms"]["ok"]: out["ok"] = false
 	var tr := {}
 	for k in b["treasure"]: tr[k] = int(b["treasure"][k]) - int(a["treasure"].get(k, 0))
@@ -186,6 +204,8 @@ static func lines(c: Dictionary, label: String) -> Array:
 		for k in co["by_holder"]:
 			if absf(float(co["by_holder"][k])) > 0.0: parts.append("%s %s" % [k, String.num(co["by_holder"][k], 6)])
 		out.append("    coin holders: " + ", ".join(parts))
+		if not (co.get("bands_came", {}) as Dictionary).is_empty(): out.append("    bands that came with coin: " + JSON.stringify(co["bands_came"]))
+		if not (co.get("bands_went", {}) as Dictionary).is_empty(): out.append("    bands that went with coin: " + JSON.stringify(co["bands_went"]))
 	for g in GOODS:
 		var r: Dictionary = c["goods"][g]
 		if r["ok"] and int(r["held"]) == 0 and int(r["made"]) == 0 and int(r["used"]) == 0: continue
@@ -197,7 +217,12 @@ static func lines(c: Dictionary, label: String) -> Array:
 			int(r["held"]), int(r["made"]), int(r["used"]), int(r["spoil"]), int(r["lost"]), int(r["book"]), int(r["residual"]), ", ".join(parts)])
 	var a: Dictionary = c["arms"]
 	if not a["ok"]:
-		out.append("%s arms LEAK: armoury %+d vs made %d - used %d, residual %+d (shops %+d)" % [label, a["held"], a["made"], a["used"], a["residual"], a["shop"]])
+		out.append("%s arms LEAK: held %+d (armoury %+d, stalls %+d) vs made %d - used %d, residual %+d" % [label, a["held"], a["armoury"], a["shop"], a["made"], a["used"], a["residual"]])
+	var od: Dictionary = c.get("outside", {})
+	var parts2 := PackedStringArray()
+	for g in od:
+		if int(od[g]) != 0: parts2.append("%s %+d" % [g, int(od[g])])
+	if not parts2.is_empty(): out.append("%s band stores (the army's mess, not balanced): %s" % [label, ", ".join(parts2)])
 	return out
 
 ## Money-looking numbers in the world tree the census does not count (a holder it is missing). Diagnostic only.
@@ -210,7 +235,7 @@ static func _counted(path: String) -> bool:
 	for p in ["/towns/*/econ/treasury", "/towns/*/econ/farm_till", "/towns/*/econ/land_fund", "/towns/*/econ/biz[#]/till",
 			"/towns/*/econ/fams[#]/purse", "/towns/*/econ/supply_orders[#]/reserved", "/factions/*/treasury", "/factions/*/loot",
 			"/lairs/*/gold", "/warbands/*/gold", "/coin/"]:
-		if path.begins_with(p) or path == p: return true
+		if path == p or path.begins_with(p) or path.match(p + "*"): return true   # ("*" stands for a town or realm id)
 	return false
 
 static func _scan(v, path: String, found: Dictionary, depth: int) -> void:

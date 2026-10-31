@@ -149,6 +149,7 @@ static func buy(game, town: Dictionary, item: Item) -> bool:
 	game.gold -= p
 	Goods.pay_market(town, float(p))   # economy: the gold goes to the town's market
 	town["shop"].erase(item)
+	if TownEcon.has_econ(town): TownEcon.led(town["econ"], "used", "arms", 1)   # v0.075: out of the town's holdings
 	game.stash.append(item)
 	game.changed.emit()
 	return true
@@ -165,6 +166,7 @@ static func sell(game, town: Dictionary, item: Item) -> int:
 	game.gold += p
 	game.stash.erase(item)
 	town["shop"].append(item)
+	if TownEcon.has_econ(town): TownEcon.led(town["econ"], "made", "arms", 1)   # v0.075: into the town's holdings
 	game.changed.emit()
 	return p
 

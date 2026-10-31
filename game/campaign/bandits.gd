@@ -182,7 +182,9 @@ static func clear_camp(game, lid: String, result: Dictionary) -> int:
 		# Found real gear goes to a real local armory without a fabricated sale.
 		var town: Dictionary = Salvage.nearest(w, l["pos"])
 		if not town.is_empty():
-			for entry in records: ArmsTrade.armory(town).append(entry["item"])
+			for entry in records:
+				ArmsTrade.armory(town).append(entry["item"])
+				if TownEcon.has_econ(town): TownEcon.led(town["econ"], "made", "arms", 1)   # v0.075: into the town's holdings
 	var coin := int(l.get("gold", 0)); var loot := sold + coin
 	if not result.is_empty():
 		game.gold += coin # The actual sale was already credited once by Salvage.
