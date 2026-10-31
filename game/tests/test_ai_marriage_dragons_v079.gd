@@ -51,23 +51,26 @@ func _marriages() -> void:
 		used[same_town["woman"]["uid"]] = true
 	var cross := _pair(men, women, "other", false, "")
 	if cross.is_empty():
-		check(false, "two realms have a same-race ruling pair")
+		cross = _raise_pair("other", used)
+	if cross.is_empty():
+		_skip("two realms have a same-race ruling pair: no same-race ruling kin in two realms can be spared, and the seat's heir stays put")
 	else:
 		_wed(cross, true)
 		used[cross["man"]["uid"]] = true
 		used[cross["woman"]["uid"]] = true
-	var local := _pair(men, women, "same", false, "")
+	var local_any := _pair(men, women, "same", false, "")
+	var local := _pair(men, women, "same", false, "", used)
 	if local.is_empty():
-		check(false, "one realm has ruling adults in two towns")
-	else:
-		if used.has(local["man"]["uid"]) or used.has(local["woman"]["uid"]):
-			local = _pair(men, women, "same", false, "", used)
-		if local.is_empty():
-			check(false, "a second same-realm pair is still free")
+		local = _raise_pair("same", used)
+	if local.is_empty():
+		if local_any.is_empty():
+			_skip("one realm has ruling adults in two towns: no same-race ruling kin across two towns of one realm can be spared")
 		else:
-			_wed(local, false)
-			used[local["man"]["uid"]] = true
-			used[local["woman"]["uid"]] = true
+			_skip("a second same-realm pair is still free: the only same-realm adults share someone already used, and no other ruling kin can be brought of age")
+	else:
+		_wed(local, false)
+		used[local["man"]["uid"]] = true
+		used[local["woman"]["uid"]] = true
 	var trolls := _pair(_people(0, false), _people(1, false), "", false, "", used)
 	if trolls.is_empty():
 		check(false, "another cross-town pair can stand in as trolls")
@@ -313,6 +316,116 @@ func _pair(men: Array, women: Array, faction_mode: String, same_town: bool, _unu
 			if faction_mode == "other" and str(man["faction"]) == str(woman["faction"]): continue
 			return {"man": man, "woman": woman}
 	return {}
+
+func _skip(why: String) -> void:
+	print("skip " + why)
+
+## Spare ruling adults first. If this start world has none in the right realms, bring an
+## unmarried child of a ruling house of age. The seat's heir is never matched: the AI leaves that person on the seat.
+func _raise_pair(faction_mode: String, skip: Dictionary) -> Dictionary:
+	var kin: Array = _ruling_kin(skip)
+	var best: Dictionary = {}
+	var best_cost := 99
+	for man: Dictionary in kin:
+		if int(man["sex"]) != 0: continue
+		for woman: Dictionary in kin:
+			if int(woman["sex"]) != 1: continue
+			if str(man["uid"]) == str(woman["uid"]): continue
+			if str(man["race"]) != str(woman["race"]): continue
+			if str(man["tid"]) == str(woman["tid"]): continue
+			var man_f: Dictionary = man["family"]
+			var woman_f: Dictionary = woman["family"]
+			var groom_hh: String = str(man_f.get("household_uid", ""))
+			var bride_hh: String = str(woman_f.get("household_uid", ""))
+			if groom_hh == "" or groom_hh == bride_hh: continue
+			var fa: String = str(man["faction"])
+			var fb: String = str(woman["faction"])
+			if fa == "" or fb == "": continue
+			if faction_mode == "same" and fa != fb: continue
+			if faction_mode == "other" and fa == fb: continue
+			var cost := int(man["person"][6]) + int(woman["person"][6])
+			if cost < best_cost:
+				best = {"man": man, "woman": woman}
+				best_cost = cost
+				if cost == 0:
+					break
+		if best_cost == 0:
+			break
+	if best.is_empty():
+		return {}
+	var groom: Dictionary = best["man"]
+	var bride: Dictionary = best["woman"]
+	var raised: bool = int(groom["person"][6]) == 2 or int(bride["person"][6]) == 2
+	_come_of_age(groom)
+	_come_of_age(bride)
+	print("v079 setup: %s %s ruling kin for a %s match (%s %s + %s %s)" % [
+		"brought of age" if raised else "found", str(groom["race"]),
+		"cross-realm" if faction_mode == "other" else "same-realm",
+		str(groom["faction"]), str(groom["tid"]), str(bride["faction"]), str(bride["tid"])])
+	return best
+
+## One child joins the adults the way Persons.age_up moves a single record. The weekly
+## age_up also retires elders, so it is not run on the whole house.
+func _come_of_age(who: Dictionary) -> void:
+	var p: Array = who["person"]
+	var f: Dictionary = who["family"]
+	var e: Dictionary = who["econ"]
+	if f.has("kp"):
+		var kids: Array = f["kp"]
+		if kids.has(p):
+			kids.erase(p)
+			p[6] = 0
+			Persons.pp(f).append(p)
+			f["kids"] = maxi(0, int(f.get("kids", 0)) - 1)
+			var sex_key: String = "m" if int(p[2]) == 0 else "f"
+			f[sex_key] = int(f.get(sex_key, 0)) + 1
+			if e.has("adults"):
+				e["adults"] = int(e["adults"]) + 1
+	_ready(who)
+
+func _ruling_kin(skip: Dictionary) -> Array:
+	var out: Array = []
+	var player_hh := str(Game.world.get("player_house", {}).get("household_uid", ""))
+	var player_house := str(Game.world.get("player_house", {}).get("house_uid", ""))
+	var ids: Array = []
+	for tid in Game.world.get("towns", {}).keys():
+		ids.append(str(tid))
+	ids.sort()
+	for tid in ids:
+		var town: Dictionary = Game.world["towns"][tid]
+		var e: Dictionary = town.get("econ", {})
+		var head: Dictionary = e.get("head", {})
+		var ruling_hh := str(head.get("household_uid", ""))
+		var head_uid := str(head.get("person_uid", ""))
+		var heir_uid := str(Dynasty.heir(Game, str(tid)).get("person_uid", ""))
+		if ruling_hh == "" or ruling_hh == player_hh: continue
+		for f in e.get("fams", []):
+			if not f is Dictionary: continue
+			if str(f.get("household_uid", "")) != ruling_hh: continue
+			if f.get("cohort", false) or f.get("estate", false) or f.get("gone", false): continue
+			if f.has("pp"):
+				var adults: Array = f["pp"]
+				_take_kin(out, town, e, f, adults, head_uid, heir_uid, player_house, skip, str(tid))
+			if f.has("kp"):
+				var kids: Array = f["kp"]
+				_take_kin(out, town, e, f, kids, head_uid, heir_uid, player_house, skip, str(tid))
+	return out
+
+func _take_kin(out: Array, town: Dictionary, e: Dictionary, f: Dictionary, rows: Array, head_uid: String, heir_uid: String, player_house: String, skip: Dictionary, tid: String) -> void:
+	for p in rows:
+		if not p is Array or p.size() < 7: continue
+		var kind := int(p[6])
+		if kind != 0 and kind != 2: continue
+		if String(p[4]) != "" or int(p[5]) >= 0: continue
+		var uid := str(Persons.g(p, Persons.PERSON_UID, ""))
+		if uid == "" or uid == head_uid or (heir_uid != "" and uid == heir_uid): continue
+		if skip.has(uid): continue
+		if player_house != "" and str(Persons.g(p, Persons.HOUSE_UID, "")) == player_house: continue
+		var loc := {"town": town, "econ": e, "family": f, "person": p, "alive": true}
+		if Marriage._married(loc) or Marriage._betrothed(Game, uid): continue
+		out.append({"uid": uid, "town": town, "econ": e, "family": f, "person": p,
+			"race": Persons.family_race(e, f), "faction": str(town.get("faction", "")),
+			"tid": tid, "sex": int(p[2])})
 
 func _rider(household: String, dragon_id: String) -> String:
 	var taken := {}
