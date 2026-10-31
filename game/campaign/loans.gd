@@ -441,7 +441,8 @@ static func settle_land_sales(e: Dictionary) -> int:
 		var n: int = mini(avail, mini(limit, can_pay))
 		if n <= 0: continue
 		var cost: float = float(n) * unit
-		Families.move_land(e, f, est, crop_s, n)
+		# The seller is reassigned just below, and the estate is refreshed once at the end of the pass.
+		Families.move_land(e, f, est, crop_s, n, false)
 		e["land_fund"] = float(e["land_fund"]) - cost
 		f["purse"] = float(f["purse"]) + cost
 		mkt[crop_s] = int(mkt.get(crop_s, 0)) + n
