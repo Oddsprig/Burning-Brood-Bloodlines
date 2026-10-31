@@ -642,6 +642,8 @@ func load_game() -> bool:
 	pending_battle = {}; last_result = {}
 	Unit._next_uid = maxi(1, int(d.get("next_unit_uid", 1)))
 	seed_value = int(d.get("seed", 0)); rng.seed = seed_value
+	var rng_state := str(d.get("rng_state", ""))   # v0.074: older saves restart the stream from the seed
+	if rng_state.is_valid_int(): rng.state = rng_state.to_int()
 	day = d.get("day", 0.0); gold = int(d.get("gold", 0))
 	company = d.get("company", []).map(func(x): return Unit.from_dict(x))
 	if gold < 0:
