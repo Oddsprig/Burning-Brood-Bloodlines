@@ -76,8 +76,8 @@ static func _actions(scr: Control, t: Dictionary, parent: Control, data: Diction
 		var rest := UiKit.button("Rest %d day%s\n%d coins wage quote" % [days, "" if days == 1 else "s", days * wages],
 			func(): scr._rest(days), "Row", 168)
 		rest.name = "Rest%d" % days
-		rest.custom_minimum_size.y = 64
-		rest.add_theme_font_size_override("font_size", 18)
+		rest.custom_minimum_size.y = UiKit.touch_min(64)
+		rest.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE if UiTheme.is_mobile() else 18)
 		rest.tooltip_text = "Current company wages: %d coins per day. Rest uses the existing time, wages and healing rules." % wages
 		rest.set_meta("rest_quote", {"days": days, "wages_day": wages, "wages_quote": days * wages})
 		actions.add_child(rest)
@@ -124,7 +124,7 @@ static func _patient(scr: Control, t: Dictionary, parent: Control, patient: Dict
 		actions.add_child(treat)
 	else:
 		var quote := UiKit.label("Treatment unavailable" if skill <= 0 or u.dead else "No further treatment quoted", "Small", true)
-		quote.custom_minimum_size = Vector2(120, 48)
+		quote.custom_minimum_size = Vector2(120, UiKit.touch_min(48))
 		actions.add_child(quote)
 	var sheet := UiKit.button("Sheet", func(): Game.goto("company", {"back": "town", "unit": u.uid}), "Row", 100)
 	sheet.name = "Sheet_%d" % u.uid

@@ -7,7 +7,9 @@ var performance_panel: PerformancePanel
 ## v0.014 (Douglas: "pretty long loading screen between menus"): the big screens' scenes (and the scripts behind
 ## them) load once per run, in the background while the title shows, and are kept here. Loaded on first use they
 ## cost 0.2-0.7 s each (town 0.5 s, records 0.7 s), and an unkept scene was read from disk again on every switch.
-const WARM := ["res://campaign/world_map.tscn", "res://ui/town.tscn", "res://ui/company.tscn", "res://ui/muster.tscn", "res://ui/records.tscn", "res://ui/house_select.tscn", "res://ui/house.tscn", "res://ui/house_laws.tscn", "res://ui/politics.tscn", "res://ui/population.tscn"]
+## v0.072: the battle screen warms too (its script and preloaded layers compiled on a worker thread, not as a hitch on
+## the first battle). Only scene/script files: no art or audio is loaded upfront.
+const WARM := ["res://campaign/world_map.tscn", "res://battle/battle.tscn", "res://ui/town.tscn", "res://ui/company.tscn", "res://ui/muster.tscn", "res://ui/records.tscn", "res://ui/house_select.tscn", "res://ui/house.tscn", "res://ui/house_laws.tscn", "res://ui/politics.tscn", "res://ui/population.tscn"]
 var _scenes := {}     # path -> PackedScene
 var _warming := {}    # path -> true while its background load is running
 

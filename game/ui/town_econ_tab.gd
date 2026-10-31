@@ -40,8 +40,8 @@ static func build(host: Control, t: Dictionary) -> Control:
 	nav.name = "TownSections"
 	for child in nav.get_children():
 		var button := child as Button
-		button.custom_minimum_size = Vector2(64, 48)
-		button.add_theme_font_size_override("font_size", 18)
+		button.custom_minimum_size = Vector2(UiKit.touch_min(64), UiKit.touch_min(48))
+		button.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE if UiTheme.is_mobile() else 18)
 	var navigation := ScrollContainer.new()
 	navigation.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	navigation.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -383,12 +383,12 @@ static func _prices(host: Control, t: Dictionary, body: VBoxContainer) -> void:
 	search.name = "PriceSearch"
 	search.placeholder_text = "Search goods or price reasons"
 	search.text = String(host.get_meta("town_price_search", ""))
-	search.custom_minimum_size.y = 48
+	search.custom_minimum_size.y = UiKit.touch_min(48)
 	search.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	filters.add_child(search)
 	var category := OptionButton.new()
 	category.name = "PriceCategory"
-	category.custom_minimum_size = Vector2(150, 48)
+	category.custom_minimum_size = Vector2(150, UiKit.touch_min(48))
 	var categories := [""]
 	for g in Goods.ids():
 		var key := String(Goods.table()[g].get("cat", "other"))
