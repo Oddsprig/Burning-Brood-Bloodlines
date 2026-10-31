@@ -281,6 +281,7 @@ static func from_dict(d: Dictionary) -> Unit:
 	u.kills = int(d.get("kills", 0))
 	u.battles = int(d.get("battles", 0))
 	u.look = d.get("look", {})
+	if u.look.has("seed"): u.look["seed"] = int(u.look["seed"])   # v0.074: the portrait seed is an int (JSON: a float)
 	u.wage = int(d.get("wage", 0))
 	u.backstory = d.get("backstory", "")
 	u.hire_cost = int(d.get("hire_cost", 0))

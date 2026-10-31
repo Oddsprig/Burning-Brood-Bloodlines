@@ -566,6 +566,12 @@ static func _fix(hd: Dictionary) -> void:
 		cp[i] = int(cp[i])
 	for pk in hd.get("plague", {}):
 		hd["plague"][pk] = int(hd["plague"][pk])
+	# v0.074: the market's head counts by kind (offered, wanted, sold, bought) and the gone-herds tally are ints
+	for key in ["ofk", "wak", "sok", "bk", "gone"]:
+		var d: Variant = hd.get(key)
+		if d is Dictionary:
+			for k in d:
+				if typeof(d[k]) == TYPE_FLOAT: d[k] = int(d[k])
 
 static func _fix_herd(h: Dictionary) -> void:
 	for k in ["id", "y", "g", "o", "oi", "hun", "h0", "d0", "t"]:
@@ -582,6 +588,11 @@ static func _fix_herd(h: Dictionary) -> void:
 		var pl: Array = h.get(key, [])
 		for i in pl.size():
 			pl[i] = int(pl[i])
+	# v0.074: horse breeding (LivestockCare): the season stamp and the head counts of foal and pregnancy rows are ints
+	if h.has("horse_bred_year"): h["horse_bred_year"] = int(h["horse_bred_year"])
+	for key in ["foals", "horse_due"]:
+		for row in h.get(key, []):
+			if row is Array and (row as Array).size() > 1: row[1] = int(row[1])
 
 # ================================================================== the herds' week (a work job per town)
 static func queue_day(w: Dictionary, d: int) -> void:

@@ -16,10 +16,12 @@ extends RefCounted
 ## Comparisons:
 ##   value   both files parsed by the same JSON reader, every key, array slot and number exactly equal (key order
 ##           ignored). This is the zero-drift assertion.
-##   strict  in process: the live snapshot against the snapshot after load. Leaf types must match (an int that comes
-##           back as a float, an int key that comes back as a string, a packed array that comes back as a plain array,
-##           a Color that comes back as text). Floats may differ only by the JSON writer's rounding (relative 1e-9);
-##           how many floats were rounded is printed, not asserted.
+##   strict  in process: the live snapshot against the snapshot after load. Leaf types must match (an int key that
+##           comes back as a string, a packed array that comes back as a plain array, a Color that comes back as text,
+##           a fraction cut to an int). Floats may differ only by the JSON writer's rounding (relative 1e-9); how many
+##           floats were rounded is printed, not asserted. A whole number that comes back as the other number type
+##           (JSON has one number type) is counted and its patterns listed, not asserted: the next-day parity check is what shows a type change that
+##           changes the game.
 ##   shared  the number of Unit/Item references the save writer saw more than once (one person reachable from two
 ##           places) must be the same after load: a reload must not split one person into two.
 ## Each drift kind is printed once per path pattern (array slots as #, ids with digits as *) with its first example.
@@ -50,6 +52,9 @@ class Diff extends RefCounted:
 	var strict := false
 	var count := 0
 	var rounded := 0
+	var numtype := 0   # whole numbers that came back as the other number type (JSON has one number type)
+	var numtype_patterns := {}   # pattern -> [count, first example] (printed, not asserted)
+	var numtype_order: Array = []
 	var patterns := {}   # "kind pattern" -> [count, first example]
 	var order: Array = []
 
@@ -130,10 +135,22 @@ class Diff extends RefCounted:
 		var na := ta == TYPE_INT or ta == TYPE_FLOAT
 		var nb := tb == TYPE_INT or tb == TYPE_FLOAT
 		if na and nb:
-			if typed and ta != tb:
-				note("num %s->%s" % [type_string(ta), type_string(tb)], path, a, b)
 			var fa := float(a)
 			var fb := float(b)
+			if typed and ta != tb:
+				if fa == fb and fa == floorf(fa):
+					# v0.074 r3: a whole number back as the other number type. JSON keeps one number type, and GDScript
+					# reckons and compares 4 and 4.0 alike; the load code turns back the ones used as ids, keys or
+					# indices. Counted and listed, not asserted: the next-day parity check is what shows a type that
+					# changes the game.
+					numtype += 1
+					var pk := "%s->%s  %s" % [type_string(ta), type_string(tb), pattern(path)]
+					if not numtype_patterns.has(pk):
+						numtype_patterns[pk] = [0, "%s: %s -> %s" % [path, show(a), show(b)]]
+						numtype_order.append(pk)
+					numtype_patterns[pk][0] += 1
+					return
+				note("num %s->%s" % [type_string(ta), type_string(tb)], path, a, b)
 			if fa == fb: return
 			if typed and absf(fa - fb) <= FLOAT_REL_TOL * maxf(1.0, absf(fa)):
 				rounded += 1   # the JSON writer's 14-15 significant digits, not drift
@@ -151,7 +168,8 @@ class Diff extends RefCounted:
 
 	func report(title: String) -> void:
 		print("%s: %d difference(s) in %d pattern(s)%s" % [title, count, order.size(),
-			(", %d float(s) rounded by the writer" % rounded) if strict else ""])
+			(", %d float(s) rounded by the writer, %d whole number(s) back as the other number type in %d pattern(s) (not asserted)" \
+				% [rounded, numtype, numtype_order.size()]) if strict else ""])
 		var shown := 0
 		for key in order:
 			if shown >= SHOW_MAX:
@@ -159,6 +177,11 @@ class Diff extends RefCounted:
 				break
 			print("  %6d x %s\n           e.g. %s" % [patterns[key][0], key, patterns[key][1]])
 			shown += 1
+		if strict and not numtype_order.is_empty():
+			print("  number type only (first %d of %d patterns):" % [mini(12, numtype_order.size()), numtype_order.size()])
+			for i in mini(12, numtype_order.size()):
+				var pk: String = numtype_order[i]
+				print("  %6d x %s\n           e.g. %s" % [numtype_patterns[pk][0], pk, numtype_patterns[pk][1]])
 
 static func _text(path: String) -> String:
 	return FileAccess.get_file_as_string(path) if FileAccess.file_exists(path) else ""
@@ -221,7 +244,7 @@ func self_check() -> void:
 	same.walk(a, b, "", true)
 	check(same.count == 0, "self-check: identical trees report no difference (%d)" % same.count)
 	b["l"][2]["k"] = false
-	b["n"] = 3.0
+	b["n"] = 4
 	b["d"] = {7: 2}
 	b.erase("s")
 	b["new"] = 1
@@ -229,6 +252,10 @@ func self_check() -> void:
 	planted.strict = true
 	planted.walk(a, b, "", true)
 	check(planted.count == 5, "self-check: the comparer finds 5 planted changes (found %d)" % planted.count)
+	var typing := Diff.new()
+	typing.strict = true
+	typing.walk({"n": 3, "m": 2.0, "p": 1.5}, {"n": 3.0, "m": 2, "p": 1}, "", true)
+	check(typing.count == 2 and typing.numtype == 2, "self-check: a whole number back as the other number type is counted, a changed one is drift (%d drift, %d typing)" % [typing.count, typing.numtype])
 	var rounding := Diff.new()
 	rounding.strict = true
 	rounding.walk({"x": 0.1 + 0.2}, {"x": 0.3}, "", true)
@@ -268,10 +295,22 @@ func _dragons_of(town_id: String, house: String) -> Array:
 	out.sort()
 	return out
 
-## A ruling house with two adult dragons and two adults at home (earned bonds need both).
+## Grown, healthy horses in the town's herds (DevTools.offer_horses offers only those; it makes no animals).
+func _grown_horses(town_id: String) -> int:
+	var town: Dictionary = Game.world["towns"].get(town_id, {})
+	if not TownEcon.has_econ(town): return 0
+	var n := 0
+	for h: Dictionary in Herds.herds(town["econ"]).values():
+		if str(h["k"]) == "horses" and Herds.sick(h) <= float(Herds.A()["disease_no_sale"]):
+			n += maxi(0, int(h["g"]))
+	return n
+
+## A ruling house with two adult dragons and two adults at home (earned bonds need both). r3: a house whose town has
+## grown horses to sell comes first (the mount check needs one; r2's house town had none: "offered 0").
 func _choose_house() -> Dictionary:
 	var records: Dictionary = Game.world.get("dragons", {}).get("records", {})
 	var tried := {}
+	var first := {}
 	for uid in records:
 		var row: Dictionary = records[uid]
 		if str(row.get("stage", "")) != "adult" or not bool(row.get("alive", false)): continue
@@ -283,8 +322,11 @@ func _choose_house() -> Dictionary:
 		var dragons := _dragons_of(town_id, house)
 		var adults := _adults_of(town_id, house)
 		if dragons.size() < 2 or adults.size() < 2: continue
-		return {"tid": town_id, "house": house, "dragons": dragons, "adults": adults}
-	return {}
+		var pick := {"tid": town_id, "house": house, "dragons": dragons, "adults": adults}
+		if _grown_horses(town_id) > 0: return pick
+		if first.is_empty(): first = pick
+	if not first.is_empty(): cover["house_horses"] = "no candidate house town has grown horses"
+	return first
 
 func _bond(chosen: Dictionary) -> void:
 	var dragons: Array = chosen["dragons"]

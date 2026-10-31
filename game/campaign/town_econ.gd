@@ -1500,6 +1500,7 @@ static func after_load(game) -> void:
 			migrate(w, t)
 		else:
 			_fix_ints(t["econ"])
+			Plots._p(t["econ"])   # v0.074: the plot columns packed again at load, not at their first use
 			BowsEcon.after_load(w, t)   # bows: bowyers/fletchers and the armory for older saves
 		# Older saves may retain farm employers after their land joined the town
 		# estate. Close only those obsolete hiring rows, retaining their books.
@@ -1602,9 +1603,12 @@ static func _fix_ints(e: Dictionary) -> void:
 		if f.has("lost"):
 			f["lost"]["year"] = int(f["lost"]["year"])
 	for b in e["biz"]:
+		# v0.074: a research house's skill is its staff's learning, a fraction (Academy); it was cut to a whole number
+		# at every load (1.0071 came back as 1).
+		var academy := String(b.get("type", "")) == "academy"
 		for k in _BIZ_INTS:
 			if b.has(k):
-				b[k] = int(b[k])
+				b[k] = float(b[k]) if academy and k == "skill" else int(b[k])
 	var ph: Array = e["stats"].get("pop_hist", [])
 	for i in ph.size():
 		ph[i] = int(ph[i])

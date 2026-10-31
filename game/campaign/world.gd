@@ -885,6 +885,7 @@ static func after_load(game) -> void:
 	CharacterDesign.after_load(game)
 	Prisoners.after_load(game)
 	Sickness.use_world_deadliness(w)
+	Sickness.after_load(game)   # v0.074: each town's saved register index (JSON types back)
 	Monsters.use_world(w)
 	Migration.after_load(game)
 	Settlement.after_load(game)

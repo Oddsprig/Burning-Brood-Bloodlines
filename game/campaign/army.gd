@@ -1130,6 +1130,12 @@ static func after_load(game) -> void:
 		var r2: Dictionary = st["f"][fid]
 		r2["levels"] = int(r2["levels"])
 		r2["unpaid_n"] = int(r2.get("unpaid_n", 0))
+		# v0.074: a payday split over jobs carries its low officer (a uid) and its day as ints
+		for k in ["pay_lo", "pay_day"]:
+			if r2.has(k): r2[k] = int(r2[k])
+		var pq: Variant = r2.get("pay_queue")
+		if pq is Array:
+			for i in (pq as Array).size(): pq[i] = int(pq[i])
 		var posts: Array = r2["posts"]
 		for i in posts.size():
 			posts[i] = int(posts[i])
