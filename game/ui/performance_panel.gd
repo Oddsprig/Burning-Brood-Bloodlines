@@ -39,8 +39,8 @@ func _ready() -> void:
 	_frame.add_theme_stylebox_override("panel", UiTheme.sb(Color("#14251f"), Color("#70568b"), 1, 5, 8, 8))
 	add_child(_frame)
 	var box := VBoxContainer.new(); box.add_theme_constant_override("separation", 5); _frame.add_child(box)
-	_toggle = Button.new(); _toggle.custom_minimum_size = Vector2(0, 48)
-	_toggle.add_theme_font_size_override("font_size", 15)
+	_toggle = Button.new(); _toggle.custom_minimum_size = Vector2(0, UiKit.touch_min(48))
+	_toggle.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE if UiTheme.is_mobile() else 15)
 	_toggle.focus_mode = Control.FOCUS_NONE
 	_toggle.pressed.connect(toggle)
 	box.add_child(_toggle)

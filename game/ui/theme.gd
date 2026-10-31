@@ -1,7 +1,7 @@
 class_name UiTheme
 extends RefCounted
 ## Shared Bloodlines theme. Historical token names retain the native UI API.
-## Large type and >= 48 px controls for phones. Type variations:
+## Large type and finger targets for phones (96 px controls, 30 px type). Type variations:
 ##   Label: "Header" (light, bold, on wood), "Title", "H2" (bold ink on parchment), "Muted", "Good", "Bad", "Small"
 ##   Button: "Row" (parchment list row), "RowOn" (selected row), "Danger", "Tab", "TabOn"
 ##   PanelContainer: "Card" (lighter parchment), "Bar" (wood strip), "Inset" (sunken parchment)
@@ -28,10 +28,24 @@ const PURPLE := Color("6a2c38")
 const PURPLE_TEXT := Color("f0c98a")
 
 const FONT_SIZE := 20
+const MOBILE_FONT_SIZE := 30
 
 static var _theme: Theme
 static var _bold: Font
 static var _regular: Font
+static var _mobile_override: Variant = null
+
+static func is_mobile() -> bool:
+	if _mobile_override != null:
+		return bool(_mobile_override)
+	return OS.has_feature("mobile")
+
+static func set_mobile_override(v: Variant) -> void:
+	_mobile_override = v
+	_theme = null
+
+static func base_font_size() -> int:
+	return MOBILE_FONT_SIZE if is_mobile() else FONT_SIZE
 
 static func get_theme() -> Theme:
 	if _theme == null:
@@ -104,11 +118,13 @@ static func sb(bg: Color, border: Color = BORDER, bw: int = 2, radius: int = 6, 
 	return s
 
 static func _btn(t: Theme, type: String, bg: Color, fg: Color, border: Color = BORDER) -> void:
-	t.set_stylebox("normal", type, sb(bg, border))
-	t.set_stylebox("hover", type, sb(bg.lightened(0.12), border))
-	t.set_stylebox("pressed", type, sb(bg.darkened(0.18), border))
-	t.set_stylebox("hover_pressed", type, sb(bg.darkened(0.12), border))
-	t.set_stylebox("disabled", type, sb(bg.lerp(Color("444b47"), 0.65), border.lerp(Color("444b47"), 0.5)))
+	var mx := 14 if is_mobile() else 12
+	var my := 11 if is_mobile() else 8
+	t.set_stylebox("normal", type, sb(bg, border, 2, 6, mx, my))
+	t.set_stylebox("hover", type, sb(bg.lightened(0.12), border, 2, 6, mx, my))
+	t.set_stylebox("pressed", type, sb(bg.darkened(0.18), border, 2, 6, mx, my))
+	t.set_stylebox("hover_pressed", type, sb(bg.darkened(0.12), border, 2, 6, mx, my))
+	t.set_stylebox("disabled", type, sb(bg.lerp(Color("444b47"), 0.65), border.lerp(Color("444b47"), 0.5), 2, 6, mx, my))
 	var f := StyleBoxFlat.new()
 	f.draw_center = false
 	f.border_color = BRASS
@@ -118,19 +134,21 @@ static func _btn(t: Theme, type: String, bg: Color, fg: Color, border: Color = B
 	for c in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_hover_pressed_color"]:
 		t.set_color(c, type, fg)
 	t.set_color("font_disabled_color", type, fg.lerp(INK_SOFT, 0.6))
-	t.set_font_size("font_size", type, FONT_SIZE)
+	t.set_font_size("font_size", type, base_font_size())
 
 static func _build() -> Theme:
 	var t := Theme.new()
+	var fs := base_font_size()
+	var bonus := fs - FONT_SIZE
 	t.default_font = regular_font()
-	t.default_font_size = FONT_SIZE
+	t.default_font_size = fs
 	# Labels
 	t.set_color("font_color", "Label", INK)
-	t.set_font_size("font_size", "Label", FONT_SIZE)
+	t.set_font_size("font_size", "Label", fs)
 	_variation(t, "Header", "Label")
 	t.set_color("font_color", "Header", LIGHT)
 	t.set_font("font", "Header", bold())
-	t.set_font_size("font_size", "Header", 28)
+	t.set_font_size("font_size", "Header", 28 + bonus)
 	t.set_color("font_shadow_color", "Header", Color(0, 0, 0, 0.55))
 	t.set_constant("shadow_offset_x", "Header", 2)
 	t.set_constant("shadow_offset_y", "Header", 2)
@@ -145,14 +163,14 @@ static func _build() -> Theme:
 	t.set_constant("shadow_offset_y", "Title", 5)
 	_variation(t, "H2", "Label")
 	t.set_font("font", "H2", bold())
-	t.set_font_size("font_size", "H2", 24)
+	t.set_font_size("font_size", "H2", 24 + bonus)
 	t.set_color("font_color", "H2", BRASS)
 	_variation(t, "Muted", "Label")
 	t.set_color("font_color", "Muted", INK_SOFT)
-	t.set_font_size("font_size", "Muted", 18)
+	t.set_font_size("font_size", "Muted", 18 + bonus)
 	_variation(t, "Small", "Label")
 	t.set_color("font_color", "Small", INK)
-	t.set_font_size("font_size", "Small", 17)
+	t.set_font_size("font_size", "Small", 17 + bonus)
 	_variation(t, "Good", "Label")
 	t.set_color("font_color", "Good", GOOD)
 	_variation(t, "Bad", "Label")
@@ -165,16 +183,16 @@ static func _build() -> Theme:
 	t.set_font("font", "Row", bold())
 	_variation(t, "RowOn", "Button")
 	_btn(t, "RowOn", PURPLE, INK, COPPER_LO)
-	t.set_stylebox("normal", "RowOn", sb(PURPLE, COPPER_LO, 3))
+	t.set_stylebox("normal", "RowOn", sb(PURPLE, COPPER_LO, 3, 6, 14 if is_mobile() else 12, 11 if is_mobile() else 8))
 	t.set_font("font", "RowOn", bold())
 	_variation(t, "Danger", "Button")
 	_btn(t, "Danger", Color("783f48"), LIGHT)
 	_variation(t, "Tab", "Button")
 	_btn(t, "Tab", WOOD_3, LIGHT, BORDER)
-	t.set_font_size("font_size", "Tab", 22)
+	t.set_font_size("font_size", "Tab", 22 + bonus)
 	_variation(t, "TabOn", "Button")
 	_btn(t, "TabOn", PURPLE, LIGHT, BORDER)
-	t.set_font_size("font_size", "TabOn", 22)
+	t.set_font_size("font_size", "TabOn", 22 + bonus)
 	t.set_font("font", "TabOn", bold())
 	t.set_constant("h_separation", "Button", 8)
 	# OptionButton / MenuButton follow Button
@@ -186,8 +204,9 @@ static func _build() -> Theme:
 	t.set_color("font_color", "PopupMenu", INK)
 	t.set_color("font_hover_color", "PopupMenu", INK)
 	t.set_color("font_disabled_color", "PopupMenu", INK_SOFT)
-	t.set_font_size("font_size", "PopupMenu", 22)
-	t.set_constant("v_separation", "PopupMenu", 22)
+	t.set_font_size("font_size", "PopupMenu", 22 + bonus)
+	# Item hit height is about the font plus v_separation. Phones need a full finger row.
+	t.set_constant("v_separation", "PopupMenu", 64 if is_mobile() else (22 + bonus))
 	t.set_constant("item_start_padding", "PopupMenu", 14)
 	# Panels
 	t.set_stylebox("panel", "PanelContainer", sb(PARCH, BORDER, 3, 8, 14, 12))
@@ -199,22 +218,23 @@ static func _build() -> Theme:
 	_variation(t, "Bar", "PanelContainer")
 	t.set_stylebox("panel", "Bar", sb(WOOD_2, WOOD, 0, 0, 16, 8))
 	# Scrollbars: thick for thumbs
+	var sb_pad := 9 if is_mobile() else 7
 	for sbt in ["VScrollBar", "HScrollBar"]:
-		t.set_stylebox("scroll", sbt, sb(Color(0, 0, 0, 0.12), Color(0, 0, 0, 0), 0, 6, 7, 7))
-		t.set_stylebox("grabber", sbt, sb(COPPER, COPPER_LO, 1, 6, 7, 7))
-		t.set_stylebox("grabber_highlight", sbt, sb(COPPER_HI, COPPER_LO, 1, 6, 7, 7))
-		t.set_stylebox("grabber_pressed", sbt, sb(COPPER_LO, COPPER_LO, 1, 6, 7, 7))
+		t.set_stylebox("scroll", sbt, sb(Color(0, 0, 0, 0.12), Color(0, 0, 0, 0), 0, 6, sb_pad, sb_pad))
+		t.set_stylebox("grabber", sbt, sb(COPPER, COPPER_LO, 1, 6, sb_pad, sb_pad))
+		t.set_stylebox("grabber_highlight", sbt, sb(COPPER_HI, COPPER_LO, 1, 6, sb_pad, sb_pad))
+		t.set_stylebox("grabber_pressed", sbt, sb(COPPER_LO, COPPER_LO, 1, 6, sb_pad, sb_pad))
 	t.set_stylebox("panel", "ScrollContainer", StyleBoxEmpty.new())
 	# Progress bars (skill XP)
 	t.set_stylebox("background", "ProgressBar", sb(PARCH_3, BORDER, 1, 4, 0, 0))
 	t.set_stylebox("fill", "ProgressBar", sb(COPPER, COPPER_LO, 1, 4, 0, 0))
 	t.set_color("font_color", "ProgressBar", INK)
-	t.set_font_size("font_size", "ProgressBar", 14)
+	t.set_font_size("font_size", "ProgressBar", 14 + bonus)
 	# Rich text
 	t.set_color("default_color", "RichTextLabel", INK)
-	t.set_font_size("normal_font_size", "RichTextLabel", FONT_SIZE)
+	t.set_font_size("normal_font_size", "RichTextLabel", fs)
 	t.set_font("normal_font", "RichTextLabel", regular_font())
-	t.set_font_size("bold_font_size", "RichTextLabel", FONT_SIZE)
+	t.set_font_size("bold_font_size", "RichTextLabel", fs)
 	t.set_font("bold_font", "RichTextLabel", bold())
 	# Separators
 	var line := StyleBoxLine.new()

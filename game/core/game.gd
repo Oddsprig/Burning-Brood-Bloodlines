@@ -31,6 +31,7 @@ const SCREENS := {
 	"presim": "res://ui/presim.tscn",   # a new campaign: the years before (campaign/world.gd presim_step)
 	"newgame": "res://ui/newgame.tscn",   # New Campaign options: world size and the years before (then presim)
 }
+const MobilePerf := preload("res://core/mobile_perf.gd")   # v0.072 phone performance profile
 const LOOT_FRACTION := 0.25   # loot gold = fraction of defeated enemy gear value (handoff decision)
 const START_COMPANY_SIZE := 100
 
@@ -64,6 +65,11 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS   # capture slices keep running while the campaign is held
 	rng.randomize()
 	load_settings()
+	# v0.072 phone profile (core/mobile_perf.gd): frame cap / battery saver, viewport AA off on phones.
+	MobilePerf.apply_frame_cap(bool(setting("battery_saver")))
+	MobilePerf.apply_viewport(get_tree().root)
+	setting_changed.connect(func(key: String, value: Variant):
+		if key == "battery_saver": MobilePerf.apply_frame_cap(bool(value)))
 
 # ---------------------------------------------------------------- screens
 func goto(screen: String, params: Dictionary = {}) -> void:
@@ -72,6 +78,7 @@ func goto(screen: String, params: Dictionary = {}) -> void:
 		last_result = {}   # results have been consumed; release their combatants and event payload
 	_active_screen = screen
 	screen_params = params
+	MobilePerf.on_screen(screen)   # phones: menus idle in low processor mode
 	if main != null:
 		main.show_screen(SCREENS.get(screen, screen))
 	screen_changed.emit(screen)
@@ -571,19 +578,24 @@ func save_stats() -> Dictionary:
 		"age_s":float(Time.get_ticks_usec()-_save_started_us)/1000000.0 if _save_task != -1 or _save_capture != null else 0.0})
 	return stats
 
-func wait_save() -> void:
+## flush_pending = false only completes the snapshot/write already under way (a deferred request stays pending).
+func wait_save(flush_pending: bool = true) -> void:
 	if _save_capture != null:
 		_save_capture.step(0)
 		_finish_capture()
 	if _save_task != -1:
 		_retire_save()
-	if _save_pending and _save_ready:
+	if flush_pending and _save_pending and _save_ready:
 		_save_pending = false
 		_accept_save_receipt(_write_save(SAVE_PATH, _save_tree()))
 
 func _notification(what: int) -> void:
-	if what in [NOTIFICATION_WM_CLOSE_REQUEST, NOTIFICATION_PREDELETE, NOTIFICATION_APPLICATION_PAUSED]:
-		wait_save()   # never quit (or go to the phone's background) half way through writing the save
+	if what in [NOTIFICATION_WM_CLOSE_REQUEST, NOTIFICATION_PREDELETE]:
+		wait_save()   # never quit half way through writing the save
+	elif what == NOTIFICATION_APPLICATION_PAUSED:
+		# Going to the phone's background: finish the write under way. A save deferred by a battle stays deferred
+		# (the app usually comes back to the same fight; it is written once the battle is over).
+		wait_save(_active_screen != "battle")
 	if what == NOTIFICATION_PREDELETE and ResourceLoader.has_cached("res://campaign/map_terrain.gd"):
 		load("res://campaign/map_terrain.gd").free_cache()   # the map layer's kept decor canvas items
 
@@ -786,6 +798,7 @@ const DEFAULT_SETTINGS := {
 	"music_volume": 0.5,
 	"sfx_volume": 0.5,
 	"gore": "full",   # v0.014 (Douglas 22:51): "full" | "reduced" (a later phone-store build): blood, decals and log words
+	"battery_saver": false,   # v0.072: true caps the game at 30 FPS (core/mobile_perf.gd)
 }
 ## Settings with named choices (the screen cycles through them): key -> {label, options [value, shown name]}.
 const SETTING_CHOICES := {
@@ -795,6 +808,8 @@ const SETTING_CHOICES := {
 		"hint": "Battle sounds, dragons, interface clicks and event fanfares."},
 	"gore": {"label": "Gore", "options": [["full", "Full"], ["reduced", "Reduced"]],
 		"hint": "Full: blood sprays, pools, trails and wounds on the fighters, severed parts stay on the field, vivid log. Reduced: less blood, no severed-part decals, milder log words."},
+	"battery_saver": {"label": "Frame rate", "options": [[false, "Smooth"], [true, "Battery saver"]],
+		"hint": "Battery saver caps the game at 30 frames a second: less heat and longer battery life on phones. Smooth runs at up to 60 on phones."},
 }
 
 func gore_full() -> bool:

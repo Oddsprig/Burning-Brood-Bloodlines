@@ -55,7 +55,7 @@ static func _food_bar(what: String, state: String, val: float, col: Color, title
 	var b := Button.new()
 	b.theme_type_variation = "Row"
 	b.focus_mode = Control.FOCUS_NONE
-	b.custom_minimum_size = Vector2(230, UiKit.TAP)
+	b.custom_minimum_size = Vector2(230, UiKit.tap_height())
 	b.tooltip_text = ""
 	var v := UiKit.vbox(2)
 	v.set_anchors_preset(Control.PRESET_FULL_RECT)

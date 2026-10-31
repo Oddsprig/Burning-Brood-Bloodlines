@@ -9,7 +9,10 @@ extends Node2D
 ## fighter. Retained contiguous slot chunks redraw only when their slots change; pools draw separately.
 ## The public decal root still accepts queue_redraw() to invalidate custom array/pool edits.
 ## Gore Reduced (Game "gore"): a third of the droplets, no spurts, half-size pools, sparse trails.
+## v0.072 phones (MobilePerf.cheap_fx): half the droplets and drips; droplets in flight draw as rects (one batch)
+## and each ground-decal chunk is one triangle array of 8-sided dots instead of 30 separate 64-segment circles.
 
+const MobilePerf := preload("res://core/mobile_perf.gd")
 const MAX_DROPS := 384
 const MAX_DECALS := 900
 const DECAL_CHUNK_SIZE := 30
@@ -25,6 +28,12 @@ const BLOOD_DARK := Color("#5e080e")
 
 var full := true
 var tile := 40.0
+var cheap := false   # v0.072 phone drawing (MobilePerf.cheap_fx)
+const CHEAP_SIDES := 8
+var _dot_dirs := PackedVector2Array()   # unit 8-gon, y squashed like the decal ellipse
+var _dot_idx := PackedInt32Array()      # fan indices for a full chunk
+var _dot_pts := PackedVector2Array()
+var _dot_cols := PackedColorArray()
 
 # droplets in flight
 var _dp := PackedVector2Array()
@@ -53,6 +62,16 @@ var _decal_chunks: Array[Node2D] = []
 func setup(tile_px: float, gore_full: bool, rseed: int) -> void:
 	tile = tile_px
 	full = gore_full
+	cheap = MobilePerf.cheap_fx()
+	if cheap and _dot_dirs.is_empty():
+		for i in CHEAP_SIDES:
+			var a := TAU * i / float(CHEAP_SIDES)
+			_dot_dirs.append(Vector2(cos(a), sin(a) * 0.6))
+		var per := CHEAP_SIDES + 1
+		for k in DECAL_CHUNK_SIZE:
+			for i in CHEAP_SIDES:
+				_dot_idx.append(k * per); _dot_idx.append(k * per + 1 + i); _dot_idx.append(k * per + 1 + (i + 1) % CHEAP_SIDES)
+		_dot_pts.resize(DECAL_CHUNK_SIZE * per); _dot_cols.resize(DECAL_CHUNK_SIZE * per)
 	_rng.seed = rseed * 31 + 7
 	_dp.resize(MAX_DROPS); _dv.resize(MAX_DROPS); _dl.resize(MAX_DROPS); _dground.resize(MAX_DROPS); _ds.resize(MAX_DROPS)
 	_dl.fill(0.0)
@@ -94,6 +113,8 @@ func pool_radius(idx: int) -> float:
 func spray(pos: Vector2, dir: Vector2, n: int, ground_y: float) -> void:
 	if not full:
 		n = n / 3
+	if cheap:
+		n = n / 2
 	if n <= 0:
 		return
 	var base := dir.normalized() if dir != Vector2.ZERO else Vector2.RIGHT
@@ -133,7 +154,7 @@ func tick(sim, views: Array) -> void:
 		var down: bool = f.state == "dead" or f.state == "unconscious" or f.prone
 		var feet: Vector2 = v.position
 		if rate > 0.0 and f.state != "dead":
-			var acc := float(_trail_acc.get(f.idx, 0.0)) + rate * TRAIL_PER_RATE * (1.0 if full else 0.35)
+			var acc := float(_trail_acc.get(f.idx, 0.0)) + rate * TRAIL_PER_RATE * (1.0 if full else 0.35) * (0.5 if cheap else 1.0)
 			while acc >= 1.0:
 				acc -= 1.0
 				_decal(feet + Vector2(_rng.randf_range(-9, 9), _rng.randf_range(-4, 3)), _rng.randf_range(1.0, 2.2) + minf(2.0, rate * 20.0),
@@ -217,13 +238,35 @@ func _draw_pools() -> void:
 func _draw_decal_chunk(chunk: int) -> void:
 	var started: int = Time.get_ticks_usec()
 	var canvas: Node2D = _decal_chunks[chunk]
-	canvas.draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.6))
 	var first: int = chunk * DECAL_CHUNK_SIZE
+	if cheap:
+		_draw_decal_chunk_cheap(canvas, first, mini(first + DECAL_CHUNK_SIZE, _gn))
+		Perf.record_us("Battle gore draw", Time.get_ticks_usec() - started)
+		return
+	canvas.draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.6))
 	for i: int in range(first, mini(first + DECAL_CHUNK_SIZE, _gn)):
 		var p := _gp[i]
 		canvas.draw_circle(Vector2(p.x, p.y / 0.6), _gr[i], _gc[i])
 	canvas.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	Perf.record_us("Battle gore draw", Time.get_ticks_usec() - started)
+
+## Phones: one chunk's decals as a single triangle array (same ellipse centre/radii as the circle path).
+func _draw_decal_chunk_cheap(canvas: Node2D, first: int, last: int) -> void:
+	var n := last - first
+	if n <= 0: return
+	var per := CHEAP_SIDES + 1
+	for k in n:
+		var i := first + k
+		var p := _gp[i]
+		var r := _gr[i]
+		var c := _gc[i]
+		var base := k * per
+		_dot_pts[base] = p; _dot_cols[base] = c
+		for j in CHEAP_SIDES:
+			_dot_pts[base + 1 + j] = p + _dot_dirs[j] * r
+			_dot_cols[base + 1 + j] = c
+	RenderingServer.canvas_item_add_triangle_array(canvas.get_canvas_item(), _dot_idx.slice(0, n * CHEAP_SIDES * 3),
+		_dot_pts.slice(0, n * per), _dot_cols.slice(0, n * per))
 
 func _draw_drops() -> void:
 	var started: int = Time.get_ticks_usec()
@@ -231,6 +274,12 @@ func _draw_drops() -> void:
 	Perf.record_us("Battle gore draw", Time.get_ticks_usec() - started)
 
 func _draw_drops_body() -> void:
+	if cheap:   # phones: rects batch into one draw; a 1-3 px droplet in flight reads the same
+		for s in MAX_DROPS:
+			if _dl[s] > 0.0:
+				var d := _ds[s]
+				drops.draw_rect(Rect2(_dp[s] - Vector2(d, d), Vector2(d, d) * 2.0), BLOOD)
+		return
 	for s in MAX_DROPS:
 		if _dl[s] > 0.0:
 			drops.draw_circle(_dp[s], _ds[s], BLOOD)

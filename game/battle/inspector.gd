@@ -53,7 +53,8 @@ func _ready() -> void:
 	head.add_child(name_label)
 	var close := Button.new()
 	close.text = "X"
-	close.custom_minimum_size = Vector2(56, 56)
+	var close_px := UiKit.touch_min(56)
+	close.custom_minimum_size = Vector2(close_px, close_px)
 	close.pressed.connect(func(): closed.emit())
 	head.add_child(close)
 	info_label = Label.new()
@@ -71,7 +72,7 @@ func _ready() -> void:
 	var complete := Button.new()
 	complete.name = "InspectorFullHistory"
 	complete.text = "Full combat history · pause & read"
-	complete.custom_minimum_size.y = 42
+	complete.custom_minimum_size.y = UiKit.touch_min(42)
 	complete.pressed.connect(func():
 		if fighter != null: history_requested.emit(fighter.idx))
 	v.add_child(complete)
@@ -101,8 +102,8 @@ func _tab_button(text: String, id: String) -> Button:
 	var b := Button.new()
 	b.text = text
 	b.toggle_mode = true
-	b.custom_minimum_size = Vector2(150, 54)
-	b.add_theme_font_size_override("font_size", 20)
+	b.custom_minimum_size = Vector2(150, UiKit.touch_min(54))
+	b.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE if UiTheme.is_mobile() else 20)
 	b.focus_mode = Control.FOCUS_NONE
 	for st in [["normal", Color(0.16, 0.14, 0.12)], ["hover", Color(0.22, 0.19, 0.16)], ["pressed", Color(0.85, 0.6, 0.2)], ["hover_pressed", Color(0.92, 0.68, 0.25)]]:
 		var sb := StyleBoxFlat.new()
@@ -220,7 +221,7 @@ func _append_log() -> void:
 		_log_first = entries.size() - LOG_WINDOW
 		var more := Button.new()
 		more.text = "Show %d earlier entries" % _log_first
-		more.custom_minimum_size = Vector2(0, 52)
+		more.custom_minimum_size = Vector2(0, UiKit.touch_min(52))
 		more.focus_mode = Control.FOCUS_NONE
 		more.pressed.connect(_show_earlier.bind(more))
 		log_box.add_child(more)
@@ -257,7 +258,7 @@ func _make_entry(entry: Dictionary) -> Control:
 	b.flat = true
 	b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	b.custom_minimum_size = Vector2(0, 48)
+	b.custom_minimum_size = Vector2(0, UiKit.touch_min(48))
 	b.focus_mode = Control.FOCUS_NONE
 	var detail: Array = r.get("detail", [])
 	var calc_s := str(r.get("calc", ""))

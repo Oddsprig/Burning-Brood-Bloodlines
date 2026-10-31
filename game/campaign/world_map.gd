@@ -28,6 +28,7 @@ var trade_good := "off"
 var trade_overlay := TRADE_OVERLAY.new()
 
 # input state
+var touch_input: TouchInput
 var _press_pos := Vector2.ZERO
 var _pressing := false
 var _dragging := false
@@ -129,6 +130,7 @@ func _ready() -> void:
 	trade_overlay.z_index = 2
 	add_child(trade_overlay)
 	_build_hud()
+	touch_input = TouchInput.attach(self, _on_tap_screen, _on_pan_screen, _on_zoom_screen, _on_inspect_screen, 8.0)
 	_refresh_trade_overlay()
 	Game.changed.connect(func(): _accounts_key = "")
 	tracks_layer.setup(self)   # tracks: tapping the contract line centres the map on the target / last-seen spot
@@ -179,7 +181,7 @@ func _process_map(delta: float) -> void:
 	party_icon.position = party["pos"]
 	_sync_icons()
 	_refresh_trade_overlay()
-	overlay.queue_redraw()
+	_queue_overlay()
 	_hud_t -= delta
 	# A midnight invalidates native health/account reads. Let the next lighter
 	# frame refresh them instead of stacking that read onto an expensive job.
@@ -218,6 +220,21 @@ func _update_pursuit() -> void:
 		CampaignWorld.set_travel(Game, wb["pos"])
 
 # ================================================================== drawing overlay
+## v0.072: the route/selection overlay is rebuilt only when what it draws can have changed (time passed, the party's
+## route, zoom, selection, the visible force set, trade view), every frame while a pulsing contract marker shows,
+## and at least every 12th frame. A paused map no longer rebuilds every line and dot each frame.
+var _overlay_sig: Array = []
+
+func _queue_overlay() -> void:
+	var w: Dictionary = Game.world
+	var party: Dictionary = w["party"]
+	var kind := str(Game.contract.get("kind", ""))
+	var pulsing := kind == "escort" or kind == "defend" or str(Game.contract.get("target_id", "")) != ""
+	var sig := [Game.day, party["pos"], (party["path"] as Array).size(), cam.zoom.x, selected.hash(), icons.size(), trade_good]
+	if pulsing or sig != _overlay_sig or Engine.get_process_frames() % 12 == 0:
+		_overlay_sig = sig
+		overlay.queue_redraw()
+
 func _draw_overlay() -> void:
 	var w: Dictionary = Game.world
 	var party: Dictionary = w["party"]
@@ -271,40 +288,36 @@ func _draw_overlay() -> void:
 		overlay.draw_arc(w["towns"][selected["id"]]["pos"], 40.0, 0, TAU, 36, Color.WHITE, 2.0)
 
 # ================================================================== input
+## v0.072: mouse, touch (tap, one-finger pan, pinch) and long-press / right-click info all go through TouchInput.
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton:
-		var mb := event as InputEventMouseButton
-		if mb.button_index == MOUSE_BUTTON_LEFT:
-			if mb.pressed:
-				_pressing = true; _dragging = false; _press_pos = mb.position
-			elif _pressing:
-				_pressing = false
-				if not _dragging:
-					_tap(get_global_mouse_position())
-		elif mb.pressed and mb.button_index == MOUSE_BUTTON_WHEEL_UP:
-			_zoom_at(1.12, mb.position)
-		elif mb.pressed and mb.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			_zoom_at(1.0 / 1.12, mb.position)
-	elif event is InputEventMouseMotion and _pressing:
-		var mm := event as InputEventMouseMotion
-		if not _dragging and mm.position.distance_to(_press_pos) > DRAG_THRESHOLD:
-			_dragging = true
-		if _dragging:
-			cam.position -= mm.relative / cam.zoom.x
-			follow = false
-	elif event is InputEventMagnifyGesture:
-		_zoom_at((event as InputEventMagnifyGesture).factor, (event as InputEventMagnifyGesture).position)
-	elif event is InputEventPanGesture:
-		cam.position += (event as InputEventPanGesture).delta * 8.0 / cam.zoom.x
-		follow = false
+	if touch_input != null and touch_input.handle_input(event):
+		_pressing = touch_input.pressing
+		_dragging = touch_input.dragging
+		_press_pos = touch_input.press_pos
+
+func screen_to_world(screen_pos: Vector2) -> Vector2:
+	return get_viewport().get_canvas_transform().affine_inverse() * screen_pos
+
+func _on_tap_screen(screen_pos: Vector2) -> void:
+	_tap(screen_to_world(screen_pos))
+
+func _on_inspect_screen(screen_pos: Vector2) -> void:
+	_inspect(screen_to_world(screen_pos))
+
+func _on_pan_screen(screen_delta: Vector2) -> void:
+	cam.position -= screen_delta / cam.zoom.x
+	follow = false
+
+func _on_zoom_screen(screen_pos: Vector2, factor: float) -> void:
+	_zoom_at(factor, screen_pos)
 
 func _zoom_at(f: float, screen_pos: Vector2) -> void:
-	var before := get_global_mouse_position()
+	var vp := get_viewport_rect().size
+	var before := cam.get_screen_center_position() + (screen_pos - vp * 0.5) / cam.zoom.x
 	var z := clampf(cam.zoom.x * f, ZOOM_MIN / WorldGen.K, ZOOM_MAX)   # war pick 5: zoom out as far over the 1.5x map
 	cam.zoom = Vector2(z, z)
 	terrain.set_zoom(z)   # world size: the decor hides when zoomed far out over a large map (the land still shows)
-	# keep the point under the cursor fixed
-	var vp := get_viewport_rect().size
+	# keep the point under the cursor / pinch midpoint fixed
 	var after := cam.get_screen_center_position() + (screen_pos - vp * 0.5) / z
 	cam.position += before - after
 
@@ -349,6 +362,34 @@ func _tap(p: Vector2) -> void:
 		follow = true
 	else:
 		toast("The company can't get there.")
+
+## Long-press (~0.5s) or right-click inspects without issuing a travel order or entering a town.
+func _inspect(p: Vector2) -> void:
+	if get_tree().paused: return
+	var w: Dictionary = Game.world
+	if w.get("encounter", "") != "":
+		return
+	var z := cam.zoom.x
+	if _trade_tap(p): return
+	var best := MapTokens.pick(icons, w["warbands"], p, z)
+	if best != "":
+		_select({"kind": "warband", "id": best})
+		return
+	if MapTokens.center(w["party"]["pos"], z).distance_to(p) < MapTokens.HIT_R / z:
+		_select({"kind": "party"})
+		return
+	var tbest := ""; var tbd := maxf(34.0, 44.0 / z)
+	for tid in w["towns"]:
+		var d: float = (w["towns"][tid]["pos"] as Vector2).distance_to(p)
+		if d < tbd:
+			tbd = d; tbest = tid
+	if tbest != "":
+		_select({"kind": "town", "id": tbest})
+		return
+	if tracks_layer.tap(p, maxf(12.0, 16.0 / z)):
+		_select({"kind": "track", "id": str(tracks_layer.track_sel[1])})
+		return
+	_select({"kind": "terrain", "id": "%d,%d" % [int(round(p.x)), int(round(p.y))], "pos": p})
 
 func _trade_tap(p: Vector2) -> bool:
 	if trade_good == "off": return false
@@ -399,8 +440,9 @@ func _style(bg: Color, border: Color = UiTheme.BORDER) -> StyleBoxFlat:
 func _button(text: String, cb: Callable) -> Button:
 	var b := Button.new()
 	b.text = text
-	b.custom_minimum_size = Vector2(64, 48)
-	b.add_theme_font_size_override("font_size", 18)
+	var min_h := float(UiKit.MOBILE_TAP) if UiTheme.is_mobile() else 48.0   # desktop keeps its 48 px map buttons
+	b.custom_minimum_size = Vector2(maxf(64.0, min_h), min_h)
+	b.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE if UiTheme.is_mobile() else 18)
 	b.focus_mode = Control.FOCUS_NONE
 	b.pressed.connect(cb)
 	return b
@@ -524,10 +566,10 @@ func _build_hud() -> void:
 	var eb := UiKit.flow(8)
 	ev.add_child(eb)
 	enc_fight = _button("Fight", _on_fight)
-	enc_fight.custom_minimum_size = Vector2(110, 52)
+	enc_fight.custom_minimum_size = Vector2(UiKit.touch_min(110), UiKit.touch_min(52))
 	eb.add_child(enc_fight)
 	var flee := _button("Retreat", _on_retreat)
-	flee.custom_minimum_size = Vector2(110, 52)
+	flee.custom_minimum_size = Vector2(UiKit.touch_min(110), UiKit.touch_min(52))
 	eb.add_child(flee)
 	modal_host = Control.new()
 	modal_host.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -554,9 +596,15 @@ func _settle_hud_layout() -> void:
 func _layout_hud() -> void:
 	if hud_root == null or ruler_card == null:
 		return
-	var viewport := get_viewport().get_visible_rect().size
+	var safe := UiKit.safe_area_margins(get_viewport())
+	hud_root.offset_left = safe["left"]
+	hud_root.offset_top = safe["top"]
+	hud_root.offset_right = -safe["right"]
+	hud_root.offset_bottom = -safe["bottom"]
+	var raw_vp := get_viewport().get_visible_rect().size
+	var viewport := raw_vp - Vector2(float(safe["left"] + safe["right"]), float(safe["top"] + safe["bottom"]))
 	var width := viewport.x
-	if width >= 1100:
+	if raw_vp.x >= 1100:
 		width -= PerformancePanel.WIDTH + 16.0
 	var height := viewport.y
 	var narrow := width < 650
@@ -830,6 +878,18 @@ func _fill_info() -> void:
 			info_buttons.add_child(_button("Close", _close_info))
 	elif selected.get("kind", "") == "track":
 		tracks_layer.fill_info(self, rebuild)   # tracks
+	elif selected.get("kind", "") == "terrain":
+		var pos: Vector2 = selected.get("pos", w["party"]["pos"])
+		var terr := CampaignWorld.terrain_at(w, pos)
+		info_title.text = terr.capitalize()
+		info_body.text = "Ground: %s" % terr.capitalize()
+		if rebuild:
+			info_buttons.add_child(_button("March here", func():
+				_close_info()
+				pursue_wid = ""
+				if CampaignWorld.set_travel(Game, pos): follow = true
+				else: toast("The company can't get there.")))
+			info_buttons.add_child(_button("Close", _close_info))
 
 func _assault(tid: String, kind: String) -> void:
 	var p := Warfare.preview(Game, tid, kind)

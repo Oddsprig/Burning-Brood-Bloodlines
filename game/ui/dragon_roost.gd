@@ -42,7 +42,7 @@ func _ready() -> void:
 	column.add_child(UiKit.label("The dragon roost", "H2", true))
 	_selector = OptionButton.new()
 	_selector.name = "RoostSelection"
-	_selector.custom_minimum_size.y = UiKit.TAP
+	_selector.custom_minimum_size.y = UiKit.tap_height()
 	_selector.fit_to_longest_item = false
 	_selector.clip_text = true
 	_selector.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS

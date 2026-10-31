@@ -79,7 +79,7 @@ func _build(searchable: bool) -> void:
 		var le := LineEdit.new()
 		_search_box = le
 		le.placeholder_text = "Search by name"
-		le.custom_minimum_size = Vector2(120, 48)
+		le.custom_minimum_size = Vector2(120, UiKit.touch_min(48))
 		le.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		le.add_theme_stylebox_override("normal", UiTheme.sb(UiTheme.PARCH, UiTheme.PARCH_3, 1, 3, 10, 6))
 		le.add_theme_stylebox_override("focus", UiTheme.sb(UiTheme.PARCH, UiTheme.COPPER, 2, 3, 10, 6))
@@ -100,7 +100,7 @@ func _build_controls() -> void:
 	var fl := UiKit.flow(6)
 	fl.add_child(_tag("Sort"))
 	var sort := OptionButton.new()
-	sort.custom_minimum_size = Vector2(150, 48)
+	sort.custom_minimum_size = Vector2(150, UiKit.touch_min(48))
 	for i in cols.size():
 		sort.add_item(String(cols[i]["t"]))
 		if String(cols[i]["k"]) == sort_k: sort.select(i)
@@ -113,7 +113,7 @@ func _build_controls() -> void:
 		fl.add_child(_tag(title))
 		var cur := String(fsel.get(title, f["opts"][0]))
 		var pick := OptionButton.new()
-		pick.custom_minimum_size = Vector2(140, 48)
+		pick.custom_minimum_size = Vector2(140, UiKit.touch_min(48))
 		for i in (f["opts"] as Array).size():
 			pick.add_item(String(f["opts"][i]).capitalize())
 			if String(f["opts"][i]) == cur: pick.select(i)
@@ -123,7 +123,7 @@ func _build_controls() -> void:
 
 func _tag(t: String) -> Label:
 	var l := UiKit.label(t, "Small")
-	l.custom_minimum_size = Vector2(0, 48)
+	l.custom_minimum_size = Vector2(0, UiKit.touch_min(48))
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	return l
 
