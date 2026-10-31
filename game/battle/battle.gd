@@ -114,7 +114,9 @@ func _ready() -> void:
 	if side1.size() > 0 and side1[0].faction != "":
 		side_names[1] = str(DB.factions.get(side1[0].faction, {}).get("name", "Enemy"))
 	sim = BattleSim.new()
-	sim.setup(side0, side1, bseed, battle_opts(pb, side0.size(), side1.size()))
+	var opts := battle_opts(pb, side0.size(), side1.size())
+	opts["dragon_riders"] = DragonCombat.battle_riders(Game, side0 + side1)   # v0.081: riders are live targets
+	sim.setup(side0, side1, bseed, opts)
 	Paperdoll.begin_background()
 	speed = float(Game.setting("battle_speed")) if Game.setting("battle_speed") != null else 1.0
 	if not speed in SPEEDS or speed <= 0.0:
@@ -1010,6 +1012,7 @@ func build_result() -> Dictionary:
 	var player_fled: Array = []; var states: Array = []
 	for f in sim.fighters:
 		if f.mount_rider_idx >= 0: continue # Mount events/bodies stay in the journal; no phantom people or loot.
+		if f.seat_joined: continue # v0.081: a rider who only fought on his dragon is settled by DragonCombat (dragon_seats).
 		all.append(f.unit)
 		states.append(f.state)
 		if f.side == 0:
@@ -1028,7 +1031,7 @@ func build_result() -> Dictionary:
 	return {"winner": sim.winner, "player_units": p, "enemy_units": en, "enemy_fallen": fallen, "enemy_fled": fled,
 		"player_fled": player_fled, "side_names": side_names.duplicate(), "fighter_states": states,
 		"events": sim.result_events(), "fighter_units": all, "ticks": sim.tick, "growth": growth,
-		"combat_journal": sim.combat_journal, "kill_pairs": sim.kill_pairs, "dragon_downs": sim.dragon_downs.duplicate(),
+		"combat_journal": sim.combat_journal, "kill_pairs": sim.kill_pairs, "dragon_downs": sim.dragon_downs.duplicate(), "dragon_seats": DragonRiders.report(sim),
 		"history_events_omitted": sim.events_dropped,
 		"arrow_field": sim.arrow_field.duplicate(true)}
 

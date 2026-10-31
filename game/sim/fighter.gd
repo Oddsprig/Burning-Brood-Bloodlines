@@ -109,6 +109,15 @@ var creature: bool = false         # NaturalAttacks.is_creature
 var mount_idx := -1
 var mount_rider_idx := -1
 var mount_attached := false
+## v0.081 riders on dragons (sim/dragon_riders.gd): a passive seated rider body is a live target at its dragon's cell.
+var seat_dragon := -1        # on a rider: the dragon fighter he sits on now (-1 = not seated)
+var seated_on := -1          # on a rider: the dragon he started the battle on (kept after he falls)
+var seated_rider := -1       # on a dragon: its seated rider fighter now
+var had_rider := false       # on a dragon: it carried a rider into this battle
+var seat_body := false       # the rider is a battle body for this fight only (no campaign Unit of his own)
+var unseated := ""           # why the rider left the saddle ("" = still seated or never)
+var seat_damage0 := 0.0      # DragonCombat.rider_damage of the rider when he mounted
+var seat_joined := false     # the rider joined the fight on his dragon (he was not one of the deployed fighters)
 var dragon: bool = false           # actual prepared native dragon actor
 var dragon_profile: Dictionary = {} # frozen detached per-individual physics
 var dragon_attacks: Array = []     # [attack, required part IDs], never the race-shared cache

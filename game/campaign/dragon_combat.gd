@@ -234,6 +234,64 @@ static func battle_units(game) -> Array:
 		if not units.has(unit): units.append(unit)
 	return units
 
+## v0.081: the seated riders of the dragons in a battle, for BattleSim's "dragon_riders" option (sim/dragon_riders.gd).
+## {str(dragon unit uid): {"unit": Unit, "detached": bool}}. A rider with a Unit of his own (company, reserve,
+## prisoner records) rides as that Unit, so his wounds and death are his. Any other living rider rides as a battle
+## body made from his register record (race, sex, age, name; no kit), kept for the rounds of this one battle in
+## pending_battle["rider_bodies"]; it owns no campaign records and carries no loot.
+static func battle_riders(game, units: Array) -> Dictionary:
+	var out := {}
+	for value: Variant in units:
+		if not is_dragon_unit(game, value) or value.dead: continue
+		var row: Dictionary = _record(game, value.dragon_uid)
+		var person_uid := str(row.get("rider_person_uid", ""))
+		if person_uid == "" or not bool(row.get("alive", false)): continue
+		var person := Dynasty.person(game, person_uid)
+		if person.is_empty() or not bool(person.get("alive", false)): continue
+		var rider: Unit = Dynasty.bound_unit(game, person)
+		if rider != null:
+			if not rider.dead: out[str(value.uid)] = {"unit": rider, "detached": false}
+			continue
+		if not game.pending_battle.has("rider_bodies"): game.pending_battle["rider_bodies"] = {}
+		var bodies: Dictionary = game.pending_battle["rider_bodies"]
+		var body = bodies.get(person_uid)
+		if not body is Unit:
+			body = _rider_body(game, person, value)
+			bodies[person_uid] = body
+		if not body.dead: out[str(value.uid)] = {"unit": body, "detached": true}
+	return out
+
+static func _rider_body(game, person: Dictionary, dragon: Unit) -> Unit:
+	var race := str(person.get("race", "human"))
+	if not DB.races.has(race): race = "human"
+	var local := RandomNumberGenerator.new()
+	local.seed = hash([int(game.world.get("seed", 0)), str(person.get("person_uid", "")), "rider-body-v081"])
+	var u := Unit.create(race, dragon.faction)
+	Factory.roll_attrs(local, u)
+	Factory.roll_size(local, u)
+	Factory.roll_look(local, u)
+	u.name = str(person.get("name", "Rider"))
+	u.sex = int(person.get("sex", 0))
+	u.age = int(person.get("age", 25))
+	u.home_town = str(person.get("town_id", ""))
+	u.family = int(person.get("family_id", -1))
+	u.role = "troop"
+	u.title = "dragon rider"
+	return u
+
+## Round battles: one record per dragon across the rounds (live damage adds up; a death or fall is kept).
+static func merge_seats(st: Dictionary, seats: Dictionary) -> void:
+	if not st.has("dragon_seats"): st["dragon_seats"] = {}
+	var all: Dictionary = st["dragon_seats"]
+	for uid in seats:
+		var now: Dictionary = (seats[uid] as Dictionary).duplicate()
+		var was: Dictionary = all.get(uid, {})
+		if not was.is_empty():
+			now["damage"] = float(was.get("damage", 0.0)) + float(now.get("damage", 0.0))
+			now["dead"] = bool(was.get("dead", false)) or bool(now.get("dead", false))
+			if str(now.get("unseated", "")) == "" or str(was.get("unseated", "")) == "the rider fell": now["unseated"] = was.get("unseated", "")
+		all[uid] = now
+
 ## Capture at the explicit battle-start boundary; no Unit references in receipt.
 static func admission_receipt(game, units: Array) -> Dictionary:
 	var admitted: Array = battle_units(game)
@@ -310,22 +368,46 @@ static func _rider_result(game, result: Dictionary, entry: Dictionary, dragon: U
 	if idx >= 0 and idx < states.size():
 		downed = downed or str(states[idx]) in ["dead", "unconscious", "prone"]
 	var damage := maxf(0.0, rider_damage(dragon) - float(entry.get("damage_before", 0.0)))
-	if not downed and damage <= 0.0: return {}
+	# v0.081: the rider was a live target on his dragon (sim/dragon_riders.gd). A rider who fell before his dragon
+	# went down was not thrown by it; his own live wounds and death come first, then the existing fall rules.
+	var seat: Dictionary = result.get("dragon_seats", {}).get(dragon.dragon_uid, {})
+	var live_dead := not seat.is_empty() and bool(seat.get("dead", false))
+	var live_hurt := not seat.is_empty() and float(seat.get("damage", 0.0)) > 0.0
+	var joined := not seat.is_empty() and (bool(seat.get("joined", false)) or bool(seat.get("detached", false)))
+	if not seat.is_empty() and str(seat.get("unseated", "")) == "the rider fell": downed = false
+	if not downed and damage <= 0.0 and not live_dead and not live_hurt: return {}
 	var loc := Dynasty._person(game, person_uid)
 	if loc.is_empty(): return {} # The normal death path already retired this person.
 	var person := Dynasty.person(game, person_uid)
 	var rider: Unit = Dynasty.bound_unit(game, person)
-	if rider != null and rider.dead: return {} # An existing combat death is never rolled/handled again.
+	# An existing combat death is never rolled/handled again. A deployed rider's death is the battle's own
+	# casualty; a rider who joined only on his dragon has no roster row, so his live death is settled here.
+	if rider != null and rider.dead and not (live_dead and joined and is_same(seat.get("unit"), rider)): return {}
 	var flying := bool(downs.get(dragon.dragon_uid, entry.get("flying", false)))
 	var outcome := rider_roll(battle_seed, dragon.dragon_uid, person_uid, downed, flying, damage, rider_protection(rider))
+	if not downed and damage <= 0.0:
+		outcome["outcome"] = "unhurt"   # no fall and no saddle wound to roll: only the live fight below counts
+		outcome["wound_damage"] = 0.0
+	var live := ""
+	if live_dead:
+		outcome["outcome"] = "killed"
+		live = "killed"
+	elif live_hurt and str(outcome["outcome"]) == "unhurt":
+		outcome["outcome"] = "wounded"
+		# A bound rider already carries these wounds natively on his own body; a battle body has nothing to carry.
+		outcome["wound_damage"] = 0.0
+		live = "wounded"
+	outcome["live"] = live
+	outcome["live_damage"] = float(seat.get("damage", 0.0))
 	outcome["rider_person_uid"] = person_uid
 	outcome["rider_name"] = str(person["name"])
 	outcome["dragon_uid"] = dragon.dragon_uid
 	outcome["dragon_name"] = dragon.name
 	var cause := "a fall as %s went down%s" % [dragon.name, " from the air" if flying else ""] if downed else "the saddle as %s was wounded" % dragon.name
+	if live != "": cause = "the fighting on %s" % dragon.name
 	var fate: String = outcome["outcome"]
 	outcome["text"] = "%s %s %s." % [person["name"],
-		"escaped unhurt from" if fate == "unhurt" else ("was killed in" if fate == "killed" else ("was wounded in" if downed else "was lightly wounded in")), cause]
+		"escaped unhurt from" if fate == "unhurt" else ("was killed in" if fate == "killed" else ("was wounded in" if downed or live != "" else "was lightly wounded in")), cause]
 	var p: Array = loc["person"]
 	if fate == "killed":
 		var previous_context: Array = Census._ctx.duplicate()
@@ -337,7 +419,8 @@ static func _rider_result(game, result: Dictionary, entry: Dictionary, dragon: U
 			People.casualty_rec(game, str(person["town_id"]), int(person["family_id"]), str(person["name"]), "dead", str(p[4]), p)
 		Census._ctx = previous_context
 	elif fate == "wounded":
-		_rider_wound(rider, float(outcome["wound_damage"]))
+		if float(outcome["wound_damage"]) > 0.0: _rider_wound(rider, float(outcome["wound_damage"]))
+		elif rider != null: Healing.update_heal_days(rider)   # v0.081: live wounds are already on his body
 		Persons.log_life(p, float(game.day), "wound", str(outcome["text"]))
 		Families.add_hist(loc["family"], str(outcome["text"]), float(game.day))
 	var event := {"tick": int(result.get("ticks", 0)), "type": "rider_danger", "actor": idx, "target": -1,
