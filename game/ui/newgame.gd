@@ -36,14 +36,19 @@ func _ready() -> void:
 	UiKit.apply_safe_area(margin, 16, 16, 16, 16)
 	resized.connect(func(): UiKit.apply_safe_area(margin, 16, 16, 16, 16))
 	add_child(margin)
-	# A plain Control does not pass the scroll's minimum width up, so a disabled
-	# horizontal scroll cannot grow the page past a 390-wide phone.
+	# UiKit.scroll disables horizontal scrolling, and Godot then folds the child
+	# width plus the vertical bar into the scroll's minimum size. That is the
+	# 387 px scroller at x=16 (13 px past a 390-wide phone). SHOW_NEVER keeps the
+	# bar off and the scroll at the margin's width. A plain host does not pass
+	# that minimum up, and a full-rect child still grows to its own minimum.
 	var host := Control.new()
 	host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	host.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	host.clip_contents = true
 	margin.add_child(host)
 	var sc := UiKit.scroll()
+	sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
 	sc.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	host.add_child(sc)
 	var p := UiKit.panel()
@@ -63,7 +68,7 @@ func _ready() -> void:
 	v.add_child(UiKit.label("World size", "H2"))
 	size_row = UiKit.flow(10)
 	v.add_child(size_row)
-	size_info = UiKit.label("", "Muted", true)
+	size_info = UiKit.wrap(UiKit.label("", "Muted", true), 80)
 	v.add_child(size_info)
 	# ------------------------------------------------------------------ history before arrival
 	v.add_child(UiKit.wrap(UiKit.label("History before you arrive", "H2", true), 80))

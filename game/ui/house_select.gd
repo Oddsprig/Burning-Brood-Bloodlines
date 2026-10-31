@@ -58,8 +58,13 @@ func _ready() -> void:
 	var frame: Dictionary = UiKit.screen_frame(self,"Begin your bloodline")
 	_content = frame["root"]
 	stage_label = UiKit.label("","H2",true); stage_label.name = "OnboardingStage"; _content.add_child(stage_label)
-	# Landscape phones are shorter than this page. Scroll the workspace; keep the footer on screen.
+	# Landscape phones are shorter than this page (about 670 px of rows in a 390 px
+	# window). Scroll the workspace and keep Back / Continue on screen. Horizontal
+	# SHOW_NEVER stops a wide row from growing this scroll past the window; a
+	# disabled horizontal mode would, because it reports the child's width.
 	var work_scroll := UiKit.scroll(); work_scroll.name = "OnboardingWorkScroll"
+	work_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
+	work_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	work_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	work_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	work_scroll.custom_minimum_size = Vector2.ZERO
