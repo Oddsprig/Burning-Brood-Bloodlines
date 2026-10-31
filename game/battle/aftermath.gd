@@ -16,6 +16,7 @@ func _ready() -> void:
 	Perf.set_stage("Battle results")
 	theme = UiTheme.get_theme()
 	result = Game.last_result
+	MusicManager.play_scene("victory" if int(result.get("winner", -1)) == 0 else "defeat")
 	var history: Variant = result.get("combat_journal")
 	Perf.record_combat_history(history.call("stats") if history is RefCounted and history.has_method("stats") else {})
 	var summary_start: int = Time.get_ticks_usec()

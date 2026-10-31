@@ -10,6 +10,7 @@ var notice := ""
 var ruler_uid := ""
 
 func _ready() -> void:
+	MusicManager.play_scene("court")
 	var frame := UiKit.screen_frame(self, "Court")
 	frame["bar"].add_child(UiKit.button("Back", func(): Game.goto(String(Game.screen_params.get("back", "map"))), "Row", 96))
 	var scroll := UiKit.scroll()
