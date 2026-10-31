@@ -51,12 +51,12 @@ func _ready() -> void:
 	_search = LineEdit.new(); _search.name = "CombatLogSearch"
 	_search.placeholder_text = "Find a name"
 	_search.max_length = 64
-	_search.custom_minimum_size = Vector2(150, 48)
+	_search.custom_minimum_size = Vector2(150, UiKit.touch_min(48))
 	_search.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_search.text_changed.connect(_filter_people)
 	people.add_child(_search)
 	_selector = OptionButton.new(); _selector.name = "CombatLogParticipant"
-	_selector.custom_minimum_size = Vector2(160, 48)
+	_selector.custom_minimum_size = Vector2(160, UiKit.touch_min(48))
 	_selector.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_selector.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_selector.item_selected.connect(func(index: int): set_participant(int(_selector.get_item_metadata(index))))

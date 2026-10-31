@@ -176,7 +176,7 @@ func _fund_army() -> void:
 	amount.max_value = maxf(1, floor(float(accounts.get("house_purse", 0))))
 	amount.step = 1
 	amount.value = minf(100, amount.max_value)
-	amount.custom_minimum_size = Vector2(0, 48)
+	amount.custom_minimum_size = Vector2(0, UiKit.touch_min(48))
 	modal.add_child(amount)
 	var controls := UiKit.flow()
 	modal.add_child(controls)
@@ -211,6 +211,7 @@ func _account(title: String, amount: float, owner: String, private: bool) -> voi
 
 func _fit_layout() -> void:
 	if margin != null:
+		UiKit.apply_safe_area(margin, 16, 16, 16, 16)
 		margin.offset_right = -UiKit.diagnostics_lane(size.x)
 	if accounts_grid != null:
 		accounts_grid.columns = 1 if size.x < 600 else (2 if size.x < 1200 else 4)

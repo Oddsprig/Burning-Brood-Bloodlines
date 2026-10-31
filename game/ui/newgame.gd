@@ -33,24 +33,32 @@ func _ready() -> void:
 	add_child(bg)
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(PRESET_FULL_RECT)
-	for edge in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + edge, 16)
+	UiKit.apply_safe_area(margin, 16, 16, 16, 16)
+	resized.connect(func(): UiKit.apply_safe_area(margin, 16, 16, 16, 16))
 	add_child(margin)
+	# A plain Control does not pass the scroll's minimum width up, so a disabled
+	# horizontal scroll cannot grow the page past a 390-wide phone.
+	var host := Control.new()
+	host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	host.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	margin.add_child(host)
 	var sc := UiKit.scroll()
-	margin.add_child(sc)
+	sc.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	host.add_child(sc)
 	var p := UiKit.panel()
 	p.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	sc.add_child(p)
 	var v := UiKit.vbox(12)
 	p.add_child(v)
 	var top := UiKit.hbox()
-	var t := UiKit.label("New bloodline", "H2", true)
+	var t := UiKit.wrap(UiKit.label("New bloodline", "H2", true), 80)
 	t.add_theme_font_size_override("font_size", 28)
 	top.add_child(t)
 	top.add_child(UiKit.button("Back", _back, "Row", 72))
 	v.add_child(top)
 	v.add_child(HSeparator.new())
-	v.add_child(UiKit.label("Build a living world, then choose one of its cities and the family that rules it.", "Muted", true))
+	v.add_child(UiKit.wrap(UiKit.label("Build a living world, then choose one of its cities and the family that rules it.", "Muted", true), 80))
 	# ------------------------------------------------------------------ world size
 	v.add_child(UiKit.label("World size", "H2"))
 	size_row = UiKit.flow(10)
@@ -58,8 +66,8 @@ func _ready() -> void:
 	size_info = UiKit.label("", "Muted", true)
 	v.add_child(size_info)
 	# ------------------------------------------------------------------ history before arrival
-	v.add_child(UiKit.label("History before you arrive", "H2"))
-	v.add_child(UiKit.label("Families, trades, loans, wars, births and deaths unfold before you arrive.", "Muted", true))
+	v.add_child(UiKit.wrap(UiKit.label("History before you arrive", "H2", true), 80))
+	v.add_child(UiKit.wrap(UiKit.label("Families, trades, loans, wars, births and deaths unfold before you arrive.", "Muted", true), 80))
 	var yr := UiKit.hbox(10)
 	v.add_child(yr)
 	yr.add_child(UiKit.button("-", func(): _step_span(-1), "Row", 56))
@@ -69,7 +77,7 @@ func _ready() -> void:
 	slider.step = 1
 	slider.value = span_index(history_days)
 	slider.tooltip_text = "1–30 days · 60 and 90 days · 1–100 years"
-	slider.custom_minimum_size = Vector2(80, UiKit.TAP)
+	slider.custom_minimum_size = Vector2(80, UiKit.tap_height())
 	slider.focus_mode = Control.FOCUS_NONE
 	UiKit.expand(slider)
 	slider.value_changed.connect(func(x: float): _set_days(span_days(int(x))))
@@ -94,7 +102,7 @@ func _ready() -> void:
 	steppe_check.focus_mode = Control.FOCUS_NONE
 	steppe_check.tooltip_text = "Off: the south-east is settled by the Warrens instead; no steppe houses or towns."
 	steppe_check.button_pressed = bool(Game.settings.get("steppe_enabled", false))
-	steppe_check.custom_minimum_size = Vector2(UiKit.TAP, UiKit.TAP)
+	steppe_check.custom_minimum_size = Vector2(UiKit.tap_height(), UiKit.tap_height())
 	var steppe_row := UiKit.hbox(8)
 	steppe_row.add_child(steppe_check)
 	steppe_row.add_child(UiKit.wrap(UiKit.label("Steppe peoples (the Dust-Wind Khanate)", "", true), 80))
@@ -104,19 +112,20 @@ func _ready() -> void:
 	creatures_check.focus_mode = Control.FOCUS_NONE
 	creatures_check.tooltip_text = "On: creature lairs and roaming packs on the map; they fight your army, towns' militia and travellers. Off: no creatures."
 	creatures_check.button_pressed = bool(Game.settings.get("creatures_enabled", true))
-	creatures_check.custom_minimum_size = Vector2(UiKit.TAP, UiKit.TAP)
+	creatures_check.custom_minimum_size = Vector2(UiKit.tap_height(), UiKit.tap_height())
 	var creature_row := UiKit.hbox(8)
 	creature_row.add_child(creatures_check)
 	creature_row.add_child(UiKit.wrap(UiKit.label("Creatures and lairs (wolves, bears and worse roam the wilds)", "", true), 80))
 	v.add_child(creature_row)
-	var cap_row := UiKit.hbox(10); v.add_child(cap_row)
+	# Label above the spinner: a side-by-side row's minimum width is their sum, which a phone cannot hold.
+	var cap_row := UiKit.vbox(4); v.add_child(cap_row)
 	var cap_l := UiKit.wrap(UiKit.label("Most noble houses alive at once (0 = the starting houses plus 60)", "", true), 80)
 	cap_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cap_l.tooltip_text = "Each battle won raises the commoner with the greatest contribution to found a house. At this cap nobody new is raised until a house dies out."
 	cap_l.mouse_filter = Control.MOUSE_FILTER_PASS
 	cap_row.add_child(cap_l)
 	house_cap_spin = SpinBox.new(); house_cap_spin.min_value = 0; house_cap_spin.max_value = 5000; house_cap_spin.step = 10
-	house_cap_spin.value = int(Game.settings.get("house_cap", 0)); house_cap_spin.custom_minimum_size = Vector2(140, UiKit.TAP)
+	house_cap_spin.value = int(Game.settings.get("house_cap", 0)); house_cap_spin.custom_minimum_size = Vector2(120, UiKit.tap_height())
 	cap_row.add_child(house_cap_spin)
 	# ------------------------------------------------------------------ sickness (v0.034)
 	v.add_child(UiKit.label("Sickness", "H2"))
@@ -129,7 +138,7 @@ func _ready() -> void:
 	var chosen := Sickness.DEADLINESS_STEPS.find(float(Game.settings.get("sickness_deadliness", 1.0)))
 	sick_slider.value = chosen if chosen >= 0 else Sickness.DEADLINESS_STEPS.find(1.0)
 	sick_slider.tooltip_text = "How deadly sickness is: each sick person's daily risk of dying x this. How often people fall sick does not change."
-	sick_slider.custom_minimum_size = Vector2(80, UiKit.TAP)
+	sick_slider.custom_minimum_size = Vector2(80, UiKit.tap_height())
 	sick_slider.focus_mode = Control.FOCUS_NONE
 	UiKit.expand(sick_slider)
 	sick_slider.value_changed.connect(func(_x: float): _sick_text())
@@ -140,7 +149,7 @@ func _ready() -> void:
 	est = UiKit.wrap(UiKit.label("", "", true), 80)
 	v.add_child(est)
 	var go := UiKit.button("Create world", _begin, "", 0)
-	go.custom_minimum_size.y = 64
+	go.custom_minimum_size.y = UiKit.touch_min(64)
 	v.add_child(go)
 	_refresh()
 

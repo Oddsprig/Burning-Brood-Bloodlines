@@ -168,6 +168,7 @@ func _dark_panel() -> PanelContainer:
 func _fit_layout() -> void:
 	if columns == null:
 		return
+	UiKit.apply_safe_area(content_margin, 18, 18, 18, 18)
 	var lane := UiKit.diagnostics_lane(size.x)
 	content_margin.offset_right = -lane
 	var narrow := size.x - lane < 700

@@ -126,11 +126,15 @@ static func days_food(town: Dictionary) -> float:
 	if not TownEcon.has_econ(town):
 		return 30.0
 	var e: Dictionary = town["econ"]
-	var f := float(e["granary"])
+	# A politics budget can hand over an econ dict that has stock but no granary yet.
+	var stock: Dictionary = e.get("stock", {})
+	var barn: Dictionary = e.get("barn", {})
+	var hh: Dictionary = e.get("hh", {})
+	var f := float(e.get("granary", 0))
 	for g in ["grain", "fruit", "meat"]:
-		f += float(e["stock"].get(g, 0)) + float(e["barn"].get(g, 0)) + float(e["hh"].get(g, 0))
-	f += float(e["hh"].get("fresh_meat", 0))
-	return f / maxf(1.0, float(e["pop"]) * float(TownEcon.data()["needs"]["food"]))
+		f += float(stock.get(g, 0)) + float(barn.get(g, 0)) + float(hh.get(g, 0))
+	f += float(hh.get("fresh_meat", 0))
+	return f / maxf(1.0, float(e.get("pop", 0)) * float(TownEcon.data()["needs"]["food"]))
 
 static func days_drink(town: Dictionary) -> float:
 	if not TownEcon.has_econ(town):

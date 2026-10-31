@@ -4,6 +4,7 @@ extends Control
 var _title: Label
 var _subtitle: Label
 var _column: VBoxContainer
+var _margin: MarginContainer
 var _buttons: Array[Button] = []
 
 func _ready() -> void:
@@ -13,9 +14,9 @@ func _ready() -> void:
 	bg.set_anchors_preset(PRESET_FULL_RECT)
 	add_child(bg)
 	var margin := MarginContainer.new()
+	_margin = margin
 	margin.set_anchors_preset(PRESET_FULL_RECT)
-	for side in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 16)
+	UiKit.apply_safe_area(margin, 16, 16, 16, 16)
 	add_child(margin)
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -55,12 +56,13 @@ func _ready() -> void:
 
 func _button(text: String, action: Callable, style: String = "") -> Button:
 	var b := UiKit.button(text, action, style, 0)
-	b.custom_minimum_size.y = 48
+	b.custom_minimum_size.y = UiKit.MOBILE_TAP if UiTheme.is_mobile() else 48   # phones keep the touch target
 	_buttons.append(b)
 	return b
 
 func _layout() -> void:
 	if _title == null: return
+	UiKit.apply_safe_area(_margin, 16, 16, 16, 16)
 	var compact := size.y < 500 or size.x < 500
 	_title.add_theme_font_size_override("font_size", 36 if compact else 54)
 	_subtitle.add_theme_font_size_override("font_size", 22 if compact else 28)
