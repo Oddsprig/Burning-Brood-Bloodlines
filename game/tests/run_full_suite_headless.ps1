@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Continue'
 $root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $godot = 'C:\Users\bligh\Desktop\Burning_Brood_Bloodlines_v0.022\runtime\Godot_v4.7.2-stable_win64.exe'
 $game = Join-Path $root 'game'
-$log = Join-Path $root 'test-results\v0072_full_suite.log'
+$log = Join-Path $root 'test-results\v0073_full_suite.log'
 '' | Out-File -Encoding utf8 $log
 $runs = @(
   @('--block=headless'), @('--block=spirewing_v061'),

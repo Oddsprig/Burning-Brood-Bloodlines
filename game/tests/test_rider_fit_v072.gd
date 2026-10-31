@@ -139,5 +139,5 @@ func run(_tree: SceneTree) -> int:
 		check(str(layers["pose"]) == "straddle" and (joints["kr"] - joints["pr"]).x > 0.0 and (joints["kl"] - joints["pl"]).x < 0.0, coat + " rider straddles")
 		check(order.find("saddle") < order.find("near") and opaque(layers["saddle"]) > 40, coat + " saddle layer is under the rider")
 	check(snapshot() == before and Game.rng.state == rs and Unit._next_uid == next_unit and Item._next_uid == next_item, "fit checks do not write the campaign")
-	print("rider fit v072: %d checks, %d failures" % [checks, fails])
+	print("rider fit v073: %d checks, %d failures" % [checks, fails])
 	return fails

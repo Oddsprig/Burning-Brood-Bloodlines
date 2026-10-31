@@ -1,4 +1,4 @@
-# v0.072 rider fit
+# v0.073 rider fit
 
 The owner's screenshot (`docs/specs/v072_owner_rider_screenshot.png`) is a code-drawn blue wyvern with a human on its back. The person is small against the animal, sits in the open wing in front of the wing root, holds a chair pose with both legs on the near side, and has no readable saddle.
 
