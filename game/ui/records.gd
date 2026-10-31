@@ -205,19 +205,26 @@ func _fit_navigation() -> void:
 	var width := maxf(1.0, tabs_sc.size.x)
 	var height: float = _flow_height(groups_box,width)
 	if tabs_box.visible: height += 6.0+_flow_height(tabs_box,width)
-	tabs_sc.custom_minimum_size.y = minf(height,162.0)
+	var cap := 162.0
+	if UiTheme.is_mobile():
+		cap = float(UiKit.MOBILE_TAP) * 2.0 + 6.0
+	tabs_sc.custom_minimum_size.y = minf(height, cap)
 	tabs_sc.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 
 static func _flow_height(flow: HFlowContainer, width: float) -> float:
 	var used := 0.0
 	var lines := 1
+	var line_h := 48.0
 	for child: Control in flow.get_children():
-		var w := child.get_combined_minimum_size().x
+		var ms := child.get_combined_minimum_size()
+		var w := ms.x
+		if UiTheme.is_mobile() and ms.y > line_h:
+			line_h = ms.y
 		if used > 0.0 and used + 6.0 + w > width:
 			lines += 1
 			used = 0.0
 		used += w + (6.0 if used > 0 else 0.0)
-	return float(lines * 48 + maxi(0, lines - 1) * 6)
+	return float(lines) * line_h + float(maxi(0, lines - 1)) * 6.0
 
 func categories() -> Array:
 	var result: Array = []
@@ -358,7 +365,7 @@ func open_selector() -> void:
 	var v := UiKit.modal(self, "View", 680)
 	var le := LineEdit.new()
 	le.placeholder_text = "Search towns and factions"
-	le.custom_minimum_size = Vector2(0, 52)
+	le.custom_minimum_size = Vector2(0, UiKit.touch_min(52))
 	v.add_child(le)
 	var sc := UiKit.scroll()
 	sc.custom_minimum_size = Vector2(0, 470)
