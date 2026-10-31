@@ -6,7 +6,7 @@ extends Node2D
 const PAGE_FRAMES := 12
 const RACES := ["human", "orc", "goblin", "moon_elf", "high_elf", "dark_elf", "troll"]
 const RACE_FACTION := {"human": "middle_kingdom", "orc": "orc_horde", "goblin": "goblin_warren", "moon_elf": "moon_court",
-	"high_elf": "player", "dark_elf": "moon_court", "troll": "orc_horde"}
+	"high_elf": "sun_court", "dark_elf": "night_court", "troll": "orc_horde"}
 const BODIES := ["", "tunic", "mail_shirt", "mail_byrnie", "scrap_plates", "scale_vest", "lamellar_cuirass"]
 const HELMS := ["nasal_helm", "mail_coif", "spangen_helm", "skull_cap", "pot_helm", "crescent_helm"]
 const WEAPONS := ["arming_sword", "boar_spear", "flanged_mace", "bearded_axe", "dane_axe", "seax", "hacking_cleaver",

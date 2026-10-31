@@ -19,6 +19,14 @@
       "moon_recurve": {"name": "moon recurve", "style": "composite", "draw_n": 360, "draw_m": 0.72, "eff": 0.80, "virt_kg": 0.015, "cm3": 1400, "min_range": 2, "value": 60, "inputs": {"wood": 1, "horn": 1, "sinew": 1, "glue": 1}, "rate": 0.12, "sprite": "recurve", "len": 1.25},
       "moon_longbow": {"name": "moon longbow", "style": "long", "draw_n": 420, "draw_m": 0.76, "eff": 0.72, "virt_kg": 0.030, "cm3": 1700, "min_range": 2, "value": 40, "inputs": {"staves": 1}, "rate": 0.3, "sprite": "longbow", "len": 1.8}
     },
+    "high_elf": {
+      "sun_recurve": {"name": "sun recurve", "style": "composite", "draw_n": 360, "draw_m": 0.72, "eff": 0.80, "virt_kg": 0.015, "cm3": 1400, "min_range": 2, "value": 60, "inputs": {"wood": 1, "horn": 1, "sinew": 1, "glue": 1}, "rate": 0.12, "sprite": "recurve", "len": 1.25},
+      "sun_longbow": {"name": "sun longbow", "style": "long", "draw_n": 420, "draw_m": 0.76, "eff": 0.72, "virt_kg": 0.030, "cm3": 1700, "min_range": 2, "value": 40, "inputs": {"staves": 1}, "rate": 0.3, "sprite": "longbow", "len": 1.8}
+    },
+    "dark_elf": {
+      "night_recurve": {"name": "night recurve", "style": "composite", "draw_n": 360, "draw_m": 0.72, "eff": 0.80, "virt_kg": 0.015, "cm3": 1400, "min_range": 2, "value": 60, "inputs": {"wood": 1, "horn": 1, "sinew": 1, "glue": 1}, "rate": 0.12, "sprite": "recurve", "len": 1.25},
+      "night_longbow": {"name": "night longbow", "style": "long", "draw_n": 420, "draw_m": 0.76, "eff": 0.72, "virt_kg": 0.030, "cm3": 1700, "min_range": 2, "value": 40, "inputs": {"staves": 1}, "rate": 0.3, "sprite": "longbow", "len": 1.8}
+    },
     "eastern": {
       "steppe_bow": {"name": "steppe bow", "style": "composite", "draw_n": 400, "draw_m": 0.72, "eff": 0.80, "virt_kg": 0.016, "cm3": 1300, "min_range": 2, "value": 55, "inputs": {"wood": 1, "horn": 1, "sinew": 1, "glue": 1}, "rate": 0.12, "sprite": "recurve", "len": 1.2}
     }
@@ -45,6 +53,8 @@
     "goblin": ["arrow_wood", "arrow_tin_broad"],
     "orc": ["arrow_tin_broad", "arrow_wood"],
     "moon_elf": ["arrow_copper_bodkin", "arrow_copper_war"],
+    "high_elf": ["arrow_copper_bodkin", "arrow_copper_war"],
+    "dark_elf": ["arrow_copper_bodkin", "arrow_copper_war"],
     "eastern": ["arrow_copper_broad", "arrow_copper_bodkin"],
     "dwarf": ["arrow_copper_bodkin", "arrow_tin_bodkin"]
   }
