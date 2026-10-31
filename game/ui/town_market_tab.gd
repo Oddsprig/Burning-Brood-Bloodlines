@@ -86,7 +86,7 @@ static func build(host: Control, t: Dictionary) -> Control:
 	var tools := UiKit.hbox(8)
 	root.add_child(tools)
 	var category_picker := OptionButton.new()
-	category_picker.custom_minimum_size = Vector2(140, UiKit.TAP)
+	category_picker.custom_minimum_size = Vector2(140, UiKit.tap_height())
 	for label in CATEGORIES:
 		category_picker.add_item(label)
 	category_picker.select(maxi(0, CATEGORIES.find(state["category"])))
@@ -94,7 +94,7 @@ static func build(host: Control, t: Dictionary) -> Control:
 	var search := LineEdit.new()
 	search.placeholder_text = "Search items, makers or origins"
 	search.text = state["query"]
-	search.custom_minimum_size = Vector2(100, UiKit.TAP)
+	search.custom_minimum_size = Vector2(100, UiKit.tap_height())
 	UiKit.expand(search)
 	tools.add_child(search)
 	tools.add_child(UiKit.button("Clear", func(): search.text = "", "Row", 72))
@@ -124,7 +124,7 @@ static func _actions(host: Control, t: Dictionary, box: Control, state: Dictiona
 	toolbar.add_child(actions)
 	box.add_child(toolbar)
 	var members := OptionButton.new()
-	members.custom_minimum_size = Vector2(230, UiKit.TAP)
+	members.custom_minimum_size = Vector2(230, UiKit.tap_height())
 	members.tooltip_text = "Company member for Buy best and Equip best"
 	members.fit_to_longest_item = false
 	members.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS

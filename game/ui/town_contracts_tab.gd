@@ -77,13 +77,13 @@ static func build(scr: Control, t: Dictionary) -> Control:
 	if not types.has(String(state["kind"])): state["kind"] = "All"
 	var category := OptionButton.new()
 	category.name = "ContractCategory"
-	category.custom_minimum_size = Vector2(140, UiKit.TAP)
+	category.custom_minimum_size = Vector2(140, UiKit.tap_height())
 	for type in types: category.add_item(String(type))
 	category.select(types.find(String(state["kind"])))
 	tools.add_child(category)
 	var sort := OptionButton.new()
 	sort.name = "ContractSort"
-	sort.custom_minimum_size = Vector2(160, UiKit.TAP)
+	sort.custom_minimum_size = Vector2(160, UiKit.tap_height())
 	for title in SORTS: sort.add_item(title)
 	state["sort"] = clampi(int(state["sort"]), 0, SORTS.size() - 1)
 	sort.select(int(state["sort"]))
@@ -92,7 +92,7 @@ static func build(scr: Control, t: Dictionary) -> Control:
 	search.name = "ContractSearch"
 	search.placeholder_text = "Search jobs, employers or targets"
 	search.text = String(state["query"])
-	search.custom_minimum_size = Vector2(100, UiKit.TAP)
+	search.custom_minimum_size = Vector2(100, UiKit.tap_height())
 	search.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	search.add_theme_stylebox_override("normal", UiTheme.sb(UiTheme.PARCH, UiTheme.PARCH_3, 1, 3, 10, 6))
 	search.add_theme_stylebox_override("focus", UiTheme.sb(UiTheme.PARCH, UiTheme.COPPER, 2, 3, 10, 6))

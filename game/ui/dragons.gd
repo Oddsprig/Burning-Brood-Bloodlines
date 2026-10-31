@@ -304,7 +304,7 @@ func _sprite_controls(row: Dictionary) -> void:
 	var active_id: String = "classic" if active_variant.is_empty() else String(active_variant.get("id", ""))
 	var picker := OptionButton.new()
 	picker.name = "DragonSpriteSelection"
-	picker.custom_minimum_size = Vector2(210, UiKit.TAP)
+	picker.custom_minimum_size = Vector2(210, UiKit.tap_height())
 	for choice: Dictionary in choices:
 		picker.add_item(String(choice["name"]))
 		if choice["id"] == active_id: picker.select(picker.item_count - 1)
@@ -677,7 +677,7 @@ func _open_bond_picker(uid: String) -> void:
 	if not bool(status.get("can_bind",false)): notice = String(status.get("reason","Binding unavailable.")); _queue_refresh(); return
 	var modal := UiKit.modal(self,"Choose a rider",700); modal.name = "BondPickerContent"; modal.add_theme_constant_override("separation",6)
 	modal.add_child(UiKit.label("Choose a living adult present here. Review before binding.","Small",true))
-	var search := LineEdit.new(); search.name = "BondPersonSearch"; search.placeholder_text = "Search name, household or settlement"; search.custom_minimum_size.y = 48; modal.add_child(search)
+	var search := LineEdit.new(); search.name = "BondPersonSearch"; search.placeholder_text = "Search name, household or settlement"; search.custom_minimum_size.y = UiKit.touch_min(48); modal.add_child(search)
 	var count := UiKit.label("","Small",true); count.name = "BondCandidateCount"; modal.add_child(count)
 	var scroll := UiKit.scroll(); scroll.name = "BondCandidatesScroll"; scroll.custom_minimum_size.y = 180; modal.add_child(scroll)
 	var rows := UiKit.vbox(4); rows.name = "BondCandidates"; rows.size_flags_horizontal = SIZE_EXPAND_FILL; scroll.add_child(rows)
@@ -787,7 +787,7 @@ func _model_controls(row: Dictionary) -> void:
 	var poses: Array[String] = ["idle", "prepare", "strike", "recover", "hit", "prone"]
 	var pose_picker: OptionButton = OptionButton.new()
 	for name: String in ["Idle", "Wind-up", "Bite", "Recovery", "Recoil", "Fallen"]: pose_picker.add_item(name)
-	pose_picker.custom_minimum_size = Vector2(132, 42)
+	pose_picker.custom_minimum_size = Vector2(132, UiKit.touch_min(42))
 	pose_picker.item_selected.connect(func(index: int): model_pose = poses[index]; model_card.set_mode("model"); _update_model())
 	controls.add_child(pose_picker)
 	var play: Button = UiKit.button("Play", func(): pass, "Row", 78)
@@ -795,7 +795,7 @@ func _model_controls(row: Dictionary) -> void:
 	controls.add_child(play)
 	var damage: OptionButton = OptionButton.new()
 	for name: String in ["Healthy", "Bloody", "Mangled wing", "Mangled hind leg", "Head separated", "Tooth / claw chips"]: damage.add_item(name)
-	damage.custom_minimum_size = Vector2(148, 42)
+	damage.custom_minimum_size = Vector2(148, UiKit.touch_min(42))
 	var examples: Array[Dictionary] = [{}, {"dmg":{"torso":0.7,"wing_upper_r":0.8,"leg_lower_r":0.7},"wk":{"torso":"c","wing_upper_r":"m","leg_lower_r":"c"},"bleed":{"torso":true,"wing_upper_r":true,"leg_lower_r":true},"blood":0.9}, {"lost":["wing_upper_r"],"blood":0.9}, {"lost":["leg_upper_r"],"blood":0.9}, {"lost":["head"],"blood":0.9}, {"dmg":{"jaw":0.6,"foot_r":0.6},"wk":{"jaw":"c","foot_r":"c"},"bleed":{"jaw":true,"foot_r":true},"blood":0.7,"fragments":[{"region_id":"jaw","kind":"tooth","count":3},{"region_id":"foot_r","kind":"claw","count":2}]}]
 	damage.item_selected.connect(func(index: int):
 		model_state = examples[index].duplicate(true)
@@ -876,7 +876,7 @@ func _choose_person(uid: String, action: String) -> void:
 	var modal := UiKit.modal(self, "Gift ownership" if action == "transfer" else "Choose custodian", 680)
 	var search := LineEdit.new()
 	search.placeholder_text = "Search name, family or city"
-	search.custom_minimum_size.y = 48
+	search.custom_minimum_size.y = UiKit.touch_min(48)
 	modal.add_child(search)
 	var count := UiKit.label("", "Muted", true)
 	modal.add_child(count)
