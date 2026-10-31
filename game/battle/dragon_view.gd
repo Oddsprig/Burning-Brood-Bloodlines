@@ -32,8 +32,8 @@ var _stats: Dictionary = {"state_reads":0,"model_builds":0,"model_hits":0,"evict
 var _part_nodes: Dictionary = {}
 var _wound_nodes: Dictionary = {}
 static var _wound_shader: Shader
-## The bonded rider, drawn seated on the saddle at human scale (FigurePainter.PX world px per unit; never the
-## dragon's size). Far leg/arm behind the dragon, saddle and near side in front.
+## The bonded rider. Far leg behind the dragon, saddle and near side in front.
+## RiderFit scales the seated composite to the back and places the hip there.
 var _rider_uid: String = ""
 var _rider_spec: Dictionary = {}
 var _rider_layers: Dictionary = {}
@@ -256,8 +256,8 @@ func _place_rider() -> void:
 	var mounted: bool = bool(_current.get("mountable", true)) and _current.has("seat") and not _dead
 	_rider_far.visible = mounted; _rider_front.visible = mounted
 	if not mounted: return
-	var seat: Vector2 = _origin + (_current["seat"] as Vector2) * _ppu
-	var xf: Transform2D = MountedRiderArt.placement(_rider_layers, seat, FigurePainter.PX, float(_current.get("seat_angle", 0.0)))
+	RiderFit.decorate(_current, _record)
+	var xf: Transform2D = RiderFit.dragon_placement(_current, _rider_layers, _origin, _ppu)
 	_rider_far.transform = xf; _rider_saddle.transform = xf; _rider_near.transform = xf
 
 func has_rider() -> bool: return not _rider_layers.is_empty()
