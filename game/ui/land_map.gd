@@ -722,6 +722,8 @@ class MapView extends Control:
 				zoom_at(mb.position, 1.15)
 			elif mb.button_index == MOUSE_BUTTON_WHEEL_DOWN and mb.pressed:
 				zoom_at(mb.position, 1.0 / 1.15)
+			elif mb.button_index == MOUSE_BUTTON_RIGHT and not mb.pressed:
+				tap(mb.position)
 			elif mb.button_index == MOUSE_BUTTON_LEFT:
 				if mb.pressed:
 					_down = true
@@ -753,6 +755,11 @@ class MapView extends Control:
 					zoom_at(_pinch_mid(), d / _pinch)
 				_pinch = d
 				_moved = 100.0
+				accept_event()
+			elif not _down:
+				off += sd.relative
+				_moved += sd.relative.length()
+				queue_redraw()
 				accept_event()
 		elif ev is InputEventMagnifyGesture:
 			var mg := ev as InputEventMagnifyGesture

@@ -1,6 +1,7 @@
 class_name BreathFx
 extends Node2D
 ## One breath blast: puffs stream out of the jaws along the cone and fade. Purely visual; frees itself.
+const MobilePerf := preload("res://core/mobile_perf.gd")
 const LIFE := 1.25
 const PALETTE := {
 	"fire": [Color(1.0, 0.95, 0.6), Color(1.0, 0.55, 0.12), Color(0.75, 0.12, 0.05), Color(0.25, 0.2, 0.18)],
@@ -14,6 +15,11 @@ var length := 240.0
 var t := 0.0
 var puffs: Array = []   # [start_time, angle, speed, size]
 var bolts: Array = []
+## v0.072 phones (MobilePerf.cheap_fx): 60 larger puffs instead of 140 and no smoke circles (each puff is a
+## separate polygon draw); the cone, colours and timing are unchanged.
+const PUFFS := 140
+const CHEAP_PUFFS := 60
+var cheap := false
 
 func setup(kind: String, facing: int, reach_px: float, seed_value: int) -> void:
 	element = kind if PALETTE.has(kind) else "fire"
@@ -21,8 +27,10 @@ func setup(kind: String, facing: int, reach_px: float, seed_value: int) -> void:
 	length = reach_px
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
-	for i in 140:
-		puffs.append([rng.randf_range(0.0, 0.55), rng.randf_range(-0.38, 0.38), rng.randf_range(0.75, 1.15), rng.randf_range(0.6, 1.4)])
+	cheap = MobilePerf.cheap_fx()
+	var grow := 1.25 if cheap else 1.0   # fewer puffs keep the cone filled by being a little larger
+	for i in (CHEAP_PUFFS if cheap else PUFFS):
+		puffs.append([rng.randf_range(0.0, 0.55), rng.randf_range(-0.38, 0.38), rng.randf_range(0.75, 1.15), rng.randf_range(0.6, 1.4) * grow])
 	if element == "storm":
 		for b in 3:
 			var pts := PackedVector2Array([Vector2.ZERO])
@@ -51,7 +59,7 @@ func _draw() -> void:
 		var col: Color = (pal[0] as Color).lerp(pal[1], clampf(k * 2.0, 0, 1)).lerp(pal[2], clampf(k * 2.0 - 1.0, 0, 1))
 		col.a = (1.0 - k * k) * 0.9
 		draw_circle(pos, (10.0 + 44.0 * k) * float(p[3]), col)
-		if k > 0.6:
+		if k > 0.6 and not cheap:
 			var smoke: Color = pal[3]
 			smoke.a = (1.0 - k) * 0.4
 			draw_circle(pos + Vector2(0, -10.0 * k), (10.0 + 30.0 * k) * float(p[3]), smoke)

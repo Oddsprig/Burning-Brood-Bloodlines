@@ -51,7 +51,7 @@ static func row(left: String, right: String, details: String, cb: Callable, col:
 	var b := RecRow.new()
 	b.theme_type_variation = "Row"
 	b.focus_mode = Control.FOCUS_NONE
-	b.custom_minimum_size = Vector2(0, ROW_H)
+	b.custom_minimum_size = Vector2(0, UiKit.touch_min(ROW_H))
 	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	b.clip_contents = true
 	b.set_content(left, right, details, col)
@@ -65,8 +65,12 @@ static func row(left: String, right: String, details: String, cb: Callable, col:
 ## A button that sits in a flow of chips (min 48 px tall).
 static func chip_button(text: String, on: bool, cb: Callable, min_w: int = 96) -> Button:
 	var b := UiKit.button(text, cb, "TabOn" if on else "Tab", min_w)
-	b.custom_minimum_size = Vector2(min_w, 48)
-	b.add_theme_font_size_override("font_size", 18)
+	var h := UiKit.touch_min(48)
+	var w := float(min_w)
+	if UiTheme.is_mobile():
+		w = maxf(w, h)
+	b.custom_minimum_size = Vector2(w, h)
+	b.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE if UiTheme.is_mobile() else 18)
 	return b
 
 ## A small line chart of real samples with "min / max / now over N days" under it. xs = days (or season index).
@@ -158,7 +162,9 @@ static func grid(parent: Control, headers: Array, rows: Array, weights: Array = 
 			b.pressed.connect(tap)
 			b.set_meta("rec_row", [str(row.get("values", [])), "", ""])
 		else:
-			b.custom_minimum_size.y = 48
+			# Desktop keeps the compact data row. Phones keep configure()'s finger height so 30 px type is not clipped.
+			if not UiTheme.is_mobile():
+				b.custom_minimum_size.y = 48
 		box.add_child(b)
 	return box
 

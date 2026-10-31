@@ -11,6 +11,7 @@ var sim: BattleSim
 var tile := 40.0
 var frac := 0.0      # progress into the next tick (smooth flight between sim ticks)
 var _had := false
+var _tip_colors := {}   # v0.072: arrow kind -> tip colour, parsed once (was a DB lookup + hex parse per arrow per frame)
 
 func setup(s: BattleSim, tile_px: float) -> void:
 	sim = s
@@ -59,8 +60,13 @@ func _draw_arrows() -> void:
 		var r := arrow_pos(p)
 		var at: Vector2 = r[0]
 		var d: Vector2 = r[1]
-		var tip_mat := String(DB.arrows.get(String(p["kind"]), {}).get("tip", "wood"))
-		var tip := Color(DB.materials.get(tip_mat, {}).get("color", "#7a5230"))
+		var kind := String(p["kind"])
+		var tip: Color
+		if _tip_colors.has(kind): tip = _tip_colors[kind]
+		else:
+			var tip_mat := String(DB.arrows.get(kind, {}).get("tip", "wood"))
+			tip = Color(DB.materials.get(tip_mat, {}).get("color", "#7a5230"))
+			_tip_colors[kind] = tip
 		draw_line(at - d * 14.0, at, SHAFT, 2.0)
 		draw_line(at - d * 14.0, at - d * 10.0, FLETCH, 3.0)
 		draw_line(at - d * 2.5, at + d * 1.5, tip, 3.0)

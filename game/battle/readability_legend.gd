@@ -82,11 +82,12 @@ func _add_row(rows: VBoxContainer, id: String, text: String, cue: bool) -> void:
 	row.add_child(label)
 
 func _layout() -> void:
-	button.position = Vector2(10, maxf(0, size.y - 44))
-	button.size = Vector2(92,34)
+	var tap := UiKit.touch_min(34)
+	button.position = Vector2(10, maxf(0, size.y - tap - 10))
+	button.size = Vector2(maxf(92.0, tap), tap)
 	var height := minf(440, maxf(120, size.y - 120))
 	panel.size = Vector2(minf(390, maxf(240, size.x - 20)), height)
-	panel.position = Vector2(10, maxf(0, size.y - height - 52))
+	panel.position = Vector2(10, maxf(0, size.y - height - (tap + 18)))
 
 func is_open() -> bool:
 	return panel != null and panel.visible

@@ -24,10 +24,10 @@ func _ready() -> void:
 		add_child(bg)
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(PRESET_FULL_RECT)
-	for edge in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + edge, 16)
 	add_child(margin)
-	var fit_margin: Callable = func(): margin.offset_right = -UiKit.diagnostics_lane(size.x)
+	var fit_margin: Callable = func():
+		UiKit.apply_safe_area(margin, 16, 16, 16, 16)
+		margin.offset_right = -UiKit.diagnostics_lane(size.x)
 	resized.connect(fit_margin)
 	fit_margin.call()
 	var scroll := UiKit.scroll()
@@ -69,7 +69,7 @@ func _build() -> void:
 		var h := UiKit.hbox(12)
 		cv.add_child(h)
 		var l := UiKit.label(String(c["label"]), "H2", true)
-		l.add_theme_font_size_override("font_size", 22)
+		l.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE if UiTheme.is_mobile() else 22)
 		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		h.add_child(l)
@@ -98,7 +98,7 @@ func _toggle_row(key: String, text: String) -> PanelContainer:
 	var h: HBoxContainer = UiKit.hbox(12)
 	row.add_child(h)
 	var label: Label = UiKit.label(text, "H2", true)
-	label.add_theme_font_size_override("font_size", 22)
+	label.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE if UiTheme.is_mobile() else 22)
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	h.add_child(label)

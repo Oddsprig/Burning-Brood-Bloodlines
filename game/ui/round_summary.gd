@@ -308,9 +308,9 @@ static func _tactic_column(tactic: String, terrain: String, current: String, but
 	b.name = "TacticButton_" + tactic
 	b.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	b.add_theme_font_size_override("font_size", 16)
+	b.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE if UiTheme.is_mobile() else 16)
 	if hint != "":
-		b.custom_minimum_size.y = 84
+		b.custom_minimum_size.y = UiKit.touch_min(84)
 	b.tooltip_text = desc if hint == "" else "%s\n%s" % [desc, hint]
 	var dl := UiKit.label(desc, "Muted", true)
 	dl.name = "TacticDesc_" + tactic

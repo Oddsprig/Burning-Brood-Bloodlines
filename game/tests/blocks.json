@@ -13,6 +13,11 @@
 	"rider_fit_v072": [
 		"res://tests/test_rider_fit_v072.gd"
 	],
+	"mobile_v072": [
+		"res://tests/test_touch_ui_v072.gd",
+		"res://tests/test_battle_screen.gd",
+		"res://tests/test_ui_land_map.gd"
+	],
 	"identity_v070": [
 		"res://tests/test_identity_consistency_v070.gd"
 	],
