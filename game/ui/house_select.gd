@@ -53,6 +53,7 @@ var _content: VBoxContainer
 var _map_card: VBoxContainer
 var _side_card: VBoxContainer
 var _last_columns: int = 0
+var _last_tier: int = -1
 
 func _ready() -> void:
 	var frame: Dictionary = UiKit.screen_frame(self,"Begin your bloodline")
@@ -117,14 +118,18 @@ func _fit_layout() -> void:
 	if workspace == null: return
 	# 844-wide landscape is one column at the old 860 break, and the stack is taller than the phone.
 	var columns: int = 2 if _content.size.x >= 780 else 1
+	# Two-column cards have a width tier of their own. At >= 900 the minimum is
+	# 360+440+12 = 812. Narrowing to 780-899 stays at 2 columns, so a columns-only
+	# gate left that 812 minimum in place and SHOW_NEVER clipped the right card.
+	var tier: int = (2 if _content.size.x >= 900 else 1) if columns == 2 else 0
 	var short := get_viewport_rect().size.y < 500.0
-	if columns != _last_columns:
-		workspace.columns = columns; _last_columns = columns
+	if columns != _last_columns or tier != _last_tier:
+		workspace.columns = columns; _last_columns = columns; _last_tier = tier
 		var side_w := 0
 		var map_w := 0
-		if columns == 2:
-			side_w = 340 if _content.size.x < 900 else 360
-			map_w = 400 if _content.size.x < 900 else 440
+		if tier > 0:
+			side_w = 340 if tier == 1 else 360
+			map_w = 400 if tier == 1 else 440
 		(_side_card.get_parent() as Control).custom_minimum_size.x = side_w
 		(_map_card.get_parent() as Control).custom_minimum_size.x = map_w
 	map_view.custom_minimum_size = Vector2(240, 120 if short else 220)
