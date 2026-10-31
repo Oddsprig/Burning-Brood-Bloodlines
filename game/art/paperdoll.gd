@@ -507,6 +507,13 @@ static func make_severed_piece(u: Unit, part_id: String) -> Node2D:
 	s.scale = Vector2(display, display)
 	return s
 
+## v0.072 phones: after a battle, keep only the newest frames (LRU) up to byte_limit. Dolls still on screen keep
+## their own textures; an evicted frame is simply rastered again when next needed.
+static func trim_cache(byte_limit: int) -> void:
+	if _cache.size() != _cache_meta.size(): _reconcile_external_cache()
+	while _oldest != "" and _cache_bytes > byte_limit:
+		_remove_cached(_oldest, true)
+
 static func clear_cache() -> void:
 	end_background()
 	_cache.clear()
