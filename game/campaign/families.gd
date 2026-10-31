@@ -393,7 +393,7 @@ static func land_oxen(a: Dictionary, n: int) -> int:
 	return mini(ox, int(round(float(ox) * float(n) / float(total)))) if ox > 0 and total > 0 else 0
 
 ## Moves `n` acres of `crop` from family a to family b (either may be the estate). Both settle first.
-static func move_land(e: Dictionary, a: Dictionary, b: Dictionary, crop: String, n: int) -> void:
+static func move_land(e: Dictionary, a: Dictionary, b: Dictionary, crop: String, n: int, refresh: bool = true) -> void:
 	n = mini(n, int(a["land"].get(crop, 0)))
 	if n <= 0:
 		return
@@ -413,8 +413,9 @@ static func move_land(e: Dictionary, a: Dictionary, b: Dictionary, crop: String,
 	b["land"][crop] = int(b["land"].get(crop, 0)) + n
 	b["cum"][crop] = float(e["cum"].get(crop, 0.0))
 	Plots.land_moved(e, a, b, crop, n)   # land map: whole plots change hands, with a history line (campaign/plots.gd)
-	refresh_worked(e, a)
-	refresh_worked(e, b)
+	if refresh:
+		refresh_worked(e, a)
+		refresh_worked(e, b)
 
 static func move_herd(e: Dictionary, a: Dictionary, b: Dictionary, animal: String, n: int) -> void:
 	n = mini(n, int(a["herd"].get(animal, 0)))
