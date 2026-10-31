@@ -140,12 +140,16 @@ func handle_input(event: InputEvent) -> bool:
 				_emit_pan(sd.relative)
 		return true
 	elif event is InputEventMagnifyGesture:
+		if _multi_touch:   # the OS gesture for a pinch already zoomed from the screen drags (no double zoom)
+			return true
 		var mg := event as InputEventMagnifyGesture
 		dragging = true
 		long_pressed = false
 		_emit_zoom(mg.position, mg.factor)
 		return true
 	elif event is InputEventPanGesture:
+		if _touch_active:   # finger drags already pan
+			return true
 		var pg := event as InputEventPanGesture
 		dragging = true
 		long_pressed = false
@@ -206,12 +210,13 @@ func handle_input(event: InputEvent) -> bool:
 			return true
 	return false
 
+## Touches are handled from the InputEventScreenTouch/Drag events themselves, so every mouse event Godot emulates
+## from a touch is dropped. Godot sends the emulated press BEFORE its screen touch, when no touch is active yet,
+## so the device id is the test that also catches that first press.
 func _is_emulated_from_active_touch(event: InputEvent) -> bool:
-	if _touch_active or not _touches.is_empty():
+	if event.device == InputEvent.DEVICE_ID_EMULATION:
 		return true
-	if event.device == InputEvent.DEVICE_ID_EMULATION and _last_touch_usec > 0:
-		return (Time.get_ticks_usec() - _last_touch_usec) < 100000
-	return false
+	return _touch_active or not _touches.is_empty()
 
 func _calc_pinch_dist() -> float:
 	if _touches.size() < 2:

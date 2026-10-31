@@ -56,7 +56,7 @@ func _ready() -> void:
 
 func _button(text: String, action: Callable, style: String = "") -> Button:
 	var b := UiKit.button(text, action, style, 0)
-	b.custom_minimum_size.y = 48
+	b.custom_minimum_size.y = UiKit.MOBILE_TAP if UiTheme.is_mobile() else 48   # phones keep the touch target
 	_buttons.append(b)
 	return b
 

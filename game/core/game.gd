@@ -578,19 +578,24 @@ func save_stats() -> Dictionary:
 		"age_s":float(Time.get_ticks_usec()-_save_started_us)/1000000.0 if _save_task != -1 or _save_capture != null else 0.0})
 	return stats
 
-func wait_save() -> void:
+## flush_pending = false only completes the snapshot/write already under way (a deferred request stays pending).
+func wait_save(flush_pending: bool = true) -> void:
 	if _save_capture != null:
 		_save_capture.step(0)
 		_finish_capture()
 	if _save_task != -1:
 		_retire_save()
-	if _save_pending and _save_ready:
+	if flush_pending and _save_pending and _save_ready:
 		_save_pending = false
 		_accept_save_receipt(_write_save(SAVE_PATH, _save_tree()))
 
 func _notification(what: int) -> void:
-	if what in [NOTIFICATION_WM_CLOSE_REQUEST, NOTIFICATION_PREDELETE, NOTIFICATION_APPLICATION_PAUSED]:
-		wait_save()   # never quit (or go to the phone's background) half way through writing the save
+	if what in [NOTIFICATION_WM_CLOSE_REQUEST, NOTIFICATION_PREDELETE]:
+		wait_save()   # never quit half way through writing the save
+	elif what == NOTIFICATION_APPLICATION_PAUSED:
+		# Going to the phone's background: finish the write under way. A save deferred by a battle stays deferred
+		# (the app usually comes back to the same fight; it is written once the battle is over).
+		wait_save(_active_screen != "battle")
 	if what == NOTIFICATION_PREDELETE and ResourceLoader.has_cached("res://campaign/map_terrain.gd"):
 		load("res://campaign/map_terrain.gd").free_cache()   # the map layer's kept decor canvas items
 

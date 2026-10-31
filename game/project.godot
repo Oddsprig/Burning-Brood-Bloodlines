@@ -33,7 +33,7 @@ window/size/min_width=320
 window/size/min_height=320
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
-window/handheld/orientation=6
+window/handheld/orientation=4
 
 [input_devices]
 

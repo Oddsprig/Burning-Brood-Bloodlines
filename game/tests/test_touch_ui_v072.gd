@@ -46,6 +46,19 @@ func run(tree: SceneTree) -> int:
 	ti.handle_input(st_up)
 	check(taps.size() == 1 and long_presses.is_empty() and pans.is_empty(), "1-finger quick tap triggers on_tap only")
 
+	# 2a'. emulate_mouse_from_touch: Godot sends the emulated mouse press BEFORE its screen touch (and the release
+	# before the touch release); a touch tap still taps exactly once.
+	taps.clear()
+	var emu_mb := InputEventMouseButton.new()
+	emu_mb.device = InputEvent.DEVICE_ID_EMULATION
+	emu_mb.button_index = MOUSE_BUTTON_LEFT; emu_mb.pressed = true; emu_mb.position = Vector2(200, 300)
+	ti.handle_input(emu_mb)
+	ti.handle_input(st_down)
+	emu_mb.pressed = false
+	ti.handle_input(emu_mb)
+	ti.handle_input(st_up)
+	check(taps.size() == 1, "touch tap with emulated mouse events taps once (%d)" % taps.size())
+
 	# 2b. Single-finger drag pans (and does not trigger tap or double-pan from emulated mouse motion)
 	taps.clear(); pans.clear()
 	ti.handle_input(st_down)

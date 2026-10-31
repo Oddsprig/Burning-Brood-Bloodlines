@@ -50,7 +50,8 @@ func can_autosave() -> bool:
 	if Game == null or not Game._save_ready:
 		return false
 	var screen := String(Game._active_screen)
-	if screen in ["title", "presim", "newgame", "gameover"]:
+	# The game never saves mid-battle (Game.save_game_async defers it): the fight is not part of the save.
+	if screen in ["title", "presim", "newgame", "gameover", "battle"]:
 		return false
 	return not Game.world.is_empty() or not Game.company.is_empty()
 
@@ -60,7 +61,8 @@ func autosave() -> bool:
 	Game.save_game()
 	return true
 
-func pause_gameplay(pause_tree: bool = true) -> void:
+## stop_party = false (a brief focus loss: shade, dialog) keeps the map's travel order; the tree hold alone stops time.
+func pause_gameplay(pause_tree: bool = true, stop_party: bool = true) -> void:
 	if Game == null:
 		return
 	var screen := String(Game._active_screen)
@@ -71,7 +73,7 @@ func pause_gameplay(pause_tree: bool = true) -> void:
 		cur.set("paused", true)
 		if cur.has_method("_refresh_speed_buttons"):
 			cur._refresh_speed_buttons()
-	elif screen == "map" and Game.world.has("party"):
+	elif screen == "map" and stop_party and Game.world.has("party"):
 		Game.world["party"]["waiting"] = false
 		CampaignWorld.stop_travel(Game)
 	if pause_tree and is_inside_tree():
@@ -87,9 +89,9 @@ func _notification(what: int) -> void:
 			autosave()
 			pause_gameplay(true)
 		NOTIFICATION_APPLICATION_FOCUS_OUT:
+			# Shade / dialogs: hold the game only. Leaving the app always sends PAUSED next, which saves.
 			if is_mobile():
-				autosave()
-				pause_gameplay(true)
+				pause_gameplay(true, false)
 		NOTIFICATION_APPLICATION_RESUMED, NOTIFICATION_APPLICATION_FOCUS_IN:
 			if _paused_by_lifecycle and not is_pause_menu_open() and (Game == null or Game._save_capture == null):
 				_paused_by_lifecycle = false
@@ -154,7 +156,7 @@ func _close_topmost_popup_or_panel() -> bool:
 		return false
 	var screen := String(Game._active_screen)
 	if screen == "battle":
-		if bool(scr.get("settings_open")) and is_instance_valid(scr.get("_settings_overlay")):
+		if scr.get("settings_open") == true and is_instance_valid(scr.get("_settings_overlay")):
 			scr._toggle_settings()
 			return true
 		if is_instance_valid(scr.get("_log_overlay")):
@@ -174,7 +176,8 @@ func _close_topmost_popup_or_panel() -> bool:
 			scr._close_info()
 			return true
 	for child in scr.get_children():
-		if bool(child.get("overlay")) and not child.is_queued_for_deletion():
+		# `== true`, not bool(): most children have no `overlay` property and bool(null) is a script error.
+		if child.get("overlay") == true and not child.is_queued_for_deletion():
 			child.queue_free()
 			return true
 	if scr.get("stack") is Array and not (scr.get("stack") as Array).is_empty() and scr.has_method("go_back"):
@@ -253,13 +256,23 @@ func open_pause_menu() -> Control:
 	if is_pause_menu_open():
 		return _pause_modal
 	var host := _ensure_layer()
-	_paused_before_menu = get_tree().paused if is_inside_tree() else false
+	# A running save capture holds the tree paused for a few frames and then restores it; finish it now so
+	# it cannot unpause the game under the menu, and so its hold is not mistaken for the player's pause.
+	if Game != null and Game._save_capture != null:
+		Game._save_capture.step(0)
+		Game._finish_capture()
+	# A lifecycle hold (focus lost) is not a pause to restore on Resume.
+	_paused_before_menu = (get_tree().paused and not _paused_by_lifecycle) if is_inside_tree() else false
 	var cur: Node = Game.main.current if (Game != null and Game.main != null) else null
 	_battle_paused_before_menu = bool(cur.get("paused")) if (Game != null and String(Game._active_screen) == "battle" and is_instance_valid(cur)) else false
 	if Game != null and String(Game._active_screen) == "battle" and is_instance_valid(cur):
 		cur.set("paused", true)
 		if cur.has_method("_refresh_speed_buttons"):
 			cur._refresh_speed_buttons()
+	# A finger still down when the menu opens never sends its release to a paused screen: drop that touch.
+	var ti: Variant = cur.get("touch_input") if is_instance_valid(cur) else null
+	if ti is TouchInput:
+		(ti as TouchInput).reset()
 	if is_inside_tree():
 		get_tree().paused = true
 	var box := UiKit.modal(host, "Game Paused", 440)
@@ -278,7 +291,9 @@ func open_pause_menu() -> Control:
 		UiKit.open_settings(_ensure_layer(), "", true), "Row")
 	settings_btn.name = "PauseSettings"
 	box.add_child(settings_btn)
-	if Game != null and String(Game._active_screen) != "title":
+	# Not from a battle: the half-fought campaign would stay in memory, and a later autosave (title -> settings, app
+	# sent to the background) would write it. Quit leaves a fight without saving it.
+	if Game != null and String(Game._active_screen) not in ["title", "battle"]:
 		var title_btn := _menu_button("Title Screen", func():
 			autosave()
 			close_pause_menu(false)
@@ -320,7 +335,13 @@ func ask_quit_confirm() -> Control:
 	var box := UiKit.modal(host, "Quit game?", 440)
 	_quit_modal = box.get_parent().get_parent().get_parent() as Control
 	_quit_modal.name = "MobileQuitConfirmModal"
-	box.add_child(UiKit.label("Your campaign progress will be saved before exiting.", "Muted", true))
+	var note := "Your campaign progress will be saved before exiting."
+	if Game != null and String(Game._active_screen) == "battle":
+		note = "The battle in progress is not saved: the campaign keeps its last save, from before the fight."
+	elif not can_autosave():
+		note = ""   # title / new campaign: there is no campaign in play to save
+	if note != "":
+		box.add_child(UiKit.label(note, "Muted", true))
 	var row := UiKit.hbox(10)
 	var cancel_btn := _menu_button("Cancel", func(): close_quit_confirm(), "Row", 150)
 	cancel_btn.name = "QuitCancel"
@@ -344,7 +365,7 @@ func close_quit_confirm() -> void:
 func confirm_quit() -> void:
 	autosave()
 	if Game != null:
-		Game.wait_save()
+		Game.wait_save(String(Game._active_screen) != "battle")   # quitting a fight never writes the half-fought state
 	close_quit_confirm()
 	close_pause_menu(false)
 	if is_inside_tree():
