@@ -366,29 +366,20 @@ func apply_volume(linear: float) -> void:
 	AudioServer.set_bus_volume_db(idx, -80.0 if muted else linear_to_db(v))
 
 func _load_stream(path: String) -> AudioStream:
-	if _stream_cache.has(path):
+	if _stream_cache.has(path) and _stream_cache[path] != null:
 		return _stream_cache[path]
 	var s: AudioStream = null
-	if _has_imported_resource(path):
+	if ResourceLoader.exists(path):
 		s = ResourceLoader.load(path)
-	if s == null:
-		var abs_path := ProjectSettings.globalize_path(path)
-		if FileAccess.file_exists(abs_path):
-			s = AudioStreamOggVorbis.load_from_file(abs_path)
+		if s == null and FileAccess.file_exists(path):
+			s = AudioStreamOggVorbis.load_from_file(path)
+	elif FileAccess.file_exists(path):
+		s = AudioStreamOggVorbis.load_from_file(path)
 	if s is AudioStreamOggVorbis:
 		(s as AudioStreamOggVorbis).loop = _read_import_loop(path)
-	_stream_cache[path] = s
+	if s != null:
+		_stream_cache[path] = s
 	return s
-
-func _has_imported_resource(path: String) -> bool:
-	var import_path := path + ".import"
-	if not FileAccess.file_exists(import_path):
-		return false
-	var cfg := ConfigFile.new()
-	if cfg.load(import_path) != OK:
-		return false
-	var remap_path := str(cfg.get_value("remap", "path", ""))
-	return remap_path != "" and FileAccess.file_exists(remap_path)
 
 func _read_import_loop(path: String) -> bool:
 	var import_path := path + ".import"

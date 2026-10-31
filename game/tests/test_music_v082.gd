@@ -197,6 +197,25 @@ func run(tree: SceneTree) -> int:
 	settings_scene.queue_free()
 	await tree.process_frame
 
+	# 7. Loader goes through ResourceLoader for res:// paths without checking .import file, and never caches null
+	var loader_test_path := "res://audio/__test_resource_loader_only.ogg"
+	_check(not FileAccess.file_exists(loader_test_path + ".import"), "test res:// path has no .import sidecar")
+	var injected_stream := AudioStreamOggVorbis.new()
+	injected_stream.take_over_path(loader_test_path)
+	MusicManager._stream_cache.erase(loader_test_path)
+	_check(ResourceLoader.exists(loader_test_path), "ResourceLoader.exists() is true for cached res:// path without .import")
+	var loaded_stream := MusicManager._load_stream(loader_test_path)
+	_check(loaded_stream == injected_stream, "_load_stream loads res:// path through ResourceLoader without checking .import")
+	_check(MusicManager._stream_cache.get(loader_test_path) == injected_stream, "_load_stream caches valid loaded stream")
+	MusicManager._stream_cache.erase(loader_test_path)
+	injected_stream.take_over_path("")
+
+	var missing_path := "res://audio/__missing_nonexistent_track.ogg"
+	MusicManager._stream_cache.erase(missing_path)
+	var missing_stream := MusicManager._load_stream(missing_path)
+	_check(missing_stream == null, "_load_stream returns null for missing track")
+	_check(not MusicManager._stream_cache.has(missing_path), "_load_stream never caches null on failed load")
+
 	# Restore original volume and leave clean state
 	Game.set_setting("music_volume", orig_vol)
 	MusicManager.play_scene("menu")
