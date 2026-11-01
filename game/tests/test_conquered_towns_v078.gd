@@ -144,6 +144,7 @@ func failed_appoint() -> void:
 func lord_unit(tid: String) -> Unit:
 	var town: Dictionary = Game.world["towns"][tid]
 	var e: Dictionary = town["econ"]
+	e["led"] = {"made": {}, "used": {}}   # native kit return books into this real fixture ledger
 	var family: Dictionary = e["fams"][0]
 	var person: Array = family["pp"][0]
 	var u := Unit.create(Persons.family_race(e, family), str(town["faction"]), false)
@@ -227,7 +228,8 @@ func ai_captor() -> void:
 	Game.world["towns"]["village"]["econ"]["faction"] = "orc_horde"
 	Game.world["factions"]["orc_horde"] = {"capital": "village", "towns": ["village"], "treasury": 5000.0}
 	Feudal.prepare_world(Game)
-	Dynasty.select_city(Game, "village")
+	Game.world.erase("player_house")   # the fixture initially selected seat; choose the independent observer natively
+	check(Dynasty.select_city(Game, "village") and Warfare.player_faction(Game) == "orc_horde", "the observer actually selected the third realm")
 	var u := lord_unit("county")
 	var uid := u.uid
 	var purse := float(Feudal._payer(Game).get("purse", 0.0))
