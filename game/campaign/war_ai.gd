@@ -70,7 +70,7 @@ const CHASE_MODES := ["intercept", "join", "shadow"]
 const OBJECTIVES := {"hold_capital": "Hold near capital", "defend": "Defend town", "march": "March on target", "raid": "Raid"}
 const _NONE := {}            # "no orders" (read only)
 const ADJ := {"middle_kingdom": "March", "northern_clans": "Northern", "moon_court": "moon elf", "orc_horde": "orc",
-	"goblin_warren": "goblin", "eastern_khanate": "Eastern", "dwarf_holds": "dwarf"}
+	"goblin_warren": "goblin", "eastern_khanate": "Eastern", "dwarf_holds": "dwarf", "sun_court": "high elf", "night_court": "dark elf"}
 
 static var enabled := true   # profiling and A/B tests only: false = the old world without war interception
 static var usec := 0   # profiling: microseconds spent here (tests read it)

@@ -1234,7 +1234,10 @@ static func helm_maker(hm: Dictionary) -> String:
 	if maker != "": return maker
 	var tm: Dictionary = DB.armor.get(String(hm.get("tid","")), {})
 	var culture: String = String(hm.get("culture",tm.get("culture","")))
-	return culture if culture in ["orc","moon_elf","dwarf","goblin"] else ""
+	return culture if culture in ["orc","moon_elf","high_elf","dark_elf","dwarf","goblin"] else ""
+
+static func elf_helm_maker(maker: String) -> bool:
+	return maker == "moon_elf" or maker == "high_elf" or maker == "dark_elf"
 
 func _helm_fit() -> Dictionary:
 	var race: String = String(spec.get("race","human"))
@@ -1367,10 +1370,10 @@ func _helm(hc: Vector2,x0: float,x1: float,y0: float,_y1: float) -> void:
 	if sp == "closed":
 		var crown := _closed_helm(hc,m)
 		if maker == "orc": OrcArt.helm_horns(self,hc,crown+1.18,m)
-		elif maker == "moon_elf": ElfArt.helm_crescent(self,hc,crown,m)
+		elif elf_helm_maker(maker): ElfArt.helm_crescent(self,hc,crown,m)
 		_sparkle(hc+Vector2(x0+0.8,crown+0.50),m)
 		return
-	if sp == "crescent" and maker == "moon_elf":
+	if sp == "crescent" and elf_helm_maker(maker):
 		ElfArt.worn_crescent_helm(self,hc,m)
 		return
 	# Unknown-mark standard pieces keep their template's design; known foreign forges
@@ -1461,7 +1464,7 @@ func _helm(hc: Vector2,x0: float,x1: float,y0: float,_y1: float) -> void:
 	_metal_end(m)
 	if sp == "nasal": _helm_nasal(hc,b,m)
 	if maker == "orc": OrcArt.helm_horns(self,hc,-3.05,m)
-	elif maker == "moon_elf": ElfArt.helm_crescent(self,hc,top,m)
+	elif elf_helm_maker(maker): ElfArt.helm_crescent(self,hc,top,m)
 	_sparkle(hc+Vector2(x0+0.8,top+0.50),m)
 
 
