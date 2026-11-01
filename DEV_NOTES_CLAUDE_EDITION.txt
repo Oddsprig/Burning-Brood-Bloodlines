@@ -340,5 +340,8 @@ V0.077 PRISONER UPKEEP AND AI RANSOM
   by one per head and stops after ten heads that day. A sale is paid by the
   richest realm that does not oppose slavery and is neither yours nor the
   prisoner's; realms that oppose slavery lose standing. Coin is only moved.
+  Execution, sale, and death in captivity settle the prisoner's equipped items
+  and quiver into the holding town's custody (armory/shop and arrow armory)
+  without duplicating stripped gear or minting proceeds.
 - Test (not run here): game/tests/test_ransom_upkeep_v077.gd, block
   ransom_upkeep_v077. The v0.033 prisoner checks are unchanged.

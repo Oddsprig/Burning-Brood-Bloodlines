@@ -300,12 +300,13 @@ static func _free_enemy(game, rec: Dictionary, why: String) -> void:
 	held(game).erase(rec)
 	var u: Unit = rec["unit"]
 	Horses.return_mount(game, u)
+	_return_quiver(game, rec, u)
 	if Army.state(game.world)["roll"].has(str(u.uid)):
 		Army.release(game, u, why)
 		return
+	ArmsTrade.kit_home(game, u)
 	var a := _address(game, rec)
 	if a.is_empty(): return
-	ArmsTrade.kit_home(game, u)
 	People.release(a["town"], int(a["family"]["id"]), str(rec.get("role", a["person"][4])), u.uid)
 	Families.add_hist(a["family"], "%s came home, %s from captivity." % [u.name, why], float(game.day))
 
@@ -344,7 +345,9 @@ static func daily(game, day: int = -1) -> void:
 				var a := _address(game, rec)
 				gone = a.is_empty() or str(a["person"][4]) in ["gone", "dead"]
 			if gone:
-				if u is Unit: Horses.return_mount(game, u)
+				if u is Unit:
+					Horses.return_mount(game, u)
+					_settle_kit(game, rec, u, is_same(list, held(game)), "died in captivity")
 				list.erase(rec)
 				_log(game, "%s died in captivity." % str(rec.get("name", "?")), day)
 	_ai_day(game, day)
@@ -639,12 +642,77 @@ static func _standing_execute(game, fid: String, heads: int) -> void:
 	st["execute_heads"][fid] = done + heads
 	if apply > 0: Diplomacy.on_execute(game, fid, apply)
 
+static func _hold_town(game, rec: Dictionary, player_holds: bool = true) -> Dictionary:
+	if player_holds:
+		var tid := str(rec.get("hold_town", ""))
+		var town: Dictionary = game.world.get("towns", {}).get(tid, {}) if tid != "" else {}
+		if not town.is_empty() and TownEcon.has_econ(town): return town
+		return _player_town(game)
+	return _faction_town(game, str(rec.get("held_by", "")))
+
+static func _in_custody(arr: Array, it: Item) -> bool:
+	for x in arr:
+		if is_same(x, it) or (x is Item and it.uid > 0 and (x as Item).uid == it.uid):
+			return true
+	return false
+
+static func _settle_quiver(game, town: Dictionary, u: Unit) -> void:
+	if u == null or u.quiver.is_empty(): return
+	var has_econ := not town.is_empty() and TownEcon.has_econ(town)
+	for k in u.quiver.keys():
+		var n := maxi(0, int(u.quiver.get(k, 0)))
+		if n <= 0: continue
+		if has_econ:
+			if not town["econ"].has("armory") or not town["econ"]["armory"] is Dictionary:
+				town["econ"]["armory"] = {}
+			var arrows: Dictionary = town["econ"]["armory"]
+			arrows[k] = int(arrows.get(k, 0)) + n
+		else:
+			Goods.add_to_company(game, str(k), float(n))
+	u.quiver.clear()
+
+static func _return_quiver(game, rec: Dictionary, u: Unit) -> void:
+	if u == null or u.quiver.is_empty(): return
+	var town: Dictionary = game.world.get("towns", {}).get(u.home_town, {})
+	if town.is_empty() or not TownEcon.has_econ(town):
+		town = _hold_town(game, rec, true)
+	_settle_quiver(game, town, u)
+
+## Settles a prisoner's remaining kit and quiver into the holding town's custody so no Item or arrow is orphaned.
+static func _settle_kit(game, rec: Dictionary, u: Unit, player_holds: bool, detail: String) -> void:
+	if u == null or u.race_def().get("creature", false): return
+	var town := _hold_town(game, rec, player_holds)
+	var has_econ := not town.is_empty() and TownEcon.has_econ(town)
+	for slot in u.equip.keys():
+		var it = u.equip[slot]
+		u.equip.erase(slot)
+		if not it is Item: continue
+		var item: Item = it
+		if has_econ:
+			var arm := ArmsTrade.armory(town)
+			if not town.has("shop"): town["shop"] = []
+			var shop: Array = town["shop"]
+			if _in_custody(arm, item) or _in_custody(shop, item) or _in_custody(game.stash, item):
+				continue
+			if item.is_legend() or ArmsTrade.cls(item.tid) != "":
+				arm.append(item)
+			else:
+				shop.append(item)
+			TownEcon.led(town["econ"], "made", "arms", 1)
+			ArmsTrade.led("home")
+			if item.is_legend():
+				Legends.note(item, float(game.day), "Taken into the armory of %s (%s: %s)." % [String(town.get("name", "?")), u.name, detail])
+		elif not _in_custody(game.stash, item):
+			game.stash.append(item)
+	_settle_quiver(game, town, u)
+
 ## Execution or sale: the person leaves the rolls through the ordinary casualty settlement, with the real cause.
 ## An execution is a census death; a sale is a census leaving ("sold to slavers"), since a sold prisoner is not dead.
 static func _lose_prisoner(game, rec: Dictionary, cause: String, detail: String) -> void:
 	held(game).erase(rec)
 	var u: Unit = rec["unit"]
 	Horses.return_mount(game, u)
+	_settle_kit(game, rec, u, true, detail)
 	u.dead = true
 	Census.note_fate(game.world, u.uid, cause, detail)
 	var roll: Dictionary = Army.state(game.world)["roll"]
