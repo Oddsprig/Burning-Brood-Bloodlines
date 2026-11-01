@@ -192,7 +192,11 @@ static func adopt_family_race(u: Unit, race: String) -> void:
 	if foot:
 		var wid := "war_maul" if rng.randi() % 2 == 0 else "dane_axe"
 		var wealth := int(DB.factions.get(u.faction, {}).get("wealth", 2))
-		u.equip["main_hand"] = make_item(rng, wid, wealth)
+		for s in ["main_hand", "off_hand", "ranged"]:   # v0.075 r6: a rolled template swapped is unmade; a real piece stays a leak
+			if u.equip.has(s): WorldAudit.drop_rolled(u.equip[s], "-rolled template swapped for a heavy weapon")
+		var heavy := make_item(rng, wid, wealth)
+		WorldAudit.rolled(heavy)
+		u.equip["main_hand"] = heavy
 		u.equip.erase("off_hand")
 		u.equip.erase("ranged")
 		u.quiver.clear()
@@ -238,6 +242,7 @@ static func make_troop(rng: RandomNumberGenerator, faction_id: String, troop: Di
 		var it := make_item(rng, tid, wealth)
 		if it.material in ["linen", "leather"]:
 			it.quality = 0
+		WorldAudit.rolled(it)   # v0.075 r6: a rolled template (TownEcon.outfit_units may replace it from stock)
 		u.equip[slot] = it
 	# bows: a bow user's quiver (troop "arrows": {arrow id: count}, at most DB.QUIVER_MAX real arrows)
 	var arw: Dictionary = troop.get("arrows", {})

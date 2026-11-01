@@ -36,6 +36,7 @@ static func make(template_id: String, mat: String = "", q: int = 0) -> Item:
 		mat = mats[0]
 	it.material = mat
 	it.quality = clampi(q, 0, DB.LEGEND)
+	if WorldAudit.tracking: WorldAudit.note_made(it)   # v0.075 r6: template + job of every new piece while an audit runs
 	return it
 
 ## A legendary piece (v0.014): never destroyed, never lost to the loot roll.

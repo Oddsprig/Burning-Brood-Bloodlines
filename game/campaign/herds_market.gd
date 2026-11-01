@@ -1146,6 +1146,7 @@ static func droves_day(game, day: float) -> void:
 					meals += int(float(n) * float(Herds.kind(String(h["k"])).get("meat", 0.0)) * float(Herds.A()["yield_age"][AGES.find(age)]) / float(Herds.A()["kg_per_meal"]))
 			var st := Supplies.stores(wb)
 			st["meat"] = int(st.get("meat", 0)) + meals
+			WorldAudit.ration("meat", "+meat of a stolen drove", meals)
 			var fe: Dictionary = from["econ"]
 			var book: Dictionary = Herds.H(fe)["tot"]
 			if not book.has("stolen"):

@@ -1293,9 +1293,11 @@ static func _arms(_game, town: Dictionary, e: Dictionary, D: Dictionary, b: Dict
 			elif orders_only:
 				b["state"] = "full"   # the head cannot pay for his orders and the stalls are full
 				b["fg"] = "arms"
+				WorldAudit.unmade(it, "-forge piece priced, never made (stalls full)")   # v0.075 r6: priced only
 				break
 			if float(mkt["till"]) < value:
 				b["state"] = "nopay"
+				WorldAudit.unmade(it, "-forge piece priced, never made (market cannot pay)")   # v0.075 r6
 				break
 		for ig in ins:
 			st[ig] = int(st[ig]) - int(ins[ig])
