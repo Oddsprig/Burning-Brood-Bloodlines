@@ -424,12 +424,14 @@ func _build_textures() -> void:
 			var depth := clampf(((e + 1.0) * 0.5 - 0.1) / 0.18, 0.0, 1.0)
 			sh_img.set_pixel(px, py, Color(shade, depth, 0.0, 1.0))
 	# palette rows: 0 terrain, 1 grass per region, 2 forest floor per region, 3 region border, 4 water
-	var pal := Image.create(8, 5, false, Image.FORMAT_RGBA8)
+	var pal := Image.create(maxi(8, WorldGen.REGIONS.size()), 5, false, Image.FORMAT_RGBA8)
 	for i in TERRAIN_COLORS.size():
 		pal.set_pixel(i, 0, Color(TERRAIN_COLORS[i]))
-	for i in mini(WorldGen.REGIONS.size(), 8):
-		pal.set_pixel(i, 1, Color(GRASS[i]))
-		pal.set_pixel(i, 2, Color(FOREST_FLOOR[i]))
+	for i in WorldGen.REGIONS.size():
+		# Preserve the seven authored regional shades; newer realms use the native grass/forest defaults.
+		# Region indices and their faction-border colors still get their own texture column.
+		pal.set_pixel(i, 1, Color(GRASS[i] if i < GRASS.size() else GRASS[0]))
+		pal.set_pixel(i, 2, Color(FOREST_FLOOR[i] if i < FOREST_FLOOR.size() else FOREST_FLOOR[0]))
 		pal.set_pixel(i, 3, Color(DB.factions[WorldGen.region_faction(WorldGen.REGIONS[i])]["colors"]["primary"]).lightened(0.2))
 	pal.set_pixel(0, 4, Color(WATER_DEEP))
 	pal.set_pixel(1, 4, Color(WATER_SHALLOW))

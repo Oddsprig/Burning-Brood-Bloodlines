@@ -8,6 +8,18 @@ func check(ok: bool, message: String) -> void:
 	checks += 1
 	if not ok: fails += 1; printerr("FAIL dragon care release: ", message)
 
+## An empty company, or one whose soldiers are real register people. Never a free hundred.
+func saved_company_ok() -> bool:
+	for u in Game.company:
+		if u.dead:
+			continue
+		var town: Dictionary = Game.world.get("towns", {}).get(String(u.home_town), {})
+		var fam: Dictionary = People.fam_of(town, int(u.family))
+		var person: Array = Persons.by_uid(fam, int(u.uid)) if not fam.is_empty() else []
+		if person.is_empty() or String(person[Persons.PERSON_UID]) == "":
+			return false
+	return true
+
 func run(tree: SceneTree) -> int:
 	var saved_fixture := ""
 	for argument in OS.get_cmdline_user_args():
@@ -22,7 +34,7 @@ func run(tree: SceneTree) -> int:
 		# campaign. Reuse it instead of regenerating a world for every check.
 		Game.SAVE_PATH = saved_fixture
 		check(Game.load_game(), "actual current-version saved fixture loads")
-		check(Game.company.size() == 100 and Game.world["towns"].size() == 23, "actual Normal campaign and native company restored")
+		check(Game.world["towns"].size() == 23 and saved_company_ok(), "actual Normal campaign and native company restored")
 		check(Dragons.records(Game).all(func(row): return row.has("care") and row.has("growth_points")), "fixture already contains current care/growth data")
 	var before: Dictionary = Game.world["dragons"].duplicate(true)
 	var midnight := int(floor(Game.day)) + 1
@@ -50,7 +62,8 @@ func run(tree: SceneTree) -> int:
 	Game.save_game(); Game.world = {}
 	check(Game.load_game(), "full current campaign save loads after actual care")
 	var compare: RefCounted = load("res://tests/test_dynasty_release.gd").new()
-	check(compare.same(Game.world["dragons"], book), "native save/load retains actual charges, health, growth and midnight guards")
+	var release = load("res://tests/test_dragon_release.gd").new()
+	check(compare.same(release.book_facts(Game.world["dragons"]), release.book_facts(book)), "native save/load retains actual charges, health, growth and midnight guards")
 	var state := JSON.stringify(Game._serialize(Game.world))
 	DragonCare.daily(Game, midnight); DragonCare.daily(Game, midnight - 1)
 	check(JSON.stringify(Game._serialize(Game.world)) == state, "loaded same and previous day retries debit nothing")

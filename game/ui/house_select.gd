@@ -53,14 +53,26 @@ var _content: VBoxContainer
 var _map_card: VBoxContainer
 var _side_card: VBoxContainer
 var _last_columns: int = 0
+var _last_tier: int = -1
 
 func _ready() -> void:
 	var frame: Dictionary = UiKit.screen_frame(self,"Begin your bloodline")
 	_content = frame["root"]
 	stage_label = UiKit.label("","H2",true); stage_label.name = "OnboardingStage"; _content.add_child(stage_label)
+	# Landscape phones are shorter than this page (about 670 px of rows in a 390 px
+	# window). Scroll the workspace and keep Back / Continue on screen. Horizontal
+	# SHOW_NEVER stops a wide row from growing this scroll past the window; a
+	# disabled horizontal mode would, because it reports the child's width.
+	var work_scroll := UiKit.scroll(); work_scroll.name = "OnboardingWorkScroll"
+	work_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
+	work_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	work_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	work_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	work_scroll.custom_minimum_size = Vector2.ZERO
+	_content.add_child(work_scroll)
 	workspace = GridContainer.new(); workspace.name = "OnboardingWorkspace"; workspace.columns = 2
 	workspace.add_theme_constant_override("h_separation",12); workspace.add_theme_constant_override("v_separation",8)
-	UiKit.expand(workspace,true,true); _content.add_child(workspace)
+	UiKit.expand(workspace,true,true); work_scroll.add_child(workspace)
 	_map_card = _card(workspace)
 	map_name = UiKit.label("World map","",true); map_name.name = "SelectedSettlement"; _map_card.add_child(map_name)
 	map_view = SettlementSelectMap.new(); map_view.name = "SettlementMap"; map_view.custom_minimum_size = Vector2(240,220)
@@ -104,11 +116,25 @@ func _card(parent: Control) -> VBoxContainer:
 
 func _fit_layout() -> void:
 	if workspace == null: return
-	var columns: int = 2 if _content.size.x >= 860 else 1
-	if columns != _last_columns:
-		workspace.columns = columns; _last_columns = columns
-		(_side_card.get_parent() as Control).custom_minimum_size.x = 360 if columns == 2 else 0
-		(_map_card.get_parent() as Control).custom_minimum_size.x = 440 if columns == 2 else 0
+	# 844-wide landscape is one column at the old 860 break, and the stack is taller than the phone.
+	var columns: int = 2 if _content.size.x >= 780 else 1
+	# Two-column cards have a width tier of their own. At >= 900 the minimum is
+	# 360+440+12 = 812. Narrowing to 780-899 stays at 2 columns, so a columns-only
+	# gate left that 812 minimum in place and SHOW_NEVER clipped the right card.
+	var tier: int = (2 if _content.size.x >= 900 else 1) if columns == 2 else 0
+	var short := get_viewport_rect().size.y < 500.0
+	if columns != _last_columns or tier != _last_tier:
+		workspace.columns = columns; _last_columns = columns; _last_tier = tier
+		var side_w := 0
+		var map_w := 0
+		if tier > 0:
+			side_w = 340 if tier == 1 else 360
+			map_w = 400 if tier == 1 else 440
+		(_side_card.get_parent() as Control).custom_minimum_size.x = side_w
+		(_map_card.get_parent() as Control).custom_minimum_size.x = map_w
+	map_view.custom_minimum_size = Vector2(240, 120 if short else 220)
+	portrait.custom_minimum_size = Vector2(84, 72 if short else 96)
+	banner.custom_minimum_size = Vector2(72, 72 if short else 96)
 	map_view.queue_redraw()
 
 func select_settlement(town_id: String) -> void:

@@ -1,14 +1,16 @@
 extends RefCounted
 ## Direct logical phone widths, rotation, real native identities and map clearance.
-## Run only through the isolated native test runner. No input injection or saves.
+## Run only through the isolated native test runner. Only an isolated generated fixture; no input injection.
 var tree: SceneTree
 var fails := 0
 
 func run(scene_tree: SceneTree) -> int:
 	tree = scene_tree
 	await tree.process_frame
-	var fixture = load("res://tests/test_dynasty_foundation.gd").new()
-	fixture.fixture()
+	# Actual map screens need generated terrain textures and the complete native campaign tables.
+	if not await DevTools.start_world(tree, "user://dynasty_ui_v076.json"):
+		_assert(false, "the actual phone-UI campaign fixture loads")
+		return fails
 	Dynasty.prepare_world(Game)
 	Feudal.prepare_world(Game)
 	Game.contract = {}
@@ -79,6 +81,7 @@ func run(scene_tree: SceneTree) -> int:
 " + screen.lbl_gold.tooltip_text, "landscape summary retains " + owner.strip_edges())
 				else:
 					_assert("City treasury" in screen.lbl_gold.tooltip_text, "portrait keeps every separate account in reach")
+				print("phone map HUD ", dimensions, " ruler=", screen.ruler_card.get_global_rect(), " log=", screen.lbl_log.get_global_rect(), " navigation=", screen.bottom_nav.get_global_rect())
 				_assert(not screen.ruler_card.get_global_rect().intersects(screen.lbl_log.get_global_rect()), "ruler portrait clears log")
 				_assert(not screen.ruler_card.get_global_rect().intersects(screen.bottom_nav.get_global_rect()), "ruler portrait clears navigation")
 				_assert(not screen.lbl_log.get_global_rect().intersects(screen.bottom_nav.get_global_rect()), "log clears navigation")
@@ -86,11 +89,16 @@ func run(scene_tree: SceneTree) -> int:
 				_assert(screen.ruler_card.custom_minimum_size.y >= 48, "portrait tap target")
 				_assert(screen.info_panel.size.x <= dimensions.x - 16, "selection sheet width")
 				_assert(screen.enc_panel.size.x <= dimensions.x - 16, "encounter sheet width")
+				var creatures_were_enabled := bool(Game.world.get("creatures_enabled", Monsters.campaign_creatures_enabled()))
+				Game.world["creatures_enabled"] = false   # explicit native disabled-creature campaign for this guard
+				Monsters.use_world(Game.world)
 				Game.world["warbands"]["suspended_ui"] = {"id": "suspended_ui", "kind": "beasts", "faction": "", "units": []}
 				Game.world["encounter"] = "suspended_ui"
 				screen._show_encounter("suspended_ui")
 				_assert(not screen.enc_panel.visible and Game.world["encounter"] == "", "stale suspended creature encounter cannot trap map")
 				Game.world["warbands"].erase("suspended_ui")
+				Game.world["creatures_enabled"] = creatures_were_enabled
+				Monsters.use_world(Game.world)
 		viewport.queue_free()
 		screen = null
 		viewport = null
@@ -132,7 +140,6 @@ func run(scene_tree: SceneTree) -> int:
 	var result: int = fails + int(fit.fails)
 	fit.tree = null
 	fit = null
-	fixture = null
 	saved_world.clear()
 	choices.clear()
 	before_accounts.clear()
