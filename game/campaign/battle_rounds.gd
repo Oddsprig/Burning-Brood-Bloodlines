@@ -263,10 +263,14 @@ static func _take_prisoners(game, st: Dictionary) -> void:
 	var wb: Dictionary = w.get("warbands", {}).get(str(game.pending_battle.get("warband_id", "")), {})
 	if not wb.is_empty(): enemy_faction = str(wb.get("faction", ""))
 	var taken := [0, 0]
+	var seat := str(game.world.get("player_house", {}).get("town_id", game.location))
+	var band_id := str(game.pending_battle.get("warband_id", ""))
+	var band_home := str(wb.get("home", ""))
 	for u in st["captives"][0]:
 		if u.dead or Prisoners.captive_unit(game, u.uid) != null: continue
 		(w["captives"] as Array).append({"uid": u.uid, "name": u.name, "home_town": u.home_town, "family": u.family,
-			"held_by": enemy_faction, "day": float(game.day), "household": is_household(game, u), "unit": u})
+			"held_by": enemy_faction, "day": float(game.day), "household": is_household(game, u), "unit": u,
+			"hold_town": band_home, "hold_band": band_id})
 		game.company.erase(u)
 		game.squads.erase(u.uid)
 		_note_captured(game, u, enemy_faction)
@@ -277,7 +281,8 @@ static func _take_prisoners(game, st: Dictionary) -> void:
 		var p := _person(game, u)
 		var role := str(roll[2]) if roll.size() > 2 else (str(p[4]) if not p.is_empty() else "army")
 		(w["prisoners"] as Array).append({"uid": u.uid, "name": u.name, "faction": u.faction, "home_town": u.home_town,
-			"family": u.family, "day": float(game.day), "noble": is_household(game, u), "unit": u, "role": role})
+			"family": u.family, "day": float(game.day), "noble": is_household(game, u), "unit": u, "role": role,
+			"hold_town": seat, "hold_band": ""})
 		if not wb.is_empty(): (wb["units"] as Array).erase(u)
 		taken[1] += 1
 	if taken[1] > 0: CampaignWorld.log_event(game, "Your army took %d prisoner%s. Bargain for them at Court." % [taken[1], "" if taken[1] == 1 else "s"])

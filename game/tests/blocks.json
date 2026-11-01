@@ -10,6 +10,9 @@
 	"trolls_giants_v071": [
 		"res://tests/test_trolls_giants_v071.gd"
 	],
+	"ransom_upkeep_v077": [
+		"res://tests/test_ransom_upkeep_v077.gd"
+	],
 	"rider_fit_v072": [
 		"res://tests/test_rider_fit_v072.gd"
 	],

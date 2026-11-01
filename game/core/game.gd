@@ -1178,10 +1178,11 @@ func load_game() -> bool:
 			food_clock = {"next": Food.next_tick_after(day), "last": day, "march": 0.0}
 	else:
 		Food.init_company(self)   # saves from before food and drink: starting stock, default rations
+	var legacy_militia := world.has("militia") and int(d.get("militia_cap", 0)) < 1
 	var Wl = load("res://campaign/world.gd") if ResourceLoader.exists("res://campaign/world.gd") else null
 	if Wl != null and Wl.has_method("after_load"):
 		Wl.after_load(self)   # JSON floats -> ints for world fields
-	if world.has("militia"):
+	if legacy_militia:
 		var released := Militia.trim_all(self)   # older saves: oversized town reserves return to civilian life
 		if released > 0: print("load: %d surplus reservists returned to their households" % released)
 	if world.has("dragons"): DragonArt.warm(Dragons.records(self))
