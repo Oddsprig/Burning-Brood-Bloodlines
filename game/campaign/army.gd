@@ -218,6 +218,8 @@ static func enlist_end(game, wb: Dictionary, ctx: Dictionary) -> void:
 		for ui in units.size():
 			if not unraised.has(ui):
 				keep.append(units[ui])
+			elif units[ui] is Unit:   # v0.075 r6: a man nobody could be spared for never existed, nor his rolled kit
+				WorldAudit.drop_rolled_all((units[ui] as Unit).equip.values(), "-rolled kit of a man never raised")
 		wb["units"] = keep
 		wb["unraised"] = int(wb.get("unraised", 0)) + unraised.size()   # (diagnostics: men the town could not spare)
 	if (wb["units"] as Array).is_empty():

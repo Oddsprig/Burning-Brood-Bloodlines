@@ -819,6 +819,7 @@ static func outfit_units(town: Dictionary, units: Array, share: float = 0.5, arm
 		for slot in u.equip.keys():
 			var want: Item = u.equip[slot]
 			u.equip.erase(slot)
+			WorldAudit.drop_rolled(want, "-rolled template replaced from the town's stock")   # v0.075 r6 (never existed)
 			if armory_first:
 				var ai := ArmsTrade.take_for(town, want.tid, slot)
 				if ai != null:

@@ -76,6 +76,36 @@ static func lose_item(it, why: String) -> void:
 static func lose_items(items, why: String) -> void:
 	for it in items: lose_item(it, why)
 
+## r6: Item.make numbers pieces that never become anything (a forge piece priced and then not paid for, a padded
+## coat tried for its slot, a soldier's rolled template that the town's stock replaces). Those uids are not losses:
+## unmade() books them by name, apart from the losses; the gate checks no unmade uid is ever held.
+## made: uid -> [template, site] for every Item.make while an audit runs (site: the test's current job label).
+static var unmade_ids: Dictionary = {}   # uid -> why
+static var unmade_by: Dictionary = {}
+static var made_log: Dictionary = {}
+static var rolled_ids: Dictionary = {}   # uid -> true: a troop's rolled template (Factory.make_troop)
+static var site := ""
+
+static func note_made(it) -> void:
+	if tracking and it is Item: made_log[int(it.uid)] = [str(it.tid), site]
+
+static func unmade(it, why: String) -> void:
+	if not (it is Item): return
+	unmade_by[why] = int(unmade_by.get(why, 0)) + 1
+	if tracking: unmade_ids[int(it.uid)] = why
+
+## A troop's rolled loadout piece (Factory.make_troop): the template the town's stock is matched against.
+static func rolled(it) -> void:
+	if tracking and it is Item: rolled_ids[int(it.uid)] = true
+
+## A rolled piece dropped by the line that replaces or refuses it: it never existed (unmade). A piece that was not
+## rolled is left unbooked, so the gate reports it as the loss it is.
+static func drop_rolled(it, why: String) -> void:
+	if it is Item and rolled_ids.has(int(it.uid)): unmade(it, why)
+
+static func drop_rolled_all(items, why: String) -> void:
+	for it in items: drop_rolled(it, why)
+
 ## A ration good (grain, meat, fruit, a meal lot, beer, wine) n units in (+) or out (-) under a name.
 static func ration(good: String, name: String, n: int) -> void:
 	if n == 0: return
@@ -204,7 +234,8 @@ static func census(game) -> Dictionary:
 		"made": made, "used": used, "spoil": spoil, "lost": lost, "book": book_in, "outside": outside, "bands": bands,
 		"book_names": (w.get("flow", {}).get("goods", {}) as Dictionary).duplicate(true),
 		"items": items(game), "rations": held_r, "ration_book": rations.duplicate(true),
-		"treasure_book": treasure_book.duplicate(), "items_booked": items_gone.size()}
+		"treasure_book": treasure_book.duplicate(), "items_booked": items_gone.size(), "unmade_n": unmade_ids.size(),
+		"unmade_by": unmade_by.duplicate()}
 
 ## Every Item the save holds, by uid: {"held": {uid: [holder, tid]}, "by": {holder: n}, "next": the next uid
 ## Item.make gives, "dupes": [uid] two distinct Items carry}. Walks the company, the stash and the whole world tree
@@ -399,6 +430,8 @@ static func compare(a: Dictionary, b: Dictionary) -> Dictionary:
 		if h_r != k_r: out["ok"] = false
 	# r5 items, by identity.
 	out["items"] = compare_items(a.get("items", {}), b.get("items", {}), int(a.get("items_booked", 0)), int(b.get("items_booked", 0)))
+	out["items"]["unmade"] = int(b.get("unmade_n", 0)) - int(a.get("unmade_n", 0))
+	out["items"]["unmade_by"] = _book_delta(a.get("unmade_by", {}), b.get("unmade_by", {}))
 	if not out["items"]["ok"]: out["ok"] = false
 	return out
 
@@ -425,16 +458,20 @@ static func compare_items(a: Dictionary, b: Dictionary, from_n: int, to_n: int) 
 		booked[int(r[0])] = str(r[1])
 		why_n[str(r[1])] = int(why_n.get(str(r[1]), 0)) + 1
 	var unbooked := {}
+	var made_gone_at := {}   # r6: "template in job" -> n
 	var samples: Array = []
 	for uid in ha:
-		if hb.has(uid) or booked.has(int(uid)): continue
+		if hb.has(uid) or booked.has(int(uid)) or unmade_ids.has(int(uid)): continue   # r6: unmade (a rolled template)
 		var key := str(ha[uid][0])
 		unbooked[key] = int(unbooked.get(key, 0)) + 1
 		if samples.size() < 12: samples.append("gone unbooked: #%d %s (last held: %s)" % [int(uid), str(ha[uid][1]), key])
 	for uid in range(lo, hi):   # made in this window and gone again: booked too
-		if hb.has(uid) or booked.has(uid) or ha.has(uid): continue
+		if hb.has(uid) or booked.has(uid) or ha.has(uid) or unmade_ids.has(uid): continue
 		unbooked["made and gone in the window"] = int(unbooked.get("made and gone in the window", 0)) + 1
-		if samples.size() < 12: samples.append("made and gone unbooked: #%d" % uid)
+		var ml: Array = made_log.get(uid, ["?", "?"])   # r6: the template and the job that made it
+		var key2 := "made and gone: %s in %s" % [str(ml[0]), str(ml[1]) if str(ml[1]) != "" else "?"]
+		made_gone_at[key2] = int(made_gone_at.get(key2, 0)) + 1
+		if samples.size() < 12: samples.append("made and gone unbooked: #%d %s (made in %s)" % [uid, str(ml[0]), str(ml[1])])
 	var appeared := {}
 	for uid in hb:
 		if ha.has(uid) or (int(uid) >= lo and int(uid) < hi): continue
@@ -446,6 +483,10 @@ static func compare_items(a: Dictionary, b: Dictionary, from_n: int, to_n: int) 
 		if hb.has(uid):
 			still += 1
 			if samples.size() < 12: samples.append("booked gone (%s) but still held: #%d in %s" % [booked[uid], uid, str(hb[uid][0])])
+	for uid in unmade_ids:   # r6: a piece booked as never made must not be held
+		if hb.has(uid):
+			still += 1
+			if samples.size() < 12: samples.append("booked unmade (%s) but held: #%d in %s" % [unmade_ids[uid], uid, str(hb[uid][0])])
 	var dupes := (b.get("dupes", []) as Array).size()
 	if dupes > 0 and samples.size() < 12: samples.append("two Items share uid %s" % str(b["dupes"].slice(0, 5)))
 	var by := {}
@@ -455,7 +496,7 @@ static func compare_items(a: Dictionary, b: Dictionary, from_n: int, to_n: int) 
 	var ok := unbooked.is_empty() and appeared.is_empty() and still == 0 and dupes == 0
 	return {"ok": ok, "held": hb.size() - ha.size(), "made": hi - lo, "booked": booked.size(), "booked_by": why_n,
 		"gone_unbooked": unbooked, "appeared": appeared, "booked_but_held": still, "dupes": dupes, "by_holder": by,
-		"samples": samples}
+		"samples": samples, "made_gone_at": made_gone_at}
 
 ## Lines for a log: one per failing identity, holders that moved, unrounded numbers.
 static func lines(c: Dictionary, label: String) -> Array:
@@ -504,6 +545,10 @@ static func lines(c: Dictionary, label: String) -> Array:
 			int(ic["held"]), int(ic["made"]), int(ic["booked"]), JSON.stringify(ic["booked_by"]), JSON.stringify(ic["gone_unbooked"]),
 			JSON.stringify(ic["appeared"]), int(ic["booked_but_held"]), int(ic["dupes"])])
 		for s in ic["samples"]: out.append("    " + str(s))
+		var mg: Dictionary = ic.get("made_gone_at", {})
+		if not mg.is_empty(): out.append("    made and gone by template and job: " + JSON.stringify(mg))
+	if not ic.is_empty() and int(ic.get("unmade", 0)) != 0:
+		out.append("%s items never made (booked unmade, not losses): %d %s" % [label, int(ic["unmade"]), JSON.stringify(ic.get("unmade_by", {}))])
 	return out
 
 ## Money-looking numbers in the world tree the census does not count (a holder it is missing). Diagnostic only.

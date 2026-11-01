@@ -20,11 +20,14 @@ const TRACE_MS := 60000
 ## as run_days (work_slice keeps the world RNG state between calls); only the slice size differs.
 func run_day_traced() -> void:
 	if trace_ms > TRACE_MS:
+		WorldAudit.site = "a whole day (untraced)"
 		DevTools.run_days(Game, 1)
+		WorldAudit.site = ""
 		return
 	var t0 := Time.get_ticks_msec()
 	var odd := {}   # label -> [jobs, coin residual, arms residual]
 	var q0 := WorldAudit.quick(Game)
+	WorldAudit.site = "the day's clock"   # r6: every Item.make is logged with the job that made it
 	Game.advance_time(1.0, false, 0, 0)
 	var q1 := WorldAudit.quick(Game)
 	_trace_note(odd, "the day's clock", q0, q1)
@@ -35,6 +38,7 @@ func run_day_traced() -> void:
 		var label := str(job[0]) if job is Array and not (job as Array).is_empty() else "?"
 		if job is Array and (job as Array).size() > 2 and job[-1] is Dictionary and (job[-1] as Dictionary).has("stage"):
 			label += " muster(%s, %s)" % [str(job[-1].get("kind", "?")), str(job[-1].get("stage", "?"))]
+		WorldAudit.site = label
 		var n := CampaignWorld.work_slice(Game, 1)
 		if n > 1: label += " +%d more" % (n - 1)
 		var q2 := WorldAudit.quick(Game)
@@ -43,6 +47,7 @@ func run_day_traced() -> void:
 	for label in odd:
 		var r: Array = odd[label]
 		print("    job trace: %s (x%d): coin residual %s, arms residual %+d" % [label, int(r[0]), String.num(r[1], 6), int(r[2])])
+	WorldAudit.site = ""
 	trace_ms += Time.get_ticks_msec() - t0
 	if trace_ms > TRACE_MS: print("    job trace: over %d s, later days run whole" % (TRACE_MS / 1000))
 
@@ -102,10 +107,11 @@ func self_check(tid: String) -> void:
 		TownEcon.goods_lost["arms"] = int(TownEcon.goods_lost["arms"]) - 1
 		arm.append(it)
 	check(not WorldAudit.scan(Game).has("/factions/%s/treasury" % str(Game.world.get("factions", {}).keys()[0]) if not Game.world.get("factions", {}).is_empty() else ""), "self-check: realm treasuries are counted holders (no scan note)")
-	holder_checks()
 
 ## r5 (QC 122fabf8): an unbooked loss planted in each holder class is a leak of that class; a move between holders,
 ## a booked loss and a new Item.make are not. Every plant is undone and the undone state balances again.
+## r6: run after the house's muster (Mobilization.muster: real company men, and meal lots the company bought), and
+## each holder's loss is measured from a census taken with the piece in that holder (where it was last held).
 func holder_checks() -> void:
 	var w: Dictionary = Game.world
 	var base := WorldAudit.census(Game)
@@ -129,15 +135,14 @@ func holder_checks() -> void:
 			band["stores"]["beer"] = beer - 1
 			check(not WorldAudit.compare(base, WorldAudit.census(Game))["rations"]["beer"]["ok"], "holders self-check: a mug gone from a band's stores unbooked is a leak")
 			band["stores"]["beer"] = beer
-	# --- the company's provisions
-	var meals: Array = Game.provisions.get("meal", [])
-	if not meals.is_empty():
+	# --- the company's provisions (the muster bought them in the town: Mobilization._food_order, Food.add_stock)
+	var meals: Array = Game.provisions.get("meal", []) if Game.provisions is Dictionary else []
+	check(not meals.is_empty() and int(meals[0][0]) >= 3, "holders self-check: the muster bought the company meal lots")
+	if not meals.is_empty() and int(meals[0][0]) >= 3:
 		meals[0][0] = int(meals[0][0]) - 3
 		var c2 := WorldAudit.compare(base, WorldAudit.census(Game))
 		check(not c2["ok"] and int(c2["rations"]["food"]["residual"]) == -3, "holders self-check: 3 meals gone from the company's provisions unbooked are a leak of -3 (%d)" % int(c2["rations"]["food"]["residual"]))
 		meals[0][0] = int(meals[0][0]) + 3
-	else:
-		check(false, "holders self-check: the company has meal lots to test")
 	check(WorldAudit.compare(base, WorldAudit.census(Game))["ok"], "holders self-check: stores and provisions put back balance")
 	# --- items: one soldier's piece through every holder class
 	var man: Unit = null
@@ -187,10 +192,13 @@ func holder_checks() -> void:
 		func(): (w["warbands"]["audit_selfcheck_cargo"]["cargo"]["items"] as Array).clear()])
 	for p in places:
 		(p[1] as Callable).call()
-		var moved := WorldAudit.compare(base, WorldAudit.census(Game))
+		var inp := WorldAudit.census(Game)   # r6: the piece held in this holder
+		var where := str(((inp["items"]["held"] as Dictionary).get(it.uid, ["nowhere"]) as Array)[0])
+		check(where == str(p[0]), "holders self-check: the census finds the piece in %s (%s)" % [p[0], where])
+		var moved := WorldAudit.compare(base, inp)
 		check(moved["items"]["ok"], "holders self-check: the piece moved into %s is a transfer (%s)" % [p[0], JSON.stringify(moved["items"]["samples"])])
 		(p[2] as Callable).call()
-		var lost := WorldAudit.compare(base, WorldAudit.census(Game))
+		var lost := WorldAudit.compare(inp, WorldAudit.census(Game))
 		check(not lost["ok"] and int(lost["items"]["gone_unbooked"].get(p[0], 0)) == 1, "holders self-check: the piece gone from %s unbooked is a leak of that holder (%s)" % [p[0], JSON.stringify(lost["items"]["gone_unbooked"])])
 	Prisoners.held(Game).erase(prec)
 	w["warbands"].erase("audit_selfcheck_cargo")
@@ -217,6 +225,26 @@ func holder_checks() -> void:
 	check(WorldAudit.compare(b3, WorldAudit.census(Game))["items"]["ok"], "holders self-check: a new Item.make kept in a holder balances")
 	Game.stash.erase(fresh)
 	WorldAudit.lose_item(fresh, "-self-check")
+	# r6: a piece priced and never made (booked unmade) balances apart from the losses; the same uid held is a leak
+	var b5 := WorldAudit.census(Game)
+	var priced := Item.make("tunic", "linen", 0)
+	WorldAudit.unmade(priced, "-self-check priced only")
+	var pc := WorldAudit.compare(b5, WorldAudit.census(Game))
+	check(pc["items"]["ok"] and int(pc["items"]["unmade"]) == 1 and int(pc["items"]["booked"]) == 0, "holders self-check: a piece booked unmade balances apart from the losses (%s)" % JSON.stringify(pc["items"]["samples"]))
+	Game.stash.append(priced)
+	var ph := WorldAudit.compare(b5, WorldAudit.census(Game))
+	check(not ph["items"]["ok"] and int(ph["items"]["booked_but_held"]) == 1, "holders self-check: a piece booked unmade but held is a leak")
+	Game.stash.erase(priced)
+	# a rolled template dropped is unmade; a piece that was not rolled, dropped the same way, stays a leak
+	var b6 := WorldAudit.census(Game)
+	var tmpl := Item.make("tunic", "linen", 0)
+	WorldAudit.rolled(tmpl)
+	WorldAudit.drop_rolled(tmpl, "-self-check rolled")
+	var real := Item.make("tunic", "linen", 0)
+	WorldAudit.drop_rolled(real, "-self-check not rolled")
+	var rc := WorldAudit.compare(b6, WorldAudit.census(Game))
+	check(not rc["items"]["ok"] and int(rc["items"]["unmade"]) == 1 and int(rc["items"]["gone_unbooked"].get("made and gone in the window", 0)) == 1, "holders self-check: a dropped rolled template is unmade, a dropped real piece a leak (%s)" % JSON.stringify(rc["items"]["gone_unbooked"]))
+	WorldAudit.lose_item(real, "-self-check")
 	# --- treasure: a piece gone from a house's treasure room unbooked
 	var b4 := WorldAudit.census(Game)
 	var room: Dictionary = {}
@@ -262,6 +290,7 @@ func run(tree: SceneTree) -> int:
 	var setup := WorldAudit.compare(a, b)
 	for line in WorldAudit.lines(setup, "muster+order"): print(line)
 	check(setup["ok"], "raising the army and placing the order balance")
+	holder_checks()   # r6: after the muster (real company men and meal lots); every plant is undone
 	var leaks := {}   # identity -> [days failed, total residual]
 	for d in DAYS:
 		a = WorldAudit.census(Game)

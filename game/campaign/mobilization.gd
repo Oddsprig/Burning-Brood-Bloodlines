@@ -464,6 +464,8 @@ static func muster(game, town_id: String, count: int = 100, review: Dictionary =
 			if padded_slot != "" and not u.equip.has(padded_slot):
 				u.equip[padded_slot] = padded
 				game.gold -= int(row[9]); cost += int(row[9]); Goods.pay_market(town, float(row[9]))
+			else:
+				WorldAudit.unmade(padded, "-padded coat tried for a taken slot, never made")   # v0.075 r6
 		raised += 1
 	# Actual accepted people, not requested quota, determine food and receipts.
 	var order: Dictionary = _food_order(initial_food, raised * MEALS)
