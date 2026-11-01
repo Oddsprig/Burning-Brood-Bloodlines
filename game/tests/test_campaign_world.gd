@@ -36,7 +36,7 @@ func run(_tree: SceneTree) -> int:
 	w = Game.world
 	var n: int = w["towns"].size()
 	print("towns: ", n, " roads: ", w["roads"].size(), " warbands: ", w["warbands"].size())
-	if n < 15 or n > 19:   # 18 planned since the goblins' 5 warrens (Douglas 12:45; was 15, range 12-16)
+	if n < 19 or n > 30:   # v0.080 adds two high-elf and two dark-elf settlements on top of the older towns and holds
 		print("FAIL: town count ", n); fails += 1
 	var counts := {}
 	for c in (w["terrain"] as String):
@@ -66,8 +66,9 @@ func run(_tree: SceneTree) -> int:
 		print("%-12s %-14s %-10s size %d wealth %d %-8s | %s | %s | shop %d recruits %d contracts %d" % [t["name"], t["faction"], t["region"],
 			t["size"], t["wealth"], t["specialty"], Economy.describe_crafter(ws), Economy.describe_crafter(ar),
 			t["shop"].size(), t["recruits"].size(), t["contracts"].size()])
-	if factions_with_towns.size() != 5:
-		print("FAIL: not every faction has towns"); fails += 1
+	for fid in ["middle_kingdom", "northern_clans", "orc_horde", "goblin_warren", "moon_court", "sun_court", "night_court"]:
+		if not factions_with_towns.has(fid):
+			print("FAIL: no town for ", fid); fails += 1
 	# sample output
 	var t0d: Dictionary = w["towns"][w["start_town"]]
 	print("start town: ", Economy.describe_town(t0d))

@@ -62,6 +62,26 @@
     "moon_greaves":  {"name": "moon greaves", "slot": "legs", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 200, "sprite": "",
       "coverage": {"leg_lower_l": 90, "leg_lower_r": 90}}
   },
+  "high_elf": {
+    "sun_lamellar":  {"name": "sun lamellar", "slot": "body", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 650, "sprite": "lamellar",
+      "coverage": {"torso_upper": 95, "torso_lower": 75}},
+    "sun_helm":      {"name": "sun helm", "slot": "helm", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 200, "sprite": "crescent",
+      "coverage": {"head": 85, "neck": 30, "eye_l": 30, "eye_r": 30}},
+    "sun_vambraces": {"name": "sun vambraces", "slot": "hands", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 120, "sprite": "",
+      "coverage": {"arm_lower_l": 90, "arm_lower_r": 90}},
+    "sun_greaves":   {"name": "sun greaves", "slot": "legs", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 200, "sprite": "",
+      "coverage": {"leg_lower_l": 90, "leg_lower_r": 90}}
+  },
+  "dark_elf": {
+    "night_lamellar":  {"name": "night lamellar", "slot": "body", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 650, "sprite": "lamellar",
+      "coverage": {"torso_upper": 95, "torso_lower": 75}},
+    "night_helm":      {"name": "night helm", "slot": "helm", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 200, "sprite": "crescent",
+      "coverage": {"head": 85, "neck": 30, "eye_l": 30, "eye_r": 30}},
+    "night_vambraces": {"name": "night vambraces", "slot": "hands", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 120, "sprite": "",
+      "coverage": {"arm_lower_l": 90, "arm_lower_r": 90}},
+    "night_greaves":   {"name": "night greaves", "slot": "legs", "layer": "armor", "materials": ["copper", "tin"], "rigid": true, "thickness": 2, "cm3": 200, "sprite": "",
+      "coverage": {"leg_lower_l": 90, "leg_lower_r": 90}}
+  },
   "dwarf": {
     "dwarf_mail":    {"name": "dwarven mail", "slot": "body", "layer": "armor", "materials": ["copper", "tin"], "rigid": false, "thickness": 3, "cm3": 1100, "sprite": "mail",
       "coverage": {"torso_upper": 100, "torso_lower": 95, "arm_upper_l": 80, "arm_upper_r": 80, "leg_upper_l": 30, "leg_upper_r": 30}},

@@ -3,12 +3,14 @@ extends Node
 ## (map/battle vs menus). Safe-area margins live in UiKit.safe_area_margins (ui/kit.gd); the phone
 ## performance profile in core/mobile_perf.gd. On desktop this node only answers the pause/quit menus
 ## it is asked for: closing the window, losing focus and the back button behave as before.
+## v0.083: drag-anywhere list scrolling on phones is the TouchScroll child (ui/touch_scroll.gd).
 
 const BUTTON_MIN_H := UiKit.MOBILE_TAP
 const PLAY_SCREENS := ["map", "battle"]
 
 var force_mobile := false
 var keep_screen_on := false
+var touch_scroll: TouchScroll = null
 
 var _layer: CanvasLayer = null
 var _layer_root: Control = null
@@ -21,6 +23,9 @@ var _paused_by_lifecycle := false
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	set_process(false)
+	touch_scroll = TouchScroll.new()
+	touch_scroll.name = "TouchScroll"
+	add_child(touch_scroll)
 	if Game != null and not Game.screen_changed.is_connected(_on_screen_changed):
 		Game.screen_changed.connect(_on_screen_changed)
 	_update_keep_screen_on(String(Game._active_screen) if Game != null else "title")
@@ -107,6 +112,8 @@ func reset() -> void:
 	close_pause_menu(false)
 	_paused_by_lifecycle = false
 	force_mobile = false
+	if touch_scroll != null:
+		touch_scroll.reset()
 
 # ------------------------------------------------------------------ Android back button & menus
 func is_pause_menu_open() -> bool:

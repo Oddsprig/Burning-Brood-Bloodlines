@@ -6,7 +6,8 @@ extends RefCounted
 ##
 ## Grid strings are row-major, one char per cell: index = y * W + x.
 ##   terrain: g grass, f forest, h hills, m mountains, w water, b badlands, s silverwood
-##   region:  0 middle, 1 north, 2 south, 3 east, 4 west, 5 southeast, 6 holds (v0.012)
+##   region:  0 middle, 1 north, 2 south, 3 east, 4 west, 5 southeast, 6 holds (v0.012),
+##            7 sunwood, 8 nightwood (v0.080; carved after the other towns, like the holds)
 ##   road:    "1" road cell, "0" none
 
 ## Map size (war pick 5, Douglas: "Map stretched 1.5x"). The geography is laid out on the old 100 x 64 grid
@@ -65,7 +66,7 @@ static func tf_of(w: Dictionary) -> float:
 ## ("east", centre moved up from y 32 to 26), the Eastern humans take the dry south-east ("southeast"); "holds" (the
 ## dwarves) has no centre: its land is carved around the holds in the mountains once the other towns stand
 ## (place_holds). Every older region keeps land; the north-east and south-east halves share what the east had.
-const REGIONS := ["middle", "north", "south", "east", "west", "southeast", "holds"]
+const REGIONS := ["middle", "north", "south", "east", "west", "southeast", "holds", "sunwood", "nightwood"]
 const VORONOI := ["middle", "north", "south", "east", "west", "southeast"]   # the regions laid out by distance to a centre
 ## In BASE cells (x K for this world's cells).
 const REGION_CENTERS := {"middle": Vector2(50, 32), "north": Vector2(50, 9), "south": Vector2(50, 56),
@@ -100,6 +101,10 @@ const NAME_PARTS := {
 		["balik", "kent", "kurgan", "tepe", "su", "kala", "bulak", "orda"]],
 	"dwarf": [["Iron", "Stone", "Deep", "Anvil", "Copper", "Grey", "Ember", "Hammer", "Gold", "Coal", "Granite", "Under"],
 		["hold", "delve", "deep", "forge", "hall", "mount", "vault", "gate"]],
+	"high_elf": [["Sun", "Dawn", "Gold", "Ael", "Lir", "White", "Amber", "Cal", "Ithil", "Var"],
+		["holme", "spire", "glade", "bough", "mere", "wyn", "ath", "iel"]],
+	"dark_elf": [["Dusk", "Gloam", "Shade", "Nigh", "Vess", "Nar", "Ash", "Vel", "Qir", "Miv"],
+		["well", "spire", "vale", "thorn", "deep", "ryn", "oth", "ara"]],
 }
 
 ## The dry eastern band (v0.012, spec 1 C): 0..1 at a BASE cell, rising east of x 64-76 and south of y 30-40 (the
@@ -337,6 +342,7 @@ static func place_towns(world: Dictionary, rng: RandomNumberGenerator) -> void:
 				"recruits": [], "contracts": [], "next_refresh": 0.0, "neighbours": []}
 			placed += 1
 	place_holds(world, rng, land, towns, cells, used_names, n)
+	place_elf_realms(world, rng, land, towns, cells, used_names)
 	world["towns"] = towns
 
 ## v0.012 (spec 1 B): the dwarves' holds, in the mountains on good ore, placed after every other realm's towns: the
@@ -437,6 +443,97 @@ static func place_holds(world: Dictionary, rng: RandomNumberGenerator, land: Pac
 				if t == "m" or t == "h" or Vector2(dx, dy).length() <= 1.5 * K:
 					if t != "w":
 						reg[idx(x, y)] = hc_ch
+	world["region"] = reg.get_string_from_ascii()
+
+## v0.080: high elves (sunwood) and dark elves (nightwood). Placed after every other town, including the
+## holds, so the voronoi towns do not move. Two settlements each, on spare passable land, then a small
+## region pocket is carved around them. Indices 7 and 8 stay one character in the region grid.
+static func place_elf_realms(world: Dictionary, rng: RandomNumberGenerator, land: PackedByteArray, towns: Dictionary, cells: Array, used_names: Dictionary) -> void:
+	var specs: Array = [
+		{"region": "sunwood", "want": 2, "x0": 0.0, "x1": 0.42, "y0": 0.0, "y1": 0.42, "terrain": ["s", "f", "g"]},
+		{"region": "nightwood", "want": 2, "x0": 0.28, "x1": 0.62, "y0": 0.58, "y1": 1.0, "terrain": ["f", "h", "g"]},
+	]
+	for spec in specs:
+		var region := String(spec["region"])
+		var fid := region_faction(region)
+		if not DB.factions.has(fid) or String(DB.factions[fid].get("region", "")) != region:
+			continue
+		var fac: Dictionary = DB.factions[fid]
+		var fw := int(fac.get("wealth", 4))
+		var terr: String = world["terrain"]
+		var gap := 9.0 * KD
+		var rim := roundi(2 * K)
+		var prefer: Array = spec["terrain"]
+		var x0 := int(float(spec["x0"]) * W)
+		var x1 := int(float(spec["x1"]) * W)
+		var y0 := int(float(spec["y0"]) * H)
+		var y1 := int(float(spec["y1"]) * H)
+		var carved: Array = []
+		for _n in int(spec["want"]):
+			var best_score := -1
+			var best_y := 999999
+			var best_x := 999999
+			var found := false
+			for y in range(rim, H - rim):
+				for x in range(rim, W - rim):
+					var i := idx(x, y)
+					if land[i] == 0 or not passable_char(terr[i]):
+						continue
+					if not _elf_gap_ok(cells, x, y, gap):
+						continue
+					var score := 10
+					if x >= x0 and x < x1 and y >= y0 and y < y1:
+						score += 1000
+					var ti := prefer.find(terr[i])
+					if ti >= 0:
+						score += 300 - ti * 40
+					if score > best_score or (score == best_score and (y < best_y or (y == best_y and x < best_x))):
+						best_score = score
+						best_x = x
+						best_y = y
+						found = true
+			if not found:
+				break
+			var c := Vector2i(best_x, best_y)
+			cells.append(c)
+			carved.append(c)
+			var capital := carved.size() == 1
+			var size: int = clampi(1 + fw, 2, 4) if capital else clampi(rng.randi_range(0, clampi(fw, 1, 3)), 0, 3)
+			var id := "t%d" % towns.size()
+			towns[id] = {"id": id, "name": town_name(rng, fac.get("culture", "middle"), used_names),
+				"pos": cell_center(c), "faction": fid, "region": region, "culture": fac.get("culture", "middle"),
+				"size": size, "wealth": clampi(fw + (1 if capital else rng.randi_range(-1, 0)), 1, 5), "capital": capital,
+				"specialty": pick_specialty(terr, c, capital, fw, size, region, rng),
+				"crafters": {}, "healer": {}, "shop": [], "prices": {}, "material_prices": {},
+				"recruits": [], "contracts": [], "next_refresh": 0.0, "neighbours": []}
+		if not carved.is_empty():
+			_carve_elf_region(world, carved, region, gap)
+
+static func _elf_gap_ok(cells: Array, x: int, y: int, gap: float) -> bool:
+	var c := Vector2(x, y)
+	for o in cells:
+		if Vector2(o).distance_to(c) < gap:
+			return false
+	return true
+
+static func _carve_elf_region(world: Dictionary, sites: Array, region: String, gap: float) -> void:
+	var reg := (world["region"] as String).to_ascii_buffer()
+	var ch := str(REGIONS.find(region)).unicode_at(0)
+	var cr := minf(4.0 * K, gap * 0.5)
+	var cri := ceili(cr)
+	var terr: String = world["terrain"]
+	for hc in sites:
+		var c: Vector2i = hc
+		for dy in range(-cri, cri + 1):
+			for dx in range(-cri, cri + 1):
+				var x: int = c.x + dx
+				var y: int = c.y + dy
+				if x < 0 or y < 0 or x >= W or y >= H or Vector2(dx, dy).length() > cr:
+					continue
+				var t := terr[idx(x, y)]
+				if t == "w" or t == "m":
+					continue
+				reg[idx(x, y)] = ch
 	world["region"] = reg.get_string_from_ascii()
 
 static func pick_specialty(terr: String, c: Vector2i, capital: bool, fw: int, size: int, region: String, rng: RandomNumberGenerator) -> String:

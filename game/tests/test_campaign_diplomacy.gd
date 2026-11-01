@@ -43,7 +43,7 @@ func _sim_1000() -> void:
 	Game.new_game(2024)
 	var w: Dictionary = Game.world
 	var dp: Dictionary = w["diplo"]
-	check(dp["factions"].size() == 5 and dp["pairs"].size() == 10, "expected 5 factions and 10 pairs")
+	check(dp["factions"].size() == 9 and dp["pairs"].size() == 36, "expected 9 factions and 36 pairs")
 	print("start: ", _grid(w))
 	var rng := RandomNumberGenerator.new(); rng.seed = 5
 	var total := 0
@@ -408,7 +408,7 @@ func _save_load() -> void:
 	Game.rep = {}
 	Game.load_game()
 	var dp: Dictionary = Game.world.get("diplo", {})
-	check(not dp.is_empty() and dp["pairs"].size() == 10, "old save not migrated")
+	check(not dp.is_empty() and dp["pairs"].size() == 36, "old save not migrated")
 	if not dp.is_empty():
 		check(Diplomacy.earned(Game, "middle_kingdom") == 23 and Diplomacy.earned(Game, "orc_horde") == -40, "old rep not carried over as earned")
 		check(Diplomacy.standing(Game, "middle_kingdom") == 33, "migrated standing = old rep + make-up (got %d)" % Diplomacy.standing(Game, "middle_kingdom"))
