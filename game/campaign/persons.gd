@@ -918,6 +918,7 @@ static func bind(e: Dictionary, f: Dictionary, p: Array, u: Unit, state: String,
 	u.family = int(f["id"])
 	Sickness.on_bind(f, p, u)   # sickness: he carries his open case into the force (or clears a stale one)
 	CharacterDesign.apply_to_unit(Game, str(g(p, PERSON_UID, "")), u)
+	DragonCombat.adopt_kept_body(Game, str(g(p, PERSON_UID, "")), u)   # his civilian battle wounds follow the native binding
 
 ## A named unit keeps its own name (a bounty chief): the person takes it.
 static func bind_keep_name(e: Dictionary, f: Dictionary, p: Array, u: Unit, state: String, day: float) -> void:

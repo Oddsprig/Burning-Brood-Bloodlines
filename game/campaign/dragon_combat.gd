@@ -248,7 +248,7 @@ static func battle_units(game) -> Array:
 ## the dragon registry (kept_bodies: wounds, lost parts, blood, pain, healing timers; saved with the world), his
 ## next battle body is made with it, and it heals a day at a time like a dragon in care (heal_kept_bodies). It is
 ## only a body: no register row, no Unit in any roster. If he is later bound to a Unit of his own, that Unit takes
-## the kept body (when it carries no wounds of its own) and the kept body is dropped (adopt_kept_body).
+## the kept body at binding; any already present injuries are retained too (adopt_kept_body).
 static func battle_riders(game, units: Array) -> Dictionary:
 	var out := {}
 	for value: Variant in units:
@@ -351,17 +351,50 @@ static func heal_kept_bodies(game, day: int) -> void:
 		else:
 			kept.erase(person_uid)
 
-## He now has a Unit of his own: it carries his kept wounds unless it already carries wounds of its own.
+## Join two snapshots of one person's wounds, not two damage events. Shared damage is kept at the worse
+## observed state (never added twice); independent parts/layers and permanent marks survive from both.
+static func _join_wound_state(target: Dictionary, other: Dictionary) -> void:
+	for key: Variant in other:
+		var value: Variant = other[key]
+		if key == "layers": continue
+		if not target.has(key):
+			target[key] = value
+		elif value is bool:
+			target[key] = bool(target[key]) or value
+		elif value is int or value is float:
+			target[key] = maxf(float(target[key]), float(value))
+		elif key == "kind" and int(Healing.KIND_RANK.get(str(value), 1)) > int(Healing.KIND_RANK.get(str(target[key]), 1)):
+			target[key] = value
+
+## He now has a Unit of his own. Transfer before publishing him in a roster, preserving an already wounded
+## Unit as well as the kept body. Consume the row only after the complete transfer; repeated adoption is a no-op.
 static func adopt_kept_body(game, person_uid: String, unit: Unit) -> void:
 	var kept := kept_bodies(game)
-	if not kept.has(person_uid): return
+	if not kept.has(person_uid) or unit == null or unit.dead or unit.body == null: return
 	var row: Dictionary = kept[person_uid]
-	kept.erase(person_uid)
-	if unit == null or unit.dead or _wounded(unit.body) or not (row.get("body") is Dictionary): return
-	var plan := unit.body.plan_id
-	unit.body = BodyState.from_dict((row["body"] as Dictionary).duplicate(true))
-	unit.body.plan_id = plan
+	if not (row.get("body") is Dictionary): return
+	var current := unit.body
+	var saved: Dictionary = (row["body"] as Dictionary).duplicate(true)
+	saved["plan"] = current.plan_id
+	var joined := BodyState.from_dict(saved)
+	for pid: Variant in current.parts:
+		var old_part: Dictionary = joined.wound_part(str(pid))
+		var new_part: Dictionary = current.parts[pid]
+		_join_wound_state(old_part, new_part)
+		var old_layers: Array = old_part.get("layers", [])
+		var new_layers: Array = new_part.get("layers", [])
+		for i in mini(old_layers.size(), new_layers.size()):
+			_join_wound_state(old_layers[i], new_layers[i])
+	# Blood is a body state, not another bleeding event. Retain the lower fraction when sizes differ.
+	var fraction := minf(joined.blood / maxf(joined.blood_max, 1e-9), current.blood / maxf(current.blood_max, 1e-9))
+	joined.blood = clampf(fraction, 0.0, 1.0) * joined.blood_max
+	joined.pain = maxf(joined.pain, current.pain)
+	joined.exertion = maxf(joined.exertion, current.exertion)
+	for mark: Variant in current.permanent:
+		if not joined.permanent.has(mark): joined.permanent.append(mark)
+	unit.body = joined
 	Healing.update_heal_days(unit)
+	kept.erase(person_uid)
 
 ## Round battles: one record per dragon across the rounds (live damage adds up; a death or fall is kept).
 static func merge_seats(st: Dictionary, seats: Dictionary) -> void:
