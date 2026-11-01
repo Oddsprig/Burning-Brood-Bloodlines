@@ -1091,7 +1091,7 @@ func _test_draft_fixture(town: Dictionary) -> void:
 	e.erase("hd")
 	e.erase("plots")
 	e.erase("_who")
-	var day_w := float(TownEcon.data()["wage"]["day"])
+	var day_w := Barge.day_wage(e)
 	var min_p := maxf(500.0, float(TownEcon.data()["family"]["min_purse"]) * 2.0)
 	e["treasury"] = day_w * 500.0
 	var biz: Array = e["biz"]

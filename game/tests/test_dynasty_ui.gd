@@ -7,8 +7,10 @@ var fails := 0
 func run(scene_tree: SceneTree) -> int:
 	tree = scene_tree
 	await tree.process_frame
-	var fixture = load("res://tests/test_dynasty_foundation.gd").new()
-	fixture.fixture()
+	# Actual map screens need generated terrain textures and the complete native campaign tables.
+	if not await DevTools.start_world(tree, "user://dynasty_ui_v076.json"):
+		_assert(false, "the actual phone-UI campaign fixture loads")
+		return fails
 	Dynasty.prepare_world(Game)
 	Feudal.prepare_world(Game)
 	Game.contract = {}
@@ -86,11 +88,14 @@ func run(scene_tree: SceneTree) -> int:
 				_assert(screen.ruler_card.custom_minimum_size.y >= 48, "portrait tap target")
 				_assert(screen.info_panel.size.x <= dimensions.x - 16, "selection sheet width")
 				_assert(screen.enc_panel.size.x <= dimensions.x - 16, "encounter sheet width")
+				var creatures_were_enabled := bool(Game.world.get("creatures_enabled", Monsters.campaign_creatures_enabled()))
+				Game.world["creatures_enabled"] = false   # explicit native disabled-creature campaign for this guard
 				Game.world["warbands"]["suspended_ui"] = {"id": "suspended_ui", "kind": "beasts", "faction": "", "units": []}
 				Game.world["encounter"] = "suspended_ui"
 				screen._show_encounter("suspended_ui")
 				_assert(not screen.enc_panel.visible and Game.world["encounter"] == "", "stale suspended creature encounter cannot trap map")
 				Game.world["warbands"].erase("suspended_ui")
+				Game.world["creatures_enabled"] = creatures_were_enabled
 		viewport.queue_free()
 		screen = null
 		viewport = null
