@@ -524,3 +524,121 @@ static func after_load(e: Dictionary) -> void:
 	b["unattributed_cash"] = maxf(0.0, float(b["unattributed_cash"]))
 	for key in b["cash"]: b["cash"][key] = maxf(0.0, float(b["cash"][key]))
 	reserve_all(e)
+
+## v0.074: the game's own load. A book that already agrees with the barn, the carry and its own lots loads as it was
+## saved (JSON types back only); anything else gets the shipped repair (after_load). Repairing a sound book at every
+## load re-summed the balances in another order and set every family's food reserve afresh, so a reloaded town
+## held other reserves than the same town played on. after_load itself stays the shipped repair.
+static func load_saved(e: Dictionary) -> void:
+	ensure(e)
+	var b := _book(e)
+	if not b.is_empty():
+		_fix_types(e, b)
+		if _consistent(e, b): return
+	after_load(e)
+
+## JSON types back, values untouched (days are ints, amounts floats).
+static func _fix_types(e: Dictionary, b: Dictionary) -> void:
+	for group in ["lots", "carry"]:
+		var rows_by: Dictionary = b.get(group, {}) if b.get(group) is Dictionary else {}
+		for k in rows_by:
+			if not rows_by[k] is Array: continue
+			for row in rows_by[k]:
+				if not row is Dictionary: continue
+				if row.has("day"): row["day"] = int(row["day"])
+				for part in ["shares", "reserve"]:
+					if row.get(part) is Dictionary:
+						var d: Dictionary = row[part]
+						for key in d: d[key] = float(d[key])
+	var balances: Dictionary = b.get("balances", {}) if b.get("balances") is Dictionary else {}
+	for key in balances:
+		if not balances[key] is Dictionary: continue
+		for good in balances[key]:
+			var pair = balances[key][good]
+			if pair is Array and (pair as Array).size() >= 2:
+				pair[0] = float(pair[0]); pair[1] = float(pair[1])
+	for f in e.get("fams", []):
+		if f.has("hv"): f["hv"] = float(f["hv"])
+	if b.has("version"): b["version"] = int(b["version"])
+	if b.has("unattributed_cash"): b["unattributed_cash"] = float(b["unattributed_cash"])
+	if b.get("cash") is Dictionary:
+		for key in b["cash"]: b["cash"][key] = float(b["cash"][key])
+
+static func _near(a: float, c: float) -> bool:
+	return absf(a - c) <= 0.000001 * maxf(1.0, maxf(absf(a), absf(c)))
+
+## True when the after_load repair would change nothing that matters: every lot is well formed and backed by the
+## barn, the barn is fully owned, the carry matches its book, and the balances and food marks are the lots' own sums.
+static func _consistent(e: Dictionary, b: Dictionary) -> bool:
+	if not (b.get("lots") is Dictionary and b.get("carry") is Dictionary and b.get("balances") is Dictionary):
+		return false
+	if not (b.get("cash") is Dictionary) or float(b.get("unattributed_cash", 0.0)) < 0.0:
+		return false
+	for key in b["cash"]:
+		if float(b["cash"][key]) < 0.0: return false
+	var barn: Dictionary = e.get("barn", {})
+	var sums := {}   # owner key -> good -> [qty, reserved], summed from the lots
+	for good in b["lots"]:
+		if not b["lots"][good] is Array: return false
+		var rows: Array = b["lots"][good]
+		var total := 0.0
+		var last_day := -2147483648
+		for row in rows:
+			if not (row is Dictionary and row.get("shares") is Dictionary and row.get("reserve") is Dictionary and row.has("source") and row.has("day")):
+				return false
+			if int(row["day"]) < last_day: return false
+			last_day = int(row["day"])
+			var row_sum := 0.0
+			for key in row["shares"]:
+				var q := float(row["shares"][key])
+				var r := float(row["reserve"].get(key, 0.0))
+				if q < 0.0 or r < -EPS or r > q + EPS: return false
+				row_sum += q
+				if not sums.has(key): sums[key] = {}
+				var pair: Array = sums[key].get(good, [0.0, 0.0])
+				pair[0] = float(pair[0]) + q; pair[1] = float(pair[1]) + r
+				sums[key][good] = pair
+			for key in row["reserve"]:
+				if not row["shares"].has(key) and float(row["reserve"][key]) > EPS: return false
+			if row_sum <= EPS: return false
+			total += row_sum
+		if total > maxf(0.0, float(barn.get(good, 0))) + 0.000001 * maxf(1.0, total): return false
+	for good in barn:
+		var owned_total := 0.0
+		for key in sums: owned_total += float(sums[key].get(good, [0.0, 0.0])[0])
+		if float(barn[good]) - owned_total > 0.000001 * maxf(1.0, float(barn[good])): return false
+	var stored: Dictionary = b["balances"]
+	for key in stored:
+		if not stored[key] is Dictionary: return false
+		for good in stored[key]:
+			var pair = stored[key][good]
+			if not (pair is Array and (pair as Array).size() >= 2): return false
+			var want: Array = sums.get(key, {}).get(good, [0.0, 0.0])
+			if not (_near(float(pair[0]), float(want[0])) and _near(float(pair[1]), float(want[1]))): return false
+	for key in sums:
+		for good in sums[key]:
+			var pair: Array = stored.get(key, {}).get(good, [0.0, 0.0])
+			if not (_near(float(pair[0]), float(sums[key][good][0])) and _near(float(pair[1]), float(sums[key][good][1]))):
+				return false
+	var fams: Array = e.get("fams", [])
+	for i in fams.size():
+		var kept := 0.0
+		for g in FOOD: kept += float(stored.get("f:%d" % i, {}).get(g, [0.0, 0.0])[1])
+		if not _near(float(fams[i].get("hv", 0.0)), kept): return false
+	for channel in b["carry"]:
+		if not b["carry"][channel] is Array: return false
+		var total := 0.0
+		var last_day := -2147483648
+		for row in b["carry"][channel]:
+			if not (row is Dictionary and row.get("shares") is Dictionary and row.has("day")): return false
+			if int(row["day"]) < last_day: return false
+			last_day = int(row["day"])
+			var row_sum := 0.0
+			for key in row["shares"]:
+				if float(row["shares"][key]) < 0.0: return false
+				row_sum += float(row["shares"][key])
+			if row_sum <= EPS: return false
+			total += row_sum
+		var real_carry := maxf(0.0, float(e.get("carry", {}).get(channel, 0.0)))
+		if not _near(total, real_carry) and absf(total - real_carry) > EPS: return false
+	return true

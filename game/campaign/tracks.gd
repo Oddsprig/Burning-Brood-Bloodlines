@@ -477,9 +477,13 @@ static func after_load(game) -> void:
 	if not w.has("tracks"):
 		return
 	var st: Dictionary = w["tracks"]
-	st["ver"] = int(st.get("ver", 1)) + 1
+	# v0.074: the version and the last look-around spot load as saved (the spot is a tagged Vector2 in the save).
+	# Bumping the one and forgetting the other made a reloaded company look around again at once, noticing
+	# tracks the same company played on would not have noticed yet. The map layer redraws on a load by itself.
+	st["ver"] = int(st.get("ver", 1))
 	st["next"] = float(st.get("next", 0.0))
-	st["disc"] = NOWHERE
+	if not st.get("disc") is Vector2:
+		st["disc"] = NOWHERE
 	for wid in st.get("forces", {}):
 		var rec: Dictionary = st["forces"][wid]
 		rec["mark"] = bool(rec.get("mark", false))

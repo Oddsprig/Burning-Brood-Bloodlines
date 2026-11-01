@@ -18,7 +18,12 @@ static func _refresh(b: Dictionary) -> void:
 
 static func after_load(e: Dictionary) -> void:
 	for b in e["biz"]:
-		prepare(b)
+		# v0.074: a current book loads as saved. Its owed is the running total play kept (added to day by day);
+		# summing the claims again at load moved it in its last bits. Older books get the fields and the total.
+		if b.has("wage_claims") and b.has("owed_unattributed") and b.has("owed"):
+			b["owed"] = float(b["owed"])
+		else:
+			prepare(b)
 	if not e.has("wage_day"): e["wage_day"] = int(e.get("day", 0))
 
 ## Close exactly one queued town day, before production/pay changes. A job

@@ -514,6 +514,9 @@ static func _remove_legacy_dogs(hd: Dictionary) -> void:
 		if String(hd["h"][hid]["k"]) == "dogs":
 			removed[int(hd["h"][hid]["id"])] = true
 			hd["h"].erase(hid)
+	if not removed.is_empty():   # the memos were taken with the dogs counted
+		hd.erase("_th"); hd.erase("_thk"); hd.erase("_pg"); hd.erase("_pa")
+		hd.erase("_labour"); hd.erase("_labour_ver")
 	for key in ["pr", "ofk", "wak", "sok", "_male"]:
 		(hd.get(key, {}) as Dictionary).erase("dogs")
 	(hd.get("plague", {}) as Dictionary).erase("distemper")
@@ -532,8 +535,17 @@ static func _remove_legacy_dogs(hd: Dictionary) -> void:
 
 static func _fix(hd: Dictionary) -> void:
 	hd["n"] = int(hd["n"]); hd["y"] = int(hd.get("y", 0)); hd["ver"] = int(hd.get("ver", 0))
-	hd.erase("_th"); hd.erase("_thk"); hd.erase("_pg"); hd.erase("_pa")
-	hd.erase("_labour"); hd.erase("_labour_ver")
+	# v0.074: the memos are kept as saved (JSON types back). They are saved with the town and dropped by the same
+	# rules as in play; dropping them at every load made a reloaded town price grazing and care from fresh sums
+	# (the week's common acres, the season's grass) where the same town played on still used the memo.
+	if hd.has("_th") and hd["_th"] is Dictionary:
+		for k in hd["_th"]: hd["_th"][k] = int(hd["_th"][k])
+	if hd.has("_pg") and hd["_pg"] is Dictionary:
+		for k in hd["_pg"]: hd["_pg"][k] = float(hd["_pg"][k])
+	if hd.has("_pa"): hd["_pa"] = float(hd["_pa"])
+	if hd.has("_labour") and hd["_labour"] is Dictionary:
+		for k in hd["_labour"]: hd["_labour"][k] = float(hd["_labour"][k])
+	if hd.has("_labour_ver"): hd["_labour_ver"] = int(hd["_labour_ver"])
 	for hid in hd["h"]:
 		_fix_herd(hd["h"][hid])
 	var of: Array = hd.get("of", [])
@@ -554,6 +566,12 @@ static func _fix(hd: Dictionary) -> void:
 		cp[i] = int(cp[i])
 	for pk in hd.get("plague", {}):
 		hd["plague"][pk] = int(hd["plague"][pk])
+	# v0.074: the market's head counts by kind (offered, wanted, sold, bought) and the gone-herds tally are ints
+	for key in ["ofk", "wak", "sok", "bk", "gone"]:
+		var d: Variant = hd.get(key)
+		if d is Dictionary:
+			for k in d:
+				if typeof(d[k]) == TYPE_FLOAT: d[k] = int(d[k])
 
 static func _fix_herd(h: Dictionary) -> void:
 	for k in ["id", "y", "g", "o", "oi", "hun", "h0", "d0", "t"]:
@@ -570,6 +588,11 @@ static func _fix_herd(h: Dictionary) -> void:
 		var pl: Array = h.get(key, [])
 		for i in pl.size():
 			pl[i] = int(pl[i])
+	# v0.074: horse breeding (LivestockCare): the season stamp and the head counts of foal and pregnancy rows are ints
+	if h.has("horse_bred_year"): h["horse_bred_year"] = int(h["horse_bred_year"])
+	for key in ["foals", "horse_due"]:
+		for row in h.get(key, []):
+			if row is Array and (row as Array).size() > 1: row[1] = int(row[1])
 
 # ================================================================== the herds' week (a work job per town)
 static func queue_day(w: Dictionary, d: int) -> void:
