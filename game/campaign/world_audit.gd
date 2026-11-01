@@ -461,7 +461,7 @@ static func compare_items(a: Dictionary, b: Dictionary, from_n: int, to_n: int) 
 	var made_gone_at := {}   # r6: "template in job" -> n
 	var samples: Array = []
 	for uid in ha:
-		if hb.has(uid) or booked.has(int(uid)) or unmade_ids.has(int(uid)): continue   # r6: unmade (a rolled template)
+		if hb.has(uid) or booked.has(int(uid)): continue   # once owned at a census, even a rolled piece needs a real loss booking
 		var key := str(ha[uid][0])
 		unbooked[key] = int(unbooked.get(key, 0)) + 1
 		if samples.size() < 12: samples.append("gone unbooked: #%d %s (last held: %s)" % [int(uid), str(ha[uid][1]), key])

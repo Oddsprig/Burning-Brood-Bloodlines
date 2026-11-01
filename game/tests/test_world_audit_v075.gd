@@ -245,6 +245,16 @@ func holder_checks() -> void:
 	var rc := WorldAudit.compare(b6, WorldAudit.census(Game))
 	check(not rc["items"]["ok"] and int(rc["items"]["unmade"]) == 1 and int(rc["items"]["gone_unbooked"].get("made and gone in the window", 0)) == 1, "holders self-check: a dropped rolled template is unmade, a dropped real piece a leak (%s)" % JSON.stringify(rc["items"]["gone_unbooked"]))
 	WorldAudit.lose_item(real, "-self-check")
+	# A rolled piece that reached an owning holder is real. Its earlier template origin cannot pardon loss.
+	var issued := Item.make("tunic", "linen", 0)
+	WorldAudit.rolled(issued)
+	Game.stash.append(issued)
+	var issued_before := WorldAudit.census(Game)
+	Game.stash.erase(issued)
+	WorldAudit.drop_rolled(issued, "-self-check already owned")
+	var issued_loss := WorldAudit.compare(issued_before, WorldAudit.census(Game))
+	check(not issued_loss["items"]["ok"] and int(issued_loss["items"]["gone_unbooked"].get("company stash", 0)) == 1, "holders self-check: a previously owned rolled piece cannot be excused as never made")
+	WorldAudit.lose_item(issued, "-self-check")
 	# --- treasure: a piece gone from a house's treasure room unbooked
 	var b4 := WorldAudit.census(Game)
 	var room: Dictionary = {}
