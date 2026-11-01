@@ -203,6 +203,10 @@ static func tick(game, t: float, dt: float = 0.0) -> void:
 		return
 	var t0 := Time.get_ticks_usec()
 	var st := state(w)
+	var dragon_day := int(floor(t))
+	if int(st.get("dragon_day", -1)) != dragon_day:
+		st["dragon_day"] = dragon_day
+		march_dragons(game)
 	if t >= float(st["wnext"]):
 		var ids: Array = w["towns"].keys()
 		if not ids.is_empty():
@@ -211,6 +215,46 @@ static func tick(game, t: float, dt: float = 0.0) -> void:
 			st["wi"] = i + 1
 			_town_watch(w, w["towns"][ids[i]], t)
 	usec += Time.get_ticks_usec() - t0
+
+## Once a day, and whenever the campaign day closes: adult bonded dragons of a realm march with one assault army.
+## A dragon already assigned stays with that army until the army is gone, no longer assaulting, or the dragon dies.
+static func march_dragons(game) -> void:
+	var w: Dictionary = game.world
+	if not w.has("dragons"): return
+	var records: Dictionary = w["dragons"].get("records", {})
+	var bands: Dictionary = w.get("warbands", {})
+	for row: Dictionary in records.values():
+		var march: Dictionary = row.get("ai_march", {})
+		if not bool(march.get("enabled", false)): continue
+		var wb: Dictionary = bands.get(str(march.get("warband_id", "")), {})
+		var units: Array = wb.get("units", [])
+		var realm := str(w.get("towns", {}).get(str(row.get("location_town_id", "")), {}).get("faction", ""))
+		var bad := wb.is_empty() or str(wb.get("kind", "")) != "assault" or str(wb.get("faction", "")) != realm or units.is_empty() or not bool(row.get("alive", false))
+		if bad: row.erase("ai_march")
+	var by_fac := {}
+	for id in bands.keys():
+		var wb2: Dictionary = bands[id]
+		if str(wb2.get("kind", "")) != "assault": continue
+		var units2: Array = wb2.get("units", [])
+		if units2.is_empty(): continue
+		var fid := str(wb2.get("faction", ""))
+		if not by_fac.has(fid): by_fac[fid] = []
+		var list: Array = by_fac[fid]
+		list.append(wb2)
+		by_fac[fid] = list
+	for row2: Dictionary in records.values():
+		if bool(row2.get("ai_march", {}).get("enabled", false)): continue
+		if bool(row2.get("campaign_march", {}).get("enabled", false)): continue
+		var realm2 := str(w.get("towns", {}).get(str(row2.get("location_town_id", "")), {}).get("faction", ""))
+		if realm2 == "" or not by_fac.has(realm2): continue
+		var choices: Array = by_fac[realm2]
+		var chosen: Dictionary = choices[0]
+		var loc := str(row2.get("location_town_id", ""))
+		for wb3: Dictionary in choices:
+			if str(wb3.get("home", "")) == loc:
+				chosen = wb3
+				break
+		Warfare.set_dragon_march(game, str(row2.get("id", "")), true, str(chosen.get("id", "")))
 
 static func _town_watch(w: Dictionary, town: Dictionary, t: float) -> void:
 	var fid: String = town["faction"]
@@ -493,7 +537,7 @@ static func _side(w: Dictionary, near: Array, a: Dictionary, b: Dictionary, t: f
 
 ## Power of a's own faction's bands committed to the same target (war orders on tgt_id) within JOIN_RADIUS of a:
 ## they join a's clash with that target (allied realms' bands come in through Diplomacy.ally_power).
-static func pack_power(w: Dictionary, a: Dictionary, tgt_id: String, exclude: Array) -> float:
+static func pack_power(w: Dictionary, a: Dictionary, tgt_id: String, exclude: Array, game = null) -> float:
 	var p := 0.0
 	var r2 := JOIN_RADIUS * JOIN_RADIUS
 	var fid: String = a["faction"]
@@ -506,6 +550,7 @@ static func pack_power(w: Dictionary, a: Dictionary, tgt_id: String, exclude: Ar
 			continue
 		if o["faction"] == fid:   # allied realms' bands come in through Diplomacy.ally_power already
 			p += power(o, 0.0)   # its last count (scaled by heads), as its own decisions see it
+			if game != null: p += CampaignWorld.band_power(Warfare.ai_marching_units(game, str(oid)))
 	return p
 
 static func _call_allies(w: Dictionary, wid: String, wb: Dictionary, tgt: String, t: float) -> void:
