@@ -45,6 +45,9 @@ func touch_move(from: Vector2, to: Vector2, steps: int = 8) -> Vector2:
 		sd.position = nxt
 		sd.relative = nxt - at
 		tree.root.push_input(sd, true)
+		if OS.get_cmdline_user_args().has("--touch-trace"):
+			var debug_ts: TouchScroll = MobileApp.touch_scroll
+			print("TOUCH TRACE ", from, " -> ", nxt, " down=", debug_ts.get("_down"), " chain=", debug_ts.get("_chain").size(), " scrolling=", debug_ts.is_scrolling(), " press=", debug_ts.get("_press_pos"), " threshold=", debug_ts.threshold(), " fingers=", debug_ts.get("_fingers"))
 		at = nxt
 	return at
 
