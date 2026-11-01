@@ -72,6 +72,8 @@ func run(tree: SceneTree) -> int:
 	Game.wait_save()
 	check(completed() == done + 1, "off still writes a manual save")
 
+	_day_boundaries()
+
 	Game.set_setting("autosave", "week")
 	Game._autosave_stamp_day = -1.0e9
 	Game._active_screen = "battle"
@@ -93,6 +95,12 @@ func run(tree: SceneTree) -> int:
 	done = completed()
 	Game.save_on_quit()
 	check(completed() == done and not Game._save_pending, "quit during a battle does not start a save")
+	# A request queued BEFORE entering the fight must survive both close notifications without capture.
+	Game._save_pending = true
+	Game.save_on_quit()
+	Game._notification(NOTIFICATION_PREDELETE)
+	check(completed() == done and Game._save_pending and Game._save_capture == null and Game._save_task == -1, "battle close plus predelete never flushes an older pending snapshot")
+	Game._save_pending = false
 
 	Game._active_screen = "map"
 	Game.world = {}
@@ -143,3 +151,36 @@ func run(tree: SceneTree) -> int:
 	Game.set_process(true)
 	print("v084 save speed: %d checks, %d fails" % [checks, fails])
 	return fails
+
+
+func _day_boundaries() -> void:
+	# Exercise the real time/processing path, with no menu or direct request_autosave call.
+	Game.world = {"kept": true, "work": []}
+	Game._active_screen = "map"
+	Game._save_pending = false
+	Game._autosave_day_pending = false
+	Game.set_setting("autosave", "week")
+	Game._autosave_stamp_day = 0.0
+	Game.day = 6.0
+	var done := completed()
+	Game.advance_time(1.0)
+	Game.world["work"] = [["fixture_unsettled_midnight"]]
+	Game._process(0.0)
+	check(Game._autosave_day_pending and not Game._save_pending and completed() == done, "periodic autosave waits for midnight jobs to settle")
+	Game.world["work"].clear()
+	Game._process(0.0)
+	Game.wait_save()
+	check(completed() == done + 1 and not Game._autosave_day_pending, "weekly autosave runs on the settled map day without a menu request")
+	Game._process(0.0)
+	Game.wait_save()
+	check(completed() == done + 1, "settled day is not saved twice")
+	Game.set_setting("autosave", "day")
+	Game.advance_time(1.0)
+	Game._process(0.0)
+	Game.wait_save()
+	check(completed() == done + 2, "daily autosave runs at the next settled day")
+	Game.set_setting("autosave", "off")
+	Game.advance_time(1.0)
+	Game._process(0.0)
+	Game.wait_save()
+	check(completed() == done + 2 and not Game._save_pending, "off stays off through a real midnight")

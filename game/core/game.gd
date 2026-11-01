@@ -211,6 +211,7 @@ func new_game_begin(game_seed: int = 0) -> Dictionary:
 	rng.seed = seed_value
 	day = 0.0
 	_autosave_stamp_day = -1.0e9
+	_autosave_day_pending = false
 	gold = 0 # The selected native household funds a field army explicitly.
 	company.clear(); stash.clear(); squads.clear(); rep.clear(); world.clear()
 	Dynasty.note_households_changed()   # in-place clear keeps the dictionary; drop the household index
@@ -418,6 +419,7 @@ func advance_time(days: float, in_town: bool = false, healer_skill: int = 0, wor
 	var whole := int(floor(day)) - before
 	if whole > 0:
 		pay_wages(whole)
+		_autosave_day_pending = true
 	Perf.record_us("Company wages", Time.get_ticks_usec() - part)
 	part = Time.get_ticks_usec()
 	# Healing runs in 4-hour batches, not every map frame (it was most of the per-frame cost).
@@ -461,6 +463,8 @@ func advance_time(days: float, in_town: bool = false, healer_skill: int = 0, wor
 const AUTOSAVE_WEEK_DAYS := 7
 ## Day of the last accepted autosave request. A huge negative means none yet.
 var _autosave_stamp_day := -1.0e9
+# A midnight is eligible only after all of its campaign jobs have settled.
+var _autosave_day_pending := false
 
 ## Days between autosaves. -1 is off (Save and quit still write).
 func autosave_interval_days() -> int:
@@ -538,6 +542,9 @@ func _process(_delta: float) -> void:
 		return
 	if _save_task != -1 and WorkerThreadPool.is_task_completed(_save_task):
 		_retire_save()
+	if _autosave_day_pending and _save_ready and not world.is_empty() and _active_screen not in ["title", "battle", "presim", "newgame", "gameover"] and world.get("work", []).is_empty():
+		_autosave_day_pending = false
+		request_autosave()
 	if _save_pending and _save_task == -1 and _save_ready and _active_screen not in ["battle", "presim", "newgame"]:
 		save_game_async(true)
 		return
@@ -645,7 +652,7 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		save_on_quit()   # write even if the autosave interval has not elapsed; never mid-battle
 	elif what == NOTIFICATION_PREDELETE:
-		wait_save()   # finish a write already under way; do not start one while the process is going away
+		wait_save(false)   # finish only the existing write; a pending request must not capture a battle
 	elif what == NOTIFICATION_APPLICATION_PAUSED:
 		# Going to the phone's background: finish the write under way. A save deferred by a battle stays deferred
 		# (the app usually comes back to the same fight; it is written once the battle is over).
@@ -705,6 +712,7 @@ func load_game() -> bool:
 	_save_epoch += 1
 	_save_ready = true
 	_save_pending = false
+	_autosave_day_pending = false
 	_release_result_history()
 	pending_battle = {}; last_result = {}
 	Unit._next_uid = maxi(1, int(d.get("next_unit_uid", 1)))
