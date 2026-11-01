@@ -14,6 +14,12 @@ var facing: int = 1:
 var pose: String = "idle"
 var progress: float = 0.0
 var _record: Dictionary = {}
+## v0.081: false once the live rider fell or was carried off (the battle's unit view sets it).
+var rider_shown := true:
+	set(value):
+		if value == rider_shown: return
+		rider_shown = value
+		_place_rider()
 var _state: Dictionary = {}
 var _signature: String = ""
 var _dirty: bool = true
@@ -253,7 +259,7 @@ static func _sprite(image: Image) -> Sprite2D:
 
 func _place_rider() -> void:
 	if _rider_layers.is_empty() or _rider_far == null: return
-	var mounted: bool = bool(_current.get("mountable", true)) and _current.has("seat") and not _dead
+	var mounted: bool = bool(_current.get("mountable", true)) and _current.has("seat") and not _dead and rider_shown
 	_rider_far.visible = mounted; _rider_front.visible = mounted
 	if not mounted: return
 	RiderFit.decorate(_current, _record)
