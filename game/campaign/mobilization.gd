@@ -334,6 +334,19 @@ static func transfer_army_captive(game, u: Unit) -> bool:
 	_away(game, u, a, "captive", "taken prisoner with the realm army")
 	return true
 
+## A genuine home reserve is counted at home too, but has no public Army roll. Leave home once before
+## removing its physical reserve holder, so Court return_freed restores the same person instead of adding one.
+static func transfer_reserve_captive(game, u: Unit) -> bool:
+	var a := _address(game, u)
+	if a.is_empty() or u.dead or not reserves(game).has(u): return false
+	var p: Array = a["person"]; var f: Dictionary = a["family"]; var e: Dictionary = a["econ"]
+	var category := _category(p)
+	if str(p[4]) != "reserve" or Army.state(game.world)["roll"].has(str(u.uid)): return false
+	if f.get("gone", false) or int(f.get(category, 0)) < 1 or int(e.get("pop", 0)) < 1: return false
+	_entry(game, u, a)
+	_away(game, u, a, "captive", "taken prisoner from the home reserve")
+	return true
+
 static func _new_unit(game, town: Dictionary) -> Unit:
 	var source := str(town["faction"]); var race := Persons.race_of(town["econ"])
 	if str(DB.factions[source]["race"]) != race:

@@ -248,7 +248,7 @@ func ai_captor() -> void:
 
 ## QC 097e4612: field-army people are counted at home, whereas house-company people are already away.
 ## Both captive paths keep one living body/person through file IO, real Court pay/exchange, and Army.sweep.
-func player_losing_service(action: String, company_service: bool = false) -> void:
+func player_losing_service(action: String, company_service: bool = false, reserve_service: bool = false) -> void:
 	native.fixture()
 	var town: Dictionary = Game.world["towns"]["county"]
 	var family: Dictionary = town["econ"]["fams"][0]
@@ -258,32 +258,40 @@ func player_losing_service(action: String, company_service: bool = false) -> voi
 	var adults_before := int(town["econ"]["adults"])
 	var males_before := int(family["m"])
 	var u: Unit = null
-	if company_service:
+	if company_service or reserve_service:
 		Game.location = "county"; Game.world["party"]["pos"] = town["pos"]
 		var enlisted := Mobilization.enlist_household(Game, str(person[Persons.PERSON_UID]))
 		check(bool(enlisted.get("ok", false)), "the company captive fixture enlists through native service")
 		if not bool(enlisted.get("ok", false)): return
 		u = enlisted["unit"]
+		if reserve_service:
+			check(Mobilization.return_home(Game, u) and Mobilization.reserves(Game).has(u) and str(person[4]) == "reserve", "native return_home creates a genuine home reserve before conquest")
+			check(int(town["econ"]["pop"]) == people_before and int(family["m"]) == males_before, "the genuine reserve is counted at home before capture")
 	else:
 		u = lord_unit("county")
 		Game.world["warbands"]["player-realm-lord"] = {"id": "player-realm-lord", "faction": "middle_kingdom", "kind": "patrol", "home": "county", "pos": town["pos"], "units": [u]}
 	var uid := u.uid
+	if not u.equip.has("body"): u.equip["body"] = Item.make("tunic", "linen", 0)
+	var kept_kit: int = u.equip["body"].uid
+	u.quiver["arrow_wood"] = 7
 	Warfare._apply_siege(Game, "county", "moon_court")
 	check(not Prisoners._find(Prisoners.captives(Game), uid).is_empty() and active_count(uid) == 0, "AI victory takes the actual player-realm lord into one away captive body")
 	check(not Army.state(Game.world)["roll"].has(str(uid)) and str(person[4]) == "captive" and int(family.get("serve", {}).get("army", 0)) == 0, "original public service transfers once before captivity can reach Army.sweep")
 	check(int(town["econ"]["pop"]) == people_before - 1 and int(town["econ"]["adults"]) == adults_before - 1 and int(family["m"]) == males_before - 1, "captivity leaves exactly one away person, without double departure or population growth")
+	check(not family.get("player_reserve_uids", {}).has(str(uid)), "captivity clears the native home reserve marker")
 	var other_uid := -1
 	if action == "exchange":
 		var enemy := lord_unit("foreign")
 		other_uid = enemy.uid
 		Prisoners.held(Game).append({"uid": enemy.uid, "name": enemy.name, "faction": "moon_court", "home_town": "foreign", "family": enemy.family, "day": Game.day, "noble": true, "unit": enemy, "role": "army"})
-	custody_reload(action + ("-company" if company_service else "-field"))
+	custody_reload(action + ("-reserve" if reserve_service else ("-company" if company_service else "-field")))
 	var verdict := Prisoners.confirm(Game, action, uid, other_uid)
 	check(bool(verdict.get("ok", false)), "actual Court %s returns the captured %s lord: %s" % [action, "company" if company_service else "realm-army", str(verdict.get("text", ""))])
 	town = Game.world["towns"]["county"]; family = town["econ"]["fams"][0]
 	person = Persons.by_uid(family, uid)
 	var returned: Unit = Mobilization.reserve_unit(Game, uid, "county", 0)
 	var deaths_before := (Census._book(town["econ"])["deaths"] as Array).size()
+	check(returned != null and returned.equip.has("body") and returned.equip["body"].uid == kept_kit and int(returned.quiver.get("arrow_wood", 0)) == 7, "actual Court return preserves the exact captive kit and quiver")
 	Army.sweep(Game)
 	check(returned != null and not returned.dead and not person.is_empty() and str(person[4]) == "reserve" and int(person[5]) == uid, "the returned lord is the same living register person and one reserve body")
 	check(not Army.state(Game.world)["roll"].has(str(uid)) and Prisoners._find(Prisoners.captives(Game), uid).is_empty() and active_count(uid) == 1, "release leaves no old army roll, captive record, or duplicate active body")
@@ -302,5 +310,7 @@ func run(_tree: SceneTree) -> int:
 	player_losing_service("pay")
 	player_losing_service("exchange")
 	player_losing_service("pay", true)
+	player_losing_service("pay", false, true)
+	player_losing_service("exchange", false, true)
 	print("Conquered towns v0.078: %d checks, %d failures" % [checks, fails])
 	return fails

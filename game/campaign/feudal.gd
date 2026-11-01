@@ -804,6 +804,8 @@ static func _take_ruler_prisoner(game, loc: Dictionary, unit: Unit, old_fid: Str
 	var player_captive := loser_is_player
 	if player_captive and Army.state(game.world)["roll"].has(str(unit.uid)):
 		player_captive = Mobilization.transfer_army_captive(game, unit)
+	elif player_captive and str(loc["person"][4]) == "reserve":
+		player_captive = Mobilization.transfer_reserve_captive(game, unit)
 	_remove_active_lord(game, unit)
 	if player_captive:
 		Prisoners.captives(game).append(rec)
