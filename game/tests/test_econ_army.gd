@@ -1089,11 +1089,14 @@ func _test_draft_fixture(town: Dictionary) -> void:
 	e["day"] = day
 	Game.day = day
 	e.erase("hd")
-	e["cjcap"] = {}
-	e["cjused"] = {}
+	e.erase("plots")
+	e.erase("_who")
+	var day_w := float(TownEcon.data()["wage"]["day"])
+	var min_p := maxf(500.0, float(TownEcon.data()["family"]["min_purse"]) * 2.0)
+	e["treasury"] = day_w * 500.0
 	var biz: Array = e["biz"]
-	check(biz.size() >= 3, "fixture town needs at least 3 business rows")
-	if biz.size() < 3:
+	check(biz.size() >= 4, "fixture town needs at least 4 business rows")
+	if biz.size() < 4:
 		return
 	for b0 in biz:
 		var bd: Dictionary = b0
@@ -1103,44 +1106,26 @@ func _test_draft_fixture(town: Dictionary) -> void:
 		bd["cap"] = 0
 		bd["workers"] = 0
 		bd["kw"] = 0
-	var b_cf_shop: Dictionary = biz[0]
-	b_cf_shop["id"] = 0; b_cf_shop["type"] = "baker"; b_cf_shop["owner"] = 1; b_cf_shop["closed"] = false; b_cf_shop["till"] = 500.0; b_cf_shop["wage"] = 90.0
-	var b_nf_shop: Dictionary = biz[1]
-	b_nf_shop["id"] = 1; b_nf_shop["type"] = "carpenter"; b_nf_shop["owner"] = 2; b_nf_shop["closed"] = false; b_nf_shop["till"] = 500.0; b_nf_shop["wage"] = 90.0
-	var b_job: Dictionary = biz[2]
-	b_job["id"] = 2; b_job["type"] = "works"; b_job["owner"] = 0; b_job["closed"] = false; b_job["cap"] = 2; b_job["workers"] = 2; b_job["till"] = 5000.0; b_job["wage"] = 80.0
+		bd["owed"] = 0.0
+		bd["wage_claims"] = {}
+		bd["owed_unattributed"] = 0.0
+	var b_mkt: Dictionary = biz[0]
+	b_mkt["id"] = 0; b_mkt["type"] = "market"; b_mkt["owner"] = -1; b_mkt["closed"] = false; b_mkt["cap"] = 0; b_mkt["workers"] = 0; b_mkt["till"] = day_w * 500.0; b_mkt["wage"] = day_w
+	var b_cf_shop: Dictionary = biz[1]
+	b_cf_shop["id"] = 1; b_cf_shop["type"] = "woodcutter"; b_cf_shop["owner"] = 1; b_cf_shop["closed"] = false; b_cf_shop["cap"] = 0; b_cf_shop["workers"] = 0; b_cf_shop["till"] = day_w * 50.0; b_cf_shop["wage"] = day_w * 2.0
+	var b_nf_shop: Dictionary = biz[2]
+	b_nf_shop["id"] = 2; b_nf_shop["type"] = "carpenter"; b_nf_shop["owner"] = 2; b_nf_shop["closed"] = false; b_nf_shop["cap"] = 0; b_nf_shop["workers"] = 0; b_nf_shop["till"] = day_w * 50.0; b_nf_shop["wage"] = day_w * 2.0
+	var b_job: Dictionary = biz[3]
+	b_job["id"] = 3; b_job["type"] = "works"; b_job["owner"] = -1; b_job["closed"] = false; b_job["cap"] = 2; b_job["workers"] = 2; b_job["till"] = day_w * 500.0; b_job["wage"] = day_w * 2.0
+	e["mkt"] = 0
+	e["works_biz"] = 3
+	e["estate_biz"] = -1
 	var estate := Families.make_estate(town)
 	var cf := Families._blank(1)
 	cf["cohort"] = true; cf["name"] = "Brook"; cf["race"] = "human"; cf["cul"] = e.get("culture", "middle")
-	cf["households"] = 4; cf["homes"] = 4; cf["purse"] = 40.0; cf["hungry"] = 2
-	cf["owns"] = [0]; cf["land"] = {"grain": 16}; cf["ox"] = 2; cf["herd"] = {"sheep": 40}
-	cf["m"] = 20; cf["f"] = 0; cf["kids"] = 2; cf["old"] = 1; cf["pp"] = []; cf["kp"] = []; cf["age_bins"] = {}
-	var nf := Families._blank(2)
-	nf["name"] = "Miller"; nf["race"] = "human"; nf["cul"] = e.get("culture", "middle")
-	nf["homes"] = 2; nf["purse"] = 80.0; nf["hungry"] = 1
-	nf["owns"] = [1]; nf["land"] = {"grain": 16}; nf["ox"] = 2; nf["herd"] = {"sheep": 40}
-	nf["m"] = 20; nf["f"] = 0; nf["kids"] = 0; nf["old"] = 0; nf["pp"] = []; nf["kp"] = []
-	var rf := Families._blank(3)
-	rf["cohort"] = true; rf["name"] = "Lane"; rf["race"] = "human"; rf["cul"] = e.get("culture", "middle")
-	rf["households"] = 1; rf["homes"] = 1; rf["purse"] = 200.0; rf["hungry"] = 0
-	rf["m"] = 2; rf["f"] = 1; rf["kids"] = 0; rf["old"] = 0; rf["pp"] = []; rf["kp"] = []
-	rf["age_bins"] = {"0:%d" % (year - 22): 2, "1:%d" % (year - 23): 1}
-	e["fams"] = [estate, cf, nf, rf]
-	Families._aggregate_land(e)
-	Families.reassign(e, cf)
-	Families.reassign(e, nf)
-	Families.reassign(e, rf)
-	var cf_hands := int(cf["hands"])
-	var cf_keeps := (cf["keeps"] as Array).size()
-	var nf_hands := int(nf["hands"])
-	var nf_keeps := (nf["keeps"] as Array).size()
-	check(cf_keeps == 1 and cf_hands >= 2 and Families.crop_hands(cf, e) > 0.0 and Families.herd_hands(cf, e) > 0.0, "fixture cohort must have keeper, land, and herd hands")
-	check(nf_keeps == 1 and nf_hands >= 2 and Families.crop_hands(nf, e) > 0.0 and Families.herd_hands(nf, e) > 0.0, "fixture named family must have keeper, land, and herd hands")
-	var cf_reserve := cf_keeps + cf_hands
-	cf["m"] = cf_reserve + 1; cf["f"] = 2
-	cf["jobs"] = {"2": 1}; b_job["workers"] = 2; b_job["cap"] = 2
-	Families.reassign(e, cf)
-	cf["cj"] = {"porter": 1}; cf["idle"] = 1
+	cf["households"] = 4; cf["homes"] = 4; cf["purse"] = min_p; cf["hungry"] = 2
+	cf["owns"] = [1]; cf["land"] = {"grain": 16}; cf["ox"] = 2; cf["herd"] = {"sheep": 60}
+	cf["m"] = 5; cf["f"] = 2; cf["kids"] = 2; cf["old"] = 1; cf["pp"] = []; cf["kp"] = []
 	cf["age_bins"] = {
 		"0:%d" % (year - 20): 2,
 		"1:%d" % (year - 24): 2,
@@ -1149,17 +1134,40 @@ func _test_draft_fixture(town: Dictionary) -> void:
 		"0:%d" % (year - 8): 2,
 		"1:%d" % (year - 65): 1,
 	}
-	var nf_reserve := nf_keeps + nf_hands
-	nf["m"] = nf_reserve + 3; nf["f"] = 0
-	nf["jobs"] = {"2": 1}; b_job["workers"] = 2; b_job["cap"] = 2
-	Families.reassign(e, nf)
-	nf["cj"] = {"porter": 1}; nf["idle"] = 1
+	cf["jobs"] = {"3": 1}; cf["cj"] = {"porter": 1}
+	var nf := Families._blank(2)
+	nf["name"] = "Miller"; nf["race"] = "human"; nf["cul"] = e.get("culture", "middle")
+	nf["homes"] = 2; nf["purse"] = min_p; nf["hungry"] = 1
+	nf["owns"] = [2]; nf["land"] = {"grain": 16}; nf["ox"] = 2; nf["herd"] = {"sheep": 60}
+	nf["m"] = 7; nf["f"] = 0; nf["kids"] = 0; nf["old"] = 0; nf["pp"] = []; nf["kp"] = []
+	nf["jobs"] = {"3": 1}; nf["cj"] = {"porter": 1}
 	var rng := RandomNumberGenerator.new(); rng.seed = 77
 	var nf_pids: Array = []
 	for i in int(nf["m"]):
 		var p_new := Persons._new(e, nf, "human", 0, day - float(27 - i) * yd, 0, rng)
 		Persons.pp(nf).append(p_new)
 		nf_pids.append(int(p_new[0]))
+	var rf := Families._blank(3)
+	rf["cohort"] = true; rf["name"] = "Lane"; rf["race"] = "human"; rf["cul"] = e.get("culture", "middle")
+	rf["households"] = 1; rf["homes"] = 1; rf["purse"] = min_p; rf["hungry"] = 0
+	rf["m"] = 2; rf["f"] = 1; rf["kids"] = 0; rf["old"] = 0; rf["pp"] = []; rf["kp"] = []
+	rf["age_bins"] = {"0:%d" % (year - 22): 2, "1:%d" % (year - 23): 1}
+	e["fams"] = [estate, cf, nf, rf]
+	e["cjcap"] = {"porter": 2}
+	e["cjused"] = {"porter": 2.0}
+	Families._aggregate_land(e)
+	Businesses.rebuild_open(e)
+	Families.reassign(e, cf)
+	Families.reassign(e, nf)
+	Families.reassign(e, rf)
+	var cf_hands := int(cf["hands"])
+	var cf_keeps := (cf["keeps"] as Array).size()
+	var nf_hands := int(nf["hands"])
+	var nf_keeps := (nf["keeps"] as Array).size()
+	check(cf_keeps == 1 and cf_hands == 3 and Families.crop_hands(cf, e) > 0.0 and Families.herd_hands(cf, e) > 0.0, "fixture cohort must have keeper, land, and herd hands")
+	check(nf_keeps == 1 and nf_hands == 3 and Families.crop_hands(nf, e) > 0.0 and Families.herd_hands(nf, e) > 0.0, "fixture named family must have keeper, land, and herd hands")
+	var cf_reserve := cf_keeps + cf_hands
+	var nf_reserve := nf_keeps + nf_hands
 	e["pop"] = Families.people(cf) + Families.people(nf) + Families.people(rf)
 	check(not Families.assignments_stale(cf) and Population.spare(cf) == 3 and Population.eligible_slots(e, cf, day, true) == 3, "fixture cohort spare/eligible_slots setup invalid")
 	check(not Families.assignments_stale(nf) and Population.spare(nf) == 3, "fixture named spare setup invalid")
