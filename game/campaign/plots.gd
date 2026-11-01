@@ -475,6 +475,7 @@ static func _add(P: Dictionary, cell: int, it: Array) -> int:
 # ================================================================== totals (cached on change)
 static func _dirty(P: Dictionary) -> void:
 	P["dirty"] = true
+	P.erase("tot")   # v0.074: stale totals are never read; dropped now as a load drops them, so play and reload agree
 
 ## {own_crop {fid: {crop: acres}}, crop {crop: acres}, use_ac [acres by use], use_n [plots by use], land (all farm
 ## acres), wood {dense, thin, felled, regrowing}: plots}. Rebuilt only after a change.

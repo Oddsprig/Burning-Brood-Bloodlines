@@ -14,18 +14,24 @@ extends RefCounted
 ##        then loads A again in the same process, runs the day and saves R2 (control: R2 must equal R).
 ##
 ## Comparisons:
-##   value   both files parsed by the same JSON reader, every key, array slot and number exactly equal (key order
-##           ignored). This is the zero-drift assertion.
+##   value   both files parsed by the same JSON reader, every key, array slot and number equal (key order ignored).
+##           This is the zero-drift assertion. r5: Godot's JSON number reader is not correctly rounded (a float
+##           written in full can come back one unit in its last place off; the strict report prints examples), so a
+##           float within ROUND_TRIP_TOL (two units in the last place) of the other is counted, not asserted, in the
+##           round trips; the one-more-day parity allows PARITY_TOL for what those last bits move in a day; the
+##           control (the same file loaded twice) is exact.
 ##   strict  in process: the live snapshot against the snapshot after load. Leaf types must match (an int key that
 ##           comes back as a string, a packed array that comes back as a plain array, a Color that comes back as text,
-##           a fraction cut to an int). Floats may differ only by the JSON writer's rounding (relative 1e-9); how many
-##           floats were rounded is printed, not asserted. A whole number that comes back as the other number type
+##           a fraction cut to an int). Floats may differ only by the JSON reader's last-unit error (ROUND_TRIP_TOL);
+##           how many were is printed, not asserted. A whole number that comes back as the other number type
 ##           (JSON has one number type) is counted and its patterns listed, not asserted: the next-day parity check is what shows a type change that
 ##           changes the game.
 ##   shared  the number of Unit/Item references the save writer saw more than once (one person reachable from two
 ##           places) must be the same after load: a reload must not split one person into two.
 ## Each drift kind is printed once per path pattern (array slots as #, ids with digits as *) with its first example.
 ## A self-check first confirms the comparer reports a planted change (a harness that cannot fail proves nothing).
+## r5 diagnostics (printed, never asserted): every `static var` of the loaded game scripts is fingerprinted before
+## the live day (write) and before each reloaded day (check); process state outside the save shows up there.
 
 const PATH_A := "user://save_reload_v074_a.json"
 const PATH_L := "user://save_reload_v074_live_day.json"
@@ -33,7 +39,10 @@ const PATH_B := "user://save_reload_v074_b.json"
 const PATH_R := "user://save_reload_v074_reload_day.json"
 const PATH_R2 := "user://save_reload_v074_reload_day2.json"
 const PATH_WORK := "user://test_save_reload_v074_start.json"
+const PATH_STATICS_L := "user://save_reload_v074_statics_live.json"
 const DAYS := 3
+const ROUND_TRIP_TOL := 4.5e-16   # two units in the last place: the JSON reader's error on one float
+const PARITY_TOL := 1e-9          # one day on from those last bits
 
 var checks := 0
 var fails := 0
@@ -47,11 +56,14 @@ func check(ok: bool, message: String) -> void:
 
 # ------------------------------------------------------------------ comparison
 class Diff extends RefCounted:
-	const FLOAT_REL_TOL := 1e-9   # the JSON writer keeps 14-15 significant digits
+	const FLOAT_REL_TOL := 4.5e-16   # strict mode: the JSON reader's last-unit error (r4 allowed 1e-9)
 	const SHOW_MAX := 60
 	var strict := false
+	var tol_rel := 0.0   # value mode: floats this close (relative) are counted as noise, not drift
 	var count := 0
 	var rounded := 0
+	var rounded_examples: Array = []   # [path, live, loaded] (the first few, for the codec probe in report)
+	var noise := 0
 	var numtype := 0   # whole numbers that came back as the other number type (JSON has one number type)
 	var numtype_patterns := {}   # pattern -> [count, first example] (printed, not asserted)
 	var numtype_order: Array = []
@@ -87,7 +99,7 @@ class Diff extends RefCounted:
 	static func show(v) -> String:
 		match typeof(v):
 			TYPE_NIL: return "(missing)"
-			TYPE_FLOAT: return "%s float" % String.num(v, 17)
+			TYPE_FLOAT: return "%s float" % JSON.stringify(v, "", false, true)   # the writer's full digits
 			TYPE_INT: return "%d int" % v
 			TYPE_STRING: return "\"%s\"" % (v as String).left(40)
 			TYPE_DICTIONARY: return "{%d keys}" % (v as Dictionary).size()
@@ -152,8 +164,14 @@ class Diff extends RefCounted:
 					return
 				note("num %s->%s" % [type_string(ta), type_string(tb)], path, a, b)
 			if fa == fb: return
-			if typed and absf(fa - fb) <= FLOAT_REL_TOL * maxf(1.0, absf(fa)):
-				rounded += 1   # the JSON writer's 14-15 significant digits, not drift
+			# (and 1e-18 absolute: the writer keeps a fixed number of decimals, so a float near zero keeps fewer digits)
+			var near := absf(fa - fb)
+			if typed and (near <= FLOAT_REL_TOL * maxf(absf(fa), absf(fb)) or near <= 1e-18):
+				rounded += 1   # the JSON reader's last-unit error, not drift
+				if rounded_examples.size() < 4: rounded_examples.append([path, fa, fb])
+				return
+			if not typed and tol_rel > 0.0 and (near <= tol_rel * maxf(absf(fa), absf(fb)) or near <= 1e-18):
+				noise += 1
 				return
 			note("value", path, a, b)
 			return
@@ -167,9 +185,18 @@ class Diff extends RefCounted:
 			note("value", path, a, b)
 
 	func report(title: String) -> void:
-		print("%s: %d difference(s) in %d pattern(s)%s" % [title, count, order.size(),
-			(", %d float(s) rounded by the writer, %d whole number(s) back as the other number type in %d pattern(s) (not asserted)" \
-				% [rounded, numtype, numtype_order.size()]) if strict else ""])
+		print("%s: %d difference(s) in %d pattern(s)%s%s" % [title, count, order.size(),
+			(", %d float(s) within the JSON reader's last-unit error, %d whole number(s) back as the other number type in %d pattern(s) (not asserted)" \
+				% [rounded, numtype, numtype_order.size()]) if strict else "",
+			(", %d float(s) within %s relative (not asserted)" % [noise, String.num_scientific(tol_rel)]) if tol_rel > 0.0 else ""])
+		if strict:
+			# Codec probe: the same float through Godot's own writer and reader, nothing of the game in between.
+			for ex in rounded_examples:
+				var text := JSON.stringify(ex[1], "", false, true)
+				var back: Variant = JSON.parse_string(text)
+				print("  codec probe %s: live %s -> loaded %s; the live float written alone reads back %s (%s)" % [ex[0],
+					text, JSON.stringify(ex[2], "", false, true), JSON.stringify(back, "", false, true),
+					"same" if typeof(back) == TYPE_FLOAT and float(back) == float(ex[1]) else "NOT the same: the reader"])
 		var shown := 0
 		for key in order:
 			if shown >= SHOW_MAX:
@@ -186,21 +213,23 @@ class Diff extends RefCounted:
 static func _text(path: String) -> String:
 	return FileAccess.get_file_as_string(path) if FileAccess.file_exists(path) else ""
 
-## Value comparison of two save files through the same reader. Returns the Diff (count 0 = no drift).
-func compare_files(title: String, path_a: String, path_b: String) -> Diff:
+## Value comparison of two save files through the same reader. Returns the Diff (count 0 = no drift). Floats within
+## tol_rel of each other (relative) are counted as noise, not drift (0: exact).
+func compare_files(title: String, path_a: String, path_b: String, tol_rel: float = 0.0) -> Diff:
 	var d := Diff.new()
+	d.tol_rel = tol_rel
 	var pa = JSON.parse_string(_text(path_a))
 	var pb = JSON.parse_string(_text(path_b))
 	if pa == null or pb == null:
 		d.note("unreadable", path_a if pa == null else path_b, null, null)
 		d.report(title)
 		return d
-	# Fast path: the same canonical text means the same tree.
-	if JSON.stringify(pa, "", true) == JSON.stringify(pb, "", true):
+	# Fast path: the same canonical text (every float in full) means the same tree.
+	if JSON.stringify(pa, "", true, true) == JSON.stringify(pb, "", true, true):
 		print("%s: identical (%d bytes / %d bytes)" % [title, _text(path_a).length(), _text(path_b).length()])
 		return d
 	d.walk(pa, pb, "", false)
-	if d.count == 0: d.note("text-only", "", null, null)   # canonical texts differed but no value did
+	if d.count == 0 and d.noise == 0: d.note("text-only", "", null, null)   # canonical texts differed but no value did
 	d.report(title)
 	return d
 
@@ -259,10 +288,18 @@ func self_check() -> void:
 	var rounding := Diff.new()
 	rounding.strict = true
 	rounding.walk({"x": 0.1 + 0.2}, {"x": 0.3}, "", true)
-	check(rounding.count == 0 and rounding.rounded == 1, "self-check: writer rounding is counted, not drift")
+	check(rounding.count == 0 and rounding.rounded == 1, "self-check: the reader's last-unit error is counted, not drift")
+	var wider := Diff.new()
+	wider.strict = true
+	wider.walk({"x": 1.0}, {"x": 1.0 + 1e-12}, "", true)
+	check(wider.count == 1 and wider.rounded == 0, "self-check: a float off by more than two units in the last place is drift in strict mode")
 	var loose := Diff.new()
 	loose.walk({"x": 0.1 + 0.2}, {"x": 0.3}, "", false)
 	check(loose.count == 1, "self-check: value mode is exact (0.1+0.2 vs 0.3 is a difference)")
+	var tolerant := Diff.new()
+	tolerant.tol_rel = ROUND_TRIP_TOL
+	tolerant.walk({"x": 0.1 + 0.2, "y": 1.0, "n": 2}, {"x": 0.3, "y": 1.000001, "n": 3}, "", false)
+	check(tolerant.count == 2 and tolerant.noise == 1, "self-check: a tolerance counts last-unit noise and still finds real changes (%d drift, %d noise)" % [tolerant.count, tolerant.noise])
 	check(Diff.pattern("/towns/t12/econ/fams[3]/purse") == "/towns/*/econ/fams[#]/purse", "self-check: path pattern")
 
 # ------------------------------------------------------------------ the world
@@ -373,16 +410,46 @@ func _supply_order(tid: String) -> void:
 			return
 		cover["supply_reason"] = str(placed.get("reason", ""))
 
+static func _pos(town: Dictionary) -> Vector2:
+	var p: Variant = town.get("pos", Vector2.ZERO)
+	return p if p is Vector2 else Vector2.ZERO
+
+## r5: the house town of the start world has no grown horse to sell (r4: "offered 0"), so the army walks to the
+## nearest town that has one (DevTools.stand_at, as muster stands it at home), buys there and comes home.
 func _mount(tid: String) -> void:
-	var town: Dictionary = Game.world["towns"][tid]
+	var home: Dictionary = Game.world["towns"][tid]
+	var market := tid
+	if _grown_horses(tid) <= 0:
+		market = ""
+		var best := INF
+		var ids: Array = Game.world["towns"].keys()
+		ids.sort()
+		for other in ids:
+			if _grown_horses(str(other)) <= 0: continue
+			var d: float = _pos(Game.world["towns"][other]).distance_to(_pos(home))
+			if d < best:
+				best = d
+				market = str(other)
+	if market == "":
+		cover["mount_reason"] = "no town of the world has a grown healthy horse to sell"
+		return
+	cover["mount_town"] = market
+	DevTools.stand_at(Game, market)
+	var town: Dictionary = Game.world["towns"][market]
 	DevTools.offer_horses(town)
+	var last := ""
 	for u in Game.company:
 		if u.dead or u.horse != null: continue
-		if not bool(Horses.quote(Game, town, u).get("ok", false)): continue
+		var q: Dictionary = Horses.quote(Game, town, u)
+		if not bool(q.get("ok", false)):
+			last = str(q.get("reason", ""))
+			continue
 		if bool(Horses.buy(Game, town, u).get("ok", false)):
 			cover["mount_rider"] = u.uid
-			return
-	cover["mount_reason"] = "no soldier could buy a mount (offered %d, purse %d)" % [Horses.offered(town["econ"]), Game.gold]
+			break
+	if not cover.has("mount_rider"):
+		cover["mount_reason"] = "no soldier could buy a mount at %s (offered %d, purse %d, last refusal: %s)" % [market, Horses.offered(town["econ"]), Game.gold, last]
+	DevTools.stand_at(Game, tid)
 
 ## Prisoners both ways through the battle's own capture step.
 func _prisoners(tid: String) -> void:
@@ -459,6 +526,74 @@ func build(tree: SceneTree) -> bool:
 	DevTools.run_days(Game, DAYS)
 	return true
 
+# ------------------------------------------------------------------ diagnostics (printed, never asserted)
+const STATIC_DIRS := ["res://campaign", "res://core", "res://sim", "res://battle"]
+
+## Every `static var` of the game scripts already loaded in this process (none is loaded here, so taking the print
+## does not warm anything), as name -> "fingerprint brief". Objects count by script/class, containers by size and a
+## sample of their first entries, packed arrays by size and hash.
+func statics_print() -> Dictionary:
+	var out := {}
+	var re := RegEx.new()
+	re.compile("(?m)^static var ([A-Za-z_][A-Za-z0-9_]*)")
+	for dir: String in STATIC_DIRS:
+		for file: String in DirAccess.get_files_at(dir):
+			if not file.ends_with(".gd"): continue
+			var path := dir + "/" + file
+			if not ResourceLoader.has_cached(path): continue
+			var script: Script = load(path)
+			if script == null: continue
+			for m: RegExMatch in re.search_all(FileAccess.get_file_as_string(path)):
+				var vname := m.get_string(1)
+				var v: Variant = script.get(vname)
+				out[file.get_basename() + "." + vname] = _fp(v, 0).md5_text() + " " + _brief(v)
+	return out
+
+static func _fp(v: Variant, depth: int) -> String:
+	var t := typeof(v)
+	if t == TYPE_OBJECT:
+		if not is_instance_valid(v): return "null"
+		var sc: Variant = (v as Object).get_script()
+		return "obj:" + ((sc as Script).resource_path.get_file() if sc is Script else (v as Object).get_class())
+	if t == TYPE_DICTIONARY:
+		var d: Dictionary = v
+		if depth >= 2: return "{%d}" % d.size()
+		var parts := PackedStringArray()
+		for k in d:
+			if parts.size() >= 48: break
+			parts.append(str(k) + "=" + _fp(d[k], depth + 1))
+		parts.sort()
+		return "{%d:%s}" % [d.size(), ",".join(parts)]
+	if t == TYPE_ARRAY:
+		var a: Array = v
+		if depth >= 2: return "[%d]" % a.size()
+		var items := PackedStringArray()
+		for i in mini(a.size(), 48):
+			items.append(_fp(a[i], depth + 1))
+		return "[%d:%s]" % [a.size(), ",".join(items)]
+	if t >= TYPE_PACKED_BYTE_ARRAY and t <= TYPE_PACKED_VECTOR4_ARRAY:
+		return "packed%d:%d" % [v.size(), hash(v)]
+	return var_to_str(v)
+
+static func _brief(v: Variant) -> String:
+	var t := typeof(v)
+	if t == TYPE_DICTIONARY or t == TYPE_ARRAY or (t >= TYPE_PACKED_BYTE_ARRAY and t <= TYPE_PACKED_VECTOR4_ARRAY):
+		return "%s(%d)" % [type_string(t), v.size()]
+	if t == TYPE_OBJECT: return "Object"
+	return var_to_str(v).left(40)
+
+## Names whose print differs between a and b (printed, at most 40).
+func statics_diff(title: String, a: Dictionary, b: Dictionary) -> Array:
+	var names: Array = []
+	for k in a:
+		if str(a[k]) != str(b.get(k, "")):
+			names.append(k)
+	names.sort()
+	print("%s: %d of %d static var(s) differ" % [title, names.size(), a.size()])
+	for n in names.slice(0, 40):
+		print("    %s: %s -> %s" % [n, str(a[n]).substr(33), str(b.get(n, " (not loaded)")).substr(33)])
+	return names
+
 # ------------------------------------------------------------------ phases
 func phase_write(tree: SceneTree) -> bool:
 	if not await build(tree): return false
@@ -476,6 +611,11 @@ func phase_write(tree: SceneTree) -> bool:
 	check(int(c["dragons"]) > 0 and int(c["company"]) > 0, "dragons and an army exist")
 	save_to(PATH_A)
 	check(_text(PATH_A).length() > 0, "save A was written")
+	# Process state outside the save as the live day begins (the check phase compares its reloaded days with it).
+	var sf := FileAccess.open(PATH_STATICS_L, FileAccess.WRITE)
+	if sf != null:
+		sf.store_string(JSON.stringify(statics_print()))
+		sf.close()
 	# The game as it goes on when never reloaded: one more day on the live world, saved as L.
 	one_day()
 	save_to(PATH_L)
@@ -487,7 +627,7 @@ func phase_write(tree: SceneTree) -> bool:
 	var strict := Diff.new()
 	strict.strict = true
 	strict.walk(live["tree"], loaded["tree"], "", true)
-	strict.report("strict: live snapshot vs snapshot after load (types; values beyond writer rounding)")
+	strict.report("strict: live snapshot vs snapshot after load (types; values beyond the reader's last-unit error)")
 	for key in strict.order:
 		check(false, "strict drift %d x %s  e.g. %s" % [strict.patterns[key][0], key, strict.patterns[key][1]])
 	print("shared references: live %d, after load %d (units %d/%d, items %d/%d)" % [live["shared"], loaded["shared"],
@@ -497,7 +637,7 @@ func phase_write(tree: SceneTree) -> bool:
 	live = {}
 	loaded = {}
 	save_to(PATH_B)
-	var same := compare_files("in-process: save A vs save after load (B)", PATH_A, PATH_B)
+	var same := compare_files("in-process: save A vs save after load (B)", PATH_A, PATH_B, ROUND_TRIP_TOL)
 	for key in same.order:
 		check(false, "in-process round trip drift %d x %s  e.g. %s" % [same.patterns[key][0], key, same.patterns[key][1]])
 	return true
@@ -509,22 +649,36 @@ func phase_check() -> void:
 		check(false, "save A loads in a fresh instance")
 		return
 	save_to(PATH_B)
-	var round := compare_files("fresh instance: save A vs save after load", PATH_A, PATH_B)
+	var round := compare_files("fresh instance: save A vs save after load", PATH_A, PATH_B, ROUND_TRIP_TOL)
 	for key in round.order:
 		check(false, "fresh-instance round trip drift %d x %s  e.g. %s" % [round.patterns[key][0], key, round.patterns[key][1]])
+	var st_r := statics_print()
 	one_day()
 	save_to(PATH_R)
-	var parity := compare_files("one more day: never reloaded (L) vs reloaded (R)", PATH_L, PATH_R)
+	var parity := compare_files("one more day: never reloaded (L) vs reloaded (R)", PATH_L, PATH_R, PARITY_TOL)
 	for key in parity.order:
 		check(false, "reload changes the next day %d x %s  e.g. %s" % [parity.patterns[key][0], key, parity.patterns[key][1]])
 	# Control: the same reloaded day twice must agree (otherwise the day itself is not repeatable).
 	if not load_from(PATH_A):
 		check(false, "save A loads a second time")
 		return
+	var st_r2 := statics_print()
 	one_day()
 	save_to(PATH_R2)
 	var control := compare_files("control: reloaded day twice (R vs R2)", PATH_R, PATH_R2)
 	check(control.count == 0, "control: the same reloaded day is repeatable (if this fails, the parity check above is not about saving)")
+	# Diagnostics: process state outside the save before each day. A static that differs before the first reloaded
+	# day (R) from both the live day (L) and the second reloaded day (R2), while L and R2 agree, is a suspect for
+	# a day that depends on what this process ran before.
+	var st_l: Variant = JSON.parse_string(_text(PATH_STATICS_L))
+	var r_r2 := statics_diff("statics before R vs before R2", st_r, st_r2)
+	if st_l is Dictionary:
+		var r_l := statics_diff("statics before R vs before L (write phase)", st_r, st_l)
+		var r2_l := statics_diff("statics before R2 vs before L (write phase)", st_r2, st_l)
+		var suspects: Array = []
+		for n in r_r2:
+			if n in r_l and not (n in r2_l): suspects.append(n)
+		print("statics suspects (R differs from L and R2, L = R2): %s" % (", ".join(PackedStringArray(suspects)) if not suspects.is_empty() else "none"))
 
 func run(tree: SceneTree) -> int:
 	var started := Time.get_ticks_msec()
