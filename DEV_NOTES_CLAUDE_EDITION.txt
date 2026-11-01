@@ -155,8 +155,8 @@ KNOWN LIMITS (honest)
   target in the battle sim and does not die when the dragon dies.
 - The first view of each dragon variety still paints its pigment once (on a
   worker thread at game start/load; cached on disk afterwards).
-- Ruling lords of conquered towns keep their seats as your vassals; there is
-  no title transfer to your own family yet.
+- A conquered town's old lord loses the seat. The liege may keep it or grant
+  it to an adult of the house or a loyal vassal; AI conquerors grant too.
 - Marriage is player-driven for your house; other houses still marry by the
   native in-town rules. No divorce, concubines or AI cross-realm matchmaking.
 - Older test files test_battle_screen.gd and test_battle_presentation_state.gd
