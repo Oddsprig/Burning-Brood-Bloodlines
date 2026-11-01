@@ -671,23 +671,32 @@ func _notification(what: int) -> void:
 ## and each marker number turns up once. Otherwise the prefix is changed to one that appears nowhere in that text
 ## (the game's texts are the same in every pass, only the markers change) and the tree is written again. A game text
 ## is therefore never read as a marker.
+## r8 (v0.084 snapshots): one record can sit under two references in the save tree (SaveSnapshot reuses the record of
+## a Unit or Item met twice), and the writer writes it at each. The walk meets such a container again and finds its
+## own marker in the very slot it planted it, so that marker is expected once more; the count is per marker. The
+## writer runs on the save thread, so the powers of ten are a constant table, and a tree that never comes out clean
+## within _FMARK_PASSES writes fails the save (the old save stays) instead of looping.
 const _FMARK := "~#f~"
-static var _p10: PackedFloat64Array = PackedFloat64Array()
+const _FMARK_PASSES := 64
+const _P10 := [1.0, 1.0e1, 1.0e2, 1.0e3, 1.0e4, 1.0e5, 1.0e6, 1.0e7, 1.0e8, 1.0e9, 1.0e10, 1.0e11, 1.0e12, 1.0e13,
+	1.0e14, 1.0e15, 1.0e16, 1.0e17, 1.0e18, 1.0e19, 1.0e20, 1.0e21, 1.0e22]
 
 static func save_text(d: Dictionary) -> String:
 	var prefix := _FMARK
 	var k := 0
-	while true:
+	for _pass in _FMARK_PASSES:
 		var marks: Array = []   # the swapped floats, by marker number
 		var undo: Array = []    # [container, key, live value], in swap order
-		_mark_small(d, marks, undo, prefix)
+		var seat: Array = []    # by marker number: [container, key] that holds its marker text
+		var times: Array = []   # by marker number: how many times the writer writes it
+		_mark_small(d, marks, undo, prefix, seat, times)
 		var text := JSON.stringify(d, "", false, true)
 		for i in range(undo.size() - 1, -1, -1):
 			var u: Array = undo[i]
 			u[0][u[1]] = u[2]
 		if marks.is_empty():
 			return text
-		var out := _unmark(text, prefix, marks)
+		var out := _unmark(text, prefix, marks, times)
 		if out != "":
 			return out
 		# A game text holds this prefix: take the first prefix that the written text does not contain at all.
@@ -699,12 +708,15 @@ static func save_text(d: Dictionary) -> String:
 	return ""
 
 ## The text with each marker replaced by its float's digits, or "" when the markers in it are not exactly the planted
-## ones (one occurrence per marker number, nothing else beginning with the prefix).
-static func _unmark(text: String, prefix: String, marks: Array) -> String:
+## ones (each marker number as many times as the walk met its seat, nothing else beginning with the prefix).
+static func _unmark(text: String, prefix: String, marks: Array, times: Array) -> String:
 	var parts := text.split("\"" + prefix)
-	if parts.size() - 1 != marks.size():
+	var expected := 0
+	for t in times:
+		expected += int(t)
+	if parts.size() - 1 != expected:
 		return ""
-	var seen := PackedByteArray()
+	var seen := PackedInt32Array()
 	seen.resize(marks.size())
 	var out := PackedStringArray()
 	out.resize(parts.size())
@@ -716,28 +728,28 @@ static func _unmark(text: String, prefix: String, marks: Array) -> String:
 		if not n.is_valid_int():
 			return ""
 		var j := n.to_int()
-		if j < 0 or j >= marks.size() or seen[j] != 0 or str(j) != n:
+		if j < 0 or j >= marks.size() or seen[j] >= int(times[j]) or str(j) != n:
 			return ""
-		seen[j] = 1
+		seen[j] += 1
 		out[i] = float_text(float(marks[j])) + p.substr(q + 1)
 	return "".join(out)
 
 static func _small_float(v: float) -> bool:
 	return v != 0.0 and absf(v) < 0.1 and absf(v) > 1e-300
 
-static func _mark_small(c, marks: Array, undo: Array, prefix: String) -> void:
+static func _mark_small(c, marks: Array, undo: Array, prefix: String, seat: Array, times: Array) -> void:
 	if c is Dictionary:
 		var dc: Dictionary = c
 		if dc.is_read_only(): return
 		for k in dc:
-			_mark_one(dc, k, dc[k], marks, undo, prefix)
+			_mark_one(dc, k, dc[k], marks, undo, prefix, seat, times)
 	elif c is Array:
 		var ac: Array = c
 		if ac.is_read_only(): return
 		for i in ac.size():
-			_mark_one(ac, i, ac[i], marks, undo, prefix)
+			_mark_one(ac, i, ac[i], marks, undo, prefix, seat, times)
 
-static func _mark_one(c, k, v, marks: Array, undo: Array, prefix: String) -> void:
+static func _mark_one(c, k, v, marks: Array, undo: Array, prefix: String, seat: Array, times: Array) -> void:
 	match typeof(v):
 		TYPE_FLOAT:
 			if _small_float(v):
@@ -745,20 +757,32 @@ static func _mark_one(c, k, v, marks: Array, undo: Array, prefix: String) -> voi
 					return   # (a typed float list is swapped whole by its parent; a typed dictionary keeps the writer's digits)
 				undo.append([c, k, v])
 				c[k] = prefix + str(marks.size())
+				seat.append([c, k])
+				times.append(1)
 				marks.append(v)
+		TYPE_STRING:
+			# A container under a second reference: the marker this walk planted in this very slot is written again.
+			# (A game text is never in a seat: the seat holds the marker.)
+			var s: String = v
+			if s.begins_with(prefix):
+				var n := s.substr(prefix.length())
+				if n.is_valid_int() and str(n.to_int()) == n:
+					var j := n.to_int()
+					if j >= 0 and j < seat.size() and is_same(seat[j][0], c) and typeof(seat[j][1]) == typeof(k) and seat[j][1] == k:
+						times[j] = int(times[j]) + 1
 		TYPE_DICTIONARY:
-			_mark_small(v, marks, undo, prefix)
+			_mark_small(v, marks, undo, prefix, seat, times)
 		TYPE_ARRAY:
 			var a: Array = v
 			if a.is_typed() and a.get_typed_builtin() == TYPE_FLOAT:
-				_swap_list(c, k, a, marks, undo, prefix)
+				_swap_list(c, k, a, marks, undo, prefix, seat, times)
 			elif not a.is_typed() or a.get_typed_builtin() == TYPE_DICTIONARY or a.get_typed_builtin() == TYPE_ARRAY:
-				_mark_small(a, marks, undo, prefix)
+				_mark_small(a, marks, undo, prefix, seat, times)
 		TYPE_PACKED_FLOAT64_ARRAY, TYPE_PACKED_FLOAT32_ARRAY:
-			_swap_list(c, k, v, marks, undo, prefix)
+			_swap_list(c, k, v, marks, undo, prefix, seat, times)
 
 ## A float list that cannot hold a marker: written through a plain copy (it reads back as a plain list either way).
-static func _swap_list(c, k, v, marks: Array, undo: Array, prefix: String) -> void:
+static func _swap_list(c, k, v, marks: Array, undo: Array, prefix: String, seat: Array, times: Array) -> void:
 	var any := false
 	for x in v:
 		if _small_float(float(x)):
@@ -769,6 +793,8 @@ static func _swap_list(c, k, v, marks: Array, undo: Array, prefix: String) -> vo
 	var copy: Array = []
 	for x in v:
 		if _small_float(float(x)):
+			seat.append([copy, copy.size()])
+			times.append(1)
 			copy.append(prefix + str(marks.size()))
 			marks.append(float(x))
 		else:
@@ -787,11 +813,6 @@ const _READ_P10 := [10.0, 100.0, 1.0e4, 1.0e8, 1.0e16, 1.0e32, 1.0e64, 1.0e128, 
 static func float_text(x: float) -> String:
 	if x == 0.0 or not is_finite(x):
 		return JSON.stringify(x, "", false, true)
-	if _p10.is_empty():
-		var t := 1.0
-		for _i in 23:
-			_p10.append(t)
-			t *= 10.0
 	var a := absf(x)
 	var e := int(floor(log(a) / log(10.0)))
 	var fl := 0.0
@@ -803,7 +824,7 @@ static func float_text(x: float) -> String:
 		var p := 17 - e   # a * 10^p has 18 digits before the point
 		while p > 0:
 			var step := mini(p, 22)
-			var b: float = _p10[step]
+			var b: float = _P10[step]
 			var prod := hi * b
 			var err := _two_prod_err(hi, b, prod) + lo * b
 			hi = prod + err
@@ -811,8 +832,8 @@ static func float_text(x: float) -> String:
 			p -= step
 		while p < 0:
 			var step := mini(-p, 22)
-			hi /= _p10[step]   # (not used below 0.1: there p is always above 0)
-			lo /= _p10[step]
+			hi /= _P10[step]   # (not used below 0.1: there p is always above 0)
+			lo /= _P10[step]
 			p += step
 		fl = floorf(hi)
 		rest = (hi - fl) + lo
@@ -895,6 +916,12 @@ static func _write_save(path: String, d: Dictionary) -> Dictionary:
 	# and keys in their live order (a sorted file reloaded every dictionary in another iteration order).
 	var text := save_text(d)
 	result["encode_us"] = Time.get_ticks_usec()-started
+	if text == "":   # r8: the float codec found no clean prefix; keep the old save rather than write a wrong one
+		f.close()
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(tmp))
+		result["error"] = ERR_INVALID_DATA
+		result["stage"] = "encode"
+		return result
 	started = Time.get_ticks_usec()
 	f.store_string(text)
 	text = ""

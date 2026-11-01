@@ -332,6 +332,22 @@ func codec_check() -> void:
 		var bad: Array = []
 		_codec_same(before, back, title, bad)
 		check(bad.is_empty(), "codec %s: every text, key and float comes back (%s) from %s" % [title, "; ".join(PackedStringArray(bad)), text.left(200)])
+	# r8: v0.084's SaveSnapshot reuses one record for a Unit or Item met twice, so the same container sits under
+	# several references and the writer writes it at each (here three times, with a marker-looking name in it).
+	var rec := {"hp": 0.0042, "name": "~#f~0", "l": PackedFloat64Array([0.002, 1.5]), "deep": {"w": 0.0007}}
+	var shared := {"a": {"__unit": rec}, "b": {"__unit": rec}, "c": [rec, 0.03]}
+	var shared_before: Dictionary = shared.duplicate(true)
+	var shared_text := Game.save_text(shared)
+	check(shared_text != "", "codec shared record: the writer finishes")
+	check(shared == shared_before, "codec shared record: writing leaves the live tree as it was")
+	check(is_same(shared["a"]["__unit"], shared["b"]["__unit"]) and is_same(shared["c"][0], rec), "codec shared record: the live record is still one record")
+	check(rec["l"] is PackedFloat64Array, "codec shared record: the live float list is still a float list")
+	var shared_back: Variant = JSON.parse_string(shared_text)
+	check(shared_back is Dictionary, "codec shared record: the text is valid JSON (%s)" % shared_text.left(160))
+	if shared_back is Dictionary:
+		var shared_bad: Array = []
+		_codec_same(shared_before, shared_back, "shared record", shared_bad)
+		check(shared_bad.is_empty(), "codec shared record: every reference comes back whole (%s) from %s" % ["; ".join(PackedStringArray(shared_bad)), shared_text.left(240)])
 	# A negative control: the comparer above notices a text turned into a number and a lost key.
 	var planted: Array = []
 	_codec_same({"name": "~#f~0", "k": 1}, {"name": 0.05, "j": 1}, "planted", planted)
