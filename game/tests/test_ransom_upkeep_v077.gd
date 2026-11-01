@@ -361,8 +361,10 @@ func _ai_realm_custody_fixture() -> void:
 		var td: Dictionary = Game.world["towns"][tid]
 		var te: Dictionary = td["econ"]
 		te["led"] = {"made": {}, "used": {}}
-		te["biz"] = [{"till": 100.0}]
-		te["mkt"] = 0
+		te["biz"] = []
+		var market := Businesses._row(te, "market", -1, 0, TownEcon.data())
+		market["till"] = 100.0
+		te["mkt"] = int(market["id"])
 		te["armory"] = {}
 	Game.world["towns"]["village"]["faction"] = "orc_horde"
 	Game.world["towns"]["village"]["econ"]["faction"] = "orc_horde"
