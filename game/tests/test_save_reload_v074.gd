@@ -421,6 +421,13 @@ func exact_check() -> void:
 	# A list place that is not there, or not the float listed, is left alone.
 	var odd := {"a": 2.0, "l": [1.0], "__fx": [[["a"], 0, 0], [["l", 5], 0, 0], [["zz", "y"], 0, 0], "x", [[], 0, 0]]}
 	check(Game.restore_exact(odd) == 0 and float(odd["a"]) == 2.0 and not odd.has("__fx"), "exact: a wrong list entry changes nothing")
+	# The old small-marker floor must not send a zero mantissa into _reader's trailing-zero loop.
+	var tiny := _from_bits(1, 0)
+	check(Game._misread(tiny), "exact: a finite subnormal uses the exact-bit correction")
+	var tiny_tree: Variant = JSON.parse_string(Game.save_text({"tiny": tiny}))
+	check(tiny_tree is Dictionary and Game.restore_exact(tiny_tree) == 1 and float(tiny_tree["tiny"]) == tiny, "exact: the smallest finite positive float round-trips without hanging or becoming zero")
+	var malformed := {"a": 2.0, "l": [1.0], "__fx": [[["a"], {}, 0], [["a"], 0, 2146435072], [["l", "bad"], 1, 1072693248], [["l", 0.5], 1, 1072693248], [["l", {}], 0, 0], [["a"], -1, 0]]}
+	check(Game.restore_exact(malformed) == 0 and float(malformed["a"]) == 2.0 and float(malformed["l"][0]) == 1.0, "exact: invalid bit words, nonfinite values and malformed array paths change nothing")
 
 func _codec_same(a: Variant, b: Variant, path: String, bad: Array) -> void:
 	if a is Dictionary:

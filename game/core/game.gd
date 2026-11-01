@@ -760,6 +760,7 @@ static func _small_float(v: float) -> bool:
 ## counted as a miss. More is listed than is missed (in a 21 MB world 5645 floats for 3204 misses), never less.
 static func _misread(v: float) -> bool:
 	var a := absf(v)
+	if a > 0.0 and a < 0.1: return true   # below the marker floor too: never call _reader with a zero mantissa
 	if a < 9007199254740992.0 and a == floorf(a):
 		return false
 	if a >= 1.0e15 or not is_finite(a):
@@ -826,6 +827,7 @@ static func restore_exact(d: Dictionary) -> int:
 	for row in fx:
 		if not (row is Array) or (row as Array).size() != 3 or not (row[0] is Array) or (row[0] as Array).is_empty():
 			continue
+		if not _fx_word(row[1]) or not _fx_word(row[2]): continue
 		var at: Array = row[0]
 		var c: Variant = d
 		for j in at.size() - 1:
@@ -839,6 +841,7 @@ static func restore_exact(d: Dictionary) -> int:
 		var v := b.decode_double(0)
 		var last: Variant = at[at.size() - 1]
 		if c is Array:
+			if not _fx_index(last): continue
 			var i := int(last)
 			if i >= 0 and i < (c as Array).size() and _fx_near(c[i], v):
 				c[i] = v
@@ -852,6 +855,7 @@ static func restore_exact(d: Dictionary) -> int:
 
 static func _fx_child(c: Variant, key: Variant) -> Variant:
 	if c is Array:
+		if not _fx_index(key): return null
 		var i := int(key)
 		return c[i] if i >= 0 and i < (c as Array).size() and (c[i] is Dictionary or c[i] is Array) else null
 	if c is Dictionary:
@@ -867,8 +871,14 @@ static func _fx_key(key: Variant) -> String:
 		return str(int(key))
 	return str(key)
 
+static func _fx_word(x: Variant) -> bool:
+	return (x is int or x is float) and is_finite(float(x)) and float(x) >= 0.0 and float(x) <= 4294967295.0 and float(x) == floorf(float(x))
+
+static func _fx_index(x: Variant) -> bool:
+	return (x is int or x is float) and is_finite(float(x)) and float(x) >= 0.0 and float(x) < 2147483648.0 and float(x) == floorf(float(x))
+
 static func _fx_near(x: Variant, v: float) -> bool:
-	return (x is float or x is int) and absf(float(x) - v) <= maxf(absf(v) * 1e-15, 1e-17)
+	return is_finite(v) and (x is float or x is int) and is_finite(float(x)) and absf(float(x) - v) <= maxf(absf(v) * 1e-15, 1e-17)
 
 ## path: the keys from the save's root down to c, as the live tree has them (restore_exact reads a number under a
 ## dictionary as the writer's text of it).
