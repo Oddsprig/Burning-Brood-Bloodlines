@@ -840,8 +840,122 @@ func _draft_bins(econ: Dictionary, f: Dictionary, day: float) -> int:
 			n += int(f["age_bins"][key])
 	return n
 
+func _cohort_raw_tier(c: Dictionary, slot_idx: int) -> int:
+	var idle_n := int(c.get("idle", 0))
+	var cas_n := int(c.get("casual", 0))
+	var job_n := int(c.get("jobs", 0))
+	if slot_idx < 0:
+		return -1
+	if slot_idx < idle_n:
+		return 0
+	if slot_idx < idle_n + cas_n:
+		return 1
+	if slot_idx < idle_n + cas_n + job_n:
+		return 2
+	return -1
+
+func _snapshot_draft_town(e: Dictionary, day: float) -> Dictionary:
+	var spare_left := {}
+	var bins_left := {}
+	var pre_named_kind := {}
+	var pre_named_tier := {}
+	var pre_cohort := {}
+	var next_pid0 := int(e.get("next_pid", 1))
+	for f in e["fams"]:
+		if f.get("gone", false) or f.has("estate"):
+			continue
+		var fid := int(f["id"])
+		Persons.sync(e, f, day)
+		spare_left[fid] = Population.spare(f)
+		var wk := People._work_kinds(f)
+		var pw := Persons.work(e, f)
+		var fam_kinds := {}
+		var fam_tiers := {}
+		for p in Persons.pp_read(f):
+			var pid := int(p[0])
+			if wk.has(pid):
+				var k := String(wk[pid])
+				var wjob: Dictionary = pw.get(pid, {})
+				if bool(wjob.get("keeper", false)):
+					k = "keeper"
+				elif k == "land" and String(wjob.get("kind", "")) == "herd":
+					k = "herd"
+				fam_kinds[pid] = k
+				fam_tiers[pid] = int(People.DRAFT_TIER.get(k, -1))
+		pre_named_kind[fid] = fam_kinds
+		pre_named_tier[fid] = fam_tiers
+		if Population.is_cohort(f):
+			var d_bins := _draft_bins(e, f, day)
+			bins_left[fid] = d_bins
+			var cas := 0
+			for ck in f.get("cj", {}):
+				cas += int(f["cj"][ck])
+			pre_cohort[fid] = {
+				"idle": int(f.get("idle", 0)),
+				"casual": cas,
+				"jobs": Families.job_total(f),
+				"hands": int(f.get("hands", 0)),
+				"keeps": (f.get("keeps", []) as Array).size(),
+				"reserve": maxi(2, int(f.get("hands", 0)) + (f.get("keeps", []) as Array).size()),
+				"spare": Population.spare(f),
+				"draft_bins": d_bins,
+				"bins_remaining": (f.get("age_bins", {}) as Dictionary).duplicate(true),
+				"pp_count": Persons.pp_read(f).size(),
+				"pool_seen": 0,
+				"promoted_taken": 0,
+				"total_taken": 0,
+			}
+	return {
+		"spare_left": spare_left,
+		"bins_left": bins_left,
+		"pre_named_kind": pre_named_kind,
+		"pre_named_tier": pre_named_tier,
+		"pre_cohort": pre_cohort,
+		"next_pid0": next_pid0,
+	}
+
+func _resolve_drafted_soldier(e: Dictionary, f: Dictionary, p: Array, day: float, snap: Dictionary) -> Dictionary:
+	var fid := int(f.get("id", -1))
+	var pid := int(p[0]) if not p.is_empty() else -1
+	var next_pid0 := int(snap.get("next_pid0", 1))
+	var pre_named_kind: Dictionary = snap.get("pre_named_kind", {})
+	var pre_named_tier: Dictionary = snap.get("pre_named_tier", {})
+	var pre_cohort: Dictionary = snap.get("pre_cohort", {})
+	var fam_kinds: Dictionary = pre_named_kind.get(fid, {})
+	var fam_tiers: Dictionary = pre_named_tier.get(fid, {})
+	if Population.is_cohort(f) and pid >= next_pid0 and not fam_kinds.has(pid):
+		if not pre_cohort.has(fid):
+			return {"ok": false, "tier": -1, "kind": "", "promoted": true, "has_snap": false}
+		var c: Dictionary = pre_cohort[fid]
+		var slot_idx := int(c.get("promoted_taken", 0))
+		var total_taken := int(c.get("total_taken", 0))
+		c["promoted_taken"] = slot_idx + 1
+		c["total_taken"] = total_taken + 1
+		var bkey := "%d:%d" % [int(p[2]), int(round(float(p[3]) / People.year_days()))]
+		var rem: Dictionary = c.get("bins_remaining", {})
+		var bin_ok: bool = int(rem.get(bkey, 0)) > 0 and Population.bin_category(e, f, bkey, day) < 2
+		if bin_ok:
+			if int(rem[bkey]) <= 1:
+				rem.erase(bkey)
+			else:
+				rem[bkey] = int(rem[bkey]) - 1
+		var spare_ok: bool = total_taken < int(c.get("spare", 0)) and slot_idx < int(c.get("draft_bins", 0))
+		var raw_tier := _cohort_raw_tier(c, slot_idx)
+		var slot_kind := "none" if raw_tier == 0 else ("casual" if raw_tier == 1 else ("job" if raw_tier == 2 else "invalid"))
+		var ok_c: bool = bin_ok and spare_ok and raw_tier >= 0
+		return {"ok": ok_c, "tier": raw_tier if ok_c else -1, "kind": slot_kind, "promoted": true, "has_snap": true, "slot": slot_idx, "bin_key": bkey}
+	if Population.is_cohort(f) and pre_cohort.has(fid):
+		var c0: Dictionary = pre_cohort[fid]
+		c0["total_taken"] = int(c0.get("total_taken", 0)) + 1
+	var has_snap: bool = fam_kinds.has(pid) and fam_tiers.has(pid)
+	var kind := String(fam_kinds.get(pid, "")) if has_snap else ""
+	var tier := int(fam_tiers.get(pid, -1)) if has_snap else -1
+	var ok_n: bool = has_snap and kind != "" and not (kind in ["land", "herd", "keeper"]) and tier >= 0
+	return {"ok": ok_n, "tier": tier if ok_n else -1, "kind": kind, "promoted": false, "has_snap": has_snap}
+
 func _test_draft() -> void:
-	_fresh()
+	if _base != "":
+		_fresh()
 	var w: Dictionary = Game.world
 	var town: Dictionary = {}
 	for tid in w["towns"]:
@@ -859,31 +973,38 @@ func _test_draft() -> void:
 	var tiers := {}
 	var day := float(e.get("day", 0))
 	var prev := -1
-	var spare_left := {}
-	var bins_left := {}
-	for f in e["fams"]:
-		if f["gone"] or f.has("estate"):
-			continue
-		spare_left[int(f["id"])] = Population.spare(f)
-		if Population.is_cohort(f):
-			bins_left[int(f["id"])] = _draft_bins(e, f, day)
+	var snap := _snapshot_draft_town(e, day)
+	var spare_left: Dictionary = snap["spare_left"]
+	var bins_left: Dictionary = snap["bins_left"]
+	var pre_named_kind: Dictionary = snap["pre_named_kind"]
+	var pre_named_tier: Dictionary = snap["pre_named_tier"]
+	var pre_cohort: Dictionary = snap["pre_cohort"]
 	for r in pool:
 		tiers[int(r[0])] = int(tiers.get(int(r[0]), 0)) + 1
 		check(int(r[0]) >= prev, "draft pool not labourers first")
 		prev = int(r[0])
-		var fam := People.fam_of(town, int(r[2]))
+		var fid0 := int(r[2])
+		var fam := People.fam_of(town, fid0)
 		var race := Persons.family_race(e, fam)
 		var window := People.draft_ages(race)
 		var pid := int(r[3])
 		if pid < 0:
 			check(Population.is_cohort(fam), "an unnamed draft slot from a family that is not a cohort")
-			check(int(bins_left.get(int(r[2]), 0)) > 0, "an unnamed draft slot the family cannot name")
+			check(int(bins_left.get(fid0, 0)) > 0, "an unnamed draft slot the family cannot name")
+			var c_pool: Dictionary = pre_cohort.get(fid0, {})
+			var seen_idx := int(c_pool.get("pool_seen", 0))
+			c_pool["pool_seen"] = seen_idx + 1
+			check(_cohort_raw_tier(c_pool, seen_idx) == int(r[0]), "cohort draft pool row tier %d does not match raw pre-draft idle/cj/job slot %d" % [int(r[0]), seen_idx])
 		else:
 			var p := Persons.by_pid(fam, pid)
 			var age := Persons.age_of(p, day)
 			check(age >= window.x and age <= window.y, "a %d-year-old in the %s draft pool" % [age, race])
-			var kind := String(People._work_kinds(fam).get(pid, ""))
-			check(not kind in ["land", "herd", "keeper"], "a needed land hand in the draft pool")
+			var fk: Dictionary = pre_named_kind.get(fid0, {})
+			var ft: Dictionary = pre_named_tier.get(fid0, {})
+			check(fk.has(pid) and ft.has(pid), "named draft pool pid %d missing pre-draft work snapshot in family %d" % [pid, fid0])
+			var kind := String(fk.get(pid, ""))
+			check(kind != "" and not kind in ["land", "herd", "keeper"], "a needed land hand in the draft pool")
+			check(int(ft.get(pid, -1)) == int(r[0]), "named draft pool row tier %d does not match pre-draft work kind %s" % [int(r[0]), kind])
 	print("draft pool of %s: %d (by tier idle/casual/job: %s)" % [town["name"], pool.size(), str(tiers)])
 	check(not pool.is_empty(), "a town at world generation can spare nobody")
 	var fams0 := (e["fams"] as Array).size()
@@ -892,6 +1013,7 @@ func _test_draft() -> void:
 	# and every land hand and keeper (Population.spare). Cohort rows are unnamed slots.
 	var can := 0
 	var first_sim_tier := -1
+	var sim_tiers: Array = []
 	for r in pool:
 		var fid := int(r[2])
 		var pid := int(r[3])
@@ -911,6 +1033,7 @@ func _test_draft() -> void:
 		spare_left[fid] = int(spare_left[fid]) - 1
 		if first_sim_tier < 0:
 			first_sim_tier = int(r[0])
+		sim_tiers.append(int(r[0]))
 		can += 1
 	# ask for more men than it can spare: the band is as big as the pool
 	var rng := RandomNumberGenerator.new(); rng.seed = 3
@@ -921,6 +1044,7 @@ func _test_draft() -> void:
 	check(got == can and got < ask, "raised %d, the town can spare %d" % [got, can])
 	check(wid != "" and int(w["warbands"][wid].get("unraised", 0)) == ask - got, "the men not raised are not counted")
 	var first_tier := -1
+	var drafted_tiers: Array = []
 	if wid != "":
 		for u in w["warbands"][wid]["units"]:
 			check(u.home_town == town["id"], "a soldier from another town")
@@ -931,17 +1055,189 @@ func _test_draft() -> void:
 				var window := People.draft_ages(Persons.family_race(e, f))
 				var age := Persons.age_of(p, day)
 				check(age >= window.x and age <= window.y, "a soldier aged %d" % age)
-				var kind := String(People._work_kinds(f).get(int(p[0]), ""))
-				check(not kind in ["land", "herd", "keeper"], "a land hand was drafted")
-				if first_tier < 0:
-					first_tier = int(People.DRAFT_TIER[kind]) if People.DRAFT_TIER.has(kind) else first_sim_tier
+				var res := _resolve_drafted_soldier(e, f, p, day, snap)
+				check(bool(res.get("has_snap", false)), "missing pre-draft work snapshot for drafted soldier pid %d in family %d" % [int(p[0]), u.family])
+				var kind := String(res.get("kind", ""))
+				check(bool(res.get("ok", false)) and kind != "" and not kind in ["land", "herd", "keeper"], "a land/herd/keeper hand or unrecorded person was drafted (%s)" % kind)
+				var unit_tier := int(res.get("tier", -1))
+				check(unit_tier >= 0, "drafted soldier pid %d has invalid pre-draft tier %d" % [int(p[0]), unit_tier])
+				if drafted_tiers.is_empty():
+					first_tier = unit_tier
+				drafted_tiers.append(unit_tier)
 	if not pool.is_empty():
-		check(first_tier == first_sim_tier, "the first man drafted is not from the first tier the town can spare (%d vs %d)" % [first_tier, first_sim_tier])
+		check(first_tier >= 0 and first_tier == first_sim_tier, "the first man drafted is not from the first tier the town can spare (%d vs %d)" % [first_tier, first_sim_tier])
+		check(drafted_tiers == sim_tiers, "drafted soldier tiers do not match pre-draft pool order (%s vs %s)" % [str(drafted_tiers), str(sim_tiers)])
+	for cfid in pre_cohort:
+		var c_after: Dictionary = pre_cohort[cfid]
+		var cfam := People.fam_of(town, int(cfid))
+		check(cfam.get("age_bins", {}) == c_after["bins_remaining"], "cohort %d age_bins after draft do not match observed promotions" % int(cfid))
+		check(Persons.pp_read(cfam).size() == int(c_after["pp_count"]) + int(c_after["promoted_taken"]), "cohort %d pp size mismatch after promotion" % int(cfid))
+		check(int(cfam.get("hands", 0)) == int(c_after["hands"]) and (cfam.get("keeps", []) as Array).size() == int(c_after["keeps"]), "cohort %d land/herd/keeper places changed during draft" % int(cfid))
+		check(Families.adults(cfam) - Families.serving(cfam) >= int(c_after["reserve"]), "cohort %d drafted into protected reserve" % int(cfid))
 	check((e["fams"] as Array).size() == fams0 and int(e["pop"]) == pop0, "the draft made up families or people (%d -> %d families)" % [fams0, (e["fams"] as Array).size()])
 	# nobody left: the next band is not raised
 	var wid2 := CampaignWorld.spawn_warband(Game, "middle_kingdom", town["pos"], 6, "patrol", rng, {"home": town["id"]})
 	check(wid2 == "" and People.draft_pool(town).is_empty(), "a band raised from a town with nobody to spare")
 	check((e["fams"] as Array).size() == fams0, "families made up for an unraised band")
+	_test_draft_fixture(town)
+
+func _test_draft_fixture(town: Dictionary) -> void:
+	var e: Dictionary = town["econ"]
+	var yd := People.year_days()
+	var year := 20
+	var day := float(year) * yd
+	e["day"] = day
+	Game.day = day
+	e.erase("hd")
+	e["cjcap"] = {}
+	e["cjused"] = {}
+	var biz: Array = e["biz"]
+	check(biz.size() >= 3, "fixture town needs at least 3 business rows")
+	if biz.size() < 3:
+		return
+	for b0 in biz:
+		var bd: Dictionary = b0
+		bd["closed"] = true
+		bd["for_sale"] = false
+		bd["owner"] = -1
+		bd["cap"] = 0
+		bd["workers"] = 0
+		bd["kw"] = 0
+	var b_cf_shop: Dictionary = biz[0]
+	b_cf_shop["id"] = 0; b_cf_shop["type"] = "baker"; b_cf_shop["owner"] = 1; b_cf_shop["closed"] = false; b_cf_shop["till"] = 500.0; b_cf_shop["wage"] = 90.0
+	var b_nf_shop: Dictionary = biz[1]
+	b_nf_shop["id"] = 1; b_nf_shop["type"] = "carpenter"; b_nf_shop["owner"] = 2; b_nf_shop["closed"] = false; b_nf_shop["till"] = 500.0; b_nf_shop["wage"] = 90.0
+	var b_job: Dictionary = biz[2]
+	b_job["id"] = 2; b_job["type"] = "works"; b_job["owner"] = 0; b_job["closed"] = false; b_job["cap"] = 2; b_job["workers"] = 2; b_job["till"] = 5000.0; b_job["wage"] = 80.0
+	var estate := Families.make_estate(town)
+	var cf := Families._blank(1)
+	cf["cohort"] = true; cf["name"] = "Brook"; cf["race"] = "human"; cf["cul"] = e.get("culture", "middle")
+	cf["households"] = 4; cf["homes"] = 4; cf["purse"] = 40.0; cf["hungry"] = 2
+	cf["owns"] = [0]; cf["land"] = {"grain": 16}; cf["ox"] = 2; cf["herd"] = {"sheep": 40}
+	cf["m"] = 20; cf["f"] = 0; cf["kids"] = 2; cf["old"] = 1; cf["pp"] = []; cf["kp"] = []; cf["age_bins"] = {}
+	var nf := Families._blank(2)
+	nf["name"] = "Miller"; nf["race"] = "human"; nf["cul"] = e.get("culture", "middle")
+	nf["homes"] = 2; nf["purse"] = 80.0; nf["hungry"] = 1
+	nf["owns"] = [1]; nf["land"] = {"grain": 16}; nf["ox"] = 2; nf["herd"] = {"sheep": 40}
+	nf["m"] = 20; nf["f"] = 0; nf["kids"] = 0; nf["old"] = 0; nf["pp"] = []; nf["kp"] = []
+	var rf := Families._blank(3)
+	rf["cohort"] = true; rf["name"] = "Lane"; rf["race"] = "human"; rf["cul"] = e.get("culture", "middle")
+	rf["households"] = 1; rf["homes"] = 1; rf["purse"] = 200.0; rf["hungry"] = 0
+	rf["m"] = 2; rf["f"] = 1; rf["kids"] = 0; rf["old"] = 0; rf["pp"] = []; rf["kp"] = []
+	rf["age_bins"] = {"0:%d" % (year - 22): 2, "1:%d" % (year - 23): 1}
+	e["fams"] = [estate, cf, nf, rf]
+	Families._aggregate_land(e)
+	Families.reassign(e, cf)
+	Families.reassign(e, nf)
+	Families.reassign(e, rf)
+	var cf_hands := int(cf["hands"])
+	var cf_keeps := (cf["keeps"] as Array).size()
+	var nf_hands := int(nf["hands"])
+	var nf_keeps := (nf["keeps"] as Array).size()
+	check(cf_keeps == 1 and cf_hands >= 2 and Families.crop_hands(cf, e) > 0.0 and Families.herd_hands(cf, e) > 0.0, "fixture cohort must have keeper, land, and herd hands")
+	check(nf_keeps == 1 and nf_hands >= 2 and Families.crop_hands(nf, e) > 0.0 and Families.herd_hands(nf, e) > 0.0, "fixture named family must have keeper, land, and herd hands")
+	var cf_reserve := cf_keeps + cf_hands
+	cf["m"] = cf_reserve + 1; cf["f"] = 2
+	cf["jobs"] = {"2": 1}; b_job["workers"] = 2; b_job["cap"] = 2
+	Families.reassign(e, cf)
+	cf["cj"] = {"porter": 1}; cf["idle"] = 1
+	cf["age_bins"] = {
+		"0:%d" % (year - 20): 2,
+		"1:%d" % (year - 24): 2,
+		"0:%d" % (year - 28): 1,
+		"0:%d" % (year - 36): int(cf["m"]) - 3,
+		"0:%d" % (year - 8): 2,
+		"1:%d" % (year - 65): 1,
+	}
+	var nf_reserve := nf_keeps + nf_hands
+	nf["m"] = nf_reserve + 3; nf["f"] = 0
+	nf["jobs"] = {"2": 1}; b_job["workers"] = 2; b_job["cap"] = 2
+	Families.reassign(e, nf)
+	nf["cj"] = {"porter": 1}; nf["idle"] = 1
+	var rng := RandomNumberGenerator.new(); rng.seed = 77
+	var nf_pids: Array = []
+	for i in int(nf["m"]):
+		var p_new := Persons._new(e, nf, "human", 0, day - float(27 - i) * yd, 0, rng)
+		Persons.pp(nf).append(p_new)
+		nf_pids.append(int(p_new[0]))
+	e["pop"] = Families.people(cf) + Families.people(nf) + Families.people(rf)
+	check(not Families.assignments_stale(cf) and Population.spare(cf) == 3 and Population.eligible_slots(e, cf, day, true) == 3, "fixture cohort spare/eligible_slots setup invalid")
+	check(not Families.assignments_stale(nf) and Population.spare(nf) == 3, "fixture named spare setup invalid")
+	check(not Families.assignments_stale(rf) and Population.spare(rf) == 1 and Population.eligible_slots(e, rf, day, true) == 1, "fixture 2-adult reserve cohort setup invalid")
+	var snap := _snapshot_draft_town(e, day)
+	var nf_kinds: Dictionary = snap["pre_named_kind"][2]
+	var nf_tiers: Dictionary = snap["pre_named_tier"][2]
+	var pid_keep := int(nf_pids[0])
+	var pid_job := int(nf_pids[nf_reserve])
+	var pid_cas := int(nf_pids[nf_reserve + 1])
+	var pid_idle := int(nf_pids[nf_reserve + 2])
+	var saw_herd := false
+	var saw_land := false
+	for hi in range(1, nf_reserve):
+		var hpid := int(nf_pids[hi])
+		var hk := String(nf_kinds.get(hpid, ""))
+		if hk == "herd":
+			saw_herd = true
+		elif hk == "land":
+			saw_land = true
+		check(int(nf_tiers.get(hpid, -1)) == -1, "fixture herd/land hand pid %d must not have a draft tier" % hpid)
+	check(String(nf_kinds.get(pid_keep, "")) == "keeper" and int(nf_tiers.get(pid_keep, -1)) == -1, "fixture keeper snapshot mismatch")
+	check(saw_herd and saw_land, "fixture named family must have both herd and land hand kinds in pre-draft snapshot")
+	check(String(nf_kinds.get(pid_job, "")) == "job" and int(nf_tiers.get(pid_job, -1)) == 2, "fixture job snapshot mismatch")
+	check(String(nf_kinds.get(pid_cas, "")) == "casual" and int(nf_tiers.get(pid_cas, -1)) == 1, "fixture casual snapshot mismatch")
+	check(String(nf_kinds.get(pid_idle, "")) == "none" and int(nf_tiers.get(pid_idle, -1)) == 0, "fixture idle snapshot mismatch")
+	# Negative control: a missing pre-draft snapshot for a named soldier must fail (-1), never fallback to expected tier.
+	var empty_snap := {"pre_named_kind": {}, "pre_named_tier": {}, "pre_cohort": {}, "next_pid0": int(snap["next_pid0"])}
+	var neg := _resolve_drafted_soldier(e, nf, Persons.by_pid(nf, pid_idle), day, empty_snap)
+	check(not bool(neg.get("ok", true)) and not bool(neg.get("has_snap", true)) and int(neg.get("tier", 0)) == -1, "missing pre-draft snapshot did not fail")
+	var fpool := People.draft_pool(town)
+	var want_pool := [
+		[0, 1, -1],
+		[0, 2, pid_idle],
+		[0, 3, -1],
+		[1, 1, -1],
+		[1, 2, pid_cas],
+		[2, 1, -1],
+		[2, 2, pid_job],
+	]
+	check(fpool.size() == want_pool.size(), "fixture draft_pool size %d, want %d" % [fpool.size(), want_pool.size()])
+	for i in mini(fpool.size(), want_pool.size()):
+		var row: Array = fpool[i]
+		var exp_row: Array = want_pool[i]
+		check(int(row[0]) == int(exp_row[0]) and int(row[2]) == int(exp_row[1]) and int(row[3]) == int(exp_row[2]), "fixture pool[%d] = %s, want tier/fid/pid %s" % [i, str(row), str(exp_row)])
+	var want_kinds := ["none", "none", "none", "casual", "casual", "job", "job"]
+	for step in want_pool.size():
+		var exp_entry: Array = want_pool[step]
+		var dfid := People.draft(town, fpool, "army")
+		check(dfid == int(exp_entry[1]), "fixture draft step %d picked family %d, want %d" % [step, dfid, int(exp_entry[1])])
+		var u := Factory.make_troop(rng, "middle_kingdom", Factory.pick_troop(rng, "middle_kingdom"))
+		People.bind(town, dfid, u, "army")
+		var dfam := People.fam_of(town, dfid)
+		var dp := Persons.by_uid(dfam, u.uid)
+		check(not dp.is_empty() and String(dp[4]) == "army", "fixture step %d unit not bound to army person" % step)
+		var dres := _resolve_drafted_soldier(e, dfam, dp, day, snap)
+		check(bool(dres.get("ok", false)) and int(dres.get("tier", -1)) == int(exp_entry[0]) and String(dres.get("kind", "")) == want_kinds[step], "fixture step %d resolved %s, want tier %d kind %s" % [step, str(dres), int(exp_entry[0]), want_kinds[step]])
+		if dfid == 2:
+			check(not bool(dres.get("promoted", true)) and int(dp[0]) == int(exp_entry[2]), "fixture named draft step %d wrong pid %d" % [step, int(dp[0])])
+			check(String(People._work_kinds(nf).get(int(dp[0]), "")) == "", "drafted named soldier still appears in post-draft _work_kinds")
+		else:
+			check(bool(dres.get("promoted", false)) and int(dp[0]) >= int(snap["next_pid0"]), "fixture cohort draft step %d did not promote a new pid" % step)
+			if dfid == 1:
+				var c_slot := int(dres.get("slot", -1))
+				if c_slot == 0:
+					check(Families.job_total(cf) == 1 and int(cf["hands"]) == cf_hands and (cf["keeps"] as Array).size() == 1, "cohort idle draft disturbed job/land/herd/keeper")
+				elif c_slot == 1:
+					check(int(cf["idle"]) == 0 and cf.get("cj", {}).is_empty() and Families.job_total(cf) == 1 and int(cf["hands"]) == cf_hands and (cf["keeps"] as Array).size() == 1, "cohort casual draft disturbed job/land/herd/keeper")
+				elif c_slot == 2:
+					check(Families.job_total(cf) == 0 and int(cf["idle"]) == 0 and int(cf["hands"]) == cf_hands and (cf["keeps"] as Array).size() == 1 and Population.spare(cf) == 0, "cohort job draft did not stop at protected land/herd/keeper reserve")
+	check(cf["age_bins"] == snap["pre_cohort"][1]["bins_remaining"] and _draft_bins(e, cf, day) == 2, "cohort remaining draft-age bins or non-draft bins corrupted")
+	check(int(cf["age_bins"].get("0:%d" % (year - 36), 0)) == int(cf["m"]) - 3 and int(cf["age_bins"].get("0:%d" % (year - 8), 0)) == 2 and int(cf["age_bins"].get("1:%d" % (year - 65), 0)) == 1, "cohort over-age, child, or elder bins touched by promotion")
+	check(rf["age_bins"] == snap["pre_cohort"][3]["bins_remaining"] and _draft_bins(e, rf, day) == 2 and Population.spare(rf) == 0, "2-adult reserve cohort did not protect remaining 2 draft-age adults")
+	for prot_i in nf_reserve:
+		var prot_p := Persons.by_pid(nf, int(nf_pids[prot_i]))
+		check(not prot_p.is_empty() and String(prot_p[4]) == "" and int(prot_p[5]) == -1, "protected named keeper/herd/land pid %d was drafted" % int(nf_pids[prot_i]))
+	var forced_pool := [[0, 0.0, 1, -1], [0, 0.0, 2, pid_keep], [0, 0.0, 2, int(nf_pids[1])], [0, 0.0, 3, -1]]
+	check(People.draft(town, forced_pool, "army") == -1 and Population.promote(e, cf, day, rng, true).is_empty(), "draft or promote took from protected keeper/land/herd/reserve")
 
 func _test_save_and_migration() -> void:
 	_fresh()
