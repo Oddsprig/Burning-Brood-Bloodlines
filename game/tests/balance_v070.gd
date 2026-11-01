@@ -3,15 +3,15 @@ extends RefCounted
 ## --balance-suite=race|unit|mount|roster_matrix|sweep|campaign --balance-samples=2
 ## --balance-shard=0/8 --balance-phase=before --balance-disabled (informational)
 const U = preload("res://tests/sim_util.gd")
-const RACES := ["human", "orc", "goblin", "moon_elf", "dwarf"]
-const DISABLED := ["high_elf", "dark_elf", "troll"]
+const RACES := ["human", "orc", "goblin", "moon_elf", "dwarf", "high_elf", "dark_elf"]
+const DISABLED := ["troll"]
 const ROLES := ["sword", "spear", "archer"]
 const OUT := "res://../test-results/balance_v070"
 const MAX_UNITS := 16
 const TARGET_COST := 32000.0
 const MAX_TICKS := 6000
 const MAX_GAP := 0.05
-const WALL_MS := 45000
+const WALL_MS := 120000   # v0.080: seven races and 26 native templates; the old 45s wall was five races and 20 templates
 
 static func spec(race: String, role: String, mount: String = "foot") -> Dictionary:
 	return {"id": "%s/%s/%s" % [race, role, mount], "race": race, "unit": role, "mount": mount}

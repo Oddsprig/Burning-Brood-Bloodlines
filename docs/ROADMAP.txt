@@ -308,7 +308,7 @@ v0.076 old tests - planned. Fix test_dragon_care_release, test_dragon_release, t
 v0.077 ransom and upkeep - planned. Prisoners cost food and coin, and AI realms offer, demand and exchange ransoms.
 v0.078 conquered towns - planned. A conquered town's lord loses the seat; the liege grants or revokes it, and the AI does the same.
 v0.079 AI marriage and dragons - planned. AI houses marry across towns and realms, and AI warbands march adult bonded dragons.
-v0.080 high and dark elves - planned. Turn on the high elf and dark elf realms with their existing art, and check them in the v0.070 balance gate.
+v0.080 high elves and dark elves are sovereign realms (the Sunwood Court and the Nightwood Court) on their existing bodies and portraits, with named houses and the same balance screen as the other races. Trolls stay minority families. Night bows are drawn for a dark elf's pull, the goblin body is a notch sturdier so the seven-race copper screen stays in band, and the diplomacy day step keeps the 0.1 ms limit on 36 pairs by walking each pair once over a war mask.
 v0.081 rider targeting - planned. Riders can be targeted during live battle ticks.
 Proposed next passes for 2.5D normal-mapped code-drawn humanoid units, clothing and armour (assessed in v0.062, scoped as three focused releases):
 - v0.063 Shared `ShadedLayer` 2.5D heightfield rasterizer & Human base body + clothing (`tunic`, `robe`, `padded_jack`, trousers/boots, hair/beard/face shading) with full `Paperdoll` / `MountedRiderArt` / `Portrait` cache parity.
