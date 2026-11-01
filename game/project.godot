@@ -22,6 +22,7 @@ boot_splash/show_image=true
 DB="*res://core/db.gd"
 Game="*res://core/game.gd"
 Perf="*res://core/perf_tracker.gd"
+MusicManager="*res://core/music_manager.gd"
 Sound="*res://core/sound.gd"
 MobileApp="*res://core/mobile_app.gd"
 

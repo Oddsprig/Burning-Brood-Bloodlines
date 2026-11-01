@@ -2,6 +2,7 @@ extends Control
 ## Campaign victory: the dynasty achieved its ambitions. The player can keep playing the same world.
 
 func _ready() -> void:
+	MusicManager.play_scene("victory")
 	var f := UiKit.screen_frame(self, "Dynasty Triumphant")
 	var root: VBoxContainer = f["root"]
 	var st: Dictionary = Warfare._state(Game)

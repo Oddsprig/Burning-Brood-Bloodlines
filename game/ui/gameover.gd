@@ -2,6 +2,7 @@ extends Control
 ## Dynasty extinction ends a selected campaign. A living family never loses its save here.
 
 func _ready() -> void:
+	MusicManager.play_scene("defeat")
 	var selected := not Dynasty.selected(Game).is_empty()
 	var ended := Game.is_game_over()
 	var heading := "The House Has Ended" if selected and ended else (
