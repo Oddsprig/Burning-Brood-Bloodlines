@@ -689,6 +689,9 @@ func run(tree: SceneTree) -> int:
 	var pre_save_arrows := int(pre_arrow_buckets["total"])
 	var pre_save_coins := _coin_sum()
 	Game.save_game(); Game.wait_save()
+	var saved_env = JSON.parse_string(FileAccess.get_file_as_string(Game.SAVE_PATH))
+	check(saved_env is Dictionary and int((saved_env as Dictionary).get("version", 0)) == 1 and int((saved_env as Dictionary).get("militia_cap", 0)) == 1,
+		"saved-envelope root metadata records version 1 and explicit militia_cap: 1")
 	Game.world = {}; Game.rep = {}
 	check(Game.load_game(), "real save reloads after execute and sell")
 	seat_town = Prisoners._player_town(Game)
@@ -726,5 +729,49 @@ func run(tree: SceneTree) -> int:
 	check(Prisoners._find(Prisoners.held(Game), stay.uid).is_empty() and Prisoners._find(Prisoners.held(Game), _pool[3].uid).is_empty(),
 		"executed and sold prisoners stay off the held list after save/load")
 	check(is_equal_approx(_coin_sum(), pre_save_coins), "save/load preserves total world coin")
+
+	# Unmarked legacy envelope (missing militia_cap) still migrates oversized militia despite unrelated world tables, without melting armory items.
+	var home_cap := TownDefence.militia_cap(loaded_home_town)
+	var home_wb := Militia.band_of(Game, home_tid)
+	var extra_u: Unit = null
+	for _i in 8:
+		if (home_wb.get("units", []) as Array).size() > home_cap: break
+		var cand_u := Militia.make_unit(loaded_home_town, Game.rng, false)
+		if cand_u.family < 0: continue
+		cand_u.quiver.clear()
+		(home_wb["units"] as Array).append(cand_u)
+		extra_u = cand_u
+	home_wb["n0"] = (home_wb.get("units", []) as Array).size()
+	var extra_kit_uids: Array = []
+	if extra_u != null:
+		for slot2 in extra_u.equip:
+			var eit = extra_u.equip[slot2]
+			if eit is Item and (eit as Item).uid > 0:
+				extra_kit_uids.append((eit as Item).uid)
+	var pre_legacy_items := _accounted_items()
+	var legacy_env := Game._save_tree()
+	legacy_env.erase("militia_cap")
+	var legacy_world: Dictionary = legacy_env.get("world", {})
+	var unrelated_tables_present := legacy_world.has("creatures_enabled") and legacy_world.has("ransom") and legacy_world.has("migration") and legacy_world.has("intrigue")
+	var legacy_write := Game._write_save(Game.SAVE_PATH, legacy_env)
+	Game.world = {}; Game.rep = {}
+	var legacy_loaded := Game.load_game()
+	var post_legacy_wb := Militia.band_of(Game, home_tid)
+	var post_legacy_town: Dictionary = Game.world["towns"].get(home_tid, {})
+	var post_legacy_items := _accounted_items()
+	var post_legacy_scrap := 0
+	for sk3 in post_legacy_town.get("econ", {}).get("stock", {}):
+		if str(sk3).begins_with("scrap_"): post_legacy_scrap += int(post_legacy_town["econ"]["stock"][sk3])
+	var legacy_kit_kept := not extra_kit_uids.is_empty()
+	for huid2 in pre_home_uids + extra_kit_uids:
+		if not _town_has_uid(post_legacy_town, int(huid2)) or int(post_legacy_items["uids"].get(int(huid2), 0)) != 1:
+			legacy_kit_kept = false
+	check(unrelated_tables_present and not legacy_env.has("militia_cap") and bool(legacy_write.get("ok", false)) and legacy_loaded
+		and extra_u != null and (post_legacy_wb.get("units", []) as Array).size() == home_cap
+		and int(post_legacy_items["count"]) == int(pre_legacy_items["count"])
+		and legacy_kit_kept and post_legacy_scrap == pre_home_scrap,
+		"unmarked legacy envelope migrates oversized militia (%d -> %d) despite unrelated world tables while keeping exact armory gear (%d -> %d)" % [
+			home_cap + 1, (post_legacy_wb.get("units", []) as Array).size(),
+			int(pre_legacy_items["count"]), int(post_legacy_items["count"])])
 
 	return _finish()

@@ -379,12 +379,12 @@ static func trim(game, tid: String) -> int:
 	if not touched.is_empty(): Families.match_idle(e)
 	return release.size()
 
-static func trim_all(game) -> int:
+static func trim_all(game, trim_items: bool = true) -> int:
 	var n := 0
 	for tid in game.world.get("militia", {}):
-		var released := trim(game, str(tid))
-		if released > 0:
-			n += released
+		n += trim(game, str(tid))
+	if trim_items:
+		for tid in game.world.get("towns", {}):
 			trim_armory(game, str(tid))
 	return n
 

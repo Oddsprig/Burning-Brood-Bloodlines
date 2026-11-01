@@ -15,7 +15,7 @@ var begin_us := 0
 
 func begin(game) -> void:
 	var started := Time.get_ticks_usec()
-	data = {"version":1,"seed":game.seed_value,"day":game.day,"gold":game.gold,"next_unit_uid":Unit._next_uid,
+	data = {"version":1,"militia_cap":1,"seed":game.seed_value,"day":game.day,"gold":game.gold,"next_unit_uid":Unit._next_uid,
 		"company":[],"stash":[],"squads":game._keys_to_str(game.squads).duplicate(true),
 		"rep":game.rep.duplicate(true),"location":game.location,"provisions":Food.stock_to_save(game),
 		"rations":game.rations.duplicate(true),"food_clock":game.food_clock.duplicate(true)}
