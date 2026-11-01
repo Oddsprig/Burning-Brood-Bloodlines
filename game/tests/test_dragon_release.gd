@@ -6,6 +6,48 @@ func check(ok: bool, message: String) -> void:
 	checks += 1
 	if not ok: fails += 1; printerr("FAIL: ", message)
 
+## Records, history, owners and custody. A load builds new combat Units, so the
+## body check is the saved uid, not object identity.
+func book_facts(book: Dictionary) -> Dictionary:
+	var facts := {}
+	for key in book:
+		if String(key) == "combat_units":
+			continue
+		facts[key] = book[key]
+	return facts
+
+func combat_uids(book: Dictionary) -> bool:
+	var before: Dictionary = book.get("combat_units", {})
+	var state: Dictionary = Game.world.get("dragons", {})
+	var after: Dictionary = state.get("combat_units", {})
+	if before.size() != after.size():
+		return false
+	var records: Dictionary = state.get("records", {})
+	for uid in before:
+		if not after.has(uid) or not records.has(uid):
+			return false
+		var old_unit = before[uid]
+		var new_unit = after[uid]
+		if not (old_unit is Unit) or not (new_unit is Unit):
+			return false
+		if int(old_unit.uid) != int(new_unit.uid) or String(old_unit.dragon_uid) != String(new_unit.dragon_uid):
+			return false
+		if int(records[uid].get("combat_unit_uid", -1)) != int(new_unit.uid):
+			return false
+	return true
+
+func soldier_person_uids() -> Dictionary:
+	var found := {}
+	for u in Game.company:
+		if u.dead:
+			continue
+		var town: Dictionary = Game.world.get("towns", {}).get(String(u.home_town), {})
+		var fam: Dictionary = People.fam_of(town, int(u.family))
+		var person: Array = Persons.by_uid(fam, int(u.uid)) if not fam.is_empty() else []
+		if not person.is_empty():
+			found[String(person[Persons.PERSON_UID])] = true
+	return found
+
 func run(_tree: SceneTree) -> int:
 	var old_size := WorldGen.gen_size
 	var old_stretch := WorldGen.gen_stretch
@@ -19,7 +61,7 @@ func run(_tree: SceneTree) -> int:
 	CampaignWorld.presim_finish(Game)
 	var rows := Dragons.records(Game)
 	check(not rows.is_empty(), "history finish creates real ruler dragon and egg holdings")
-	check(Game.company.size() == 100, "native 100-person starting company retained")
+	check(Game.company.is_empty(), "a new campaign starts with an unraised field army")
 	var eggs := 0
 	var adults := 0
 	var unique := {}
@@ -81,7 +123,7 @@ func run(_tree: SceneTree) -> int:
 	Game.world = {}
 	check(Game.load_game(), "actual current-version save loads")
 	var comparison = load("res://tests/test_dynasty_release.gd").new()
-	check(comparison.same(Game.world.get("dragons", {}), book), "all individual records, history, owner and custody survive native save/load")
+	check(comparison.same(book_facts(Game.world.get("dragons", {})), book_facts(book)) and combat_uids(book), "all individual records, history, owner and custody survive native save/load")
 	check(absf(Barge.holdings(Game) - wealth) < 0.001 and Unit._next_uid == next_unit, "save/load keeps real coin and native identity counters")
 	check(Dragons.get_record(Game, String(source["id"]))["owner_person_uid"] == recipient.get("person_uid"), "gift persists through full campaign load")
 	for row: Dictionary in Dragons.records(Game):
@@ -90,8 +132,28 @@ func run(_tree: SceneTree) -> int:
 		check(original_types[row["id"]] == Dragons.type_label(row), "gem Dragon or Egg type remains separate from personal identity after load")
 	book = Game.world["dragons"].duplicate(true)
 	Dragons.after_load(Game); Feudal.finish(Game)
-	check(comparison.same(Game.world["dragons"], book), "repeated load reconciliation does not duplicate histories or holdings")
+	check(comparison.same(book_facts(Game.world["dragons"]), book_facts(book)) and combat_uids(book), "repeated load reconciliation does not duplicate histories or holdings")
 	check(not Game.world.get("lairs", {}).values().any(func(lair): return String(lair.get("kind", "")) == "dragon"), "individual dragon registry does not spawn moving creatures")
+	var gifted_id := String(source["id"])
+	var keeper_before := String(Dragons.get_record(Game, gifted_id).get("custodian_person_uid", ""))
+	var owner_before := String(recipient.get("person_uid", ""))
+	var raised := DevTools.raise_army(Game, String(picks[0]["town_id"]), 100)
+	check(raised > 0 and Game.company.size() == raised, "the house raises its company through the real muster (%d)" % raised)
+	var mustered := soldier_person_uids()
+	check(mustered.size() == raised, "every raised soldier is a register person of his town")
+	var after_raise := Dragons.get_record(Game, gifted_id)
+	check(after_raise.get("owner_person_uid") == owner_before and after_raise.get("rider_person_uid") == "", "raising a company does not retake the gift or mint a rider bond")
+	Game.save_game()
+	Game.world = {}
+	check(Game.load_game(), "campaign with the raised company loads")
+	check(soldier_person_uids() == mustered, "raised register people survive native save/load")
+	var kept := Dragons.get_record(Game, gifted_id)
+	var keeper_now := String(kept.get("custodian_person_uid", ""))
+	if mustered.has(keeper_before):
+		check(keeper_now == "", "a custodian who joined the company is no longer the present keeper")
+	else:
+		check(keeper_now == keeper_before, "raising a company does not drop a custodian who stayed home")
+	check(kept.get("owner_person_uid") == owner_before and kept.get("rider_person_uid") == "", "the gift and the empty rider bond survive the raised-company load")
 	print("Dragon release: %d checks, %d failures; %d towns, %d eggs, %d parent adults; one history day and native save/load." % [checks, fails, Game.world["towns"].size(), eggs, adults])
 	WorldGen.gen_size = old_size
 	WorldGen.gen_stretch = old_stretch

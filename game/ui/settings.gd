@@ -71,7 +71,7 @@ func _build() -> void:
 		row.add_child(cv)
 		var h := UiKit.hbox(12)
 		cv.add_child(h)
-		var l := UiKit.label(String(c["label"]), "H2", true)
+		var l := UiKit.wrap(UiKit.label(String(c["label"]), "H2", true), 80)
 		l.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE if UiTheme.is_mobile() else 22)
 		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -133,7 +133,7 @@ func _toggle_row(key: String, text: String) -> PanelContainer:
 	var row: PanelContainer = UiKit.panel("Card")
 	var h: HBoxContainer = UiKit.hbox(12)
 	row.add_child(h)
-	var label: Label = UiKit.label(text, "H2", true)
+	var label: Label = UiKit.wrap(UiKit.label(text, "H2", true), 80)
 	label.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE if UiTheme.is_mobile() else 22)
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER

@@ -76,7 +76,7 @@ func _ready() -> void:
 	add_child(margin)
 	var v := UiKit.vbox(10)
 	margin.add_child(v)
-	title_lbl = UiKit.label("The Making of the World", "H2", true)
+	title_lbl = UiKit.wrap(UiKit.label("The Making of the World", "H2", true), 80)
 	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(title_lbl)
 	var row := BoxContainer.new()

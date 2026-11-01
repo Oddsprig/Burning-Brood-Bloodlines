@@ -482,6 +482,8 @@ func _build_hud() -> void:
 	controls.add_child(_button("Find", _on_center))
 	lbl_gold = _label(20, UiTheme.BRASS)
 	lbl_gold.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	lbl_gold.custom_minimum_size.x = 40
+	lbl_gold.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_child(lbl_gold)
 	lbl_wages = _label(16, UiTheme.GOOD)
 	lbl_wages.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -500,6 +502,7 @@ func _build_hud() -> void:
 	lbl_news.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hud_root.add_child(lbl_news)
 	lbl_log = _label(14, UiTheme.INK_SOFT)
+	lbl_log.max_lines_visible = 2   # the HUD has room for two rendered lines; full history stays in Records
 	lbl_log.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	lbl_log.clip_text = true
 	lbl_log.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
@@ -627,6 +630,7 @@ func _layout_hud() -> void:
 	else:
 		lbl_log.position = Vector2(card_width + 20, bottom_nav.position.y - 62)
 		lbl_log.size = Vector2(maxf(0, width - card_width - 38), 54)
+	lbl_log.lines_skipped = maxi(0, lbl_log.get_line_count() - 2)   # keep the latest log lines after wrapping
 	lbl_news.position = Vector2(14, top_panel.position.y + top_panel.size.y + 6)
 	lbl_news.size.x = width - 28
 	lbl_toast.position = Vector2(18, lbl_news.position.y + lbl_news.get_combined_minimum_size().y + 8)
