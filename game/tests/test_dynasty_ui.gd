@@ -81,6 +81,7 @@ func run(scene_tree: SceneTree) -> int:
 " + screen.lbl_gold.tooltip_text, "landscape summary retains " + owner.strip_edges())
 				else:
 					_assert("City treasury" in screen.lbl_gold.tooltip_text, "portrait keeps every separate account in reach")
+				print("phone map HUD ", dimensions, " ruler=", screen.ruler_card.get_global_rect(), " log=", screen.lbl_log.get_global_rect(), " navigation=", screen.bottom_nav.get_global_rect())
 				_assert(not screen.ruler_card.get_global_rect().intersects(screen.lbl_log.get_global_rect()), "ruler portrait clears log")
 				_assert(not screen.ruler_card.get_global_rect().intersects(screen.bottom_nav.get_global_rect()), "ruler portrait clears navigation")
 				_assert(not screen.lbl_log.get_global_rect().intersects(screen.bottom_nav.get_global_rect()), "log clears navigation")
