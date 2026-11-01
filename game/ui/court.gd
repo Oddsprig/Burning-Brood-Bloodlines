@@ -10,6 +10,7 @@ var notice := ""
 var ruler_uid := ""
 
 func _ready() -> void:
+	MusicManager.play_scene("court")
 	var frame := UiKit.screen_frame(self, "Court")
 	frame["bar"].add_child(UiKit.button("Back", func(): Game.goto(String(Game.screen_params.get("back", "map"))), "Row", 96))
 	var scroll := UiKit.scroll()
@@ -249,7 +250,7 @@ func _open_scheme(uid: String, kind: String) -> void:
 			var result := Intrigue.start(Game, uid, kind, offer["review"])
 			notice = str(result.get("text", ""))
 			UiKit.close_modal(v)
-			if result.get("ok", false): Game.save_game_async()
+			if result.get("ok", false): Game.request_autosave()
 			_refresh(), "", 200))
 	footer.add_child(UiKit.button("Cancel", func(): UiKit.close_modal(v), "Row", 120))
 
@@ -339,7 +340,7 @@ func _bargain(parent: Control, action: String, uid: int, other: int = -1) -> voi
 			var result := Prisoners.confirm(Game, action, uid, other, offer["review"])
 			notice = str(result.get("text", ""))
 			UiKit.close_modal(v); UiKit.close_modal(parent)
-			if result.get("ok", false): Game.save_game_async()
+			if result.get("ok", false): Game.request_autosave()
 			_refresh(), "", 160))
 	footer.add_child(UiKit.button("Cancel", func(): UiKit.close_modal(v), "Row", 120))
 
@@ -359,7 +360,7 @@ func _bargain_all(parent: Control, fid: String, action: String) -> void:
 				done += 1; coin += int(offer.get("price", 0))
 		notice = ("Ransomed %d of %d for %d coins." % [done, uids.size(), Prisoners._coins(coin)]) if action == "ransom" else ("Released %d prisoners." % done)
 		UiKit.close_modal(v); UiKit.close_modal(parent)
-		if done > 0: Game.save_game_async()
+		if done > 0: Game.request_autosave()
 		_refresh(), "", 160))
 	footer.add_child(UiKit.button("Cancel", func(): UiKit.close_modal(v), "Row", 120))
 
@@ -446,7 +447,7 @@ func _open_matches(member_uid: String, member_name: String) -> void:
 				UiKit.close_modal(v)
 				if bool(r.get("accepted", false)):
 					Sound.sfx("event_fanfare", 0.8, 0.0, 0)
-					Game.save_game_async()
+					Game.request_autosave()
 				_refresh(), "Row" if tier > 0 else "", 230))
 	v.add_child(UiKit.button("Close", func(): UiKit.close_modal(v), "Row", 120))
 

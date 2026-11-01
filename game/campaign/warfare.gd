@@ -82,6 +82,7 @@ static func start(game, tid: String, kind: String) -> Dictionary:
 		"terrain": CampaignWorld.terrain_at(w, town["pos"]), "warband_id": band_id, "caravan_id": "", "ally_bands": [],
 		"enemy_supply": "well", "ally_supply": "well", "assault": {"kind": kind, "town_id": tid}}
 	if kind == "siege": params["hold1"] = true
+	MusicManager.play_scene("siege" if kind == "siege" else MusicManager.battle_scene_for(params))
 	game.start_battle(params)
 	return {"ok": true, "battle": true}
 

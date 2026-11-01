@@ -168,7 +168,7 @@ func to_dict() -> Dictionary:
 		if not _clean(parts[id]):
 			ps[id] = parts[id].duplicate(true)
 	return {"plan": plan_id, "scale": scale, "parts": ps, "blood_max": blood_max,
-		"blood": blood, "pain": pain, "exertion": exertion, "permanent": permanent.duplicate()}
+		"blood": blood, "pain": pain, "exertion": exertion, "permanent": permanent.duplicate(true)}
 
 static func from_dict(d: Dictionary) -> BodyState:
 	var b := BodyState.new()

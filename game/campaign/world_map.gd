@@ -70,6 +70,7 @@ var _hud_unpaid := 0
 var _hud_layout_queued := false
 
 func _ready() -> void:
+	MusicManager.play_scene("campaign_map")
 	process_mode = Node.PROCESS_MODE_ALWAYS   # camera stays responsive during consistent save capture
 	if Game.world.is_empty() or not Game.world.has("towns"):
 		Game.new_game()
@@ -712,7 +713,7 @@ func _on_center() -> void:
 	follow = true
 
 func _on_save() -> void:
-	Game.save_game_async()   # written by a worker thread (core/game.gd): no freeze on a Large world
+	Game.save_game_async()   # manual Save: always writes, ignoring the autosave interval
 	toast("Game saved.")
 
 ## Ambition toasts and the one-time victory screen; the first-visit guide.

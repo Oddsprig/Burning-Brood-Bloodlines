@@ -1,5 +1,16 @@
 AUDIO CREDITS - all CC0 (public domain dedication), recorded/composed by their authors
 Music
+  throne_of_the_sleeping_dynasty.ogg   "Throne of the Sleeping Dynasty" (menu)
+  pastoral_paths_a_minor.ogg           "Pastoral Paths A Minor" (campaign map)
+  where_the_map_ends.ogg               "Where the Map Ends" (campaign map)
+  medieval_fantasy_exploration.ogg     "Medieval Fantasy Exploration" (campaign map)
+  shadows_on_the_ramparts.ogg          "Shadows on the Ramparts" (court)
+  at_the_castle_gates.ogg              "At the Castle Gates" (court)
+  clash_of_iron.ogg                    "Clash of Iron" (battle)
+  iron_wings_descending.ogg            "Iron Wings Descending" (dragon attack)
+  relentless_siege.ogg                 "Relentless Siege" (siege)
+  crown_of_gilded_brass.ogg            "Crown of Gilded Brass" (victory)
+  vesper_for_the_unclaimed.ogg         "Vesper for the Unclaimed" (defeat)
   music_title.ogg   "Lament for a Warrior's Soul" by RandomMind - opengameart.org/content/fantasy-lament-for-a-warriors-soul
   music_map.ogg     "Fantasy Orchestral Theme" by Joth - opengameart.org/content/fantasy-orchestral-theme
   music_battle.ogg  "Call to War" by Umplix - opengameart.org/content/call-to-war

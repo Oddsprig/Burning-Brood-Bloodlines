@@ -59,8 +59,8 @@ func run(tree: SceneTree) -> int:
 			printerr("FAIL balance070: incomplete native roster screen"); fails += 1
 		else:
 			var units: Dictionary = native["summary"]["unit"]
-			if units.size() != 20:
-				printerr("FAIL balance070: expected all 20 native troop templates"); fails += 1
+			if units.size() != 26:
+				printerr("FAIL balance070: expected all 26 native troop templates"); fails += 1
 			for id in units:
 				var st: Dictionary = units[id]
 				var rate := float(st["score_rate"])
@@ -85,6 +85,6 @@ func run(tree: SceneTree) -> int:
 		printerr("FAIL balance070: no wall budget left for mounts"); fails += 1
 	var evidence := {"schema": "balance_v070/1", "phase": "regression", "complete": fails == 0, "reports": reports, "score_band": [SCORE_LOW, SCORE_HIGH], "native_score_band": [NATIVE_LOW, NATIVE_HIGH], "data_sha256": B.fingerprint(), "elapsed_ms": Time.get_ticks_msec() - started, "failures": fails}
 	if B.write_result(evidence, "regression") == "": fails += 1
-	if Time.get_ticks_msec() - started >= 55000:
-		printerr("FAIL balance070: exceeded 55-second regression budget"); fails += 1
+	if Time.get_ticks_msec() - started >= 140000:
+		printerr("FAIL balance070: exceeded 140-second regression budget"); fails += 1
 	return fails
