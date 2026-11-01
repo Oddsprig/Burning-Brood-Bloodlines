@@ -128,7 +128,9 @@ static func home_text(w: Dictionary, wb: Dictionary) -> String:
 
 # ================================================================== warbands
 static func spawn_warband(game, fid: String, pos: Vector2, count: int, kind: String, rng: RandomNumberGenerator, extra: Dictionary = {}) -> String:
-	if Monsters.suspended_band({"faction": fid, "kind": kind, "units": extra.get("units", [])}): return ""
+	if Monsters.suspended_band({"faction": fid, "kind": kind, "units": extra.get("units", [])}):
+		if kind == "caravan": Caravans.unraised(game, extra)   # v0.075: its purse and cargo go back
+		return ""
 	var w: Dictionary = game.world
 	var id := CampaignWorld.new_id(w, "wb")
 	# monsters wave 1: extra["units"] = ready-made units (creatures, militia, armed outlaws)
@@ -158,7 +160,9 @@ static func spawn_warband(game, fid: String, pos: Vector2, count: int, kind: Str
 		Army.enlist(game, wb)   # economy spec 2: every person in the force is a real family member (not monsters)
 		if TownEcon.prof_on: TownEcon._prof("sw_enlist_" + kind, _t0)
 		if (wb["units"] as Array).is_empty():
+			WorldAudit.band_gone(wb, "-went with a band nobody joined")
 			w["warbands"].erase(id)   # war pick 4: the town could spare nobody: not raised
+			if kind == "caravan": Caravans.unraised(game, wb)   # v0.075: its purse and cargo go back
 			return ""
 	return id
 
@@ -257,7 +261,9 @@ static func spawn_faction_band(game, fid: String, rng: RandomNumberGenerator, fr
 # ================================================================== the muster (world size)
 static func muster_start(game, head: Array, fid: String, pos: Vector2, count: int, kind: String, extra: Dictionary,
 		rng: RandomNumberGenerator, own_rng: bool, then: Dictionary) -> void:
-	if Monsters.suspended_band({"faction": fid, "kind": kind, "units": extra.get("units", [])}): return
+	if Monsters.suspended_band({"faction": fid, "kind": kind, "units": extra.get("units", [])}):
+		if kind == "caravan": Caravans.unraised(game, extra)   # v0.075: its purse and cargo go back
+		return
 	var w: Dictionary = game.world
 	var m := {"id": CampaignWorld.new_id(w, "wb"), "fid": fid, "pos": pos, "n": maxi(1, count), "kind": kind, "extra": extra, "units": [],
 		"stage": "make"}
@@ -301,7 +307,9 @@ static func muster_step(game, job: Array, frame_rng: RandomNumberGenerator) -> v
 static func _muster_part(game, m: Dictionary, rng: RandomNumberGenerator) -> bool:
 	var w: Dictionary = game.world
 	var fid := String(m["fid"])
-	if Monsters.suspended_band({"faction": fid, "kind": m.get("kind", ""), "units": m.get("units", [])}): return false
+	if Monsters.suspended_band({"faction": fid, "kind": m.get("kind", ""), "units": m.get("units", [])}):
+		if String(m.get("kind", "")) == "caravan": Caravans.unraised(game, m.get("wb", m.get("extra", {})))   # v0.075
+		return false
 	match String(m["stage"]):
 		"make":   # Factory.make_warband, MUSTER_STEP men a job
 			var units: Array = m["units"]
@@ -344,6 +352,7 @@ static func _muster_part(game, m: Dictionary, rng: RandomNumberGenerator) -> boo
 		"drafted":
 			var wb: Dictionary = m["wb"]
 			if (wb["units"] as Array).is_empty():   # war pick 4: the town could spare nobody: not raised
+				if String(wb.get("kind", "")) == "caravan": Caravans.unraised(game, wb)   # v0.075: its purse and cargo go back
 				return _muster_done(game, m, "", rng)
 			if String(m.get("then", "")) == "band" and m.get("outfit", false):
 				m["stage"] = "outfit"
@@ -377,6 +386,7 @@ static func _muster_done(game, m: Dictionary, wid: String, rng: RandomNumberGene
 	return false
 
 static func remove_warband(game, wid: String) -> void:
+	WorldAudit.band_gone(game.world["warbands"].get(wid, {}), "-went with a removed band")
 	game.world["warbands"].erase(wid)
 	if game.world.get("encounter", "") == wid:
 		game.world["encounter"] = ""
