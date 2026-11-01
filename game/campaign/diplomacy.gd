@@ -48,6 +48,8 @@ const ASSAULT_P := 0.25           # weekly, per side of a war: send a war band a
 const TRUCE_MIN := 60             # war pick 2 (Douglas): a peace brings a truce of 60-120 days, rolled per treaty;
 const TRUCE_MAX := 120            #   the pair does not fight at all (no clashes, raids, interceptions, war)
 const MILITIA_PER_SIZE := 3       # town militia = (size + 1) * this when the town has no militia field
+## Reused pair list so the day step does not allocate a new array of pair dicts every morning.
+static var _walk_buf: Array = []
 
 # ---------------------------------------------------------------- layer 2 tuning [ours]
 const EARNED_DRIFT := 0.995
@@ -125,8 +127,9 @@ static func _cap_of(a: String, b: String) -> int:
 	return c
 
 ## The relation ceiling that keeps a capped pair inside its best state's band.
+const CAP_REL := [-50.5, -10.5, 30.0, 60.0, 100.0]
 static func _cap_rel(cap: int) -> float:
-	return [-50.5, -10.5, 30.0, 60.0, 100.0][clampi(cap, 0, 4)]
+	return CAP_REL[clampi(cap, 0, 4)]
 
 static func band(rel: float) -> String:
 	if rel < -50.0: return WAR
@@ -327,12 +330,17 @@ static func enemies_at_war(w: Dictionary, fid: String) -> Array:
 	return out
 
 ## w["wars"] mirrors the WAR pairs for any code that still reads the old list.
+## Same result as at_war on a stored pair: a sworn tie or a live pact hides the war, and the pair is not looked up again.
 static func _sync_wars(w: Dictionary) -> void:
+	var dp: Dictionary = w["diplo"]
+	var day := int(dp["day"])
+	var pairs: Dictionary = dp["pairs"]
 	var wars := []
-	for k in w["diplo"]["pairs"]:
-		var p: Dictionary = w["diplo"]["pairs"][k]
-		if at_war(w, p["a"], p["b"]):
-			wars.append([p["a"], p["b"]])
+	for k in pairs:
+		var p: Dictionary = pairs[k]
+		if p["state"] != WAR or _bound(p) or int(p.get("pact_until", 0)) > day:
+			continue
+		wars.append([p["a"], p["b"]])
 	w["wars"] = wars
 
 # ================================================================== dynasty ties / player treaties
@@ -550,39 +558,93 @@ static func daily(game, d: int) -> void:
 	var sizes: Dictionary = dp["size"]
 	var changed := false
 	var wr: RandomNumberGenerator = null   # weekly rolls: one generator per week, seeded from world seed + day
+	var towns_of := {}
+	var assault_busy := {}
 	if weekly:
 		wr = RandomNumberGenerator.new()
 		wr.seed = hash([int(w.get("seed", 0)), d, "diplomacy"])
-	# who is at WAR with whom at the start of the day (shared-enemy bonus; order-independent)
-	var war_with := {}
-	for f in fl:
-		war_with[f] = {}
+		var towns: Dictionary = w.get("towns", {})
+		for tid in towns:
+			var fac: String = towns[tid]["faction"]
+			if not towns_of.has(fac):
+				towns_of[fac] = []
+			(towns_of[fac] as Array).append(tid)
+		for wid in w.get("warbands", {}):
+			var wb: Dictionary = w["warbands"][wid]
+			if wb.get("war_assault", false):
+				assault_busy[wb["faction"]] = true
+		for job in w.get("work", []):
+			if job[0] == "war_assault":
+				assault_busy[job[1]] = true
+	# Who is at WAR with whom at the start of the day, as faction-index bits. A shared enemy is a bit in
+	# both masks; the pair's own war bit is not in either mask, so it does not count (same as the old nested walk).
+	# Indexes, pact days and the sworn flag are read once here. Nine factions fit in the bit mask.
+	_walk_buf.clear()
 	for k in pairs:
-		var q: Dictionary = pairs[k]
-		if q["state"] == WAR and not _bound(q) and int(q.get("pact_until", 0)) <= d:
-			war_with[q["a"]][q["b"]] = true
-			war_with[q["b"]][q["a"]] = true
-	for k in pairs:
-		var p: Dictionary = pairs[k]
+		_walk_buf.append(pairs[k])
+	var n := _walk_buf.size()
+	var nfac := fl.size()
+	var ix := {}
+	var mask := PackedInt32Array()
+	var sz := PackedFloat64Array()
+	mask.resize(nfac)
+	sz.resize(nfac)
+	for i in nfac:
+		ix[fl[i]] = i
+		sz[i] = float(sizes.get(fl[i], 1.0))
+	var ia := PackedInt32Array()
+	var ib := PackedInt32Array()
+	var pact_at := PackedInt32Array()
+	var sworn_at := PackedByteArray()
+	ia.resize(n)
+	ib.resize(n)
+	pact_at.resize(n)
+	sworn_at.resize(n)
+	for i in n:
+		var q: Dictionary = _walk_buf[i]
+		var qa := int(ix[q["a"]])
+		var qb := int(ix[q["b"]])
+		ia[i] = qa
+		ib[i] = qb
+		var until := int(q.get("pact_until", 0))
+		pact_at[i] = until
+		var sworn: int = 1 if (q.get("treaty_alliance", false) or q.get("dynasty", false)) else 0
+		sworn_at[i] = sworn
+		if q["state"] != WAR or until > d or sworn != 0:
+			continue
+		mask[qa] = mask[qa] | (1 << qb)
+		mask[qb] = mask[qb] | (1 << qa)
+	for i in n:
+		var p: Dictionary = _walk_buf[i]
 		var a: String = p["a"]; var b: String = p["b"]
 		var st: String = p["state"]
 		var rel: float = p["rel"]
 		rel += (float(p["base"]) - rel) * DRIFT
-		var wa: Dictionary = war_with[a]
-		if not wa.is_empty():
-			var wb: Dictionary = war_with[b]
-			for c in wa:
-				if wb.has(c):
-					rel += SHARED_ENEMY
+		var bits: int = mask[ia[i]] & mask[ib[i]]
+		if bits != 0:
+			var cnt := 0
+			var bv := bits
+			while bv != 0:
+				cnt += 1
+				bv &= bv - 1
+			rel += SHARED_ENEMY * float(cnt)
+		var pact_until := pact_at[i]
 		if st == WAR:
 			var losses: float = float(p["losses"]) * LOSS_DECAY
 			p["losses"] = losses
-			var size := maxf(1.0, minf(float(sizes.get(a, 1.0)), float(sizes.get(b, 1.0))))
+			var sa0 := sz[ia[i]]
+			var sb0 := sz[ib[i]]
+			var size := sa0 if sa0 < sb0 else sb0
+			if size < 1.0:
+				size = 1.0
 			rel += minf(1.0, losses / size * WEARINESS)
-		rel = clampf(rel, -100.0, minf(100.0, _cap_rel(int(p["cap"]))))
+		var ceiling: float = CAP_REL[clampi(int(p["cap"]), 0, 4)]
+		rel = clampf(rel, -100.0, minf(100.0, ceiling))
 		p["rel"] = rel
-		p["held"] = int(p["held"]) + 1
-		if _bound(p): continue   # sworn alliances last until broken; marriages last while their couple does
+		var held := int(p["held"]) + 1
+		p["held"] = held
+		if sworn_at[i] != 0:
+			continue   # sworn alliances last until broken; marriages last while their couple does
 		var bd := band(rel)
 		if st == WAR:
 			p["past"] = int(p["past"]) + 1 if bd != WAR else 0
@@ -591,7 +653,8 @@ static func daily(game, d: int) -> void:
 				changed = true
 		else:
 			var target := HOSTILE if bd == WAR else bd
-			if int(p.get("pact_until", 0)) > d and ORDER[target] < 2: target = NEUTRAL
+			if pact_until > d and ORDER[target] < 2:
+				target = NEUTRAL
 			if target == st:
 				p["past"] = 0
 			else:
@@ -599,10 +662,15 @@ static func daily(game, d: int) -> void:
 				if int(p["past"]) >= HOLD_DAYS:
 					_set_state(game, p, target)
 					changed = true
-			if weekly and p["state"] == HOSTILE and int(p["held"]) >= HOLD_DAYS and int(p.get("truce", 0)) <= d and int(p.get("pact_until", 0)) <= d:
-				var sa := float(sizes.get(a, 1.0)); var sb := float(sizes.get(b, 1.0))
-				var pa := minf(WAR_P_CAP, WAR_P_BASE + WAR_P_STRENGTH * maxf(0.0, sa / maxf(1.0, sb) - 1.0))
-				var pb := minf(WAR_P_CAP, WAR_P_BASE + WAR_P_STRENGTH * maxf(0.0, sb / maxf(1.0, sa) - 1.0))
+			if weekly and p["state"] == HOSTILE and int(p["held"]) >= HOLD_DAYS and int(p.get("truce", 0)) <= d and pact_until <= d:
+				var sa := sz[ia[i]]
+				var sb := sz[ib[i]]
+				var pa := WAR_P_BASE + WAR_P_STRENGTH * maxf(0.0, sa / maxf(1.0, sb) - 1.0)
+				if pa > WAR_P_CAP:
+					pa = WAR_P_CAP
+				var pb := WAR_P_BASE + WAR_P_STRENGTH * maxf(0.0, sb / maxf(1.0, sa) - 1.0)
+				if pb > WAR_P_CAP:
+					pb = WAR_P_CAP
 				var who := ""
 				if wr.randf() < pa:
 					who = a
@@ -613,9 +681,10 @@ static func daily(game, d: int) -> void:
 					_set_state(game, p, WAR)
 					changed = true
 		if weekly and p["state"] == WAR:
-			for side in [a, b]:
-				if wr.randf() < ASSAULT_P:
-					_queue_assault(w, side, b if side == a else a)
+			if wr.randf() < ASSAULT_P:
+				_queue_assault(w, a, b, towns_of, assault_busy)
+			if wr.randf() < ASSAULT_P:
+				_queue_assault(w, b, a, towns_of, assault_busy)
 	if changed:
 		_sync_wars(w)
 	call_allies(game)
@@ -716,28 +785,46 @@ static func strength(w: Dictionary, fid: String) -> float:
 # ================================================================== war assaults
 ## At WAR the stronger factions march on enemy towns (one war band per attacker at a time). Queued as a
 ## daily work job so the spawn never lands in one frame.
-static func _queue_assault(w: Dictionary, att: String, def: String) -> void:
-	for wid in w["warbands"]:
-		var wb: Dictionary = w["warbands"][wid]
-		if wb.get("war_assault", false) and wb["faction"] == att:
-			return
-	if not w.has("work"):
+static func _queue_assault(w: Dictionary, att: String, def: String, towns_of: Dictionary = {}, assault_busy: Dictionary = {}) -> void:
+	if assault_busy.has(att):
+		return
+	if towns_of.is_empty():
+		for wid in w["warbands"]:
+			var wb: Dictionary = w["warbands"][wid]
+			if wb.get("war_assault", false) and wb["faction"] == att:
+				return
+		if not w.has("work"):
+			w["work"] = []
+		for job in w["work"]:
+			if job[0] == "war_assault" and job[1] == att:
+				return
+	elif not w.has("work"):
 		w["work"] = []
-	for job in w["work"]:
-		if job[0] == "war_assault" and job[1] == att:
-			return
 	# the enemy town nearest to any of the attacker's towns
 	var best := ""; var bd := INF
-	for tid in w["towns"]:
-		var t: Dictionary = w["towns"][tid]
-		if t["faction"] != def:
-			continue
-		for oid in w["factions"].get(att, {}).get("towns", []):
-			var d: float = (w["towns"][oid]["pos"] as Vector2).distance_to(t["pos"])
-			if d < bd:
-				bd = d; best = tid
+	var defs: Array = towns_of.get(def, []) if not towns_of.is_empty() else []
+	var atts: Array = w["factions"].get(att, {}).get("towns", [])
+	if defs.is_empty():
+		for tid in w["towns"]:
+			var t: Dictionary = w["towns"][tid]
+			if t["faction"] != def:
+				continue
+			for oid in atts:
+				var dist: float = (w["towns"][oid]["pos"] as Vector2).distance_to(t["pos"])
+				if dist < bd:
+					bd = dist; best = tid
+	else:
+		var towns: Dictionary = w["towns"]
+		for tid in defs:
+			var t: Dictionary = towns[tid]
+			var tp: Vector2 = t["pos"]
+			for oid in atts:
+				var dist: float = (towns[oid]["pos"] as Vector2).distance_to(tp)
+				if dist < bd:
+					bd = dist; best = tid
 	if best != "":
 		(w["work"] as Array).append(["war_assault", att, best])
+		assault_busy[att] = true
 
 static func launch_assault(game, att: String, tid: String, rng: RandomNumberGenerator) -> String:
 	var w: Dictionary = game.world

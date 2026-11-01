@@ -272,7 +272,7 @@ func _process_startup(delta: float) -> void:
 		CampaignWorld.presim_finish(Game, Time.get_ticks_msec() - t0)
 		Dynasty.prepare_world(Game)
 		Game.new_game_finalize()
-		Game.save_game_async()
+		Game.request_autosave()
 		Game.goto("house_select")
 
 static func history_progress_text(done: int, total: int, season: String) -> String:

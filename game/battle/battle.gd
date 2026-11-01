@@ -116,7 +116,9 @@ func _ready() -> void:
 	if side1.size() > 0 and side1[0].faction != "":
 		side_names[1] = str(DB.factions.get(side1[0].faction, {}).get("name", "Enemy"))
 	sim = BattleSim.new()
-	sim.setup(side0, side1, bseed, battle_opts(pb, side0.size(), side1.size()))
+	var opts := battle_opts(pb, side0.size(), side1.size())
+	opts["dragon_riders"] = DragonCombat.battle_riders(Game, side0 + side1)   # v0.081: riders are live targets
+	sim.setup(side0, side1, bseed, opts)
 	Paperdoll.begin_background()
 	speed = float(Game.setting("battle_speed")) if Game.setting("battle_speed") != null else 1.0
 	if not speed in SPEEDS or speed <= 0.0:
@@ -132,6 +134,7 @@ func _ready() -> void:
 	var head := ("The Siege of %s" % town_name) if kind == "siege" else (("The Raid on %s" % town_name) if kind == "raid" else "Battle is joined")
 	if pb.has("rounds"): head = "Round %d" % int(pb["rounds"].get("round", 1))
 	_banner(head, "%s %d  against  %s %d" % [side_names[0], int(sim.side_total[0]), side_names[1], int(sim.side_total[1])], 3.2)
+	MusicManager.play_battle(pb, side0, side1)
 	Sound.sfx("event_fanfare", 0.5, 0.0, 0)
 
 func _exit_tree() -> void:
@@ -1011,6 +1014,7 @@ func _after_round_panel(over: bool) -> void:
 		Game.goto("battle")   # a fresh field for the next pair of units
 		return
 	var w := int(Game.pending_battle["rounds"].get("winner", -1))
+	MusicManager.play_scene("victory" if w == 0 else "defeat")
 	Sound.sfx("event_fanfare" if w == 0 else "fall", 0.8, 0.0, 0)
 	_show_card(RoundSummary.battle_panel(BattleRounds.battle_summary(Game), finish))
 
@@ -1039,6 +1043,7 @@ func show_result() -> void:
 		return
 	var w: int = sim.winner
 	_banner("Victory" if w == 0 else ("Defeat" if w == 1 else "The field is held by none"), "", 1.4)
+	MusicManager.play_scene("victory" if w == 0 else "defeat")
 	Sound.sfx("event_fanfare" if w == 0 else "fall", 0.8, 0.0, 0)
 	var dead := [0, 0]; var fled := [0, 0]; var down := [0, 0]
 	for f in sim.fighters:
@@ -1073,6 +1078,7 @@ func build_result() -> Dictionary:
 	var player_fled: Array = []; var states: Array = []
 	for f in sim.fighters:
 		if f.mount_rider_idx >= 0: continue # Mount events/bodies stay in the journal; no phantom people or loot.
+		if f.seat_joined: continue # v0.081: a rider who only fought on his dragon is settled by DragonCombat (dragon_seats).
 		all.append(f.unit)
 		states.append(f.state)
 		if f.side == 0:
@@ -1091,7 +1097,7 @@ func build_result() -> Dictionary:
 	return {"winner": sim.winner, "player_units": p, "enemy_units": en, "enemy_fallen": fallen, "enemy_fled": fled,
 		"player_fled": player_fled, "side_names": side_names.duplicate(), "fighter_states": states,
 		"events": sim.result_events(), "fighter_units": all, "ticks": sim.tick, "growth": growth,
-		"combat_journal": sim.combat_journal, "kill_pairs": sim.kill_pairs, "dragon_downs": sim.dragon_downs.duplicate(),
+		"combat_journal": sim.combat_journal, "kill_pairs": sim.kill_pairs, "dragon_downs": sim.dragon_downs.duplicate(), "dragon_seats": DragonRiders.report(sim),
 		"history_events_omitted": sim.events_dropped,
 		"arrow_field": sim.arrow_field.duplicate(true)}
 
