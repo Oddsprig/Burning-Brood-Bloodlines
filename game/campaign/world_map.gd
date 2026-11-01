@@ -70,6 +70,7 @@ var _hud_unpaid := 0
 var _hud_layout_queued := false
 
 func _ready() -> void:
+	MusicManager.play_scene("campaign_map")
 	process_mode = Node.PROCESS_MODE_ALWAYS   # camera stays responsive during consistent save capture
 	if Game.world.is_empty() or not Game.world.has("towns"):
 		Game.new_game()

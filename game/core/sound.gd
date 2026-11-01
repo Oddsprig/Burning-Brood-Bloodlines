@@ -16,16 +16,14 @@ var _recent: Dictionary = {}   # name -> last play msec (rate limit)
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	for i in 2:
-		var m := AudioStreamPlayer.new(); m.bus = "Master"; m.volume_db = -80.0
+		var m := AudioStreamPlayer.new(); m.bus = "Music"; m.volume_db = -80.0
 		add_child(m); _music.append(m)
 	_ambience = AudioStreamPlayer.new(); _ambience.volume_db = -80.0; add_child(_ambience)
 	for i in POOL:
 		var p := AudioStreamPlayer.new(); add_child(p); _pool.append(p)
-	Game.screen_changed.connect(_on_screen)
 	Game.setting_changed.connect(func(key: String, _v: Variant):
 		if key in ["music_volume", "sfx_volume"]: _apply_volumes())
 	get_tree().node_added.connect(_on_node_added)
-	_on_screen("title")
 
 func _vol(key: String) -> float:
 	return clampf(float(Game.setting(key)), 0.0, 1.0)
@@ -34,7 +32,6 @@ func _db(linear: float) -> float:
 	return linear_to_db(maxf(0.0001, linear))
 
 func _apply_volumes() -> void:
-	_music[_active].volume_db = _db(_vol("music_volume") * 0.55)
 	if _ambience.playing: _ambience.volume_db = _db(_vol("sfx_volume") * 0.35)
 
 func _stream(path: String) -> AudioStream:
@@ -45,24 +42,13 @@ func _stream(path: String) -> AudioStream:
 	return s
 
 func _on_screen(screen: String) -> void:
-	var want: String = SCREEN_MUSIC.get(screen, "map")
-	if screen.begins_with("res://"): want = "map"
-	play_music(want)
-	pass
+	if MusicManager != null:
+		MusicManager._on_screen_changed(screen)
 
 func play_music(key: String) -> void:
-	if key == _current or not MUSIC.has(key): return
-	_current = key
-	var stream := _stream(MUSIC[key])
-	if stream == null: return
-	var old := _music[_active]
-	_active = 1 - _active
-	var nxt := _music[_active]
-	nxt.stream = stream; nxt.volume_db = -60.0; nxt.play()
-	var tw := create_tween().set_parallel(true)
-	tw.tween_property(nxt, "volume_db", _db(_vol("music_volume") * 0.55), 2.0)
-	tw.tween_property(old, "volume_db", -80.0, 2.0)
-	tw.chain().tween_callback(old.stop)
+	if MusicManager != null:
+		MusicManager.play_scene(key)
+		return
 
 ## Plays res://audio/<name>.wav. volume 0..1 (x the SFX setting), pitch jitter, rate limited per name.
 func sfx(name: String, volume: float = 1.0, pitch_jitter: float = 0.06, min_gap_ms: int = 40) -> void:
