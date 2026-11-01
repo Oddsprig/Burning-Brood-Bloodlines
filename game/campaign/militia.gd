@@ -382,9 +382,10 @@ static func trim(game, tid: String) -> int:
 static func trim_all(game) -> int:
 	var n := 0
 	for tid in game.world.get("militia", {}):
-		n += trim(game, str(tid))
-	for tid in game.world.get("towns", {}):
-		trim_armory(game, str(tid))
+		var released := trim(game, str(tid))
+		if released > 0:
+			n += released
+			trim_armory(game, str(tid))
 	return n
 
 ## Claude Edition: a town armory keeps what its reserve could ever carry (its arms target, at least 4 pieces per

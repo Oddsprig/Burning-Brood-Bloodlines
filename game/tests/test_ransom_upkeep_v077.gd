@@ -370,6 +370,14 @@ func run(tree: SceneTree) -> int:
 	var seat_town: Dictionary = Prisoners._player_town(Game)
 	check(not seat_town.is_empty() and Prisoners._market_till(seat_town).size() > 0, "the player's town has a market till")
 	if Prisoners._market_till(seat_town).is_empty(): return _finish()
+	var kit_by_unit := {}
+	for cand in [_pool[0], _pool[1], _pool[2]]:
+		var cuids: Array = []
+		for slot in (cand as Unit).equip:
+			var cit = (cand as Unit).equip[slot]
+			if cit is Item and (cit as Item).uid > 0:
+				cuids.append((cit as Item).uid)
+		kit_by_unit[(cand as Unit).uid] = {"town": str((cand as Unit).home_town), "uids": cuids}
 
 	# --- Capture. Two of theirs, one of ours. Records name where they are held.
 	check(_take_foes([_pool[0], _pool[1]]), "two downed enemy soldiers are taken prisoner")
@@ -664,6 +672,18 @@ func run(tree: SceneTree) -> int:
 		check(str(row[4]) == "dead", "hunger does not bring that captive home")
 		check(is_equal_approx(_coin_sum(), coins), "that day moves no coin")
 	# Reload only after every scenario using live Unit/household references has finished.
+	var home_tid := str(kit_by_unit[_ransomed.uid]["town"])
+	var home_town: Dictionary = Game.world["towns"].get(home_tid, {})
+	ArmsTrade.refresh_reserve(Game, home_town)
+	var home_tgt := 0
+	for c in home_town["econ"].get("arms_tgt", {}): home_tgt += int(home_town["econ"]["arms_tgt"][c])
+	var home_keep_n := maxi(home_tgt, TownDefence.militia_cap(home_town) * 4)
+	var pre_home_uids: Array = []
+	for hit in ArmsTrade.armory(home_town):
+		if hit is Item: pre_home_uids.append((hit as Item).uid)
+	var pre_home_scrap := 0
+	for sk in home_town["econ"].get("stock", {}):
+		if str(sk).begins_with("scrap_"): pre_home_scrap += int(home_town["econ"]["stock"][sk])
 	var pre_save_items := _accounted_items()
 	var pre_arrow_buckets := _arrow_buckets()
 	var pre_save_arrows := int(pre_arrow_buckets["total"])
@@ -687,6 +707,22 @@ func run(tree: SceneTree) -> int:
 		if not _town_has_uid(seat_town, int(uid3)) or int(post_load_items["uids"].get(int(uid3), 0)) != 1:
 			loaded_kit_ok = false
 	check(loaded_kit_ok, "executed and sold prisoners' exact Item uids survive save/load in the holding town")
+	var loaded_home_town: Dictionary = Game.world["towns"].get(home_tid, {})
+	var post_home_scrap := 0
+	for sk2 in loaded_home_town.get("econ", {}).get("stock", {}):
+		if str(sk2).begins_with("scrap_"): post_home_scrap += int(loaded_home_town["econ"]["stock"][sk2])
+	var above_cap_ok := pre_home_uids.size() > home_keep_n and ArmsTrade.armory(loaded_home_town).size() == pre_home_uids.size() and post_home_scrap == pre_home_scrap
+	for cand2 in [_ransomed, _pool[2]]:
+		var c_tid := str(kit_by_unit[cand2.uid]["town"])
+		var c_town: Dictionary = Game.world["towns"].get(c_tid, {})
+		for ruid in kit_by_unit[cand2.uid]["uids"]:
+			if not _town_has_uid(c_town, int(ruid)) or int(post_load_items["uids"].get(int(ruid), 0)) != 1:
+				above_cap_ok = false
+	for huid in pre_home_uids:
+		if not _town_has_uid(loaded_home_town, int(huid)) or int(post_load_items["uids"].get(int(huid), 0)) != 1:
+			above_cap_ok = false
+	check(above_cap_ok, "above-cap town armory (%s: %d > %d keep_n) preserves returned prisoner kit UIDs and scrap on load" % [
+		home_tid, ArmsTrade.armory(loaded_home_town).size(), home_keep_n])
 	check(Prisoners._find(Prisoners.held(Game), stay.uid).is_empty() and Prisoners._find(Prisoners.held(Game), _pool[3].uid).is_empty(),
 		"executed and sold prisoners stay off the held list after save/load")
 	check(is_equal_approx(_coin_sum(), pre_save_coins), "save/load preserves total world coin")
