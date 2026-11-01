@@ -798,12 +798,35 @@ func phase_write(tree: SceneTree) -> bool:
 		check(false, "in-process round trip drift %d x %s  e.g. %s" % [same.patterns[key][0], key, same.patterns[key][1]])
 	return true
 
+## The file compares above re-read both sides through the JSON reader, so an int that loads as a float is invisible
+## to them. Families.keeps_stale asks keeps.has(int(bid)), and Array.has is type-strict: the loaded shop ids must be
+## ints again, or every shopkeeping family re-runs its turn on the first reloaded day (r9 CHECK 0b3f1cb8: wsig x6,
+## t18 open/open_top).
+func keeps_check() -> void:
+	var fams := 0
+	var bad := 0
+	var example := ""
+	for tid in Game.world.get("towns", {}):
+		var t: Dictionary = Game.world["towns"][tid]
+		if not TownEcon.has_econ(t): continue
+		for f in t["econ"]["fams"]:
+			var kp: Array = f.get("keeps", [])
+			if kp.is_empty(): continue
+			fams += 1
+			for bid in kp:
+				if typeof(bid) != TYPE_INT or not kp.has(int(bid)):
+					bad += 1
+					if example == "": example = "%s fam %s keeps %s" % [tid, str(f.get("id", "?")), str(kp)]
+	check(fams > 0, "the loaded world has shopkeeping families (%d)" % fams)
+	check(bad == 0, "loaded keeps are int business ids (%d bad%s)" % [bad, (", e.g. " + example) if bad > 0 else ""])
+
 func phase_check() -> void:
 	check(FileAccess.file_exists(PATH_A) and FileAccess.file_exists(PATH_L), "the write phase left saves A and L")
 	if not FileAccess.file_exists(PATH_A): return
 	if not load_from(PATH_A):
 		check(false, "save A loads in a fresh instance")
 		return
+	keeps_check()
 	save_to(PATH_B)
 	var round := compare_files("fresh instance: save A vs save after load", PATH_A, PATH_B, ROUND_TRIP_TOL)
 	for key in round.order:

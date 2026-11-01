@@ -1593,6 +1593,11 @@ static func _fix_ints(e: Dictionary) -> void:
 		var ow: Array = f["owns"]
 		for i in ow.size():
 			ow[i] = int(ow[i])
+		# v0.074: the shops its own grown-ups keep are business ids like owns. Array.has is type-strict (6 is not
+		# 6.0), so loaded floats made Families.keeps_stale see every kept shop as unkept and re-run the turn.
+		var kp: Array = f.get("keeps", [])
+		for i in kp.size():
+			kp[i] = int(kp[i])
 		if f.has("cj"):   # economy spec 2 additions: casual work, rent, history events
 			for j in f["cj"]:
 				f["cj"][j] = int(f["cj"][j])
