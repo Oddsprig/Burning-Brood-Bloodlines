@@ -218,6 +218,8 @@ static func enlist_end(game, wb: Dictionary, ctx: Dictionary) -> void:
 		for ui in units.size():
 			if not unraised.has(ui):
 				keep.append(units[ui])
+			elif units[ui] is Unit:   # v0.075 r6: a man nobody could be spared for never existed, nor his rolled kit
+				WorldAudit.drop_rolled_all((units[ui] as Unit).equip.values(), "-rolled kit of a man never raised")
 		wb["units"] = keep
 		wb["unraised"] = int(wb.get("unraised", 0)) + unraised.size()   # (diagnostics: men the town could not spare)
 	if (wb["units"] as Array).is_empty():
@@ -967,7 +969,7 @@ static func on_plunder(w: Dictionary, winner: Dictionary, car: Dictionary) -> vo
 		if int(cg.get(g, 0)) > 0:
 			src[g] = int(cg[g])
 	if not src.is_empty():
-		var got := Supplies.take(winner, {"stores": src, "units": []})
+		var got := Supplies.take(winner, {"stores": src, "units": []}, true)
 		for g in got:
 			cg[g] = int(cg[g]) - int(got[g])
 			TownEcon.goods_lost[g] = int(TownEcon.goods_lost.get(g, 0)) + int(got[g])
@@ -1057,7 +1059,9 @@ static func init_part(game, run: Dictionary) -> bool:
 					if not ctx.is_empty():
 						if not enlist_some(game, wb, ctx, CampaignWorld.MUSTER_STEP): return false
 						enlist_end(game, wb, ctx)
-					if (wb["units"] as Array).is_empty(): w["warbands"].erase(wid)
+					if (wb["units"] as Array).is_empty():
+						WorldAudit.band_gone(wb, "-went with a band nobody joined")
+						w["warbands"].erase(wid)
 				run.erase("enlist")
 				run["i"] = i + 1
 			else:
@@ -1091,6 +1095,7 @@ static func _init_band(game, wid: String) -> void:
 			Supplies.seed_stores(wb)   # pre-history: what the band set out with
 		enlist(game, wb)
 		if (wb["units"] as Array).is_empty():
+			WorldAudit.band_gone(wb, "-went with a band nobody joined")
 			w["warbands"].erase(wid)   # war pick 4: its town could spare nobody: never raised
 
 static func _init_faction(game, fid: String, rng: RandomNumberGenerator) -> void:

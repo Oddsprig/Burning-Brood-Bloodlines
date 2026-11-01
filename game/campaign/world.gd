@@ -891,6 +891,7 @@ static func after_load(game) -> void:
 	HouseUpkeep.after_load(game)
 	TroopUpkeep.after_load(game)
 	CourtEvents.after_load(game)
+	WorldAudit.after_load(game)   # v0.075: the world flow book's counts
 
 static func _fix_contract(c: Dictionary) -> void:
 	for k in ["pay", "size"]:

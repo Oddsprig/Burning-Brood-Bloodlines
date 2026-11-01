@@ -414,7 +414,11 @@ static func trim_armory(game, tid: String) -> int:
 		var it: Item = items[int(ranked[k][1])]
 		if k < keep_n or it.is_legend(): keep.append(it); continue
 		var key := "scrap_" + str(it.material)
-		if stock.has(key): stock[key] = int(stock[key]) + maxi(0, int(round(it.mass())))
+		if stock.has(key):
+			var units := maxi(0, int(round(it.mass())))
+			stock[key] = int(stock[key]) + units
+			TownEcon.led(town["econ"], "made", key, units)   # v0.075: the scrap is booked as made
+		TownEcon.led(town["econ"], "used", "arms", 1)   # v0.075: the melted piece leaves the town's holdings
 		melted += 1
 	town["armory_items"] = keep
 	return melted

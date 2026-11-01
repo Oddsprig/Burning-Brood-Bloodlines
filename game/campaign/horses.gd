@@ -238,4 +238,5 @@ static func band_day(game, wb: Dictionary, payer: Dictionary, day: int) -> void:
 		_care(game, u, day, payer, func(n: int):
 			var got := mini(n, maxi(0, int(st.get("grain", 0)) - 2 * Supplies.men(wb)))
 			st["grain"] = int(st.get("grain", 0)) - got
+			WorldAudit.ration("grain", "-fed to a force's horses", -got)
 			return got)
