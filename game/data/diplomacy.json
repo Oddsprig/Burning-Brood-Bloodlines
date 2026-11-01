@@ -1,7 +1,7 @@
 {
   "_note": "Diplomacy lore tables (docs/specs/diplomacy.md); read by campaign/diplomacy.gd. Pair keys are the two faction ids sorted and joined with '|'. Only the factions listed here take part in diplomacy; any other faction keeps the old fixed behaviour. Numbers are tuned defaults [ours].",
-  "factions": ["dwarf_holds", "eastern_khanate", "goblin_warren", "middle_kingdom", "moon_court", "northern_clans", "orc_horde"],
-  "short_names": {"goblin_warren": "Skrag", "middle_kingdom": "Middle March", "moon_court": "Silvered Court", "northern_clans": "North", "orc_horde": "Red Tusk", "dwarf_holds": "the Holds", "eastern_khanate": "the Khanate"},
+  "factions": ["dwarf_holds", "eastern_khanate", "goblin_warren", "middle_kingdom", "moon_court", "night_court", "northern_clans", "orc_horde", "sun_court"],
+  "short_names": {"goblin_warren": "Skrag", "middle_kingdom": "Middle March", "moon_court": "Silvered Court", "northern_clans": "North", "orc_horde": "Red Tusk", "dwarf_holds": "the Holds", "eastern_khanate": "the Khanate", "sun_court": "Sunwood", "night_court": "Nightwood"},
   "baselines": {
     "middle_kingdom|northern_clans": -30,
     "middle_kingdom|orc_horde": -70,
@@ -20,7 +20,22 @@
     "eastern_khanate|middle_kingdom": -15,
     "eastern_khanate|northern_clans": 0,
     "eastern_khanate|orc_horde": -55,
-    "eastern_khanate|moon_court": 0
+    "eastern_khanate|moon_court": 0,
+    "dwarf_holds|night_court": -35,
+    "dwarf_holds|sun_court": -10,
+    "eastern_khanate|night_court": -15,
+    "eastern_khanate|sun_court": 0,
+    "goblin_warren|night_court": -20,
+    "goblin_warren|sun_court": -50,
+    "middle_kingdom|night_court": -25,
+    "middle_kingdom|sun_court": 15,
+    "moon_court|night_court": -55,
+    "moon_court|sun_court": 25,
+    "night_court|northern_clans": -20,
+    "night_court|orc_horde": -30,
+    "night_court|sun_court": -55,
+    "northern_clans|sun_court": 5,
+    "orc_horde|sun_court": -60
   },
   "_v012_note": "v0.012 [ours]: the dwarves (trade-minded: friendly to the human realms, cool to the elves, old enemies of goblins and orcs) and the Eastern khanate (rivals of the orcs on their northern border, wary of the March) take part in diplomacy from the start like every realm; neither is hostile to a human company at the start (no start_standing row).",
   "_baseline_default_note": "Any pair not listed above that includes one of these factions starts from this value (goblins vs everyone -40).",
@@ -32,14 +47,16 @@
   "start_earned": {"goblin_warren": -15},
   "_attitudes_note": "attitude[faction][race] in -1..+1: how the faction sees a race in the company's ranks. '*' = any race not listed. Races do not split March men from northerners yet, so orcs' respect for northerners (+0.3) and indifference to the March (0) average to +0.15 toward humans.",
   "attitudes": {
-    "orc_horde": {"moon_elf": -1.0, "human": 0.15, "goblin": 0.0, "orc": 0.5, "dwarf": -0.4},
-    "moon_court": {"orc": -1.0, "goblin": -0.8, "human": 0.2, "moon_elf": 0.5, "dwarf": -0.2},
-    "middle_kingdom": {"orc": -0.6, "goblin": -0.8, "moon_elf": 0.2, "human": 0.5, "dwarf": 0.2},
-    "northern_clans": {"orc": -0.6, "goblin": -0.8, "moon_elf": 0.0, "human": 0.5, "dwarf": 0.2},
-    "dwarf_holds": {"goblin": -0.8, "orc": -0.6, "moon_elf": -0.2, "human": 0.2, "dwarf": 0.6},
-    "eastern_khanate": {"orc": -0.6, "goblin": -0.8, "moon_elf": 0.0, "human": 0.4, "dwarf": 0.1},
+    "orc_horde": {"moon_elf": -1.0, "high_elf": -0.8, "dark_elf": -0.2, "human": 0.15, "goblin": 0.0, "orc": 0.5, "dwarf": -0.4},
+    "moon_court": {"orc": -1.0, "goblin": -0.8, "human": 0.2, "moon_elf": 0.5, "high_elf": 0.35, "dark_elf": -0.7, "dwarf": -0.2},
+    "middle_kingdom": {"orc": -0.6, "goblin": -0.8, "moon_elf": 0.2, "high_elf": 0.25, "dark_elf": -0.35, "human": 0.5, "dwarf": 0.2},
+    "northern_clans": {"orc": -0.6, "goblin": -0.8, "moon_elf": 0.0, "high_elf": 0.1, "dark_elf": -0.3, "human": 0.5, "dwarf": 0.2},
+    "dwarf_holds": {"goblin": -0.8, "orc": -0.6, "moon_elf": -0.2, "high_elf": -0.15, "dark_elf": -0.4, "human": 0.2, "dwarf": 0.6},
+    "eastern_khanate": {"orc": -0.6, "goblin": -0.8, "moon_elf": 0.0, "high_elf": 0.05, "dark_elf": -0.2, "human": 0.4, "dwarf": 0.1},
+    "sun_court": {"orc": -0.8, "goblin": -0.7, "dark_elf": -0.6, "human": 0.25, "moon_elf": 0.4, "high_elf": 0.6, "dwarf": 0.0},
+    "night_court": {"high_elf": -0.7, "moon_elf": -0.7, "human": -0.3, "dwarf": -0.4, "orc": -0.2, "goblin": -0.1, "dark_elf": 0.6},
     "goblin_warren": {"*": -0.3, "goblin": 0.5}
   },
   "_opposes_slavery_note": "Factions that take offence when the company sells captives to slavers (prisoners are not built yet).",
-  "opposes_slavery": ["middle_kingdom", "moon_court"]
+  "opposes_slavery": ["middle_kingdom", "moon_court", "sun_court"]
 }
