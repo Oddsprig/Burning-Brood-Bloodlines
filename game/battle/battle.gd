@@ -134,6 +134,7 @@ func _ready() -> void:
 	var head := ("The Siege of %s" % town_name) if kind == "siege" else (("The Raid on %s" % town_name) if kind == "raid" else "Battle is joined")
 	if pb.has("rounds"): head = "Round %d" % int(pb["rounds"].get("round", 1))
 	_banner(head, "%s %d  against  %s %d" % [side_names[0], int(sim.side_total[0]), side_names[1], int(sim.side_total[1])], 3.2)
+	MusicManager.play_battle(pb, side0, side1)
 	Sound.sfx("event_fanfare", 0.5, 0.0, 0)
 
 func _exit_tree() -> void:
@@ -1013,6 +1014,7 @@ func _after_round_panel(over: bool) -> void:
 		Game.goto("battle")   # a fresh field for the next pair of units
 		return
 	var w := int(Game.pending_battle["rounds"].get("winner", -1))
+	MusicManager.play_scene("victory" if w == 0 else "defeat")
 	Sound.sfx("event_fanfare" if w == 0 else "fall", 0.8, 0.0, 0)
 	_show_card(RoundSummary.battle_panel(BattleRounds.battle_summary(Game), finish))
 
@@ -1041,6 +1043,7 @@ func show_result() -> void:
 		return
 	var w: int = sim.winner
 	_banner("Victory" if w == 0 else ("Defeat" if w == 1 else "The field is held by none"), "", 1.4)
+	MusicManager.play_scene("victory" if w == 0 else "defeat")
 	Sound.sfx("event_fanfare" if w == 0 else "fall", 0.8, 0.0, 0)
 	var dead := [0, 0]; var fled := [0, 0]; var down := [0, 0]
 	for f in sim.fighters:

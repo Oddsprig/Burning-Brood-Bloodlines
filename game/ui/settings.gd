@@ -57,6 +57,9 @@ func _build() -> void:
 	var choices: Dictionary = Game.SETTING_CHOICES if "SETTING_CHOICES" in Game else {}
 	for key in choices:
 		var c: Dictionary = choices[key]
+		if key == "music_volume":
+			list.add_child(_slider_row(String(key), String(c["label"])))
+			continue
 		var opts: Array = c["options"]
 		var cur: Variant = Game.setting(key)
 		var idx := 0
@@ -91,6 +94,39 @@ func _build() -> void:
 	for key in labels:
 		if key == "battle_event_slowmo": continue
 		list.add_child(_toggle_row(String(key), String(labels[key])))
+
+func _slider_row(key: String, text: String) -> PanelContainer:
+	var cur := clampf(float(Game.setting(key)), 0.0, 1.0)
+	var row: PanelContainer = UiKit.panel("Card")
+	var cv: VBoxContainer = UiKit.vbox(6)
+	row.add_child(cv)
+	var h: HBoxContainer = UiKit.hbox(12)
+	cv.add_child(h)
+	var label: Label = UiKit.label(text, "H2", true)
+	label.add_theme_font_size_override("font_size", 22)
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	h.add_child(label)
+	var val_label: Label = UiKit.label(_format_volume(cur), "Muted")
+	val_label.name = "Value_" + key
+	val_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	h.add_child(val_label)
+	var slider := HSlider.new()
+	slider.name = "Slider_" + key
+	slider.min_value = 0.0
+	slider.max_value = 1.0
+	slider.step = 0.01
+	slider.value = cur
+	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	slider.custom_minimum_size = Vector2(0, 28)
+	slider.value_changed.connect(func(v: float):
+		val_label.text = _format_volume(v)
+		Game.set_setting(key, v))
+	cv.add_child(slider)
+	return row
+
+func _format_volume(v: float) -> String:
+	return "Muted" if v <= 0.0001 else ("%d%%" % int(round(clampf(v, 0.0, 1.0) * 100.0)))
 
 func _toggle_row(key: String, text: String) -> PanelContainer:
 	var on: bool = bool(Game.setting(key))
