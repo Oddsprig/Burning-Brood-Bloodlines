@@ -279,6 +279,37 @@ func _native_army_checks(row: Dictionary, body: Unit, band: Dictionary) -> void:
 	var assigned := Warfare.ai_marching_units(Game, str(band["id"]))
 	check(assigned.size() == 1 and assigned[0] == body and body.faction == str(band["faction"]), "the army borrows the exact living body on its own faction")
 	check(WorldWarbands.clash_power(Game, band) > CampaignWorld.band_power(band["units"]) and Unit._next_uid == count_before, "offscreen strength includes that same body without allocating a replacement")
+	# QC cec96e03: the admitted army loses its final ordinary man before another casualty is settled.
+	# A fresh march query must now reject this empty army; the outstanding admitted body must still settle.
+	var admitted := Warfare.band_combat_units(Game, band)
+	var man: Unit = band["units"][0]
+	var man_seed := -1
+	for seed in 16:
+		var probe := RandomNumberGenerator.new(); probe.seed = seed
+		if probe.randi() % admitted.size() == 0: man_seed = seed; break
+	check(admitted.size() == 2 and admitted[0] == man and admitted[1] == body and man_seed >= 0, "the native casualty fixture admits the actual man and canonical dragon")
+	if man_seed >= 0:
+		var loss_rng := RandomNumberGenerator.new(); loss_rng.seed = man_seed
+		var first := WorldWarbands.take_clash_loss(Game, band, loss_rng, true, false, admitted)
+		check(first == man and (band["units"] as Array).is_empty() and admitted == [body], "a fatal first selection removes the final ordinary man, leaving the admitted dragon quota outstanding")
+		check(Warfare.band_combat_units(Game, band).is_empty(), "normal march eligibility rejects the now-empty army as intended")
+		var second := WorldWarbands.take_clash_loss(Game, band, loss_rng, false, false, admitted)
+		check(second == body and admitted.is_empty() and not body.dead and not row.has("ai_march"), "the outstanding casualty still withdraws its canonical dragon after the last man is gone")
+		var settled_rng := loss_rng.state
+		check(WorldWarbands.take_clash_loss(Game, band, loss_rng, true, false, admitted) == null and loss_rng.state == settled_rng, "an exhausted explicit pool cannot re-admit bodies or draw another casualty")
+		(band["units"] as Array).append(man)   # restore only this explicit test fixture for the live-battle proof
+		check(bool(Warfare.set_dragon_march(Game, dragon_id, true, str(band["id"])).get("ok", false)), "the same body can rejoin after the completed test withdrawal")
+	# With no dragons, fixed pool ordering and RNG consumption match the existing erase-in-order algorithm.
+	var humans: Array = [Unit.create("human", "middle_kingdom", false), Unit.create("human", "middle_kingdom", false), Unit.create("human", "middle_kingdom", false)]
+	var expected: Array = humans.duplicate(); var plain := {"units": humans.duplicate()}
+	var actual_pool: Array = humans.duplicate()
+	var old_rng := RandomNumberGenerator.new(); old_rng.seed = 79079
+	var new_rng := RandomNumberGenerator.new(); new_rng.seed = 79079
+	for step in 2:
+		var selected: Unit = expected[old_rng.randi() % expected.size()]; expected.erase(selected)
+		check(WorldWarbands.take_clash_loss(Game, plain, new_rng, true, true, actual_pool) == selected and plain["units"] == expected and new_rng.state == old_rng.state, "no-dragon casualty %d preserves exact native order and RNG" % step)
+	var last_rng := new_rng.state
+	check(WorldWarbands.take_clash_loss(Game, plain, new_rng, true, true, actual_pool) == null and plain["units"].size() == 1 and new_rng.state == last_rng, "the no-dragon winner retains its native last-man and RNG guard")
 	# Actual aggregate capture/withdrawal selection. A local seed selects the dragon in this two-body fixture.
 	var chosen_seed := -1
 	for seed in 16:
