@@ -238,6 +238,7 @@ func setup(side0: Array, side1: Array, seed: int, opts: Dictionary = {}) -> void
 				if f.side == s:
 					f.hold = true
 	MountedCombat.setup(self)
+	DragonRiders.setup(self, opts.get("dragon_riders", {}))   # v0.081: bonded riders are live targets on their dragons
 	for f in fighters:
 		side_total[f.side] += 1
 		if f.state == "dead" or f.state == "unconscious":
@@ -502,6 +503,7 @@ func step() -> void:
 		return
 	tick += 1
 	MountedCombat.sync(self)
+	DragonRiders.sync(self)
 	if not _downs.is_empty():
 		_process_downs()
 	if stream and tick % stream_gap == 0:
@@ -543,6 +545,7 @@ func step() -> void:
 			continue
 		_decide(f)
 	MountedCombat.sync(self)
+	DragonRiders.sync(self)
 	_check_end()
 	_trim_history()
 
@@ -561,13 +564,14 @@ func _stream_enter() -> void:
 	if best.x < 0:
 		return
 	for f in fighters:
-		if f.waiting and f.state != "dead" and f.mount_rider_idx < 0:
+		if f.waiting and f.state != "dead" and f.mount_rider_idx < 0 and f.seated_on < 0:
 			f.waiting = false
 			f.cell = best
 			f.prev_cell = best
 			if f.standing():
 				occ[_ci(best)] = f.idx
 			MountedCombat.follow(self, f)
+			DragonRiders.follow(self, f)
 			_event("enter", f.idx, -1, "", false)
 			return
 
@@ -580,7 +584,7 @@ func _check_end() -> void:
 	var first := -1
 	for f in fighters:
 		var st: String = f.state
-		if f.mount_rider_idx < 0 and st != "dead" and st != "fled" and st != "unconscious" and not f.routed:
+		if f.mount_rider_idx < 0 and f.seated_on < 0 and st != "dead" and st != "fled" and st != "unconscious" and not f.routed:
 			first = f.side
 			break
 	var last := -1
@@ -588,7 +592,7 @@ func _check_end() -> void:
 		for i in range(fighters.size() - 1, -1, -1):
 			var f: Fighter = fighters[i]
 			var st: String = f.state
-			if f.mount_rider_idx < 0 and st != "dead" and st != "fled" and st != "unconscious" and not f.routed:
+			if f.mount_rider_idx < 0 and f.seated_on < 0 and st != "dead" and st != "fled" and st != "unconscious" and not f.routed:
 				last = f.side
 				break
 	if first >= 0 and last >= 0 and first != last:
@@ -597,7 +601,7 @@ func _check_end() -> void:
 	else:
 		for f in fighters:
 			var st: String = f.state
-			if f.mount_rider_idx < 0 and st != "dead" and st != "fled" and st != "unconscious" and not f.routed:
+			if f.mount_rider_idx < 0 and f.seated_on < 0 and st != "dead" and st != "fled" and st != "unconscious" and not f.routed:
 				if f.side == 0:
 					s0 += 1
 				else:
@@ -625,7 +629,7 @@ func _check_end() -> void:
 			Archery.end_battle(self)
 		apply_battle_growth()
 		for f in fighters:
-			if f.mount_rider_idx >= 0: Healing.after_battle(f.unit)
+			if f.mount_rider_idx >= 0 or f.seat_joined: Healing.after_battle(f.unit)   # bodies outside the side rosters
 			# battle-only attribute multipliers come off when the fight ends (already empty = nothing to clear;
 			# Unit.set_food_attr_mult empties both dictionaries together)
 			if not f.unit.food_attr_mult.is_empty():
@@ -765,6 +769,9 @@ func _complete_action(f: Fighter) -> void:
 		f.state = _idle_state(f)
 
 func _decide(f: Fighter) -> void:
+	if f.seat_dragon >= 0:   # v0.081: a seated rider is carried; his dragon acts
+		_set_action(f, _idle_state(f), 10)
+		return
 	if f.mount_rider_idx >= 0 and f.mount_attached:
 		_set_action(f, _idle_state(f), 10)
 		return
