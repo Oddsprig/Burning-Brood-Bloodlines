@@ -323,7 +323,7 @@ func legacy_age_lookup() -> void:
 			if complete_cache:
 				f["k1014_next"] = float(e["day"]) + 7.0
 				f["k1014_race"] = "human"
-				f["k1014_sig"] = hash(f.get("kp", []))
+				f["k1014_sig"] = Barge.kp_signature(f.get("kp", []))
 			var label := "%s register, %s cache" % [
 				"empty" if empty_register else "missing",
 				"current-looking" if complete_cache else "legacy"]

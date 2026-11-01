@@ -19,6 +19,7 @@ static var draws := 0
 var map: Node = null
 var _ver := -1
 var _cid := ""
+var _epoch := -1   # Game's load count: a loaded world draws afresh even when its track version is the same number
 var track_sel := []        # [wid, drop time] of the tapped crumb (indices shift as the ring buffer turns)
 
 func setup(m: Node) -> void:
@@ -33,9 +34,11 @@ func _process(_delta: float) -> void:
 	var t0 := Time.get_ticks_usec()
 	var v := Tracks.version(Game.world)
 	var cid: String = Game.contract.get("id", "")
-	if v != _ver or cid != _cid:
+	var ep: int = Game._save_epoch
+	if v != _ver or cid != _cid or ep != _epoch:
 		_ver = v
 		_cid = cid
+		_epoch = ep
 		queue_redraw()
 	usec += Time.get_ticks_usec() - t0
 
