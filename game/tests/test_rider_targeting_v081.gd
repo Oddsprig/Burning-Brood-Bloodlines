@@ -179,31 +179,9 @@ func run(tree: SceneTree) -> int:
 		check((result.get("dragon_seats", {}) as Dictionary).has(dragon_uid), "the result reports the seat for the post-battle rules")
 		check(str(result["dragon_seats"][dragon_uid]["unseated"]) == "the mount went down", "the report says why he left the saddle")
 
-	# --- A rider killed in the fight dies through the existing casualty path, once.
-	reset_dragons()
-	if not rider.dead:
-		var book := Census._book(Game.world["towns"][town_id]["econ"])
-		var deaths_before: int = book["deaths"].size()
-		Game.pending_battle = {"seed": 811}
-		var receipt := DragonCombat.admission_receipt(Game, [dragon])
-		check(not receipt.is_empty(), "the native dragon is admitted")
-		var sim := make_sim([dragon], enemies(2, 9), 811)
-		var seat := seat_of(sim, dragon)
-		sim._kill(seat, -1, "native fixture: struck down in the saddle")
-		sim.step()
-		check(seat.unseated == "the rider fell" and seat.seat_dragon < 0, "a rider struck down leaves the saddle")
-		var result := result_of(sim)
-		var applied := DragonCombat.on_battle_result(Game, result, receipt)
-		var outcomes: Array = result.get("rider_outcomes", [])
-		check(bool(applied["applied"]) and outcomes.size() == 1, "one rider outcome")
-		if outcomes.size() == 1:
-			check(str(outcomes[0]["outcome"]) == "killed" and str(outcomes[0]["live"]) == "killed", "the live death is the outcome (no fall roll over it)")
-			check("the fighting on" in str(outcomes[0]["text"]), "the report says he died in the fighting on his dragon")
-		check(rider.dead and Dynasty._person(Game, person_uid).is_empty(), "the killed rider leaves the living register through normal casualties")
-		check(book["deaths"].size() == deaths_before + 1 and book["death_ids"].has(person_uid), "one census death")
-		check(not bool(DragonCombat.on_battle_result(Game, result, receipt)["applied"]), "the receipt cannot apply twice")
-
 	# --- A rider with no Unit of his own rides as a battle body; his live wound reaches his record.
+	# v0.081 r3: this runs before the killed-ruler section. The ruler owns both dragons, and once he is dead
+	# dragon two's defence order no longer has a living owner, so it is (rightly) not admitted and no outcome is made.
 	if person2_uid == "":
 		print("rider targeting v081: no second adult without a Unit in this house; battle-body checks skipped")
 		check(false, "the house has a second adult without a Unit for the battle-body checks")
@@ -211,6 +189,7 @@ func run(tree: SceneTree) -> int:
 		reset_dragons()
 		Game.pending_battle = {"seed": 812}
 		var receipt := DragonCombat.admission_receipt(Game, [dragon2])
+		check(not receipt.is_empty(), "dragon two (battle-body rider) is admitted: %s" % str(DragonCombat.combat_status(Game, dragon2_uid).get("reason", "")))
 		var riders2 := DragonCombat.battle_riders(Game, [dragon2])
 		var entry: Dictionary = riders2.get(str(dragon2.uid), {})
 		check(not entry.is_empty() and bool(entry["detached"]) and (entry["unit"] as Unit).name == str(Dynasty.person(Game, person2_uid)["name"]), "a rider without a Unit rides as a battle body named for him")
@@ -230,9 +209,10 @@ func run(tree: SceneTree) -> int:
 			sim.step()
 			var result := result_of(sim)
 			check(not (result["player_units"] as Array).has(seat.unit), "a battle body is never a roster unit (no loot or prisoners)")
-			DragonCombat.on_battle_result(Game, result, receipt)
+			var applied2 := DragonCombat.on_battle_result(Game, result, receipt)
 			var outcomes: Array = result.get("rider_outcomes", [])
-			check(outcomes.size() == 1, "one outcome for the battle-body rider")
+			check(outcomes.size() == 1, "one outcome for the battle-body rider (got %d; applied %s; seat %s)" % [outcomes.size(),
+				str(applied2.get("applied", false)), str((result.get("dragon_seats", {}) as Dictionary).get(dragon2_uid, {}).get("damage", "none"))])
 			if outcomes.size() == 1:
 				var fate := str(outcomes[0]["outcome"])
 				check(fate in ["wounded", "killed"] and str(outcomes[0]["live"]) != "", "his live harm is the outcome (%s)" % fate)
@@ -240,6 +220,31 @@ func run(tree: SceneTree) -> int:
 					var loc := Dynasty._person(Game, person2_uid)
 					check(not loc.is_empty() and (loc["person"][Persons.HIST] as Array).any(func(event: Array): return str(event[1]) == "wound"), "the wound is in his life history")
 			check(Dynasty.bound_unit(Game, Dynasty.person(Game, person2_uid)) == null, "no campaign Unit was made for him")
+
+	# --- A rider killed in the fight dies through the existing casualty path, once.
+	# (Last of the dragon sections: it removes the ruler, who owns both dragons.)
+	reset_dragons()
+	if not rider.dead:
+		var book := Census._book(Game.world["towns"][town_id]["econ"])
+		var deaths_before: int = book["deaths"].size()
+		Game.pending_battle = {"seed": 811}
+		var receipt := DragonCombat.admission_receipt(Game, [dragon])
+		check(not receipt.is_empty(), "the native dragon is admitted")
+		var sim := make_sim([dragon], enemies(2, 9), 811)
+		var seat := seat_of(sim, dragon)
+		sim._kill(seat, -1, "native fixture: struck down in the saddle")
+		sim.step()
+		check(seat.unseated == "the rider fell" and seat.seat_dragon < 0, "a rider struck down leaves the saddle")
+		var result := result_of(sim)
+		var applied := DragonCombat.on_battle_result(Game, result, receipt)
+		var outcomes: Array = result.get("rider_outcomes", [])
+		check(bool(applied["applied"]) and outcomes.size() == 1, "one rider outcome (got %d)" % outcomes.size())
+		if outcomes.size() == 1:
+			check(str(outcomes[0]["outcome"]) == "killed" and str(outcomes[0]["live"]) == "killed", "the live death is the outcome (no fall roll over it)")
+			check("the fighting on" in str(outcomes[0]["text"]), "the report says he died in the fighting on his dragon")
+		check(rider.dead and Dynasty._person(Game, person_uid).is_empty(), "the killed rider leaves the living register through normal casualties")
+		check(book["deaths"].size() == deaths_before + 1 and book["death_ids"].has(person_uid), "one census death")
+		check(not bool(DragonCombat.on_battle_result(Game, result, receipt)["applied"]), "the receipt cannot apply twice")
 
 	# --- Horse riders were already the live fighters; their horse is the passive body under them.
 	var horseman: Unit = enemies(1, 21)[0]
