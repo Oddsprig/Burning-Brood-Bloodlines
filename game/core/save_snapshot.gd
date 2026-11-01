@@ -28,12 +28,19 @@ func begin(game) -> void:
 	total_us = begin_us
 	worst_us = begin_us
 
+## Rebuilt on load by CropRotation.ensure. Dropping them shortens the walk and the JSON.
+const DERIVED_SAVE_KEYS := {
+	"crop_work_acres": true, "crop_work_plots": true, "crop_yields": true,
+	"crop_names": true, "_crop_work_plots_valid": true,
+}
+
 func _record(object: Object) -> Dictionary:
 	var id := object.get_instance_id()
 	if _records.has(id):
 		reused_records += 1
 		return _records[id]
-	var record: Dictionary = object.to_dict().duplicate(true)
+	# to_dict() already returns a detached tree. A second duplicate(true) walked every body again.
+	var record: Dictionary = object.to_dict()
 	_records[id] = record
 	if object is Unit: unit_records += 1
 	else: item_records += 1
@@ -79,6 +86,9 @@ func step(budget_us: int) -> bool:
 			job["output"].append(_record(source[index]))
 		elif source is Dictionary:
 			var key = job["keys"][index]
+			if DERIVED_SAVE_KEYS.has(str(key)):
+				(job["output"] as Dictionary).erase(key)
+				continue
 			var value = source[key]
 			# Shallow-copy scalar values natively; replace only complex values.
 			if source.is_typed() or typeof(value) > TYPE_STRING: job["output"][key] = _value(value)

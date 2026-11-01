@@ -7,7 +7,7 @@ config/use_custom_user_dir=true
 config/custom_user_dir_name="Burning Brood Bloodlines Claude Edition"
 
 config/name="Burning Brood: Bloodlines - Claude Edition"
-config/version="0.083"
+config/version="0.084"
 config/quit_on_go_back=false
 config/icon="res://icon_claude.png"
 run/main_scene="res://main.tscn"

@@ -189,7 +189,7 @@ func _refresh_house() -> void:
 func apply_enlist_household(person_uid: String) -> Dictionary:
 	var r: Dictionary = Mobilization.enlist_household(Game, person_uid)
 	notice = String(r.get("reason", ""))
-	if bool(r.get("ok", false)): Game.save_game_async()
+	if bool(r.get("ok", false)): Game.request_autosave()
 	_refresh()
 	return r
 
@@ -216,7 +216,7 @@ func apply_raise(tid: String, amount: int, review: Dictionary) -> Dictionary:
 	notice = String(outcome.get("reason",""))
 	if bool(outcome.get("ok",false)):
 		notice = "%d of %d requested troops raised%s. Cost: %s coins. %s" % [int(outcome.get("raised",0)),int(outcome.get("requested",amount))," · partial raising" if bool(outcome.get("partial",false)) else "",coins(outcome.get("cost",0)),notice]
-		Game.save_game_async()
+		Game.request_autosave()
 	_refresh()
 	return outcome
 
@@ -231,7 +231,7 @@ func apply_stand_down(tid: String, review: Dictionary) -> Dictionary:
 	notice = String(outcome.get("reason",outcome.get("message","")))
 	if bool(outcome.get("ok",false)):
 		notice = "%d living troops stood down. %s" % [int(outcome.get("returned",0)),notice]
-		Game.save_game_async()
+		Game.request_autosave()
 	_refresh()
 	return outcome
 
@@ -246,7 +246,7 @@ func apply_refit(tid: String, review: Dictionary) -> Dictionary:
 	notice = String(outcome.get("reason",""))
 	if bool(outcome.get("ok",false)):
 		notice = "%d living troops refitted. Cost: %s coins. %s" % [int(outcome.get("fitted",0)),coins(outcome.get("cost",0)),notice]
-		Game.save_game_async()
+		Game.request_autosave()
 	_refresh()
 	return outcome
 
@@ -265,7 +265,7 @@ func apply_funding(amount: float, review: Dictionary) -> Dictionary:
 		return {"ok":false,"reason":notice}
 	var outcome: Dictionary = Mobilization.fund(Game,amount)
 	notice = String(outcome.get("reason",outcome.get("message","")))
-	if bool(outcome.get("ok",false)): Game.save_game_async()
+	if bool(outcome.get("ok",false)): Game.request_autosave()
 	_refresh()
 	return outcome
 
