@@ -49,8 +49,8 @@ static func release_realm(game, faction: String, uid: int) -> bool:
 	var list: Array = game.world.get("realm_prisoners", {}).get(faction, [])
 	var rec := _find(list, uid)
 	if rec.is_empty() or not rec.get("unit") is Unit: return false
+	_free_enemy(game, rec, "released")   # keep canonical holder visible through native gear/quiver settlement
 	list.erase(rec)
-	_free_enemy(game, rec, "released")
 	return true
 
 static func state(game) -> Dictionary:
@@ -363,13 +363,10 @@ static func daily(game, day: int = -1) -> void:
 			var gone: bool = not legacy and u.dead
 			# Your people's families stay put while one is held (Persons.AWAY), so a missing register row means
 			# they are gone. An enemy family may move away; their man is still held until he dies or is freed.
-			if not gone and int(rec.get("family", -1)) >= 0 \
+			if not gone and (legacy or is_same(list, captives(game))) and int(rec.get("family", -1)) >= 0 \
 					and game.world.get("towns", {}).has(str(rec.get("home_town", ""))):
 				var a := _address(game, rec)
-				if legacy or is_same(list, captives(game)):
-					gone = a.is_empty() or str(a["person"][4]) in ["gone", "dead"]
-				else:
-					gone = not a.is_empty() and str(a["person"][4]) in ["gone", "dead"]
+				gone = a.is_empty() or str(a["person"][4]) in ["gone", "dead"]
 			if gone:
 				if u is Unit:
 					Horses.return_mount(game, u)
@@ -527,11 +524,10 @@ static func _can_feed(place: Dictionary) -> bool:
 static func _upkeep_skipped(game, rec: Dictionary, player_holds: bool) -> bool:
 	var u = rec.get("unit")
 	if not u is Unit or (u as Unit).dead: return true
+	if player_holds: return false   # an enemy's missing/moved home register does not kill his living captive body
 	if int(rec.get("family", -1)) < 0: return false
 	if not game.world.get("towns", {}).has(str(rec.get("home_town", ""))): return false
 	var a := _address(game, rec)
-	if player_holds:
-		return not a.is_empty() and str(a["person"][4]) in ["gone", "dead"]
 	return a.is_empty() or str(a["person"][4]) in ["gone", "dead"]
 
 static func _release_unfed(game, rec: Dictionary, player_holds: bool, holder_fid: String = "") -> void:
