@@ -102,6 +102,7 @@ static func after_round(game, r: Dictionary) -> Dictionary:
 	if not st.has("dragon_downs"): st["dragon_downs"] = {}
 	for uid: String in r.get("dragon_downs", {}):
 		st["dragon_downs"][uid] = bool(st["dragon_downs"].get(uid, false)) or bool(r["dragon_downs"][uid])
+	DragonCombat.merge_seats(st, r.get("dragon_seats", {}))   # v0.081: riders' live fights across rounds
 	var units: Array = r.get("fighter_units", [])
 	var states: Array = r.get("fighter_states", [])
 	var w := int(r.get("winner", -1))
@@ -246,6 +247,7 @@ static func final_result(game, last: Dictionary) -> Dictionary:
 	r["player_fled"] = []
 	r["rounds"] = (st["log"] as Array).duplicate()
 	r["dragon_downs"] = st.get("dragon_downs", {}).duplicate()
+	r["dragon_seats"] = st.get("dragon_seats", {}).duplicate()
 	r["battle_summary"] = battle_summary(game)
 	_take_prisoners(game, st)
 	return r
