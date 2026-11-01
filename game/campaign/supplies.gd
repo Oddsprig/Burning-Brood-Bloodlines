@@ -191,6 +191,23 @@ static func draw_dragon_meat(game, qty: int) -> Dictionary:
 	drawn["spoiled"] = int(drawn.get("spoiled", 0))
 	return drawn
 
+## One day of soldier meals. Grain and fruit cover those meals first, so the meat they still need stays with them.
+static func spare_meat(wb: Dictionary) -> int:
+	var st := stores(wb)
+	var meals := int(round(2.0 * meal_shares(wb)))
+	var other := int(st.get("grain", 0)) + int(st.get("fruit", 0))
+	var reserved := maxi(0, meals - other)
+	return maxi(0, int(st.get("meat", 0)) - reserved)
+
+## Draws only spare meat from this army's counted stores. Does not touch the player's provisions.
+static func draw_band_meat(wb: Dictionary, qty: int) -> Dictionary:
+	var take := mini(maxi(0, qty), spare_meat(wb))
+	var st := stores(wb)
+	if take > 0:
+		st["meat"] = int(st.get("meat", 0)) - take
+		if int(st["meat"]) <= 0: st.erase("meat")
+	return {"taken": take, "by_good": {"meat": take} if take > 0 else {}}
+
 ## Days of named meat packed for marching dragons, above the soldiers' ration, against store_days. Pure.
 static func dragon_meat_plan(game) -> Dictionary:
 	var need_per_day := 0

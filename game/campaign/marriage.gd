@@ -10,6 +10,8 @@ extends RefCounted
 ## defection becomes far less likely), and children of the match hold a CLAIM on the spouse's family seat when it
 ## is a ruling house: pressing it by siege makes the conquest welcome rather than resented.
 ## A refusal costs a little standing; nobody can be asked twice within a season.
+## Other noble houses arrange their own matches across towns and realms. Those live in ai_links
+## and use the same diplomacy bonus, not your alliance list. The bride joins the groom's house.
 const GIFTS := [0.0, 0.02, 0.06]          # share of your house purse offered: none / modest / generous
 const GIFT_NAMES := ["No gift", "Modest gift", "Generous gift"]
 const DOWRY_SHARE := 0.03
@@ -346,6 +348,16 @@ static func daily(game) -> void:
 		var row: Dictionary = game.world.get("feudal", {}).get("towns", {}).get(str(al.get("town_id", "")), {})
 		if not row.is_empty() and str(game.world["towns"].get(str(al["town_id"]), {}).get("faction", "")) == Warfare.player_faction(game):
 			row["loyalty"] = minf(100.0, float(row["loyalty"]) + 0.15)
+	if st.has("ai_links"):
+		for key in st["ai_links"].keys():
+			var link: Dictionary = st["ai_links"][key]
+			if not _ai_couple_holds(game, link):
+				st["ai_links"].erase(key)
+				_log(game, "The marriage between House %s and House %s ends: the couple is no longer living and married." % [link.get("groom_house_name", "?"), link.get("bride_house_name", "?")])
+	if not st.has("ai_next"):
+		st["ai_next"] = int(game.day) + 7
+	elif int(game.day) >= int(st["ai_next"]):
+		arrange_ai(game)
 	Diplomacy.sync_dynasty(game)
 
 static func has_claim(game, town_id: String) -> bool:
@@ -356,3 +368,213 @@ static func children_of(game, uid: String) -> Array:
 	for row: Dictionary in Dynasty.living_members(game):
 		if str(row.get("mother_uid", "")) == uid or str(row.get("father_uid", "")) == uid: out.append(row)
 	return out
+
+## Living ruling-house AI marriages whose realms differ. Pair key -> true. Does not create save state.
+static func ai_realm_pairs(game) -> Dictionary:
+	var out := {}
+	var links: Dictionary = game.world.get("marriage", {}).get("ai_links", {})
+	for key in links.keys():
+		var link: Dictionary = links[key]
+		if not bool(link.get("ruling", false)) or not _ai_couple_holds(game, link): continue
+		var a := str(link.get("faction_a", ""))
+		var b := str(link.get("faction_b", ""))
+		if a == "" or b == "" or a == b: continue
+		out[Diplomacy.pair_key(a, b)] = true
+	return out
+
+static func _ai_couple_holds(game, link: Dictionary) -> bool:
+	var groom := str(link.get("groom_uid", ""))
+	var bride := str(link.get("bride_uid", ""))
+	var a := Dynasty._person(game, groom)
+	var b := Dynasty._person(game, bride)
+	if a.is_empty() or b.is_empty(): return false
+	return str(Persons.g(a["person"], Persons.SPOUSE_UID, "")) == bride \
+		and str(Persons.g(b["person"], Persons.SPOUSE_UID, "")) == groom
+
+static func _is_player_side(game, f: Dictionary, p: Array) -> bool:
+	var hh := _household_uid(game)
+	var house := _house(game)
+	if hh != "" and str(f.get("household_uid", "")) == hh: return true
+	if house != "" and str(Persons.g(p, Persons.HOUSE_UID, "")) == house: return true
+	return false
+
+## Empty when this noble adult can be matched. Heads and heirs stay on the seat.
+static func _ai_blocked(game, town: Dictionary, f: Dictionary, p: Array, heir_uid: String = "") -> String:
+	if f.get("cohort", false) or f.get("estate", false) or f.get("gone", false): return "is not of a noble house"
+	if str(f.get("household_uid", "")) == "": return "is not of a noble house"
+	if _is_player_side(game, f, p): return "is of your own house"
+	var e: Dictionary = town.get("econ", {})
+	var uid := str(Persons.g(p, Persons.PERSON_UID, ""))
+	if uid == "" or uid == str(e.get("head", {}).get("person_uid", "")): return "holds the seat"
+	var tid := str(town.get("id", ""))
+	if heir_uid == "": heir_uid = str(Dynasty.heir(game, tid).get("person_uid", ""))
+	if heir_uid != "" and uid == heir_uid: return "is the heir"
+	if String(p[4]) != "" or int(p[5]) >= 0: return "is away from home"
+	if int(p[6]) != 0: return "is not a free adult"
+	var race := Persons.family_race(e, f)
+	var ab := _ages(race)
+	var age := Persons.age_of(p, float(game.day))
+	if age < int(ab["adult"]) or age >= int(ab["elder"]): return "is outside marrying age"
+	var loc := {"town": town, "econ": e, "family": f, "person": p, "alive": true}
+	if not Dynasty._living(game, tid, f, p) or _married(loc) or _betrothed(game, uid): return "is not free to marry"
+	return ""
+
+## Acceptance from the groom's house, not the player's. Peace between realms can clear the line; war cannot.
+static func _ai_score(game, groom_loc: Dictionary, bride_loc: Dictionary) -> Dictionary:
+	var gt: Dictionary = groom_loc["town"]
+	var bt: Dictionary = bride_loc["town"]
+	var gf: Dictionary = groom_loc["family"]
+	var bf: Dictionary = bride_loc["family"]
+	var gtid := str(gt.get("id", ""))
+	var btid := str(bt.get("id", ""))
+	var fa := str(gt.get("faction", ""))
+	var fb := str(bt.get("faction", ""))
+	var groom_ruling := str(gf.get("household_uid", "")) == str(gt.get("econ", {}).get("head", {}).get("household_uid", ""))
+	var bride_ruling := str(bf.get("household_uid", "")) == str(bt.get("econ", {}).get("head", {}).get("household_uid", ""))
+	var score := 40.0
+	var gr := _rank(game, gtid) - (0.0 if groom_ruling else 3.0)
+	var br := _rank(game, btid) - (0.0 if bride_ruling else 3.0)
+	score += (gr - br) * 6.0
+	if fa == fb:
+		score += 10.0
+	else:
+		score += Diplomacy.relation(game.world, fa, fb) / 3.0
+		var rel_state := Diplomacy.state(game.world, fa, fb)
+		if rel_state == Diplomacy.WAR or rel_state == Diplomacy.HOSTILE:
+			score -= 35.0
+		else:
+			score += 12.0
+	if groom_ruling or bride_ruling:
+		score += 8.0
+	var gap := absf(float(Persons.age_of(groom_loc["person"], float(game.day)) - Persons.age_of(bride_loc["person"], float(game.day))))
+	if gap > 8.0:
+		score -= (gap - 8.0) * 1.5
+	return {"score": score, "accepts": score >= ACCEPT, "ruling": groom_ruling or bride_ruling,
+		"faction_a": fa, "faction_b": fb}
+
+static func _ai_pool(game, sex: int) -> Array:
+	var out: Array = []
+	var ids: Array = game.world.get("towns", {}).keys()
+	ids.sort()
+	for tid in ids:
+		var town: Dictionary = game.world["towns"][tid]
+		var e: Dictionary = town.get("econ", {})
+		var heir_uid := str(Dynasty.heir(game, str(tid)).get("person_uid", ""))
+		for f in e.get("fams", []):
+			if not f is Dictionary: continue
+			for p in Persons.pp(f):
+				if int(p[2]) != sex: continue
+				if _ai_blocked(game, town, f, p, heir_uid) != "": continue
+				out.append({"town": town, "econ": e, "family": f, "person": p, "alive": true})
+	return out
+
+## One accepted AI match, if any. The next scan waits seven days either way.
+static func arrange_ai(game) -> Dictionary:
+	var st := state(game)
+	st["ai_next"] = int(game.day) + 7
+	if not game.world.has("towns"): return {"ok": true, "arranged": false, "reason": "No settlements."}
+	var men := _ai_pool(game, 0)
+	var women := _ai_pool(game, 1)
+	for man: Dictionary in men:
+		for woman: Dictionary in women:
+			if str(man["town"].get("id", "")) == str(woman["town"].get("id", "")): continue
+			if str(man["family"].get("household_uid", "")) == str(woman["family"].get("household_uid", "")): continue
+			if Persons.family_race(man["econ"], man["family"]) != Persons.family_race(woman["econ"], woman["family"]): continue
+			if absi(Persons.age_of(man["person"], float(game.day)) - Persons.age_of(woman["person"], float(game.day))) > 16: continue
+			var offer := _ai_score(game, man, woman)
+			if not bool(offer["accepts"]): continue
+			var wed_row := _ai_wed(game, man, woman, offer)
+			wed_row["arranged"] = true
+			return wed_row
+	return {"ok": true, "arranged": false, "reason": "No house accepted a match."}
+
+## Direct match for a prepared pair. No cooldown. The bride must be the woman.
+static func try_ai_match(game, groom_uid: String, bride_uid: String) -> Dictionary:
+	var groom := Dynasty._person(game, groom_uid)
+	var bride := Dynasty._person(game, bride_uid)
+	if groom.is_empty() or bride.is_empty(): return {"ok": false, "reason": "One of the pair is gone."}
+	if int(groom["person"][2]) != 0 or int(bride["person"][2]) != 1:
+		return {"ok": false, "reason": "The bride joins the groom's house."}
+	var gblock := _ai_blocked(game, groom["town"], groom["family"], groom["person"])
+	if gblock != "": return {"ok": false, "reason": "The groom " + gblock + "."}
+	var bblock := _ai_blocked(game, bride["town"], bride["family"], bride["person"])
+	if bblock != "": return {"ok": false, "reason": "The bride " + bblock + "."}
+	if str(groom["town"].get("id", "")) == str(bride["town"].get("id", "")):
+		return {"ok": false, "reason": "They already share a town."}
+	if str(groom["family"].get("household_uid", "")) == str(bride["family"].get("household_uid", "")):
+		return {"ok": false, "reason": "They already share a house."}
+	if Persons.family_race(groom["econ"], groom["family"]) != Persons.family_race(bride["econ"], bride["family"]):
+		return {"ok": false, "reason": "The houses are not the same race."}
+	if absi(Persons.age_of(groom["person"], float(game.day)) - Persons.age_of(bride["person"], float(game.day))) > 16:
+		return {"ok": false, "reason": "The age gap is too wide."}
+	var offer := _ai_score(game, groom, bride)
+	if not bool(offer["accepts"]):
+		return {"ok": false, "reason": "The houses decline (%.0f of %.0f)." % [float(offer["score"]), ACCEPT], "score": float(offer["score"])}
+	return _ai_wed(game, groom, bride, offer)
+
+## The woman joins the man's house. Dowry is real coin. No egg, no claim, no player alliance row.
+static func _ai_wed(game, groom: Dictionary, bride: Dictionary, offer: Dictionary) -> Dictionary:
+	var from_town: Dictionary = bride["town"]
+	var from_e: Dictionary = bride["econ"]
+	var from_f: Dictionary = bride["family"]
+	var p: Array = bride["person"]
+	var to_e: Dictionary = groom["econ"]
+	var to_f: Dictionary = groom["family"]
+	var mp: Array = groom["person"]
+	var groom_uid := str(Persons.g(mp, Persons.PERSON_UID, ""))
+	var bride_uid := str(Persons.g(p, Persons.PERSON_UID, ""))
+	var groom_hh := str(to_f.get("household_uid", ""))
+	var bride_hh := str(from_f.get("household_uid", ""))
+	var groom_house := str(Persons.g(mp, Persons.HOUSE_UID, ""))
+	var bride_house := str(Persons.g(p, Persons.HOUSE_UID, ""))
+	var groom_name := str(to_f.get("name", ""))
+	var bride_name := str(from_f.get("name", ""))
+	var bride_town := str(from_town.get("id", ""))
+	var groom_town := str(groom["town"].get("id", ""))
+	var fa := str(offer.get("faction_a", ""))
+	var fb := str(offer.get("faction_b", ""))
+	var day := float(game.day)
+	var dowry := floorf(maxf(0.0, float(from_f.get("purse", 0.0))) * DOWRY_SHARE)
+	if dowry > 0.0:
+		from_f["purse"] = float(from_f.get("purse", 0.0)) - dowry
+		to_f["purse"] = float(to_f.get("purse", 0.0)) + dowry
+	var bride_person_name := Persons.name_of(from_f, p, Persons.family_race(from_e, from_f))
+	Persons.forget(from_e, from_f, p)
+	Persons.pp(from_f).erase(p)
+	from_f["f"] = maxi(0, int(from_f.get("f", 0)) - 1)
+	if not is_same(from_e, to_e):
+		p[0] = int(to_e.get("next_pid", 1)); to_e["next_pid"] = int(p[0]) + 1
+		p[Persons.MO] = -1; p[Persons.FA] = -1
+		from_e["pop"] = maxi(0, int(from_e.get("pop", 0)) - 1); to_e["pop"] = int(to_e.get("pop", 0)) + 1
+		from_e["adults"] = maxi(0, int(from_e.get("adults", 0)) - 1); to_e["adults"] = int(to_e.get("adults", 0)) + 1
+	p[4] = ""
+	to_f["f"] = int(to_f.get("f", 0)) + 1
+	Persons.pp(to_f).append(p)
+	p[Persons.SP] = int(mp[0]); mp[Persons.SP] = int(p[0])
+	Persons._identity_pad(p); Persons._identity_pad(mp)
+	p[Persons.SPOUSE_UID] = groom_uid; mp[Persons.SPOUSE_UID] = bride_uid
+	to_f.erase("nxa")
+	Families.event(to_f, "married", [Persons.name_of(to_f, mp, Persons.family_race(to_e, to_f)), bride_person_name], day)
+	Families.event(from_f, "wed_away", [bride_person_name, groom_name], day)
+	Families.reassign(from_e, from_f); Families.reassign(to_e, to_f)
+	Dynasty.record_person(to_e, to_f, p, true)
+	Dynasty.record_person(to_e, to_f, mp, true)
+	var st := state(game)
+	if not st.has("ai_links"): st["ai_links"] = {}
+	var key := groom_hh + "|" + bride_hh
+	st["ai_links"][key] = {"groom_uid": groom_uid, "bride_uid": bride_uid, "groom_household": groom_hh, "bride_household": bride_hh,
+		"groom_house_uid": groom_house, "bride_house_uid": bride_house, "groom_house_name": groom_name, "bride_house_name": bride_name,
+		"groom_town": groom_town, "bride_town": bride_town, "faction_a": fa, "faction_b": fb,
+		"ruling": bool(offer.get("ruling", false)), "day": int(day)}
+	if fa != "" and fa == fb:
+		var loyalty_row: Dictionary = game.world.get("feudal", {}).get("towns", {}).get(bride_town, {})
+		if not loyalty_row.is_empty():
+			loyalty_row["loyalty"] = minf(100.0, float(loyalty_row.get("loyalty", 0.0)) + 15.0)
+			loyalty_row["grievance"] = maxf(0.0, float(loyalty_row.get("grievance", 0.0)) - 10.0)
+	Diplomacy.sync_dynasty(game)
+	var text := "%s of House %s weds %s of House %s. She joins his house at %s." % [Persons.name_of(to_f, mp, Persons.family_race(to_e, to_f)), groom_name, bride_person_name, bride_name, str(groom["town"].get("name", ""))]
+	if dowry > 0.0: text += " Dowry: %d coins." % int(dowry / Item.COIN)
+	_log(game, text)
+	game.changed.emit()
+	return {"ok": true, "reason": text, "text": text, "dowry": dowry, "key": key, "ruling": bool(offer.get("ruling", false)),
+		"groom_uid": groom_uid, "bride_uid": bride_uid, "score": float(offer.get("score", 0.0))}

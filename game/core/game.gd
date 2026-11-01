@@ -284,8 +284,12 @@ func start_battle(params: Dictionary) -> void:
 	# Borrow actual prepared dragon bodies only after the suspended-monster guard.
 	# Eligibility is rechecked at this real home encounter; no travel or people mint.
 	var dragons: Array = DragonCombat.battle_units(self)
-	pending_battle["dragon_units"] = dragons
-	pending_battle["dragon_admission"] = DragonCombat.admission_receipt(self, dragons)
+	Warfare.attach_ai_battle_units(self, pending_battle)
+	pending_battle["dragon_units"] = dragons   # only the player's home/march bodies enter side zero here
+	var all_dragons: Array = dragons.duplicate()
+	for body in pending_battle.get("enemy", []) + pending_battle.get("allies", []):
+		if DragonCombat.is_dragon_unit(self, body) and not all_dragons.has(body): all_dragons.append(body)
+	pending_battle["dragon_admission"] = DragonCombat.admission_receipt(self, all_dragons)
 	# Large battles go in rounds of 100 v 100 (campaign/battle_rounds.gd); small ones stay one clash.
 	var whole0: Array = deployed_units() + pending_battle.get("allies", [])
 	for dragon in dragons:
