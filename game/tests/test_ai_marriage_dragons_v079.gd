@@ -290,7 +290,7 @@ func _native_army_checks(row: Dictionary, body: Unit, band: Dictionary) -> void:
 		var withdrew := WorldWarbands.take_clash_loss(Game, band, rng, false)
 		check(withdrew == body and not body.dead and not row.has("ai_march") and (band["units"] as Array).size() == 1, "an offscreen lost dragon withdraws as its own body, never through human service or loot")
 		check(bool(Warfare.set_dragon_march(Game, dragon_id, true, str(band["id"])).get("ok", false)), "native reassignment after withdrawal preserves that physical identity")
-	var old_screen: String = Game.screen
+	var old_screen: String = Game._active_screen
 	Game.start_battle({"enemy": (band["units"] as Array).duplicate(), "allies": [], "warband_id": str(band["id"]), "seed": 79079, "map": "small", "terrain": "grass"})
 	check((Game.pending_battle.get("enemy", []) as Array).has(body) and not (Game.pending_battle.get("dragon_units", []) as Array).has(body), "the actual battle boundary places the AI dragon on the enemy side, not the player dragon list")
 	var receipt: Dictionary = Game.pending_battle.get("dragon_admission", {})
