@@ -64,6 +64,7 @@ func touch_up(pos: Vector2) -> void:
 
 func run(t: SceneTree) -> int:
 	tree = t
+	await t.process_frame
 	var ts: TouchScroll = MobileApp.touch_scroll
 	check(ts != null and ts.is_inside_tree(), "MobileApp owns the TouchScroll controller")
 	if ts == null:
