@@ -537,7 +537,7 @@ static func _side(w: Dictionary, near: Array, a: Dictionary, b: Dictionary, t: f
 
 ## Power of a's own faction's bands committed to the same target (war orders on tgt_id) within JOIN_RADIUS of a:
 ## they join a's clash with that target (allied realms' bands come in through Diplomacy.ally_power).
-static func pack_power(w: Dictionary, a: Dictionary, tgt_id: String, exclude: Array) -> float:
+static func pack_power(w: Dictionary, a: Dictionary, tgt_id: String, exclude: Array, game = null) -> float:
 	var p := 0.0
 	var r2 := JOIN_RADIUS * JOIN_RADIUS
 	var fid: String = a["faction"]
@@ -550,6 +550,7 @@ static func pack_power(w: Dictionary, a: Dictionary, tgt_id: String, exclude: Ar
 			continue
 		if o["faction"] == fid:   # allied realms' bands come in through Diplomacy.ally_power already
 			p += power(o, 0.0)   # its last count (scaled by heads), as its own decisions see it
+			if game != null: p += CampaignWorld.band_power(Warfare.ai_marching_units(game, str(oid)))
 	return p
 
 static func _call_allies(w: Dictionary, wid: String, wb: Dictionary, tgt: String, t: float) -> void:

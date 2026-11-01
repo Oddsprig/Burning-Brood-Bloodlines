@@ -75,6 +75,7 @@ static func _mark_death(game, row: Dictionary, unit: Unit, cause: String) -> voi
 	var first: bool = bool(row.get("alive", false))
 	unit.dead = true
 	row["alive"] = false
+	row.erase("ai_march")
 	if row.has("combat_order"): row["combat_order"]["enabled"] = false
 	if first:
 		row["combat_death_day"] = float(game.day)
@@ -412,6 +413,11 @@ static func merge_seats(st: Dictionary, seats: Dictionary) -> void:
 ## Capture at the explicit battle-start boundary; no Unit references in receipt.
 static func admission_receipt(game, units: Array) -> Dictionary:
 	var admitted: Array = battle_units(game)
+	var armies: Array = game.pending_battle.get("ally_bands", []).duplicate()
+	armies.append(str(game.pending_battle.get("warband_id", "")))
+	for army: Variant in armies:
+		for body: Unit in Warfare.ai_marching_units(game, str(army)):
+			if not admitted.has(body): admitted.append(body)
 	var rows: Array = []
 	for value: Variant in units:
 		if is_dragon_unit(game, value) and admitted.has(value):

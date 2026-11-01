@@ -291,7 +291,9 @@ static func _settle_ai_march(game, row: Dictionary, day: int, uid: String, band:
 		var due := int(round(float(cost) * float(need - taken) / float(maxi(1, need))))
 		var have := int(floor(maxf(0.0, float(fac.get("treasury", 0.0)))))
 		coin = mini(maxi(0, due), have)
-		if coin > 0: fac["treasury"] = float(fac["treasury"]) - float(coin)
+		if coin > 0:
+			fac["treasury"] = float(fac["treasury"]) - float(coin)
+			Barge.drained(game.world, float(coin))   # purchased feed service leaves the counted world, once at its owning debit
 	var meat_ratio := 1.0 if need <= 0 else float(taken) / float(need)
 	var coin_ratio := float(coin) / float(cost) if cost > 0 else 0.0
 	var food_ratio := 1.0 if egg or need <= 0 else clampf(meat_ratio + coin_ratio, 0.0, 1.0)

@@ -41,6 +41,28 @@ static func band_power(units: Array) -> float:
 		p += unit_power(u)
 	return p
 
+## The same assigned bodies contribute to offscreen strength and can be selected as actual casualties.
+static func clash_power(game, band: Dictionary) -> float:
+	return band_power(Warfare.band_combat_units(game, band))
+
+## Remove one actual participant. Dragons keep their canonical registry body; death reaches its record, while
+## a captured/withdrawn dragon flies home instead of entering a human family-release path or a loot holder.
+static func take_clash_loss(game, band: Dictionary, rng: RandomNumberGenerator, fatal: bool, keep_last_man: bool = false) -> Unit:
+	var candidates: Array = Warfare.band_combat_units(game, band)
+	if keep_last_man and (band.get("units", []) as Array).size() <= 1:
+		candidates = candidates.filter(func(u: Unit): return DragonCombat.is_dragon_unit(game, u))
+	if candidates.is_empty(): return null
+	var unit: Unit = candidates[rng.randi() % candidates.size()]
+	if DragonCombat.is_dragon_unit(game, unit):
+		var row: Dictionary = game.world["dragons"]["records"][unit.dragon_uid]
+		if fatal: DragonCombat._mark_death(game, row, unit, "offscreen army clash")
+		else:
+			row.erase("ai_march")
+			Dragons._history(game, row, "ai_clash_withdrawal", {"warband_id": str(band.get("id", ""))})
+	else:
+		(band["units"] as Array).erase(unit)
+	return unit
+
 static func party_power(game) -> float:
 	return band_power(game.deployed_units())
 
@@ -569,14 +591,14 @@ static func _warband_clashes(game, t: float, rng: RandomNumberGenerator) -> void
 				continue
 		elif not Diplomacy.fights(w, a["faction"], b["faction"]) and not Monsters.extra_fight(a, b):
 			continue   # diplomacy: WAR or HOSTILE fight on contact; monsters wave 1: outlaws vs all, deserters vs their old faction
-		var pa := band_power(a["units"]); var pb := band_power(b["units"])
+		var pa := clash_power(game, a); var pb := clash_power(game, b)
 		if car.is_empty():   # diplomacy: allied bands close by join the fight (only computed on contact)
 			pa += Diplomacy.ally_power(w, a["faction"], b["faction"], a["pos"], [ids[i], ids[j]])
 			pb += Diplomacy.ally_power(w, b["faction"], a["faction"], b["pos"], [ids[i], ids[j]])
-		pa += WarAI.pack_power(w, a, b["id"], [ids[i], ids[j]])   # war: own bands closing on the same target join in
-		pb += WarAI.pack_power(w, b, a["id"], [ids[i], ids[j]])
+		pa += WarAI.pack_power(w, a, b["id"], [ids[i], ids[j]], game)   # war: own bands closing on the same target join in
+		pb += WarAI.pack_power(w, b, a["id"], [ids[i], ids[j]], game)
 		# Rounds (campaign/clash_rounds.gd): 100 v 100 until one army's morale or numbers break.
-		var na := (a["units"] as Array).size(); var nb := (b["units"] as Array).size()
+		var na := Warfare.band_combat_units(game, a).size(); var nb := Warfare.band_combat_units(game, b).size()
 		var cr := ClashRounds.resolve(na, nb, pa / maxf(1.0, float(na)), pb / maxf(1.0, float(nb)), _officer_count(a), _officer_count(b), rng,
 			70.0, 70.0, CampaignWorld.terrain_at(w, a["pos"]), BattleTactics.commander_tactician(game, a["units"], 0), BattleTactics.commander_tactician(game, b["units"], 1))
 		var win := a if str(cr["winner"]) == "a" else b
@@ -597,8 +619,9 @@ static func _warband_clashes(game, t: float, rng: RandomNumberGenerator) -> void
 			Diplomacy.on_army_destroyed(w, lose["faction"], win["faction"], losses + int(lrep["dead"]) + int(lrep["captured"]))
 		var fallen := []   # arms trade: the winners' dead (their kit stays with whoever holds the field)
 		for k in losses:
-			if (win["units"] as Array).size() > 1:
-				fallen.append((win["units"] as Array).pop_at(rng.randi() % (win["units"] as Array).size()))
+			var casualty := take_clash_loss(game, win, rng, true, true)
+			if casualty == null: break
+			if not DragonCombat.is_dragon_unit(game, casualty): fallen.append(casualty)
 		win["rest_until"] = t + 0.5
 		Army.survived(win)   # economy spec 2: a battle survived (veteran / blooded at the faction's day)
 		var holder := {} if Monsters.is_monster_band(win) else {"band": win}
@@ -616,11 +639,13 @@ static func _warband_clashes(game, t: float, rng: RandomNumberGenerator) -> void
 		Army.fight_pay(game, lose, 1.0)
 		var ldead := []
 		for k in int(lrep["dead"]):
-			if (lose["units"] as Array).is_empty(): break
-			ldead.append((lose["units"] as Array).pop_at(rng.randi() % (lose["units"] as Array).size()))
-		for k in int(lrep["captured"]):   # taken, then ransomed home by their families
-			if (lose["units"] as Array).is_empty(): break
-			Army.release(game, (lose["units"] as Array).pop_at(rng.randi() % (lose["units"] as Array).size()), "fled")
+			var casualty := take_clash_loss(game, lose, rng, true)
+			if casualty == null: break
+			if not DragonCombat.is_dragon_unit(game, casualty): ldead.append(casualty)
+		for k in int(lrep["captured"]):   # taken, then ransomed home by their families; dragons withdraw
+			var captive := take_clash_loss(game, lose, rng, false)
+			if captive == null: break
+			if not DragonCombat.is_dragon_unit(game, captive): Army.release(game, captive, "fled")
 		Census.note_fates(w, ldead, "battle", cdetail)
 		ArmsTrade.field(game, fallen + ldead, holder, lose["pos"])   # arms trade: the dead's kit to the victors (Loot.spoils)
 		if win["kind"] == "caravan":

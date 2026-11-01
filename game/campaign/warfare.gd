@@ -267,6 +267,7 @@ static func set_dragon_march(game, uid: String, on: bool, warband_id: String = "
 	var reason := _ai_march_reason(game, live, warband_id)
 	if reason != "": return {"ok": false, "reason": reason}
 	live["ai_march"] = {"enabled": true, "day": float(game.day), "warband_id": warband_id, "rider_person_uid": str(live.get("rider_person_uid", ""))}
+	DragonCombat._unit(game, uid).faction = str(game.world["warbands"][warband_id]["faction"])
 	return {"ok": true, "reason": "%s marches with the field army." % live.get("name", "The dragon"), "warband_id": warband_id}
 
 static func _ai_march_reason(game, row: Dictionary, warband_id: String) -> String:
@@ -284,7 +285,7 @@ static func _ai_march_reason(game, row: Dictionary, warband_id: String) -> Strin
 	if band.is_empty(): return "That army is not in the field."
 	if str(band.get("kind", "")) != "assault": return "Only a marching field army takes a dragon."
 	var units: Array = band.get("units", [])
-	if units.is_empty(): return "That army has no soldiers."
+	if units.filter(func(u: Unit): return not u.dead).is_empty(): return "That army has no soldiers."
 	var realm := str(game.world.get("towns", {}).get(str(row.get("location_town_id", "")), {}).get("faction", ""))
 	if realm == "" or str(band.get("faction", "")) != realm: return "The dragon's realm is not the army's realm."
 	var unit: Unit = DragonCombat._unit(game, str(row.get("id", "")))
@@ -293,6 +294,37 @@ static func _ai_march_reason(game, row: Dictionary, warband_id: String) -> Strin
 	if str(health.get("fitness", "")) == "cannot fight": return "Too badly hurt to fight."
 	if float(row.get("care", {}).get("health", 1.0)) <= 0.05: return "Starving: it needs feeding."
 	return ""
+
+## Borrow the canonical physical bodies assigned to this exact living assault army. No roster copies/mints.
+static func ai_marching_units(game, warband_id: String) -> Array:
+	var out: Array = []
+	if warband_id == "": return out
+	for row: Dictionary in game.world.get("dragons", {}).get("records", {}).values():
+		var march: Dictionary = row.get("ai_march", {})
+		if not bool(march.get("enabled", false)) or str(march.get("warband_id", "")) != warband_id: continue
+		if str(march.get("rider_person_uid", "")) != str(row.get("rider_person_uid", "")): continue
+		if _ai_march_reason(game, row, warband_id) != "": continue
+		var body: Unit = DragonCombat._unit(game, str(row.get("id", "")))
+		if body != null and not out.has(body): out.append(body)
+	return out
+
+static func band_combat_units(game, band: Dictionary) -> Array:
+	var out: Array = (band.get("units", []) as Array).duplicate()
+	for body: Unit in ai_marching_units(game, str(band.get("id", ""))):
+		if not out.has(body): out.append(body)
+	return out
+
+## At the real battle boundary, attach each AI body to its army's side. Player home/march dragons stay separate.
+static func attach_ai_battle_units(game, battle: Dictionary) -> void:
+	var enemy: Array = (battle.get("enemy", []) as Array).duplicate()
+	for body: Unit in ai_marching_units(game, str(battle.get("warband_id", ""))):
+		if not enemy.has(body): enemy.append(body)
+	battle["enemy"] = enemy
+	var allies: Array = (battle.get("allies", []) as Array).duplicate()
+	for id: Variant in battle.get("ally_bands", []):
+		for body: Unit in ai_marching_units(game, str(id)):
+			if not allies.has(body): allies.append(body)
+	battle["allies"] = allies
 
 ## Dragons marching with the army that may fight this battle (in addition to home-defence dragons).
 static func marching_units(game) -> Array:

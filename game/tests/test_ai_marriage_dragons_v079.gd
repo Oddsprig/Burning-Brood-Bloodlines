@@ -237,11 +237,23 @@ func _dragons() -> void:
 	var cost := Warfare.feed_cost(row)
 	Game.world["factions"][fid]["treasury"] = float(cost + 80)
 	var coin_before := float(Game.world["factions"][fid]["treasury"])
+	var drain_before := float(Barge.ledger(Game.world).get("drained", 0.0))
 	packed = Food.meat_units(Game)
 	check(DragonCare.settle(Game, row, int(Game.day) + 1, dragon_id), "the next day still settles")
 	check(int(band["stores"].get("meat", 0)) == meals, "meat the soldiers need for the day stays in the stores")
 	check(absf(float(Game.world["factions"][fid]["treasury"]) - (coin_before - float(cost))) < 0.01, "the shortfall is paid from the realm treasury")
 	check(Food.meat_units(Game) == packed, "a treasury day still leaves the player's provisions alone")
+	check(absf(float(Barge.ledger(Game.world).get("drained", 0.0)) - drain_before - float(cost)) < 1e-9, "zero spare meat books the exact feed-service coin debit in the world's drain ledger")
+	var half := int(floor(float(Warfare.feed_cost(row)) / 2.0))
+	Game.world["factions"][fid]["treasury"] = float(half)
+	band["stores"] = {"meat": meals}
+	drain_before = float(Barge.ledger(Game.world).get("drained", 0.0))
+	var partial_cost := Warfare.feed_cost(row)
+	check(DragonCare.settle(Game, row, int(Game.day) + 2, dragon_id), "partial funding settles one actual scheduled feed day")
+	check(float(Game.world["factions"][fid]["treasury"]) == 0.0 and absf(float(Barge.ledger(Game.world).get("drained", 0.0)) - drain_before - half) < 1e-9, "partial funding spends and books only the coin actually available")
+	check(absf(float(row["care"]["last"]["food_ratio"]) - float(half) / float(partial_cost)) < 1e-9 and Food.meat_units(Game) == packed, "partial funding supplies only its paid share without borrowing player meat")
+	var settled_drain := float(Barge.ledger(Game.world).get("drained", 0.0))
+	check(not DragonCare.settle(Game, row, int(Game.day) + 2, dragon_id) and float(Barge.ledger(Game.world).get("drained", 0.0)) == settled_drain, "repeat feed boundary cannot debit the treasury or drain ledger twice")
 	Warfare.daily(Game, 0)
 	check(bool(row.get("ai_march", {}).get("enabled", false)), "an empty player company does not recall the AI dragon")
 	packed = Food.meat_units(Game)
@@ -249,7 +261,64 @@ func _dragons() -> void:
 	WarAI.march_dragons(Game)
 	check(not row.has("ai_march"), "ending the assault recalls the dragon")
 	check(Food.meat_units(Game) == packed, "the recall does not draw player provisions")
+	band["kind"] = "assault"
+	check(bool(Warfare.set_dragon_march(Game, dragon_id, true, str(band["id"])).get("ok", false)), "the same canonical body can rejoin its actual assault army")
+	_native_army_checks(row, body, band)
 	_restore_company(kept)
+
+## Bounded real battle setup: one player fixture fighter versus one AI man and its canonical dragon.
+## No mass battle or fabricated result payload. Death uses the native sim's test-only kill seam.
+func _native_army_checks(row: Dictionary, body: Unit, band: Dictionary) -> void:
+	if body == null:
+		check(false, "the native AI army proof has a canonical body")
+		return
+	var dragon_id := str(row["id"])
+	var uid := body.uid
+	var count_before := Unit._next_uid
+	var assigned := Warfare.ai_marching_units(Game, str(band["id"]))
+	check(assigned.size() == 1 and assigned[0] == body and body.faction == str(band["faction"]), "the army borrows the exact living body on its own faction")
+	check(WorldWarbands.clash_power(Game, band) > CampaignWorld.band_power(band["units"]) and Unit._next_uid == count_before, "offscreen strength includes that same body without allocating a replacement")
+	# Actual aggregate capture/withdrawal selection. A local seed selects the dragon in this two-body fixture.
+	var chosen_seed := -1
+	for seed in 16:
+		var probe := RandomNumberGenerator.new(); probe.seed = seed
+		if probe.randi() % 2 == 1: chosen_seed = seed; break
+	check(chosen_seed >= 0, "the bounded two-body casualty fixture has a deterministic dragon selection")
+	if chosen_seed >= 0:
+		var rng := RandomNumberGenerator.new(); rng.seed = chosen_seed
+		var withdrew := WorldWarbands.take_clash_loss(Game, band, rng, false)
+		check(withdrew == body and not body.dead and not row.has("ai_march") and (band["units"] as Array).size() == 1, "an offscreen lost dragon withdraws as its own body, never through human service or loot")
+		check(bool(Warfare.set_dragon_march(Game, dragon_id, true, str(band["id"])).get("ok", false)), "native reassignment after withdrawal preserves that physical identity")
+	var old_screen: String = Game.screen
+	Game.start_battle({"enemy": (band["units"] as Array).duplicate(), "allies": [], "warband_id": str(band["id"]), "seed": 79079, "map": "small", "terrain": "grass"})
+	check((Game.pending_battle.get("enemy", []) as Array).has(body) and not (Game.pending_battle.get("dragon_units", []) as Array).has(body), "the actual battle boundary places the AI dragon on the enemy side, not the player dragon list")
+	var receipt: Dictionary = Game.pending_battle.get("dragon_admission", {})
+	check(not receipt.is_empty() and (receipt.get("units", []) as Array).any(func(r: Dictionary): return str(r.get("dragon_uid", "")) == dragon_id and int(r.get("unit_uid", -1)) == uid), "the real battle issues an admission receipt for that exact AI body")
+	var foe := Unit.create("human", "player", false)
+	var sim := BattleSim.new()
+	var side1: Array = Game.pending_battle.get("enemy", [])
+	sim.setup([foe], side1, 79079, {"w": 8, "h": 5, "verbose": false, "history_events": 1, "combat_journal": false, "dragon_riders": DragonCombat.battle_riders(Game, side1)})
+	var fighter: Fighter = null
+	for current: Fighter in sim.fighters:
+		if current.unit == body: fighter = current; break
+	check(fighter != null and fighter.side == 1, "the native live BattleSim fighter is the exact enemy-side dragon body")
+	if fighter != null:
+		sim.step()
+		sim._kill(fighter, -1, "v079 fixture: native AI mount casualty")
+		sim.step()
+		var scene := BattleScene.new(); scene.sim = sim
+		var result: Dictionary = scene.build_result()
+		scene.free()
+		var applied := DragonCombat.on_battle_result(Game, result, receipt)
+		check(bool(applied.get("applied", false)) and body.dead and not bool(row.get("alive", true)) and not row.has("ai_march"), "native AI death settles through its real receipt into the canonical record and march order")
+		check(not bool(DragonCombat.on_battle_result(Game, result, receipt).get("applied", false)), "the AI battle receipt cannot settle twice")
+	Game.pending_battle = {}
+	Game.goto(old_screen)
+	Game.save_game(); Game.wait_save()
+	check(Game.load_game(), "the campaign with the actual AI dragon casualty loads")
+	var loaded: Unit = DragonCombat._unit(Game, dragon_id)
+	var record: Dictionary = Game.world.get("dragons", {}).get("records", {}).get(dragon_id, {})
+	check(loaded != null and loaded.uid == uid and loaded.dead and not bool(record.get("alive", true)), "save/load preserves the same dead body and its AI record instead of respawning a flag-only dragon")
 
 func _restore_company(kept: Array) -> void:
 	for unit in kept:
