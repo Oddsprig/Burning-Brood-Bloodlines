@@ -932,7 +932,10 @@ static func after_load(game) -> void:
 			st["stats"][k] = int(st["stats"][k])
 	for wid in w.get("warbands", {}):
 		var wb: Dictionary = w["warbands"][wid]
-		sync_objective(wb, float(game.day))
+		# v0.074: a saved objective stays as the band last set it (a load re-deriving it changed the label from
+		# what play would show until the band's next order); older saves without one get it worked out.
+		if not OBJECTIVES.has(String(wb.get("objective", ""))):
+			sync_objective(wb, float(game.day))
 		if wb.has("pw_n"):
 			wb["pw_n"] = int(wb["pw_n"])
 		var war: Dictionary = wb.get("war", {})

@@ -99,7 +99,9 @@ static func prepare_world(game) -> void:
 		var unit: Unit = Unit.create("dragon", "", false)
 		unit.dragon_uid = str(uid); unit.role = "dragon"; unit.squad = -1; unit.family = -1
 		unit.fav_drink = "none"; unit.belly = float(definitions()["combat"]["initial_belly"])
-		unit.skills.merge(definitions()["combat"]["skills"], true)
+		# v0.074: whole skill levels, as every unit's (the data file's numbers are floats; a load made them ints)
+		var combat_skills: Dictionary = definitions()["combat"]["skills"]
+		for skill in combat_skills: unit.skills[skill] = int(combat_skills[skill])
 		unit.native_dragon_profile = profile
 		unit.body.plan_id = "wyvern"
 		unit.body.init_from_plan(DB.bodies["wyvern"], float(profile["body_mass_kg"]))
@@ -148,13 +150,50 @@ static func after_load(game) -> void:
 	for row: Dictionary in state.get("records", {}).values():
 		for key: String in ["combat_unit_uid", "combat_last_care_day", "combat_last_receipt"]:
 			if row.has(key): row[key] = int(row[key])
-	for uid: Variant in state.get("combat_units", {}): sync_profile(game, str(uid))
+	for uid: Variant in state.get("combat_units", {}):
+		# v0.074: a saved profile that still matches its record is kept as saved (only its JSON types back). Remaking
+		# it at every load moved its numbers in their last bits (strength, bite force, torques), so a reloaded dragon
+		# fought from other figures than the same dragon played on. A stale or missing profile is refreshed as before.
+		var unit: Unit = _unit(game, str(uid)); var row: Dictionary = _record(game, str(uid))
+		if unit != null and not row.is_empty() and not unit.native_dragon_profile.is_empty() and not unit.dead and bool(row.get("alive", false)):
+			var fresh: Dictionary = _profile(game, row)
+			if not fresh.is_empty() and _same_source(unit.native_dragon_profile.get("source", []), fresh.get("source", [])):
+				_retype(unit.native_dragon_profile, fresh)
+				continue
+		sync_profile(game, str(uid))
 	if state.has("rider_bodies_day"): state["rider_bodies_day"] = int(state["rider_bodies_day"])
 	for row: Variant in state.get("rider_bodies", {}).values():
 		if row is Dictionary:
 			row["day"] = int(row.get("day", -1))
 			for a: Variant in row.get("attrs", {}): row["attrs"][a] = int(row["attrs"][a])
 	Unit._next_uid = maxi(Unit._next_uid, uid_floor(game))
+
+## The same profile source, a loaded one (JSON: every number a float) against a fresh one.
+static func _same_source(saved: Variant, fresh: Variant) -> bool:
+	if not (saved is Array) or not (fresh is Array) or (saved as Array).size() != (fresh as Array).size(): return false
+	for i in (fresh as Array).size():
+		var a: Variant = saved[i]; var b: Variant = fresh[i]
+		var na := typeof(a) == TYPE_INT or typeof(a) == TYPE_FLOAT
+		var nb := typeof(b) == TYPE_INT or typeof(b) == TYPE_FLOAT
+		if na and nb:
+			if float(a) != float(b): return false
+		elif typeof(a) != typeof(b) or a != b:
+			return false
+	return true
+
+## Ints back where the fresh profile has ints (JSON brought every number back as a float); values are not touched.
+static func _retype(saved: Variant, fresh: Variant) -> void:
+	if saved is Dictionary and fresh is Dictionary:
+		for k in fresh:
+			if not (saved as Dictionary).has(k): continue
+			var b: Variant = fresh[k]
+			if typeof(b) == TYPE_INT and typeof(saved[k]) == TYPE_FLOAT: saved[k] = int(saved[k])
+			elif b is Dictionary or b is Array: _retype(saved[k], b)
+	elif saved is Array and fresh is Array:
+		for i in mini((saved as Array).size(), (fresh as Array).size()):
+			var b: Variant = fresh[i]
+			if typeof(b) == TYPE_INT and typeof(saved[i]) == TYPE_FLOAT: saved[i] = int(saved[i])
+			elif b is Dictionary or b is Array: _retype(saved[i], b)
 
 static func _enable_reason(game, row: Dictionary, unit: Unit) -> String:
 	if row.is_empty() or unit == null or not is_dragon_unit(game, unit) or not unit.is_native_dragon(): return "No valid saved native dragon body is available."
