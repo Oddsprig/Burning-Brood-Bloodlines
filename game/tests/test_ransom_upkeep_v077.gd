@@ -3,6 +3,7 @@ extends RefCounted
 ## Later days call Prisoners.daily directly, so only this feature moves coin. Godot is not run from the
 ## work that wrote this file.
 ## Run: godot --path game --headless res://tests/runner.tscn -- --test=res://tests/test_ransom_upkeep_v077.gd
+const NativeFixture = preload("res://tests/test_feudal_succession.gd")
 var checks := 0
 var fails := 0
 var previous_save_path := ""
@@ -175,9 +176,10 @@ func _accounted_items() -> Dictionary:
 		for u3 in wb.get("units", []):
 			var c := _count_unit_items(u3, seen_units, uids, where, "warband:" + str(wid))
 			n += c; buckets["warbands"] += c
-	for rec in Prisoners.held(Game) + Prisoners.captives(Game):
-		var c := _count_unit_items((rec as Dictionary).get("unit"), seen_units, uids, where, "prisoners")
-		n += c; buckets["prisoners"] += c
+	for list in Prisoners.custody_lists(Game):
+		for rec in list:
+			var c := _count_unit_items((rec as Dictionary).get("unit"), seen_units, uids, where, "prisoners")
+			n += c; buckets["prisoners"] += c
 	for tid in Game.world.get("towns", {}):
 		var td: Dictionary = Game.world["towns"][tid]
 		for it2 in td.get("shop", []):
@@ -278,8 +280,9 @@ func _arrow_buckets() -> Dictionary:
 		var st: Dictionary = wbd.get("stores", {})
 		for ak in BowsEcon.arrow_ids():
 			b["warband_stores"] += maxi(0, int(st.get(ak, 0)))
-	for rec in Prisoners.held(Game) + Prisoners.captives(Game):
-		b["prisoners"] += _unit_arrows((rec as Dictionary).get("unit"), seen_units)
+	for list2 in Prisoners.custody_lists(Game):
+		for rec in list2:
+			b["prisoners"] += _unit_arrows((rec as Dictionary).get("unit"), seen_units)
 	for town in Game.world.get("towns", {}).values():
 		var td: Dictionary = town
 		b["town_armory"] += _town_arrows(td)
@@ -333,6 +336,144 @@ func _arm_prisoner(u: Unit, town: Dictionary) -> Dictionary:
 	for k in u.quiver:
 		arrows += maxi(0, int(u.quiver.get(k, 0)))
 	return {"uids": uids, "arrows": arrows, "sample": first_item}
+
+func _lord_unit(tid: String) -> Unit:
+	var town: Dictionary = Game.world["towns"][tid]
+	var e: Dictionary = town["econ"]
+	e["led"] = {"made": {}, "used": {}}
+	var family: Dictionary = e["fams"][0]
+	var person: Array = family["pp"][0]
+	var u := Unit.create(Persons.family_race(e, family), str(town["faction"]), false)
+	Persons.bind(e, family, person, u, "army", 0.0)
+	u.home_town = tid
+	family["serve"] = {"army": 1}
+	u.equip["body"] = Item.make("tunic", "linen", 0)
+	var ak := str(BowsEcon.arrow_ids()[0])
+	u.quiver[ak] = 7
+	Army.state(Game.world)["roll"][str(u.uid)] = [tid, int(family["id"]), "army", u.name]
+	return u
+
+func _ai_realm_custody_fixture() -> void:
+	Game.stash.clear()
+	var native := NativeFixture.new()
+	native.fixture()
+	for tid in Game.world["towns"]:
+		var td: Dictionary = Game.world["towns"][tid]
+		var te: Dictionary = td["econ"]
+		te["led"] = {"made": {}, "used": {}}
+		te["biz"] = [{"till": 100.0}]
+		te["mkt"] = 0
+		te["armory"] = {}
+	Game.world["towns"]["village"]["faction"] = "orc_horde"
+	Game.world["towns"]["village"]["econ"]["faction"] = "orc_horde"
+	Game.world["factions"]["orc_horde"] = {"capital": "village", "towns": ["village"], "treasury": 5000.0}
+	Feudal.prepare_world(Game)
+	Game.world.erase("player_house")
+	var selected_third := Dynasty.select_city(Game, "village") and Warfare.player_faction(Game) == "orc_horde"
+	var ai_lord := _lord_unit("county")
+	var ai_kit_uid: int = (ai_lord.equip["body"] as Item).uid
+	Game.world["towns"]["county"]["recruits"].append(ai_lord)
+	Warfare._apply_siege(Game, "county", "moon_court")
+	var ai_rec := Prisoners._find(Prisoners.realm_held(Game, "moon_court"), ai_lord.uid)
+	check(selected_third and not ai_rec.is_empty() and Prisoners.held(Game).is_empty() and Prisoners.captives(Game).is_empty(),
+		"AI-AI siege places the captured lord in realm_prisoners[moon_court] outside player lists")
+	if ai_rec.is_empty(): return
+
+	var upkeep := float(Prisoners.UPKEEP_COINS * Item.COIN)
+	_set_food(Game.world["towns"]["foreign"]["econ"]["stock"], 5)
+	_set_food(Game.world["towns"]["county"]["econ"]["stock"], 0)
+	_set_food(Game.world["towns"]["village"]["econ"]["stock"], 4)
+	var moon_tr := _treasury("moon_court")
+	var foreign_till := _till(Game.world["towns"]["foreign"])
+	var player_purse := _purse()
+	var player_gold := float(Game.gold)
+	var all_coins := _coin_sum()
+	_bump()
+	check(not Prisoners._find(Prisoners.realm_held(Game, "moon_court"), ai_lord.uid).is_empty()
+		and int(Game.world["towns"]["foreign"]["econ"]["stock"]["grain"]) == 4
+		and int(Game.world["towns"]["foreign"]["econ"]["led"]["used"].get("grain", 0)) == 1
+		and is_equal_approx(_treasury("moon_court"), moon_tr - upkeep)
+		and is_equal_approx(_till(Game.world["towns"]["foreign"]), foreign_till + upkeep)
+		and is_equal_approx(_coin_sum(), all_coins),
+		"AI realm upkeep deducts one meal and one coin from the AI holder's town stock and treasury into its market till")
+	check(Prisoners.held(Game).is_empty() and Prisoners.captives(Game).is_empty() and Prisoners.offers(Game).is_empty()
+		and is_equal_approx(_purse(), player_purse) and is_equal_approx(float(Game.gold), player_gold)
+		and int(Game.world["towns"]["village"]["econ"]["stock"]["grain"]) == 4,
+		"AI realm upkeep never enters player lists, offers, purse, gold, or town food")
+	Prisoners.daily(Game, int(Game.day))
+	Prisoners._upkeep_day(Game, int(Game.day))
+	check(int(Game.world["towns"]["foreign"]["econ"]["stock"]["grain"]) == 4
+		and is_equal_approx(_treasury("moon_court"), moon_tr - upkeep)
+		and is_equal_approx(_till(Game.world["towns"]["foreign"]), foreign_till + upkeep)
+		and not Prisoners._find(Prisoners.realm_held(Game, "moon_court"), ai_lord.uid).is_empty(),
+		"same-day Prisoners.daily and _upkeep_day calls are idempotent for AI realm custody")
+
+	# Capital capture fallback + canonical owner fid + dead captive skip.
+	Game.world["towns"]["foreign"]["faction"] = "middle_kingdom"
+	Game.world["towns"]["foreign"]["econ"]["faction"] = "middle_kingdom"
+	_set_food(Game.world["towns"]["foreign"]["econ"]["stock"], 9)
+	_set_food(Game.world["towns"]["county"]["econ"]["stock"], 3)
+	ai_rec["held_by"] = "middle_kingdom"
+	var dead_ai := Unit.create("human", "middle_kingdom", false)
+	dead_ai.dead = true
+	Prisoners.realm_held(Game, "moon_court").append({"uid": dead_ai.uid, "unit": dead_ai, "name": dead_ai.name,
+		"faction": "middle_kingdom", "held_by": "moon_court", "home_town": "", "family": -1, "day": 0.0})
+	var foreign_till2 := _till(Game.world["towns"]["foreign"])
+	var county_till2 := _till(Game.world["towns"]["county"])
+	var moon_tr2 := _treasury("moon_court")
+	var mid_tr2 := _treasury("middle_kingdom")
+	var all_coins2 := _coin_sum()
+	_bump()
+	check(int(Game.world["towns"]["foreign"]["econ"]["stock"]["grain"]) == 9
+		and is_equal_approx(_till(Game.world["towns"]["foreign"]), foreign_till2)
+		and is_equal_approx(_treasury("middle_kingdom"), mid_tr2)
+		and int(Game.world["towns"]["county"]["econ"]["stock"]["grain"]) == 2
+		and is_equal_approx(_till(Game.world["towns"]["county"]), county_till2 + upkeep)
+		and is_equal_approx(_treasury("moon_court"), moon_tr2 - upkeep)
+		and is_equal_approx(_coin_sum(), all_coins2)
+		and Prisoners._find(Prisoners.realm_held(Game, "moon_court"), dead_ai.uid).is_empty(),
+		"after capital capture, canonical AI holder falls back to its own county without stealing enemy food and skips dead captives")
+	ai_rec["held_by"] = "moon_court"
+
+	# Lack of coin or lack of food releases the AI captive via release_realm (not the player's prisoner) and returns body/person/kit once.
+	var player_foe := _lord_unit("seat")
+	Prisoners.held(Game).append({"uid": player_foe.uid, "name": player_foe.name, "faction": "middle_kingdom",
+		"home_town": "seat", "family": player_foe.family, "day": float(Game.day), "unit": player_foe,
+		"role": "army", "hold_town": "village", "hold_band": ""})
+	_set_food(Game.world["towns"]["village"]["econ"]["stock"], 5)
+	Feudal._payer(Game)["purse"] = 500.0 * Item.COIN
+	_set_food(Game.world["towns"]["county"]["econ"]["stock"], 3)
+	Game.world["factions"]["moon_court"]["treasury"] = 0.0
+	var no_coin_feed := Prisoners._can_feed(Prisoners._keeper(Game, ai_rec, false, "moon_court"))
+	_set_food(Game.world["towns"]["county"]["econ"]["stock"], 0)
+	Game.world["factions"]["moon_court"]["treasury"] = 500.0 * Item.COIN
+	var no_food_feed := Prisoners._can_feed(Prisoners._keeper(Game, ai_rec, false, "moon_court"))
+	var items_pre_rel := _accounted_items()
+	var arrows_pre_rel := _arrow_sum()
+	var coins_pre_rel := _coin_sum()
+	var county_till_pre := _till(Game.world["towns"]["county"])
+	var moon_tr_pre := _treasury("moon_court")
+	_bump()
+	var county_town: Dictionary = Game.world["towns"]["county"]
+	var county_fam: Dictionary = county_town["econ"]["fams"][0]
+	var county_person: Array = Persons.by_pid(county_fam, 0)
+	var items_post_rel := _accounted_items()
+	check(not no_coin_feed and not no_food_feed
+		and Prisoners.realm_held(Game, "moon_court").is_empty()
+		and not Prisoners._find(Prisoners.held(Game), player_foe.uid).is_empty()
+		and is_equal_approx(_treasury("moon_court"), moon_tr_pre)
+		and is_equal_approx(_till(county_town), county_till_pre)
+		and is_equal_approx(_coin_sum(), coins_pre_rel),
+		"lack of food or coin releases the AI realm's captive while keeping the player's fed prisoner and conserving coin")
+	check(not ai_lord.dead and not Army.state(Game.world)["roll"].has(str(ai_lord.uid))
+		and str(county_person[4]) == "" and int(county_person[5]) == -1
+		and int(county_fam.get("serve", {}).get("army", 0)) == 0 and int(county_town["econ"]["pop"]) == 1
+		and ai_lord.equip.is_empty() and ai_lord.quiver.is_empty()
+		and _town_has_uid(county_town, ai_kit_uid) and _town_arrows(county_town) == 7
+		and int(items_post_rel["count"]) == int(items_pre_rel["count"])
+		and int(items_post_rel["uids"].get(ai_kit_uid, 0)) == 1
+		and _arrow_sum() == arrows_pre_rel,
+		"unfed AI realm release returns the captive's army roll, person record, exact kit UID, and quiver arrows to home town once")
 
 func run(tree: SceneTree) -> int:
 	await tree.process_frame
@@ -774,4 +915,5 @@ func run(tree: SceneTree) -> int:
 			home_cap + 1, (post_legacy_wb.get("units", []) as Array).size(),
 			int(pre_legacy_items["count"]), int(post_legacy_items["count"])])
 
+	_ai_realm_custody_fixture()
 	return _finish()

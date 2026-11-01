@@ -363,14 +363,17 @@ static func daily(game, day: int = -1) -> void:
 			var gone: bool = not legacy and u.dead
 			# Your people's families stay put while one is held (Persons.AWAY), so a missing register row means
 			# they are gone. An enemy family may move away; their man is still held until he dies or is freed.
-			if not gone and (legacy or is_same(list, captives(game))) and int(rec.get("family", -1)) >= 0 \
+			if not gone and int(rec.get("family", -1)) >= 0 \
 					and game.world.get("towns", {}).has(str(rec.get("home_town", ""))):
 				var a := _address(game, rec)
-				gone = a.is_empty() or str(a["person"][4]) in ["gone", "dead"]
+				if legacy or is_same(list, captives(game)):
+					gone = a.is_empty() or str(a["person"][4]) in ["gone", "dead"]
+				else:
+					gone = not a.is_empty() and str(a["person"][4]) in ["gone", "dead"]
 			if gone:
 				if u is Unit:
 					Horses.return_mount(game, u)
-					_settle_kit(game, rec, u, is_same(list, held(game)), "died in captivity")
+					_settle_kit(game, rec, u, is_same(list, held(game)), "died in captivity", _realm_holder(game, rec))
 				list.erase(rec)
 				_log(game, "%s died in captivity." % str(rec.get("name", "?")), day)
 	_ai_day(game, day)
@@ -430,16 +433,28 @@ static func _player_town(game) -> Dictionary:
 	if tid == "": tid = str(game.location)
 	return game.world.get("towns", {}).get(tid, {})
 
+static func _realm_holder(game, rec: Dictionary) -> String:
+	var realms: Dictionary = game.world.get("realm_prisoners", {})
+	for fid in realms:
+		var list = realms[fid]
+		if list is Array and (list as Array).has(rec):
+			return str(fid)
+	return ""
+
 static func _faction_town(game, fid: String) -> Dictionary:
+	if fid == "": return {}
 	var fac: Dictionary = game.world.get("factions", {}).get(fid, {})
 	var tid := str(fac.get("capital", ""))
 	var town: Dictionary = game.world.get("towns", {}).get(tid, {})
-	if not town.is_empty() and TownEcon.has_econ(town): return town
+	if not town.is_empty() and str(town.get("faction", "")) == fid and TownEcon.has_econ(town): return town
 	var best: Dictionary = {}
 	var best_food := -1
-	for t in game.world.get("towns", {}).values():
+	var t_keys: Array = game.world.get("towns", {}).keys()
+	t_keys.sort()
+	for tk in t_keys:
+		var t: Dictionary = game.world["towns"][tk]
 		if str(t.get("faction", "")) != fid or not TownEcon.has_econ(t): continue
-		var n := int(Goods.supply(t, "food"))
+		var n := int(Goods.supply(t, "food")) + int(t["econ"].get("granary", 0))
 		if n > best_food:
 			best = t
 			best_food = n
@@ -459,15 +474,15 @@ static func _market_till(town: Dictionary) -> Dictionary:
 	return {}
 
 ## Food stock and the two coin accounts for one prisoner. Empty when either side cannot be named.
-static func _keeper(game, rec: Dictionary, player_holds: bool) -> Dictionary:
+static func _keeper(game, rec: Dictionary, player_holds: bool, holder_fid: String = "") -> Dictionary:
 	var food_stock: Dictionary = {}
 	var food_econ: Dictionary = {}
+	var fid := holder_fid if holder_fid != "" else str(rec.get("faction", "") if player_holds else rec.get("held_by", ""))
 	var band_id := str(rec.get("hold_band", ""))
 	if band_id != "" and game.world.get("warbands", {}).has(band_id):
 		var wb: Dictionary = game.world["warbands"][band_id]
-		if wb.has("stores") and _has_meal(wb["stores"]):
+		if (player_holds or str(wb.get("faction", "")) == fid) and wb.has("stores") and _has_meal(wb["stores"]):
 			food_stock = wb["stores"]
-	var fid := str(rec.get("faction", "") if player_holds else rec.get("held_by", ""))
 	var town: Dictionary = _player_town(game) if player_holds else _faction_town(game, fid)
 	if food_stock.is_empty() and not town.is_empty() and TownEcon.has_econ(town):
 		food_stock = town["econ"]["stock"]
@@ -512,13 +527,19 @@ static func _can_feed(place: Dictionary) -> bool:
 static func _upkeep_skipped(game, rec: Dictionary, player_holds: bool) -> bool:
 	var u = rec.get("unit")
 	if not u is Unit or (u as Unit).dead: return true
-	if player_holds: return false
 	if int(rec.get("family", -1)) < 0: return false
 	if not game.world.get("towns", {}).has(str(rec.get("home_town", ""))): return false
 	var a := _address(game, rec)
+	if player_holds:
+		return not a.is_empty() and str(a["person"][4]) in ["gone", "dead"]
 	return a.is_empty() or str(a["person"][4]) in ["gone", "dead"]
 
-static func _release_unfed(game, rec: Dictionary, player_holds: bool) -> void:
+static func _release_unfed(game, rec: Dictionary, player_holds: bool, holder_fid: String = "") -> void:
+	if holder_fid != "":
+		if rec.get("unit") is Unit and not (rec["unit"] as Unit).dead and release_realm(game, holder_fid, int(rec.get("uid", -1))):
+			return
+		realm_held(game, holder_fid).erase(rec)
+		return
 	if player_holds:
 		if rec.get("unit") is Unit and not (rec["unit"] as Unit).dead and held(game).has(rec):
 			_free_enemy(game, rec, "unfed")
@@ -531,13 +552,25 @@ static func _release_unfed(game, rec: Dictionary, player_holds: bool) -> void:
 		if not freed: captives(game).erase(rec)
 
 static func _upkeep_day(game, day: int) -> void:
+	var st := state(game)
+	if int(st.get("upkeep", {}).get("day", -1)) >= day: return
 	var rows: Array = []
 	for rec: Dictionary in held(game):
 		if not _upkeep_skipped(game, rec, true):
-			rows.append({"rec": rec, "player_holds": true, "worth": price(game, rec)})
+			rows.append({"rec": rec, "player_holds": true, "holder_fid": "", "worth": price(game, rec)})
 	for rec2: Dictionary in captives(game):
 		if not _upkeep_skipped(game, rec2, false):
-			rows.append({"rec": rec2, "player_holds": false, "worth": price(game, rec2)})
+			rows.append({"rec": rec2, "player_holds": false, "holder_fid": "", "worth": price(game, rec2)})
+	var realms: Dictionary = game.world.get("realm_prisoners", {})
+	var fids: Array = realms.keys()
+	fids.sort()
+	for fid_key in fids:
+		var fid := str(fid_key)
+		var list = realms.get(fid_key, [])
+		if not list is Array: continue
+		for rec3: Dictionary in list:
+			if not _upkeep_skipped(game, rec3, true):
+				rows.append({"rec": rec3, "player_holds": false, "holder_fid": fid, "worth": price(game, rec3)})
 	if rows.is_empty(): return
 	rows.sort_custom(func(a, b): return int(a["worth"]) > int(b["worth"]))
 	var fed := 0
@@ -546,14 +579,15 @@ static func _upkeep_day(game, day: int) -> void:
 	for row: Dictionary in rows:
 		var rec: Dictionary = row["rec"]
 		var player_holds: bool = bool(row["player_holds"])
-		var place := _keeper(game, rec, player_holds)
+		var holder_fid: String = str(row.get("holder_fid", ""))
+		var place := _keeper(game, rec, player_holds, holder_fid)
 		if not _can_feed(place):
-			_release_unfed(game, rec, player_holds)
+			_release_unfed(game, rec, player_holds, holder_fid)
 			released += 1
 			continue
 		var good := _consume_meal(place)
 		if good == "":
-			_release_unfed(game, rec, player_holds)
+			_release_unfed(game, rec, player_holds, holder_fid)
 			released += 1
 			continue
 		var account: Dictionary = place["coin"]
@@ -564,7 +598,7 @@ static func _upkeep_day(game, day: int) -> void:
 		if not econ.is_empty() and econ.has("led") and (econ["led"] as Dictionary).has("used"):
 			TownEcon.led(econ, "used", good, RATION)
 		fed += 1
-	state(game)["upkeep"] = {"day": day, "fed": fed, "released": released, "coins": fed * UPKEEP_COINS, "meals": fed * RATION}
+	st["upkeep"] = {"day": day, "fed": fed, "released": released, "coins": fed * UPKEEP_COINS, "meals": fed * RATION}
 	if released > 0:
 		_log(game, "Stores ran out: released %d prisoner%s. No food or coin was invented." % [released, "" if released == 1 else "s"], day)
 
@@ -665,13 +699,14 @@ static func _standing_execute(game, fid: String, heads: int) -> void:
 	st["execute_heads"][fid] = done + heads
 	if apply > 0: Diplomacy.on_execute(game, fid, apply)
 
-static func _hold_town(game, rec: Dictionary, player_holds: bool = true) -> Dictionary:
+static func _hold_town(game, rec: Dictionary, player_holds: bool = true, holder_fid: String = "") -> Dictionary:
 	if player_holds:
 		var tid := str(rec.get("hold_town", ""))
 		var town: Dictionary = game.world.get("towns", {}).get(tid, {}) if tid != "" else {}
 		if not town.is_empty() and TownEcon.has_econ(town): return town
 		return _player_town(game)
-	return _faction_town(game, str(rec.get("held_by", "")))
+	var fid := holder_fid if holder_fid != "" else str(rec.get("held_by", ""))
+	return _faction_town(game, fid)
 
 static func _in_custody(arr: Array, it: Item) -> bool:
 	for x in arr:
@@ -698,13 +733,14 @@ static func _return_quiver(game, rec: Dictionary, u: Unit) -> void:
 	if u == null or u.quiver.is_empty(): return
 	var town: Dictionary = game.world.get("towns", {}).get(u.home_town, {})
 	if town.is_empty() or not TownEcon.has_econ(town):
-		town = _hold_town(game, rec, true)
+		var holder := _realm_holder(game, rec)
+		town = _hold_town(game, rec, holder == "" and str(rec.get("held_by", "")) == "", holder)
 	_settle_quiver(game, town, u)
 
 ## Settles a prisoner's remaining kit and quiver into the holding town's custody so no Item or arrow is orphaned.
-static func _settle_kit(game, rec: Dictionary, u: Unit, player_holds: bool, detail: String) -> void:
+static func _settle_kit(game, rec: Dictionary, u: Unit, player_holds: bool, detail: String, holder_fid: String = "") -> void:
 	if u == null or u.race_def().get("creature", false): return
-	var town := _hold_town(game, rec, player_holds)
+	var town := _hold_town(game, rec, player_holds, holder_fid)
 	var has_econ := not town.is_empty() and TownEcon.has_econ(town)
 	for slot in u.equip.keys():
 		var it = u.equip[slot]
@@ -721,7 +757,8 @@ static func _settle_kit(game, rec: Dictionary, u: Unit, player_holds: bool, deta
 				arm.append(item)
 			else:
 				shop.append(item)
-			TownEcon.led(town["econ"], "made", "arms", 1)
+			if town["econ"].has("led") and (town["econ"]["led"] as Dictionary).has("made"):
+				TownEcon.led(town["econ"], "made", "arms", 1)
 			ArmsTrade.led("home")
 			if item.is_legend():
 				Legends.note(item, float(game.day), "Taken into the armory of %s (%s: %s)." % [String(town.get("name", "?")), u.name, detail])
