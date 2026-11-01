@@ -130,6 +130,8 @@ static func on_plunder(game, winner: Dictionary, caravan: Dictionary) -> void:
 	for it in cargo_items:
 		if stock.size() < STOCK_MAX or (it as Item).is_legend():   # v0.014: a legendary piece is always carried off
 			stock.append(it)
+		else:
+			WorldAudit.lose_item(it, "-broken up by outlaws (camp full)")   # v0.075 r5
 	WorldAudit.book(game.world, "arms", "-carried off by outlaws", -cargo_items.size())   # v0.075: out of the wagons (camp or broken)
 	caravan["cargo"]["items"] = []
 

@@ -34,6 +34,7 @@ static func field(game, dead: Array, holder: Dictionary, pos: Vector2) -> Dictio
 					_legend_found(game, lit, u, pos)
 			out["lost"] = int(out["lost"]) + u.equip.size()
 			ArmsTrade.led("lost", u.equip.size())
+			WorldAudit.lose_items(u.equip.values(), "-left on a field nobody held")
 			u.equip.clear()
 			u.quiver.clear()
 		return out
@@ -234,6 +235,7 @@ static func to_holder(game, holder: Dictionary, it: Item) -> void:
 				ArmsTrade.led("home")
 				return
 			ArmsTrade.led("lost")
+			WorldAudit.lose_item(it, "-left on the field (outlaw hoard full)")
 			return
 	var town := _holder_town(game, holder)
 	if TownEcon.has_econ(town):
@@ -242,6 +244,7 @@ static func to_holder(game, holder: Dictionary, it: Item) -> void:
 		ArmsTrade.led("home")
 		return
 	ArmsTrade.led("lost")
+	WorldAudit.lose_item(it, "-left on the field (no home for it)")
 
 ## A man walks home alive (fled, deserted, scattered): his kit goes into his home town's armory. A man of another
 ## realm (outlaw, deserter of a foreign band) hands it in for coin: the head pays his family FENCE_SHARE of its value;
@@ -257,6 +260,7 @@ static func kit_home(game, u: Unit) -> void:
 				_legend_found(game, u.equip[s], null, town.get("pos", Vector2.ZERO))
 				continue
 			ArmsTrade.led("fled_lost")
+			WorldAudit.lose_item(u.equip[s], "-left by the road (no home town)")
 		u.equip.clear()
 		return
 	var e: Dictionary = town["econ"]
@@ -280,6 +284,7 @@ static func kit_home(game, u: Unit) -> void:
 			var p := Economy.base_value(town, it) * FENCE_SHARE
 			if f.is_empty() or float(e["treasury"]) < p:
 				ArmsTrade.led("fled_lost")
+				WorldAudit.lose_item(it, "-left by the road (nobody paid the fence)")
 				continue
 			e["treasury"] = float(e["treasury"]) - p
 			f["purse"] = float(f["purse"]) + p
@@ -349,6 +354,7 @@ static func guards_home(game, wb: Dictionary) -> void:
 		else:
 			for s in u.equip:
 				ArmsTrade.led("guards_lost")
+				WorldAudit.lose_item(u.equip[s], "-guards' kit with no home town")
 		u.equip.clear()
 
 ## An AI band plundered a caravan: the guards' kit by field(), and the winners carry Caravans.PLUNDER_SHARE of the

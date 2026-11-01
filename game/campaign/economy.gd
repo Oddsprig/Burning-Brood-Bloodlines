@@ -226,7 +226,11 @@ static func refresh_town(town: Dictionary, day: float, rng: RandomNumberGenerato
 		for it in town.get("shop", []):
 			if rng.randf() < 0.33:
 				keep.append(it)
+			else:
+				WorldAudit.lose_item(it, "-rotated off a stand-in town's stalls")
 		town["shop"] = keep + roll_shop(town, rng)
+	for u in town.get("recruits", []):   # v0.075 r5: applicants nobody hired leave with their own clothes
+		if u is Unit: WorldAudit.lose_items(u.equip.values(), "-left with applicants nobody hired")
 	town["recruits"] = Recruits.generate_pool(town, rng)
 	town["contracts"] = Contracts.generate_offers(town, day, rng)
 	town["next_refresh"] = day + REFRESH_DAYS

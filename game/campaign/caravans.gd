@@ -747,6 +747,7 @@ static func lost(game, wid: String, by_faction: String) -> void:
 			ArmsTrade._legend_found(game, lit, null, wb["pos"])
 	ArmsTrade.field(game, (wb["units"] as Array).filter(func(u): return not u.equip.is_empty()), {}, wb["pos"])   # kit nobody took: left
 	_record_loss(wb, 1.0)
+	WorldAudit.lose_items(wb["cargo"].get("items", []), "-lost with plundered wagons")   # v0.075 r5 (the arms book: _record_loss)
 	receipt_add(wb, "lost_coin", float(wb.get("gold", 0.0)))
 	if wb.has("supply_order_id"): SupplyOrders.lost(game, wb)
 	_finish_receipt(game, wb, "lost")
@@ -794,6 +795,7 @@ static func plunder(game, wid: String, witnesses: bool = false) -> Dictionary:
 	WorldAudit.book(w, "arms", "-plundered by the company", -mini(keep_n, items.size()))   # (the rest is lost with the wagons)
 	var lg: Dictionary = TownEcon.goods_lost
 	lg["arms"] = int(lg.get("arms", 0)) + items.size() - keep_n
+	WorldAudit.lose_items(items.slice(keep_n), "-lost with plundered wagons")   # v0.075 r5
 	for g in cargo.get("goods", {}):
 		var q := int(cargo["goods"][g])
 		var t := int(round(float(q) * PLUNDER_SHARE))

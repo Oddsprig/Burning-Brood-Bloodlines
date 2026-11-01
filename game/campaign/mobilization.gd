@@ -472,6 +472,7 @@ static func muster(game, town_id: String, count: int = 100, review: Dictionary =
 		Goods.take(town, str(purchase["good"]), n); Goods.pay_market(town, coins); game.gold -= coins; cost += coins
 		TownEcon.led(town["econ"], "used", str(purchase["good"]), n)   # v0.075: out of the town's books, as provisions are
 		Food.add_stock(game, "meal", n, 0, str(purchase["good"]), Food.food_name(town, str(purchase["good"])))
+		WorldAudit.ration("meal", "+bought in a town for the company", n)
 	command_plan(game); Food.sync(game); Diplomacy.roster_changed(game); game.invalidate_deploy()
 	_history(game, "Raised %d people at %s for %d coins." % [raised, town["name"], cost]); game.changed.emit()
 	return {"ok": raised > 0, "reason": "Raised %d of %d requested." % [raised, q["requested"]], "requested": q["requested"],

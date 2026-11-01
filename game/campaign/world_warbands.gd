@@ -160,6 +160,7 @@ static func spawn_warband(game, fid: String, pos: Vector2, count: int, kind: Str
 		Army.enlist(game, wb)   # economy spec 2: every person in the force is a real family member (not monsters)
 		if TownEcon.prof_on: TownEcon._prof("sw_enlist_" + kind, _t0)
 		if (wb["units"] as Array).is_empty():
+			WorldAudit.band_gone(wb, "-went with a band nobody joined")
 			w["warbands"].erase(id)   # war pick 4: the town could spare nobody: not raised
 			if kind == "caravan": Caravans.unraised(game, wb)   # v0.075: its purse and cargo go back
 			return ""
@@ -385,6 +386,7 @@ static func _muster_done(game, m: Dictionary, wid: String, rng: RandomNumberGene
 	return false
 
 static func remove_warband(game, wid: String) -> void:
+	WorldAudit.band_gone(game.world["warbands"].get(wid, {}), "-went with a removed band")
 	game.world["warbands"].erase(wid)
 	if game.world.get("encounter", "") == wid:
 		game.world["encounter"] = ""

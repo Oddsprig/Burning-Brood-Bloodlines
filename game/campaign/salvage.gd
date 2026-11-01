@@ -98,6 +98,7 @@ static func trade(game, records: Array, pos: Vector2, retained: Array, recipient
 				if units > 0: TownEcon.led(e, "made", good, units)
 				row["stock_units"] = units; row["residual_kg_before"] = before; row["residual_kg_after"] = remainder
 				row["destination"] = "market_stock"
+				WorldAudit.lose_item(it, "-melted into a market's scrap stock")
 			else:
 				if not town.has("shop"): town["shop"] = []
 				if not shop_indexed:

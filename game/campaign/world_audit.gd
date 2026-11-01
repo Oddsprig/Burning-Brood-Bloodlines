@@ -19,7 +19,21 @@ extends RefCounted
 ## test counts them): change in held = made - used (town ledgers, good "arms") - lost (TownEcon.goods_lost["arms"]:
 ## cargo destroyed with its wagons) + booked (flow book good "arms": cargo taken by the company, outlaws or a band).
 ## Moves between the armoury, the stalls and the wagons are inside the holdings.
-## Treasure pieces (house treasure rooms, merchants' court stock, realms' carried-off hoards): reported.
+## Treasure pieces (house treasure rooms, merchants' court stock, realms' carried-off hoards): balanced since r5.
+##   change in held = commissioned (CourtEvents.hold "treasure", booked in the treasure book below)
+##   (sold to a merchant, carried off in a sack: moves between counted holders)
+##
+## r5 (QC 122fabf8): every owned holder is in the gate.
+## Items, by identity: every Item the save holds (the company's men and stash, every force's men alive or dead,
+## prisoners and captives, caravan cargo, armouries, stalls, recruits, lair stock, anything else in the world tree).
+## Moving between holders is a transfer. Between two censuses every Item that is gone must have been booked gone by
+## its uid at the line that destroyed it (lose_item: melted to scrap, left on the field...), every new Item must come
+## from Item.make in that window, and nothing booked gone may still be held. The arms identity above stays the towns'
+## and wagons' operating stock (the town ledgers book a piece put on a soldier as used); the item identity covers kit.
+## Rations (band stores {grain, meat, fruit, beer, wine} and the company's provisions {meal lots, beer, wine}), rows
+## food (every meal unit), beer, wine: change in held = what the ration book names (bought in a town, seeded,
+## eaten, drunk, spoiled, left on the field, fed to horses or dragons, gone with a removed band ...). A beaten
+## force's stores taken by the winner or by the company are a transfer.
 
 const GOODS := ["grain", "meat", "fresh_meat", "wood", "copper_ore", "tin_ore", "iron_ore", "copper_bars", "tin_bars",
 	"bronze_bars", "iron_bars", "pig_iron", "steel_bars", "scrap_copper", "scrap_tin", "scrap_bronze", "scrap_iron", "scrap_steel"]
@@ -42,6 +56,45 @@ static func book(w: Dictionary, good: String, name: String, n: int) -> void:
 	var g: Dictionary = flows(w)["goods"]
 	if not g.has(good): g[good] = {}
 	g[good][name] = int(g[good].get(name, 0)) + n
+
+# ------------------------------------------------------------------ r5: items, rations, treasure books
+## In-process books (like TownEcon.goods_lost: the audit compares two censuses of one running world).
+## items_gone: [uid, why] for every Item destroyed while an audit is running (census() starts it); gone_by: why -> n.
+static var tracking := false
+static var items_gone: Array = []
+static var gone_by: Dictionary = {}
+## rations: row ("food" | "beer" | "wine") -> {name: n}, "+" in, "-" out. treasure: name -> pieces.
+static var rations: Dictionary = {}
+static var treasure_book: Dictionary = {}
+
+## The Item stops existing here (why: "-melted into scrap stock" ...). Call it on the line that drops the last reference.
+static func lose_item(it, why: String) -> void:
+	if not (it is Item): return
+	gone_by[why] = int(gone_by.get(why, 0)) + 1
+	if tracking: items_gone.append([int(it.uid), why])
+
+static func lose_items(items, why: String) -> void:
+	for it in items: lose_item(it, why)
+
+## A ration good (grain, meat, fruit, a meal lot, beer, wine) n units in (+) or out (-) under a name.
+static func ration(good: String, name: String, n: int) -> void:
+	if n == 0: return
+	var row := "food" if good in ["grain", "meat", "fruit", "meal", "fresh_meat"] else good
+	if not rations.has(row): rations[row] = {}
+	rations[row][name] = int(rations[row].get(name, 0)) + n
+
+## A force's stores {good: n} n units out under a name (what was left on the field, gone with the band).
+static func ration_out(st: Dictionary, name: String) -> void:
+	for g in st:
+		if g in Supplies.FOOD or g in Supplies.DRINK: ration(g, name, -int(st[g]))
+
+## A force leaves the map: its stores go with it (booked), its men's kit is checked item by item.
+static func band_gone(wb: Dictionary, why: String) -> void:
+	if wb.is_empty(): return
+	ration_out(wb.get("stores", {}), why)
+
+static func treasure(name: String, n: int) -> void:
+	if n != 0: treasure_book[name] = int(treasure_book.get(name, 0)) + n
 
 # ------------------------------------------------------------------ census
 static func _add(d: Dictionary, k: String, v) -> void:
@@ -130,10 +183,96 @@ static func census(game) -> Dictionary:
 		lost[g] = int(TownEcon.goods_lost.get(g, 0))
 	arms["lost"] = int(TownEcon.goods_lost.get("arms", 0))
 	arms["book"] = _arms_book(w)
+	tracking = true
+	# r5 rations: band stores and the company's provisions, by row.
+	var held_r := {}   # row -> {holder: n}
+	for wid in w.get("warbands", {}):
+		var st: Dictionary = w["warbands"][wid].get("stores", {})
+		for g in st:
+			if g in Supplies.FOOD or g in Supplies.DRINK:
+				var row := "food" if g in Supplies.FOOD else str(g)
+				if not held_r.has(row): held_r[row] = {}
+				_add(held_r[row], "band stores", int(st[g]))
+	if game.provisions is Dictionary:
+		for kind in game.provisions:
+			var row := "food" if str(kind) == "meal" else str(kind)
+			if not held_r.has(row): held_r[row] = {}
+			for lot in game.provisions[kind]:
+				_add(held_r[row], "company provisions", int(lot[0]))
 	return {"day": float(game.day), "coin": coin, "goods": goods, "arms": arms, "treasure": treasure,
 		"cast": float(L.get("cast", 0.0)), "melted": float(L.get("melted", 0.0)), "drained": float(L.get("drained", 0.0)),
 		"made": made, "used": used, "spoil": spoil, "lost": lost, "book": book_in, "outside": outside, "bands": bands,
-		"book_names": (w.get("flow", {}).get("goods", {}) as Dictionary).duplicate(true)}
+		"book_names": (w.get("flow", {}).get("goods", {}) as Dictionary).duplicate(true),
+		"items": items(game), "rations": held_r, "ration_book": rations.duplicate(true),
+		"treasure_book": treasure_book.duplicate(), "items_booked": items_gone.size()}
+
+## Every Item the save holds, by uid: {"held": {uid: [holder, tid]}, "by": {holder: n}, "next": the next uid
+## Item.make gives, "dupes": [uid] two distinct Items carry}. Walks the company, the stash and the whole world tree
+## (an Item reachable only from something the save does not write is not held).
+static func items(game) -> Dictionary:
+	var out := {"held": {}, "by": {}, "next": Item._next_uid, "dupes": []}
+	var seen := {}
+	_walk(game.company, "company kit", out, seen, 0)
+	_walk(game.stash, "company stash", out, seen, 0)
+	var w: Dictionary = game.world
+	for k in w:
+		var key := str(k)
+		match key:
+			"towns":
+				for tid in w["towns"]:
+					var t = w["towns"][tid]
+					if not (t is Dictionary): continue
+					for tk in t:
+						var lab: String = {"armory_items": "town armoury", "shop": "town stalls", "recruits": "recruits' own kit"}.get(str(tk), "town " + str(tk))
+						_walk(t[tk], lab, out, seen, 0)
+			"warbands":
+				for wid in w["warbands"]:
+					var wb = w["warbands"][wid]
+					if not (wb is Dictionary): continue
+					var kind := str(wb.get("kind", "band"))
+					for bk in wb:
+						var lab: String = {"units": kind + " men's kit", "cargo": "caravan cargo"}.get(str(bk), kind + " " + str(bk))
+						_walk(wb[bk], lab, out, seen, 0)
+			"lairs":
+				for lid in w["lairs"]:
+					_walk(w["lairs"][lid], "lair stock", out, seen, 0)
+			"prisoners":
+				_walk(w[k], "prisoners' kit", out, seen, 0)
+			"captives":
+				_walk(w[k], "captives' kit", out, seen, 0)
+			_:
+				_walk(w[k], "world " + key, out, seen, 0)
+	return out
+
+static func _walk(v, label: String, out: Dictionary, seen: Dictionary, depth: int) -> void:
+	if depth > 40: return
+	match typeof(v):
+		TYPE_OBJECT:
+			if v is Item:
+				var id: int = v.get_instance_id()
+				if seen.has(id): return
+				seen[id] = true
+				var held: Dictionary = out["held"]
+				if held.has(v.uid): (out["dupes"] as Array).append(v.uid)
+				held[v.uid] = [label, v.tid]
+				_add(out["by"], label, 1)
+			elif v is Unit:
+				var id: int = v.get_instance_id()
+				if seen.has(id): return
+				seen[id] = true
+				for s in v.equip: _walk(v.equip[s], label, out, seen, depth + 1)
+				if v.horse != null: _walk(v.horse, label, out, seen, depth + 1)
+		TYPE_DICTIONARY:
+			for k in v:
+				var x = v[k]
+				var t := typeof(x)
+				if t == TYPE_OBJECT or t == TYPE_DICTIONARY or t == TYPE_ARRAY: _walk(x, label, out, seen, depth + 1)
+		TYPE_ARRAY:
+			var a: Array = v
+			if a.is_typed() and a.get_typed_builtin() != TYPE_OBJECT and a.get_typed_builtin() != TYPE_DICTIONARY and a.get_typed_builtin() != TYPE_ARRAY: return
+			for x in a:
+				var t := typeof(x)
+				if t == TYPE_OBJECT or t == TYPE_DICTIONARY or t == TYPE_ARRAY: _walk(x, label, out, seen, depth + 1)
 
 static func _arms_book(w: Dictionary) -> int:
 	var net := 0
@@ -230,8 +369,93 @@ static func compare(a: Dictionary, b: Dictionary) -> Dictionary:
 	if not out["arms"]["ok"]: out["ok"] = false
 	var tr := {}
 	for k in b["treasure"]: tr[k] = int(b["treasure"][k]) - int(a["treasure"].get(k, 0))
+	for k in a["treasure"]:
+		if not b["treasure"].has(k): tr[k] = -int(a["treasure"][k])
 	out["treasure"] = tr
+	# r5 treasure: balanced against the treasure book.
+	var tb_d := _book_delta(a.get("treasure_book", {}), b.get("treasure_book", {}))
+	var t_held := int(total(b["treasure"]) - total(a["treasure"]))
+	var t_book := int(total(tb_d))
+	out["treasure_gate"] = {"held": t_held, "book": t_book, "names": tb_d, "residual": t_held - t_book, "ok": t_held == t_book}
+	if not out["treasure_gate"]["ok"]: out["ok"] = false
+	# r5 rations.
+	out["rations"] = {}
+	var ra: Dictionary = a.get("rations", {})
+	var rb: Dictionary = b.get("rations", {})
+	var rows := {"food": true, "beer": true, "wine": true}
+	for row in ra: rows[row] = true
+	for row in rb: rows[row] = true
+	for row in rows:
+		var hb_r: Dictionary = rb.get(row, {})
+		var ha_r: Dictionary = ra.get(row, {})
+		var by_r := {}
+		for k in hb_r: by_r[k] = int(hb_r[k]) - int(ha_r.get(k, 0))
+		for k in ha_r:
+			if not hb_r.has(k): by_r[k] = -int(ha_r[k])
+		var names := _book_delta(a.get("ration_book", {}).get(row, {}), b.get("ration_book", {}).get(row, {}))
+		var h_r := int(total(hb_r) - total(ha_r))
+		var k_r := int(total(names))
+		out["rations"][row] = {"held": h_r, "book": k_r, "residual": h_r - k_r, "by_holder": by_r, "names": names, "ok": h_r == k_r}
+		if h_r != k_r: out["ok"] = false
+	# r5 items, by identity.
+	out["items"] = compare_items(a.get("items", {}), b.get("items", {}), int(a.get("items_booked", 0)), int(b.get("items_booked", 0)))
+	if not out["items"]["ok"]: out["ok"] = false
 	return out
+
+static func _book_delta(a: Dictionary, b: Dictionary) -> Dictionary:
+	var d := {}
+	for k in b:
+		var n := int(b[k]) - int(a.get(k, 0))
+		if n != 0: d[k] = n
+	for k in a:
+		if not b.has(k) and int(a[k]) != 0: d[k] = -int(a[k])
+	return d
+
+## Item identity between two item censuses; booked = items_gone[from_n .. to_n). Returns {ok, held (net), made,
+## booked, gone_unbooked: {holder: n}, appeared: {holder: n}, booked_but_held: n, dupes: n, samples: [text]}.
+static func compare_items(a: Dictionary, b: Dictionary, from_n: int, to_n: int) -> Dictionary:
+	var ha: Dictionary = a.get("held", {})
+	var hb: Dictionary = b.get("held", {})
+	var lo := int(a.get("next", 0))
+	var hi := int(b.get("next", 0))
+	var booked := {}
+	var why_n := {}
+	for i in range(from_n, mini(to_n, items_gone.size())):
+		var r: Array = items_gone[i]
+		booked[int(r[0])] = str(r[1])
+		why_n[str(r[1])] = int(why_n.get(str(r[1]), 0)) + 1
+	var unbooked := {}
+	var samples: Array = []
+	for uid in ha:
+		if hb.has(uid) or booked.has(int(uid)): continue
+		var key := str(ha[uid][0])
+		unbooked[key] = int(unbooked.get(key, 0)) + 1
+		if samples.size() < 12: samples.append("gone unbooked: #%d %s (last held: %s)" % [int(uid), str(ha[uid][1]), key])
+	for uid in range(lo, hi):   # made in this window and gone again: booked too
+		if hb.has(uid) or booked.has(uid) or ha.has(uid): continue
+		unbooked["made and gone in the window"] = int(unbooked.get("made and gone in the window", 0)) + 1
+		if samples.size() < 12: samples.append("made and gone unbooked: #%d" % uid)
+	var appeared := {}
+	for uid in hb:
+		if ha.has(uid) or (int(uid) >= lo and int(uid) < hi): continue
+		var key := str(hb[uid][0])
+		appeared[key] = int(appeared.get(key, 0)) + 1
+		if samples.size() < 12: samples.append("appeared without Item.make: #%d %s (in %s)" % [int(uid), str(hb[uid][1]), key])
+	var still := 0
+	for uid in booked:
+		if hb.has(uid):
+			still += 1
+			if samples.size() < 12: samples.append("booked gone (%s) but still held: #%d in %s" % [booked[uid], uid, str(hb[uid][0])])
+	var dupes := (b.get("dupes", []) as Array).size()
+	if dupes > 0 and samples.size() < 12: samples.append("two Items share uid %s" % str(b["dupes"].slice(0, 5)))
+	var by := {}
+	for k in b.get("by", {}): by[k] = int(b["by"][k]) - int(a.get("by", {}).get(k, 0))
+	for k in a.get("by", {}):
+		if not b.get("by", {}).has(k): by[k] = -int(a["by"][k])
+	var ok := unbooked.is_empty() and appeared.is_empty() and still == 0 and dupes == 0
+	return {"ok": ok, "held": hb.size() - ha.size(), "made": hi - lo, "booked": booked.size(), "booked_by": why_n,
+		"gone_unbooked": unbooked, "appeared": appeared, "booked_but_held": still, "dupes": dupes, "by_holder": by,
+		"samples": samples}
 
 ## Lines for a log: one per failing identity, holders that moved, unrounded numbers.
 static func lines(c: Dictionary, label: String) -> Array:
@@ -264,7 +488,22 @@ static func lines(c: Dictionary, label: String) -> Array:
 	var parts2 := PackedStringArray()
 	for g in od:
 		if int(od[g]) != 0: parts2.append("%s %+d" % [g, int(od[g])])
-	if not parts2.is_empty(): out.append("%s band stores (the army's mess, not balanced): %s" % [label, ", ".join(parts2)])
+	if not parts2.is_empty(): out.append("%s band stores (also in the rations identity below): %s" % [label, ", ".join(parts2)])
+	for row in c.get("rations", {}):
+		var r: Dictionary = c["rations"][row]
+		if r["ok"]: continue
+		out.append("%s rations %s LEAK: held %+d (%s) vs booked %+d %s, residual %+d" % [label, row, int(r["held"]),
+			JSON.stringify(r["by_holder"]), int(r["book"]), JSON.stringify(r["names"]), int(r["residual"])])
+	var tg: Dictionary = c.get("treasure_gate", {})
+	if not tg.is_empty() and not tg["ok"]:
+		out.append("%s treasure LEAK: held %+d %s vs booked %+d %s, residual %+d" % [label, int(tg["held"]),
+			JSON.stringify(c["treasure"]), int(tg["book"]), JSON.stringify(tg["names"]), int(tg["residual"])])
+	var ic: Dictionary = c.get("items", {})
+	if not ic.is_empty() and not ic["ok"]:
+		out.append("%s items LEAK: net %+d, made %d, booked gone %d %s; gone unbooked %s; appeared %s; booked but held %d; shared uids %d" % [label,
+			int(ic["held"]), int(ic["made"]), int(ic["booked"]), JSON.stringify(ic["booked_by"]), JSON.stringify(ic["gone_unbooked"]),
+			JSON.stringify(ic["appeared"]), int(ic["booked_but_held"]), int(ic["dupes"])])
+		for s in ic["samples"]: out.append("    " + str(s))
 	return out
 
 ## Money-looking numbers in the world tree the census does not count (a holder it is missing). Diagnostic only.

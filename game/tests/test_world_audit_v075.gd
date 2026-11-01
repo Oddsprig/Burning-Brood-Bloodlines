@@ -102,6 +102,139 @@ func self_check(tid: String) -> void:
 		TownEcon.goods_lost["arms"] = int(TownEcon.goods_lost["arms"]) - 1
 		arm.append(it)
 	check(not WorldAudit.scan(Game).has("/factions/%s/treasury" % str(Game.world.get("factions", {}).keys()[0]) if not Game.world.get("factions", {}).is_empty() else ""), "self-check: realm treasuries are counted holders (no scan note)")
+	holder_checks()
+
+## r5 (QC 122fabf8): an unbooked loss planted in each holder class is a leak of that class; a move between holders,
+## a booked loss and a new Item.make are not. Every plant is undone and the undone state balances again.
+func holder_checks() -> void:
+	var w: Dictionary = Game.world
+	var base := WorldAudit.census(Game)
+	check(WorldAudit.compare(base, WorldAudit.census(Game))["ok"], "holders self-check: two censuses balance (items, rations, treasure too)")
+	# --- band stores: 100 grain gone from a band without a booking (QC's example), then booked
+	var band := {}
+	for wid in w.get("warbands", {}):
+		var wb: Dictionary = w["warbands"][wid]
+		if int(wb.get("stores", {}).get("grain", 0)) >= 100: band = wb; break
+	check(not band.is_empty(), "holders self-check: a band carries 100 grain in its stores")
+	if not band.is_empty():
+		band["stores"]["grain"] = int(band["stores"]["grain"]) - 100
+		var c := WorldAudit.compare(base, WorldAudit.census(Game))
+		check(not c["ok"] and int(c["rations"]["food"]["residual"]) == -100, "holders self-check: 100 grain gone from a band's stores unbooked is a leak of -100 (%d)" % int(c["rations"]["food"]["residual"]))
+		WorldAudit.ration("grain", "-self-check", -100)
+		check(WorldAudit.compare(base, WorldAudit.census(Game))["rations"]["food"]["ok"], "holders self-check: the same grain booked out balances")
+		band["stores"]["grain"] = int(band["stores"]["grain"]) + 100
+		WorldAudit.ration("grain", "+self-check", 100)
+		var beer := int(band["stores"].get("beer", 0))
+		if beer > 0:
+			band["stores"]["beer"] = beer - 1
+			check(not WorldAudit.compare(base, WorldAudit.census(Game))["rations"]["beer"]["ok"], "holders self-check: a mug gone from a band's stores unbooked is a leak")
+			band["stores"]["beer"] = beer
+	# --- the company's provisions
+	var meals: Array = Game.provisions.get("meal", [])
+	if not meals.is_empty():
+		meals[0][0] = int(meals[0][0]) - 3
+		var c2 := WorldAudit.compare(base, WorldAudit.census(Game))
+		check(not c2["ok"] and int(c2["rations"]["food"]["residual"]) == -3, "holders self-check: 3 meals gone from the company's provisions unbooked are a leak of -3 (%d)" % int(c2["rations"]["food"]["residual"]))
+		meals[0][0] = int(meals[0][0]) + 3
+	else:
+		check(false, "holders self-check: the company has meal lots to test")
+	check(WorldAudit.compare(base, WorldAudit.census(Game))["ok"], "holders self-check: stores and provisions put back balance")
+	# --- items: one soldier's piece through every holder class
+	var man: Unit = null
+	var man_band := {}
+	for wid in w.get("warbands", {}):
+		var wb: Dictionary = w["warbands"][wid]
+		if str(wb.get("kind", "")) == "caravan": continue
+		for u in wb.get("units", []):
+			if u is Unit and not u.dead and u.equip.has("main_hand"): man = u; man_band = wb; break
+		if man != null: break
+	check(man != null, "holders self-check: a band soldier carries a weapon")
+	if man == null: return
+	var it: Item = man.equip["main_hand"]
+	var kind := str(man_band.get("kind", "band")) + " men's kit"
+	man.equip.erase("main_hand")
+	var gone := WorldAudit.compare(base, WorldAudit.census(Game))
+	check(not gone["ok"] and int(gone["items"]["gone_unbooked"].get(kind, 0)) == 1, "holders self-check: a soldier's weapon gone unbooked is a leak of his band's kit (%s)" % JSON.stringify(gone["items"]["gone_unbooked"]))
+	# the same piece moved into each other holder is a transfer; removed from it unbooked, a leak of that holder
+	var places: Array = []   # [label, put Callable, take Callable]
+	places.append(["company stash", func(): Game.stash.append(it), func(): Game.stash.erase(it)])
+	var cu: Unit = null
+	for u in Game.company:
+		if u is Unit and not u.dead and not u.equip.has("main_hand"): cu = u; break
+	if cu == null:
+		for u in Game.company:
+			if u is Unit and not u.dead: cu = u; break
+	if cu != null:
+		var slot := "audit_selfcheck"
+		places.append(["company kit", func(): cu.equip[slot] = it, func(): cu.equip.erase(slot)])
+	var lair := {}
+	for lid in w.get("lairs", {}):
+		if w["lairs"][lid].has("stock"): lair = w["lairs"][lid]; break
+	if not lair.is_empty():
+		places.append(["lair stock", func(): (lair["stock"] as Array).append(it), func(): (lair["stock"] as Array).erase(it)])
+	var town: Dictionary = {}
+	for tid in w.get("towns", {}):
+		if TownEcon.has_econ(w["towns"][tid]): town = w["towns"][tid]; break
+	if not town.is_empty():
+		places.append(["town armoury", func(): ArmsTrade.armory(town).append(it), func(): ArmsTrade.armory(town).erase(it)])
+	# a prisoner (planted record, his Unit carrying the piece)
+	var pu := Unit.new()
+	pu.uid = -991
+	var prec := {"uid": -991, "unit": pu, "audit_selfcheck": true}
+	Prisoners.held(Game).append(prec)   # (no kit yet: holds nothing)
+	places.append(["prisoners' kit", func(): pu.equip["main_hand"] = it, func(): pu.equip.erase("main_hand")])
+	places.append(["caravan cargo", func(): w["warbands"]["audit_selfcheck_cargo"] = {"kind": "caravan", "gold": 0.0, "cargo": {"items": [it], "goods": {}}},
+		func(): (w["warbands"]["audit_selfcheck_cargo"]["cargo"]["items"] as Array).clear()])
+	for p in places:
+		(p[1] as Callable).call()
+		var moved := WorldAudit.compare(base, WorldAudit.census(Game))
+		check(moved["items"]["ok"], "holders self-check: the piece moved into %s is a transfer (%s)" % [p[0], JSON.stringify(moved["items"]["samples"])])
+		(p[2] as Callable).call()
+		var lost := WorldAudit.compare(base, WorldAudit.census(Game))
+		check(not lost["ok"] and int(lost["items"]["gone_unbooked"].get(p[0], 0)) == 1, "holders self-check: the piece gone from %s unbooked is a leak of that holder (%s)" % [p[0], JSON.stringify(lost["items"]["gone_unbooked"])])
+	Prisoners.held(Game).erase(prec)
+	w["warbands"].erase("audit_selfcheck_cargo")
+	man.equip["main_hand"] = it
+	check(WorldAudit.compare(base, WorldAudit.census(Game))["ok"], "holders self-check: the piece back on its soldier balances")
+	# a booked loss balances; booked but still held, a copy with an old uid and a new Item.make put nowhere are leaks
+	var b2 := WorldAudit.census(Game)
+	man.equip.erase("main_hand")
+	WorldAudit.lose_item(it, "-self-check")
+	check(WorldAudit.compare(b2, WorldAudit.census(Game))["items"]["ok"], "holders self-check: a piece booked gone where it was dropped balances")
+	man.equip["main_hand"] = it
+	var held_again := WorldAudit.compare(b2, WorldAudit.census(Game))
+	check(not held_again["items"]["ok"] and int(held_again["items"]["booked_but_held"]) == 1, "holders self-check: a piece booked gone but still held is a leak")
+	var b3 := WorldAudit.census(Game)
+	var copy := Item.from_dict(it.to_dict())
+	Game.stash.append(copy)
+	var dup := WorldAudit.compare(b3, WorldAudit.census(Game))
+	check(not dup["items"]["ok"] and int(dup["items"]["dupes"]) == 1, "holders self-check: a copy of a held piece (same uid) is a leak")
+	Game.stash.erase(copy)
+	var fresh := Item.make("tunic", "linen", 0)
+	var made_gone := WorldAudit.compare(b3, WorldAudit.census(Game))
+	check(not made_gone["items"]["ok"] and int(made_gone["items"]["gone_unbooked"].get("made and gone in the window", 0)) == 1, "holders self-check: an Item made and dropped unbooked is a leak")
+	Game.stash.append(fresh)
+	check(WorldAudit.compare(b3, WorldAudit.census(Game))["items"]["ok"], "holders self-check: a new Item.make kept in a holder balances")
+	Game.stash.erase(fresh)
+	WorldAudit.lose_item(fresh, "-self-check")
+	# --- treasure: a piece gone from a house's treasure room unbooked
+	var b4 := WorldAudit.census(Game)
+	var room: Dictionary = {}
+	for tid in w.get("towns", {}):
+		if not TownEcon.has_econ(w["towns"][tid]): continue
+		for f in w["towns"][tid]["econ"]["fams"]:
+			for row in f.get("hoard", []):
+				if int(row.get("quantity", 0)) > 0: room = row; break
+			if not room.is_empty(): break
+		if not room.is_empty(): break
+	if not room.is_empty():
+		room["quantity"] = int(room["quantity"]) - 1
+		var tg := WorldAudit.compare(b4, WorldAudit.census(Game))
+		check(not tg["ok"] and int(tg["treasure_gate"]["residual"]) == -1, "holders self-check: a treasure piece gone unbooked is a leak of -1 (%d)" % int(tg["treasure_gate"]["residual"]))
+		room["quantity"] = int(room["quantity"]) + 1
+	else:
+		print("holders self-check: no house holds treasure in this world (treasure plant skipped)")
+	check(WorldAudit.compare(b4, WorldAudit.census(Game))["ok"], "holders self-check: every plant undone balances")
 
 func run(tree: SceneTree) -> int:
 	var started := Time.get_ticks_msec()
@@ -149,6 +282,26 @@ func run(tree: SceneTree) -> int:
 			if not leaks.has("arms"): leaks["arms"] = [0, 0.0]
 			leaks["arms"][0] += 1
 			leaks["arms"][1] += float(c["arms"]["residual"])
+		# r5: every held Item by identity, band stores + company provisions, treasure
+		var ic: Dictionary = c["items"]
+		if not ic["ok"]:
+			if not leaks.has("items"): leaks["items"] = [0, 0.0]
+			leaks["items"][0] += 1
+			for k in ic["gone_unbooked"]: leaks["items"][1] -= float(ic["gone_unbooked"][k])
+			for k in ic["appeared"]: leaks["items"][1] += float(ic["appeared"][k])
+		for row in c["rations"]:
+			if c["rations"][row]["ok"]: continue
+			var key := "rations " + str(row)
+			if not leaks.has(key): leaks[key] = [0, 0.0]
+			leaks[key][0] += 1
+			leaks[key][1] += float(c["rations"][row]["residual"])
+		if not c["treasure_gate"]["ok"]:
+			if not leaks.has("treasure"): leaks["treasure"] = [0, 0.0]
+			leaks["treasure"][0] += 1
+			leaks["treasure"][1] += float(c["treasure_gate"]["residual"])
+		if d == 0:
+			var ib: Dictionary = c["items"]
+			print("day 0 items: %d made, %d booked gone %s, by holder %s" % [int(ib["made"]), int(ib["booked"]), JSON.stringify(ib["booked_by"]), JSON.stringify(ib["by_holder"])])
 	for k in leaks:
 		check(false, "%s leaks on %d of %d days, residual %s in all" % [k, int(leaks[k][0]), DAYS, String.num(leaks[k][1], 6)])
 	var whole := WorldAudit.compare(c0, WorldAudit.census(Game))
