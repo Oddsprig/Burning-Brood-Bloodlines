@@ -512,6 +512,6 @@ func begin_review() -> Dictionary:
 		custom.erase("design"); _design_leader = ""
 		house_rows = HouseOnboarding.houses(Game,selected_town); current_preview = HouseOnboarding.preview(Game,selected_town,selected_house,custom); _refresh()
 		return result
-	Game.save_game_async()
+	Game.request_autosave()
 	Game.goto("house",{"back":"map","start":true})
 	return result

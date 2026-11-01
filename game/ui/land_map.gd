@@ -61,6 +61,7 @@ static func mount(parent: Control, town: Dictionary, focus_fid: int = -99) -> Co
 	UiKit.expand(view, true, true)
 	view.clip_contents = true
 	view.mouse_filter = Control.MOUSE_FILTER_STOP
+	TouchScroll.opt_out(view)   # the map pans under the finger itself; a drag on it never scrolls a list
 	mid.add_child(view)
 	var side := UiKit.panel()
 	side.custom_minimum_size = Vector2(380, 0)

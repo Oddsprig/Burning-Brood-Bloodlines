@@ -8,6 +8,7 @@ var _margin: MarginContainer
 var _buttons: Array[Button] = []
 
 func _ready() -> void:
+	MusicManager.play_scene("menu")
 	theme = UiTheme.get_theme()
 	set_anchors_preset(PRESET_FULL_RECT)
 	var bg := TitleBackdrop.new()
