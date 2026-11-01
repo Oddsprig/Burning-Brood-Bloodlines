@@ -141,31 +141,108 @@ func failed_appoint() -> void:
 	var result: Dictionary = Feudal.after_conquest(Game, "village", "middle_kingdom", "moon_court")
 	check(result.get("ok", true) == false and head("village") == old and str(result.get("holder_uid", "")) == old and is_equal_approx(loyalty("village"), before_l), "a failed appoint does not report success")
 
-func prisoner() -> void:
-	native.fixture()
-	var town: Dictionary = Game.world["towns"]["foreign"]
+func lord_unit(tid: String) -> Unit:
+	var town: Dictionary = Game.world["towns"][tid]
 	var e: Dictionary = town["econ"]
-	var f: Dictionary = e["fams"][0]
-	var ruler: Array = f["pp"][0]
-	var old := str(ruler[Persons.PERSON_UID])
-	var race := Persons.race_of(e)
-	var u := Unit.create(race, "moon_court", false)
-	u.home_town = "foreign"
-	u.family = int(f["id"])
-	Persons.bind(e, f, ruler, u, "army", 0.0)
-	u.home_town = "foreign"
-	u.family = int(f["id"])
-	u.race = Persons.family_race(e, f)
-	town["recruits"].append(u)
-	Warfare._conquer(Game, "foreign")
-	check(head("foreign") != old and head("foreign") == head("seat"), "a lord with a living company is unseated")
-	var found := false
-	for rec in Game.world.get("prisoners", []):
-		if int(rec.get("uid", -1)) != int(u.uid): continue
-		found = bool(rec.get("noble", false)) and str(rec.get("role", "")) == "ruler"
-		check(Prisoners.kind_of(Game, rec) == "noble", "the unseated lord is priced as a noble, not by an invented captive flag")
-	check(found, "the old lord is recorded as a noble prisoner")
-	check(str(ruler[4]) != "captive", "an enemy prisoner does not take the captive person state")
+	var family: Dictionary = e["fams"][0]
+	var person: Array = family["pp"][0]
+	var u := Unit.create(Persons.family_race(e, family), str(town["faction"]), false)
+	Persons.bind(e, family, person, u, "army", 0.0)
+	u.home_town = tid
+	family["serve"] = {"army": 1}
+	u.equip["body"] = Item.make("tunic", "linen", 0)
+	u.quiver["arrow_wood"] = 7
+	Army.state(Game.world)["roll"][str(u.uid)] = [tid, int(family["id"]), "army", u.name]
+	return u
+
+func active_count(uid: int) -> int:
+	var n := 0
+	for u: Unit in Game.company + Mobilization.reserves(Game):
+		if u.uid == uid: n += 1
+	for town: Dictionary in Game.world["towns"].values():
+		for u: Unit in town.get("recruits", []):
+			if u.uid == uid: n += 1
+	for band: Dictionary in Game.world["warbands"].values():
+		for u: Unit in band.get("units", []):
+			if u.uid == uid: n += 1
+	for u: Unit in CampaignWorld.mustering_units(Game.world):
+		if u.uid == uid: n += 1
+	return n
+
+## File IO plus the actual recursive Unit serializer/reader, without pretending this tiny economics fixture is
+## a complete generated campaign. The full Game save/load gate is v074; this covers captive ownership itself.
+func custody_reload(label: String) -> void:
+	var path := "user://conquest078-" + label + ".json"
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	check(file != null, "the isolated custody save opens")
+	if file == null: return
+	file.store_string(JSON.stringify(Game._serialize(Game.world)))
+	file.close()
+	var raw: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	check(raw is Dictionary, "the isolated custody save is valid JSON")
+	if not raw is Dictionary: return
+	Game.world = Game._deserialize(raw)
+	Prisoners.after_load(Game)
+	Army.after_load(Game)
+
+func prisoner() -> void:
+	for holder in ["recruit", "field", "company", "reserve", "mustering"]:
+		native.fixture()
+		var town: Dictionary = Game.world["towns"]["foreign"]
+		var ruler: Array = town["econ"]["fams"][0]["pp"][0]
+		var old := str(ruler[Persons.PERSON_UID])
+		var u := lord_unit("foreign")
+		var uid := u.uid
+		var kit_uid: int = u.equip["body"].uid
+		match holder:
+			"recruit": town["recruits"].append(u)
+			"field":
+				Game.world["warbands"]["lord"] = {"id": "lord", "kind": "patrol", "faction": "moon_court", "home": "foreign", "pos": town["pos"], "units": [u]}
+			"company": Game.company.append(u)
+			"reserve": Mobilization._state(Game)["reserve"].append(u)
+			"mustering": Game.world["work"].append(["muster", "foreign", {"fid": "moon_court", "kind": "patrol", "stage": "outfit", "wb": {"home": "foreign", "units": [u]}}])
+		check(active_count(uid) > 0, "the lord is found in the real active %s holder before conquest" % holder)
+		Warfare._conquer(Game, "foreign")
+		check(head("foreign") != old and head("foreign") == head("seat"), "the %s lord loses his seat" % holder)
+		var rec := Prisoners._find(Prisoners.held(Game), uid)
+		check(not rec.is_empty() and bool(rec.get("noble", false)) and str(rec.get("former_office", "")) == "ruler", "the old lord is held once as a former ruling noble")
+		check(active_count(uid) == 0 and Prisoners.units(Game).filter(func(v: Unit): return v.uid == uid).size() == 1, "capture removes the %s lord from active holders with one captive body" % holder)
+		check(str(rec.get("faction", "")) == "moon_court" and u.faction == "moon_court" and str(rec.get("held_by", "")) == "middle_kingdom", "capture preserves original allegiance and the actual winner")
+		check(str(rec.get("role", "")) == "army" and Army.state(Game.world)["roll"].has(str(uid)) and str(ruler[4]) == "army", "capture preserves native service role and person binding until release")
+		check(Prisoners.kind_of(Game, rec) == "noble" and u.equip["body"].uid == kit_uid and int(u.quiver["arrow_wood"]) == 7, "the captive keeps his exact kit/quiver and native noble price")
+		custody_reload(holder)
+		rec = Prisoners._find(Prisoners.held(Game), uid)
+		var back: Unit = rec.get("unit")
+		check(back != null and back.uid == uid and active_count(uid) == 0 and Prisoners.units(Game).filter(func(v: Unit): return v.uid == uid).size() == 1, "serialized %s custody has no active clone" % holder)
+		check(back != null and back.equip["body"].uid == kit_uid and str(rec.get("role", "")) == "army", "serialized custody retains equipment and original service")
+		Prisoners._free_enemy(Game, rec, "released")
+		var home: Dictionary = Game.world["towns"]["foreign"]
+		var person: Array = Persons.by_pid(home["econ"]["fams"][0], 0)
+		check(Prisoners._find(Prisoners.held(Game), uid).is_empty() and not Army.state(Game.world)["roll"].has(str(uid)) and str(person[4]) == "" and int(person[5]) == -1, "release returns the same person home and clears the original army service")
+
+func ai_captor() -> void:
+	native.fixture()
+	# The player observes from a third realm. Neither the loser nor winner is their army.
+	Game.world["towns"]["village"]["faction"] = "orc_horde"
+	Game.world["towns"]["village"]["econ"]["faction"] = "orc_horde"
+	Game.world["factions"]["orc_horde"] = {"capital": "village", "towns": ["village"], "treasury": 5000.0}
+	Feudal.prepare_world(Game)
+	Dynasty.select_city(Game, "village")
+	var u := lord_unit("county")
+	var uid := u.uid
+	var purse := float(Feudal._payer(Game).get("purse", 0.0))
+	var gold := float(Game.gold)
+	Game.world["towns"]["county"]["recruits"].append(u)
+	Warfare._apply_siege(Game, "county", "moon_court")
+	var rec := Prisoners._find(Prisoners.realm_held(Game, "moon_court"), uid)
+	check(not rec.is_empty() and rec.get("unit") == u and str(rec.get("held_by", "")) == "moon_court" and str(rec.get("faction", "")) == "middle_kingdom", "AI conquest assigns the old-allegiance body to the actual AI captor")
+	check(Prisoners.held(Game).is_empty() and Prisoners.captives(Game).is_empty() and active_count(uid) == 0, "AI-AI captivity never enters either player bargaining list or an active roster")
+	check(not Prisoners.preview(Game, "ransom", uid).get("ok", false) and float(Game.gold) == gold and float(Feudal._payer(Game).get("purse", 0.0)) == purse, "the player cannot ransom another realm's prisoner or receive its money")
+	custody_reload("ai")
+	rec = Prisoners._find(Prisoners.realm_held(Game, "moon_court"), uid)
+	check(rec.get("unit") is Unit and active_count(uid) == 0 and Prisoners.units(Game).filter(func(v: Unit): return v.uid == uid).size() == 1, "AI captive save/read retains one body under its actual captor")
+	check(not Prisoners.release_realm(Game, "orc_horde", uid), "a different realm cannot release that captive")
+	check(Prisoners.release_realm(Game, "moon_court", uid) and Prisoners.realm_held(Game, "moon_court").is_empty(), "the actual realm releases its prisoner through native family/army return")
 
 func run(_tree: SceneTree) -> int:
 	native = NativeFixture.new()
@@ -176,5 +253,6 @@ func run(_tree: SceneTree) -> int:
 	child_vassal()
 	failed_appoint()
 	prisoner()
+	ai_captor()
 	print("Conquered towns v0.078: %d checks, %d failures" % [checks, fails])
 	return fails

@@ -171,16 +171,19 @@ static func _apply_siege(game, tid: String, winner_fid: String, record_conquest:
 	if target == "" or target == old: return {"text": "%s is already yours." % town["name"]}
 	if not w.get("factions", {}).has(target): return {"text": "No realm can take %s." % town["name"]}
 	var was_capital := str(w["factions"].get(old, {}).get("capital", "")) == tid
+	# Capture allegiance/domain before the town or its active forces change sides.
+	var player_fid := player_faction(game)
+	var old_lord := Dynasty.bound_unit(game, Dynasty.town_office(game, tid))
 	town["faction"] = target
 	if town.has("econ") and town["econ"] is Dictionary: town["econ"]["faction"] = target
-	Feudal._transfer_forces(game, tid, old, target)
+	Feudal._transfer_forces(game, tid, old, target, old_lord.uid if old_lord != null else -1)
 	var row: Dictionary = Feudal._state(w)["towns"].get(tid, {})
 	var claimed := target == player_faction(game) and Marriage.has_claim(game, tid)
 	if not row.is_empty():
 		row["loyalty"] = 60.0 if claimed else 30.0; row["grievance"] = 10.0 if claimed else 45.0
 		row["last_defection"] = int(game.day); row["last_action"] = int(game.day)
 	Feudal.prepare_world(game)
-	var handed := Feudal.after_conquest(game, tid, old, target)
+	var handed := Feudal.after_conquest(game, tid, old, target, target == player_fid, old == player_fid)
 	Academy.sync_towns(w, old); Academy.sync_towns(w, target)
 	Diplomacy._push(w, old, target, -50.0)
 	if w.has("diplo"): w["diplo"]["size"] = {}

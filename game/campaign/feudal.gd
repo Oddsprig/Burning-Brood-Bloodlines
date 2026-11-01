@@ -458,7 +458,7 @@ static func defect(game, town_id: String, target_fid: String, reason: String = "
 	_history(game, town_id, "%s swore to %s: %s." % [town["name"], CampaignWorld.faction_name(target_fid), reason])
 	game.changed.emit(); return _result(true, "Settlement allegiance changed; native population and wealth were preserved.")
 
-static func _transfer_forces(game, tid: String, old: String, target: String) -> void:
+static func _transfer_forces(game, tid: String, old: String, target: String, captured_uid: int = -1) -> void:
 	var w: Dictionary = game.world; var moved := {}
 	for m in CampaignWorld.mustering(w):
 		var pending: Dictionary = m.get("wb", m.get("extra", {}))
@@ -467,13 +467,13 @@ static func _transfer_forces(game, tid: String, old: String, target: String) -> 
 		m["fid"] = target
 		if m.has("wb"): m["wb"]["faction"] = target
 		for u in m.get("wb", {}).get("units", m.get("units", [])):
-			u.faction = target; moved[str(u.uid)] = true
+			if u.uid != captured_uid: u.faction = target; moved[str(u.uid)] = true
 	for wid in w.get("warbands", {}).keys():
 		var wb: Dictionary = w["warbands"][wid]
 		if str(wb.get("faction", "")) != old or not (Army.is_field(wb) or str(wb.get("kind", "")) == "militia"): continue
 		var men := []; var stay := []
 		for u in wb.get("units", []):
-			if not u.dead and u.home_town == tid: men.append(u); moved[str(u.uid)] = true; u.faction = target; u.rank = 1 if u.battles > 0 else 0; u.role = "troop"
+			if not u.dead and u.home_town == tid and u.uid != captured_uid: men.append(u); moved[str(u.uid)] = true; u.faction = target; u.rank = 1 if u.battles > 0 else 0; u.role = "troop"
 			else: stay.append(u)
 		if men.is_empty(): continue
 		if stay.is_empty():
@@ -497,7 +497,8 @@ static func _transfer_forces(game, tid: String, old: String, target: String) -> 
 			split.erase("pw"); split.erase("pw_n"); split.erase("pw_t")
 			wb["units"] = stay; w["warbands"][id] = split
 			wb["n0"] = stay.size(); split["n0"] = men.size()
-	for u in w.get("towns", {}).get(tid, {}).get("recruits", []): u.faction = target
+	for u in w.get("towns", {}).get(tid, {}).get("recruits", []):
+		if u.uid != captured_uid: u.faction = target
 	for fid in [old, target]:
 		var r: Dictionary = w.get("army", {}).get("f", {}).get(fid, {})
 		if r.is_empty(): continue
@@ -697,7 +698,7 @@ static func keep_lordship(game, town_id: String) -> Dictionary:
 ## Faction flip and prepare_world have already run. Appoint the new holder first,
 ## then dispose the conquered lord, so a later succession cannot put the heir back
 ## and a move cannot leave the old uid in the seat.
-static func after_conquest(game, tid: String, old_fid: String, winner_fid: String) -> Dictionary:
+static func after_conquest(game, tid: String, old_fid: String, winner_fid: String, captor_is_player: bool = false, loser_is_player: bool = false) -> Dictionary:
 	var town: Dictionary = game.world.get("towns", {}).get(tid, {})
 	var row: Dictionary = game.world.get("feudal", {}).get("towns", {}).get(tid, {})
 	if town.is_empty() or row.is_empty(): return _result(false, "Unknown settlement.")
@@ -726,7 +727,7 @@ static func after_conquest(game, tid: String, old_fid: String, winner_fid: Strin
 		_history(game, tid, ("%s grants the seat to %s." % [town.get("name", tid), who]) if holder != liege else ("%s stays with the liege." % town.get("name", tid)))
 	var disposition := ""
 	if old_uid != "" and old_uid != _head_uid(game, tid):
-		disposition = _dispose_conquered_lord(game, tid, old_uid, old_fid)
+		disposition = _dispose_conquered_lord(game, tid, old_uid, old_fid, winner_fid, captor_is_player, loser_is_player)
 	var office := Dynasty.town_office(game, tid)
 	return {"ok": true, "reason": "Lordship settled.", "cost": 0.0, "holder_uid": str(office.get("person_uid", "")),
 		"holder_name": str(office.get("name", "")), "disposition": disposition}
@@ -747,14 +748,14 @@ static func _seat_failed(game, tid: String, old_uid: String, reason: String) -> 
 	return {"ok": false, "reason": reason, "cost": 0.0, "holder_uid": str(office.get("person_uid", old_uid)),
 		"holder_name": "", "disposition": ""}
 
-static func _dispose_conquered_lord(game, tid: String, old_uid: String, old_fid: String) -> String:
+static func _dispose_conquered_lord(game, tid: String, old_uid: String, old_fid: String, winner_fid: String, captor_is_player: bool, loser_is_player: bool) -> String:
 	if _heads_any(game, old_uid): return "still seated"
 	var loc := Dynasty._person(game, old_uid)
 	if loc.is_empty(): return "gone"
 	var unit = Dynasty.bound_unit(game, Dynasty._row(loc, float(game.day)))
 	# A prisoner loses the seat only. The household keeps its land, herd and businesses.
 	if unit is Unit and not (unit as Unit).dead:
-		_take_ruler_prisoner(game, loc, unit as Unit, old_fid)
+		_take_ruler_prisoner(game, loc, unit as Unit, old_fid, winner_fid, captor_is_player, loser_is_player)
 		return "captive"
 	var now := Dynasty._person(game, _head_uid(game, tid))
 	var new_fam: Dictionary = {}
@@ -765,17 +766,50 @@ static func _dispose_conquered_lord(game, tid: String, old_uid: String, old_fid:
 	if _exile_lord(game, loc, old_fid): return "exile"
 	return _make_landless(game, loc)
 
-static func _take_ruler_prisoner(game, loc: Dictionary, unit: Unit, old_fid: String) -> void:
+## Transfer the same Unit out of every active holder. The service roll/person binding stays until release;
+## it is the captive's identity, not another active body. Rank seats cease to command immediately.
+static func _remove_active_lord(game, unit: Unit) -> void:
 	var w: Dictionary = game.world
-	if not w.has("prisoners"): w["prisoners"] = []
-	if not Prisoners._find(w["prisoners"], int(unit.uid)).is_empty(): return
+	game.company.erase(unit)
+	game.squads.erase(unit.uid)
+	Mobilization.reserves(game).erase(unit)
+	for town: Dictionary in w.get("towns", {}).values():
+		(town.get("recruits", []) as Array).erase(unit)
+	for band: Dictionary in w.get("warbands", {}).values():
+		(band.get("units", []) as Array).erase(unit)
+	for pending: Dictionary in CampaignWorld.mustering(w):
+		(pending.get("units", []) as Array).erase(unit)
+		(pending.get("wb", {}).get("units", []) as Array).erase(unit)
+	for army: Dictionary in w.get("army", {}).get("f", {}).values():
+		var posts: Array = army.get("posts", [])
+		for i in posts.size():
+			if int(posts[i]) == unit.uid: posts[i] = -1
+		for fight: Dictionary in army.get("fights", []):
+			fight["c"] = (fight.get("c", []) as Array).filter(func(uid): return int(uid) != unit.uid)
+		army["bill"] = 0.0
+	for fac: Dictionary in w.get("factions", {}).values():
+		if int(fac.get("war_leader", {}).get("uid", -1)) == unit.uid: fac.erase("war_leader")
+	game.invalidate_deploy()
+
+static func _take_ruler_prisoner(game, loc: Dictionary, unit: Unit, old_fid: String, captor_fid: String, captor_is_player: bool, loser_is_player: bool) -> void:
+	for list: Array in Prisoners.custody_lists(game):
+		if not Prisoners._find(list, int(unit.uid)).is_empty(): return
 	var home := str(unit.home_town)
-	var home_town: Dictionary = loc["town"]
-	if home == "": home = str(home_town.get("id", ""))
-	var faction := str(unit.faction)
-	if faction == "": faction = old_fid
-	(w["prisoners"] as Array).append({"uid": int(unit.uid), "name": str(unit.name), "faction": faction, "home_town": home,
-		"family": int(unit.family), "day": float(game.day), "noble": true, "unit": unit, "role": "ruler"})
+	if home == "": home = str(loc["town"].get("id", ""))
+	var roll: Array = Army.state(game.world)["roll"].get(str(unit.uid), [])
+	var role := str(roll[2]) if roll.size() > 2 else str(loc["person"][4])
+	var rec := {"uid": int(unit.uid), "name": str(unit.name), "faction": old_fid, "home_town": home,
+		"family": int(unit.family), "day": float(game.day), "noble": true, "unit": unit, "role": role,
+		"former_office": "ruler", "held_by": captor_fid}
+	_remove_active_lord(game, unit)
+	unit.faction = old_fid
+	if loser_is_player:
+		Prisoners.captives(game).append(rec)
+		BattleRounds._note_captured(game, unit, captor_fid)
+	elif captor_is_player:
+		Prisoners.held(game).append(rec)
+	else:
+		Prisoners.realm_held(game, captor_fid).append(rec)
 
 static func _exile_ready(town: Dictionary, f: Dictionary) -> bool:
 	var e: Dictionary = town.get("econ", {})

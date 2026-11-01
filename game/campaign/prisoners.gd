@@ -19,6 +19,27 @@ static func captives(game) -> Array:
 	if not game.world.has("captives"): game.world["captives"] = []
 	return game.world["captives"]
 
+## Captives of an AI realm are kept apart from the player's two bargaining lists.
+static func realm_held(game, faction: String) -> Array:
+	if not game.world.has("realm_prisoners"): game.world["realm_prisoners"] = {}
+	var realms: Dictionary = game.world["realm_prisoners"]
+	if not realms.has(faction): realms[faction] = []
+	return realms[faction]
+
+static func custody_lists(game) -> Array:
+	var lists: Array = [game.world.get("prisoners", []), game.world.get("captives", [])]
+	for list: Array in game.world.get("realm_prisoners", {}).values(): lists.append(list)
+	return lists
+
+## Native release by the actual owning realm; never pays or credits the player's purse.
+static func release_realm(game, faction: String, uid: int) -> bool:
+	var list: Array = game.world.get("realm_prisoners", {}).get(faction, [])
+	var rec := _find(list, uid)
+	if rec.is_empty() or not rec.get("unit") is Unit: return false
+	list.erase(rec)
+	_free_enemy(game, rec, "released")
+	return true
+
 static func state(game) -> Dictionary:
 	if not game.world.has("ransom"): game.world["ransom"] = {"log": [], "day": -1}
 	return game.world["ransom"]
@@ -26,9 +47,10 @@ static func state(game) -> Dictionary:
 ## JSON floats back to ints. Records from before v0.033 carry no Unit: they stay listed until the person
 ## is gone, but nobody can bargain for them.
 static func after_load(game) -> void:
-	for rec: Dictionary in held(game) + captives(game):
-		for key in ["uid", "family"]:
-			if rec.has(key): rec[key] = int(rec[key])
+	for list: Array in custody_lists(game):
+		for rec: Dictionary in list:
+			for key in ["uid", "family"]:
+				if rec.has(key): rec[key] = int(rec[key])
 	var st := state(game)
 	st["day"] = int(st.get("day", -1))
 	for key in st.get("standing", {}): st["standing"][key] = int(st["standing"][key])
@@ -46,9 +68,10 @@ static func captive_unit(game, uid: int) -> Unit:
 ## Every held Unit on both sides (the weekly sweeps must not take them for dead).
 static func units(game) -> Array:
 	var out: Array = []
-	for rec: Dictionary in game.world.get("prisoners", []) + game.world.get("captives", []):
-		var u = rec.get("unit")
-		if u is Unit and not u.dead: out.append(u)
+	for list: Array in custody_lists(game):
+		for rec: Dictionary in list:
+			var u = rec.get("unit")
+			if u is Unit and not u.dead: out.append(u)
 	return out
 
 static func _find(list: Array, uid: int) -> Dictionary:
@@ -280,7 +303,7 @@ static func daily(game, day: int = -1) -> void:
 	var st := state(game)
 	if day <= int(st.get("day", -1)): return
 	st["day"] = day
-	for list: Array in [held(game), captives(game)]:
+	for list: Array in custody_lists(game):
 		for rec: Dictionary in list.duplicate():
 			var u = rec.get("unit")
 			var legacy: bool = not u is Unit
