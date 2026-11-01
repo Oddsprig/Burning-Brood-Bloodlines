@@ -310,6 +310,7 @@ v0.078 conquered towns - planned. A conquered town's lord loses the seat; the li
 v0.079 AI marriage and dragons - planned. AI houses marry across towns and realms, and AI warbands march adult bonded dragons.
 v0.080 high and dark elves - planned. Turn on the high elf and dark elf realms with their existing art, and check them in the v0.070 balance gate.
 v0.081 rider targeting - planned. Riders can be targeted during live battle ticks.
+v0.084 faster, less frequent saves. Autosave defaults to once every 7 in-game days (or each season, or daily, or off) and never during a battle. Save and quit still write. Saves no longer deep-copy each person a second time, and they leave out the crop indexes that load rebuilds.
 Proposed next passes for 2.5D normal-mapped code-drawn humanoid units, clothing and armour (assessed in v0.062, scoped as three focused releases):
 - v0.063 Shared `ShadedLayer` 2.5D heightfield rasterizer & Human base body + clothing (`tunic`, `robe`, `padded_jack`, trousers/boots, hair/beard/face shading) with full `Paperdoll` / `MountedRiderArt` / `Portrait` cache parity.
 - v0.064 Code-drawn metallic/leather body armour, helms, shields & weapons (`cuirass`, `lamellar_cuirass`, `hauberk`, `scale_hauberk`, `plate_harness`, `closed_helm`, `nasal_helm`, `kettle_hat`, shields, material specular ramps for bronze/iron/steel).

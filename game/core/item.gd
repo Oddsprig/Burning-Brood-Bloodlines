@@ -154,7 +154,7 @@ func to_dict() -> Dictionary:
 	if broken:
 		d["brk"] = true
 	if not mark.is_empty():
-		d["mk"] = mark.duplicate()   # arms trade: the maker's mark
+		d["mk"] = mark.duplicate(true)   # arms trade: the maker's mark (detached, including nested history)
 	return d
 
 static func from_dict(d: Dictionary) -> Item:

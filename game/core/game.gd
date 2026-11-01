@@ -210,6 +210,7 @@ func new_game_begin(game_seed: int = 0) -> Dictionary:
 	seed_value = game_seed if game_seed != 0 else randi()
 	rng.seed = seed_value
 	day = 0.0
+	_autosave_stamp_day = -1.0e9
 	gold = 0 # The selected native household funds a field army explicitly.
 	company.clear(); stash.clear(); squads.clear(); rep.clear(); world.clear()
 	Dynasty.note_households_changed()   # in-place clear keeps the dictionary; drop the household index
@@ -456,12 +457,61 @@ func advance_time(days: float, in_town: bool = false, healer_skill: int = 0, wor
 		Perf.record_us("Time advance", Time.get_ticks_usec() - started, true)
 
 # ---------------------------------------------------------------- save / load
+## Autosave waits this many in-game days. Settings can choose a day, a season, or off.
+const AUTOSAVE_WEEK_DAYS := 7
+## Day of the last accepted autosave request. A huge negative means none yet.
+var _autosave_stamp_day := -1.0e9
+
+## Days between autosaves. -1 is off (Save and quit still write).
+func autosave_interval_days() -> int:
+	match str(setting("autosave")):
+		"off":
+			return -1
+		"day":
+			return 1
+		"season":
+			return Calendar.DAYS_PER_SEASON
+		_:
+			return AUTOSAVE_WEEK_DAYS
+
+## True when an autosave may start. Off and a battle never qualify.
+func autosave_due() -> bool:
+	var gap := autosave_interval_days()
+	if gap < 0:
+		return false
+	if _active_screen == "battle":
+		return false
+	if _autosave_stamp_day < -1.0e8:
+		return true
+	return day - _autosave_stamp_day >= float(gap)
+
+## UI autosave. One request per interval; a burst on the same day counts as one.
+## Does not set a pending save while the interval is closed or a battle is on.
+func request_autosave() -> void:
+	if not autosave_due():
+		return
+	_autosave_stamp_day = day
+	save_game_async()
+
+## Quit writes even when the interval has not elapsed. A battle only finishes a write
+## already under way. An empty world (the title screen) is left unsaved.
+func save_on_quit() -> void:
+	if _active_screen == "battle":
+		wait_save(false)
+		return
+	if _save_ready and not world.is_empty():
+		_save_pending = true
+	wait_save()
+
 func save_game() -> void:
 	wait_save()
 	if not _save_ready:
 		_save_pending = true
 		return
-	_accept_save_receipt(_write_save(SAVE_PATH, _save_tree()))
+	var started := Time.get_ticks_usec()
+	var tree := _save_tree()
+	_save_status["last_snapshot_us"] = Time.get_ticks_usec() - started
+	_accept_save_receipt(_write_save(SAVE_PATH, tree))
 
 ## A real-world snapshot uses bounded main-thread slices under a simulation hold.
 ## Only detached plain data reaches the JSON/file worker. One snapshot + dirty flag;
@@ -568,6 +618,8 @@ func _accept_save_receipt(receipt: Dictionary) -> void:
 	_save_status["last_write_us"] = receipt["write_us"]
 	_save_status["last_release_us"] = receipt.get("release_us",0)
 	_save_status["completed" if receipt["ok"] else "failed"] += 1
+	# A finished save starts the interval again. A failed one is due immediately.
+	_autosave_stamp_day = day if receipt["ok"] else -1.0e9
 	Perf.record_us("Autosave worker encode",receipt["encode_us"])
 	Perf.record_us("Autosave worker write",receipt["write_us"])
 
@@ -590,11 +642,14 @@ func wait_save(flush_pending: bool = true) -> void:
 		_accept_save_receipt(_write_save(SAVE_PATH, _save_tree()))
 
 func _notification(what: int) -> void:
-	if what in [NOTIFICATION_WM_CLOSE_REQUEST, NOTIFICATION_PREDELETE]:
-		wait_save()   # never quit half way through writing the save
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		save_on_quit()   # write even if the autosave interval has not elapsed; never mid-battle
+	elif what == NOTIFICATION_PREDELETE:
+		wait_save()   # finish a write already under way; do not start one while the process is going away
 	elif what == NOTIFICATION_APPLICATION_PAUSED:
 		# Going to the phone's background: finish the write under way. A save deferred by a battle stays deferred
 		# (the app usually comes back to the same fight; it is written once the battle is over).
+		# MobileApp.autosave() already starts the lifecycle save, so this must not start a second one.
 		wait_save(_active_screen != "battle")
 	if what == NOTIFICATION_PREDELETE and ResourceLoader.has_cached("res://campaign/map_terrain.gd"):
 		load("res://campaign/map_terrain.gd").free_cache()   # the map layer's kept decor canvas items
@@ -629,8 +684,8 @@ static func _write_save(path: String, d: Dictionary) -> Dictionary:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(tmp))
 	return result
 
-## The save as plain data. Everything outside world and contract is deep-copied (small); _serialize copies every
-## container it walks and to_dict output is deep-copied, so nothing in it is shared with the live game.
+## The save as plain data. Everything outside world and contract is deep-copied (small). The walk copies
+## every container, and to_dict returns a detached tree, so nothing in the save is shared with the live game.
 func _save_tree() -> Dictionary:
 	var snapshot := SaveSnapshot.new()
 	snapshot.begin(self)
@@ -695,6 +750,7 @@ func load_game() -> bool:
 		if released > 0: print("load: %d surplus reservists returned to their households" % released)
 	if world.has("dragons"): DragonArt.warm(Dragons.records(self))
 	changed.emit()
+	_autosave_stamp_day = day   # the loaded day already counts; the next autosave waits out the interval
 	return true
 
 func _keys_to_str(dict: Dictionary) -> Dictionary:
@@ -799,6 +855,7 @@ const DEFAULT_SETTINGS := {
 	"sfx_volume": 0.5,
 	"gore": "full",   # v0.014 (Douglas 22:51): "full" | "reduced" (a later phone-store build): blood, decals and log words
 	"battery_saver": false,   # v0.072: true caps the game at 30 FPS (core/mobile_perf.gd)
+	"autosave": "week",   # v0.084: week | season | day | off. Off still saves on Save and on quit.
 }
 ## Settings with named choices (the screen cycles through them): key -> {label, options [value, shown name]}.
 const SETTING_CHOICES := {
@@ -810,6 +867,8 @@ const SETTING_CHOICES := {
 		"hint": "Full: blood sprays, pools, trails and wounds on the fighters, severed parts stay on the field, vivid log. Reduced: less blood, no severed-part decals, milder log words."},
 	"battery_saver": {"label": "Frame rate", "options": [[false, "Smooth"], [true, "Battery saver"]],
 		"hint": "Battery saver caps the game at 30 frames a second: less heat and longer battery life on phones. Smooth runs at up to 60 on phones."},
+	"autosave": {"label": "Autosave", "options": [["week", "Weekly"], ["season", "Each season"], ["day", "Daily"], ["off", "Off"]],
+		"hint": "Weekly is the default: at most once every 7 in-game days. Each season is 30 days. Off still saves when you press Save or quit. A battle is never interrupted by a save."},
 }
 
 func gore_full() -> bool:

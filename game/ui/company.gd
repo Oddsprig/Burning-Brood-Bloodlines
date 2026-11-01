@@ -409,7 +409,7 @@ func _dismiss(u: Unit) -> String:
 	selected_uid = lead.uid if lead != null else -1
 	tab = "Overview"
 	refresh()
-	Game.save_game_async()
+	Game.request_autosave()
 	return ""
 
 func _pick_squad(u: Unit) -> void:
