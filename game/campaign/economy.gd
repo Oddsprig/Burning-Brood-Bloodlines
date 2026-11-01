@@ -149,6 +149,7 @@ static func buy(game, town: Dictionary, item: Item) -> bool:
 	game.gold -= p
 	Goods.pay_market(town, float(p))   # economy: the gold goes to the town's market
 	town["shop"].erase(item)
+	if TownEcon.has_econ(town): TownEcon.led(town["econ"], "used", "arms", 1)   # v0.075: out of the town's holdings
 	game.stash.append(item)
 	game.changed.emit()
 	return true
@@ -165,6 +166,7 @@ static func sell(game, town: Dictionary, item: Item) -> int:
 	game.gold += p
 	game.stash.erase(item)
 	town["shop"].append(item)
+	if TownEcon.has_econ(town): TownEcon.led(town["econ"], "made", "arms", 1)   # v0.075: into the town's holdings
 	game.changed.emit()
 	return p
 
@@ -224,7 +226,11 @@ static func refresh_town(town: Dictionary, day: float, rng: RandomNumberGenerato
 		for it in town.get("shop", []):
 			if rng.randf() < 0.33:
 				keep.append(it)
+			else:
+				WorldAudit.lose_item(it, "-rotated off a stand-in town's stalls")
 		town["shop"] = keep + roll_shop(town, rng)
+	for u in town.get("recruits", []):   # v0.075 r5: applicants nobody hired leave with their own clothes
+		if u is Unit: WorldAudit.lose_items(u.equip.values(), "-left with applicants nobody hired")
 	town["recruits"] = Recruits.generate_pool(town, rng)
 	town["contracts"] = Contracts.generate_offers(town, day, rng)
 	town["next_refresh"] = day + REFRESH_DAYS

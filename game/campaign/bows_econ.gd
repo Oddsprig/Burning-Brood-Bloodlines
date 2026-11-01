@@ -328,6 +328,7 @@ static func make_bows(town: Dictionary, e: Dictionary, D: Dictionary, b: Diction
 			value = minf(value, maxf(0.0, float(mkt["till"])))
 		if float(mkt["till"]) < value:
 			b["state"] = "nopay"
+			WorldAudit.unmade(it, "-bow priced, never made (market cannot pay)")   # v0.075 r6: priced only
 			break
 		for ig in ins:
 			st[ig] = int(st[ig]) - int(ins[ig])

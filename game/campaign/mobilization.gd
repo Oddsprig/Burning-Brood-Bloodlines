@@ -300,16 +300,52 @@ static func _entry(game, u: Unit, a: Dictionary) -> Dictionary:
 			"home_town_id": u.home_town, "family_id": u.family, "wage": u.wage, "borrowed": []}
 	return state["enlisted"][key]
 
-static func _away(game, u: Unit, a: Dictionary) -> void:
+static func _away(game, u: Unit, a: Dictionary, state: String = "company", reason: String = "raised with the house army") -> void:
 	var p: Array = a["person"]; var f: Dictionary = a["family"]; var e: Dictionary = a["econ"]
 	var category := _category(p)
 	f[category] = int(f[category]) - 1; e["pop"] = int(e["pop"]) - 1
 	if category in ["m", "f"]: e["adults"] = int(e["adults"]) - 1
-	p[4] = "company"; p[5] = u.uid
+	p[4] = state; p[5] = u.uid
 	f.get("player_reserve_uids", {}).erase(str(u.uid))
-	Persons.log_life(p, float(game.day), "serve", "company")
-	Census.record_move(e, int(p[0]), "out", "", float(game.day), "raised with the house army")
+	Persons.log_life(p, float(game.day), "serve", state)
+	Census.record_move(e, int(p[0]), "out", "", float(game.day), reason)
 	Families.reassign(e, f)
+
+## A captured realm-army lord becomes an away captive in the player's custody system. Public army people
+## were still counted at home; house-army captives were already away. Transfer the service/counts exactly once,
+## keeping the same body and kit for the ordinary native return_freed path (no stale Army sweep death).
+static func transfer_army_captive(game, u: Unit) -> bool:
+	var a := _address(game, u)
+	var roll: Dictionary = Army.state(game.world)["roll"]
+	var prior: Array = roll.get(str(u.uid), [])
+	if a.is_empty() or prior.size() < 3 or u.dead: return false
+	var p: Array = a["person"]; var f: Dictionary = a["family"]; var e: Dictionary = a["econ"]
+	var category := _category(p)
+	var role := str(prior[2])
+	if str(prior[0]) != u.home_town or int(prior[1]) != u.family or str(p[4]) != role or Persons.AWAY.has(str(p[4])): return false
+	if f.get("gone", false) or int(f.get(category, 0)) < 1 or int(e.get("pop", 0)) < 1: return false
+	_entry(game, u, a)
+	if u.unpaid_days > 0:
+		Persons.remember_unpaid(p, role, u.unpaid_days, float(game.day), float(game.day) - Persons.served_since(p, role))
+	var service: Dictionary = f["serve"]
+	if int(service.get(role, 0)) > 1: service[role] = int(service[role]) - 1
+	else: service.erase(role)
+	roll.erase(str(u.uid))
+	_away(game, u, a, "captive", "taken prisoner with the realm army")
+	return true
+
+## A genuine home reserve is counted at home too, but has no public Army roll. Leave home once before
+## removing its physical reserve holder, so Court return_freed restores the same person instead of adding one.
+static func transfer_reserve_captive(game, u: Unit) -> bool:
+	var a := _address(game, u)
+	if a.is_empty() or u.dead or not reserves(game).has(u): return false
+	var p: Array = a["person"]; var f: Dictionary = a["family"]; var e: Dictionary = a["econ"]
+	var category := _category(p)
+	if str(p[4]) != "reserve" or Army.state(game.world)["roll"].has(str(u.uid)): return false
+	if f.get("gone", false) or int(f.get(category, 0)) < 1 or int(e.get("pop", 0)) < 1: return false
+	_entry(game, u, a)
+	_away(game, u, a, "captive", "taken prisoner from the home reserve")
+	return true
 
 static func _new_unit(game, town: Dictionary) -> Unit:
 	var source := str(town["faction"]); var race := Persons.race_of(town["econ"])
@@ -436,7 +472,9 @@ static func muster(game, town_id: String, count: int = 100, review: Dictionary =
 				if item != null: break
 			if item != null:
 				town[owner].erase(item); u.equip["main_hand"] = item
-				if owner == "armory_items": entry["borrowed"].append({"item_uid": item.uid, "town_id": town_id})
+				if owner == "armory_items":
+					entry["borrowed"].append({"item_uid": item.uid, "town_id": town_id})
+					TownEcon.led(town["econ"], "used", "arms", 1)   # v0.075: lent out of the town's holdings
 				else:
 					game.gold -= int(row[6]); cost += int(row[6]); Goods.pay_market(town, float(row[6])); TownEcon.led(town["econ"], "used", "arms", 1)
 		# v0.029: the body piece (row 8/9) and helmet (row 10/11) the quote planned, issued
@@ -451,7 +489,9 @@ static func muster(game, town_id: String, count: int = 100, review: Dictionary =
 					if piece != null: break
 				if piece != null:
 					town[piece_owner].erase(piece); u.equip[str(spec[2])] = piece
-					if piece_owner == "armory_items": entry["borrowed"].append({"item_uid": piece.uid, "town_id": town_id})
+					if piece_owner == "armory_items":
+						entry["borrowed"].append({"item_uid": piece.uid, "town_id": town_id})
+						TownEcon.led(town["econ"], "used", "arms", 1)   # v0.075: lent out of the town's holdings
 					else:
 						game.gold -= int(row[int(spec[1])]); cost += int(row[int(spec[1])]); Goods.pay_market(town, float(row[int(spec[1])])); TownEcon.led(town["econ"], "used", "arms", 1)
 		if row.size() > 12 and str(row[12]) != "":
@@ -460,13 +500,17 @@ static func muster(game, town_id: String, count: int = 100, review: Dictionary =
 			if padded_slot != "" and not u.equip.has(padded_slot):
 				u.equip[padded_slot] = padded
 				game.gold -= int(row[9]); cost += int(row[9]); Goods.pay_market(town, float(row[9]))
+			else:
+				WorldAudit.unmade(padded, "-padded coat tried for a taken slot, never made")   # v0.075 r6
 		raised += 1
 	# Actual accepted people, not requested quota, determine food and receipts.
 	var order: Dictionary = _food_order(initial_food, raised * MEALS)
 	for purchase in order["orders"]:
 		var n := int(purchase["quantity"]); var coins := int(purchase["cost"])
 		Goods.take(town, str(purchase["good"]), n); Goods.pay_market(town, coins); game.gold -= coins; cost += coins
+		TownEcon.led(town["econ"], "used", str(purchase["good"]), n)   # v0.075: out of the town's books, as provisions are
 		Food.add_stock(game, "meal", n, 0, str(purchase["good"]), Food.food_name(town, str(purchase["good"])))
+		WorldAudit.ration("meal", "+bought in a town for the company", n)
 	command_plan(game); Food.sync(game); Diplomacy.roster_changed(game); game.invalidate_deploy()
 	_history(game, "Raised %d people at %s for %d coins." % [raised, town["name"], cost]); game.changed.emit()
 	return {"ok": raised > 0, "reason": "Raised %d of %d requested." % [raised, q["requested"]], "requested": q["requested"],
@@ -531,6 +575,7 @@ static func refit(game, town_id, review) -> Dictionary:
 		if owner == "armory_items":
 			var a: Dictionary = _address(game, u)
 			if not a.is_empty(): _entry(game, u, a)["borrowed"].append({"item_uid": item.uid, "town_id": tid})
+			TownEcon.led(town["econ"], "used", "arms", 1)   # v0.075: lent out of the town's holdings
 		else:
 			game.gold -= int(row[3]); cost += int(row[3]); Goods.pay_market(town, float(row[3])); TownEcon.led(town["econ"], "used", "arms", 1)
 		fitted[u.uid] = true; pieces += 1
@@ -614,7 +659,9 @@ static func _return_loans(game, entry: Dictionary) -> void:
 		if actual == null:
 			for it in game.stash:
 				if it.uid == int(loan["item_uid"]): actual = it; game.stash.erase(it); break
-		if actual != null: ArmsTrade.armory(owner).append(actual)
+		if actual != null:
+			ArmsTrade.armory(owner).append(actual)
+			if TownEcon.has_econ(owner): TownEcon.led(owner["econ"], "made", "arms", 1)   # v0.075: back into the town's holdings
 	entry["borrowed"] = entry["borrowed"].filter(func(loan): return not game.world.get("towns", {}).has(str(loan["town_id"])))
 
 static func stand_down(game, town_id: String = "", review: Dictionary = {}) -> Dictionary:

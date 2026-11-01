@@ -354,6 +354,7 @@ static func buy_food(game, town: Dictionary, good: String, qty: int) -> String:
 	game.gold -= coins
 	Goods.pay_market(town, float(coins))
 	add_stock(game, "meal", qty, 0, good, title)
+	WorldAudit.ration("meal", "+bought in a town for the company", qty)
 	sync(game)
 	feed_hungry(game)
 	game.changed.emit()
@@ -436,6 +437,7 @@ static func take(game, kind: String, qty: int) -> int:
 		got += n
 		if int(lots[0][0]) <= 0:
 			lots.pop_front()
+	WorldAudit.ration(kind, "-eaten or drunk by the company", -got)
 	return got
 
 ## Ages every lot by a day and throws out what has spoiled. Returns {kind: qty spoiled}.
@@ -449,6 +451,7 @@ static func age_stock(game) -> Dictionary:
 			var limit: int = SPOIL_DAYS[kind]
 			if limit >= 0 and int(lot[1]) >= limit:
 				spoiled[kind] = int(spoiled.get(kind, 0)) + int(lot[0])
+				WorldAudit.ration(kind, "-spoiled in the company's packs", -int(lot[0]))
 			else:
 				keep.append(lot)
 		game.provisions[kind] = keep
@@ -509,9 +512,13 @@ static func days_text(d: float) -> String:
 
 # ================================================================== campaign time
 static func init_company(game, scale: float = 1.0) -> void:
+	if game.provisions is Dictionary:
+		for k in game.provisions:
+			for lot in game.provisions[k]: WorldAudit.ration(str(k), "-replaced by a new company's stock", -int(lot[0]))
 	game.provisions = new_stock()
 	for k in START_STOCK:
 		add_stock(game, k, int(round(float(START_STOCK[k]) * maxf(0.0, scale))))
+		WorldAudit.ration(str(k), "+a new company's starting stock", int(round(float(START_STOCK[k]) * maxf(0.0, scale))))
 	game.rations = {"food": "normal", "drink": "ration"}
 	game.food_clock = {"next": next_tick_after(game.day), "last": game.day, "march": 0.0}
 
@@ -777,6 +784,7 @@ static func buy(game, town: Dictionary, kind: String, qty: int) -> String:
 	Goods.pay_market(town, float(c))   # economy: the gold goes to the town's market
 	_take_supply(town, kind, qty)
 	add_stock(game, kind, qty)
+	WorldAudit.ration(kind, "+bought in a town for the company", qty)
 	if kind == "meal":
 		sync(game)          # digestion up to now, then the hungry eat straight away
 		feed_hungry(game)

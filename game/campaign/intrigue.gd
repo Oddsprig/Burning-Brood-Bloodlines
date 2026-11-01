@@ -97,6 +97,7 @@ static func start(game, target_uid: String, kind: String, review: Dictionary = {
 		return {"ok": false, "text": "The circumstances changed. Review the scheme again."}
 	var payer := Feudal._payer(game)
 	payer["purse"] = float(payer["purse"]) - float(offer["cost"])
+	Barge.drained(game.world, float(offer["cost"]))   # v0.075: the agents' fee leaves the world (no purse receives it)
 	var plot := _enqueue(game, offer, false, int(game.day))
 	var text := "%s plot against %s begun (%d days)." % [offer["name"], offer["target_name"], int(offer["days"])]
 	_log(game, text, int(game.day))
@@ -258,6 +259,7 @@ static func _ai(game, day: int) -> void:
 	var offer := _offer(game, "assassinate", loc, house, skill)
 	offer["discovery"] = clampf(float(offer["discovery"]) + _skill(game) * 0.015, 0.05, 0.95)
 	source["family"]["purse"] = float(source["family"]["purse"]) - float(offer["cost"])
+	Barge.drained(game.world, float(offer["cost"]))   # v0.075: the agents' fee leaves the world (no purse receives it)
 	_enqueue(game, offer, true, day)
 
 static func _log(game, text: String, day: int) -> void:
