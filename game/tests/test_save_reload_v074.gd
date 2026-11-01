@@ -307,6 +307,65 @@ func self_check() -> void:
 	check(tolerant.count == 2 and tolerant.noise == 1, "self-check: a tolerance counts last-unit noise and still finds real changes (%d drift, %d noise)" % [tolerant.count, tolerant.noise])
 	check(Diff.pattern("/towns/t12/econ/fams[3]/purse") == "/towns/*/econ/fams[#]/purse", "self-check: path pattern")
 
+# ------------------------------------------------------------------ the save text codec (r7)
+## Game texts shaped like the save writer's small-float markers (values and keys; numbers 0, -1, out of range; the
+## next prefixes too) next to small floats: every text comes back as the same text, every key as the same key, every
+## float within one unit in the last place, and the live tree is unchanged by writing it.
+func codec_check() -> void:
+	var cases := {
+		"QC example": {"x": 0.05, "name": "~#f~0"},
+		"marker keys": {"~#f~0": 0.02, "~#f~-1": "~#f~-1", "~#f~99": "a", "~#f~-999": 1, "~#f~": "~#f~", "y": 0.004},
+		"lists": {"l": ["~#f~1", 0.003, "~#f~0", -0.0071, "~#f~-1"], "n": {"~#f~1": [0.06, "~#f~0"]}},
+		"prefix chain": {"a": "~#f~0", "b": "~#f1~0", "c": "~#f2~0", "~#f3~0": "~#f4~", "f": 1.0e-5, "g": 0.09},
+		"quotes and odd numbers": {"s": "say \"~#f~0\"", "t": "~#f~00", "u": "~#f~+1", "v": "~#f~0x", "w": 0.0123},
+		"float lists": {"p": PackedFloat64Array([0.01, 0.5, 3.0e-9]), "q": "~#f~2", "r": [0.07, "~#f~3"]},
+		"no marker texts": {"a": 0.031, "b": [0.2, 0.0005], "c": "plain"},
+	}
+	for title in cases:
+		var tree: Dictionary = cases[title]
+		var before: Dictionary = tree.duplicate(true)
+		var text := Game.save_text(tree)
+		check(tree == before, "codec %s: writing leaves the live tree as it was" % title)
+		var back: Variant = JSON.parse_string(text)
+		check(back is Dictionary, "codec %s: the text is valid JSON (%s)" % [title, text.left(160)])
+		if not (back is Dictionary): continue
+		var bad: Array = []
+		_codec_same(before, back, title, bad)
+		check(bad.is_empty(), "codec %s: every text, key and float comes back (%s) from %s" % [title, "; ".join(PackedStringArray(bad)), text.left(200)])
+	# A negative control: the comparer above notices a text turned into a number and a lost key.
+	var planted: Array = []
+	_codec_same({"name": "~#f~0", "k": 1}, {"name": 0.05, "j": 1}, "planted", planted)
+	check(planted.size() == 2, "codec self-check: a text read back as a number and a renamed key are both caught (%d)" % planted.size())
+
+func _codec_same(a: Variant, b: Variant, path: String, bad: Array) -> void:
+	if a is Dictionary:
+		if not (b is Dictionary):
+			bad.append("%s: not a dictionary" % path)
+			return
+		for k in a:
+			if not (b as Dictionary).has(str(k)):
+				bad.append("%s: key %s missing" % [path, str(k)])
+				continue
+			_codec_same(a[k], b[str(k)], path + "/" + str(k), bad)
+		if (b as Dictionary).size() != (a as Dictionary).size():
+			bad.append("%s: %d keys back for %d" % [path, (b as Dictionary).size(), (a as Dictionary).size()])
+	elif a is Array or a is PackedFloat64Array:
+		if not (b is Array) or (b as Array).size() != a.size():
+			bad.append("%s: list not the same length" % path)
+			return
+		for i in a.size():
+			_codec_same(a[i], b[i], "%s[%d]" % [path, i], bad)
+	elif a is String:
+		if not (b is String) or b != a:
+			bad.append("%s: text %s came back as %s" % [path, a, var_to_str(b)])
+	elif a is float or a is int:
+		if not (b is float or b is int):
+			bad.append("%s: number %s came back as %s" % [path, str(a), var_to_str(b)])
+		elif absf(float(a) - float(b)) > absf(float(a)) * 2.3e-16:
+			bad.append("%s: %s came back as %s" % [path, var_to_str(a), var_to_str(b)])
+	elif a != b:
+		bad.append("%s: %s came back as %s" % [path, var_to_str(a), var_to_str(b)])
+
 # ------------------------------------------------------------------ the world
 func _adults_of(town_id: String, house: String) -> Array:
 	var out: Array = []
@@ -691,6 +750,7 @@ func run(tree: SceneTree) -> int:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--phase="): phase = a.substr(8)
 	self_check()
+	codec_check()
 	if phase == "" or phase == "write":
 		await phase_write(tree)
 	if phase == "" or phase == "check":

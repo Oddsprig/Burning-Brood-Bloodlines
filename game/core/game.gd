@@ -604,20 +604,46 @@ func _notification(what: int) -> void:
 ## The save text: every such float is swapped for a marker string, the tree goes through the writer, the live floats
 ## are put back, and each marker becomes the float's own digits in exponent form ("6.866860472420246e-3", see
 ## float_text), which the JSON reader reads back. Floats from 0.1 up keep the writer's own digits.
+## r7: a game text (a name, a key) may look like a marker. Every planted marker puts exactly one '"' + prefix into the
+## text, and a game text can only add more, so the text is used only when the count is exactly the number of markers
+## and each marker number turns up once. Otherwise the prefix is changed to one that appears nowhere in that text
+## (the game's texts are the same in every pass, only the markers change) and the tree is written again. A game text
+## is therefore never read as a marker.
 const _FMARK := "~#f~"
 static var _p10: PackedFloat64Array = PackedFloat64Array()
 
 static func save_text(d: Dictionary) -> String:
-	var marks: Array = []   # the swapped floats, by marker number
-	var undo: Array = []    # [container, key, live value], in swap order
-	_mark_small(d, marks, undo)
-	var text := JSON.stringify(d, "", false, true)
-	for i in range(undo.size() - 1, -1, -1):
-		var u: Array = undo[i]
-		u[0][u[1]] = u[2]
-	if marks.is_empty():
-		return text
-	var parts := text.split("\"" + _FMARK)
+	var prefix := _FMARK
+	var k := 0
+	while true:
+		var marks: Array = []   # the swapped floats, by marker number
+		var undo: Array = []    # [container, key, live value], in swap order
+		_mark_small(d, marks, undo, prefix)
+		var text := JSON.stringify(d, "", false, true)
+		for i in range(undo.size() - 1, -1, -1):
+			var u: Array = undo[i]
+			u[0][u[1]] = u[2]
+		if marks.is_empty():
+			return text
+		var out := _unmark(text, prefix, marks)
+		if out != "":
+			return out
+		# A game text holds this prefix: take the first prefix that the written text does not contain at all.
+		k += 1
+		prefix = "~#f%d~" % k
+		while text.find("\"" + prefix) >= 0:
+			k += 1
+			prefix = "~#f%d~" % k
+	return ""
+
+## The text with each marker replaced by its float's digits, or "" when the markers in it are not exactly the planted
+## ones (one occurrence per marker number, nothing else beginning with the prefix).
+static func _unmark(text: String, prefix: String, marks: Array) -> String:
+	var parts := text.split("\"" + prefix)
+	if parts.size() - 1 != marks.size():
+		return ""
+	var seen := PackedByteArray()
+	seen.resize(marks.size())
 	var out := PackedStringArray()
 	out.resize(parts.size())
 	out[0] = parts[0]
@@ -625,48 +651,52 @@ static func save_text(d: Dictionary) -> String:
 		var p: String = parts[i]
 		var q := p.find("\"")
 		var n := p.substr(0, q) if q > 0 else ""
-		if not n.is_valid_int() or n.to_int() >= marks.size():
-			return JSON.stringify(d, "", false, true)   # a game text began like a marker: the plain writer
-		out[i] = float_text(float(marks[n.to_int()])) + p.substr(q + 1)
+		if not n.is_valid_int():
+			return ""
+		var j := n.to_int()
+		if j < 0 or j >= marks.size() or seen[j] != 0 or str(j) != n:
+			return ""
+		seen[j] = 1
+		out[i] = float_text(float(marks[j])) + p.substr(q + 1)
 	return "".join(out)
 
 static func _small_float(v: float) -> bool:
 	return v != 0.0 and absf(v) < 0.1 and absf(v) > 1e-300
 
-static func _mark_small(c, marks: Array, undo: Array) -> void:
+static func _mark_small(c, marks: Array, undo: Array, prefix: String) -> void:
 	if c is Dictionary:
 		var dc: Dictionary = c
 		if dc.is_read_only(): return
 		for k in dc:
-			_mark_one(dc, k, dc[k], marks, undo)
+			_mark_one(dc, k, dc[k], marks, undo, prefix)
 	elif c is Array:
 		var ac: Array = c
 		if ac.is_read_only(): return
 		for i in ac.size():
-			_mark_one(ac, i, ac[i], marks, undo)
+			_mark_one(ac, i, ac[i], marks, undo, prefix)
 
-static func _mark_one(c, k, v, marks: Array, undo: Array) -> void:
+static func _mark_one(c, k, v, marks: Array, undo: Array, prefix: String) -> void:
 	match typeof(v):
 		TYPE_FLOAT:
 			if _small_float(v):
 				if (c is Array and (c as Array).is_typed()) or (c is Dictionary and (c as Dictionary).is_typed()):
 					return   # (a typed float list is swapped whole by its parent; a typed dictionary keeps the writer's digits)
 				undo.append([c, k, v])
-				c[k] = _FMARK + str(marks.size())
+				c[k] = prefix + str(marks.size())
 				marks.append(v)
 		TYPE_DICTIONARY:
-			_mark_small(v, marks, undo)
+			_mark_small(v, marks, undo, prefix)
 		TYPE_ARRAY:
 			var a: Array = v
 			if a.is_typed() and a.get_typed_builtin() == TYPE_FLOAT:
-				_swap_list(c, k, a, marks, undo)
+				_swap_list(c, k, a, marks, undo, prefix)
 			elif not a.is_typed() or a.get_typed_builtin() == TYPE_DICTIONARY or a.get_typed_builtin() == TYPE_ARRAY:
-				_mark_small(a, marks, undo)
+				_mark_small(a, marks, undo, prefix)
 		TYPE_PACKED_FLOAT64_ARRAY, TYPE_PACKED_FLOAT32_ARRAY:
-			_swap_list(c, k, v, marks, undo)
+			_swap_list(c, k, v, marks, undo, prefix)
 
 ## A float list that cannot hold a marker: written through a plain copy (it reads back as a plain list either way).
-static func _swap_list(c, k, v, marks: Array, undo: Array) -> void:
+static func _swap_list(c, k, v, marks: Array, undo: Array, prefix: String) -> void:
 	var any := false
 	for x in v:
 		if _small_float(float(x)):
@@ -677,7 +707,7 @@ static func _swap_list(c, k, v, marks: Array, undo: Array) -> void:
 	var copy: Array = []
 	for x in v:
 		if _small_float(float(x)):
-			copy.append(_FMARK + str(marks.size()))
+			copy.append(prefix + str(marks.size()))
 			marks.append(float(x))
 		else:
 			copy.append(x)
