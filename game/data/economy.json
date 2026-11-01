@@ -1228,6 +1228,8 @@
       "orc": "hens",
       "goblin": "hens",
       "moon_elf": "hens",
+      "high_elf": "hens",
+      "dark_elf": "hens",
       "eastern": "hens",
       "dwarf": "hens"
     },
@@ -1301,6 +1303,36 @@
         }
       },
       "moon_elf": {
+        "graze": {
+          "horses": 0.35,
+          "goats": 0.35,
+          "sheep": 0.3
+        },
+        "head_mult": 0.5,
+        "small": {
+          "hens": [
+            0.5,
+            3,
+            8
+          ]
+        }
+      },
+      "high_elf": {
+        "graze": {
+          "horses": 0.35,
+          "goats": 0.35,
+          "sheep": 0.3
+        },
+        "head_mult": 0.5,
+        "small": {
+          "hens": [
+            0.5,
+            3,
+            8
+          ]
+        }
+      },
+      "dark_elf": {
         "graze": {
           "horses": 0.35,
           "goats": 0.35,
@@ -2875,6 +2907,14 @@
         "moon_elf": [
           "Athenaeum",
           "Sage"
+        ],
+        "high_elf": [
+          "Hall of Dawn",
+          "Loremaster"
+        ],
+        "dark_elf": [
+          "Hall of Dusk",
+          "Night Sage"
         ]
       }
     },
@@ -3186,6 +3226,88 @@
           "warden-captain",
           "lord-commander",
           "high marshal of the Silvered Court"
+        ]
+      }
+    },
+    "high_elf": {
+      "race": "high_elf",
+      "household": 4,
+      "growth": 0.007,
+      "kin": "house",
+      "home": {
+        "type": "living-wood hall",
+        "materials": {
+          "wood": 30,
+          "stone": 20
+        },
+        "decay": 0.0002,
+        "room": 6
+      },
+      "head_title": "warden",
+      "capital_title": "sun crown",
+      "research_name": "Hall of Dawn",
+      "research_lead": "Loremaster",
+      "pay_form": "coin",
+      "pay": {
+        "coin": 1.0
+      },
+      "rank_rule": "politics",
+      "span": 5,
+      "ranks": {
+        "militia": [
+          "dawn-bearer"
+        ],
+        "guard": [
+          "grove warden",
+          "sun warden"
+        ],
+        "army": [
+          "blade",
+          "sunblade",
+          "warden-captain",
+          "lord-commander",
+          "high marshal of the Sunwood Court"
+        ]
+      }
+    },
+    "dark_elf": {
+      "race": "dark_elf",
+      "household": 4,
+      "growth": 0.007,
+      "kin": "house",
+      "home": {
+        "type": "living-wood hall",
+        "materials": {
+          "wood": 30,
+          "stone": 20
+        },
+        "decay": 0.0002,
+        "room": 6
+      },
+      "head_title": "matron",
+      "capital_title": "night crown",
+      "research_name": "Hall of Dusk",
+      "research_lead": "Night Sage",
+      "pay_form": "coin",
+      "pay": {
+        "coin": 1.0
+      },
+      "rank_rule": "politics",
+      "span": 5,
+      "ranks": {
+        "militia": [
+          "dusk-bearer"
+        ],
+        "guard": [
+          "shade warden",
+          "night warden"
+        ],
+        "army": [
+          "blade",
+          "nightblade",
+          "warden-captain",
+          "lord-commander",
+          "high marshal of the Nightwood Court"
         ]
       }
     },
@@ -3665,6 +3787,14 @@
         "meat": 1.0
       },
       "moon_elf": {
+        "fruit": 1.6,
+        "grain": 2.6
+      },
+      "high_elf": {
+        "fruit": 1.6,
+        "grain": 2.6
+      },
+      "dark_elf": {
         "fruit": 1.6,
         "grain": 2.6
       },

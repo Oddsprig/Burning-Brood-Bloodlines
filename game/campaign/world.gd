@@ -25,7 +25,7 @@ const WARS := [["middle_kingdom", "orc_horde"], ["middle_kingdom", "goblin_warre
 ## v0.012 [ours]: the Eastern khanate patrols like the North; the dwarves keep 1 patrol per area unit (few holds, a
 ## small people) in small bands.
 const PATROLS := {"middle_kingdom": 3, "northern_clans": 2, "moon_court": 2, "orc_horde": 3, "goblin_warren": 3,
-	"eastern_khanate": 2, "dwarf_holds": 1}
+	"eastern_khanate": 2, "dwarf_holds": 1, "sun_court": 2, "night_court": 2}
 const BAND_SIZE := {"normal": 100, "large": 150, "huge": 200}
 const FIELD_LIMIT := 1000
 const FIELD_WEEKLY_GROWTH := 50
