@@ -1,4 +1,5 @@
 extends RefCounted
+const BattleScene = preload("res://battle/battle.gd")
 ## v0.079: AI nobles marry across towns and realms, and an assault army marches an adult bonded dragon.
 var checks := 0
 var fails := 0
