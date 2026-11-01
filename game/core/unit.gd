@@ -307,6 +307,6 @@ static func from_dict(d: Dictionary) -> Unit:
 	var qv: Dictionary = d.get("quiver", {})   # bows
 	for k in qv:
 		u.quiver[str(k)] = int(qv[k])
-	if u.fav_drink == "":
-		Food.roll_fav_drink(u, hash([u.uid, u.name]))   # saves from before food and drink: seeded roll
+	if not d.has("fav_drink"):
+		Food.roll_fav_drink(u, hash([u.uid, u.name]))   # saves from before food and drink: seeded roll (v0.074 r6: a saved "" stays empty, horses drink nothing)
 	return u

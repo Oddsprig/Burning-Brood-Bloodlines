@@ -197,6 +197,11 @@ class Diff extends RefCounted:
 				print("  codec probe %s: live %s -> loaded %s; the live float written alone reads back %s (%s)" % [ex[0],
 					text, JSON.stringify(ex[2], "", false, true), JSON.stringify(back, "", false, true),
 					"same" if typeof(back) == TYPE_FLOAT and float(back) == float(ex[1]) else "NOT the same: the reader"])
+				if absf(float(ex[1])) < 0.1:   # v0.074 r6: the save writes floats below 0.1 through Game.float_text
+					var own := Game.float_text(float(ex[1]))
+					var own_back: Variant = JSON.parse_string(own)
+					print("    save text %s reads back %s (%s)" % [own, JSON.stringify(own_back, "", false, true),
+						"same" if typeof(own_back) == TYPE_FLOAT and float(own_back) == float(ex[1]) else "NOT the same"])
 		var shown := 0
 		for key in order:
 			if shown >= SHOW_MAX:

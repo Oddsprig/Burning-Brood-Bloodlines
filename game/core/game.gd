@@ -599,6 +599,197 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE and ResourceLoader.has_cached("res://campaign/map_terrain.gd"):
 		load("res://campaign/map_terrain.gd").free_cache()   # the map layer's kept decor canvas items
 
+## v0.074 r6: Godot's full-precision JSON writer keeps 17 digits AFTER THE DECIMAL POINT, so a float below 0.1 lost
+## significant digits (0.006866860472420246 -> 0.00686686047242024; 3.98e-13 kept 3 digits) and a reload changed it.
+## The save text: every such float is swapped for a marker string, the tree goes through the writer, the live floats
+## are put back, and each marker becomes the float's own digits in exponent form ("6.866860472420246e-3", see
+## float_text), which the JSON reader reads back. Floats from 0.1 up keep the writer's own digits.
+const _FMARK := "~#f~"
+static var _p10: PackedFloat64Array = PackedFloat64Array()
+
+static func save_text(d: Dictionary) -> String:
+	var marks: Array = []   # the swapped floats, by marker number
+	var undo: Array = []    # [container, key, live value], in swap order
+	_mark_small(d, marks, undo)
+	var text := JSON.stringify(d, "", false, true)
+	for i in range(undo.size() - 1, -1, -1):
+		var u: Array = undo[i]
+		u[0][u[1]] = u[2]
+	if marks.is_empty():
+		return text
+	var parts := text.split("\"" + _FMARK)
+	var out := PackedStringArray()
+	out.resize(parts.size())
+	out[0] = parts[0]
+	for i in range(1, parts.size()):
+		var p: String = parts[i]
+		var q := p.find("\"")
+		var n := p.substr(0, q) if q > 0 else ""
+		if not n.is_valid_int() or n.to_int() >= marks.size():
+			return JSON.stringify(d, "", false, true)   # a game text began like a marker: the plain writer
+		out[i] = float_text(float(marks[n.to_int()])) + p.substr(q + 1)
+	return "".join(out)
+
+static func _small_float(v: float) -> bool:
+	return v != 0.0 and absf(v) < 0.1 and absf(v) > 1e-300
+
+static func _mark_small(c, marks: Array, undo: Array) -> void:
+	if c is Dictionary:
+		var dc: Dictionary = c
+		if dc.is_read_only(): return
+		for k in dc:
+			_mark_one(dc, k, dc[k], marks, undo)
+	elif c is Array:
+		var ac: Array = c
+		if ac.is_read_only(): return
+		for i in ac.size():
+			_mark_one(ac, i, ac[i], marks, undo)
+
+static func _mark_one(c, k, v, marks: Array, undo: Array) -> void:
+	match typeof(v):
+		TYPE_FLOAT:
+			if _small_float(v):
+				if (c is Array and (c as Array).is_typed()) or (c is Dictionary and (c as Dictionary).is_typed()):
+					return   # (a typed float list is swapped whole by its parent; a typed dictionary keeps the writer's digits)
+				undo.append([c, k, v])
+				c[k] = _FMARK + str(marks.size())
+				marks.append(v)
+		TYPE_DICTIONARY:
+			_mark_small(v, marks, undo)
+		TYPE_ARRAY:
+			var a: Array = v
+			if a.is_typed() and a.get_typed_builtin() == TYPE_FLOAT:
+				_swap_list(c, k, a, marks, undo)
+			elif not a.is_typed() or a.get_typed_builtin() == TYPE_DICTIONARY or a.get_typed_builtin() == TYPE_ARRAY:
+				_mark_small(a, marks, undo)
+		TYPE_PACKED_FLOAT64_ARRAY, TYPE_PACKED_FLOAT32_ARRAY:
+			_swap_list(c, k, v, marks, undo)
+
+## A float list that cannot hold a marker: written through a plain copy (it reads back as a plain list either way).
+static func _swap_list(c, k, v, marks: Array, undo: Array) -> void:
+	var any := false
+	for x in v:
+		if _small_float(float(x)):
+			any = true
+			break
+	if not any or ((c is Dictionary and (c as Dictionary).is_read_only()) or (c is Array and (c as Array).is_typed())):
+		return
+	var copy: Array = []
+	for x in v:
+		if _small_float(float(x)):
+			copy.append(_FMARK + str(marks.size()))
+			marks.append(float(x))
+		else:
+			copy.append(x)
+	undo.append([c, k, v])
+	c[k] = copy
+
+## A float in at most 18 significant digits, exponent form, from its own value: x * 10^p is carried as an exact
+## double-double (hi + lo, Dekker products by exact powers of ten), so the digits are the true ones. Of the candidate
+## texts the first that Godot's JSON reader turns back into this very float is written (_read_back does the reader's
+## own arithmetic): 15 or 16 digits over an exact power of ten (one correctly rounded division in any reader), then
+## the correctly rounded 17 and 18 digits, then neighbours on the reader's mantissa grid. A float none of them reaches
+## (about 2 in 100 below 0.1) is written as its correctly rounded 17 digits and reads back within one unit.
+const _READ_P10 := [10.0, 100.0, 1.0e4, 1.0e8, 1.0e16, 1.0e32, 1.0e64, 1.0e128, 1.0e256]
+
+static func float_text(x: float) -> String:
+	if x == 0.0 or not is_finite(x):
+		return JSON.stringify(x, "", false, true)
+	if _p10.is_empty():
+		var t := 1.0
+		for _i in 23:
+			_p10.append(t)
+			t *= 10.0
+	var a := absf(x)
+	var e := int(floor(log(a) / log(10.0)))
+	var fl := 0.0
+	var rest := 0.0
+	var d18 := 0
+	for _attempt in 4:
+		var hi := a
+		var lo := 0.0
+		var p := 17 - e   # a * 10^p has 18 digits before the point
+		while p > 0:
+			var step := mini(p, 22)
+			var b: float = _p10[step]
+			var prod := hi * b
+			var err := _two_prod_err(hi, b, prod) + lo * b
+			hi = prod + err
+			lo = err - (hi - prod)
+			p -= step
+		while p < 0:
+			var step := mini(-p, 22)
+			hi /= _p10[step]   # (not used below 0.1: there p is always above 0)
+			lo /= _p10[step]
+			p += step
+		fl = floorf(hi)
+		rest = (hi - fl) + lo
+		d18 = int(fl) + int(floorf(rest + 0.5))
+		if d18 >= 1000000000000000000:
+			e += 1
+		elif d18 < 100000000000000000:
+			e -= 1
+		else:
+			break
+	var whole := int(fl) + int(floorf(rest))   # the 18 digits, cut (not rounded)
+	var d17 := (whole + 5) / 10
+	var cands: Array = []   # [mantissa, its digits]
+	for nd in [15, 16]:
+		var cut: int = 10 ** (18 - nd)
+		cands.append([(whole + cut / 2) / cut, nd])
+	cands.append([d17, 17])
+	cands.append([d18, 18])
+	for c in [[d17, 17], [d18, 18]]:
+		var g := int(float(c[0]))   # the reader's mantissa double, then its neighbours
+		var st := 1
+		var top := 9007199254740992
+		while g >= top:
+			st *= 2
+			top *= 2
+		for j in [1, -1, 2, -2, 3, -3]:
+			cands.append([g + j * st, c[1]])
+	var best: Array = [d17, 17]
+	for c in cands:
+		var dn: int = c[0]
+		var nd: int = c[1]
+		if dn < 10 ** (nd - 1) or dn >= 10 ** nd:
+			continue
+		var m := dn
+		var z := 0
+		while m % 10 == 0:
+			m /= 10
+			z += 1
+		if _read_back(m, e - (nd - 1) + z) == a:
+			best = c
+			break
+	var s := str(best[0])
+	var tail := s.substr(1).rstrip("0")
+	return "%s%s%se%d" % ["-" if x < 0.0 else "", s.substr(0, 1), ("." + tail) if tail != "" else "", e]
+
+## What Godot's JSON reader makes of the digits m (at most 18, no trailing zeros) times 10^ex: the first 9 and the rest
+## as two whole numbers, then scaled by its table of powers of ten.
+static func _read_back(m: int, ex: int) -> float:
+	var frac := 1.0e9 * float(m / 1000000000) + float(m % 1000000000)
+	var n := mini(absi(ex), 511)
+	var d := 1.0
+	var i := 0
+	while n != 0:
+		if n & 1:
+			d *= _READ_P10[i]
+		n >>= 1
+		i += 1
+	return frac / d if ex < 0 else frac * d
+
+## The rounding error of prod = a * b (Veltkamp split): a * b == prod + the result, exactly.
+static func _two_prod_err(a: float, b: float, prod: float) -> float:
+	var ca := 134217729.0 * a
+	var ah := ca - (ca - a)
+	var al := a - ah
+	var cb := 134217729.0 * b
+	var bh := cb - (cb - b)
+	var bl := b - bh
+	return ((ah * bh - prod) + ah * bl + al * bh) + al * bl
+
 ## Written to a side file first, then moved over the save: a crash mid-write leaves the old save whole.
 static func _write_save(path: String, d: Dictionary) -> Dictionary:
 	var tmp := path + ".tmp"
@@ -610,7 +801,7 @@ static func _write_save(path: String, d: Dictionary) -> Dictionary:
 	var started := Time.get_ticks_usec()
 	# v0.074: every float in full (the default writer kept 15 digits, so a reload moved values in their last bits)
 	# and keys in their live order (a sorted file reloaded every dictionary in another iteration order).
-	var text := JSON.stringify(d, "", false, true)
+	var text := save_text(d)
 	result["encode_us"] = Time.get_ticks_usec()-started
 	started = Time.get_ticks_usec()
 	f.store_string(text)
