@@ -74,7 +74,10 @@ func update_visual(frac: float, dt: float, view_rect: Rect2 = Rect2()) -> bool:
 	var f = fighter
 	if gone:
 		return false
-	visible = not f.waiting and not f.mount_attached # The actual horse body is drawn once, under its rider.
+	visible = not f.waiting and not f.mount_attached and f.seat_dragon < 0 # The actual horse body is drawn once, under its rider.
+	if f.seat_dragon >= 0: # v0.081: a seated dragon rider is drawn by his dragon's view
+		position = cell_pos(f.cell)
+		return false
 	if f.mount_attached:
 		var carrier_total := maxf(1.0, float(f.action_total))
 		var carrier_t := clampf((carrier_total - float(f.action_ticks) + frac) / carrier_total, 0.0, 1.0)
@@ -140,7 +143,9 @@ func update_visual(frac: float, dt: float, view_rect: Rect2 = Rect2()) -> bool:
 	if st == "fled":
 		face = 1 if _flee_dir.x > 0 else -1
 	doll.facing = face
-	if doll is DragonView: _raster_bounds = doll.visual_bounds()
+	if doll is DragonView:
+		_raster_bounds = doll.visual_bounds()
+		doll.rider_shown = f.seated_rider >= 0 or not f.had_rider # v0.081: a fallen rider leaves the saddle
 	var render_frame: bool = not gone and (view_rect.size == Vector2.ZERO or
 		view_rect.intersects(Rect2(position + _raster_bounds.position, _raster_bounds.size)))
 	# Actor coordinates/timers remain current. Hide the sprite alone so a queued
