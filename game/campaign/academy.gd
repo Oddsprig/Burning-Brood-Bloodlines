@@ -583,6 +583,7 @@ static func _study(town: Dictionary, e: Dictionary, b: Dictionary, S: Dictionary
 	mkt["till"] = float(mkt["till"]) + cost
 	shop.remove_at(pick)
 	TownEcon.led(e, "used", "arms", 1)
+	WorldAudit.lose_item(it, "-broken up for study at an academy")   # v0.075 r6: the piece is gone (study points)
 	var add := float(R()["study_pts"]) * float(it.quality + 1)
 	S["pts"]["steel"] = float(S["pts"].get("steel", 0.0)) + add
 	S["kh"]["steel"] = kh_after(fid, "steel", float(S["pts"]["steel"]))

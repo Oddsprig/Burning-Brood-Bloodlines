@@ -792,6 +792,7 @@ static func rekit_units(_game, town: Dictionary, units: Array, use_shop: bool, m
 						it = got[0]
 					else:
 						(town["shop"] as Array).append(got[0])
+						TownEcon.led(town["econ"], "used", "arms", -1)   # v0.075: take_arms booked it used; it never left
 			if none and miss != null:
 				miss[mk] = true
 			if it != null:
