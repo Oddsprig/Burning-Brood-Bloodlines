@@ -214,7 +214,7 @@ func _arrow_sum() -> int:
 		for u3 in wbd.get("units", []):
 			n += _unit_arrows(u3, seen_units)
 		var st: Dictionary = wbd.get("stores", {})
-		for ak in BowsEcon.ARROWS:
+		for ak in BowsEcon.arrow_ids():
 			n += maxi(0, int(st.get(ak, 0)))
 	for rec in Prisoners.held(Game) + Prisoners.captives(Game):
 		n += _unit_arrows((rec as Dictionary).get("unit"), seen_units)
@@ -223,7 +223,7 @@ func _arrow_sum() -> int:
 		n += _town_arrows(td)
 		if TownEcon.has_econ(td):
 			var stock: Dictionary = td["econ"].get("stock", {})
-			for ak2 in BowsEcon.ARROWS:
+			for ak2 in BowsEcon.arrow_ids():
 				n += maxi(0, int(stock.get(ak2, 0)))
 	return n
 
@@ -247,7 +247,8 @@ func _arm_prisoner(u: Unit, town: Dictionary) -> Dictionary:
 		if not town["econ"].has("armory") or not town["econ"]["armory"] is Dictionary:
 			town["econ"]["armory"] = {}
 		var arm_arrows: Dictionary = town["econ"]["armory"]
-		var ak := "arrows_bodkin"
+		var ak := str(BowsEcon.arrow_ids()[0])
+		check(DB.arrows.has(ak), "armed-prisoner fixture uses a real arrow type")
 		if int(arm_arrows.get(ak, 0)) < 6:
 			arm_arrows[ak] = int(arm_arrows.get(ak, 0)) + 6
 		arm_arrows[ak] = int(arm_arrows.get(ak, 0)) - 6
@@ -514,25 +515,6 @@ func run(tree: SceneTree) -> int:
 		check(int(cur.get("left", {}).get("sold to slavers", 0)) == sold_left + dropped and dropped in [0, 1],
 			"the census books the sold prisoner as one who left (town count fell by %d)" % dropped)
 		check(Census.sum(cur.get("deaths", {})) + Census.sum(cur.get("away", {})) == deaths_before, "the census books no death for a sale")
-	var pre_save_items := _accounted_items()
-	var pre_save_arrows := _arrow_sum()
-	var pre_save_coins := _coin_sum()
-	Game.save_game(); Game.wait_save()
-	Game.world = {}; Game.rep = {}
-	check(Game.load_game(), "real save reloads after execute and sell")
-	seat_town = Prisoners._player_town(Game)
-	fed_town = seat_town
-	var post_load_items := _accounted_items()
-	check(int(post_load_items["count"]) == int(pre_save_items["count"]) and _arrow_sum() == pre_save_arrows,
-		"save/load preserves total accounted items (%d) and arrows (%d)" % [int(post_load_items["count"]), _arrow_sum()])
-	var loaded_kit_ok := true
-	for uid3 in (exec_kit["uids"] as Array) + (sale_kit["uids"] as Array):
-		if not _town_has_uid(seat_town, int(uid3)) or int(post_load_items["uids"].get(int(uid3), 0)) != 1:
-			loaded_kit_ok = false
-	check(loaded_kit_ok, "executed and sold prisoners' exact Item uids survive save/load in the holding town")
-	check(Prisoners._find(Prisoners.held(Game), stay.uid).is_empty() and Prisoners._find(Prisoners.held(Game), _pool[3].uid).is_empty(),
-		"executed and sold prisoners stay off the held list after save/load")
-	check(is_equal_approx(_coin_sum(), pre_save_coins), "save/load preserves total world coin")
 
 	# --- One for one, once both have been held long enough. Upkeep still moves, the trade itself does not.
 	check(_ransomed != null and not _ransomed.dead, "the ransomed soldier is alive and can be held again")
@@ -602,4 +584,25 @@ func run(tree: SceneTree) -> int:
 		check(Prisoners.captives(Game).is_empty(), "a captive already dead in the register leaves the list")
 		check(str(row[4]) == "dead", "hunger does not bring that captive home")
 		check(is_equal_approx(_coin_sum(), coins), "that day moves no coin")
+	# Reload only after every scenario using live Unit/household references has finished.
+	var pre_save_items := _accounted_items()
+	var pre_save_arrows := _arrow_sum()
+	var pre_save_coins := _coin_sum()
+	Game.save_game(); Game.wait_save()
+	Game.world = {}; Game.rep = {}
+	check(Game.load_game(), "real save reloads after execute and sell")
+	seat_town = Prisoners._player_town(Game)
+	fed_town = seat_town
+	var post_load_items := _accounted_items()
+	check(int(post_load_items["count"]) == int(pre_save_items["count"]) and _arrow_sum() == pre_save_arrows,
+		"save/load preserves total accounted items (%d) and arrows (%d)" % [int(post_load_items["count"]), _arrow_sum()])
+	var loaded_kit_ok := true
+	for uid3 in (exec_kit["uids"] as Array) + (sale_kit["uids"] as Array):
+		if not _town_has_uid(seat_town, int(uid3)) or int(post_load_items["uids"].get(int(uid3), 0)) != 1:
+			loaded_kit_ok = false
+	check(loaded_kit_ok, "executed and sold prisoners' exact Item uids survive save/load in the holding town")
+	check(Prisoners._find(Prisoners.held(Game), stay.uid).is_empty() and Prisoners._find(Prisoners.held(Game), _pool[3].uid).is_empty(),
+		"executed and sold prisoners stay off the held list after save/load")
+	check(is_equal_approx(_coin_sum(), pre_save_coins), "save/load preserves total world coin")
+
 	return _finish()
