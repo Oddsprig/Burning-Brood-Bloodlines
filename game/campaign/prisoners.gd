@@ -639,7 +639,8 @@ static func _standing_execute(game, fid: String, heads: int) -> void:
 	st["execute_heads"][fid] = done + heads
 	if apply > 0: Diplomacy.on_execute(game, fid, apply)
 
-## Execution or sale: the person leaves the rolls through the ordinary death settlement, with the real cause.
+## Execution or sale: the person leaves the rolls through the ordinary casualty settlement, with the real cause.
+## An execution is a census death; a sale is a census leaving ("sold to slavers"), since a sold prisoner is not dead.
 static func _lose_prisoner(game, rec: Dictionary, cause: String, detail: String) -> void:
 	held(game).erase(rec)
 	var u: Unit = rec["unit"]

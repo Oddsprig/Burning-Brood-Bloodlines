@@ -92,6 +92,21 @@ static func person_died(e: Dictionary, f: Dictionary, p: Array, day: float, caus
 	record_death(e, int(p[0]), Persons.name_of(f, p, Persons.race_of(e)), Persons.age_of(p, day), int(p[2]), day, cause,
 		detail, counted, int(f.get("id", -1)), job, str(Persons.g(p, Persons.PERSON_UID, "")), int(p[5]))
 
+## v0.077: a register person leaves alive and for good (a prisoner sold to slavers). The census books one person
+## who left, not a death; their ids join death_ids so no later sweep books them again.
+## counted: they were in the town's people count (as record_death).
+static func person_left(e: Dictionary, f: Dictionary, p: Array, day: float, why: String, counted: bool = true) -> void:
+	var b := _book(e)
+	var pid := -1
+	if not p.is_empty():
+		Dynasty.record_person(e, f, p, false)
+		pid = int(p[0])
+		var key := str(Persons.g(p, Persons.PERSON_UID, ""))
+		if key == "" and pid >= 0: key = "pid:%s:%d" % [e.get("identity_scope", ""), pid]
+		if key != "": b["death_ids"][key] = day
+		if int(p[5]) >= 0: b["death_ids"]["unit:%d" % int(p[5])] = day
+	if counted: record_move(e, pid, "out", "", day, why)
+
 ## dir "in" or "out"; why: hunger, debt, war, work, married, called up, seizure, refugee. n people move.
 static func record_move(e: Dictionary, pid: int, dir: String, other_town: String, day: float, why: String, n: int = 1) -> void:
 	if n <= 0:

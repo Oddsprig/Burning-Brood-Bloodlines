@@ -124,22 +124,10 @@ func _take_one_of_ours() -> Unit:
 		if not Prisoners._find(Prisoners.captives(Game), u.uid).is_empty(): return u
 	return null
 
-## Enemy treasury plus the family purses of these men (the accounts a ransom can leave).
-func _kin_pot(units: Array) -> float:
-	var n := _treasury(_enemy)
-	var seen: Array = []
-	for u in units:
-		if not u is Unit: continue
-		var town: Dictionary = Game.world["towns"].get((u as Unit).home_town, {})
-		var f: Dictionary = People.fam_of(town, (u as Unit).family) if not town.is_empty() else {}
-		if f.is_empty(): continue
-		var already := false
-		for s in seen:
-			if is_same(s, f): already = true
-		if already: continue
-		seen.append(f)
-		n += float(f.get("purse", 0.0))
-	return n
+func _house_purse(u: Unit) -> float:
+	var town: Dictionary = Game.world["towns"].get(u.home_town, {})
+	var f: Dictionary = People.fam_of(town, u.family) if not town.is_empty() else {}
+	return float(f.get("purse", 0.0)) if not f.is_empty() else 0.0
 
 func _till(town: Dictionary) -> float:
 	var stall := Prisoners._market_till(town)
@@ -230,7 +218,8 @@ func run(tree: SceneTree) -> int:
 	var offered := Prisoners.preview(Game, "ransom", _pool[0].uid if price0 >= price1 else _pool[1].uid)
 	check(offered.get("ok", false) and str(offered.get("text", "")).contains("They accept."), "a realm that can pay accepts: " + str(offered.get("text", "")))
 	purse = _purse(); coins = _coin_sum(); grain = int(fed_town["econ"]["stock"]["grain"])
-	var pot := _kin_pot([_pool[0], _pool[1]])
+	var treasury_r := _treasury(_enemy)
+	var house_r := {_pool[0].uid: _house_purse(_pool[0]), _pool[1].uid: _house_purse(_pool[1])}
 	var standing := Diplomacy.earned(Game, _enemy)
 	_bump()
 	check(Prisoners.held(Game).size() == 1, "the realm ransoms one prisoner, the dearest it can pay")
@@ -242,7 +231,12 @@ func run(tree: SceneTree) -> int:
 	_ransomed = _pool[1] if gone_uid == _pool[1].uid else _pool[0]
 	if price0 != price1: check(gone_price == maxi(price0, price1), "they ransom the dearer kin, not the cheaper one")
 	check(is_equal_approx(_purse(), purse - 2.0 * upkeep + float(gone_price)), "your purse gains the ransom and pays two coins of upkeep")
-	check(is_equal_approx(_kin_pot([_pool[0], _pool[1]]), pot - float(gone_price)), "the ransom leaves their house purse or their treasury")
+	# Account by account: the ransomed man's walk home may fence his kit (ArmsSalvage.kit_home moves the home town's
+	# treasury into his house purse), so a house purse can rise; it is never where an untaken ransom hides.
+	var t_paid := treasury_r - _treasury(_enemy)
+	var h_paid := float(house_r[gone_uid]) - _house_purse(_ransomed)
+	check((is_equal_approx(t_paid, float(gone_price)) and h_paid <= 0.001) or (is_equal_approx(h_paid, float(gone_price)) and is_zero_approx(t_paid)),
+		"the ransom leaves their house purse or their treasury (treasury paid %.2f, house paid %.2f, price %d)" % [t_paid, h_paid, gone_price])
 	check(int(fed_town["econ"]["stock"]["grain"]) == grain - 2, "both prisoners were fed before the ransom")
 	check(is_equal_approx(_coin_sum(), coins), "the ransom moves coin and does not mint it")
 	check(Diplomacy.earned(Game, _enemy) == mini(100, standing + Diplomacy.RANSOM), "their ransom improves standing")
@@ -339,6 +333,11 @@ func run(tree: SceneTree) -> int:
 	for f in oppose: before_opp[str(f)] = Diplomacy.earned(Game, str(f))
 	var sale_rec: Dictionary = Prisoners._find(Prisoners.held(Game), _pool[3].uid)
 	var sale_fam: Dictionary = Prisoners._address(Game, sale_rec).get("family", {})
+	var sale_econ: Dictionary = Prisoners._address(Game, sale_rec).get("econ", {})
+	var sale_book: Dictionary = Census._book(sale_econ) if not sale_econ.is_empty() else {}
+	var sold_left := int(sale_book.get("cur", {}).get("left", {}).get("sold to slavers", 0)) if not sale_book.is_empty() else 0
+	var deaths_before := Census.sum(sale_book.get("cur", {}).get("deaths", {})) + Census.sum(sale_book.get("cur", {}).get("away", {})) if not sale_book.is_empty() else 0
+	var pop_before := int(sale_econ.get("pop", 0))
 	purse = _purse(); var buyer_coin := _treasury(buyer); coins = _coin_sum()
 	var sale := Prisoners.preview(Game, "sell", _pool[3].uid)
 	check(sale.get("ok", false) and int(sale.get("price", 0)) == sale_price, "the sale price is the small fixed price")
@@ -349,6 +348,12 @@ func run(tree: SceneTree) -> int:
 	for f2 in oppose:
 		check(Diplomacy.earned(Game, str(f2)) == maxi(-100, int(before_opp[str(f2)]) + Diplomacy.SLAVERS_PER_HEAD), "selling costs %s %d standing" % [str(f2), Diplomacy.SLAVERS_PER_HEAD])
 	if not sale_fam.is_empty(): check(str(sale_fam.get("hist", [])).contains("sold to slavers"), "the family is told they were sold")
+	if not sale_book.is_empty():
+		var cur: Dictionary = sale_book["cur"]
+		var dropped := pop_before - int(sale_econ.get("pop", 0))
+		check(int(cur.get("left", {}).get("sold to slavers", 0)) == sold_left + dropped and dropped in [0, 1],
+			"the census books the sold prisoner as one who left (town count fell by %d)" % dropped)
+		check(Census.sum(cur.get("deaths", {})) + Census.sum(cur.get("away", {})) == deaths_before, "the census books no death for a sale")
 
 	# --- One for one, once both have been held long enough. Upkeep still moves, the trade itself does not.
 	check(_ransomed != null and not _ransomed.dead, "the ransomed soldier is alive and can be held again")

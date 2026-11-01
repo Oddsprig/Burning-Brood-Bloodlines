@@ -485,7 +485,8 @@ static func casualty_rec(game, tid: String, fid: int, uname: String, kind: Strin
 			Persons.remove(f, p, e)
 		return
 	if kind == "dead":
-		e["stats"]["deaths"] = int(e["stats"].get("deaths", 0)) + 1
+		if String(fate[0]) != "sold":   # v0.077: someone sold to slavers left alive (Census counts them as left)
+			e["stats"]["deaths"] = int(e["stats"].get("deaths", 0)) + 1
 		var before := Families.people(f)
 		if role != "":
 			var sv: Dictionary = f["serve"]
@@ -530,6 +531,9 @@ static func casualty_rec(game, tid: String, fid: int, uname: String, kind: Strin
 
 ## The census row for a death in service: his own record when the register has one, else his name.
 static func _census_death(e: Dictionary, f: Dictionary, p: Array, uname: String, day: float, fate: Array, counted: bool) -> void:
+	if String(fate[0]) == "sold":   # v0.077: a sold prisoner is not dead; the census books them as one person who left
+		Census.person_left(e, f, p, day, String(fate[1]), counted)
+		return
 	if not p.is_empty():
 		Census.person_died(e, f, p, day, String(fate[0]), String(fate[1]), counted)
 	else:
