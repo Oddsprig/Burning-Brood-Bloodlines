@@ -766,8 +766,8 @@ static func _dispose_conquered_lord(game, tid: String, old_uid: String, old_fid:
 	if _exile_lord(game, loc, old_fid): return "exile"
 	return _make_landless(game, loc)
 
-## Transfer the same Unit out of every active holder. The service roll/person binding stays until release;
-## it is the captive's identity, not another active body. Rank seats cease to command immediately.
+## Transfer the same Unit out of every active holder. Realm-held people keep their public service identity;
+## player captives transfer public service into native away enlistment. Rank seats cease to command immediately.
 static func _remove_active_lord(game, unit: Unit) -> void:
 	var w: Dictionary = game.world
 	game.company.erase(unit)
@@ -801,9 +801,11 @@ static func _take_ruler_prisoner(game, loc: Dictionary, unit: Unit, old_fid: Str
 	var rec := {"uid": int(unit.uid), "name": str(unit.name), "faction": old_fid, "home_town": home,
 		"family": int(unit.family), "day": float(game.day), "noble": true, "unit": unit, "role": role,
 		"former_office": "ruler", "held_by": captor_fid}
+	var player_captive := loser_is_player
+	if player_captive and Army.state(game.world)["roll"].has(str(unit.uid)):
+		player_captive = Mobilization.transfer_army_captive(game, unit)
 	_remove_active_lord(game, unit)
-	unit.faction = old_fid
-	if loser_is_player:
+	if player_captive:
 		Prisoners.captives(game).append(rec)
 		BattleRounds._note_captured(game, unit, captor_fid)
 	elif captor_is_player:

@@ -300,16 +300,39 @@ static func _entry(game, u: Unit, a: Dictionary) -> Dictionary:
 			"home_town_id": u.home_town, "family_id": u.family, "wage": u.wage, "borrowed": []}
 	return state["enlisted"][key]
 
-static func _away(game, u: Unit, a: Dictionary) -> void:
+static func _away(game, u: Unit, a: Dictionary, state: String = "company", reason: String = "raised with the house army") -> void:
 	var p: Array = a["person"]; var f: Dictionary = a["family"]; var e: Dictionary = a["econ"]
 	var category := _category(p)
 	f[category] = int(f[category]) - 1; e["pop"] = int(e["pop"]) - 1
 	if category in ["m", "f"]: e["adults"] = int(e["adults"]) - 1
-	p[4] = "company"; p[5] = u.uid
+	p[4] = state; p[5] = u.uid
 	f.get("player_reserve_uids", {}).erase(str(u.uid))
-	Persons.log_life(p, float(game.day), "serve", "company")
-	Census.record_move(e, int(p[0]), "out", "", float(game.day), "raised with the house army")
+	Persons.log_life(p, float(game.day), "serve", state)
+	Census.record_move(e, int(p[0]), "out", "", float(game.day), reason)
 	Families.reassign(e, f)
+
+## A captured realm-army lord becomes an away captive in the player's custody system. Public army people
+## were still counted at home; house-army captives were already away. Transfer the service/counts exactly once,
+## keeping the same body and kit for the ordinary native return_freed path (no stale Army sweep death).
+static func transfer_army_captive(game, u: Unit) -> bool:
+	var a := _address(game, u)
+	var roll: Dictionary = Army.state(game.world)["roll"]
+	var prior: Array = roll.get(str(u.uid), [])
+	if a.is_empty() or prior.size() < 3 or u.dead: return false
+	var p: Array = a["person"]; var f: Dictionary = a["family"]; var e: Dictionary = a["econ"]
+	var category := _category(p)
+	var role := str(prior[2])
+	if str(prior[0]) != u.home_town or int(prior[1]) != u.family or str(p[4]) != role or Persons.AWAY.has(str(p[4])): return false
+	if f.get("gone", false) or int(f.get(category, 0)) < 1 or int(e.get("pop", 0)) < 1: return false
+	_entry(game, u, a)
+	if u.unpaid_days > 0:
+		Persons.remember_unpaid(p, role, u.unpaid_days, float(game.day), float(game.day) - Persons.served_since(p, role))
+	var service: Dictionary = f["serve"]
+	if int(service.get(role, 0)) > 1: service[role] = int(service[role]) - 1
+	else: service.erase(role)
+	roll.erase(str(u.uid))
+	_away(game, u, a, "captive", "taken prisoner with the realm army")
+	return true
 
 static func _new_unit(game, town: Dictionary) -> Unit:
 	var source := str(town["faction"]); var race := Persons.race_of(town["econ"])
