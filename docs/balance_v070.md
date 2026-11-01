@@ -96,9 +96,16 @@ matchup guarantee.
 
 ## Scope limits
 
-High elves, dark elves and trolls are disabled in the shipped faction data.
-The harness can survey them with `--balance-disabled`; this pass does not
-activate or tune them. Horses are the purchased general-purpose mounts.
+High elves and dark elves were disabled when this note was first written.
+v0.080 turns both realms on and adds `high_elf` and `dark_elf` to
+`BalanceV070.RACES`. Trolls stay disabled. The harness can still survey
+trolls with `--balance-disabled`. The fast gate now expects 26 native troop
+templates, and its shared wall is 120 seconds (regression budget 140
+seconds) because the race cross grew from five races to seven. High-elf and
+dark-elf weapons and armour are stat-copies of the moon-elf set under new
+ids, so a native troop should sit near the moon-elf band. Body attributes
+differ. This version did not run Godot, so those bands are not re-measured
+here. Horses are the purchased general-purpose mounts.
 Bloodline dragons have no native purchase/replacement price and their
 bonded-rider aftermath is a separate campaign integration. A fair equal-coin
 dragon valuation is not defined by this pass; dragon balance is not claimed.

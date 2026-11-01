@@ -13,10 +13,10 @@
       "gait": [260, 500, 700], "learn": 100, "attr_cost": 500, "src": "ours",
       "personality": {"courage": 70, "nerve": 45, "aggression": 80, "caution": 25, "temper": 75, "protectiveness": 35, "loyalty": 35, "cohesion": 60, "glory": 65, "cruelty": 60, "appetite": 70, "scruples": 25},
       "bravery": 65, "speed": 900, "skin": ["#5fae3a", "#4f9a30", "#6cbf45", "#478a2c", "#7ac24a", "#7d9453", "#416c53", "#a69555", "#937150", "#61716d", "#46575c"], "hair": ["#1a1a1a", "#3a2a1a", "#673d25", "#8d582e", "#b59a6c", "#959d9a", "#d5d1b8", "#463b55"], "enabled": true},
-    "goblin":   {"name": "goblin", "plural": "goblins", "body": "humanoid", "mass": 35, "height": 0.75, "width": 0.85,
-      "tiers": {"STR": "-", "AGI": "++", "TOU": "-", "END": "+", "REC": "0", "WIL": "--", "FOC": "0", "SPA": "+", "KIN": "+"},
-      "attrs": {"STR": 900, "AGI": 1500, "TOU": 900, "END": 1250, "REC": 1000, "WIL": 750, "FOC": 1000, "SPA": 1250, "KIN": 1250},
-      "gait": [200, 400, 600], "learn": 100, "skill_learn": {"dodger": 125}, "attr_cost": 500, "src": "ours (DF goblins are human-sized; ours follow the handoff: small, fast, fragile)",
+    "goblin":   {"name": "goblin", "plural": "goblins", "body": "humanoid", "mass": 44, "height": 0.82, "width": 0.85,
+      "tiers": {"STR": "0", "AGI": "++", "TOU": "0", "END": "+", "REC": "0", "WIL": "--", "FOC": "0", "SPA": "+", "KIN": "+"},
+      "attrs": {"STR": 1000, "AGI": 1500, "TOU": 1000, "END": 1250, "REC": 1000, "WIL": 750, "FOC": 1000, "SPA": 1250, "KIN": 1250},
+      "gait": [200, 400, 600], "learn": 100, "skill_learn": {"dodger": 125}, "attr_cost": 500, "src": "ours (DF goblins are human-sized; ours follow the handoff: small, fast, fragile). v0.080: the race screen fields the same copper kit for every race, so warren troop lines do not move that score. STR and TOU sit on the human tier and the body is 44 kg and 0.82 tall, still well under a man, so the seven-race probe stays inside the band",
       "personality": {"courage": 25, "nerve": 30, "aggression": 60, "caution": 55, "temper": 55, "protectiveness": 20, "loyalty": 35, "cohesion": 80, "glory": 30, "cruelty": 75, "greed": 70, "scruples": 15}, "outnumber_morale": true,
       "bravery": 25, "speed": 900, "skin": ["#9cc23c", "#aacf4a", "#88b035", "#b5d65a"], "hair": ["#1a1a1a"], "enabled": true},
     "moon_elf": {"name": "moon elf", "plural": "moon elves", "body": "humanoid", "mass": 55, "height": 1.05, "width": 0.88,
@@ -37,13 +37,13 @@
       "attrs": {"STR": 1000, "AGI": 1250, "TOU": 1000, "END": 1250, "REC": 1250, "WIL": 1500, "FOC": 1250, "SPA": 1250, "KIN": 1250},
       "gait": [214, 428, 642], "learn": 90, "attr_cost": 500, "src": "ours",
       "personality": {"courage": 65, "nerve": 70, "aggression": 40, "caution": 55, "temper": 30, "protectiveness": 65, "loyalty": 75, "cohesion": 65, "glory": 60, "cruelty": 25, "greed": 35, "appetite": 30, "scruples": 70},
-      "bravery": 60, "speed": 900, "skin": ["#f0dcc4"], "hair": ["#f2e2a0"], "enabled": false},
+      "bravery": 60, "speed": 900, "skin": ["#f0dcc4"], "hair": ["#f2e2a0"], "enabled": true},
     "dark_elf": {"name": "dark elf", "plural": "dark elves", "body": "humanoid", "mass": 55, "height": 1.02, "width": 0.88,
       "tiers": {"STR": "-", "AGI": "++", "TOU": "-", "END": "0", "REC": "0", "WIL": "+", "FOC": "+", "SPA": "+", "KIN": "+"},
       "attrs": {"STR": 900, "AGI": 1500, "TOU": 900, "END": 1000, "REC": 1000, "WIL": 1250, "FOC": 1250, "SPA": 1250, "KIN": 1250},
       "gait": [214, 428, 642], "learn": 100, "attr_cost": 500, "src": "ours",
       "personality": {"courage": 55, "aggression": 60, "caution": 45, "protectiveness": 25, "loyalty": 40, "cohesion": 40, "glory": 55, "cruelty": 80, "greed": 60, "appetite": 40, "scruples": 20},
-      "bravery": 50, "speed": 900, "skin": ["#5a5a78"], "hair": ["#e8e8e8"], "enabled": false},
+      "bravery": 50, "speed": 900, "skin": ["#5a5a78"], "hair": ["#e8e8e8"], "enabled": true},
     "troll":    {"name": "troll", "plural": "trolls", "body": "humanoid", "natural_attacks": {"bite": 3.0}, "mass": 250, "height": 1.6, "width": 1.6,
       "tiers": {"STR": "+", "AGI": "--", "TOU": "++", "END": "+", "REC": "++", "WIL": "0", "FOC": "--", "SPA": "-", "KIN": "-"},
       "attrs": {"STR": 1250, "AGI": 750, "TOU": 1500, "END": 1250, "REC": 1500, "WIL": 1000, "FOC": 750, "SPA": 900, "KIN": 900},
@@ -143,6 +143,28 @@
           "arrows": {"arrow_copper_bodkin": 30},
           "loadout": {"ranged": ["steppe_bow"], "main_hand": ["steppe_sabre"], "off_hand": ["steppe_shield", ""], "helm": ["steppe_helm"], "body": ["steppe_lamellar"], "hands": ["steppe_bracers", ""], "clothing": ["gambeson"], "legs_under": ["trousers"], "feet": ["shoes"]}}
       ]},
+    "sun_court": {"name": "The Sunwood Court", "race": "high_elf", "culture": "high_elf", "region": "sunwood", "wealth": 4, "steel_knowhow": 0,
+      "colors": {"primary": "#c9a227", "secondary": "#f4e2a8"}, "player_hostile": false,
+      "troops": [
+        {"name": "sun glaive", "w": 3, "skills": {"axe": [3, 6], "dodger": [3, 6], "fighter": [2, 4], "discipline": [2, 4]},
+          "loadout": {"main_hand": ["sun_glaive"], "helm": ["sun_helm"], "body": ["sun_lamellar", ""], "legs": ["sun_greaves", ""], "clothing": ["tunic"], "legs_under": ["trousers"], "feet": ["shoes"]}},
+        {"name": "sun blade", "w": 2, "skills": {"sword": [3, 6], "dagger": [2, 4], "dodger": [3, 6], "fighter": [2, 4]},
+          "loadout": {"main_hand": ["sun_sabre"], "helm": ["sun_helm", ""], "body": ["sun_lamellar"], "hands": ["sun_vambraces", ""], "clothing": ["tunic"], "legs_under": ["trousers"], "feet": ["shoes"]}},
+        {"name": "sun archer", "w": 3, "skills": {"bow": [4, 8], "dagger": [2, 4], "sword": [1, 3], "dodger": [2, 5], "fighter": [1, 3], "discipline": [1, 3]},
+          "arrows": {"arrow_copper_bodkin": 35, "arrow_copper_war": 15},
+          "loadout": {"ranged": ["sun_recurve", "sun_longbow"], "main_hand": ["sun_dirk", "sun_sabre"], "helm": ["sun_helm", ""], "body": ["sun_lamellar", ""], "clothing": ["tunic"], "legs_under": ["trousers"], "feet": ["shoes"]}}
+      ]},
+    "night_court": {"name": "The Nightwood Court", "race": "dark_elf", "culture": "dark_elf", "region": "nightwood", "wealth": 4, "steel_knowhow": 0,
+      "colors": {"primary": "#2a1848", "secondary": "#7a3e8a"}, "player_hostile": false,
+      "troops": [
+        {"name": "night glaive", "w": 3, "skills": {"axe": [3, 6], "dodger": [3, 6], "fighter": [2, 4], "discipline": [2, 4]},
+          "loadout": {"main_hand": ["night_glaive"], "helm": ["night_helm"], "body": ["night_lamellar", ""], "legs": ["night_greaves", ""], "clothing": ["tunic"], "legs_under": ["trousers"], "feet": ["shoes"]}},
+        {"name": "night blade", "w": 2, "skills": {"sword": [3, 6], "dagger": [2, 4], "dodger": [3, 6], "fighter": [2, 4]},
+          "loadout": {"main_hand": ["night_sabre"], "helm": ["night_helm", ""], "body": ["night_lamellar"], "hands": ["night_vambraces", ""], "clothing": ["tunic"], "legs_under": ["trousers"], "feet": ["shoes"]}},
+        {"name": "night archer", "w": 3, "_note": "v0.080: bow a step above the moon copy, and a little more dodge. The night bows are drawn for a dark elf's pull, not a moon elf's", "skills": {"bow": [5, 9], "dagger": [2, 4], "sword": [1, 3], "dodger": [3, 6], "fighter": [1, 3], "discipline": [1, 3]},
+          "arrows": {"arrow_copper_bodkin": 35, "arrow_copper_war": 15},
+          "loadout": {"ranged": ["night_recurve", "night_longbow"], "main_hand": ["night_dirk", "night_sabre"], "helm": ["night_helm", ""], "body": ["night_lamellar", ""], "clothing": ["tunic"], "legs_under": ["trousers"], "feet": ["shoes"]}}
+      ]},
     "troll_den": {"name": "Troll Den", "race": "troll", "culture": "orc", "minor_only": true, "wealth": 1, "steel_knowhow": 0,
       "colors": {"primary": "#4a5240", "secondary": "#2a2a22"}, "player_hostile": true,
       "troops": [
@@ -164,6 +186,10 @@
     "troll":    {"first": ["Grish", "Molgur", "Thrund", "Bolg", "Skarn", "Hogrim", "Krusha", "Mazruk", "Durg", "Gnarl"],
                  "last": ["Rockhide", "of the Deep Den", "Boneclub", "Mossback", "Stonegut", "Creephand"]},
     "giant":    {"first": ["Bromm", "Hroth", "Kolgar", "Sturm", "Venda", "Ogma", "Thrymm", "Halda", "Jotun", "Berga", "Wulda", "Skadi"],
-                 "last": ["Hillborn", "of the High Crag", "Cloudstep", "Longshadow", "Earthshoulder", "Frostmeal"]}
+                 "last": ["Hillborn", "of the High Crag", "Cloudstep", "Longshadow", "Earthshoulder", "Frostmeal"]},
+    "high_elf": {"first": ["Aelindor", "Serevan", "Liriel", "Caladwen", "Isarion", "Maelith", "Thalorien", "Elaria", "Varinel", "Orophin", "Silmari", "Galadren"],
+                 "last": ["Sunbough", "Goldleaf", "Dawnspire", "Whiteholm", "Amberglade", "Highmere"]},
+    "dark_elf": {"first": ["Vessira", "Narloth", "Kezryn", "Saryth", "Mivara", "Draveth", "Ilzryn", "Charith", "Olyss", "Tazrin", "Veloth", "Qirra"],
+                 "last": ["Nightwell", "Duskbane", "Blackthorn", "Shadevale", "Gloamspire", "Ashsilk"]}
   }
 }

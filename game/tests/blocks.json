@@ -21,6 +21,10 @@
 		"res://tests/test_battle_screen.gd",
 		"res://tests/test_ui_land_map.gd"
 	],
+	"touch_scroll_v083": [
+		"res://tests/test_touch_scroll_v083.gd",
+		"res://tests/test_touch_ui_v072.gd"
+	],
 	"identity_v070": [
 		"res://tests/test_identity_consistency_v070.gd"
 	],

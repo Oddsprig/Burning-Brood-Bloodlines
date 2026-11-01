@@ -20,10 +20,10 @@ func _ready() -> void:
 		f0["bar"].add_child(UiKit.spacer())
 		f0["bar"].add_child(UiKit.button("Leave", _leave, "Danger", 120))
 		return
-	# autosave on arriving from the map (v0.014: not again on coming back from the company or records screens; the
-	# JSON is written by a worker thread, core/game.gd save_game_async)
+	# autosave on arriving from the map (v0.014: not again on coming back from the company or records screens).
+	# v0.084: request_autosave waits out the Settings interval and never starts during a battle.
 	if Game.screen_params.get("arrive", false):
-		Game.save_game_async()
+		Game.request_autosave()
 	if Game.screen_params.has("tab"):
 		tab = String(Game.screen_params["tab"])
 	if Game.screen_params.has("econ_section"):
@@ -107,7 +107,7 @@ func _refresh_summary(t: Dictionary) -> void:
 func _leave() -> void:
 	Game.location = ""
 	if not Game.world.is_empty():
-		Game.save_game_async()  # autosave on leaving a town
+		Game.request_autosave()  # autosave on leaving a town, once the interval has elapsed
 	Game.goto("map")
 
 func show_tab(t: String) -> void:
