@@ -133,14 +133,18 @@ func _till(town: Dictionary) -> float:
 	var stall := Prisoners._market_till(town)
 	return float(stall.get("till", 0.0)) if not stall.is_empty() else -1.0
 
-func _count_item(it, uids: Dictionary) -> int:
+func _count_item(it, uids: Dictionary, where: Dictionary = {}, holder: String = "") -> int:
 	if not it is Item: return 0
 	var item: Item = it
 	if item.uid > 0:
 		uids[item.uid] = int(uids.get(item.uid, 0)) + 1
+		if holder != "":
+			where[item.uid] = holder if not where.has(item.uid) else str(where[item.uid]) + "+" + holder
+	else:
+		uids[0] = int(uids.get(0, 0)) + 1
 	return 1
 
-func _count_unit_items(u, seen_units: Dictionary, uids: Dictionary) -> int:
+func _count_unit_items(u, seen_units: Dictionary, uids: Dictionary, where: Dictionary = {}, holder: String = "") -> int:
 	if not u is Unit: return 0
 	var unit: Unit = u
 	var id := unit.get_instance_id()
@@ -148,34 +152,92 @@ func _count_unit_items(u, seen_units: Dictionary, uids: Dictionary) -> int:
 	seen_units[id] = true
 	var n := 0
 	for slot in unit.equip:
-		n += _count_item(unit.equip[slot], uids)
+		n += _count_item(unit.equip[slot], uids, where, holder)
 	return n
 
 func _accounted_items() -> Dictionary:
 	var uids := {}
+	var where := {}
+	var buckets := {"stash": 0, "company": 0, "reserve": 0, "warbands": 0, "prisoners": 0, "town_shop": 0, "town_armory": 0, "lairs": 0}
 	var seen_units := {}
 	var n := 0
 	for it in Game.stash:
-		n += _count_item(it, uids)
+		var c := _count_item(it, uids, where, "stash")
+		n += c; buckets["stash"] += c
 	for u in Game.company:
-		n += _count_unit_items(u, seen_units, uids)
+		var c := _count_unit_items(u, seen_units, uids, where, "company")
+		n += c; buckets["company"] += c
 	for u2 in Mobilization.reserves(Game):
-		n += _count_unit_items(u2, seen_units, uids)
-	for wb in Game.world.get("warbands", {}).values():
-		for u3 in (wb as Dictionary).get("units", []):
-			n += _count_unit_items(u3, seen_units, uids)
+		var c := _count_unit_items(u2, seen_units, uids, where, "reserve")
+		n += c; buckets["reserve"] += c
+	for wid in Game.world.get("warbands", {}):
+		var wb: Dictionary = Game.world["warbands"][wid]
+		for u3 in wb.get("units", []):
+			var c := _count_unit_items(u3, seen_units, uids, where, "warband:" + str(wid))
+			n += c; buckets["warbands"] += c
 	for rec in Prisoners.held(Game) + Prisoners.captives(Game):
-		n += _count_unit_items((rec as Dictionary).get("unit"), seen_units, uids)
-	for town in Game.world.get("towns", {}).values():
-		var td: Dictionary = town
+		var c := _count_unit_items((rec as Dictionary).get("unit"), seen_units, uids, where, "prisoners")
+		n += c; buckets["prisoners"] += c
+	for tid in Game.world.get("towns", {}):
+		var td: Dictionary = Game.world["towns"][tid]
 		for it2 in td.get("shop", []):
-			n += _count_item(it2, uids)
+			var c := _count_item(it2, uids, where, "town:%s:shop" % str(tid))
+			n += c; buckets["town_shop"] += c
 		for it3 in ArmsTrade.armory(td):
-			n += _count_item(it3, uids)
-	for lair in Game.world.get("lairs", {}).values():
-		for it4 in (lair as Dictionary).get("stock", []):
-			n += _count_item(it4, uids)
-	return {"count": n, "uids": uids}
+			var c := _count_item(it3, uids, where, "town:%s:armory" % str(tid))
+			n += c; buckets["town_armory"] += c
+	for lid in Game.world.get("lairs", {}):
+		var lair: Dictionary = Game.world["lairs"][lid]
+		for it4 in lair.get("stock", []):
+			var c := _count_item(it4, uids, where, "lair:" + str(lid))
+			n += c; buckets["lairs"] += c
+	return {"count": n, "uids": uids, "where": where, "buckets": buckets}
+
+func _item_delta_diag(pre: Dictionary, post: Dictionary) -> String:
+	var pre_uids: Dictionary = pre.get("uids", {})
+	var post_uids: Dictionary = post.get("uids", {})
+	var pre_where: Dictionary = pre.get("where", {})
+	var post_where: Dictionary = post.get("where", {})
+	var all_keys := {}
+	for k in pre_uids: all_keys[int(k)] = true
+	for k2 in post_uids: all_keys[int(k2)] = true
+	var sorted_keys: Array = all_keys.keys()
+	sorted_keys.sort()
+	var missing_uids := 0
+	var added_uids := 0
+	var missing_sample: Array = []
+	var added_sample: Array = []
+	var holder_deltas := {}
+	for uid in sorted_keys:
+		var a := int(pre_uids.get(uid, 0))
+		var b := int(post_uids.get(uid, 0))
+		if b < a:
+			missing_uids += a - b
+			var h := str(pre_where.get(uid, "uid0" if int(uid) == 0 else "?"))
+			holder_deltas[h] = int(holder_deltas.get(h, 0)) - (a - b)
+			if missing_sample.size() < 10:
+				missing_sample.append("%d@%s" % [int(uid), h])
+		elif b > a:
+			added_uids += b - a
+			var h2 := str(post_where.get(uid, "uid0" if int(uid) == 0 else "?"))
+			holder_deltas[h2] = int(holder_deltas.get(h2, 0)) + (b - a)
+			if added_sample.size() < 10:
+				added_sample.append("%d@%s" % [int(uid), h2])
+	var b_parts: Array = []
+	var pre_b: Dictionary = pre.get("buckets", {})
+	var post_b: Dictionary = post.get("buckets", {})
+	for bk in ["stash", "company", "reserve", "warbands", "prisoners", "town_shop", "town_armory", "lairs"]:
+		var d := int(post_b.get(bk, 0)) - int(pre_b.get(bk, 0))
+		if d != 0:
+			b_parts.append("%s:%d->%d(%+d)" % [bk, int(pre_b.get(bk, 0)), int(post_b.get(bk, 0)), d])
+	var h_keys: Array = holder_deltas.keys()
+	h_keys.sort()
+	var h_parts: Array = []
+	for hk in h_keys.slice(0, 10):
+		h_parts.append("%s:%+d" % [str(hk), int(holder_deltas[hk])])
+	return "missing_uids=%d added_uids=%d buckets=[%s] holders=[%s] missing_sample=[%s] added_sample=[%s]" % [
+		missing_uids, added_uids, ", ".join(PackedStringArray(b_parts)), ", ".join(PackedStringArray(h_parts)),
+		", ".join(PackedStringArray(missing_sample)), ", ".join(PackedStringArray(added_sample))]
 
 func _town_has_uid(town: Dictionary, item_uid: int) -> bool:
 	for it in ArmsTrade.armory(town) + (town.get("shop", []) as Array):
@@ -202,30 +264,44 @@ func _unit_arrows(u, seen_units: Dictionary) -> int:
 		n += maxi(0, int(unit.quiver.get(k, 0)))
 	return n
 
-func _arrow_sum() -> int:
+func _arrow_buckets() -> Dictionary:
 	var seen_units := {}
-	var n := 0
+	var b := {"company": 0, "reserve": 0, "warband_units": 0, "warband_stores": 0, "prisoners": 0, "town_armory": 0, "town_stock": 0}
 	for u in Game.company:
-		n += _unit_arrows(u, seen_units)
+		b["company"] += _unit_arrows(u, seen_units)
 	for u2 in Mobilization.reserves(Game):
-		n += _unit_arrows(u2, seen_units)
+		b["reserve"] += _unit_arrows(u2, seen_units)
 	for wb in Game.world.get("warbands", {}).values():
 		var wbd: Dictionary = wb
 		for u3 in wbd.get("units", []):
-			n += _unit_arrows(u3, seen_units)
+			b["warband_units"] += _unit_arrows(u3, seen_units)
 		var st: Dictionary = wbd.get("stores", {})
 		for ak in BowsEcon.arrow_ids():
-			n += maxi(0, int(st.get(ak, 0)))
+			b["warband_stores"] += maxi(0, int(st.get(ak, 0)))
 	for rec in Prisoners.held(Game) + Prisoners.captives(Game):
-		n += _unit_arrows((rec as Dictionary).get("unit"), seen_units)
+		b["prisoners"] += _unit_arrows((rec as Dictionary).get("unit"), seen_units)
 	for town in Game.world.get("towns", {}).values():
 		var td: Dictionary = town
-		n += _town_arrows(td)
+		b["town_armory"] += _town_arrows(td)
 		if TownEcon.has_econ(td):
 			var stock: Dictionary = td["econ"].get("stock", {})
 			for ak2 in BowsEcon.arrow_ids():
-				n += maxi(0, int(stock.get(ak2, 0)))
-	return n
+				b["town_stock"] += maxi(0, int(stock.get(ak2, 0)))
+	var total := 0
+	for k in b: total += int(b[k])
+	b["total"] = total
+	return b
+
+func _arrow_sum() -> int:
+	return int(_arrow_buckets()["total"])
+
+func _arrow_delta_diag(pre_b: Dictionary, post_b: Dictionary) -> String:
+	var parts: Array = []
+	for bk in ["company", "reserve", "warband_units", "warband_stores", "prisoners", "town_armory", "town_stock"]:
+		var d := int(post_b.get(bk, 0)) - int(pre_b.get(bk, 0))
+		if d != 0:
+			parts.append("%s:%d->%d(%+d)" % [bk, int(pre_b.get(bk, 0)), int(post_b.get(bk, 0)), d])
+	return "buckets=unchanged" if parts.is_empty() else "buckets=[%s]" % ", ".join(PackedStringArray(parts))
 
 func _arm_prisoner(u: Unit, town: Dictionary) -> Dictionary:
 	if u.equip.is_empty():
@@ -262,7 +338,10 @@ func run(tree: SceneTree) -> int:
 	await tree.process_frame
 	Game.wait_save()
 	previous_save_path = Game.SAVE_PATH
-	check(str(ProjectSettings.get_setting("application/config/version")) == "0.077", "project version is 0.077")
+	var ver := str(ProjectSettings.get_setting("application/config/version"))
+	var ver_parts := ver.split(".")
+	var ver_num := int(ver_parts[0]) * 1000 + int(ver_parts[1]) if ver_parts.size() >= 2 else 0
+	check(ver_num >= 77, "project version is at least 0.077 (%s)" % ver)
 	if not await DevTools.start_world(tree, "user://ransom077-test.json"):
 		check(false, "the shared test world loads")
 		return _finish()
@@ -586,7 +665,8 @@ func run(tree: SceneTree) -> int:
 		check(is_equal_approx(_coin_sum(), coins), "that day moves no coin")
 	# Reload only after every scenario using live Unit/household references has finished.
 	var pre_save_items := _accounted_items()
-	var pre_save_arrows := _arrow_sum()
+	var pre_arrow_buckets := _arrow_buckets()
+	var pre_save_arrows := int(pre_arrow_buckets["total"])
 	var pre_save_coins := _coin_sum()
 	Game.save_game(); Game.wait_save()
 	Game.world = {}; Game.rep = {}
@@ -594,8 +674,14 @@ func run(tree: SceneTree) -> int:
 	seat_town = Prisoners._player_town(Game)
 	fed_town = seat_town
 	var post_load_items := _accounted_items()
-	check(int(post_load_items["count"]) == int(pre_save_items["count"]) and _arrow_sum() == pre_save_arrows,
-		"save/load preserves total accounted items (%d) and arrows (%d)" % [int(post_load_items["count"]), _arrow_sum()])
+	var post_arrow_buckets := _arrow_buckets()
+	var post_load_arrows := int(post_arrow_buckets["total"])
+	check(int(post_load_items["count"]) == int(pre_save_items["count"]) and post_load_arrows == pre_save_arrows,
+		"save/load preserves total accounted items (%d -> %d, delta %+d; %s) and arrows (%d -> %d, delta %+d; %s)" % [
+			int(pre_save_items["count"]), int(post_load_items["count"]), int(post_load_items["count"]) - int(pre_save_items["count"]),
+			_item_delta_diag(pre_save_items, post_load_items),
+			pre_save_arrows, post_load_arrows, post_load_arrows - pre_save_arrows,
+			_arrow_delta_diag(pre_arrow_buckets, post_arrow_buckets)])
 	var loaded_kit_ok := true
 	for uid3 in (exec_kit["uids"] as Array) + (sale_kit["uids"] as Array):
 		if not _town_has_uid(seat_town, int(uid3)) or int(post_load_items["uids"].get(int(uid3), 0)) != 1:
