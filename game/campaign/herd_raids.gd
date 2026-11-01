@@ -126,6 +126,7 @@ static func step(game, wb: Dictionary, dt: float, _t: float, rng: RandomNumberGe
 			dead.append(u)
 			if not u.race_def().get("creature", false): People.casualty(game, u, "dead", "bandit")
 	ArmsTrade.field(game, dead, {"band": wb} if sim.winner == 1 and not raid["wolves"] else ({"town": town} if sim.winner == 0 else {}), wb["pos"])
+	WorldAudit.band_gone(game.world["warbands"].get(String(raid.get("herders", "")), {}), "-went with a removed band (herders)")
 	game.world["warbands"].erase(String(raid.get("herders", "")))
 	wb["units"] = wb["units"].filter(func(u): return not u.dead)
 	var militia := Militia.band_of(game, String(town["id"]))
@@ -155,7 +156,9 @@ static func take(game, wb: Dictionary, town: Dictionary, h: Dictionary) -> void:
 		Herds.change(e, h, age, -take_n, "stolen", "wolf pasture raid" if wb["raid"]["wolves"] else "outlaw pasture raid", float(game.day))
 		var meals := take_n * meat
 		var carried := mini(meals, food)
-		if not wolves: Supplies.stores(wb)["meat"] = int(Supplies.stores(wb).get("meat", 0)) + carried
+		if not wolves:
+			Supplies.stores(wb)["meat"] = int(Supplies.stores(wb).get("meat", 0)) + carried
+			WorldAudit.ration("meat", "+meat of raided herds", carried)
 		# Animals leave the herd ledger; carcasses are produced here before eaten, carried or left.
 		TownEcon.led(e, "made", "fresh_meat", meals)
 		TownEcon.led(e, "used" if wolves else "out", "fresh_meat", carried)

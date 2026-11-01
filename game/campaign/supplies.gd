@@ -69,12 +69,14 @@ static func eat(wb: Dictionary) -> void:
 		if t > 0:
 			st[g] = int(st[g]) - t
 			need -= t
+			WorldAudit.ration(g, "-eaten by a force", -t)
 	var dn := n
 	for g in DRINK:
 		var t2 := mini(dn, int(st.get(g, 0)))
 		if t2 > 0:
 			st[g] = int(st[g]) - t2
 			dn -= t2
+			WorldAudit.ration(g, "-drunk by a force", -t2)
 	for g in st.keys():
 		if int(st[g]) <= 0:
 			st.erase(g)
@@ -114,15 +116,21 @@ static func provision(game, wb: Dictionary, payer: Dictionary, supply_day: int =
 			e["stock"][g] = int(e["stock"][g]) - q
 			TownEcon.led(e, "used", g, q)   # out of the town's books: the army's mess
 			st[g] = int(st.get(g, 0)) + q
+			WorldAudit.ration(g, "+bought in a town for a force", q)   # (the town books it used)
 			want -= q
 			room -= float(q) * kg
 
 ## The winner takes the beaten force's stores up to what it can carry; the rest is lost. Returns {good: n}.
-static func take(winner: Dictionary, loser: Dictionary) -> Dictionary:
+## v0.075 r5: from_cargo: loser is a caravan's food cargo, not a force (what is not taken stays in the wagons).
+static func take(winner: Dictionary, loser: Dictionary, from_cargo: bool = false) -> Dictionary:
 	var src := stores(loser)
 	var dst := stores(winner)
 	var room := capacity(men(winner)) - weight(dst)
 	var got := _move(src, room, func(g, q): dst[g] = int(dst.get(g, 0)) + q)
+	if from_cargo:
+		for g in got: WorldAudit.ration(g, "+taken from caravan cargo", int(got[g]))
+	else:
+		for g in src: WorldAudit.ration(g, "-left on the field", -(int(src[g]) - int(got.get(g, 0))))
 	loser["stores"] = {}
 	return got
 
@@ -141,6 +149,7 @@ static func company_take(game, loser: Dictionary) -> Dictionary:
 			Food.add_stock(game, "meal", q, 0, g, Goods.good_name(g).capitalize())
 		else:
 			Food.add_stock(game, g, q))
+	for g in src: WorldAudit.ration(g, "-left on the field", -(int(src[g]) - int(got.get(g, 0))))
 	loser["stores"] = {}
 	return got
 
@@ -175,6 +184,7 @@ static func draw_dragon_meat(game, qty: int) -> Dictionary:
 	var reserve := Food.ration_meat_reserve(game)
 	var room := maxi(0, before - reserve)
 	var drawn: Dictionary = Food.take_named(game, Food.MEAT_GOODS, mini(maxi(0, qty), room))
+	WorldAudit.ration("meal", "-fed to marching dragons", -int(drawn.get("taken", 0)))
 	drawn["before"] = before
 	drawn["after"] = Food.meat_units(game)
 	drawn["reserve"] = reserve
@@ -231,12 +241,15 @@ static func seed_stores(wb: Dictionary) -> void:
 		return
 	var dd := int(A()["store_days"])
 	wb["stores"] = {"grain": 2 * n * dd * 3 / 4, "meat": 2 * n * dd / 4, "beer": n * dd}
+	for g in wb["stores"]: WorldAudit.ration(g, "+seeded (what a force sets out with)", int(wb["stores"][g]))
 
 
 ## Mounted animals draw named grain; keep one full day of the soldiers' meals.
 static func draw_horse_grain(game, quantity: int) -> int:
 	var spare := maxi(0, Food.stock(game, "meal") - 2 * Food.eaters(game).size())
-	return int(Food.take_named(game, ["grain"], mini(quantity, spare))["taken"])
+	var taken := int(Food.take_named(game, ["grain"], mini(quantity, spare))["taken"])
+	WorldAudit.ration("meal", "-fed to the company's horses", -taken)
+	return taken
 
 ## Packing uses the same market, named meal lots and price as the provision screen.
 ## Stock leaves the town ledger exactly once, as it does in provision().
@@ -252,6 +265,7 @@ static func pack_horse_grain(game, town: Dictionary, days: int = 7) -> Dictionar
 	game.gold -= cost
 	Goods.pay_market(town, cost)
 	Food.add_stock(game, "meal", quantity, 0, "grain", Food.food_name(town, "grain"))
+	WorldAudit.ration("meal", "+bought in a town for the company", quantity)
 	Food.sync(game)
 	game.changed.emit()
 	return {"ok": true, "reason": "Packed %d grain for %d coins." % [quantity, cost], "grain": quantity, "cost": cost}

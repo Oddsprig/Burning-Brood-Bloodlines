@@ -126,9 +126,13 @@ static func on_plunder(game, winner: Dictionary, caravan: Dictionary) -> void:
 	if l.is_empty():
 		return
 	var stock: Array = l["stock"]
-	for it in caravan.get("cargo", {}).get("items", []):
+	var cargo_items: Array = caravan.get("cargo", {}).get("items", [])
+	for it in cargo_items:
 		if stock.size() < STOCK_MAX or (it as Item).is_legend():   # v0.014: a legendary piece is always carried off
 			stock.append(it)
+		else:
+			WorldAudit.lose_item(it, "-broken up by outlaws (camp full)")   # v0.075 r5
+	WorldAudit.book(game.world, "arms", "-carried off by outlaws", -cargo_items.size())   # v0.075: out of the wagons (camp or broken)
 	caravan["cargo"]["items"] = []
 
 ## Daily: garrison and gangs near the camp re-arm from the stock.
@@ -182,7 +186,9 @@ static func clear_camp(game, lid: String, result: Dictionary) -> int:
 		# Found real gear goes to a real local armory without a fabricated sale.
 		var town: Dictionary = Salvage.nearest(w, l["pos"])
 		if not town.is_empty():
-			for entry in records: ArmsTrade.armory(town).append(entry["item"])
+			for entry in records:
+				ArmsTrade.armory(town).append(entry["item"])
+				if TownEcon.has_econ(town): TownEcon.led(town["econ"], "made", "arms", 1)   # v0.075: into the town's holdings
 	var coin := int(l.get("gold", 0)); var loot := sold + coin
 	if not result.is_empty():
 		game.gold += coin # The actual sale was already credited once by Salvage.

@@ -232,6 +232,7 @@ static func hold(game, uid: String, kind: String, args: Dictionary = {}, review:
 		var row: Dictionary = fx.duplicate(true)
 		row["id"] = "%s:treasure:%d" % [uid, int(st["serial"])]
 		f["hoard"].append(row)
+		WorldAudit.treasure("+commissioned by a house", int(row.get("quantity", 0)))   # v0.075 r5: the world audit's treasure book
 	elif kind in ["monument", "statue"]:
 		var row: Dictionary = fx.duplicate(true)
 		row["kind"] = kind; row["due_day"] = int(game.day) + int(fx["build_days"]); row["complete"] = false

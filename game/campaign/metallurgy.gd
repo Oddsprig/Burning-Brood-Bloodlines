@@ -39,6 +39,7 @@ static func recycle_stock(town: Dictionary, limit: int = 24) -> int:
 		TownEcon.led(e, "used", "arms", 1)
 		stats["recycled_kg"] = float(stats.get("recycled_kg", 0.0)) + mass
 		stats["recycled_items"] = int(stats.get("recycled_items", 0)) + 1
+		WorldAudit.lose_item(it, "-recycled into a town's scrap stock")   # v0.075 r6: melted, its metal booked made
 		shop.remove_at(i)
 		count += 1
 	e["recycling_carry"] = carry
