@@ -320,7 +320,7 @@ func _set_sprite(uid: String, sprite_id: String) -> void:
 	if sprite_id != "" and sprite_id != "classic" and DragonSpriteCatalog.variant_for(candidate).is_empty(): return
 	live["sprite_id"] = sprite_id
 	Game.changed.emit()
-	Game.save_game_async()
+	Game.request_autosave()
 	_queue_refresh()
 
 func _set_feed_priority(uid: String, priority: String) -> void:
@@ -330,7 +330,7 @@ func _set_feed_priority(uid: String, priority: String) -> void:
 	notice = str(result.get("reason", ""))
 	if bool(result.get("ok", false)):
 		Game.changed.emit()
-		Game.save_game_async()
+		Game.request_autosave()
 	_queue_refresh()
 
 func _detail(row: Dictionary) -> void:
@@ -421,7 +421,7 @@ func _combat_panel(row: Dictionary) -> void:
 	var go := UiKit.button("Recall home" if bool(march.get("marching",false)) else "March with army",func():
 		var r: Dictionary = Warfare.set_march(Game,uid,not bool(march.get("marching",false)))
 		notice = String(r.get("reason",""))
-		if bool(r.get("ok",false)): Game.changed.emit(); Game.save_game_async()
+		if bool(r.get("ok",false)): Game.changed.emit(); Game.request_autosave()
 		_queue_refresh(),"Row"); go.name = "DragonMarch"
 	go.disabled = not (bool(march.get("marching",false)) or bool(march.get("can_march",false))); go.tooltip_text = String(march.get("reason",""))
 	controls.add_child(go)
@@ -569,7 +569,7 @@ func _apply_pair(mother_uid: String, father_uid: String, review: Dictionary) -> 
 	notice = String(result.get("message", result.get("reason", "")))
 	if bool(result.get("ok", false)):
 		Game.changed.emit()
-		Game.save_game_async()
+		Game.request_autosave()
 	_queue_refresh()
 
 func _request_combat(uid: String, enabled: bool) -> void:
@@ -588,7 +588,7 @@ func _request_combat(uid: String, enabled: bool) -> void:
 func _apply_combat(uid: String, enabled: bool, review: Dictionary) -> Dictionary:
 	var result: Dictionary = DragonCombat.participation_order(Game,uid,enabled,review)
 	notice = String(result.get("reason",result.get("message","")))
-	if bool(result.get("ok",false)): Game.changed.emit(); Game.save_game_async()
+	if bool(result.get("ok",false)): Game.changed.emit(); Game.request_autosave()
 	_queue_refresh()
 	return result
 
@@ -661,7 +661,7 @@ func _apply_approach(uid: String, person_uid: String) -> void:
 	notice = str(result.get("reason", ""))
 	if bool(result.get("ok", false)):
 		Game.changed.emit()
-		Game.save_game_async()
+		Game.request_autosave()
 	_queue_refresh()
 
 func _stop_approach(uid: String) -> void:
@@ -669,7 +669,7 @@ func _stop_approach(uid: String) -> void:
 	notice = str(result.get("reason", ""))
 	if bool(result.get("ok", false)):
 		Game.changed.emit()
-		Game.save_game_async()
+		Game.request_autosave()
 	_queue_refresh()
 
 func _open_bond_picker(uid: String) -> void:
@@ -767,7 +767,7 @@ func _show_bond_review(uid: String, action: String, person_uid: String, review: 
 func _apply_bond(uid: String, action: String, person_uid: String, review: Dictionary) -> Dictionary:
 	var result: Dictionary = DragonBond.release(Game,uid,review) if action == "release" else DragonBond.bind(Game,uid,person_uid,review)
 	notice = String(result.get("reason",result.get("message","")))
-	if bool(result.get("ok",false)): Game.changed.emit(); Game.save_game_async()
+	if bool(result.get("ok",false)): Game.changed.emit(); Game.request_autosave()
 	_queue_refresh()
 	return result
 
@@ -931,7 +931,7 @@ func _apply_action(uid: String, action: String, recipient_uid: String, review: D
 	var result: Dictionary = Dragons.transfer(Game, uid, recipient_uid, review) if action == "transfer" else Dragons.set_custodian(Game, uid, recipient_uid, review)
 	if bool(result.get("ok", false)):
 		Game.changed.emit()
-		Game.save_game_async()
+		Game.request_autosave()
 	notice = String(result.get("reason", result.get("message", ""))); _refresh()
 	return result
 

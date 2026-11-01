@@ -713,7 +713,7 @@ func _on_center() -> void:
 	follow = true
 
 func _on_save() -> void:
-	Game.save_game_async()   # written by a worker thread (core/game.gd): no freeze on a Large world
+	Game.save_game_async()   # manual Save: always writes, ignoring the autosave interval
 	toast("Game saved.")
 
 ## Ambition toasts and the one-time victory screen; the first-visit guide.
