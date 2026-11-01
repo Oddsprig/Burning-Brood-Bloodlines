@@ -148,6 +148,11 @@ static func after_load(game) -> void:
 		for key: String in ["combat_unit_uid", "combat_last_care_day", "combat_last_receipt"]:
 			if row.has(key): row[key] = int(row[key])
 	for uid: Variant in state.get("combat_units", {}): sync_profile(game, str(uid))
+	if state.has("rider_bodies_day"): state["rider_bodies_day"] = int(state["rider_bodies_day"])
+	for row: Variant in state.get("rider_bodies", {}).values():
+		if row is Dictionary:
+			row["day"] = int(row.get("day", -1))
+			for a: Variant in row.get("attrs", {}): row["attrs"][a] = int(row["attrs"][a])
 	Unit._next_uid = maxi(Unit._next_uid, uid_floor(game))
 
 static func _enable_reason(game, row: Dictionary, unit: Unit) -> String:
@@ -239,6 +244,11 @@ static func battle_units(game) -> Array:
 ## prisoner records) rides as that Unit, so his wounds and death are his. Any other living rider rides as a battle
 ## body made from his register record (race, sex, age, name; no kit), kept for the rounds of this one battle in
 ## pending_battle["rider_bodies"]; it owns no campaign records and carries no loot.
+## r4 (QC 722eaab1): the battle body's physical state is his own. After the battle it is kept by his person uid in
+## the dragon registry (kept_bodies: wounds, lost parts, blood, pain, healing timers; saved with the world), his
+## next battle body is made with it, and it heals a day at a time like a dragon in care (heal_kept_bodies). It is
+## only a body: no register row, no Unit in any roster. If he is later bound to a Unit of his own, that Unit takes
+## the kept body (when it carries no wounds of its own) and the kept body is dropped (adopt_kept_body).
 static func battle_riders(game, units: Array) -> Dictionary:
 	var out := {}
 	for value: Variant in units:
@@ -250,6 +260,7 @@ static func battle_riders(game, units: Array) -> Dictionary:
 		if person.is_empty() or not bool(person.get("alive", false)): continue
 		var rider: Unit = Dynasty.bound_unit(game, person)
 		if rider != null:
+			adopt_kept_body(game, person_uid, rider)
 			if not rider.dead: out[str(value.uid)] = {"unit": rider, "detached": false}
 			continue
 		if not game.pending_battle.has("rider_bodies"): game.pending_battle["rider_bodies"] = {}
@@ -277,7 +288,80 @@ static func _rider_body(game, person: Dictionary, dragon: Unit) -> Unit:
 	u.family = int(person.get("family_id", -1))
 	u.role = "troop"
 	u.title = "dragon rider"
+	var kept: Variant = kept_bodies(game).get(str(person.get("person_uid", "")))
+	if kept is Dictionary and (kept as Dictionary).get("body") is Dictionary:
+		u.body = BodyState.from_dict((kept["body"] as Dictionary).duplicate(true))   # his body as the last battle left it
 	return u
+
+## {person uid: {"body": BodyState dict, "attrs": {attr: n}, "race": id, "day": last day healed}} (the dragon registry).
+static func kept_bodies(game) -> Dictionary:
+	var state: Dictionary = _registry(game)
+	if not game.world.has("dragons"): return {}
+	if not state.has("rider_bodies"): state["rider_bodies"] = {}
+	return state["rider_bodies"]
+
+static func _wounded(body: BodyState) -> bool:
+	return body != null and (not body.parts.is_empty() or body.blood < body.blood_max - 1e-9 or body.pain > 0.0)
+
+## After the battle (once per pending battle): each living battle-body rider's body is kept, or dropped when whole;
+## a dead one's is dropped (his death went through the register).
+static func keep_rider_bodies(game) -> void:
+	var pb: Dictionary = game.pending_battle
+	if bool(pb.get("rider_bodies_kept", false)): return
+	var bodies: Dictionary = pb.get("rider_bodies", {})
+	if bodies.is_empty(): return
+	pb["rider_bodies_kept"] = true
+	var kept := kept_bodies(game)
+	for person_uid: Variant in bodies:
+		var u: Variant = bodies[person_uid]
+		if not (u is Unit): continue
+		var alive: bool = not u.dead and not Dynasty._person(game, str(person_uid)).is_empty()
+		if alive: Healing.after_battle(u)   # bandaged as every other fighter is
+		if alive and _wounded(u.body):
+			kept[str(person_uid)] = {"body": u.body.to_dict(), "attrs": u.attrs.duplicate(), "race": u.race, "day": int(game.day)}
+		else:
+			kept.erase(str(person_uid))
+
+## One day's healing for every kept body (once a day, from the daily dragon care). A body healed whole, a person no
+## longer living, or one now bound to a Unit (who takes it) leaves the store.
+static func heal_kept_bodies(game, day: int) -> void:
+	var state: Dictionary = _registry(game)
+	var kept := kept_bodies(game)
+	if kept.is_empty() or day <= int(state.get("rider_bodies_day", day - 1)): return
+	state["rider_bodies_day"] = day
+	for person_uid: String in kept.keys():
+		var row: Dictionary = kept[person_uid]
+		var person := Dynasty.person(game, person_uid)
+		if person.is_empty() or not bool(person.get("alive", false)) or Dynasty._person(game, person_uid).is_empty():
+			kept.erase(person_uid)
+			continue
+		var bound: Unit = Dynasty.bound_unit(game, person)
+		if bound != null:
+			adopt_kept_body(game, person_uid, bound)
+			continue
+		if day <= int(row.get("day", -1)): continue
+		var u := Unit.new()   # (no uid minted: a frame for the healing rules only)
+		u.race = str(row.get("race", "human"))
+		for a: Variant in row.get("attrs", {}): u.attrs[str(a)] = int(row["attrs"][a])
+		u.body = BodyState.from_dict((row["body"] as Dictionary).duplicate(true))
+		Healing.heal(u, 1.0, true, 0)   # one actual day, never retrospective catch-up (as the dragon's care)
+		if _wounded(u.body):
+			row["body"] = u.body.to_dict()
+			row["day"] = day
+		else:
+			kept.erase(person_uid)
+
+## He now has a Unit of his own: it carries his kept wounds unless it already carries wounds of its own.
+static func adopt_kept_body(game, person_uid: String, unit: Unit) -> void:
+	var kept := kept_bodies(game)
+	if not kept.has(person_uid): return
+	var row: Dictionary = kept[person_uid]
+	kept.erase(person_uid)
+	if unit == null or unit.dead or _wounded(unit.body) or not (row.get("body") is Dictionary): return
+	var plan := unit.body.plan_id
+	unit.body = BodyState.from_dict((row["body"] as Dictionary).duplicate(true))
+	unit.body.plan_id = plan
+	Healing.update_heal_days(unit)
 
 ## Round battles: one record per dragon across the rounds (live damage adds up; a death or fall is kept).
 static func merge_seats(st: Dictionary, seats: Dictionary) -> void:
@@ -380,11 +464,16 @@ static func _rider_result(game, result: Dictionary, entry: Dictionary, dragon: U
 	if loc.is_empty(): return {} # The normal death path already retired this person.
 	var person := Dynasty.person(game, person_uid)
 	var rider: Unit = Dynasty.bound_unit(game, person)
+	# r4: a rider with no Unit of his own carries his wounds on his battle body (kept after the battle).
+	var carrier: Unit = rider
+	if carrier == null:
+		var bb: Variant = game.pending_battle.get("rider_bodies", {}).get(person_uid)
+		if bb is Unit: carrier = bb
 	# An existing combat death is never rolled/handled again. A deployed rider's death is the battle's own
 	# casualty; a rider who joined only on his dragon has no roster row, so his live death is settled here.
 	if rider != null and rider.dead and not (live_dead and joined and is_same(seat.get("unit"), rider)): return {}
 	var flying := bool(downs.get(dragon.dragon_uid, entry.get("flying", false)))
-	var outcome := rider_roll(battle_seed, dragon.dragon_uid, person_uid, downed, flying, damage, rider_protection(rider))
+	var outcome := rider_roll(battle_seed, dragon.dragon_uid, person_uid, downed, flying, damage, rider_protection(carrier))
 	if not downed and damage <= 0.0:
 		outcome["outcome"] = "unhurt"   # no fall and no saddle wound to roll: only the live fight below counts
 		outcome["wound_damage"] = 0.0
@@ -394,7 +483,7 @@ static func _rider_result(game, result: Dictionary, entry: Dictionary, dragon: U
 		live = "killed"
 	elif live_hurt and str(outcome["outcome"]) == "unhurt":
 		outcome["outcome"] = "wounded"
-		# A bound rider already carries these wounds natively on his own body; a battle body has nothing to carry.
+		# His live wounds are already on his body (his own Unit, or the battle body that is kept for him).
 		outcome["wound_damage"] = 0.0
 		live = "wounded"
 	outcome["live"] = live
@@ -416,11 +505,12 @@ static func _rider_result(game, result: Dictionary, entry: Dictionary, dragon: U
 			rider.dead = true
 			People.casualty(game, rider, "dead", str(p[4]))
 		else:
+			if carrier != null: carrier.dead = true   # (his battle body is not kept)
 			People.casualty_rec(game, str(person["town_id"]), int(person["family_id"]), str(person["name"]), "dead", str(p[4]), p)
 		Census._ctx = previous_context
 	elif fate == "wounded":
-		if float(outcome["wound_damage"]) > 0.0: _rider_wound(rider, float(outcome["wound_damage"]))
-		elif rider != null: Healing.update_heal_days(rider)   # v0.081: live wounds are already on his body
+		if float(outcome["wound_damage"]) > 0.0: _rider_wound(carrier, float(outcome["wound_damage"]))
+		elif carrier != null: Healing.update_heal_days(carrier)   # v0.081: live wounds are already on his body
 		Persons.log_life(p, float(game.day), "wound", str(outcome["text"]))
 		Families.add_hist(loc["family"], str(outcome["text"]), float(game.day))
 	var event := {"tick": int(result.get("ticks", 0)), "type": "rider_danger", "actor": idx, "target": -1,
@@ -433,6 +523,11 @@ static func _rider_result(game, result: Dictionary, entry: Dictionary, dragon: U
 	return outcome
 
 static func on_battle_result(game, result: Dictionary, receipt: Dictionary) -> Dictionary:
+	var out := _apply_battle_result(game, result, receipt)
+	keep_rider_bodies(game)   # r4: what the battle did to a battle-body rider is his (any receipt outcome)
+	return out
+
+static func _apply_battle_result(game, result: Dictionary, receipt: Dictionary) -> Dictionary:
 	var receipt_id: int = int(receipt.get("id", -1))
 	var done: Array = []; var rejected: Array = []
 	if receipt_id < 1: return {"applied": false, "units": done, "rejected": rejected}
@@ -472,6 +567,7 @@ static func on_battle_result(game, result: Dictionary, receipt: Dictionary) -> D
 	return {"applied": not done.is_empty(), "receipt": receipt_id, "units": done, "rejected": rejected, "riders": riders}
 
 static func on_care(game, uid: String, day: int) -> void:
+	heal_kept_bodies(game, day)   # r4: kept rider bodies heal once a day
 	var row: Dictionary = _record(game, uid); var unit: Unit = _unit(game, uid)
 	if unit == null or not is_dragon_unit(game, unit): return
 	if unit.dead or not bool(row.get("alive", false)): _mark_death(game, row, unit, "native body or care death"); return

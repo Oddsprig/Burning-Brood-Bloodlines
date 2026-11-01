@@ -87,6 +87,110 @@ func house_adult_without_unit(tid: String, house: String, skip: String) -> Strin
 			return uid
 	return ""
 
+## Persons in the house's family records (a kept body must never add one).
+func people_count() -> int:
+	var n := 0
+	for family in Game.world["towns"][town_id]["econ"]["fams"]:
+		n += (family.get("pp", []) as Array).size()
+	return n
+
+## One fixture battle on dragon d whose rider takes a native, nonfatal muscle wound in the saddle (the existing
+## _rider_wound path), settled through the real receipt. Returns the rider's Unit in that battle, or null.
+func wounded_battle(d: Unit, seed: int) -> Unit:
+	Game.pending_battle = {"seed": seed}
+	var receipt := DragonCombat.admission_receipt(Game, [d])
+	check(not receipt.is_empty(), "dragon %s is admitted for the wound battle (seed %d)" % [d.dragon_uid, seed])
+	var riders := DragonCombat.battle_riders(Game, [d])
+	var sim := BattleSim.new()
+	sim.setup([d], enemies(2, seed), seed, {"w": 8, "h": 5, "verbose": false, "history_events": 1, "combat_journal": false, "dragon_riders": riders})
+	var seat := seat_of(sim, d)
+	check(seat != null, "the rider is seated for the wound battle (seed %d)" % seed)
+	if seat == null: return null
+	DragonCombat._rider_wound(seat.unit, 0.35)
+	sim.step()
+	var result := result_of(sim)
+	DragonCombat.on_battle_result(Game, result, receipt)
+	return seat.unit
+
+func part_ids(u: Unit) -> Array:
+	if u == null or u.body == null: return []
+	var ids: Array = u.body.parts.keys()
+	ids.sort()
+	return ids
+
+func body_text(u: Unit) -> String:
+	return JSON.stringify(u.body.to_dict()) if u != null and u.body != null else ""
+
+func persistence_checks() -> void:
+	if person2_uid == "" or Dynasty._person(Game, person2_uid).is_empty() or rider == null or rider.dead:
+		check(false, "the persistence checks need the living kin rider and the living ruler")
+		return
+	reset_dragons()
+	DragonCombat.kept_bodies(Game).erase(person2_uid)   # (he starts this section whole)
+	var people0 := people_count()
+	# The battle-body rider.
+	var b1 := wounded_battle(dragon2, 814)
+	if b1 == null: return
+	check(not b1.dead and Dynasty.bound_unit(Game, Dynasty.person(Game, person2_uid)) == null, "the kin rider lived and still has no Unit of his own")
+	var hurt := DragonCombat.rider_damage(b1)
+	check(hurt > 0.0, "his battle body carries the wound (%.4f)" % hurt)
+	var kept: Dictionary = DragonCombat.kept_bodies(Game).get(person2_uid, {})
+	check(not kept.is_empty() and JSON.stringify(kept.get("body", {})) == body_text(b1), "his wounded body is kept by his person uid after the battle")
+	Game.pending_battle = {"seed": 815}
+	var b2: Unit = DragonCombat.battle_riders(Game, [dragon2]).get(str(dragon2.uid), {}).get("unit")
+	check(b2 != null and b2 != b1 and absf(DragonCombat.rider_damage(b2) - hurt) <= 1e-12 * maxf(1.0, hurt) and part_ids(b2) == part_ids(b1), "the next battle's body for him has the same wounds (%.6f vs %.6f)" % [DragonCombat.rider_damage(b2) if b2 != null else -1.0, hurt])
+	# The bound rider (the ruler, his own Unit).
+	var r1 := wounded_battle(dragon, 816)
+	check(r1 == rider and not rider.dead, "the ruler rode as his own Unit and lived")
+	var ruler_hurt := DragonCombat.rider_damage(rider)
+	var ruler_text := body_text(rider)
+	check(ruler_hurt > 0.0, "the ruler's own Unit carries the wound (%.4f)" % ruler_hurt)
+	Game.pending_battle = {"seed": 817}
+	var r2: Unit = DragonCombat.battle_riders(Game, [dragon]).get(str(dragon.uid), {}).get("unit")
+	check(r2 == rider and body_text(r2) == ruler_text, "the ruler's next battle has him with the same wounds")
+	check(not DragonCombat.kept_bodies(Game).has(person_uid), "a rider with his own Unit has no kept body (his Unit is his body)")
+	check(people_count() == people0, "no person was added for either rider (%d vs %d)" % [people_count(), people0])
+	# A real save and load (a fresh read of the save file).
+	Game.pending_battle = {}
+	var kin_text := body_text(b1)
+	Game.save_game()
+	Game.wait_save()
+	check(Game.load_game(), "the save with the wounded riders loads")
+	dragon = DragonCombat._unit(Game, dragon_uid)
+	dragon2 = DragonCombat._unit(Game, dragon2_uid)
+	rider = Dynasty.bound_unit(Game, Dynasty.person(Game, person_uid))
+	var kept_l: Dictionary = DragonCombat.kept_bodies(Game).get(person2_uid, {})
+	check(not kept_l.is_empty(), "the kin rider's kept body is in the loaded save")
+	Game.pending_battle = {"seed": 818}
+	var b3: Unit = DragonCombat.battle_riders(Game, [dragon2]).get(str(dragon2.uid), {}).get("unit") if dragon2 != null else null
+	check(b3 != null and absf(DragonCombat.rider_damage(b3) - hurt) <= 1e-9 * maxf(1.0, hurt), "after loading, his battle body has the same wounds (%.6f vs %.6f)" % [DragonCombat.rider_damage(b3) if b3 != null else -1.0, hurt])
+	var kin_parts: Array = (JSON.parse_string(kin_text).get("parts", {}) as Dictionary).keys()
+	kin_parts.sort()
+	check(b3 != null and part_ids(b3) == kin_parts and not kin_parts.is_empty(), "after loading, the same wounded parts (%s)" % str(kin_parts))
+	check(rider != null and absf(DragonCombat.rider_damage(rider) - ruler_hurt) <= 1e-9 * maxf(1.0, ruler_hurt), "after loading, the ruler's own Unit has the same wounds (%.6f vs %.6f)" % [DragonCombat.rider_damage(rider) if rider != null else -1.0, ruler_hurt])
+	check(people_count() == people0, "no person was added by the save and load")
+	# Time heals the kept body (one day of care), and a Unit he is later bound to takes it.
+	Game.pending_battle = {}
+	var day := int(Game.day) + 1
+	DragonCombat.heal_kept_bodies(Game, day)
+	var healed: Dictionary = DragonCombat.kept_bodies(Game).get(person2_uid, {})
+	var left := 0.0
+	if not healed.is_empty():
+		var frame := Unit.new()
+		frame.body = BodyState.from_dict((healed["body"] as Dictionary).duplicate(true))
+		left = DragonCombat.rider_damage(frame)
+	check(healed.is_empty() or left < hurt, "a day of care heals his kept body (%.6f -> %.6f)" % [hurt, left])
+	var healed_text := JSON.stringify(healed)
+	DragonCombat.heal_kept_bodies(Game, day)
+	check(JSON.stringify(DragonCombat.kept_bodies(Game).get(person2_uid, {})) == healed_text, "the same day heals once")
+	if not healed.is_empty():
+		var keep_copy: Dictionary = healed.duplicate(true)
+		var unit_now := Unit.create("human", "player")
+		DragonCombat.adopt_kept_body(Game, person2_uid, unit_now)
+		check(not DragonCombat.kept_bodies(Game).has(person2_uid) and absf(DragonCombat.rider_damage(unit_now) - left) <= 1e-9 * maxf(1.0, left), "a Unit he is bound to takes his kept wounds, and the kept body goes")
+		DragonCombat.kept_bodies(Game)[person2_uid] = keep_copy
+	reset_dragons()
+
 func run(tree: SceneTree) -> int:
 	var started := Time.get_ticks_msec()
 	if not await DevTools.start_world(tree, Game.SAVE_PATH):
@@ -220,6 +324,10 @@ func run(tree: SceneTree) -> int:
 					var loc := Dynasty._person(Game, person2_uid)
 					check(not loc.is_empty() and (loc["person"][Persons.HIST] as Array).any(func(event: Array): return str(event[1]) == "wound"), "the wound is in his life history")
 			check(Dynasty.bound_unit(Game, Dynasty.person(Game, person2_uid)) == null, "no campaign Unit was made for him")
+
+	# --- r4 (QC 722eaab1): a surviving rider's native wounds are his: they are on his body at the next battle and
+	# after a real save and load, for a battle-body rider and for a rider with his own Unit. Nothing heals them but time.
+	persistence_checks()
 
 	# --- A rider killed in the fight dies through the existing casualty path, once.
 	# (Last of the dragon sections: it removes the ruler, who owns both dragons.)
