@@ -191,7 +191,7 @@ func persistence_checks() -> void:
 		DragonCombat.kept_bodies(Game)[person2_uid] = keep_copy
 	# QC 0b156eb2: a newly bound Unit can already be wounded. Neither snapshot may erase the other.
 	var canonical := Unit.create("human", "player")
-	canonical.body.wound_part("l_hand")["severed"] = true
+	canonical.body.wound_part("hand_l")["severed"] = true
 	canonical.body.blood = canonical.body.blood_max * 0.8
 	canonical.body.permanent.append("old civilian hand loss")
 	var incoming := Unit.create("human", "player")
@@ -206,7 +206,7 @@ func persistence_checks() -> void:
 	incoming.body.pain = 7.0
 	DragonCombat.kept_bodies(Game)[person2_uid] = {"body": canonical.body.to_dict(), "race": "human", "day": int(Game.day)}
 	DragonCombat.adopt_kept_body(Game, person2_uid, incoming)
-	check(incoming.body.is_lost("l_hand") and incoming.body.permanent.has("old civilian hand loss"), "already-wounded adoption preserves the old civilian missing hand and permanent mark")
+	check(incoming.body.is_lost("hand_l") and incoming.body.permanent.has("old civilian hand loss"), "already-wounded adoption preserves the old civilian missing hand and permanent mark")
 	var joined_muscle := incoming.body.layers_of("torso_upper").filter(func(l: Dictionary): return str(l["tissue"]) == "muscle")
 	check(not joined_muscle.is_empty() and float(joined_muscle[0]["dmg"]) == 0.4 and float(joined_muscle[0]["bleed"]) == 0.125, "already-wounded adoption preserves the Unit's independent new cut and bleeding")
 	check(absf(incoming.body.blood / incoming.body.blood_max - 0.55) <= 1e-12 and incoming.body.pain >= 7.0, "adoption preserves the worse blood deficit and current pain")
@@ -220,12 +220,12 @@ func persistence_checks() -> void:
 	check(bool(enlisted.get("ok", false)), "the previously wounded civilian enlists through native service: %s" % str(enlisted.get("reason", "")))
 	if bool(enlisted.get("ok", false)):
 		var native: Unit = enlisted["unit"]
-		check(native.body.is_lost("l_hand") and native.body.parts.has("torso_upper") and not DragonCombat.kept_bodies(Game).has(person2_uid), "native enlistment immediately transfers both wounds, with no duplicate kept body")
+		check(native.body.is_lost("hand_l") and native.body.parts.has("torso_upper") and not DragonCombat.kept_bodies(Game).has(person2_uid), "native enlistment immediately transfers both wounds, with no duplicate kept body")
 		check(Dynasty.bound_unit(Game, Dynasty.person(Game, person2_uid)) == native and people_count() == people0, "native enlistment binds the same one person to the published Unit")
 		Game.save_game(); Game.wait_save()
 		check(Game.load_game(), "the natively enlisted wounded civilian's save loads")
 		var loaded: Unit = Dynasty.bound_unit(Game, Dynasty.person(Game, person2_uid))
-		check(loaded != null and loaded.body.is_lost("l_hand") and loaded.body.parts.has("torso_upper") and not DragonCombat.kept_bodies(Game).has(person2_uid), "save/load retains both injuries with one canonical body")
+		check(loaded != null and loaded.body.is_lost("hand_l") and loaded.body.parts.has("torso_upper") and not DragonCombat.kept_bodies(Game).has(person2_uid), "save/load retains both injuries with one canonical body")
 		var same_uid := 0
 		for unit: Unit in Game.company:
 			if loaded != null and unit.uid == loaded.uid: same_uid += 1
