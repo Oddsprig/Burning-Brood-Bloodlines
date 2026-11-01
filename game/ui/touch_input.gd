@@ -9,6 +9,7 @@ extends Node
 const DRAG_THRESHOLD := 12.0
 const LONG_PRESS_SEC := 0.5
 const WHEEL_FACTOR := 1.12
+const GROUP := "touch_input"   # v0.083: TouchScroll resets these when a finger starts scrolling a list instead
 
 var on_tap: Callable
 var on_pan: Callable
@@ -44,6 +45,7 @@ static func attach(host: Node, tap_cb: Callable, pan_cb: Callable, zoom_cb: Call
 	ctrl.on_zoom = zoom_cb
 	ctrl.on_long_press = long_press_cb
 	ctrl.pan_gesture_scale = pan_scale
+	ctrl.add_to_group(GROUP)
 	if host != null:
 		host.add_child(ctrl)
 	return ctrl
