@@ -358,6 +358,15 @@ static func klass(f: Dictionary) -> int:
 	f["cls"] = c
 	return c
 
+## The child register's fingerprint for the eaters cache: each child's id and birth day. v0.074: hashed as floats, so
+## a register read back from a save (where JSON made every number a float) has the same fingerprint as before; a
+## native hash of the records changed at every load and rebuilt every family's count with a new day stamp.
+static func kp_signature(kp: Array) -> int:
+	var a := PackedFloat64Array()
+	for p in kp:
+		a.append(float(p[0])); a.append(float(p[3]))
+	return hash(a)
+
 ## [eaters (meal shares), children 10-14, children under 10, elders]: under 10 eat 0.6, 10-14 eat 0.8 (ages scaled to
 ## the race: 10-14 of a human whose adulthood is 16). Children without records count as under 10.
 static func eaters(e: Dictionary, f: Dictionary, day: float, cache: bool = true) -> Array:
@@ -369,7 +378,7 @@ static func eaters(e: Dictionary, f: Dictionary, day: float, cache: bool = true)
 		var race := Persons.family_race(e, f)
 		# Native array hashing detects replacement/repair of a same-sized child register.
 		# Older saves lack this fingerprint and rebuild their derived count once.
-		var signature := hash(f.get("kp", []))
+		var signature := kp_signature(f.get("kp", []))
 		var counted := float(f.get("k1014_d", -99.0))
 		if f.has("k1014") and day >= counted and day - counted < 7.0 and day < float(f.get("k1014_next", -99.0)) and int(f.get("k1014_n", -1)) == kids and f.get("k1014_race", "") == race and int(f.get("k1014_sig", -1)) == signature:
 			k1014 = int(f["k1014"])

@@ -18,7 +18,9 @@ func begin(game) -> void:
 	data = {"version":1,"militia_cap":1,"seed":game.seed_value,"day":game.day,"gold":game.gold,"next_unit_uid":Unit._next_uid,
 		"company":[],"stash":[],"squads":game._keys_to_str(game.squads).duplicate(true),
 		"rep":game.rep.duplicate(true),"location":game.location,"provisions":Food.stock_to_save(game),
-		"rations":game.rations.duplicate(true),"food_clock":game.food_clock.duplicate(true)}
+		"rations":game.rations.duplicate(true),"food_clock":game.food_clock.duplicate(true),
+		"rng_state":str(game.rng.state),   # v0.074: a reload continues the same musters and battle seeds
+		"next_item_uid":Item._next_uid}   # v0.074: new pieces after a reload get the uids they would have had
 	# Preserve top-level field and native iteration order, including untagged roster records.
 	data["world"] = _container(game.world)
 	data["contract"] = _container(game.contract)

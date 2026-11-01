@@ -883,6 +883,10 @@ static func _recipe_units(e: Dictionary, D: Dictionary, b: Dictionary, best: Dic
 		var BB: Dictionary = Barge.B()["business"]
 		_bb_out = float(BB["out_share"]); _bb_margin = float(BB["run_margin"]); _bb_idle = float(BB["idle_cap"]); _bb_gap = float(BB["aim_gap"])
 	# (the margins and each maker's aim are worked out once a day for the town, after the day's prices: prep_day)
+	# v0.074: the recipe index is built here too. Only prep_day built it, so in a freshly started game the first town
+	# to make goods (before any town's prep_day) found no recipe["_bc"] and ran every recipe free of its margin and aim
+	# caps for that day: a reloaded game made more than the same game played on.
+	_recipe_index()
 	var rc: Array = best.get("_bc", [])
 	if not rc.is_empty():
 		var nmf: Array = e.get("_nomargin", [])

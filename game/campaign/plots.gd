@@ -107,7 +107,12 @@ static func _p(e: Dictionary) -> Dictionary:
 	if P.is_empty():
 		return P
 	if not (P["x"] is PackedInt32Array):
+		# v0.074: totals that were current when saved are rebuilt at once (int keys and counts, as in play), so the
+		# reloaded town holds what the saved one held.
+		var clean := not bool(P.get("dirty", true)) and P.has("tot")
 		_fix(P)
+		if clean:
+			totals(e)
 	return P
 
 ## After a load: JSON gives the columns back as Arrays of floats; pack them again and rebuild the totals.
@@ -125,6 +130,9 @@ static func _fix(P: Dictionary) -> void:
 		P[k] = int(P.get(k, -1 if k == "clear" else 0))
 	for b in P.get("bld", []):
 		b["p"] = int(b["p"])
+	var heads: Variant = P.get("heads")
+	if heads is Dictionary:
+		for k in heads: heads[k] = int(heads[k])   # (person ids)
 	P.erase("tot")
 	P["dirty"] = true
 
@@ -467,6 +475,7 @@ static func _add(P: Dictionary, cell: int, it: Array) -> int:
 # ================================================================== totals (cached on change)
 static func _dirty(P: Dictionary) -> void:
 	P["dirty"] = true
+	P.erase("tot")   # v0.074: stale totals are never read; dropped now as a load drops them, so play and reload agree
 
 ## {own_crop {fid: {crop: acres}}, crop {crop: acres}, use_ac [acres by use], use_n [plots by use], land (all farm
 ## acres), wood {dense, thin, felled, regrowing}: plots}. Rebuilt only after a change.

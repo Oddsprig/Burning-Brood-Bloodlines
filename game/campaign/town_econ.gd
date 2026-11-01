@@ -1502,6 +1502,7 @@ static func after_load(game) -> void:
 			migrate(w, t)
 		else:
 			_fix_ints(t["econ"])
+			Plots._p(t["econ"])   # v0.074: the plot columns packed again at load, not at their first use
 			BowsEcon.after_load(w, t)   # bows: bowyers/fletchers and the armory for older saves
 		# Older saves may retain farm employers after their land joined the town
 		# estate. Close only those obsolete hiring rows, retaining their books.
@@ -1509,7 +1510,7 @@ static func after_load(game) -> void:
 			if String(b["type"]) == "farm" and int(b["owner"]) < 0:
 				Businesses.town_inherits(b)
 		WageClaims.after_load(t["econ"])
-		HarvestClaims.after_load(t["econ"])
+		HarvestClaims.load_saved(t["econ"])   # v0.074: a sound book loads as saved; others get the shipped repair
 		t["econ"]["faction"] = String(t["faction"])
 		for f in t["econ"]["fams"]:   # register person records (older saves get them made from the rows)
 			if not f.has("pp"):
@@ -1592,6 +1593,11 @@ static func _fix_ints(e: Dictionary) -> void:
 		var ow: Array = f["owns"]
 		for i in ow.size():
 			ow[i] = int(ow[i])
+		# v0.074: the shops its own grown-ups keep are business ids like owns. Array.has is type-strict (6 is not
+		# 6.0), so loaded floats made Families.keeps_stale see every kept shop as unkept and re-run the turn.
+		var kp: Array = f.get("keeps", [])
+		for i in kp.size():
+			kp[i] = int(kp[i])
 		if f.has("cj"):   # economy spec 2 additions: casual work, rent, history events
 			for j in f["cj"]:
 				f["cj"][j] = int(f["cj"][j])
@@ -1604,9 +1610,12 @@ static func _fix_ints(e: Dictionary) -> void:
 		if f.has("lost"):
 			f["lost"]["year"] = int(f["lost"]["year"])
 	for b in e["biz"]:
+		# v0.074: a research house's skill is its staff's learning, a fraction (Academy); it was cut to a whole number
+		# at every load (1.0071 came back as 1).
+		var academy := String(b.get("type", "")) == "academy"
 		for k in _BIZ_INTS:
 			if b.has(k):
-				b[k] = int(b[k])
+				b[k] = float(b[k]) if academy and k == "skill" else int(b[k])
 	var ph: Array = e["stats"].get("pop_hist", [])
 	for i in ph.size():
 		ph[i] = int(ph[i])

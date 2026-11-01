@@ -661,6 +661,415 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE and ResourceLoader.has_cached("res://campaign/map_terrain.gd"):
 		load("res://campaign/map_terrain.gd").free_cache()   # the map layer's kept decor canvas items
 
+## v0.074 r6: Godot's full-precision JSON writer keeps 17 digits AFTER THE DECIMAL POINT, so a float below 0.1 lost
+## significant digits (0.006866860472420246 -> 0.00686686047242024; 3.98e-13 kept 3 digits) and a reload changed it.
+## The save text: every such float is swapped for a marker string, the tree goes through the writer, the live floats
+## are put back, and each marker becomes the float's own digits in exponent form ("6.866860472420246e-3", see
+## float_text), which the JSON reader reads back. Floats from 0.1 up keep the writer's own digits.
+## r7: a game text (a name, a key) may look like a marker. Every planted marker puts exactly one '"' + prefix into the
+## text, and a game text can only add more, so the text is used only when the count is exactly the number of markers
+## and each marker number turns up once. Otherwise the prefix is changed to one that appears nowhere in that text
+## (the game's texts are the same in every pass, only the markers change) and the tree is written again. A game text
+## is therefore never read as a marker.
+## r8 (v0.084 snapshots): one record can sit under two references in the save tree (SaveSnapshot reuses the record of
+## a Unit or Item met twice), and the writer writes it at each. The walk meets such a container again and finds its
+## own marker in the very slot it planted it, so that marker is expected once more; the count is per marker. The
+## writer runs on the save thread, so the powers of ten are a constant table, and a tree that never comes out clean
+## within _FMARK_PASSES writes fails the save (the old save stays) instead of looping.
+## r9: floats from 0.1 up. The writer prints their shortest digits (the correctly rounded 17 when its fast method gives
+## up), but the reader turns 16 or 17 digits above 2^53 into the mantissa double first, so about 1 float in 140 came
+## back a unit off (a fletcher's copper broadhead price at the same level over base as its wood arrows, 53.736691176034476
+## read as 53.73669117603448, won the recipe tie the live game kept for wood arrows), and some of them no digits
+## at all reach. Each float the reader may miss (_misread) is written as usual and also listed in the save's "__fx"
+## with its place in the tree and its 64 bits; load_game puts those bits back (restore_exact) before anything reads the
+## tree. Floats below 0.1 that cannot take a marker (in a typed or read-only container) are listed there too.
+const _FMARK := "~#f~"
+const _FX_KEY := "__fx"
+const _FMARK_PASSES := 64
+const _P10 := [1.0, 1.0e1, 1.0e2, 1.0e3, 1.0e4, 1.0e5, 1.0e6, 1.0e7, 1.0e8, 1.0e9, 1.0e10, 1.0e11, 1.0e12, 1.0e13,
+	1.0e14, 1.0e15, 1.0e16, 1.0e17, 1.0e18, 1.0e19, 1.0e20, 1.0e21, 1.0e22]
+
+static func save_text(d: Dictionary) -> String:
+	var prefix := _FMARK
+	var k := 0
+	for _pass in _FMARK_PASSES:
+		var marks: Array = []   # the swapped floats, by marker number
+		var undo: Array = []    # [container, key, live value], in swap order
+		var seat: Array = []    # by marker number: [container, key] that holds its marker text
+		var times: Array = []   # by marker number: how many times the writer writes it
+		var fx: Array = []      # r9: [place in the tree, low 32 bits, high 32 bits] of each float the reader may miss
+		_mark_small(d, marks, undo, prefix, seat, times, fx, [])
+		var had_fx := d.has(_FX_KEY)
+		var old_fx: Variant = d.get(_FX_KEY)
+		if not fx.is_empty():
+			d[_FX_KEY] = fx
+		var text := JSON.stringify(d, "", false, true)
+		if not fx.is_empty():
+			if had_fx: d[_FX_KEY] = old_fx
+			else: d.erase(_FX_KEY)
+		for i in range(undo.size() - 1, -1, -1):
+			var u: Array = undo[i]
+			u[0][u[1]] = u[2]
+		if marks.is_empty():
+			return text
+		var out := _unmark(text, prefix, marks, times)
+		if out != "":
+			return out
+		# A game text holds this prefix: take the first prefix that the written text does not contain at all.
+		k += 1
+		prefix = "~#f%d~" % k
+		while text.find("\"" + prefix) >= 0:
+			k += 1
+			prefix = "~#f%d~" % k
+	return ""
+
+## The text with each marker replaced by its float's digits, or "" when the markers in it are not exactly the planted
+## ones (each marker number as many times as the walk met its seat, nothing else beginning with the prefix).
+static func _unmark(text: String, prefix: String, marks: Array, times: Array) -> String:
+	var parts := text.split("\"" + prefix)
+	var expected := 0
+	for t in times:
+		expected += int(t)
+	if parts.size() - 1 != expected:
+		return ""
+	var seen := PackedInt32Array()
+	seen.resize(marks.size())
+	var out := PackedStringArray()
+	out.resize(parts.size())
+	out[0] = parts[0]
+	for i in range(1, parts.size()):
+		var p: String = parts[i]
+		var q := p.find("\"")
+		var n := p.substr(0, q) if q > 0 else ""
+		if not n.is_valid_int():
+			return ""
+		var j := n.to_int()
+		if j < 0 or j >= marks.size() or seen[j] >= int(times[j]) or str(j) != n:
+			return ""
+		seen[j] += 1
+		out[i] = float_text(float(marks[j])) + p.substr(q + 1)
+	return "".join(out)
+
+static func _small_float(v: float) -> bool:
+	return v != 0.0 and absf(v) < 0.1 and absf(v) > 1e-300
+
+## r9: may Godot's JSON reader turn the writer's digits of v (|v| >= 0.1) into another float? Whole numbers and any 15
+## digits or fewer read back exactly (digits under 2^53 and one correctly rounded division by an exact power of ten).
+## The writer's 16 or 17 digits are the correctly rounded ones, so the 17 (and the 16 when they name v) are worked out
+## exactly from v x 10^k as hi + lo (Dekker) and put through the reader's own arithmetic; a tie in the rounding is
+## counted as a miss. More is listed than is missed (in a 21 MB world 5645 floats for 3204 misses), never less.
+static func _misread(v: float) -> bool:
+	var a := absf(v)
+	if a > 0.0 and a < 0.1: return true   # below the marker floor too: never call _reader with a zero mantissa
+	if a < 9007199254740992.0 and a == floorf(a):
+		return false
+	if a >= 1.0e15 or not is_finite(a):
+		return is_finite(a)
+	var e := -1
+	if a >= 1.0:
+		e = 0
+		while a >= float(_P10[e + 1]):
+			e += 1
+	var k := 16 - e   # v x 10^k has 17 digits before the point
+	var p: float = _P10[k]
+	var hi := a * p
+	var lo := _two_prod_err(a, p, hi)
+	var h := int(hi)
+	var rl := roundf(lo)
+	if absf(lo - rl) == 0.5:
+		return true
+	if _reader(h + int(rl), k) != a:
+		return true
+	var t := float(h % 10) + lo   # the 16 digits: (h + lo) / 10, rounded
+	if t == 5.0 or t == -5.0 or t == 15.0:
+		return true
+	var m16 := h / 10 + (-1 if t < -5.0 else (2 if t > 15.0 else (1 if t > 5.0 else 0)))
+	if m16 < 9007199254740992:
+		return false   # (16 digits under 2^53 are read correctly rounded: v, or not v's digits at all)
+	if absf(float(m16 * 10 - h) - lo) > (_ulp(a) * p) * 0.5:
+		return false   # (16 digits do not name v: the writer wrote the 17)
+	return _reader(m16, k - 1) != a
+
+## The reader on digits m x 10^-n (m > 0, n from 0 to 22): trailing zeros dropped, then _read_back's arithmetic.
+static func _reader(m: int, n: int) -> float:
+	while m % 10 == 0:
+		m /= 10
+		n -= 1
+	var frac := 1.0e9 * float(m / 1000000000) + float(m % 1000000000)
+	return frac / float(_P10[n]) if n >= 0 else frac * float(_P10[-n])
+
+## One unit in the last place of a > 0 (finite, normal).
+static func _ulp(a: float) -> float:
+	var b := PackedByteArray()
+	b.resize(8)
+	b.encode_double(0, a)
+	b.encode_s64(0, b.decode_s64(0) + 1)
+	return b.decode_double(0) - a
+
+static func _fx_add(fx: Array, path: Array, key, v: float) -> void:
+	var b := PackedByteArray()
+	b.resize(8)
+	b.encode_double(0, v)
+	var at: Array = path.duplicate()
+	at.push_back(key)
+	fx.append([at, b.decode_u32(0), b.decode_u32(4)])
+
+## r9: a freshly parsed save tree gets back the exact floats its "__fx" list holds (and loses the list). A place that
+## is not there, or not a number within the writer's last digits of the listed float, is left as the reader made it.
+static func restore_exact(d: Dictionary) -> int:
+	var fx: Variant = d.get(_FX_KEY)
+	if not (fx is Array):
+		return 0
+	d.erase(_FX_KEY)
+	var b := PackedByteArray()
+	b.resize(8)
+	var done := 0
+	for row in fx:
+		if not (row is Array) or (row as Array).size() != 3 or not (row[0] is Array) or (row[0] as Array).is_empty():
+			continue
+		if not _fx_word(row[1]) or not _fx_word(row[2]): continue
+		var at: Array = row[0]
+		var c: Variant = d
+		for j in at.size() - 1:
+			c = _fx_child(c, at[j])
+			if typeof(c) == TYPE_NIL:
+				break
+		if typeof(c) == TYPE_NIL:
+			continue
+		b.encode_u32(0, int(row[1]))
+		b.encode_u32(4, int(row[2]))
+		var v := b.decode_double(0)
+		var last: Variant = at[at.size() - 1]
+		if c is Array:
+			if not _fx_index(last): continue
+			var i := int(last)
+			if i >= 0 and i < (c as Array).size() and _fx_near(c[i], v):
+				c[i] = v
+				done += 1
+		elif c is Dictionary:
+			var ks := _fx_key(last)
+			if (c as Dictionary).has(ks) and _fx_near(c[ks], v):
+				c[ks] = v
+				done += 1
+	return done
+
+static func _fx_child(c: Variant, key: Variant) -> Variant:
+	if c is Array:
+		if not _fx_index(key): return null
+		var i := int(key)
+		return c[i] if i >= 0 and i < (c as Array).size() and (c[i] is Dictionary or c[i] is Array) else null
+	if c is Dictionary:
+		var ks := _fx_key(key)
+		if (c as Dictionary).has(ks):
+			var x: Variant = c[ks]
+			return x if x is Dictionary or x is Array else null
+	return null
+
+## A dictionary key as the save text has it: a whole number (read back as a float) as its digits.
+static func _fx_key(key: Variant) -> String:
+	if key is float and is_finite(key) and float(key) == floorf(key) and absf(key) < 9007199254740992.0:
+		return str(int(key))
+	return str(key)
+
+static func _fx_word(x: Variant) -> bool:
+	return (x is int or x is float) and is_finite(float(x)) and float(x) >= 0.0 and float(x) <= 4294967295.0 and float(x) == floorf(float(x))
+
+static func _fx_index(x: Variant) -> bool:
+	return (x is int or x is float) and is_finite(float(x)) and float(x) >= 0.0 and float(x) < 2147483648.0 and float(x) == floorf(float(x))
+
+static func _fx_near(x: Variant, v: float) -> bool:
+	return is_finite(v) and (x is float or x is int) and is_finite(float(x)) and absf(float(x) - v) <= maxf(absf(v) * 1e-15, 1e-17)
+
+## path: the keys from the save's root down to c, as the live tree has them (restore_exact reads a number under a
+## dictionary as the writer's text of it).
+static func _mark_small(c, marks: Array, undo: Array, prefix: String, seat: Array, times: Array, fx: Array, path: Array) -> void:
+	# (a read-only container takes no marker: its floats go to the "__fx" list only)
+	if c is Dictionary:
+		var dc: Dictionary = c
+		var ro := dc.is_read_only()
+		for k in dc:
+			_mark_one(dc, k, dc[k], marks, undo, prefix, seat, times, fx, path, ro)
+	elif c is Array:
+		var ac: Array = c
+		var ro := ac.is_read_only()
+		for i in ac.size():
+			_mark_one(ac, i, ac[i], marks, undo, prefix, seat, times, fx, path, ro)
+
+static func _mark_one(c, k, v, marks: Array, undo: Array, prefix: String, seat: Array, times: Array, fx: Array, path: Array, frozen: bool) -> void:
+	match typeof(v):
+		TYPE_FLOAT:
+			if _small_float(v):
+				if frozen or (c is Dictionary and (c as Dictionary).is_typed()):
+					_fx_add(fx, path, k if c is Array else str(k), v)   # (a typed dictionary keeps the writer's digits)
+					return
+				if c is Array and (c as Array).is_typed():
+					return   # (a typed float list is swapped whole by its parent)
+				undo.append([c, k, v])
+				c[k] = prefix + str(marks.size())
+				seat.append([c, k])
+				times.append(1)
+				marks.append(v)
+			elif _misread(v):
+				_fx_add(fx, path, k if c is Array else str(k), v)
+		TYPE_STRING:
+			# A container under a second reference: the marker this walk planted in this very slot is written again.
+			# (A game text is never in a seat: the seat holds the marker.)
+			var s: String = v
+			if s.begins_with(prefix):
+				var n := s.substr(prefix.length())
+				if n.is_valid_int() and str(n.to_int()) == n:
+					var j := n.to_int()
+					if j >= 0 and j < seat.size() and is_same(seat[j][0], c) and typeof(seat[j][1]) == typeof(k) and seat[j][1] == k:
+						times[j] = int(times[j]) + 1
+		TYPE_DICTIONARY:
+			path.push_back(k)
+			_mark_small(v, marks, undo, prefix, seat, times, fx, path)
+			path.pop_back()
+		TYPE_ARRAY:
+			var a: Array = v
+			if a.is_typed() and a.get_typed_builtin() == TYPE_FLOAT:
+				_swap_list(c, k, a, marks, undo, prefix, seat, times, fx, path, frozen)
+			elif not a.is_typed() or a.get_typed_builtin() == TYPE_DICTIONARY or a.get_typed_builtin() == TYPE_ARRAY:
+				path.push_back(k)
+				_mark_small(a, marks, undo, prefix, seat, times, fx, path)
+				path.pop_back()
+		TYPE_PACKED_FLOAT64_ARRAY, TYPE_PACKED_FLOAT32_ARRAY:
+			_swap_list(c, k, v, marks, undo, prefix, seat, times, fx, path, frozen)
+
+## A float list that cannot hold a marker: written through a plain copy (it reads back as a plain list either way).
+## r9: its floats the reader may miss go to the "__fx" list (all of its small ones too when no copy can replace it).
+static func _swap_list(c, k, v, marks: Array, undo: Array, prefix: String, seat: Array, times: Array, fx: Array, path: Array, frozen: bool) -> void:
+	var any := false
+	var fixed := not (frozen or (c is Dictionary and (c as Dictionary).is_read_only()) or (c is Array and (c as Array).is_typed()))
+	var i := 0
+	for x in v:
+		var f := float(x)
+		if _small_float(f):
+			any = true
+			if not fixed:
+				path.push_back(k)
+				_fx_add(fx, path, i, f)
+				path.pop_back()
+		elif _misread(f):
+			path.push_back(k)
+			_fx_add(fx, path, i, f)
+			path.pop_back()
+		i += 1
+	if not any or not fixed:
+		return
+	var copy: Array = []
+	for x in v:
+		if _small_float(float(x)):
+			seat.append([copy, copy.size()])
+			times.append(1)
+			copy.append(prefix + str(marks.size()))
+			marks.append(float(x))
+		else:
+			copy.append(x)
+	undo.append([c, k, v])
+	c[k] = copy
+
+## A float in at most 18 significant digits, exponent form, from its own value: x * 10^p is carried as an exact
+## double-double (hi + lo, Dekker products by exact powers of ten), so the digits are the true ones. Of the candidate
+## texts the first that Godot's JSON reader turns back into this very float is written (_read_back does the reader's
+## own arithmetic): 15 or 16 digits over an exact power of ten (one correctly rounded division in any reader), then
+## the correctly rounded 17 and 18 digits, then neighbours on the reader's mantissa grid. A float none of them reaches
+## (about 2 in 100 below 0.1) is written as its correctly rounded 17 digits and reads back within one unit.
+const _READ_P10 := [10.0, 100.0, 1.0e4, 1.0e8, 1.0e16, 1.0e32, 1.0e64, 1.0e128, 1.0e256]
+
+static func float_text(x: float) -> String:
+	if x == 0.0 or not is_finite(x):
+		return JSON.stringify(x, "", false, true)
+	var a := absf(x)
+	var e := int(floor(log(a) / log(10.0)))
+	var fl := 0.0
+	var rest := 0.0
+	var d18 := 0
+	for _attempt in 4:
+		var hi := a
+		var lo := 0.0
+		var p := 17 - e   # a * 10^p has 18 digits before the point
+		while p > 0:
+			var step := mini(p, 22)
+			var b: float = _P10[step]
+			var prod := hi * b
+			var err := _two_prod_err(hi, b, prod) + lo * b
+			hi = prod + err
+			lo = err - (hi - prod)
+			p -= step
+		while p < 0:
+			var step := mini(-p, 22)
+			hi /= _P10[step]   # (not used below 0.1: there p is always above 0)
+			lo /= _P10[step]
+			p += step
+		fl = floorf(hi)
+		rest = (hi - fl) + lo
+		d18 = int(fl) + int(floorf(rest + 0.5))
+		if d18 >= 1000000000000000000:
+			e += 1
+		elif d18 < 100000000000000000:
+			e -= 1
+		else:
+			break
+	var whole := int(fl) + int(floorf(rest))   # the 18 digits, cut (not rounded)
+	var d17 := (whole + 5) / 10
+	var cands: Array = []   # [mantissa, its digits]
+	for nd in [15, 16]:
+		var cut: int = 10 ** (18 - nd)
+		cands.append([(whole + cut / 2) / cut, nd])
+	cands.append([d17, 17])
+	cands.append([d18, 18])
+	for c in [[d17, 17], [d18, 18]]:
+		var g := int(float(c[0]))   # the reader's mantissa double, then its neighbours
+		var st := 1
+		var top := 9007199254740992
+		while g >= top:
+			st *= 2
+			top *= 2
+		for j in [1, -1, 2, -2, 3, -3]:
+			cands.append([g + j * st, c[1]])
+	var best: Array = [d17, 17]
+	for c in cands:
+		var dn: int = c[0]
+		var nd: int = c[1]
+		if dn < 10 ** (nd - 1) or dn >= 10 ** nd:
+			continue
+		var m := dn
+		var z := 0
+		while m % 10 == 0:
+			m /= 10
+			z += 1
+		if _read_back(m, e - (nd - 1) + z) == a:
+			best = c
+			break
+	var s := str(best[0])
+	var tail := s.substr(1).rstrip("0")
+	return "%s%s%se%d" % ["-" if x < 0.0 else "", s.substr(0, 1), ("." + tail) if tail != "" else "", e]
+
+## What Godot's JSON reader makes of the digits m (at most 18, no trailing zeros) times 10^ex: the first 9 and the rest
+## as two whole numbers, then scaled by its table of powers of ten.
+static func _read_back(m: int, ex: int) -> float:
+	var frac := 1.0e9 * float(m / 1000000000) + float(m % 1000000000)
+	var n := mini(absi(ex), 511)
+	var d := 1.0
+	var i := 0
+	while n != 0:
+		if n & 1:
+			d *= _READ_P10[i]
+		n >>= 1
+		i += 1
+	return frac / d if ex < 0 else frac * d
+
+## The rounding error of prod = a * b (Veltkamp split): a * b == prod + the result, exactly.
+static func _two_prod_err(a: float, b: float, prod: float) -> float:
+	var ca := 134217729.0 * a
+	var ah := ca - (ca - a)
+	var al := a - ah
+	var cb := 134217729.0 * b
+	var bh := cb - (cb - b)
+	var bl := b - bh
+	return ((ah * bh - prod) + ah * bl + al * bh) + al * bl
+
 ## Written to a side file first, then moved over the save: a crash mid-write leaves the old save whole.
 static func _write_save(path: String, d: Dictionary) -> Dictionary:
 	var tmp := path + ".tmp"
@@ -670,8 +1079,16 @@ static func _write_save(path: String, d: Dictionary) -> Dictionary:
 		result["error"] = FileAccess.get_open_error()
 		return result
 	var started := Time.get_ticks_usec()
-	var text := JSON.stringify(d)
+	# v0.074: every float in full (the default writer kept 15 digits, so a reload moved values in their last bits)
+	# and keys in their live order (a sorted file reloaded every dictionary in another iteration order).
+	var text := save_text(d)
 	result["encode_us"] = Time.get_ticks_usec()-started
+	if text == "":   # r8: the float codec found no clean prefix; keep the old save rather than write a wrong one
+		f.close()
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(tmp))
+		result["error"] = ERR_INVALID_DATA
+		result["stage"] = "encode"
+		return result
 	started = Time.get_ticks_usec()
 	f.store_string(text)
 	text = ""
@@ -709,6 +1126,8 @@ func load_game() -> bool:
 	var d = JSON.parse_string(FileAccess.get_file_as_string(SAVE_PATH))
 	if d == null:
 		return false
+	if d is Dictionary:
+		restore_exact(d)   # r9: the floats the JSON reader would have read a unit off
 	_save_epoch += 1
 	_save_ready = true
 	_save_pending = false
@@ -716,7 +1135,12 @@ func load_game() -> bool:
 	_release_result_history()
 	pending_battle = {}; last_result = {}
 	Unit._next_uid = maxi(1, int(d.get("next_unit_uid", 1)))
+	# v0.074: the piece counter is the saved one, not this process's (Item.from_dict still lifts it over every
+	# loaded uid; a save from before v0.074 starts it there).
+	Item._next_uid = maxi(1, int(d.get("next_item_uid", 1)))
 	seed_value = int(d.get("seed", 0)); rng.seed = seed_value
+	var rng_state := str(d.get("rng_state", ""))   # v0.074: older saves restart the stream from the seed
+	if rng_state.is_valid_int(): rng.state = rng_state.to_int()
 	day = d.get("day", 0.0); gold = int(d.get("gold", 0))
 	company = d.get("company", []).map(func(x): return Unit.from_dict(x))
 	if gold < 0:
@@ -755,7 +1179,7 @@ func load_game() -> bool:
 	if Wl != null and Wl.has_method("after_load"):
 		Wl.after_load(self)   # JSON floats -> ints for world fields
 	if legacy_militia:
-		var released := Militia.trim_all(self, false)   # older saves: oversized town reserves return to civilian life
+		var released := Militia.trim_all(self)   # older saves: oversized town reserves return to civilian life
 		if released > 0: print("load: %d surplus reservists returned to their households" % released)
 	if world.has("dragons"): DragonArt.warm(Dragons.records(self))
 	changed.emit()
