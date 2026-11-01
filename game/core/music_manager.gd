@@ -101,6 +101,9 @@ var _last_pos: float = 0.0
 var _stream_cache: Dictionary = {}
 var _queue_by_scene: Dictionary = {}
 var _last_track_by_scene: Dictionary = {}
+var _last_battle_pb: Dictionary = {}
+var _last_battle_side0: Array = []
+var _last_battle_side1: Array = []
 var _rng := RandomNumberGenerator.new()
 
 func _ready() -> void:
@@ -194,7 +197,7 @@ func tracks_for_scene(scene_name: String) -> Array:
 
 func battle_scene_for(params: Dictionary = {}, side0: Array = [], side1: Array = []) -> String:
 	var pb := params
-	if pb.is_empty() and Game != null:
+	if pb.is_empty() and side0.is_empty() and side1.is_empty() and Game != null:
 		pb = Game.pending_battle
 	var assault: Dictionary = pb.get("assault", {}) if pb.get("assault") is Dictionary else {}
 	var kind := str(assault.get("kind", pb.get("kind", ""))).to_lower()
@@ -207,33 +210,89 @@ func battle_scene_for(params: Dictionary = {}, side0: Array = [], side1: Array =
 func has_dragon_in_battle(pb: Dictionary = {}, side0: Array = [], side1: Array = []) -> bool:
 	if bool(pb.get("dragon_attack", false)):
 		return true
-	var d_units = pb.get("dragon_units", [])
-	if d_units is Array and not (d_units as Array).is_empty():
-		return true
-	for group in [side0, side1, pb.get("side0", []), pb.get("side1", [])]:
+	var groups: Array = [
+		side0,
+		side1,
+		pb.get("dragon_units", []),
+		pb.get("enemy", []),
+		pb.get("allies", []),
+		pb.get("round_side0", []),
+		pb.get("round_side1", []),
+		pb.get("side0", []),
+		pb.get("side1", []),
+	]
+	var rounds_val = pb.get("rounds", {})
+	if rounds_val is Dictionary:
+		var rounds_dict: Dictionary = rounds_val
+		var pool = rounds_dict.get("pool", [])
+		if pool is Array:
+			for sub in pool:
+				if sub is Array:
+					groups.append(sub)
+		var last_fought = rounds_dict.get("last_fought", [])
+		if last_fought is Array:
+			for sub in last_fought:
+				if sub is Array:
+					groups.append(sub)
+	var adm_val = pb.get("dragon_admission", {})
+	if adm_val is Dictionary:
+		var adm_units = (adm_val as Dictionary).get("units", [])
+		if adm_units is Array:
+			groups.append(adm_units)
+	if side0.is_empty() and Game != null and not pb.is_empty() and (is_same(pb, Game.pending_battle) or pb == Game.pending_battle):
+		groups.append(Game.deployed_units())
+	for group in groups:
 		if not (group is Array):
 			continue
 		for u in group:
-			if u == null:
-				continue
-			if u is Dictionary:
-				if str(u.get("type_id", "")) == "dragon" or not (u.get("dragon", {}) as Dictionary).is_empty():
-					return true
-			elif u is Object:
-				if str(u.get("type_id")) == "dragon":
-					return true
-				var d = u.get("dragon")
-				if d is Dictionary and not (d as Dictionary).is_empty():
-					return true
+			if _is_dragon_combatant(u):
+				return true
+	return false
+
+func _is_dragon_combatant(u: Variant) -> bool:
+	if u == null:
+		return false
+	if u is Unit:
+		if u.is_native_dragon():
+			return true
+		if Game != null and DragonCombat.is_dragon_unit(Game, u):
+			return true
+		return u.dragon_uid != "" and bool(u.native_dragon_profile.get("active", false))
+	if u is Object:
+		if u.has_method("is_native_dragon") and bool(u.call("is_native_dragon")):
+			return true
+		var duid := str(u.get("dragon_uid")) if u.get("dragon_uid") != null else ""
+		var prof = u.get("native_dragon_profile")
+		if duid != "" and prof is Dictionary and bool((prof as Dictionary).get("active", false)):
+			return true
+		return false
+	if u is Dictionary:
+		var d: Dictionary = u
+		var prof = d.get("native_dragon_profile", {})
+		if str(d.get("dragon_uid", "")) != "":
+			if not (prof is Dictionary) or (prof as Dictionary).is_empty() or bool((prof as Dictionary).get("active", false)):
+				return true
+		if prof is Dictionary and bool((prof as Dictionary).get("active", false)) and float((prof as Dictionary).get("body_mass_kg", 0.0)) > 0.0:
+			return true
 	return false
 
 func play_battle(params: Dictionary = {}, side0: Array = [], side1: Array = []) -> void:
-	play_scene(battle_scene_for(params, side0, side1))
+	var pb := params
+	if pb.is_empty() and side0.is_empty() and side1.is_empty() and Game != null:
+		pb = Game.pending_battle
+	_last_battle_pb = pb
+	_last_battle_side0 = side0.duplicate()
+	_last_battle_side1 = side1.duplicate()
+	play_scene(battle_scene_for(pb, side0, side1))
 
 func play_scene(scene_name: String, force: bool = false) -> void:
 	var canonical := normalize_scene(scene_name)
 	if canonical == "" or not SCENE_TRACKS.has(canonical):
 		return
+	if canonical not in ["battle", "dragon_attack", "siege"]:
+		_last_battle_pb = {}
+		_last_battle_side0 = []
+		_last_battle_side1 = []
 	var cur := active_player()
 	if not force and canonical == current_scene and cur != null and cur.playing and cur.stream != null:
 		return
@@ -333,7 +392,11 @@ func _on_screen_changed(screen: String) -> void:
 	if screen == "settings" or screen == "res://ui/settings.tscn":
 		return
 	if screen == "battle" or screen == "res://battle/battle.tscn":
-		play_battle(Game.pending_battle if Game != null else {})
+		var pb: Dictionary = Game.pending_battle if Game != null else {}
+		if (pb.is_empty() or is_same(pb, _last_battle_pb) or pb == _last_battle_pb) and (not _last_battle_side0.is_empty() or not _last_battle_side1.is_empty()):
+			play_battle(_last_battle_pb if pb.is_empty() else pb, _last_battle_side0, _last_battle_side1)
+		else:
+			play_battle(pb)
 		return
 	var target := normalize_scene(screen)
 	if target != "":

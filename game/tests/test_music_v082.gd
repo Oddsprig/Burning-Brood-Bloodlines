@@ -12,6 +12,7 @@ func _check(cond: bool, msg: String) -> void:
 func run(tree: SceneTree) -> int:
 	_fails = 0
 	var orig_vol := float(Game.setting("music_volume"))
+	MusicManager.set_volume(0.0)
 
 	# 1. Verify "Music" bus and all 11 converted OGG tracks + .import loop=true
 	var bus_idx := AudioServer.get_bus_index("Music")
@@ -80,13 +81,104 @@ func run(tree: SceneTree) -> int:
 	MusicManager.play_scene("dragon attack", true)
 	_check(MusicManager.get_current_scene() == "dragon_attack", "'dragon attack' normalizes to 'dragon_attack'")
 
-	# Battle variant detection: regular battle vs siege vs dragon attack
-	MusicManager.play_battle({"assault": {"kind": "raid"}})
-	_check(MusicManager.get_current_scene() == "battle" and MusicManager.get_current_track() == "res://audio/clash_of_iron.ogg", "raid/field battle maps to clash_of_iron.ogg")
-	MusicManager.play_battle({"assault": {"kind": "siege"}})
-	_check(MusicManager.get_current_scene() == "siege" and MusicManager.get_current_track() == "res://audio/relentless_siege.ogg", "siege battle maps to relentless_siege.ogg")
-	MusicManager.play_battle({"dragon_units": [{"type_id": "dragon"}]})
-	_check(MusicManager.get_current_scene() == "dragon_attack" and MusicManager.get_current_track() == "res://audio/iron_wings_descending.ogg", "dragon battle maps to iron_wings_descending.ogg")
+	# Battle variant detection: regular battle vs siege vs real native dragon Unit on each side + screen_changed sequence
+	var saved_state := {
+		"world": Game.world,
+		"company": Game.company,
+		"squads": Game.squads,
+		"day": Game.day,
+		"gold": Game.gold,
+		"location": Game.location,
+		"pending_battle": Game.pending_battle,
+		"last_result": Game.last_result,
+		"rng_state": Game.rng.state,
+		"unit_next": Unit._next_uid,
+		"item_next": Item._next_uid,
+	}
+	var native_fix: RefCounted = preload("res://tests/test_dragon_identities.gd").new()
+	native_fix.fixture()
+	Dragons.init_world(Game)
+	DragonCombat.prepare_world(Game)
+	var real_dragons: Array = []
+	var c_units: Dictionary = Game.world.get("dragons", {}).get("combat_units", {})
+	var d_keys: Array = c_units.keys()
+	d_keys.sort()
+	for dk in d_keys:
+		var du = c_units[dk]
+		if du is Unit and (du as Unit).is_native_dragon():
+			real_dragons.append(du)
+	_check(real_dragons.size() >= 2, "dragon fixture prepared at least 2 real native dragon Units")
+	var dragon_side0: Unit = real_dragons[0] if real_dragons.size() > 0 else Unit.create("dragon", "", false)
+	var dragon_side1: Unit = real_dragons[1] if real_dragons.size() > 1 else dragon_side0
+	var human_0: Unit = Unit.create("human", "middle_kingdom")
+	var human_1: Unit = Unit.create("human", "northern_clans")
+
+	_check(dragon_side0.is_native_dragon() and DragonCombat.is_dragon_unit(Game, dragon_side0), "dragon_side0 is a canonical native dragon Unit")
+	_check(dragon_side1.is_native_dragon() and DragonCombat.is_dragon_unit(Game, dragon_side1), "dragon_side1 is a canonical native dragon Unit")
+	_check(dragon_side0.get("type_id") == null and dragon_side0.get("dragon") == null, "real native dragon Unit has no type_id or dragon property")
+	_check(not human_0.is_native_dragon() and not human_1.is_native_dragon(), "humanoid Units are not native dragons")
+	_check(AudioServer.is_bus_mute(bus_idx), "'Music' bus is muted during silent classification checks")
+
+	# Pure classification with real native Units on side0, side1, and pending_battle arrays
+	_check(not MusicManager.has_dragon_in_battle({}, [human_0], [human_1]), "has_dragon_in_battle is false for humanoid Units on both sides")
+	_check(MusicManager.battle_scene_for({}, [human_0], [human_1]) == "battle", "battle_scene_for returns 'battle' for humanoid sides")
+	_check(MusicManager.has_dragon_in_battle({}, [dragon_side0], [human_1]), "has_dragon_in_battle recognises real native dragon Unit on side0")
+	_check(MusicManager.battle_scene_for({}, [dragon_side0], [human_1]) == "dragon_attack", "battle_scene_for({}, [dragon_side0], [human_1]) returns 'dragon_attack'")
+	_check(MusicManager.has_dragon_in_battle({}, [human_0], [dragon_side1]), "has_dragon_in_battle recognises real native dragon Unit on side1")
+	_check(MusicManager.battle_scene_for({}, [human_0], [dragon_side1]) == "dragon_attack", "battle_scene_for({}, [human_0], [dragon_side1]) returns 'dragon_attack'")
+	_check(MusicManager.has_dragon_in_battle({"enemy": [dragon_side1]}), "has_dragon_in_battle recognises real native dragon Unit in pb.enemy")
+	_check(MusicManager.battle_scene_for({"enemy": [dragon_side1]}) == "dragon_attack", "battle_scene_for({'enemy': [dragon_side1]}) returns 'dragon_attack'")
+	_check(MusicManager.has_dragon_in_battle({"allies": [dragon_side0], "enemy": [human_1]}), "has_dragon_in_battle recognises real native dragon Unit in pb.allies")
+	_check(MusicManager.has_dragon_in_battle({"round_side0": [dragon_side0], "enemy": [human_1]}), "has_dragon_in_battle recognises real native dragon Unit in pb.round_side0")
+	_check(MusicManager.has_dragon_in_battle({"rounds": {"pool": [[human_0], [dragon_side1]]}}), "has_dragon_in_battle recognises real native dragon Unit in pb.rounds.pool")
+	_check(MusicManager.has_dragon_in_battle({"dragon_units": [dragon_side0]}), "has_dragon_in_battle recognises real native dragon Unit in pb.dragon_units")
+	_check(not MusicManager.has_dragon_in_battle({"dragon_units": [human_0], "enemy": [human_1]}), "non-dragon Unit in pb.dragon_units does not trigger dragon_attack")
+
+	# Full battle._ready() -> Game.goto("battle") screen_changed signal sequence (enemy dragon in pb.enemy / side1)
+	MusicManager.play_scene("campaign_map", true)
+	Game.pending_battle = {"enemy": [dragon_side1], "allies": [], "terrain": "plains"}
+	MusicManager.play_battle(Game.pending_battle, [human_0], [dragon_side1])
+	_check(MusicManager.get_current_scene() == "dragon_attack" and MusicManager.get_current_track() == "res://audio/iron_wings_descending.ogg", "battle._ready play_battle selects dragon_attack for enemy native dragon Unit")
+	Game.screen_changed.emit("battle")
+	_check(MusicManager.get_current_scene() == "dragon_attack" and MusicManager.get_current_track() == "res://audio/iron_wings_descending.ogg", "subsequent screen_changed('battle') preserves dragon_attack cue for enemy dragon in pb.enemy")
+
+	# Full battle._ready() -> Game.goto("battle") screen_changed signal sequence (player/ally dragon on side0)
+	MusicManager.play_scene("campaign_map", true)
+	Game.pending_battle = {"enemy": [human_1], "allies": [], "dragon_units": [dragon_side0], "terrain": "plains"}
+	MusicManager.play_battle(Game.pending_battle, [human_0, dragon_side0], [human_1])
+	Game.screen_changed.emit("battle")
+	_check(MusicManager.get_current_scene() == "dragon_attack" and MusicManager.get_current_track() == "res://audio/iron_wings_descending.ogg", "subsequent screen_changed('battle') preserves dragon_attack cue for player side0 native dragon Unit")
+
+	# Full battle._ready() -> Game.goto("battle") screen_changed signal sequence when dragon was passed only via side0
+	MusicManager.play_scene("campaign_map", true)
+	Game.pending_battle = {"enemy": [human_1], "allies": [], "terrain": "plains"}
+	MusicManager.play_battle(Game.pending_battle, [dragon_side0], [human_1])
+	Game.screen_changed.emit("battle")
+	_check(MusicManager.get_current_scene() == "dragon_attack" and MusicManager.get_current_track() == "res://audio/iron_wings_descending.ogg", "screen_changed('battle') retains side0 dragon cue determined in battle._ready")
+
+	# Subsequent regular field battle with humanoid Units on both sides + screen_changed('battle')
+	Game.pending_battle = {"assault": {"kind": "raid"}, "enemy": [human_1], "allies": []}
+	MusicManager.play_battle(Game.pending_battle, [human_0], [human_1])
+	Game.screen_changed.emit("battle")
+	_check(MusicManager.get_current_scene() == "battle" and MusicManager.get_current_track() == "res://audio/clash_of_iron.ogg", "raid/field battle with humanoid Units maps to clash_of_iron.ogg across screen_changed('battle')")
+
+	# Siege battle through play_battle + screen_changed('battle')
+	Game.pending_battle = {"assault": {"kind": "siege"}, "enemy": [human_1], "allies": []}
+	MusicManager.play_battle(Game.pending_battle, [human_0], [human_1])
+	Game.screen_changed.emit("battle")
+	_check(MusicManager.get_current_scene() == "siege" and MusicManager.get_current_track() == "res://audio/relentless_siege.ogg", "siege battle maps to relentless_siege.ogg across screen_changed('battle')")
+
+	Game.world = saved_state["world"]
+	Game.company = saved_state["company"]
+	Game.squads = saved_state["squads"]
+	Game.day = saved_state["day"]
+	Game.gold = saved_state["gold"]
+	Game.location = saved_state["location"]
+	Game.pending_battle = saved_state["pending_battle"]
+	Game.last_result = saved_state["last_result"]
+	Game.rng.state = saved_state["rng_state"]
+	Unit._next_uid = saved_state["unit_next"]
+	Item._next_uid = saved_state["item_next"]
 
 	# Screen aliases (title -> menu, map/town -> campaign_map, house/politics -> court, gameover -> defeat, aftermath -> victory/defeat)
 	MusicManager._on_screen_changed("title")
@@ -166,6 +258,7 @@ func run(tree: SceneTree) -> int:
 	_check(not old_player.playing and absf(old_player.volume_db - (-80.0)) < 0.05, "outgoing player stops at -80 dB after crossfade")
 
 	# 6. Settings HSlider + volume save/load + "Music" bus mute at 0
+	Game.set_setting("music_volume", 0.5)
 	var settings_scene: Control = load("res://ui/settings.tscn").instantiate()
 	settings_scene.overlay = true
 	tree.root.add_child(settings_scene)
