@@ -212,15 +212,15 @@ func to_dict() -> Dictionary:
 	for s in equip:
 		eq[s] = (equip[s] as Item).to_dict()
 	var out: Dictionary = {"uid": uid, "name": name, "race": race, "faction": faction, "role": role, "title": title,
-		"squad": squad, "attrs": attrs.duplicate(), "attr_xp": attr_xp.duplicate(), "attr_base": attr_base.duplicate(), "attr_cap": attr_cap.duplicate(), "talent": talent.duplicate(), "personality": personality.duplicate(), "size_h": size_h, "size_b": size_b, "arm_len": arm_len, "leg_len": leg_len, "skills": skills.duplicate(),
-		"skill_xp": skill_xp.duplicate(), "equip": eq, "overrides": overrides.duplicate(),
-		"body": body.to_dict(), "dead": dead, "kills": kills, "battles": battles, "look": look.duplicate(), "wage": wage, "backstory": backstory, "hire_cost": hire_cost, "home_town": home_town, "sex": sex, "family": family, "unpaid_days": unpaid_days, "last_pay": last_pay, "born": born, "rank": rank, "renown": renown, "notable": notable.duplicate(true),
-		"mind": mind.duplicate(), "values": values.duplicate(), "ambition": ambition, "needs": needs.duplicate(),
+		"squad": squad, "attrs": attrs.duplicate(true), "attr_xp": attr_xp.duplicate(true), "attr_base": attr_base.duplicate(true), "attr_cap": attr_cap.duplicate(true), "talent": talent.duplicate(true), "personality": personality.duplicate(true), "size_h": size_h, "size_b": size_b, "arm_len": arm_len, "leg_len": leg_len, "skills": skills.duplicate(true),
+		"skill_xp": skill_xp.duplicate(true), "equip": eq, "overrides": overrides.duplicate(true),
+		"body": body.to_dict(), "dead": dead, "kills": kills, "battles": battles, "look": look.duplicate(true), "wage": wage, "backstory": backstory, "hire_cost": hire_cost, "home_town": home_town, "sex": sex, "family": family, "unpaid_days": unpaid_days, "last_pay": last_pay, "born": born, "rank": rank, "renown": renown, "notable": notable.duplicate(true),
+		"mind": mind.duplicate(true), "values": values.duplicate(true), "ambition": ambition, "needs": needs.duplicate(true),
 		"stress": stress, "hardness": hardness, "pref_weapon": pref_weapon, "pref_material": pref_material, "age": age,
-		"kill_list": kill_list.duplicate(), "skill_idle": skill_idle.duplicate(),
+		"kill_list": kill_list.duplicate(true), "skill_idle": skill_idle.duplicate(true),
 		"belly": belly, "buzz": buzz, "hungover": hungover, "drink_days": drink_days, "drank_today": drank_today,
 		"drank_eq": drank_eq, "fav_drink": fav_drink, "fav_today": fav_today, "fav_bonus": fav_bonus,
-		"mass_mult": mass_mult, "merry_day": merry_day, "quiver": quiver.duplicate(),
+		"mass_mult": mass_mult, "merry_day": merry_day, "quiver": quiver.duplicate(true),
 		"sick": sick, "sick_shed": sick_shed, "sick_on": sick_on, "sick_to": sick_to, "sick_bed": sick_bed}
 	if horse != null:
 		out["horse"] = horse.to_dict()

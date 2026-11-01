@@ -410,6 +410,17 @@ static func emblem(fid: String, c: Vector2) -> void:
 			shape(xf(cr, c, 1.0), BONE, e)
 			fill(circ(c + Vector2(-3.4, 2.8), 1.7), INK)
 			fill(circ(c + Vector2(3.4, 2.8), 1.7), INK)
+		"sun_court":   # a sun disc and eight rays
+			fill(circ(c, 4.2), BONE)
+			for i in 8:
+				var a := -PI / 2.0 + i * PI / 4.0
+				var dir := Vector2(cos(a), sin(a))
+				oline(PackedVector2Array([c + dir * 5.4, c + dir * 8.6]), 1.3, BONE, e)
+		"night_court":   # a crescent opening the other way from the Silvered Court
+			var nc := c + Vector2(1.2, 0.2)
+			var ncut := nc + Vector2(-3.4, 1.6)
+			fill(circ(nc, 8.0), INK, null, circ(ncut, 5.6))
+			fill(circ(nc, 7.2), BONE, null, circ(ncut, 6.4))
 		"moon_court":   # crescent moon and a small star dot
 			var mc := c + Vector2(-1.5, 0.5)
 			var cut_c := mc + Vector2(3.6, -2.2)

@@ -217,8 +217,8 @@ static func _build() -> Theme:
 	t.set_stylebox("panel", "Inset", sb(PARCH_2, PARCH_3.darkened(0.15), 2, 6, 10, 8))
 	_variation(t, "Bar", "PanelContainer")
 	t.set_stylebox("panel", "Bar", sb(WOOD_2, WOOD, 0, 0, 16, 8))
-	# Scrollbars: thick for thumbs
-	var sb_pad := 9 if is_mobile() else 7
+	# Scrollbars: phones scroll by dragging the list itself (v0.083 TouchScroll), so their bar is a slim 6 px marker
+	var sb_pad := 3 if is_mobile() else 7
 	for sbt in ["VScrollBar", "HScrollBar"]:
 		t.set_stylebox("scroll", sbt, sb(Color(0, 0, 0, 0.12), Color(0, 0, 0, 0), 0, 6, sb_pad, sb_pad))
 		t.set_stylebox("grabber", sbt, sb(COPPER, COPPER_LO, 1, 6, sb_pad, sb_pad))
