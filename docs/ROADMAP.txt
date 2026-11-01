@@ -1,5 +1,5 @@
 BURNING BROOD: BLOODLINES - ACTIVE VERSION MAP
-Updated: 2026-10-18 | v0.020/v0.021/v0.022 delivered; v0.023-v0.027 DELIVERED (Claude Edition); next planned v0.028.
+Updated: 2026-11-01 | v0.085 combines the accepted v0.072-v0.084 work. Earlier release status notes below are historical.
 
 STATUS AND ORDER
 v0.010/v0.011/v0.012/v0.014/v0.016/v0.017/v0.018/v0.019 were delivered historically.
@@ -302,14 +302,14 @@ v0.070c battle popup cleanup - DELIVERED (Claude Edition): leaving a battle mid-
 v0.071 trolls and giants as rare on-foot families inside orc and goblin towns, not a sovereign troll den: per-family race, births, recruit traceability, no mounts or dragon riders, and old saves default to the town race. Plan: docs/plan_trolls_giants_families.md.
 v0.072 Android mobile port: touch controls (tap, drag pan, pinch zoom, long-press info), phone UI scaling and safe areas, back button / pause / autosave on background, mobile performance pass (60 FPS cap, 30 FPS battery saver), Android export preset.
 v0.073 rider fit and version tidy - DELIVERED (Claude Edition): merges the mount-scaled rider fit and the payroll land-sale refresh skip, commits the v0.067-v0.071 uid sidecars, sets the project version, and fills the missing roadmap lines. The prisoner test now enlists a non-ruler house member.
-v0.074 save and reload - planned. A whole-world save and reload round trip with zero drift.
-v0.075 money and stock - planned. A daily whole-world check that coins and counted goods are conserved.
-v0.076 old tests - planned. Fix test_dragon_care_release, test_dragon_release, test_dragon_care_ui (5 checks), the test_econ_army draft pool, and the test_dynasty_ui phone size.
-v0.077 prisoner upkeep and AI ransom: each prisoner costs one meal from the holding army or town and one coin, paid into that town's market; if either runs out the prisoner is released and nothing is invented. AI realms ransom kin they can pay for, demand ransoms, accept or decline real offers, and exchange one for one. Executing or selling a captive changes standing. Sale coin comes from a realm treasury.
+v0.074 save and reload - included in v0.085. Whole-world fresh-process round trip, strict value/type/reference checks, next-day parity and repeat-load control. Recorded tiny float noise uses the unchanged documented tolerance; not every float is bit-exact.
+v0.075 money and stock - included in v0.085. Strict daily and whole-window conservation of coins and counted goods, with native flow bookings and an executed treasury-loss negative control.
+v0.076 old tests - included in v0.085. Native release/care/army fixtures and independent pre-draft cohort checks pass. Phone portrait/log/navigation fit checks pass; the map palette covers all nine realms and recent log lines remain above navigation.
+v0.077 prisoner upkeep and AI ransom - included in v0.085: each prisoner costs one meal from the holding army or town and one coin, paid into that town's market; if either runs out the prisoner is released and nothing is invented. AI realms ransom kin they can pay for, demand ransoms, accept or decline real offers, and exchange one for one. Executing or selling a captive changes standing. Sale coin comes from a realm treasury.
 v0.078 conquered towns: a conquered town's old lord loses the seat; the conquering liege may keep it or grant it to an adult of the house or a loyal vassal, and an AI conqueror makes that grant too.
 v0.079 AI marriages across realms and AI dragons on the march: AI noble houses arrange same-race matches in other towns and realms, and a ruling match feeds the existing diplomacy standing bonus and peace; an AI field army marches its adult bonded dragons and feeds them from that army's counted stores and treasury.
 v0.080 high elves and dark elves are sovereign realms (the Sunwood Court and the Nightwood Court) on their existing bodies and portraits, with named houses and the same balance screen as the other races. Trolls stay minority families. Night bows are drawn for a dark elf's pull, the goblin body is a notch sturdier so the seven-race copper screen stays in band, and the diplomacy day step keeps the 0.1 ms limit on 36 pairs by walking each pair once over a war mask.
-v0.081 rider targeting - planned. Riders can be targeted during live battle ticks.
+v0.081 rider targeting - included in v0.085. Riders are targetable in live BattleSim ticks using actual dragon position and native wound/death settlement, with saved rider state restored.
 v0.082 background music pass (Claude Edition): 11 tracks converted to phone-friendly OGG Vorbis (stereo, 44.1 kHz, quality 3, loop=true), MusicManager autoload with 8-scene mapping (menu, campaign_map, court, battle, dragon_attack, siege, victory, defeat), non-repeating shuffled track rotation, 1.5s crossfades, "Music" audio bus, Settings music volume slider (0=mute), and headless test test_music_v082.gd.
 v0.083 drag-anywhere scrolling on phones - DELIVERED (Claude Edition): on phones and touchscreens a finger drag anywhere on a list (scroll areas, item lists, trees, scrolling text: town tabs, records, dragons, court, settings, modals, the pause menu) scrolls it up and down or sideways, with a fling that eases to a stop and stops at the ends. A 14 px threshold keeps taps and long-presses as they were, a drag that starts on a button does not press it, the map and battle camera do not pan under a list, and phone scrollbars are a slim 6 px. The desktop mouse is unchanged. Test block touch_scroll_v083.
 v0.084 faster, less frequent saves. Autosave defaults to once every 7 in-game days (or each season, or daily, or off) and never during a battle. Save and quit still write. Saves no longer deep-copy each person a second time, and they leave out the crop indexes that load rebuilds.
@@ -344,5 +344,4 @@ population migration/housing/illness, equipment refits and measured balance.
 No vague court/marriage bundle. Creature reactivation needs a separate review.
 Both phone orientations remain foundational; export/touch QA are much later.
 No fixed50-release promise. Each added pass gets its own scope and evidence.
-
-
+v0.085 combined release: accepted v0.072-v0.084 mobile, save/load, conservation, legacy fixture/UI, prisoner/ransom, conquered lordship, AI marriage/dragons, high/dark elf, rider targeting, music, touch scrolling and save-speed work on one main tree. Versioned arm64 Android APK; exact native/QC evidence and export receipt remain with the director release record. No phone installation or device-performance certification is implied.
