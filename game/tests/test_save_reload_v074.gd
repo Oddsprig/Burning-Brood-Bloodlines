@@ -20,6 +20,12 @@ extends RefCounted
 ##           float within ROUND_TRIP_TOL (two units in the last place) of the other is counted, not asserted, in the
 ##           round trips; the one-more-day parity allows PARITY_TOL for what those last bits move in a day; the
 ##           control (the same file loaded twice) is exact.
+##           r9: that last-unit error decided the game. The ee3b44e check (L vs R, 58 patterns, all arrow trade in
+##           t4-t6 and what followed) began at a fletcher whose copper broadhead and wood arrow prices stood at the
+##           same level over base (both 5.970743464003831): the live game kept the first recipe (wood), the reload
+##           read 53.736691176034476 as 53.73669117603448 and made broadheads. The save now lists every float the
+##           reader may miss with its bits ("__fx", Game.restore_exact), and both files are compared as load_game
+##           reads them, bits put back; exact_check holds three such floats to bit-for-bit.
 ##   strict  in process: the live snapshot against the snapshot after load. Leaf types must match (an int key that
 ##           comes back as a string, a packed array that comes back as a plain array, a Color that comes back as text,
 ##           a fraction cut to an int). Floats may differ only by the JSON reader's last-unit error (ROUND_TRIP_TOL);
@@ -225,6 +231,9 @@ func compare_files(title: String, path_a: String, path_b: String, tol_rel: float
 	d.tol_rel = tol_rel
 	var pa = JSON.parse_string(_text(path_a))
 	var pb = JSON.parse_string(_text(path_b))
+	# r9: compared as load_game reads them, with the floats of the save's "__fx" list put back
+	if pa is Dictionary: Game.restore_exact(pa)
+	if pb is Dictionary: Game.restore_exact(pb)
 	if pa == null or pb == null:
 		d.note("unreadable", path_a if pa == null else path_b, null, null)
 		d.report(title)
@@ -352,6 +361,66 @@ func codec_check() -> void:
 	var planted: Array = []
 	_codec_same({"name": "~#f~0", "k": 1}, {"name": 0.05, "j": 1}, "planted", planted)
 	check(planted.size() == 2, "codec self-check: a text read back as a number and a renamed key are both caught (%d)" % planted.size())
+	exact_check()
+
+## r9: floats from 0.1 up that Godot's JSON reader reads a unit off, built from their bits (a script literal goes through
+## the same reader): t4's copper broadhead price of the failed check, its price level, and 0.10000000000000009, which
+## no digits reach. Each comes back bit for bit through save_text, the reader and restore_exact, in a plain dictionary,
+## a list, a float list, a shared record, a typed dictionary (a small float too) and a read-only dictionary; the live
+## tree is unchanged. Negative control: without restore_exact the reader gives another float for each.
+static func _from_bits(lo: int, hi: int) -> float:
+	var b := PackedByteArray()
+	b.resize(8)
+	b.encode_u32(0, lo)
+	b.encode_u32(4, hi)
+	return b.decode_double(0)
+
+func exact_check() -> void:
+	var broad := _from_bits(3850250481, 1078648395)   # 53.736691176034476
+	var level := _from_bits(2950917293, 1072671123)   # 0.9894503054923881
+	var unreached := _from_bits(2576980384, 1069128089)   # 0.10000000000000009
+	var vals := [broad, level, unreached]
+	var names := ["broadhead price", "price level", "unreachable"]
+	for i in vals.size():
+		var alone: Variant = JSON.parse_string(JSON.stringify({"x": vals[i]}, "", false, true))
+		check(alone is Dictionary and float(alone["x"]) != vals[i], "exact self-check: the reader alone reads the %s %s back as another float (%s)" % [names[i], String.num_scientific(vals[i]), var_to_str(alone)])
+		check(Game._misread(vals[i]), "exact: the %s is listed as a float the reader may miss" % names[i])
+	check(not Game._misread(17.91223039201149) and not Game._misread(6085.0) and not Game._misread(0.5), "exact: floats the reader reads back are not listed")
+	var typed: Dictionary[String, float] = {"p": broad, "s": 0.0123456789012345678}
+	var frozen := {"q": level, "r": [broad]}
+	frozen.make_read_only()
+	var rec := {"v": unreached, "name": "~#f~0"}
+	var tree := {"d": {"a": broad, "b": level, "c": unreached, "n": 3},
+		"l": [1.5, broad, [level, {"k": unreached}]],
+		"pf": PackedFloat64Array([broad, 0.004, level]),
+		"s1": {"__unit": rec}, "s2": {"__unit": rec},
+		"t": typed, "ro": frozen}
+	var before: Dictionary = tree.duplicate(true)
+	var text := Game.save_text(tree)
+	check(text != "" and tree == before and not tree.has("__fx"), "exact: writing leaves the live tree as it was")
+	var back: Variant = JSON.parse_string(text)
+	check(back is Dictionary and (back as Dictionary).has("__fx"), "exact: the save lists the floats (%s)" % text.right(200))
+	if not (back is Dictionary): return
+	var raw_bad := 0
+	for v in [back["d"]["a"], back["d"]["b"], back["d"]["c"], back["l"][1], back["pf"][0], back["s1"]["__unit"]["v"]]:
+		if float(v) != broad and float(v) != level and float(v) != unreached: raw_bad += 1
+	check(raw_bad > 0, "exact self-check: before restore_exact the reader's floats differ (%d)" % raw_bad)
+	var put := Game.restore_exact(back)
+	check(not (back as Dictionary).has("__fx"), "exact: restore_exact takes the list out of the tree")
+	var want := [[back["d"]["a"], broad], [back["d"]["b"], level], [back["d"]["c"], unreached], [back["l"][1], broad],
+		[back["l"][2][0], level], [back["l"][2][1]["k"], unreached], [back["pf"][0], broad], [back["pf"][2], level],
+		[back["s1"]["__unit"]["v"], unreached], [back["s2"]["__unit"]["v"], unreached], [back["t"]["p"], broad],
+		[back["t"]["s"], 0.0123456789012345678], [back["ro"]["q"], level], [back["ro"]["r"][0], broad]]
+	var bad: Array = []
+	for i in want.size():
+		var w: Array = want[i]
+		if typeof(w[0]) != TYPE_FLOAT or float(w[0]) != float(w[1]):
+			bad.append("#%d %s for %s" % [i, var_to_str(w[0]), String.num_scientific(float(w[1]))])
+	check(bad.is_empty(), "exact: every listed float comes back bit for bit (%d put back; %s)" % [put, "; ".join(PackedStringArray(bad))])
+	check(float(back["d"]["n"]) == 3.0 and float(back["l"][0]) == 1.5 and absf(float(back["pf"][1]) - 0.004) <= 0.004 * 2.3e-16 and str(back["s1"]["__unit"]["name"]) == "~#f~0", "exact: the other values are as before")
+	# A list place that is not there, or not the float listed, is left alone.
+	var odd := {"a": 2.0, "l": [1.0], "__fx": [[["a"], 0, 0], [["l", 5], 0, 0], [["zz", "y"], 0, 0], "x", [[], 0, 0]]}
+	check(Game.restore_exact(odd) == 0 and float(odd["a"]) == 2.0 and not odd.has("__fx"), "exact: a wrong list entry changes nothing")
 
 func _codec_same(a: Variant, b: Variant, path: String, bad: Array) -> void:
 	if a is Dictionary:
