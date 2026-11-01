@@ -67,11 +67,16 @@ func touch_up(pos: Vector2) -> void:
 
 func run(t: SceneTree) -> int:
 	tree = t
+	# Headless defaults to a 64px window; emulate the fixture's 1600px viewport at 1:1.
+	var old_window_size := t.root.size
+	t.root.size = Vector2i(1600, 900)
 	await t.process_frame
 	var ts: TouchScroll = MobileApp.touch_scroll
 	check(ts != null and ts.is_inside_tree(), "MobileApp owns the TouchScroll controller")
 	if ts == null:
+		t.root.size = old_window_size
 		return fails
+	check(is_equal_approx(ts.threshold(), TouchScroll.THRESHOLD_PX), "fixture has one screen pixel per viewport pixel")
 
 	# 1. Phone scrollbars are slim; the desktop bar is unchanged.
 	UiTheme.set_mobile_override(false)
@@ -213,4 +218,5 @@ func run(t: SceneTree) -> int:
 	host.queue_free()
 	fwd.queue_free()
 	UiTheme.set_mobile_override(null)
+	t.root.size = old_window_size
 	return fails
