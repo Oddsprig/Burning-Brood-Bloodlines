@@ -132,6 +132,8 @@ func feudal() -> void:
 func orc_binding() -> void:
 	var cap: Dictionary = Game.world["towns"]["seat"]
 	var home: Dictionary = Game.world["towns"]["county"]
+	# A realm capital must actually belong to that realm for the primary-race ruler gate.
+	cap["faction"] = "orc_horde"; cap["econ"]["faction"] = "orc_horde"
 	home["econ"]["culture"] = "orc"; home["faction"] = "orc_horde"; home["econ"]["faction"] = "orc_horde"
 	Game.world["factions"]["orc_horde"] = {"capital": "seat", "towns": ["seat", "county"], "treasury": 20.0}
 	var f: Dictionary = home["econ"]["fams"][0]; var p: Array = f["pp"][0]
