@@ -6,6 +6,8 @@ extends RefCounted
 ## armouries and caravan cargo). Failing identities print the holders that moved and the unrounded residual; the
 ## job trace (run_day_traced) prints any single work job whose coin or arms change was not booked.
 ## Self-checks first: an unbooked change planted in a census is reported (a harness that cannot fail proves nothing).
+## r7: the whole-run identity is a strict check from a census taken after the holder negatives (which must leave the
+## world and its books as found); the treasure negative plants a real-category piece in the house's own room.
 
 const DAYS := 8
 
@@ -112,7 +114,7 @@ func self_check(tid: String) -> void:
 ## a booked loss and a new Item.make are not. Every plant is undone and the undone state balances again.
 ## r6: run after the house's muster (Mobilization.muster: real company men, and meal lots the company bought), and
 ## each holder's loss is measured from a census taken with the piece in that holder (where it was last held).
-func holder_checks() -> void:
+func holder_checks(house_tid: String) -> void:
 	var w: Dictionary = Game.world
 	var base := WorldAudit.census(Game)
 	check(WorldAudit.compare(base, WorldAudit.census(Game))["ok"], "holders self-check: two censuses balance (items, rations, treasure too)")
@@ -207,11 +209,21 @@ func holder_checks() -> void:
 	# a booked loss balances; booked but still held, a copy with an old uid and a new Item.make put nowhere are leaks
 	var b2 := WorldAudit.census(Game)
 	man.equip.erase("main_hand")
+	var gone_at := WorldAudit.items_gone.size()
 	WorldAudit.lose_item(it, "-self-check")
 	check(WorldAudit.compare(b2, WorldAudit.census(Game))["items"]["ok"], "holders self-check: a piece booked gone where it was dropped balances")
 	man.equip["main_hand"] = it
 	var held_again := WorldAudit.compare(b2, WorldAudit.census(Game))
 	check(not held_again["items"]["ok"] and int(held_again["items"]["booked_but_held"]) == 1, "holders self-check: a piece booked gone but still held is a leak")
+	# r7: the plant is undone in the books too. The soldier's real weapon is back on him, so the self-check's loss
+	# booking of it is withdrawn (r6 left #it booked gone for the rest of the run: the whole-run "booked but held").
+	check(WorldAudit.items_gone.size() == gone_at + 1 and int(WorldAudit.items_gone[gone_at][0]) == int(it.uid), "holders self-check: the weapon's self-check booking is the one entry to withdraw")
+	WorldAudit.items_gone.remove_at(gone_at)
+	var gb := int(WorldAudit.gone_by.get("-self-check", 0)) - 1
+	if gb <= 0: WorldAudit.gone_by.erase("-self-check")
+	else: WorldAudit.gone_by["-self-check"] = gb
+	var unbooked_back := WorldAudit.compare(b2, WorldAudit.census(Game))
+	check(unbooked_back["items"]["ok"] and int(unbooked_back["items"]["booked_but_held"]) == 0, "holders self-check: the weapon back on its soldier with the booking withdrawn balances (%s)" % JSON.stringify(unbooked_back["items"]["samples"]))
 	var b3 := WorldAudit.census(Game)
 	var copy := Item.from_dict(it.to_dict())
 	Game.stash.append(copy)
@@ -255,24 +267,39 @@ func holder_checks() -> void:
 	var issued_loss := WorldAudit.compare(issued_before, WorldAudit.census(Game))
 	check(not issued_loss["items"]["ok"] and int(issued_loss["items"]["gone_unbooked"].get("company stash", 0)) == 1, "holders self-check: a previously owned rolled piece cannot be excused as never made")
 	WorldAudit.lose_item(issued, "-self-check")
-	# --- treasure: a piece gone from a house's treasure room unbooked
+	# --- treasure (r7: executed, not skipped). The DevTools world starts with no treasure rooms, so the plant does not
+	# wait for one: a test-local piece of a real CourtEvents.TREASURE category (row shape as CourtEvents.hold
+	# "treasure" writes it) goes into the chosen house's own treasure room, booked as that commission books it. One
+	# piece then leaves unbooked (a leak of -1), and booked out it balances. The room, the piece and the treasure book
+	# are put back exactly; no coin, purse or prestige is touched (the commission's payment is not part of this plant).
 	var b4 := WorldAudit.census(Game)
-	var room: Dictionary = {}
-	for tid in w.get("towns", {}):
-		if not TownEcon.has_econ(w["towns"][tid]): continue
-		for f in w["towns"][tid]["econ"]["fams"]:
-			for row in f.get("hoard", []):
-				if int(row.get("quantity", 0)) > 0: room = row; break
-			if not room.is_empty(): break
-		if not room.is_empty(): break
-	if not room.is_empty():
-		room["quantity"] = int(room["quantity"]) - 1
-		var tg := WorldAudit.compare(b4, WorldAudit.census(Game))
+	var tb0: Dictionary = WorldAudit.treasure_book.duplicate()
+	var huid := str(w.get("player_house", {}).get("household_uid", ""))
+	var hl: Dictionary = CourtEvents._loc(Game, huid) if huid != "" else {}
+	var fam: Dictionary = hl.get("family", {}) if not hl.is_empty() else Feudal.tax_recipient(Game, house_tid)
+	check(not fam.is_empty(), "holders self-check: the chosen house has a household to hold a treasure room (%s)" % huid)
+	if not fam.is_empty():
+		var had_room := fam.has("hoard")
+		if not had_room: fam["hoard"] = []
+		var cat := "gold"
+		var piece := {"category": cat, "gem_id": "", "quantity": 2, "unit_cost": int(CourtEvents.TREASURE[cat]),
+			"id": "%s:treasure:audit_selfcheck" % huid}
+		(fam["hoard"] as Array).append(piece)
+		WorldAudit.treasure("+self-check commissioned", 2)
+		var tin := WorldAudit.census(Game)
+		var tc := WorldAudit.compare(b4, tin)
+		check(tc["ok"] and int(tc["treasure"].get("treasure room", 0)) == 2, "holders self-check: 2 pieces booked into the house's treasure room are counted and balance (%s, %s)" % [JSON.stringify(tc["treasure"]), JSON.stringify(tc["treasure_gate"])])
+		piece["quantity"] = 1
+		var tg := WorldAudit.compare(tin, WorldAudit.census(Game))
 		check(not tg["ok"] and int(tg["treasure_gate"]["residual"]) == -1, "holders self-check: a treasure piece gone unbooked is a leak of -1 (%d)" % int(tg["treasure_gate"]["residual"]))
-		room["quantity"] = int(room["quantity"]) + 1
-	else:
-		print("holders self-check: no house holds treasure in this world (treasure plant skipped)")
+		WorldAudit.treasure("-self-check sold", -1)
+		check(WorldAudit.compare(tin, WorldAudit.census(Game))["treasure_gate"]["ok"], "holders self-check: the same piece booked out balances")
+		(fam["hoard"] as Array).erase(piece)
+		if not had_room: fam.erase("hoard")
+		WorldAudit.treasure_book = tb0
 	check(WorldAudit.compare(b4, WorldAudit.census(Game))["ok"], "holders self-check: every plant undone balances")
+	var as_found := WorldAudit.compare(base, WorldAudit.census(Game))
+	check(as_found["ok"], "holders self-check: all holder plants together leave the world and its books as found (%s)" % JSON.stringify(as_found["items"]["samples"]))
 
 func run(tree: SceneTree) -> int:
 	var started := Time.get_ticks_msec()
@@ -300,7 +327,12 @@ func run(tree: SceneTree) -> int:
 	var setup := WorldAudit.compare(a, b)
 	for line in WorldAudit.lines(setup, "muster+order"): print(line)
 	check(setup["ok"], "raising the army and placing the order balance")
-	holder_checks()   # r6: after the muster (real company men and meal lots); every plant is undone
+	holder_checks(tid)   # r6: after the muster (real company men and meal lots); every plant is undone
+	# r7: the whole-run window starts here, after the holder negatives (r6 took it at c0, before them, so the
+	# self-check's own booking of the soldier's weapon showed as a whole-run leak). The setup before it is not
+	# left unchecked: c0 -> the muster+order is its own strict gate above, and the holder negatives must leave the
+	# world and its books exactly as found (the last holders check). From w0 the 8 daily gates and the whole gate run.
+	var w0 := WorldAudit.census(Game)
 	var leaks := {}   # identity -> [days failed, total residual]
 	for d in DAYS:
 		a = WorldAudit.census(Game)
@@ -343,9 +375,13 @@ func run(tree: SceneTree) -> int:
 			print("day 0 items: %d made, %d booked gone %s, by holder %s" % [int(ib["made"]), int(ib["booked"]), JSON.stringify(ib["booked_by"]), JSON.stringify(ib["by_holder"])])
 	for k in leaks:
 		check(false, "%s leaks on %d of %d days, residual %s in all" % [k, int(leaks[k][0]), DAYS, String.num(leaks[k][1], 6)])
-	var whole := WorldAudit.compare(c0, WorldAudit.census(Game))
-	print("whole run, day %.2f to %.2f:" % [float(c0["day"]), Game.day])
+	var whole := WorldAudit.compare(w0, WorldAudit.census(Game))
+	print("whole run, day %.2f to %.2f:" % [float(w0["day"]), Game.day])
 	for line in WorldAudit.lines(whole, "  all days"): print(line)
+	# r7: strict. Every identity over the whole window (coin, goods, arms, items by uid, rations, treasure) must balance:
+	# drift that no single day shows (a booking in one day for a piece that is still held later) fails here.
+	check(whole["ok"], "the whole %d-day window balances in every identity (coin %s, arms %s, items %s, treasure %s, samples %s)" % [DAYS,
+		str(whole["coin"]["ok"]), str(whole["arms"]["ok"]), str(whole["items"]["ok"]), str(whole["treasure_gate"]["ok"]), JSON.stringify(whole["items"]["samples"])])
 	var tr: Dictionary = whole["treasure"]
 	print("treasure pieces moved: %s" % JSON.stringify(tr))
 	print("world_audit_v075: %d checks, %d fails, %.1f s" % [checks, fails, float(Time.get_ticks_msec() - started) / 1000.0])
