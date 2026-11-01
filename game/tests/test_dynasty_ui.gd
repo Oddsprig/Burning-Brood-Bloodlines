@@ -139,7 +139,6 @@ func run(scene_tree: SceneTree) -> int:
 	var result: int = fails + int(fit.fails)
 	fit.tree = null
 	fit = null
-	fixture = null
 	saved_world.clear()
 	choices.clear()
 	before_accounts.clear()
