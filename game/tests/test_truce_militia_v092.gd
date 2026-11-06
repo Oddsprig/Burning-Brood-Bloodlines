@@ -29,6 +29,8 @@ func _treaty_and_player_guards() -> void:
 	var a := "middle_kingdom"; var b := "northern_clans"
 	var home := str(w["factions"][a]["capital"])
 	check(Dynasty.select_city(Game, home), "choose a real existing ruling household")
+	check(DevTools.raise_army(Game, home, 2) > 0 and not Game.deployed_units().is_empty(),
+		"native paid muster supplies actual deployed troops for the player guard")
 	var p := _pair()
 	p["state"] = Diplomacy.WAR; p["dynasty"] = false; p["treaty_alliance"] = false
 	p["pact_until"] = 0; p["truce"] = 0; p["rel"] = -90.0
@@ -59,8 +61,10 @@ func _treaty_and_player_guards() -> void:
 	var native_car := {"kind": "caravan", "faction": a}
 	check(not Caravans.is_prey(w, enemy, native_car), "AI caravan attack predicate respects the same truce")
 	var pending := Game.pending_battle.duplicate(true)
+	var earned := float(w["diplo"]["player"][b]["earned"])
 	CampaignWorld.engage(Game, enemy["id"])
-	check(Game.pending_battle == pending and w.get("encounter", "") != enemy["id"], "actual player engage refuses before changing battle or reputation")
+	check(Game.pending_battle == pending and w.get("encounter", "") != enemy["id"]
+		and float(w["diplo"]["player"][b]["earned"]) == earned, "actual player engage refuses before changing battle or reputation")
 	var target := str(w["factions"][b]["capital"])
 	for kind in ["raid", "siege"]:
 		var preview := Warfare.preview(Game, target, kind)
@@ -90,6 +94,20 @@ func _saved_expiry(path: String) -> void:
 	Diplomacy._set_state(Game, _pair(), Diplomacy.WAR)
 	check(_pair()["state"] == Diplomacy.WAR and int(_pair()["truce"]) == 0, "new war is possible after expiry and clears the elapsed treaty")
 	check(Caravans.is_prey(w, {"kind": "patrol", "faction": b}, {"kind": "caravan", "faction": a}), "AI war raids resume after expiry")
+	# Positive control: the same native player entry point can start a battle
+	# once the treaty expires. No BattleSim or engagement is executed here.
+	check(not Game.deployed_units().is_empty(), "saved paid muster still supplies the positive engagement control")
+	var enemy := {"id": "truce092_expired", "kind": "patrol", "faction": b,
+		"home": str(w["factions"][b]["capital"]), "units": [Unit.create("human", b)], "pos": w["party"]["pos"]}
+	w["warbands"][enemy["id"]] = enemy
+	var pending := Game.pending_battle
+	var screen: String = Game._active_screen
+	CampaignWorld.engage(Game, enemy["id"])
+	check(str(Game.pending_battle.get("warband_id", "")) == enemy["id"] and w["encounter"] == enemy["id"]
+		and Game._active_screen == "battle", "actual player engage succeeds at the expired treaty boundary")
+	Game.pending_battle = pending; w["encounter"] = ""
+	Game.goto(screen)
+	w["warbands"].erase(enemy["id"])
 	completed += 1
 
 func _wall_tick() -> void:
