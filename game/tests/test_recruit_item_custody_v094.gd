@@ -37,6 +37,33 @@ func _recruit(town: Dictionary, role: Dictionary, target_race: String, seed_valu
 	for item in u.equip.values():
 		check(not WorldAudit.unmade_ids.has(item.uid), "surviving native kit is never booked unmade")
 
+func _fresh_kit_outfit(town: Dictionary, role: Dictionary, previously_held: bool = false) -> void:
+	var holder := Holders.new()
+	var before: Dictionary = WorldAudit.items(holder)
+	var from_n: int = WorldAudit.items_gone.size()
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 94101
+	var unit: Unit = Recruits.make_recruit(rng, town, Recruits.kit_for(role))
+	if previously_held:
+		holder.company.append(unit)
+		before = WorldAudit.items(holder)
+	var template_ids: Array = []
+	for item: Item in unit.equip.values(): template_ids.append(item.uid)
+	var outfit_town: Dictionary = town.duplicate(true)
+	outfit_town["econ"] = {"stock": {}}
+	outfit_town["shop"] = []
+	TownEcon.outfit_units(outfit_town, [unit], 0.5, false, 0, false)
+	if not previously_held: holder.company.append(unit)
+	var audit: Dictionary = WorldAudit.compare_items(before, WorldAudit.items(holder), from_n, WorldAudit.items_gone.size())
+	check(unit.equip.is_empty(), "native empty-stock outfit removes every construction template")
+	if previously_held:
+		check(not audit["ok"] and not audit["gone_unbooked"].is_empty(), "outfitting cannot excuse loss of previously held recruit clothing")
+	else:
+		check(audit["ok"], "fresh recruit clothing and shoes replaced by native outfit are all booked")
+		for uid in template_ids:
+			check(WorldAudit.unmade_ids.has(uid), "every discarded fresh kit UID is individually booked")
+
+
 func _negative_controls() -> void:
 	# A previously owned object remains a real loss even if tagged as a rolled template.
 	var held := Holders.new()
@@ -83,6 +110,9 @@ func run(_tree: SceneTree) -> int:
 	_recruit(town, {"kind": "job", "key": "market", "title": "carter"}, "giant", 94003)
 	_recruit(town, {"kind": "job", "key": "weaponsmith", "title": "smith"}, "human", 94004, false)
 	_recruit(town, {"kind": "job", "key": "weaponsmith", "title": "smith"}, "dwarf", 94005, false)
+	_fresh_kit_outfit(town, {"kind": "state", "key": "idle", "title": "out of work"})
+	_fresh_kit_outfit(town, {"kind": "job", "key": "weaponsmith", "title": "smith"})
+	_fresh_kit_outfit(town, {"kind": "state", "key": "idle", "title": "out of work"}, true)
 	_negative_controls()
 	WorldAudit.tracking = previous_tracking
 	print("Recruit item custody v094: ", checks - fails, "/", checks, " checks passed")
