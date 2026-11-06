@@ -1,6 +1,6 @@
 # Burning Brood: Bloodlines — current developer map
 
-Updated 6 November 2026 for the v0.095 three-fix candidate, branched from `main` `2ce6c5e`. Source versions v0.086–v0.094 are accepted normal merges; the last packaged Desktop/Android release is v0.085. v0.095 passed 203 checks and awaits the owner's explicit merge approval. The older source-only audit below is pinned to v0.094.
+Updated 6 November 2026 for v0.095, normally merged as `5e17abb014a1f01f0426406bd455e249f06a8e20` from the approved branch based on `main` `2ce6c5e`. Source versions v0.086–v0.094 are accepted normal merges; the last packaged Desktop/Android release is v0.085. v0.095 passed 203 checks; the owner reviewed the full diff and test output and explicitly approved the merge. The older source-only audit below is pinned to v0.094.
 
 ## v0.095 — initial design, browsing location and battle counters
 
@@ -10,7 +10,7 @@ Updated 6 November 2026 for the v0.095 three-fix candidate, branched from `main`
 | Save the physical location while browsing | `game/ui/politics.gd:open_view` and `_select` retain the viewed town in screen state without changing `Game.location`. Population, city/budget/person Records and nested civic links retain their existing return context. Back still restores the origin; `SaveSnapshot` and the native quit/pause writers naturally save that origin. No save schema or lifecycle handler changes. |
 | Count a dragonless win once | `game/campaign/warfare.gd:after_battle` increments wins for a win, increments dragon victories only for a win with dragon units, and increments losses only when not won. Assault resolution and ambitions retain their existing calls. |
 
-Verification entry: `game/tests/test_campaign_fixes_v095.gd` ran the retained onboarding/designer logic and chooser checks, then targeted route/save and counter controls in one headless batch. The chooser set day 30 directly; no long history or battle simulation ran. Test Bridge `d2c07bac6f004836987c7d897d9172d9` passed 203 checks, zero assertion/script failures, exit 0: engine 8.859 seconds, complete invocation 12.914 seconds. All 1,492 tracked game files were byte-identical before/after. [Complete test output](test-results/v0.095_three_fixes.txt) retains missing-splash and shutdown-resource diagnostics; it does not claim rendered or leak-free verification. No v0.095 package/export is claimed. Merge/push still requires the owner's review of the full diff and output.
+Verification entry: `game/tests/test_campaign_fixes_v095.gd` ran the retained onboarding/designer logic and chooser checks, then targeted route/save and counter controls in one headless batch. The chooser set day 30 directly; no long history or battle simulation ran. Test Bridge `d2c07bac6f004836987c7d897d9172d9` passed 203 checks, zero assertion/script failures, exit 0: engine 8.859 seconds, complete invocation 12.914 seconds. All 1,492 tracked game files were byte-identical before/after. [Complete test output](test-results/v0.095_three_fixes.txt) retains missing-splash and shutdown-resource diagnostics; it does not claim rendered or leak-free verification. No v0.095 package/export is claimed. Owner-approved normal merge: `5e17abb014a1f01f0426406bd455e249f06a8e20`. The lead reconciled these notes directly as authorized; no additional test was run.
 
 ## Read first
 
@@ -50,7 +50,7 @@ The reviewed economy report rejects nonexistent catalog/classes and incorrect ve
 
 ## war source audit — main 2c7bd93
 
-Source pin `2c7bd93d818810e005f7582f5687d38d1aeda5d2`. Live version string is `game/project.godot` `config/version="0.094"`. The preserved inventory below contains the old v0.035 config description and historical sizes. Last packaged Desktop/Android release remains 0.085. v0.095 is unbuilt. A version is not done until this map, `docs/DEV_NOTES.txt` and `CHANGES.txt` all change for it in the same merge.
+Source pin `2c7bd93d818810e005f7582f5687d38d1aeda5d2`. Live version string is `game/project.godot` `config/version="0.094"`. The preserved inventory below contains the old v0.035 config description and historical sizes. Last packaged Desktop/Android release remains 0.085. At this historical v0.094 source pin, v0.095 was unbuilt. A version is not done until this map, `docs/DEV_NOTES.txt` and `CHANGES.txt` all change for it in the same merge.
 
 ### Owners and entry points
 

@@ -1,11 +1,12 @@
 BURNING BROOD: BLOODLINES - CURRENT DEVELOPER NOTES
-Updated: 2026-11-06 | v0.095 candidate from main 2ce6c5e | packaged Desktop/Android v0.085
+Updated: 2026-11-06 | v0.095 merged 5e17abb014a1f01f0426406bd455e249f06a8e20 | packaged Desktop/Android v0.085
 
 CURRENT SOURCE AND DOCUMENTATION
 v0.086-v0.094 are accepted normal source merges. The last packaged release remains
-v0.085. The earlier v0.094 documentation audit was source-only. The owner has now
-authorized exactly three v0.095 fixes below, with headless tests and an explicit
-full-diff/test-output approval gate before merge. No v0.095 package is claimed.
+v0.085. The earlier v0.094 documentation audit was source-only. The owner reviewed
+the full diff and 203-check output, then explicitly approved the normal v0.095
+merge and push. The lead reconciled these notes directly as authorized. No new
+test was run, and no v0.095 package is claimed.
 
 Active three docs: PROJECT_MAP.md, docs/DEV_NOTES.txt, CHANGES.txt. Each must describe
 a version's actual changes in the SAME version merge or DO NOT MERGE. After each
@@ -14,7 +15,7 @@ lead reviews/commits/pushes normally. It counts toward the standing two-helper c
 See docs/BUILD_RULES.md and the shared machine GAME TESTING RULES.md. Historical
 commands/receipts and this audit never grant permission for another test or build.
 
-v0.095 - THREE BUG FIXES (candidate; merge approval pending)
+v0.095 - THREE BUG FIXES (merged 5e17abb014a1f01f0426406bd455e249f06a8e20)
 Base: 2ce6c5e632a57cff389ddcc5ceb1242abda105ee. No other audit repair is included.
 
 1. CharacterDesign.preview/apply require an empty world.player_house, not day <= 1.
@@ -49,8 +50,9 @@ Full unedited stdout/stderr/command/receipts: test-results/v0.095_three_fixes.tx
 Godot also logged the configured missing boot splash and shutdown diagnostics
 (34 ObjectDB instances / 10 resources). No rendered UI or leak-free claim;
 no unrelated repair or additional engine run was made. The splash path is also
-absent from the pinned baseline's tracked files. Source must remain unmerged
-until the owner reviews the full diff and actual output and explicitly says OK.
+absent from the pinned baseline's tracked files. The owner reviewed the full
+diff and actual output and explicitly approved this merge; the retained test
+receipt remains unchanged. No additional engine run was made.
 No other audit fix or new feature is built.
 
 SHIPPED v0.086-v0.094 (source, not new packaged releases)
@@ -125,7 +127,7 @@ Detailed reviewed findings: docs/audit_v094/economy.md.
 
 ## war source audit — main 2c7bd93
 
-Read-only source audit of war, battles and dragons at main `2c7bd93` (version string 0.094). No engine, test, import or build was run. Source audit does not establish a new runtime pass or fail. Accepted merge receipts already cover 0.086–0.094. Last packaged Desktop/Android release remains 0.085. v0.095 is unbuilt. The three-document gate still applies: this file, `PROJECT_MAP.md` and `CHANGES.txt` must change together before any later version merges.
+Read-only source audit of war, battles and dragons at main `2c7bd93` (version string 0.094). No engine, test, import or build was run. Source audit does not establish a new runtime pass or fail. Accepted merge receipts already cover 0.086–0.094. Last packaged Desktop/Android release remains 0.085. At the time of this historical v0.094 audit, v0.095 was unbuilt. The three-document gate still applies: this file, `PROJECT_MAP.md` and `CHANGES.txt` must change together before any later version merges.
 
 Shipped player war, through 0.094:
 
@@ -260,7 +262,8 @@ version in the SAME merge; otherwise DO NOT MERGE. Put this in every helper buil
 brief. After each version merge, one light notes-only helper reconciles all three
 with final source; lead verifies/commits/pushes normally. The temporary three-area
 audit exception does not change the standing two-helper limit for that process.
-This audit updates documentation only; v0.095 remains unbuilt/on owner hold.
+This historical audit updated documentation only; v0.095 was then unbuilt/on
+owner hold. The subsequent approved v0.095 merge is recorded above.
 The exact owner test wording and stricter one-batch60-second STOP rule from
 _evidence/OWNER_BUILD_RULES.md are retained in docs/audit_v094/houses.md. No future
 test permission follows from the source findings or historical acceptance receipts.

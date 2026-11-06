@@ -10,7 +10,7 @@ A version is not done until these three active documents are updated for that ve
 
 Before merging a version, compare the previous version with the final candidate and check that all three paths changed. Read the changes and confirm they describe that version's actual source. A filename-only or unrelated edit does not satisfy the requirement. If any document is missing its update, do not merge. Do not rewrite prior version history to repair older omissions.
 
-After every version merge, run one light notes-only helper, preferably antigravity Gemini 3.8 or the cheapest available, to reconcile all three documents with the final merged version. The lead reviews its result, commits any corrections and pushes normally with the owner's authorization. The notes helper counts toward the standing maximum of two concurrent helpers. Preparing the docs before the version merge and reconciling them afterward satisfies both owner instructions.
+After every version merge, run one light notes-only helper to reconcile all three documents with the final merged version. Use Argon, Grok or Sol 6.1 MAX; never Gemini or Google Opus. For v0.095 the owner explicitly authorized the lead to perform this reconciliation directly. The lead reviews its result, commits any corrections and pushes normally with the owner's authorization. The notes helper counts toward the standing maximum of two concurrent helpers. Preparing the docs before the version merge and reconciling them afterward satisfies both owner instructions.
 
 Every helper build brief must name the exact version/base, bounded source and documentation paths, acceptance evidence required, restrictions, and the three-document gate. Include the owner's testing rules verbatim:
 
@@ -18,4 +18,4 @@ Every helper build brief must name the exact version/base, bounded source and do
 
 The shared machine rules may impose a stricter current bound; read them before any authorized test. Historical commands, results and old briefs never grant permission for a new run. Use Test Bridge for authorized game tests, distinguish queued/interrupted/failed from passed, and do not restart other apps or acquire a nested lane lease.
 
-Current job exception: the owner named Argon high for economy/towns/people, Grok 4.7 high for war/battles/dragons and Sol 6.1 Max for houses/court/diplomacy/UI, at most three helpers for this source-only documentation audit. This replaces the earlier Gemini/Opus allocation for this job only. No game launches, builds or tests are authorized. Delete nothing. v0.095 is unbuilt and awaits the owner's go-ahead.
+The earlier three-helper source-only audit exception has ended. The standing maximum is two concurrent helpers, restricted to Argon, Grok or Sol 6.1 MAX; never Gemini or Google Opus. The owner approved the v0.095 merge and normal push after reading the full diff and 203-check output. This approval does not authorize any new test or game launch. Delete nothing.

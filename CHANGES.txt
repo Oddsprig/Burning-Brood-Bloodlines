@@ -1,13 +1,14 @@
 BURNING BROOD: BLOODLINES - ACTIVE CHANGE NOTES
-Updated: 2026-11-06 for the v0.095 candidate from main 2ce6c5e.
-Last packaged Desktop/Android release: v0.085. v0.095 merge approval is pending.
+Updated: 2026-11-06 for v0.095 merged as 5e17abb014a1f01f0426406bd455e249f06a8e20.
+Last packaged Desktop/Android release: v0.085. v0.095 is merged with explicit owner approval.
 
 This changelog starts with the accepted v0.086-v0.094 source catch-up. Earlier
 history remains in the developer notes and immutable archives. Historical worker
 UNRUN reports are superseded by the accepted source receipts where stated.
 
 v0.095 - Initial ruler design, saved location and battle counters
-Candidate from 2ce6c5e632a57cff389ddcc5ceb1242abda105ee; not yet merged.
+Normal merge: 5e17abb014a1f01f0426406bd455e249f06a8e20
+Base: 2ce6c5e632a57cff389ddcc5ceb1242abda105ee.
 Design your ruler remains available before choosing a player house regardless
 of history day, then locks after selection. History day is preserved. Begin
 applies the reviewed design before publishing the chosen-house record.
@@ -22,7 +23,9 @@ Verification: tests/test_campaign_fixes_v095.gd, including the retained v019/v03
 suites and direct day-30 chooser coverage. Test Bridge d2c07bac6f004836987c7d897d9172d9:
 203 checks, zero assertion/script failures, exit 0; engine 8.859 s, total 12.914 s.
 Complete output: test-results/v0.095_three_fixes.txt, including missing-splash and
-shutdown-resource diagnostics. Owner review/merge approval remains pending.
+shutdown-resource diagnostics. The owner reviewed the full diff and output
+and explicitly approved the normal merge and push. Post-merge notes were
+reconciled directly by the lead as authorized; no new test was run.
 No other audit item, balance change, package, export or long history is included.
 
 v0.086 - Domestic animals and counted pack custody
