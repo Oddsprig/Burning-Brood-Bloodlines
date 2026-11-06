@@ -2,6 +2,7 @@ extends RefCounted
 
 var checks := 0
 var fails := 0
+var completed := 0
 
 func check(ok: bool, message: String) -> void:
 	checks += 1
@@ -30,13 +31,25 @@ func fixture(source: Dictionary, mode: String, funded: bool, shared: bool, rever
 	var e: Dictionary = town["econ"]
 	var fid := String(town["faction"])
 	var tid := String(town["id"])
-	var ids := []
-	for f in e["fams"]:
-		if not f.get("gone", false) and not f.get("estate", false) and Families.adults(f) >= 3 and Families.serving(f) == 0 \
-				and Persons.pp(f).all(func(p): return int(p[6]) != 0 or String(p[4]) in ["", "hire"]):
-			ids.append(int(f["id"]))
-	check(ids.size() >= 2, "culture supplies two real civilian households")
-	if ids.size() < 2: return
+	e["faction"] = fid
+	# A staffing fixture needs named register people, not anonymous cohort counts.
+	# Build six adults through the native constructors in two detached households.
+	var ids := [1, 2]
+	e["fams"] = [Families.make_estate(town)]
+	e["identity_scope"] = "academy-assignment-test:" + tid
+	e["next_pid"] = 1
+	var people_rng := RandomNumberGenerator.new(); people_rng.seed = 88270
+	var race := Persons.race_of(e)
+	var adult := float(People.ages(race)["adult"])
+	for id in ids:
+		var f := Families._blank(int(id))
+		f["name"] = "Register%d" % id; f["race"] = race; f["cul"] = e["culture"]
+		f["m"] = 3; f["pp"] = []; f["kp"] = []; f["seed"] = people_rng.randi()
+		Families.identity(e, f)
+		for i in 3:
+			f["pp"].append(Persons._new(e, f, race, 0, 7.0 - (adult + 5.0 + i) * People.year_days(), 0, people_rng))
+		e["fams"].append(f)
+	check(e["fams"].size() == 3 and Persons.pp(e["fams"][1]).size() == 3 and Persons.pp(e["fams"][2]).size() == 3, "six real register adults supply two civilian households")
 	if reverse_order: ids.reverse()
 	ids = ids.slice(0, 2)
 	# Job-only fixture: remove actual physical plots and herd records as well as mirrors.
@@ -51,7 +64,9 @@ func fixture(source: Dictionary, mode: String, funded: bool, shared: bool, rever
 		f["homes"] = 1; f["cond"] = 1.0; f["last"] = 0.0; f["tax_season"] = e["tax"]["season"]; f["nxa"] = 100.0
 		f["store"] = {"food": 1000.0, "drink": 1000.0, "wood": 1000.0}
 		for key in ["hl", "rent", "landlord", "cjearned", "wage_receipts"]: f.erase(key)
-	for b in e["biz"]: b["closed"] = true; b["kw"] = 0
+	e["biz"] = []
+	var market := Businesses._row(e, "market", -1, 0, TownEcon.data())
+	e["mkt"] = int(market["id"]); market["till"] = 10000.0
 	if mode == "reserve":
 		# Explicit reserve-only register state: these real working-age people
 		# remain civilians, while lead_gone rejects reserve as a lead's service.
@@ -59,11 +74,11 @@ func fixture(source: Dictionary, mode: String, funded: bool, shared: bool, rever
 			for p in Persons.pp(e["fams"][int(id)]):
 				if int(p[6]) == 0: p[4] = "reserve"
 	e["cjcap"] = {}; e["cjused"] = {}; e["hands"] = 0; e["idle_n"] = 0
-	e["treasury"] = 0.0; e["day"] = 7; Game.day = 7.0
+	e["treasury"] = 0.0; e["day"] = 7; e["wage_day"] = 7; Game.day = 7.0
 	e["ruler"]["temper"] = "greedy"
 	town["shop"] = []; town["armory_items"] = []
 	var fac := {"capital": tid, "towns": [tid], "treasury": 0.0}
-	Game.world = {"seed": 2026, "factions": {fid: fac}, "towns": {tid: town}, "research": {}, "wars": [], "army": {"f": {fid: {"bill": 1.0}}}}
+	Game.world = {"seed": 2026, "factions": {fid: fac}, "towns": {tid: town}, "warbands": [], "research": {}, "wars": [], "army": {"f": {fid: {"bill": 1.0}}}}
 	var academy := Businesses._row(e, "academy", -1, 2 if mode.begins_with("cut") or mode == "displace" else 1, TownEcon.data())
 	e["academy"] = int(academy["id"])
 	academy["wage"] = 10.0; academy["till"] = 10000.0; academy["skill"] = 1.0; academy["lead"] = []
@@ -76,6 +91,8 @@ func fixture(source: Dictionary, mode: String, funded: bool, shared: bool, rever
 		academy["lskill"] = 3.0
 	if mode.begins_with("cut") or mode == "displace":
 		Families.set_job(e, staff, int(academy["id"]), int(staff["jobs"].get(str(int(academy["id"])), 0)) + 1)
+	elif mode == "reserve":
+		Families.set_job(e, staff, int(academy["id"]), 1)
 	var count := 0
 	for id in ids: count += Families.adults(e["fams"][int(id)])
 	var filler := Businesses._row(e, "carpenter", -1, count - int(academy["workers"]) - (3 if mode == "growth" else (1 if mode in ["appoint", "reserve"] else 0)), TownEcon.data())
@@ -85,18 +102,25 @@ func fixture(source: Dictionary, mode: String, funded: bool, shared: bool, rever
 	if mode in ["appoint", "reserve"]: academy["closed"] = true
 	Businesses.rebuild_open(e)
 	var rng := RandomNumberGenerator.new(); rng.seed = 88271
-	for id in ids: Families.turn(Game, town, e, e["fams"][int(id)], 7.0, rng)
+	# This tests job matching and its wage boundary, not a household's entire
+	# political/payday turn, which requires a full campaign world.
+	for id in ids: Families.reassign(e, e["fams"][int(id)])
 	academy["closed"] = false
 	e["idle_n"] = 0
 	for id in ids: e["idle_n"] += int(e["fams"][int(id)]["idle"])
 	balance(e, ids, "before weekly staffing")
 	var S := Academy.state(Game.world, fid)
 	for key in S["kh"]: S["kh"][key] = 0.0 if mode in ["cut0", "growth", "displace", "reserve"] else 100.0
+	# All races may research iron. A completed steel/bronze house is otherwise
+	# genuinely idle in v089, with an honorary unpaid head and zero paid places.
+	if mode in ["cut1", "appoint"]:
+		S["kh"]["iron"] = 0.0
+		e["ruler"]["temper"] = "merciful"
 	if mode == "growth": fac["treasury"] = 100000.0
 	if mode.begins_with("cut"):
 		offer["cap"] = 2 if mode == "cut0" else 1
 		offer["till"] = 10000.0 if funded else 0.0
-		academy["till"] = 10000.0 if funded else 10.0
+		academy["till"] = 200.0 if mode == "cut1" else (10000.0 if funded else 10.0)
 	elif mode == "appoint": academy["till"] = 10000.0 if funded else 0.0
 	elif mode in ["displace", "reserve"]:
 		# A real budget cut releases one relative. The existing matcher ranks
@@ -146,7 +170,7 @@ func fixture(source: Dictionary, mode: String, funded: bool, shared: bool, rever
 		var places := 0 if mode == "cut0" else 1
 		check(int(academy["cap"]) == places and int(academy["workers"]) == places, label + ": actual budget cut completes")
 		check(int(offer["workers"]) == (2 - places if funded else 0), label + ": released adults take only funded alternatives")
-		check((academy["lead"] as Array).size() == (0 if places == 0 else 2), label + ": lead removal or retention follows actual places")
+		check((academy["lead"] as Array).size() == (2 if bool(academy.get("research_idle", false)) or places > 0 else 0), label + ": idle honorary head or active paid lead follows the native post contract")
 	elif mode == "growth":
 		check(int(academy["cap"]) > 1 and int(academy["workers"]) == int(academy["cap"]), label + ": newly financed academy places match immediately")
 	elif mode in ["displace", "reserve"]:
@@ -165,7 +189,8 @@ func fixture(source: Dictionary, mode: String, funded: bool, shared: bool, rever
 		check(material_spend == 0.0 and e["stock"] == stock_before and e["led"]["used"] == used_before, label + ": absent lead consumes no research materials")
 		check(float(S["out"]) == 0.0, label + ": absent lead credits no daily output")
 	else:
-		check(int(academy["workers"]) == 1 and (academy["lead"] as Array).size() == 2, label + ": idle adult appointed in existing lead path")
+		var expected_places := 1 if funded else 0
+		check(int(academy["workers"]) == expected_places and (academy["lead"] as Array).size() == (2 if funded else 0), label + ": appointment requires an actually funded paid place")
 	var snapshot := JSON.stringify(e)
 	Families.match_idle(e)
 	check(JSON.stringify(e) == snapshot, label + ": completed matching has no repeated coins or assignment changes")
@@ -179,15 +204,32 @@ func fixture(source: Dictionary, mode: String, funded: bool, shared: bool, rever
 	for b in e["biz"]: owed += float(b.get("owed", 0.0))
 	check(absf(owed - prior_owed - expected) < 0.00001, label + ": following day accrues only actual current staffing wages")
 	check(absf(cash(e, fac) - before_cash) < 0.00001, label + ": wage accrual creates no coins")
+	completed += 1
 
 func run(_tree: SceneTree) -> int:
-	WorldGen.gen_size = "normal"; Game.new_game(2026)
+	var old_size: String = WorldGen.gen_size
+	var old_span: int = CampaignWorld.presim_span_days
+	WorldGen.gen_size = "normal"; CampaignWorld.presim_span_days = 1
+	Game.new_game(2026)
+	WorldGen.gen_size = old_size; CampaignWorld.presim_span_days = old_span
 	var towns: Array = Game.world["towns"].values().duplicate(true)
-	var seen := {}
+	var sources := {}
 	for town in towns:
-		if not TownEcon.has_econ(town): continue
-		var culture := String(town["econ"]["culture"])
-		if seen.has(culture): continue
+		if TownEcon.has_econ(town): sources[String(town["econ"]["culture"])] = town
+	check(not sources.is_empty(), "native world supplies economic town schemas")
+	if sources.is_empty(): return fails
+	var seen := {}
+	for culture in TownEcon.data()["cultures"]:
+		var town: Dictionary = sources.get(culture, sources.values()[0]).duplicate(true)
+		# Nomads have no generated economic capital, but the declared eastern
+		# wage/register rules still receive the same detached schema fixture.
+		if not sources.has(culture):
+			var found := false
+			for fid in DB.factions:
+				if String(DB.factions[fid].get("culture", "")) == String(culture):
+					town["faction"] = String(fid); found = true; break
+			check(found, "declared economy culture has a native faction: " + String(culture))
+		town["econ"]["culture"] = String(culture)
 		seen[culture] = true
 		for mode in ["cut1", "cut0", "appoint", "growth"]:
 			for funded in [false, true]:
@@ -196,5 +238,6 @@ func run(_tree: SceneTree) -> int:
 		for reverse_order in [false, true]: fixture(town, "displace", true, true, reverse_order)
 		fixture(town, "reserve", true, false, false)
 	check(seen.size() == TownEcon.data()["cultures"].size(), "every registered economy culture is exercised")
+	check(completed == seen.size() * 35, "all staffing controls completed; aborted fixtures cannot pass")
 	print("ACADEMY ASSIGNMENTS cultures=", seen.keys(), " checks=", checks, " failures=", fails)
 	return fails

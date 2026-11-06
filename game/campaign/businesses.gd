@@ -35,7 +35,7 @@ static func _row(e: Dictionary, type: String, owner: int, cap: int, D: Dictionar
 		# The same constructor also creates services during play. Choose an
 		# existing actual operator; no extra household or person is invented.
 		var candidates: Array = e.get("fams", []).filter(func(f): return not f.get("estate", false) and not f.get("gone", false) and not Population.is_cohort(f))
-		if not candidates.is_empty():
+		if type != "academy" and not candidates.is_empty():
 			candidates.sort_custom(func(a, c): return a["owns"].size() < c["owns"].size())
 			owner = int(candidates[0]["id"])
 			b["owner"] = owner
@@ -453,6 +453,11 @@ static func _who(e: Dictionary) -> Dictionary:
 ## for a material its smiths also practise town by town (data knowhow: bronze) the town's own practice under it, so a
 ## realm that may not know bronze (orcs, goblins) never smelts or works it whatever its towns have heard (v0.014).
 static func kh_of(e: Dictionary, key: String) -> float:
+	# Steel's race rules also apply to a stale town mirror after conquest/load.
+	if key == "steel":
+		var race := Academy.faction_race(String(e.get("faction", "")))
+		if race in ["orc", "goblin"]: return 0.0
+		if race == "dwarf": return 100.0
 	var fk: Dictionary = e.get("fkh", {})
 	var practised: bool = TownEcon.data()["knowhow"].has(key)
 	if fk.has(key):
@@ -504,6 +509,11 @@ static func daily(game, town: Dictionary, e: Dictionary, D: Dictionary, si: int,
 		# The keeper contributes work and takes profit, never employee wages.
 		# v0.014: the keeper works his shop (barge part 3 section 4); he draws the keeper's take, not a wage
 		var w := hired + int(b.get("kw", 0))
+		# Academy resolves its own named, paid workers. Idle/vacant houses must not buy tools or do keeper work.
+		if type == "academy":
+			var research_spent := Academy.day(game, town, e, b, float(hired), mkt, bdem)
+			_finish_production_day(b, receipt_before, hired, hired, research_spent)
+			continue
 		if w <= 0:
 			b["state"] = "hands" if int(b["cap"]) > 0 else "idle"
 			continue
@@ -558,8 +568,6 @@ static func daily(game, town: Dictionary, e: Dictionary, D: Dictionary, si: int,
 			_mine(e, D, b, float(w), toolf, spec, mkt, share, rng)
 		elif type == "butcher":
 			spent += Herds.butcher_day(e, b, float(w), toolf, mkt, share, bdem)   # herds: beasts bought from their owners
-		elif type == "academy":
-			spent += Academy.day(game, town, e, b, float(w), mkt, bdem)   # v0.012: the research house's trials and research
 		else:
 			spent += _recipes(e, D, b, T, float(w), toolf, spec, mkt, share, bdem)
 		TownSanitation.add_waste(e, float(w) * float(TownSanitation.D()["trade_waste_per_hand"].get(type, 0)) if b["state"] in ["busy", "hands"] else 0, "trade")
@@ -651,12 +659,18 @@ static func books_day(e: Dictionary) -> void:
 	var lds := int(BB["struggling"]); var thr := float(BB["thriving"])
 	for bid in e["prod"]:
 		var b: Dictionary = biz[int(bid)]
+		# No eligible line means no spending, including the ordinary building bill.
+		if String(b["type"]) == "academy" and bool(b.get("research_idle", false)):
+			continue
 		if not b["closed"]:
 			_books(b, int(b["workers"]), mkt, u0, u1, lds, thr)
 
 static func _books(b: Dictionary, w: int, mkt: Dictionary, u0: float, u1: float, lds: int, thr: float) -> void:
 	var up := u0 + u1 * float(w)
-	var pay := minf(up, maxf(0.0, float(b["till"])))
+	var available := maxf(0.0, float(b["till"]))
+	if String(b["type"]) == "academy":
+		available = maxf(0.0, available - float(b.get("owed", 0.0)))
+	var pay := minf(up, available)
 	b["till"] = float(b["till"]) - pay
 	mkt["till"] = float(mkt["till"]) + pay
 	var tl := float(b["till"])
@@ -824,7 +838,10 @@ static func _recipe_inputs(e: Dictionary, D: Dictionary, r: Dictionary) -> Dicti
 ## A quote does not clear prices, set state, or add demand to the live economy.
 static func _recipe_choice(e: Dictionary, D: Dictionary, b: Dictionary, T: Dictionary, wd: float, bdem: Dictionary, producing: bool) -> Dictionary:
 	var recs: Array = T["recipes"]
-	var alloy := Metallurgy.alloy_recipe(e, recs) if String(b.get("type", "")) == "smelter" else {}
+	var alloy := {}
+	if String(b.get("type", "")) == "smelter":
+		alloy = Metallurgy._steel_recipe(e, recs)
+		if alloy.is_empty(): alloy = Metallurgy.alloy_recipe(e, recs)
 	var st: Dictionary = e["stock"]
 	var price: Dictionary = e["price"]
 	var G: Dictionary = D["goods"]
@@ -862,7 +879,10 @@ static func _recipe_choice(e: Dictionary, D: Dictionary, b: Dictionary, T: Dicti
 				b["fg"] = (r["out"] as Dictionary).keys()[0]
 			full = true
 			continue
-		if not alloy.is_empty() and r == alloy: want = INF
+		# Furnace priority belongs to the chosen heat, including its equivalent
+		# wood/charcoal variants. Their finite input bill still chooses the fuel.
+		if not alloy.is_empty() and r["out"] == alloy["out"] \
+				and float(r.get("rate", 1.0)) == float(alloy.get("rate", 1.0)): want = INF
 		# Equivalent furnace batches can burn either wood or charcoal. Let the
 		# actual input bill choose the fuel when both are available; recipe order
 		# must not strand cheaper imported charcoal beside expensive firewood.
@@ -942,6 +962,10 @@ static func _batch_quote(e: Dictionary, recipe: Dictionary, share: float) -> flo
 ## Carry is work, never unpaid materials or a market advance. Used by both
 ## the actual purchase and the owner's read-only one-complete-batch quote.
 static func _recipe_batch_limit(e: Dictionary, b: Dictionary, best: Dictionary, ins: Dictionary, whole: int, mkt: Dictionary, share: float) -> int:
+	if best.get("out", {}).has("pig_iron"):
+		var paired := Metallurgy._pig_iron_batches(e)
+		if paired < whole:
+			whole = paired; b["state"] = "inputs"; b["why"] = "iron for steel"
 	for ig in ins:
 		var available := int(e["stock"].get(ig, 0)) / maxi(1, int(ins[ig]))
 		if available < whole:
@@ -1292,7 +1316,7 @@ static func _arms(_game, town: Dictionary, e: Dictionary, D: Dictionary, b: Dict
 		var it := Item.make(tid, mat, q)
 		ArmsTrade.mark(it, town, b)   # arms trade: the maker's mark
 		if it.is_legend():   # v0.014: a real maker of this forge and a real stone, else it stays masterwork
-			Legends.forge(_game if _game != null else Game, town, e, b, it, rng, float(e.get("day", 0)))
+			Legends.forge(_game if _game != null else Game, town, e, b, it, rng, float(e.get("day", 0)), cost)
 		var value := Economy.base_value(town, it) * share
 		# v0.014: a piece the armory has an order for goes to the head (the treasury pays the smith), else the market
 		var to_arm := kind in ["weapon", "armor"] and ArmsTrade.order_buy(_game, town, e, it, value, forge_pass)

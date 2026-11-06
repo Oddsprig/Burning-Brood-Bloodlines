@@ -133,7 +133,7 @@ func _test_name_icon() -> void:
 	check(is_equal_approx(DB.quality_mult(DB.LEGEND), 3.0) and is_equal_approx(DB.quality_mult(5), 2.0), "quality value 3.0 vs masterwork 2.0")
 	var shape := ItemIcon.shape_of(it.tid)
 	var img := ItemIcon.legend_image(shape, "copper", "ruby")
-	var spot: Vector2i = ItemIcon.GEM_SPOTS.get(shape, Vector2i(16, 16))
+	var spot: Vector2i = ItemIcon.GEM_SPOTS.get(shape, Vector2i(16, 16)) * ItemIcon.RASTER_SCALE
 	var px := img.get_pixelv(spot)
 	var ruby := Color(String(ItemIcon.THING_COLORS["ruby"]))
 	check(px.is_equal_approx(ruby), "the icon shows the gem at its spot (%s)" % str(px))

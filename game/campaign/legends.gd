@@ -160,8 +160,9 @@ static func sell_gems(e: Dictionary, f: Dictionary, day: float) -> float:
 	return got
 
 ## A stone for a legendary piece: the dearest on the market (the forge's till pays the market's price), else one a
-## family of the town keeps (the forge pays the family). "" when the town has none or the till cannot pay.
-static func take_gem(e: Dictionary, b: Dictionary) -> String:
+## family of the town keeps (the forge pays the family). Reserve the unfinished piece's input bill before buying
+## its stone. "" when the town has none or the remaining till cannot pay.
+static func take_gem(e: Dictionary, b: Dictionary, input_cost: float = 0.0) -> String:
 	var st: Dictionary = e["stock"]
 	var price: Dictionary = e["price"]
 	var mkt: Dictionary = e["biz"][int(e["mkt"])]
@@ -171,7 +172,7 @@ static func take_gem(e: Dictionary, b: Dictionary) -> String:
 			pick = g
 	if pick != "":
 		var p := float(price.get(pick, 0.0))
-		if float(b["till"]) < p:
+		if float(b["till"]) - maxf(0.0, input_cost) < p:
 			return ""
 		st[pick] = int(st[pick]) - 1
 		TownEcon.led(e, "used", pick, 1)
@@ -190,7 +191,7 @@ static func take_gem(e: Dictionary, b: Dictionary) -> String:
 	if bg == "":
 		return ""
 	var p2 := float(price.get(bg, 0.0))
-	if float(b["till"]) < p2:
+	if float(b["till"]) - maxf(0.0, input_cost) < p2:
 		return ""
 	add_fam_gem(e, bestf, bg, -1)
 	TownEcon.led(e, "used", bg, 1)
@@ -227,7 +228,7 @@ static func made_by(p: Array) -> int:
 ## A legendary roll at forge b turned out `it` (quality DB.LEGEND). Makes it a legendary piece (maker, gem, name,
 ## history), or turns it back to masterwork when the forge has no maker under the cap or no stone. Returns whether
 ## it stayed legendary.
-static func forge(game, town: Dictionary, e: Dictionary, b: Dictionary, it: Item, rng: RandomNumberGenerator, day: float) -> bool:
+static func forge(game, town: Dictionary, e: Dictionary, b: Dictionary, it: Item, rng: RandomNumberGenerator, day: float, input_cost: float = 0.0) -> bool:
 	if not it.is_legend():
 		return false
 	var cands := makers(e, b).filter(func(m): return made_by(m["p"]) < CAP)
@@ -235,7 +236,7 @@ static func forge(game, town: Dictionary, e: Dictionary, b: Dictionary, it: Item
 		it.quality = 5
 		_count(game, "no_maker")
 		return false
-	var gem := take_gem(e, b)
+	var gem := take_gem(e, b, input_cost)
 	if gem == "":
 		it.quality = 5
 		_count(game, "no_gem")
@@ -364,7 +365,7 @@ static func fell(it: Item, u: Unit, taker: String) -> void:
 
 # ================================================================== who takes it
 ## The fighter of these men it fits best: a weapon to the man most skilled with its kind, armour to the highest rank
-## (renown breaks ties). Living people only; a two-handed weapon is not given to a man who must keep a shield on.
+## (renown breaks ties). Living people only; incompatible off-hand gear and existing artifact shields are protected.
 static func best_fighter(units: Array, it: Item) -> Unit:
 	var slot := slot_of(it)
 	var skill := String(it.tmpl().get("skill", "bow" if DB.is_bow(it.tid) else ""))
@@ -376,6 +377,11 @@ static func best_fighter(units: Array, it: Item) -> Unit:
 		var cur: Item = u.equip.get(slot, null)
 		if cur != null and cur.is_legend():
 			continue   # one legendary piece in a slot stays
+		if slot == "off_hand" and u.weapon() != null and u.weapon().tmpl().get("two_handed", false):
+			continue
+		var shield: Item = u.equip.get("off_hand", null)
+		if slot == "main_hand" and it.tmpl().get("two_handed", false) and shield != null and shield.is_legend():
+			continue   # keep the artifact shield; another fighter or the winners' baggage takes this weapon
 		var sc := 0.0
 		if it.is_weapon() or DB.is_bow(it.tid):
 			sc = float(u.skill(skill)) * 10.0 + float(u.rank) + u.renown * 0.01
