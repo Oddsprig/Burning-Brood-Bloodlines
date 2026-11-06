@@ -3,7 +3,7 @@ extends RefCounted
 ## Battlefield dead gear recovery, spoils sharing, soldier/guard kit return, caravan plunder,
 ## and 10-day internal faction supply redistribution split from ArmsTrade (game/campaign/arms_trade.gd)
 ## to keep each file focused and under the size threshold.
-## Structure only; all ArmsTrade.* entry points delegate here with identical behavior.
+## ArmsTrade.* entry points delegate here; battlefield custody lives in this file.
 
 const SUPPLY_EVERY := ArmsTrade.SUPPLY_EVERY
 const ARMORY_EVERY := ArmsTrade.ARMORY_EVERY
@@ -40,7 +40,12 @@ static func field(game, dead: Array, holder: Dictionary, pos: Vector2) -> Dictio
 		return out
 	var custody: Dictionary = _salvage_custody(game, holder)
 	if custody.is_empty():
-		out["reason"] = "No actual victorious custody destination; field gear and carried cash remain untouched."
+		if (holder.get("band", {}) as Dictionary).is_empty() and (holder.get("town", {}) as Dictionary).is_empty():
+			out["reason"] = "No actual victorious holder; field gear and carried cash remain untouched."
+			return out
+		# No scrap-sale destination must not strand artifacts on bodies the caller removes.
+		out["kept"] = _recover_legends(game, people, holder, true)
+		out["reason"] = "No scrap custody destination; ordinary field gear and carried cash remain untouched."
 		return out
 	var seed := hash([int(w.get("seed", 0)), int(float(game.day) * 1000.0), int(pos.x), int(pos.y), people.size(), "arms-field"])
 	var harvest_started := Time.get_ticks_usec()
@@ -77,6 +82,29 @@ static func field(game, dead: Array, holder: Dictionary, pos: Vector2) -> Dictio
 	TownEcon.gold_out(-float(sp["coin"]) - paid)   # market payment is credited to native inside recipients by share_spoils
 	share_spoils(game, holder, paid + float(sp["coin"]))
 	return out
+
+## Move exact artifacts once, independently of the ordinary loot/scrap transaction. A draw returns each side's
+## pieces to its own survivors/baggage; an actual winner records the capture and the former town's loss.
+static func _recover_legends(game, people: Array, holder: Dictionary, captured: bool) -> int:
+	var kept := 0
+	for u in people:
+		for slot in u.equip.keys():
+			var it: Item = u.equip[slot]
+			if not it.is_legend():
+				continue
+			u.equip.erase(slot)
+			if captured:
+				Legends.fell(it, u, holder_name(holder))
+				ArmsTrade.led("looted")
+			else:
+				it.legend["cu"] = -1
+				Legends.note(it, float(game.day), "Recovered from the fallen %s after an indecisive battle." % u.name)
+			if holder.get("company", false):
+				game.stash.append(it)
+			else:
+				to_holder(game, holder, it)
+			kept += 1
+	return kept
 
 ## Unpaid exact Items need real uncapped ownership before the field is harvested.
 ## This bypasses to_holder's autoequipping and outlaw overflow-loss policy.
@@ -186,7 +214,7 @@ static func _legend_found(game, it: Item, u: Unit, pos: Vector2) -> void:
 ## A looted piece: one of the winners missing that slot puts it on; else it goes home with the band's baggage (the
 ## home town's armory; outlaws: their camp's hoard); else it is left.
 ## v0.014: a legendary piece goes on the winners' best fitting fighter (Legends.give, the same code for every AI
-## force); what he wore goes this normal way. Nobody to carry it: the armory or hoard (no cap), never left.
+## force); what he wore goes this normal way. Nobody to carry it: its own armory, hoard or native cargo, never left.
 static func to_holder(game, holder: Dictionary, it: Item) -> void:
 	var w: Dictionary = game.world
 	var hb: Dictionary = holder.get("band", {})
@@ -200,18 +228,25 @@ static func to_holder(game, holder: Dictionary, it: Item) -> void:
 					to_holder(game, holder, o)
 			return
 		var l0: Dictionary = w.get("lairs", {}).get(String(hb.get("home", "")), {}) if not hb.is_empty() else {}
-		if not l0.is_empty() and l0.has("stock"):
+		if hb.get("faction", "") == "outlaws" and not l0.is_empty() and l0.has("stock"):
 			(l0["stock"] as Array).append(it)
 			Legends.note(it, float(game.day), "Carried to an outlaw hoard.")
 			ArmsTrade.led("home")
 			return
 		var t0 := _holder_town(game, holder)
-		if not TownEcon.has_econ(t0):
-			t0 = w.get("towns", {}).get(String(hb.get("home", "")), {})
-		if TownEcon.has_econ(t0):
+		if not t0.is_empty():
 			ArmsTrade.armory(t0).append(it)
-			TownEcon.led(t0["econ"], "made", "arms", 1)
+			if TownEcon.has_econ(t0): TownEcon.led(t0["econ"], "made", "arms", 1)
 			Legends.note(it, float(game.day), "Carried to the armory of %s." % String(t0.get("name", "?")))
+			ArmsTrade.led("home")
+			return
+		if not hb.is_empty():
+			# The old home may now belong to the enemy. Keep overflow in the actual winners' native cargo.
+			if not hb.has("cargo"): hb["cargo"] = {}
+			if not hb["cargo"].has("items"): hb["cargo"]["items"] = []
+			(hb["cargo"]["items"] as Array).append(it)
+			WorldAudit.book(w, "arms", "+legend in victorious band cargo", 1)
+			Legends.note(it, float(game.day), "Carried with the baggage of %s." % holder_name(holder))
 			ArmsTrade.led("home")
 			return
 		_legend_found(game, it, null, hb.get("pos", Vector2.ZERO))
@@ -362,7 +397,7 @@ static func guards_home(game, wb: Dictionary) -> void:
 static func plunder_cargo(game, win: Dictionary, car: Dictionary) -> void:
 	field(game, (car["units"] as Array).filter(func(u): return u is Unit and not u.dead), {"band": win}, car["pos"])
 	var items: Array = car.get("cargo", {}).get("items", [])
-	# v0.014: legendary pieces in the cargo always go to the winners (outlaws too; beasts: the nearest town finds them)
+	# Every known winner retains legendary cargo, including beasts that cannot equip it.
 	for i in range(items.size() - 1, -1, -1):
 		var lit: Item = items[i]
 		if not lit.is_legend():
@@ -370,10 +405,7 @@ static func plunder_cargo(game, win: Dictionary, car: Dictionary) -> void:
 		items.remove_at(i)
 		WorldAudit.book(game.world, "arms", "-legend out of caravan cargo", -1)   # v0.075: out of the wagons (a town that gets it books it made)
 		Legends.note(lit, float(game.day), "Taken from a plundered caravan by %s." % holder_name({"band": win}) if not Monsters.is_monster_band(win) else "Its caravan was overrun by beasts.")
-		if Monsters.is_monster_band(win):
-			_legend_found(game, lit, null, car["pos"])
-		else:
-			to_holder(game, {"band": win}, lit)
+		to_holder(game, {"band": win}, lit)
 	if String(win.get("kind", "")) == "bandit" or Monsters.is_monster_band(win):
 		return
 	var keep := int(ceil(items.size() * Caravans.PLUNDER_SHARE))
@@ -392,9 +424,20 @@ static func after_company_battle(game, result: Dictionary, wb: Dictionary, car: 
 	# filters its fallen out of the campaign band.
 	for u: Unit in wb.get("units", []):
 		if u.dead: Horses.return_mount(game, u)
-	var won := int(result.get("winner", -1)) == 0
+	var winner := int(result.get("winner", -1))
+	var won := winner == 0
 	var w: Dictionary = game.world
 	var pos: Vector2 = wb.get("pos", w["party"]["pos"])
+	if winner not in [0, 1]:
+		_recover_legends(game, (result.get("player_units", []) as Array).filter(func(u): return u is Unit and u.dead), {"company": true}, false)
+		_recover_legends(game, (wb.get("units", []) as Array).filter(func(u): return u is Unit and u.dead), {"band": wb}, false)
+		if not car.is_empty():
+			_recover_legends(game, (car["units"] as Array).filter(func(u): return u is Unit and u.dead), {"band": car}, false)
+		for bid in ally_ids:
+			var ab: Dictionary = w["warbands"].get(bid, {})
+			if not ab.is_empty():
+				_recover_legends(game, (ab["units"] as Array).filter(func(u): return u is Unit and u.dead), {"band": ab}, false)
+		return
 	if not won:
 		var dead := []
 		for u in result.get("player_units", []):
@@ -403,15 +446,21 @@ static func after_company_battle(game, result: Dictionary, wb: Dictionary, car: 
 		for u in wb.get("units", []):
 			if u is Unit and u.dead:
 				dead.append(u)
+		if Monsters.is_monster_band(wb):
+			_recover_legends(game, dead, {"band": wb}, true) # known beast winner keeps artifacts; ordinary losses stay native
 		field(game, dead, {"band": wb} if not Monsters.is_monster_band(wb) else {}, pos)
 	if not car.is_empty():
 		var cd: Array = (car["units"] as Array).filter(func(u): return u is Unit and u.dead)
+		if not won and Monsters.is_monster_band(wb):
+			_recover_legends(game, cd, {"band": wb}, true)
 		field(game, cd, {"band": car} if won else ({"band": wb} if not Monsters.is_monster_band(wb) else {}), pos)
 	for bid in ally_ids:
 		var ab: Dictionary = w["warbands"].get(bid, {})
 		if ab.is_empty():
 			continue
 		var ad: Array = (ab["units"] as Array).filter(func(u): return u is Unit and u.dead)
+		if not won and Monsters.is_monster_band(wb):
+			_recover_legends(game, ad, {"band": wb}, true)
 		field(game, ad, {"band": ab} if won else ({"band": wb} if not Monsters.is_monster_band(wb) else {}), pos)
 
 # ================================================================== scheduled internal supply

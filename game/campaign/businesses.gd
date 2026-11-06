@@ -1283,7 +1283,7 @@ static func _arms(_game, town: Dictionary, e: Dictionary, D: Dictionary, b: Dict
 		var it := Item.make(tid, mat, q)
 		ArmsTrade.mark(it, town, b)   # arms trade: the maker's mark
 		if it.is_legend():   # v0.014: a real maker of this forge and a real stone, else it stays masterwork
-			Legends.forge(_game if _game != null else Game, town, e, b, it, rng, float(e.get("day", 0)))
+			Legends.forge(_game if _game != null else Game, town, e, b, it, rng, float(e.get("day", 0)), cost)
 		var value := Economy.base_value(town, it) * share
 		# v0.014: a piece the armory has an order for goes to the head (the treasury pays the smith), else the market
 		var to_arm := kind in ["weapon", "armor"] and ArmsTrade.order_buy(_game, town, e, it, value, forge_pass)
