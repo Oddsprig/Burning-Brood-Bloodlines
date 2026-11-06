@@ -1028,16 +1028,19 @@ func _purse_diagnostic(tree: SceneTree) -> int:
 
 func _trace_item_holders(trace: Array, prior: Dictionary, job) -> void:
 	if Item._next_uid <= 58134: return
-	var held: Dictionary = WorldAudit.items(Game)["held"]
 	var state: Dictionary = {}
-	for uid in [58134, 58135]: state[str(uid)] = held.get(uid, [])
-	if prior.get("state") == state: return
+	for uid in [58134, 58135]: state[str(uid)] = []
 	var pool: Array = []
 	for unit: Unit in Game.world["towns"]["t14"].get("recruits", []):
 		var gear: Dictionary = {}
-		for slot in unit.equip: gear[str(slot)] = [unit.equip[slot].uid, unit.equip[slot].tid]
+		for slot in unit.equip:
+			var item: Item = unit.equip[slot]
+			gear[str(slot)] = [item.uid, item.tid]
+			if item.uid in [58134, 58135]: state[str(item.uid)] = ["town recruit", unit.uid, str(slot)]
 		pool.append({"uid": unit.uid, "family": unit.family, "title": unit.title, "gear": gear})
+	if prior.get("state") == state: return
 	trace.append({"day": Game.day, "job": M.plain(job), "held": state, "town_recruit_pool": pool})
+	print("ITEM_HOLDER_STEP_V094 ", M.text(trace[-1]))
 	prior["state"] = state
 
 
