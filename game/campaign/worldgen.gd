@@ -312,6 +312,11 @@ static func place_towns(world: Dictionary, rng: RandomNumberGenerator) -> void:
 			var i := idx(c.x, c.y)
 			if land[i] == 0 or reg[i] != str(REGIONS.find(r)):
 				continue
+			# Eastern settlements start on the dry, open steppe; region membership
+			# alone also admits wet forest along the band's western edge.
+			if fid == "eastern_khanate" and (not (terr[i] in ["g", "h", "b"]) \
+					or dryness((c.x + 0.5) / K, (c.y + 0.5) / K) < float(TownEcon.data().get("dry_min", 0.5))):
+				continue
 			var ok := true
 			var bc := Vector2i(floori(c.x / gap), floori(c.y / gap))
 			for dy in range(-1, 2):
@@ -420,7 +425,7 @@ static func place_holds(world: Dictionary, rng: RandomNumberGenerator, land: Pac
 		towns[id] = {"id": id, "name": town_name(rng, fac.get("culture", "dwarf"), used_names),
 			"pos": cell_center(c), "faction": fid, "region": "holds", "culture": fac.get("culture", "dwarf"),
 			"size": size, "wealth": clampi(fw + (1 if capital else rng.randi_range(-1, 0)), 1, 5), "capital": capital,
-			"specialty": "mining",   # every hold is a mine (the ore deposits follow: EconGen gives a mining town 2-3)
+			"specialty": "mining",   # founded on good iron; other seams follow EconGen's ordinary geology
 			"crafters": {}, "healer": {}, "shop": [], "prices": {}, "material_prices": {},
 			"recruits": [], "contracts": [], "next_refresh": 0.0, "neighbours": []}
 		holds.append(c)
