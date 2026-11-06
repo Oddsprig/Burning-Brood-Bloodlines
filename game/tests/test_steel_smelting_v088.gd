@@ -58,7 +58,7 @@ func _recipe(output: String, input: String) -> Dictionary:
 func _fixture(kh: float = 100.0, fid: String = "dwarf_holds", culture: String = "middle") -> Dictionary:
 	var d := TownEcon.data()
 	var e := {"v": 1, "faction": fid, "culture": culture, "day": 1, "knowhow": {"bronze": 100.0},
-		"fkh": {"steel": kh, "iron": 100.0, "bronze": 100.0}, "stock": {}, "price": {}, "need": {},
+		"fkh": {"steel": kh, "iron": 100.0, "bronze": 100.0}, "stock": {}, "barn": {}, "price": {}, "need": {},
 		"stats": {"sales": 0.0}, "led": {"made": {}, "used": {}}, "treasury": 123.0, "fams": [], "specialties": []}
 	for g in d["goods"]:
 		e["stock"][g] = 0; e["price"][g] = float(d["goods"][g]["price"]); e["need"][g] = 10000.0
@@ -234,6 +234,17 @@ func _quality_and_skill() -> void:
 	for it in novice["town"]["shop"]: low_total += it.quality
 	check(low_total < high_total, "full faction knowledge does not replace the smith's own skill")
 
+func _same_whole_counts(a: Dictionary, b: Dictionary) -> bool:
+	# JSON numbers load as floats. Validate whole, finite physical counts before
+	# comparing their exact values; a fractional or missing count must still fail.
+	if a.size() != b.size(): return false
+	for key in a:
+		if not b.has(key): return false
+		var av := float(a[key]); var bv := float(b[key])
+		if not is_finite(av) or not is_finite(bv) or av < 0 or bv < 0: return false
+		if av != float(int(av)) or bv != float(int(bv)) or int(av) != int(bv): return false
+	return true
+
 func _saved_continuation() -> void:
 	var original := _fixture(35.5, "middle_kingdom")
 	_stock(original, {"iron_bars": 8, "wood": 20, "flux": 20})
@@ -246,7 +257,7 @@ func _saved_continuation() -> void:
 	loaded["town"]["econ"] = decoded
 	loaded["b"] = decoded["biz"][0]; loaded["m"] = decoded["biz"][1]
 	_smelt(original); _smelt(loaded)
-	check(original["e"]["stock"] == loaded["e"]["stock"] and original["e"]["led"] == loaded["e"]["led"], "restoring between pig iron and steel preserves exact stocks and ledger continuation")
+	check(_same_whole_counts(original["e"]["stock"], loaded["e"]["stock"]) and _same_whole_counts(original["e"]["led"]["made"], loaded["e"]["led"]["made"]) and _same_whole_counts(original["e"]["led"]["used"], loaded["e"]["led"]["used"]), "restoring between pig iron and steel preserves exact stocks and ledger continuation")
 	check(near(_coins(original), _coins(loaded)) and near(float(original["b"]["carry"]), float(loaded["b"]["carry"])), "restored final heat preserves cash and fractional work")
 	check(near(Businesses.kh_of(loaded["e"], "steel"), 35.5), "restored furnace retains the faction knowledge mirror")
 
