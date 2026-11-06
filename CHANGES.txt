@@ -1,0 +1,65 @@
+BURNING BROOD: BLOODLINES - ACTIVE CHANGE NOTES
+Updated: 2026-11-06 against main 2c7bd93 / source v0.094.
+Last packaged Desktop/Android release: v0.085. v0.095 remains unbuilt.
+
+This changelog starts with the accepted v0.086-v0.094 source catch-up. Earlier
+history remains in the developer notes and immutable archives. Historical worker
+UNRUN reports are superseded by the accepted source receipts where stated.
+
+v0.086 - Domestic animals and counted pack custody
+Normal merge: aa6c58eae26c2eeb6723d0fc20770aecc92bfc60
+Native herd species, actual paid/fed dog guard eligibility, counted poultry feathers and donkey pack ownership/cargo; no dog battle units or free livestock.
+Owners (game/): campaign/domestic_animals.gd; campaign/herds.gd; campaign/herds_market.gd; campaign/herd_raids.gd; campaign/caravans.gd; data/economy.json
+
+v0.087 - Dwarf holds, charcoal, tools and human cultures
+Normal merge: e0df6223c79b95810551f75004adb8bb347d96a8
+Mountain/ore/farmland opening conditions, charcoal fuel and iron tools; native paid trade, migration and cross-human-culture marriage controls retained and checked.
+Owners (game/): campaign/worldgen.gd; campaign/econ_gen.gd; campaign/businesses.gd; data/economy.json
+
+v0.088 - Native steel production
+Normal merge: 3db1c2dff75c15aaf2f547822ca811688e3e8520
+Steel recipe selection, pig-iron/input batches and know-how integration through the existing metallurgy and business accounts.
+Owners (game/): campaign/metallurgy.gd; campaign/businesses.gd; data/economy.json
+
+v0.089 - Academy research, real staff and custody
+Normal merge: a67dc4172dd1beb59c284af8aa83d4be1ffda37a
+Funded research uses registered people, wages and paid trial materials; research UI reports actual roster/payroll. Native hiring, head identity, armory/item custody and audit fixes are included.
+Owners (game/): campaign/academy.gd; campaign/arms_trade.gd; campaign/militia.gd; ui/town_research_tab.gd
+
+v0.090 - Gem pockets and named artifact custody
+Normal merge: f71d804489ba335b77ce45129c964aa97bfdfe64
+Ore gem pockets, named gem-set production with real maker limits/input funding, compatible equipment and lossless battlefield winner custody.
+Owners (game/): campaign/legends.gd; campaign/businesses.gd; campaign/arms_salvage.gd; core/item.gd
+
+v0.091 - Equipment light and metal finish
+Normal merge: 9739b937f6de350b1d83be32b69ddcb7b1cd07cf
+Code-drawn shields/weapons use equipment normal shading and bronze/iron/steel specular ramps. Equipment, mounted and identity checks plus inspected CPU stills were accepted; no animation change is claimed.
+Owners (game/): art/figure_painter.gd; art/weapon_art.gd; art/pixel_canvas.gd
+
+v0.092 - Active truce at player attack boundaries
+Normal merge: 9dcce1b1b6b6db2878d7b1751e2ef68211fd2752
+Existing post-peace truces participate in peace_bound, protecting actual player field/settlement raid and siege actions before mutation. 120 new and 28 retained militia checks passed; the existing militia wall/sally policy is preserved.
+Owners (game/): campaign/diplomacy.gd; campaign/warfare.gd; campaign/world.gd
+
+v0.093 - Native battle-series measurement
+Normal merge: d0ecc856b0b532798465533b64fffa78104c9ca6
+108 native multi-engagement battles and 306 engagements, preserving roster, wounds and rider continuity. Ruby small 0/12 and large 9/12 frontier balance remains unresolved; no universal fairness/price verdict or giant200v200 claim.
+Owners (game/): tests/balance_engagements_v093.gd; tests/summarize_engagements_v093.py; tests/test_engagement_contract_v093.gd; campaign/battle_rounds.gd
+
+v0.094 - Short economy acceptance and conservation fixes
+Normal merge: a48ea0d69c1b79843b027272d7bb29b36b66ec9f
+Rounded mint affordability is checked before mutation; recruit-template Items and natural-death kit are booked; stored category accounting is repaired in promotion/migration/load paths. 321 controls plus native day 53 mint and fresh-process reload through day 54 passed. The owner stopped the 240-day acceptance is incomplete.
+Owners (game/): campaign/barge.gd; campaign/recruits.gd; campaign/sickness.gd; campaign/population.gd; campaign/families.gd; campaign/migration.gd; campaign/town_econ.gd; campaign/economy_audit.gd
+
+2026-11-06 documentation audit (no runtime version change)
+Argon/Grok/Sol source audits and lead review updated the map, current notes and
+this changelog for every v0.086-v0.094 version. Existing Court/laws/treasure/marriage/
+prisoner/diplomacy controls are mapped; missing or broken paths are separated
+from new design proposals. See docs/audit_v094/README.md for one ranked list.
+Corrected unsupported draft history/catalog claims against actual source.
+No game, engine, build, test, asset or save was launched/changed by this audit.
+Original owner changes and historical/failure evidence are preserved.
+
+Standing gate: all three active docs must contain the version update in the SAME merge
+or DO NOT MERGE. Post-merge one light notes helper reconciles them; lead verifies,
+commits and pushes normally. Details: docs/BUILD_RULES.md.

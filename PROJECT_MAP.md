@@ -1,3 +1,100 @@
+# Burning Brood: Bloodlines — current developer map
+
+Updated 6 November 2026 against source `main` `2c7bd93` (v0.094). Source versions v0.086–v0.094 are accepted normal merges; the last packaged Desktop/Android release is v0.085. v0.095 is unbuilt pending owner go-ahead. No engine, game, build or test was run for this documentation audit.
+
+## Read first
+
+1. This map: current owners/routes and the shipped source summary.
+2. [Developer notes](docs/DEV_NOTES.txt) and [change notes](CHANGES.txt): current behavior, per-version changes and evidence limits.
+3. [Combined source audit and ranked player gaps](docs/audit_v094/README.md), with separate economy, war and houses reports.
+4. [Build/notes rules](docs/BUILD_RULES.md): all three active docs must describe a version in the SAME version merge or it must not merge. One light notes helper reconciles them after each version merge, counting toward the standing two-helper limit.
+5. [Accepted validation](docs/validation_v086-v094.md) and [v0.094 results](docs/economy_v094_results.md). Older worker UNRUN reports are historical; current acceptance is bounded by these receipts.
+
+## Shipped v0.086–v0.094 source
+
+| Version | Shipped source change | Normal merge |
+|---|---|---|
+| v0.086 | Domestic animals and counted pack custody | `aa6c58ea` |
+| v0.087 | Dwarf holds, charcoal, tools and human cultures | `e0df6223` |
+| v0.088 | Native steel production | `3db1c2df` |
+| v0.089 | Academy research, real staff and custody | `a67dc417` |
+| v0.090 | Gem pockets and named artifact custody | `f71d8044` |
+| v0.091 | Equipment light and metal finish | `9739b937` |
+| v0.092 | Active truce at player attack boundaries | `9dcce1b1` |
+| v0.093 | Native battle-series measurement | `d0ecc856` |
+| v0.094 | Short economy acceptance and conservation fixes | `a48ea0d6` |
+
+v0.093 is a measurement release with unresolved balance. v0.094's replacement short acceptance is not a completed 240-day stability run. Neither implies a new packaged build.
+
+## Economy, town and people owners
+
+| Area | Owning source and player entry |
+|---|---|
+| Domestic animals / packs | `game/campaign/domestic_animals.gd` (`feed_dogs`, `prepare_pack`, `pack_herd`), `herds.gd`, `herds_market.gd`, `herd_raids.gd`, `caravans.gd`; definitions in `game/data/economy.json`. Town/Market/Herd Records are existing screens. |
+| Holds, fuel, tools and steel | `game/campaign/worldgen.gd`, `econ_gen.gd`, `businesses.gd`, `metallurgy.gd`; Town production/Records project the same native goods/know-how. |
+| Academy and artifacts | `game/campaign/academy.gd`, `legends.gd`, `arms_trade.gd`, `arms_salvage.gd`; Town Research (`game/ui/town_research_tab.gd`), orders and business/region records. Materials, registered staff, gem input bills and exact Item custody remain real. |
+| Families and census | `game/campaign/families.gd`, `persons.gd`, `people.gd`, `population.gd`, `migration.gd`, `sickness.gd`, `sickness_groups.gd`, `census.gd`; Population and town records. `world_audit.gd` and `economy_audit.gd` observe native accounts. |
+| Civic buildings and food | `game/campaign/settlement.gd`; Town Buildings (`game/ui/town_buildings_tab.gd`). Its separate food reserve, temple schema and room-capacity reads have integration gaps described in the audit. Barge/market/granary remain the actual food accounts. |
+
+The reviewed economy report rejects nonexistent catalog/classes and incorrect version/hash claims from its first draft. It qualifies the cohort-removal counting-year issue as a source risk, not proof of the historical day 173 failure. See [economy findings](docs/audit_v094/economy.md).
+
+## war source audit — main 2c7bd93
+
+Source pin `2c7bd93d818810e005f7582f5687d38d1aeda5d2`. Live version string is `game/project.godot` `config/version="0.094"`. The preserved inventory below contains the old v0.035 config description and historical sizes. Last packaged Desktop/Android release remains 0.085. v0.095 is unbuilt. A version is not done until this map, `docs/DEV_NOTES.txt` and `CHANGES.txt` all change for it in the same merge.
+
+### Owners and entry points
+
+Router: `Game.goto` (`game/core/game.gd:75`) to `main.show_screen` (`game/main.gd:52`). War screens in `Game.SCREENS`: `map`, `company`, `muster`, `battle`, `aftermath`, `dragons`.
+
+| Player control | Handler | State it writes |
+| :--- | :--- | :--- |
+| Map **Army** / party **Muster** | `world_map.gd` → `Game.goto("muster")` | none until confirm |
+| Muster **Review raising** → **Confirm** | `muster.gd:207` `request_raise` → `apply_raise` → `Mobilization.muster` (`mobilization.gd:426`) | company Unit, family purse, `player_reserve_uids`, armory/shop Items, army `gold`, meal stock. Quote must match. |
+| Muster **Ride with the army** | `muster.gd:189` `apply_enlist_household` → `Mobilization.enlist_household` | one house Unit immediately, no review modal |
+| Map town **Raid** / **Besiege** | `world_map.gd:899` `_assault` → `Warfare.start` (`warfare.gd:65`) → `Game.start_battle` (`game.gd:272`) | `world["warfare"]`, diplomacy/rep, then `pending_battle` |
+| Map **Attack** | `CampaignWorld.engage` (`world.gd:384`) → `start_battle` | encounter, rep, `pending_battle` |
+| Battle round **Continue** | `battle.gd:1009` `_after_round_panel` → `BattleRounds.next_round` → `goto("battle")` | same Unit/BodyState objects; `pending_battle["rounds"]` |
+| Battle **Continue** (over) | `battle.gd:1104` `finish` → `BattleRounds.final_result` or `build_result` → `Game.finish_battle` | prisoners, loot, wounds, `world` warband, assault plunder/conquest |
+| Dragons **Defend this settlement** | `dragons.gd:575` `_request_combat` → confirm → `DragonCombat.participation_order` | `combat_order` on the dragon record |
+| Dragons **March with army** | `dragons.gd:421` → `Warfare.set_march` (`warfare.gd:262`) | `campaign_march` on the record, one click |
+
+Battle admission (`game.gd:284-299`): suspended creatures abort before dragon bodies are borrowed; `DragonCombat.battle_units` adds home-defence and marching bodies; `BattleRounds.begin` runs when either side is larger than `BattleRounds.round_size` (100). The battle scene uses `pending_battle["round_side0"]` (`battle.gd:112`), not the whole army. Riders attach in `battle.gd:120` via `DragonCombat.battle_riders`.
+
+Off-screen army contact is `WorldWarbands._warband_clashes` (`world_warbands.gd:573`) → `ClashRounds.resolve` (counts) → `take_clash_loss` (real Unit removal or dragon `_mark_death`). Town militia contact is `Militia.tick` / `_fight` (power roll). Neither path is `BattleSim`.
+
+### Cross-area owners and review limits
+
+`Diplomacy.peace_bound` / `fights` live in `game/campaign/diplomacy.gd`; `Ambitions.check` reads wins/dragon wins in `ambitions.gd` and `game/ui/victory.gd:20` displays wins/losses. Equipment shading also uses `game/art/weapon_art.gd` and `pixel_canvas.gd`. v0.093's native driver is `game/tests/balance_engagements_v093.gd`, summarized by `summarize_engagements_v093.py` and checked by `test_engagement_contract_v093.gd`. These paths are navigation references, not authorization to run them.
+
+The reviewed war report records final-engagement flee/loot protection, living-dragon fitness bypass, the dragonless-win counter and town-panel limits. Whole-battle escaping identities must respect later re-entry; an unconditional union of all earlier fleers is not an accepted fix. See [war findings](docs/audit_v094/war.md).
+
+## houses source audit — main 2c7bd93
+
+Source-only reconciliation, 2026-11-06, pinned to `2c7bd93d818810e005f7582f5687d38d1aeda5d2`. Source through v0.094 is accepted; last packaged Desktop/Android release is v0.085. Earlier version/config/size descriptions in the preserved inventory below are historical. Detailed ranked findings, source lines, provenance and missing dependencies: [houses audit](docs/audit_v094/houses.md). No game or test was run for this audit.
+
+| Actual owner / entrypoint | Player path and mutation | Saved native fields / limits |
+|---|---|---|
+| `ui/title.gd:74`, `ui/newgame.gd:224`, `ui/presim.gd:270`, `ui/house_select.gd:484` | Continue loads the current save; New Campaign builds history, then settlement/local-house selection, banner, mandatory ruler design and review. Explicit Begin calls `HouseOnboarding.begin` (`campaign/house_onboarding.gd:117`). | `world.player_house`, its customization/design and the existing person's name/look/focus; existing party position changes only on Begin. Company/wallet start empty. **H01:** histories over one day conflict with the mandatory day-one design guard. |
+| `campaign/dynasty.gd:222`, `:592`, `:740`, `:853`, `:926`; `ui/house_laws.gd:188` | Real office/household identity, lineage heirs, minor regency and succession; Laws already has reviewed law changes, grievance and five-year lock. Ordinary households retain separate authority. | Native heads/person links, `world.dynasty`, `world.laws[house_uid]`; no separate dynasty wallet. Council appointments are not supplied by these existing succession functions. |
+| `ui/house.gd:94`, `:169`; `campaign/feudal.gd:184`, `:287`, `:341` | Four account displays; reviewed private-to-army transfer. Politics has taxes, city/realm funding, defence policy, vassal grants/pressure and oaths. Court has conquered-town keep/grant/revoke (`ui/court.gd:144`, `campaign/feudal.gd:649`). | Household `purse`, town/faction treasury, `Game.gold` and `world.feudal` remain distinct. Actual office/hierarchy gates commands. **H03:** Politics also changes physical `Game.location` while browsing; a save/reload can turn this into relocation. |
+| `ui/court.gd:37`, `:391`, `:435`; `campaign/marriage.gd:113`, `:207`, `:242`, `:327` | Living family tree, spouse matching/gifts, betrothals, real spouse moves/dowry/egg, marriage ties and claims. AI cross-culture marriages already exist. | Native person/household rows and `world.marriage`; living-pair checks govern marriage benefits. **H02/H07/H08:** one-sided adulthood check, incomplete proposal terms and 12-of-24 candidate display. |
+| `ui/court.gd:190`, `:236`, `:261`; `campaign/intrigue.gd:93`, `campaign/prisoners.gd:176`, `:247` | Assassinate/sway/fabricate-claim reviews; prisoner ransom/release/pay/exchange/execute/funded sale, with existing upkeep and AI offers. | `world.intrigue`, held/captive native Units and `world.prisoners`; no invented ransom proceeds. **H08/H09:** prisoner overflow lacks individual paging; named council/spymaster assignment is not implemented in these screens. |
+| `ui/treasure_room.gd:128`, `:173`; `campaign/court_events.gd:203`, `:271`, `:331`; `campaign/house_upkeep.gd:784`, `:871` | Treasure room already buys and sells real hoard pieces. Backend court events, automatic spending, staff and improvements also exist. Controller-supplied integration: `Families.turn`, `campaign/families.gd:1128` and `:1130`. | Household `court`, `hoard`, `upkeep`, `improvements`; market `court_stock`. **H05/H06:** improvement supply/completion gates need correction; supplied House/Court UI lacks corresponding staff/events/automatic-spending management. Other Records callers remain unverified. |
+| `ui/relations.gd:72`, `:176`; `campaign/diplomacy.gd:404`, `:444`, `:698` | Standing/composition effects, faction matrix, alliance/pact/break reviews, native war/peace and truce expiry. v0.092's active-truce protection is shipped, not an open bug inferred from an old report. | `world.diplo.pairs`, treaty/pact/truce/call state and standing logs. Negotiated demands/peace settlement and ordinary-house treaty authority remain design questions, not missing existing alliance controls. |
+| `core/save_snapshot.gd:16`, `core/game.gd:562`, `:1078`, `:1126`; `core/mobile_app.gd:63` | Detached native snapshot → existing exact-float writer → receipt → native load/after-load; settings use `Game.set_setting` at `core/game.gd:1324`. | Complete `world`, company/items/RNG, `location` and separate settings file. **H04:** immediate Map “Game saved” toast and unconditional quit do not verify write success. v0.094's accepted reload case does not establish UI failure handling. |
+
+Paths in the table are relative to `game/`. Actual armory owners in supplied source are town `armory_items`, `ArmsTrade` and `Legends` custody (`campaign/arms_trade.gd:259`, `campaign/legends.gd:413`). No separate `HouseArmory` symbol/route is present in this partial snapshot; full company/muster/mobilization/Records controls need root inspection before declaring private-armory functionality absent. Rendering implementations and combat/settlement internals belong to the other audit areas.
+
+The recommended narrow v0.095 candidate is reliable initial campaign entry (H01), preserving chosen history and one-time ruler design. Navigation/save-feedback defects H03/H04 also outrank new council or war-demand systems. This is a recommendation only; v0.095 remains unbuilt/on hold. Standing gate: `PROJECT_MAP.md`, `docs/DEV_NOTES.txt` and `CHANGES.txt` must all describe the version in the SAME merge; a post-merge light notes helper reconciles final source under the standing helper limit.
+
+## Recommended next unbuilt item
+
+v0.095 recommendation: reliable initial campaign entry. Offered histories longer than one day currently conflict with the mandatory designer's absolute day-one gate. Preserve the chosen history and native identity; use the initial-selection boundary. Politics saved-location and truthful save completion are the next reliability repairs. This recommendation comes from inspected source and the owner's recorded history/dynasty design, not the roadmap files. No authoritative existing map entry assigned v0.095. Council roles and negotiated war demands remain genuine proposed design gaps, ranked below entry/saved-progress failures. [Combined priority list](docs/audit_v094/README.md).
+
+## Preserved historical repository inventory
+
+Everything below is the old inventory retained for reference. Its version statuses, sizes, counts and “next” split proposals are historical, not current measurements or current work authorization. Use the current owners/status above first.
+
 # Burning Brood: Bloodlines — Project Map
 
 Concise repository index for **Burning Brood: Bloodlines (Claude Edition, Godot 4.7.2)**. Keep startup context small: use this map to jump directly to the owning file instead of scanning the tree.

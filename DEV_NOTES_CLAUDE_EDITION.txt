@@ -1,3 +1,14 @@
+CURRENT READER NOTE - 2026-11-06
+Source through v0.094 is accepted on main 2c7bd93; packaged Desktop/Android remains
+v0.085. Read PROJECT_MAP.md, docs/DEV_NOTES.txt and CHANGES.txt for current status,
+all v0.086-v0.094 changes, ranked player gaps and the standing three-document merge gate.
+v0.095 is unbuilt. No engine/build/test ran for this documentation catch-up.
+The original edition notes below are retained as historical: main narrative
+through v0.035 with a later undated v0.077 prisoner addendum, not continuous current
+release coverage. Source-only audit:docs/audit_v094/README.md.
+
+PRESERVED HISTORICAL EDITION NOTES
+
 BURNING BROOD: BLOODLINES - CLAUDE EDITION - DEVELOPMENT NOTES
 Built 2026-10-15 from v0.022 (ChatGPT). Godot 4.7.2, GDScript, GL compatibility.
 

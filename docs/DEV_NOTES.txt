@@ -1,3 +1,239 @@
+BURNING BROOD: BLOODLINES - CURRENT DEVELOPER NOTES
+Updated: 2026-11-06 | source main 2c7bd93 / v0.094 | packaged Desktop/Android v0.085
+
+CURRENT SOURCE AND DOCUMENTATION
+v0.086-v0.094 are accepted normal source merges. The last packaged release remains
+v0.085. This source/documentation audit launched no game, editor, build or test.
+v0.095 is unbuilt and awaits owner go-ahead. Its recommended narrow first scope is
+reliable campaign entry, preserving historical day and real ruler/house identity.
+Politics browsing saved as location and premature save-success feedback follow
+as reliability priorities; no new council/war-goal implementation is authorized.
+
+Active three docs: PROJECT_MAP.md, docs/DEV_NOTES.txt, CHANGES.txt. Each must describe
+a version's actual changes in the SAME version merge or DO NOT MERGE. After each
+version merge one light notes-only helper reconciles all three with final source;
+lead reviews/commits/pushes normally. It counts toward the standing two-helper cap.
+See docs/BUILD_RULES.md and the shared machine GAME TESTING RULES.md. Historical
+commands/receipts and this audit never grant permission for another test or build.
+
+SHIPPED v0.086-v0.094 (source, not new packaged releases)
+
+v0.086 - Domestic animals and counted pack custody
+Merge aa6c58eae26c2eeb6723d0fc20770aecc92bfc60
+Native herd species, actual paid/fed dog guard eligibility, counted poultry feathers and donkey pack ownership/cargo; no dog battle units or free livestock.
+Owners (game/): campaign/domestic_animals.gd; campaign/herds.gd; campaign/herds_market.gd; campaign/herd_raids.gd; campaign/caravans.gd; data/economy.json
+
+v0.087 - Dwarf holds, charcoal, tools and human cultures
+Merge e0df6223c79b95810551f75004adb8bb347d96a8
+Mountain/ore/farmland opening conditions, charcoal fuel and iron tools; native paid trade, migration and cross-human-culture marriage controls retained and checked.
+Owners (game/): campaign/worldgen.gd; campaign/econ_gen.gd; campaign/businesses.gd; data/economy.json
+
+v0.088 - Native steel production
+Merge 3db1c2dff75c15aaf2f547822ca811688e3e8520
+Steel recipe selection, pig-iron/input batches and know-how integration through the existing metallurgy and business accounts.
+Owners (game/): campaign/metallurgy.gd; campaign/businesses.gd; data/economy.json
+
+v0.089 - Academy research, real staff and custody
+Merge a67dc4172dd1beb59c284af8aa83d4be1ffda37a
+Funded research uses registered people, wages and paid trial materials; research UI reports actual roster/payroll. Native hiring, head identity, armory/item custody and audit fixes are included.
+Owners (game/): campaign/academy.gd; campaign/arms_trade.gd; campaign/militia.gd; ui/town_research_tab.gd
+
+v0.090 - Gem pockets and named artifact custody
+Merge f71d804489ba335b77ce45129c964aa97bfdfe64
+Ore gem pockets, named gem-set production with real maker limits/input funding, compatible equipment and lossless battlefield winner custody.
+Owners (game/): campaign/legends.gd; campaign/businesses.gd; campaign/arms_salvage.gd; core/item.gd
+
+v0.091 - Equipment light and metal finish
+Merge 9739b937f6de350b1d83be32b69ddcb7b1cd07cf
+Code-drawn shields/weapons use equipment normal shading and bronze/iron/steel specular ramps. Equipment, mounted and identity checks plus inspected CPU stills were accepted; no animation change is claimed.
+Owners (game/): art/figure_painter.gd; art/weapon_art.gd; art/pixel_canvas.gd
+
+v0.092 - Active truce at player attack boundaries
+Merge 9dcce1b1b6b6db2878d7b1751e2ef68211fd2752
+Existing post-peace truces participate in peace_bound, protecting actual player field/settlement raid and siege actions before mutation. 120 new and 28 retained militia checks passed; the existing militia wall/sally policy is preserved.
+Owners (game/): campaign/diplomacy.gd; campaign/warfare.gd; campaign/world.gd
+
+v0.093 - Native battle-series measurement
+Merge d0ecc856b0b532798465533b64fffa78104c9ca6
+108 native multi-engagement battles and 306 engagements, preserving roster, wounds and rider continuity. Ruby small 0/12 and large 9/12 frontier balance remains unresolved; no universal fairness/price verdict or giant200v200 claim.
+Owners (game/): tests/balance_engagements_v093.gd; tests/summarize_engagements_v093.py; tests/test_engagement_contract_v093.gd; campaign/battle_rounds.gd
+
+v0.094 - Short economy acceptance and conservation fixes
+Merge a48ea0d69c1b79843b027272d7bb29b36b66ec9f
+Rounded mint affordability is checked before mutation; recruit-template Items and natural-death kit are booked; stored category accounting is repaired in promotion/migration/load paths. 321 controls plus native day 53 mint and fresh-process reload through day 54 passed. The owner stopped the 240-day acceptance is incomplete.
+Owners (game/): campaign/barge.gd; campaign/recruits.gd; campaign/sickness.gd; campaign/population.gd; campaign/families.gd; campaign/migration.gd; campaign/town_econ.gd; campaign/economy_audit.gd
+
+EVIDENCE LIMITS
+docs/validation_v086-v094.md and docs/economy_v094_results.md are the accepted
+source receipts summary. v0.092 player raid/siege truce protection passed 120 + 28.
+v0.093 measured 108 native battle series/306 engagements; Ruby small 0/12 and large 9/12
+remain unresolved balance. v0.094 passed 321 controls, actual day 53 mint and a fresh
+native reload/continuation through day 54. The owner stopped 240-day acceptance;
+165 accepted P10 days, day 173 census failure and earlier failures are preserved.
+No full 240-day stability, old-save version matrix or new rendered performance
+result is claimed. Current-source category fixes are not a same-input proof of
+the historical day 173 cause. Existing exact-float save schema/codec is retained.
+
+ECONOMY/TOWNS/PEOPLE SOURCE RECONCILIATION
+Real animals/packs, holds/charcoal/iron tools, steel, Academy research and gems/
+artifacts already exist. Their current owners are in PROJECT_MAP.md. Temple disease
+effects read a non-native cases schema; separate civic food can set a hunger flag
+independently of real Barge food; housing capacity is not shared consistently.
+Dogs are absent from two fixed Records tables, not from every herd view. Pack,
+Academy fuel/staff and one steel overview projection remain stale. The reviewed
+economy report uses actual methods/catalog paths and correct release hashes.
+Population.kill_slots counting-year handling remains a source risk requiring a
+controlled native case; it is not presented as a reproduced day 173 failure.
+Detailed reviewed findings: docs/audit_v094/economy.md.
+
+## war source audit — main 2c7bd93
+
+Read-only source audit of war, battles and dragons at main `2c7bd93` (version string 0.094). No engine, test, import or build was run. Source audit does not establish a new runtime pass or fail. Accepted merge receipts already cover 0.086–0.094. Last packaged Desktop/Android release remains 0.085. v0.095 is unbuilt. The three-document gate still applies: this file, `PROJECT_MAP.md` and `CHANGES.txt` must change together before any later version merges.
+
+Shipped player war, through 0.094:
+
+- Raising is a reviewed quote. `Mobilization.muster` moves real people, kit and meal stock, and pays the family purse from army coin. The muster spinner stops at 200. The code ceiling is `Mobilization.LIMIT` 1000. Rounds still field 100 fit fighters a side, up to 20 rounds. A loss sends living player troops home for 5 remuster days (`BattleRounds.retreat_player`) and a beaten people-band home (`retreat_band`).
+- The player's own battle uses `BattleSim` on the current round's Units. Pools hold the same Unit objects, so wounds stay on the body between rounds. Dragons are not captured. Their downs and rider seats accumulate (`dragon_downs`, `DragonCombat.merge_seats`) and `final_result` hands that record to `DragonCombat.on_battle_result`. A rider with no company Unit keeps a body in the dragon registry (`rider_bodies`) and heals one care day at a time. Home defence admits only a healthy adult at its owning settlement with the bonded adult present. March writes `campaign_march` and `DragonCare.settle` draws named meat on later mornings. Autobattle stays on the ground; `flying` is stored and does not add flight.
+- Raid and siege are real settlement actions. `Warfare.preview` refuses an own town, `Diplomacy.peace_bound`, an empty army, distance, a current encounter, and a raid inside 30 days. `start` calls that preview before reputation and the battle. An empty garrison resolves plunder or conquest immediately. A won raid takes 35% of treasury and 12% of ordinary household purses into army `gold`, burns 40% of grain, and kills about 3% of anonymous cohort slots. A won siege transfers the town. v0.092's tested player guard is this refusal; the area diff only made the sentence name a truce. The predicate is in campaign/diplomacy.gd and includes active truce.
+- Off-screen faction battles and militia sallies already exist. They resolve by power and round counts, then delete or mark real participants. They do not run tissue combat. An AI dragon on `ai_march` can be marked dead by that roll (`take_clash_loss`).
+- Creatures stay off unless the loaded world sets `creatures_enabled`. `start_battle` returns before borrowing dragons if a suspended creature roster is in the fight.
+- v0.091 equipment shading is in `FigurePainter.metal` and the shield pass. Mounted and identity checks are accepted by the 0.091 receipt. This audit did not redraw.
+- v0.093 accepted measurement, not re-run here: 108 native multi-engagement battles, 306 engagements, roster/wound/rider continuity kept. Small Ruby adults won 0/12 and large adults 9/12. Broad balance stays unresolved. There is no dragon purchase price. Authored size strength is 1000 / 1150 / 1300 / 1500 / 1750 against mass 350 / 1200 / 5000 / 18000 / 65000 kg (`game/data/dragons.json`). Hardness is not strike force (`docs/specs/DRAGON_PHYSICS_v0.005.txt`).
+- v0.094 did not change war behavior in this area. Its accepted short run is economy: 321 controls, day-53 mint, fresh-process reload through day 54. The 240-day run stays stopped. No complete 240-day stability claim.
+
+Limits that matter: a multi-round win clears `enemy_fled` before loot, so fleers lose kit that a one-clash fleer keeps. A dragon that cannot fight is still sent into later rounds. A dragon-less victory also increments `battles_lost` because that `else` belongs to the dragon check; the Victory screen displays both counters (ui/victory.gd:20). The town panel shows the full garrison and, when only the raid is blocked, no raid reason. Quit on the battle screen does not start a new save, and load clears `pending_battle`, so an in-progress round is not a save record.
+
+War-area next repair: preserve actual final escape identities before loot. Do not union every earlier flee event without considering later re-entry. Global v0.095 recommendation is reliable campaign entry first; see docs/audit_v094/README.md. No war, balance or rendering work was implemented by this audit.
+
+## houses source audit — main 2c7bd93
+
+2026-11-06 source-only reconciliation of houses, court, diplomacy and general UI at
+2c7bd93d818810e005f7582f5687d38d1aeda5d2. Existing text above is preserved history:
+its 2026-10-14/v0.022 header does not describe current source or packaging.
+Accepted source now reaches v0.094; last packaged Desktop/Android is v0.085.
+No engine/import/build/test/playthrough, process/UI control or Git was used here.
+Detailed evidence and ten ranked findings: docs/audit_v094/houses.md.
+
+ACTUAL PLAYER BEHAVIOR THROUGH094
+New Campaign offers world/history options, then existing settlement/local-house
+selection, banner customization, mandatory ruler design and explicit review/Begin.
+HouseOnboarding.begin revalidates stable leader identity and saves player_house;
+it does not create property, troops, town office or a free wallet. CharacterDesign
+does change the selected person's name/look and stores a one-time focus bonus;
+it is more than cosmetic heraldry. The company and army wallet start empty.
+Continue loads native state and opens House selection if no house is chosen,
+otherwise Town for a nonempty Game.location or Map. Settings persist separately.
+Owners: ui/title.gd:74, ui/house_select.gd:484,
+campaign/house_onboarding.gd:117, campaign/character_design.gd:234,
+core/game.gd:205 and :1324.
+
+House already shows private purse, city treasury, faction treasury and army wallet
+as distinct owners. Laws already permits male-preference/absolute/elective/seniority
+changes with +10 grievance and a five-year lock; orc strength law remains fixed.
+Real lineage succession, office appointments and recorded minor regents exist.
+Ordinary-house leadership is distinct from settlement command. Politics already
+offers estate tax policy, funded city/realm transfers, militia policies, grants,
+pressure and oaths through actual office/hierarchy gates. Court has conquered-town
+keep/grant/revoke. Do not relabel these working source paths missing because the
+old notes call Laws read-only or the old HTML map marks diplomacy planned.
+Owners: campaign/dynasty.gd:222, :592, :740, :796, :853, :926;
+campaign/feudal.gd:89, :184, :287, :649; ui/politics.gd:203.
+
+Court already supplies a living family tree, spouse matching/gifts/betrothals,
+marriage ties/claims, assassination/sway/fabricated-claim schemes and prisoner
+bargains. Prisoner ransom/release/pay/exchange/execute/funded sale, daily upkeep,
+AI offers and fair exchanges are implemented. Existing marriages transfer actual
+native records/coin; claims and ties live in world.marriage. Living couples are
+rechecked for alliance benefits. Intrigue saves stable identities and books paid
+fees as a world drain. Prisoners remain native Unit holders. Relevant owners:
+ui/court.gd:82, campaign/marriage.gd:207/:242/:327,
+campaign/intrigue.gd:93, campaign/prisoners.gd:176/:247/:550/:615.
+
+Treasure Room DOES have manual buy and sell controls. Buying reviews CourtEvents
+terms and credits actual local purses; selling is limited by the market till and
+moves whole hoard pieces into court_stock. Household court/hoard/upkeep/improvement
+records are saved in the native world. CourtEvents.weekly's player branch updates
+victory markers then continues into shared reserve/auto-sale/treasure/event/gift
+decisions; it does not skip the player. The controller supplied Families.turn
+integration at campaign/families.gd:1128 HouseUpkeep.weekly and :1130
+CourtEvents.weekly; that dependency is absent from this snapshot. The supplied
+House/Court screens have no staff/improvement/event-budget management. Other
+Records callers must be checked before claiming complete UI absence.
+Owners: ui/treasure_room.gd:128/:173, campaign/court_events.gd:203/:271/:331,
+campaign/house_upkeep.gd:784/:871/:1152.
+
+Relations already shows company standing/composition, world faction states,
+alliance/pact/break reviews and actual truce/pact text. Marriage-derived benefits,
+native weekly war/peace and calls to allies exist. Negotiated demands and peace
+settlement are deferred design; the original diplomacy spec explicitly puts
+brokered peace later. Neither an absent demand UI nor a narrative spymaster is
+evidence that all diplomacy or Court is missing. No new institution is authorized.
+Owners: ui/relations.gd:72/:176; campaign/diplomacy.gd:404/:444/:698.
+
+CURRENT SOURCE LIMITS, NOT NEW RUNTIME RESULTS
+H01: Histories >1 day leave game.day >1 (WorldPresim implementation supplied by
+controller). core/game.gd:232 new_game_finalize does not reset it. Mandatory design
+calls campaign/character_design.gd:151/:237, which rejects day >1; chooser Next
+is disabled at ui/house_select.gd:387. Offered longer histories cannot complete
+these source gates. The default one-day route is unaffected. This is the leading
+recommended v0.095 reliability repair, with no implementation authorized here.
+H02: Marriage.daily:337 checks only one partner's adulthood before wed:242;
+the latter lacks a second adulthood gate before native dowry/person/egg changes.
+Underage partner transfer/counter consequences need Persons/People inspection.
+H03: ui/politics.gd:19/:290 writes the viewed town into Game.location. SaveSnapshot
+copies location (core/save_snapshot.gd:20), load restores it (core/game.gd:1165),
+Title opens Town (ui/title.gd:74), and Map entry places the party at that town's
+gate (campaign/world_map.gd:84). Saving before Politics Back can preserve a viewed
+town as physical location. Unsupplied Town/Population/Records need root review.
+H04: Map Save toasts success immediately (campaign/world_map.gd:719), before the
+async write receipt; MobileApp.autosave/quit do not check write success. The native
+writer preserves the previous complete file on failure, but newer progress may
+be announced saved without having been written. No disk failure was induced.
+H05: HouseUpkeep.improvement_preview:732 permits any stocked required good despite
+other shortfalls; start_improvement:806 takes only available goods and records
+full level. _refresh_effects:548 does not exclude weeks_left construction. Existing
+AI calls the same path; full campaign incidence was not measured.
+H06-H08: Missing spending-management controls, unreviewed numerical marriage gifts
+and egg quote/execution mismatch, plus nonpaged first40 prisoner/first12 marriage
+candidate views are detailed in the audit. Bulk held-prisoner ransom/release and
+manual treasure controls already exist and are explicitly retained.
+H09-H10: Named council roles/regent replacement, ordinary-house treaty authority
+and negotiated war demands need bounded design decisions. Original handoff scope
+is proposed, not blanket authorization for a new council or war-goal simulation.
+
+ACCEPTED v0.086-v0.094 EVIDENCE BOUNDARY
+Use _evidence/FINAL-086-094.json and MERGED-NNN.json, superseding old worker UNRUN
+reports. v0.087 tested retained cross-human-culture AI marriage; its worker report
+explicitly says marriage.gd was unchanged. v0.089 added actual Academy staff/wage/
+material detail and native ownership/hiring fixes. v0.090 protects legendary gem
+input funding and incompatible artifact equipment. v0.091 shared equipment shading
+has accepted native checks and inspected CPU stills; no animation change is claimed.
+v0.092 includes the actual player settlement active-truce guard:120+28 checks.
+v0.093 has108 native battle series/306 engagements, not a giant200v200 measurement;
+small Ruby0/12 and large 9/12 remain an unresolved measured balance frontier.
+v0.094 accepted321 controls plus actual day 53 mint and fresh-process reload/day 54
+parity. The owner STOPPED240-day acceptance;165 partial P10 days and day 173 census
+failure remain evidence, not a full 240-day stability pass. No new test was run here.
+v0.086 domestic animals/v0.088 steel and other economic/combat details belong to the
+other audit owners; no new court/dynasty feature is invented for those versions.
+
+DOCUMENTATION / FUTURE BUILD GATE
+PROJECT_MAP.md, docs/DEV_NOTES.txt and CHANGES.txt must all be updated for each
+version in the SAME merge; otherwise DO NOT MERGE. Put this in every helper build
+brief. After each version merge, one light notes-only helper reconciles all three
+with final source; lead verifies/commits/pushes normally. The temporary three-area
+audit exception does not change the standing two-helper limit for that process.
+This audit updates documentation only; v0.095 remains unbuilt/on owner hold.
+The exact owner test wording and stricter one-batch60-second STOP rule from
+_evidence/OWNER_BUILD_RULES.md are retained in docs/audit_v094/houses.md. No future
+test permission follows from the source findings or historical acceptance receipts.
+
+PRESERVED HISTORICAL DEVELOPMENT NOTES
+The entire earlier file follows unchanged. Its opening v0.022 delivery status and
+old verification/delivery instructions are historical. Use the current status,
+reviewed audit and build rules above. This catch-up does not reconstruct a new
+continuous v0.023-v0.085 release history.
+
 BURNING BROOD: BLOODLINES - ACTIVE DEVELOPMENT NOTES
 Updated: 2026-10-14 | v020/v021/v022 delivered; next planned23
 
