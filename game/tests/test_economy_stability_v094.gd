@@ -1026,6 +1026,21 @@ func _purse_diagnostic(tree: SceneTree) -> int:
 	return 0 if unchanged and Game.day == 99.0 else 1
 
 
+func _trace_item_holders(trace: Array, prior: Dictionary, job) -> void:
+	if Item._next_uid <= 58134: return
+	var held: Dictionary = WorldAudit.items(Game)["held"]
+	var state: Dictionary = {}
+	for uid in [58134, 58135]: state[str(uid)] = held.get(uid, [])
+	if prior.get("state") == state: return
+	var pool: Array = []
+	for unit: Unit in Game.world["towns"]["t14"].get("recruits", []):
+		var gear: Dictionary = {}
+		for slot in unit.equip: gear[str(slot)] = [unit.equip[slot].uid, unit.equip[slot].tid]
+		pool.append({"uid": unit.uid, "family": unit.family, "title": unit.title, "gear": gear})
+	trace.append({"day": Game.day, "job": M.plain(job), "held": state, "town_recruit_pool": pool})
+	prior["state"] = state
+
+
 func _items_diagnostic(tree: SceneTree) -> int:
 	# Preserved P9 day91 input; annotate the existing audit hook per native job.
 	var path: String = str(_opts["input-save"])
@@ -1037,13 +1052,18 @@ func _items_diagnostic(tree: SceneTree) -> int:
 	Game.SAVE_PATH = scratch
 	if not loaded or Game.seed_value != 4242 or Game.day != 91.0 or int(Game.world.get(META, {}).get("completed", -1)) != 90: return 1
 	var anchor: Dictionary = WorldAudit.census(Game)
+	var transitions: Array = []
+	var prior: Dictionary = {}
 	for step in 15:
 		WorldAudit.site = JSON.stringify({"day": Game.day + 1.0, "job": "advance_time"})
 		Game.advance_time(1.0, false, 0, 1000)
+		_trace_item_holders(transitions, prior, "advance_time")
 		while not Game.world.get("work", []).is_empty():
 			if _elapsed() >= ABSOLUTE_MS: return 1
 			WorldAudit.site = JSON.stringify({"day": Game.day, "job": Game.world["work"][0]})
+			var original_job = M.plain(Game.world["work"][0])
 			CampaignWorld.work_slice(Game, 1)
+			_trace_item_holders(transitions, prior, original_job)
 			await tree.process_frame
 		if not Game.pending_battle.is_empty(): return 1
 	WorldAudit.site = ""
@@ -1054,7 +1074,7 @@ func _items_diagnostic(tree: SceneTree) -> int:
 	var unchanged: bool = FileAccess.get_sha256(path) == expected_sha
 	print("ECONOMY_ITEMS_DIAGNOSTIC_V094 " + M.text({"scope": "NON_ACCEPTANCE copied-input replay", "overallComplete": false,
 		"input_sha256": expected_sha, "input_unchanged": unchanged, "start_day": 91, "end_day": Game.day,
-		"target_items": targets, "native_audit": WorldAudit.compare(anchor, WorldAudit.census(Game))}))
+		"target_items": targets, "target_transitions": transitions, "native_audit": WorldAudit.compare(anchor, WorldAudit.census(Game))}))
 	return 0 if unchanged and Game.day == 106.0 else 1
 
 
