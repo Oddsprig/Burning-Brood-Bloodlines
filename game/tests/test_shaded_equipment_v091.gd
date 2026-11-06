@@ -1,0 +1,423 @@
+extends RefCounted
+## CPU Image regression only: no textures, nodes, frames, world generation or GPU calls.
+## Root/TestBridge: godot --headless --path game res://tests/runner.tscn -- --test=res://tests/test_shaded_equipment_v091.gd --watchdog=180
+## PNG columns per metal: same draw with finish disabled | new finish | delta (alpha errors red).
+
+const METALS: Array[String] = ["bronze", "iron", "steel"]
+const SPECIAL: Array[String] = ["war_hammer", "leaf_dirk", "dwarf_mattock", "dwarf_war_axe",
+	"short_spear", "boar_spear", "winged_spear", "steppe_lance"]
+const PRIMARY := Color("#286e9b")
+const SECONDARY := Color("#d8af58")
+var checks := 0
+var fails := 0
+var shield_ids: Dictionary = {}
+
+class UnlitCanvas extends PixelCanvas:
+	func _init(width: int = 32, height: int = 32) -> void:
+		super(width, height)
+	func begin_equipment(_material: Dictionary, _metal_colors: Array[Color] = []) -> void:
+		pass
+	func end_equipment() -> PixelCanvas.ShadedLayer:
+		return null
+
+class TraceCanvas extends PixelCanvas:
+	var touched: Dictionary = {}
+	var final_metal: Dictionary = {}
+	var pending: Dictionary = {}
+	var normals: Dictionary = {}
+	var bins: Dictionary = {}
+	var allocated_raster := false
+	func _init(width: int = 32, height: int = 32) -> void:
+		super(width, height)
+	func begin() -> void:
+		pending.clear()
+		super.begin()
+	func px_img(x: int, y: int, c: Color) -> void:
+		pending.erase(Vector2i(x, y))
+		super.px_img(x, y, c)
+	func set_px(x: int, y: int, c: Color) -> void:
+		var p := Vector2i(x, y)
+		var lit := bool(pending.get(p, false)) and _part.has(p)
+		var inherits_metal := c.a < 0.999 and final_metal.has(p)
+		super.set_px(x, y, c)
+		if lit or inherits_metal: final_metal[p] = true
+		else: final_metal.erase(p)
+	func _put(x: int, y: int, c: Color, pat: Callable, normal: Vector3 = Vector3(0, 0, 1)) -> void:
+		if pat.is_valid():
+			c = pat.call(x, y, c)
+		var p := Vector2i(x, y)
+		var lit := _equipment != null and _equipment_ids.has(c) and c.a >= 0.999 and x >= 0 and y >= 0 and x < w and y < h
+		if lit:
+			var n := normal.normalized()
+			touched[p] = true
+			normals[p] = n
+			bins[Vector3i(roundi(n.x * 8), roundi(n.y * 8), roundi(n.z * 8))] = true
+			allocated_raster = allocated_raster or not _equipment.fill.is_empty() or not _equipment.z_buf.is_empty() or not _equipment.nx_buf.is_empty()
+		if _in_part: pending[p] = lit
+		super._put(x, y, c, Callable(), normal)
+		if not _in_part and lit: final_metal[p] = true
+
+# paint() creates its canvas immediately before the first _ring() call. Swap only
+# that empty canvas, then exercise the actual paint/rig/body/wound/equipment order.
+class UnlitFigure extends FigurePainter:
+	func _init(sp: Dictionary) -> void:
+		super(sp)
+	func _ring(anchor: Vector2, lying: bool) -> void:
+		cv = UnlitCanvas.new(cv.w, cv.h)
+		super._ring(anchor, lying)
+
+class TraceFigure extends FigurePainter:
+	func _init(sp: Dictionary) -> void:
+		super(sp)
+	func _ring(anchor: Vector2, lying: bool) -> void:
+		cv = TraceCanvas.new(cv.w, cv.h)
+		super._ring(anchor, lying)
+
+func check(ok: bool, label: String) -> void:
+	checks += 1
+	if not ok:
+		fails += 1
+		printerr("FAIL shaded equipment v091: ", label)
+
+func run(_tree: SceneTree) -> int:
+	var started := Time.get_ticks_msec()
+	var data_before := var_to_bytes([DB.materials, DB.bodies, DB.races])
+	var templates := _templates()
+	_legacy_lighting()
+	_scope_and_bevels()
+	_materials(started)
+	_icons_and_grips(templates, started)
+	_full_views(started)
+	_quality_and_stones()
+	check(data_before == var_to_bytes([DB.materials, DB.bodies, DB.races]), "rendering preserves shared anatomy and material data")
+	print("SHADED EQUIPMENT v091 checks=%d failures=%d elapsed_ms=%d (goal <60000; runner hard cap 180s)" % [checks, fails, Time.get_ticks_msec() - started])
+	return fails
+
+func _templates() -> Array[String]:
+	var result: Array[String] = []
+	var sprites: Dictionary = {}
+	var weapons: Array = DB.weapons.keys()
+	weapons.sort()
+	for tid in weapons:
+		var sprite := String(DB.template(tid).get("sprite", ""))
+		if sprite in WeaponArt.SPRITES and sprite not in FigurePainter.BOW_SPRITES and not sprites.has(sprite):
+			sprites[sprite] = String(tid)
+	for sprite in WeaponArt.SPRITES:
+		if sprite in FigurePainter.BOW_SPRITES:
+			continue
+		check(sprites.has(sprite), "real weapon template for " + sprite)
+		if sprites.has(sprite): result.append(sprites[sprite])
+	for tid in SPECIAL:
+		check(DB.is_weapon(tid), "real specialized template " + tid)
+		if DB.is_weapon(tid) and tid not in result: result.append(tid)
+	var armor: Array = DB.armor.keys()
+	armor.sort()
+	for tid in armor:
+		var tm: Dictionary = DB.template(tid)
+		var sprite := String(tm.get("sprite", ""))
+		if String(tm.get("slot", "")) == "shield" and sprite in ItemIcon.SHIELD_SHAPES and not shield_ids.has(sprite):
+			shield_ids[sprite] = String(tid)
+	for sprite in ItemIcon.SHIELD_SHAPES:
+		check(shield_ids.has(sprite), "real shield template for " + sprite)
+		if shield_ids.has(sprite): result.append(shield_ids[sprite])
+	return result
+
+# Frozen pre-v091 body lighting equation, including default power 10, Bayer order,
+# Float32 stored normals and seam darkening. This intentionally does not call the
+# production colour selector or use its constants to compute expected results.
+func _legacy_color(ramp: Array, n: Vector3, x: int, y: int, specular: float, dither: float, seam: float = 0.0) -> Color:
+	var light := Vector3(-0.56, -0.74, 0.37).normalized()
+	var half_light := Vector3(-0.32, -0.45, 0.83).normalized()
+	var bayer: Array[float] = [-0.375, 0.125, -0.125, 0.375]
+	var spec := pow(maxf(0.0, n.dot(half_light)), 10.0) * specular
+	var amount := clampf((n.dot(light) + 0.68) / 1.52 + spec + bayer[(x & 1) + ((y & 1) << 1)] * dither - seam, 0.0, 0.999)
+	return ramp[clampi(int(amount * float(ramp.size())), 0, ramp.size() - 1)] as Color
+
+func _legacy_lighting() -> void:
+	var cv := PixelCanvas.new(48, 48)
+	var layer := cv.shaded()
+	var skin := layer.add_color(Color("#d4a27a"))
+	var cloth := layer.add_color(PRIMARY, 0.04, 0.85)
+	var metal := layer.add_ramp(PixelCanvas.make_ramp(Color("#9aa4ad")), 0.22, 0.03)
+	layer.capsule(Vector2(8, 8), Vector2(12, 28), 4, 3, skin)
+	layer.ellipsoid(Vector2(25, 17), 9, 12, cloth, 0.3)
+	layer.poly(PackedVector2Array([Vector2(17, 24), Vector2(36, 24), Vector2(33, 42), Vector2(18, 39)]), metal, 0.6)
+	layer.composite(PixelCanvas.CLEAR)
+	var same := true
+	var samples := 0
+	for y in cv.h:
+		for x in cv.w:
+			var idx := y * cv.w + x
+			var id := int(layer.fill[idx])
+			if id == 0: continue
+			samples += 1
+			var n := Vector3(layer.nx_buf[idx], layer.ny_buf[idx], layer.nz_buf[idx])
+			var ramp: Array = layer.ramps[id - 1]
+			var expected := _legacy_color(ramp, n, x, y, layer.specs[id - 1], layer.dithers[id - 1])
+			# composite() may darken overlap seams; color_at() without a seam remains fixed.
+			same = same and layer.color_at(x, y) == expected
+			same = same and layer.color_at(x, y, 0.16) == _legacy_color(ramp, n, x, y, layer.specs[id - 1], layer.dithers[id - 1], 0.16)
+	check(samples > 400 and same, "legacy skin/cloth/armour default lighting remains pixel exact")
+	check(layer.specular_powers[skin - 1] == 10.0 and layer.specular_powers[cloth - 1] == 10.0 and layer.specular_powers[metal - 1] == 10.0, "existing add_color/add_ramp callers keep power 10")
+	check(cv._equipment == null and cv._part_lit.is_empty(), "shared body draw never enters equipment scope")
+
+func _scope_and_bevels() -> void:
+	var m := FigurePainter.metal("steel")
+	var cv := TraceCanvas.new(52, 32)
+	var old := UnlitCanvas.new(52, 32)
+	for canvas: PixelCanvas in [cv, old]:
+		canvas.begin_equipment(m)
+		canvas.begin()
+		canvas.rect(Rect2(3, 3, 15, 8), m["base"])
+		canvas.rect(Rect2(22, 3, 10, 8), WeaponArt.WOOD)
+		canvas.rect(Rect2(35, 3, 10, 8), PRIMARY)
+		canvas.end(m["outline"], 0.14, m["shine"])
+		canvas.end_equipment()
+		canvas.begin()
+		canvas.ellipse(Vector2(25, 23), 8, 4, Color("#d4a27a"))
+		canvas.end(Color("#301a20"), 0.12)
+	check(_alpha_equal(cv.to_image(), old.to_image()), "rectangular band normals retain exact alpha and outline mask")
+	check(cv.bins.size() > 2 and not cv.allocated_raster, "band bevels vary normals without allocating image buffers")
+	check(_diff_outside(cv.to_image(), old.to_image(), cv.final_metal) == 0, "wood/heraldry and following body part keep exact legacy pixels")
+	check(_diff(cv.to_image(), old.to_image()) > 10, "metal band actually receives normal shading")
+	# The upper edge of this reentrant mouth faces DOWN into its opening.
+	var crescent := PackedVector2Array([Vector2(2, 2), Vector2(18, 2), Vector2(18, 18),
+		Vector2(14, 18), Vector2(14, 6), Vector2(6, 6), Vector2(6, 18), Vector2(2, 18)])
+	var inner := PixelCanvas.ShadedLayer.bevel_normal(Vector2(10, 5.5), crescent, 2.5)
+	var outer := PixelCanvas.ShadedLayer.bevel_normal(Vector2(10, 2.5), crescent, 2.5)
+	check(inner.y > 0.1 and outer.y < -0.1 and inner.z > 0 and outer.z > 0, "concave and outer bevel normals face their own nearest boundary")
+	var wood := TraceCanvas.new(24, 24)
+	wood.begin_equipment(FigurePainter.metal("wood"))
+	wood.begin(); wood.ellipse(Vector2(12, 12), 8, 8, FigurePainter.metal("wood")["base"])
+	wood.end(PixelCanvas.CLEAR); wood.end_equipment()
+	check(wood.touched.is_empty(), "nonmetal material does not acquire a metallic finish")
+
+func _materials(stamp: int) -> void:
+	var sheet := Image.create(360, 3 * 76, false, Image.FORMAT_RGBA8)
+	sheet.fill(Color("#282630"))
+	var profiles: Array[PackedByteArray] = []
+	var common_ramp: Array[Color] = []
+	for i in 128: common_ramp.append(Color(float(i) / 127.0, float(i) / 127.0, float(i) / 127.0))
+	var middle: Dictionary = {}
+	for row in METALS.size():
+		var key := METALS[row]
+		var m := FigurePainter.metal(key)
+		var ramp: Array = m["ramp"]
+		var rising := ramp.size() == 6
+		for i in range(1, ramp.size()): rising = rising and _luma(ramp[i]) > _luma(ramp[i - 1])
+		check(rising, key + " has six increasing, distinct shade stops")
+		middle[key] = ramp[3]
+		var cv := TraceCanvas.new(72, 72)
+		cv.begin_equipment(m); cv.begin()
+		cv.ellipse(Vector2(36, 36), 29, 29, m["base"])
+		cv.end(m["outline"], m["shade"], m["shine"]); cv.end_equipment()
+		check(cv.bins.size() > 20 and not cv.allocated_raster, key + " sphere uses real varying normals and streaming lighting")
+		sheet.blend_rect(cv.to_image(), Rect2i(0, 0, 72, 72), Vector2i(0, row * 76))
+		var normal_map := Image.create(72, 72, false, Image.FORMAT_RGBA8)
+		normal_map.fill(PixelCanvas.CLEAR)
+		for p: Vector2i in cv.normals:
+			var n: Vector3 = cv.normals[p]
+			normal_map.set_pixelv(p, Color(n.x * 0.5 + 0.5, n.y * 0.5 + 0.5, n.z * 0.5 + 0.5))
+		sheet.blend_rect(normal_map, Rect2i(0, 0, 72, 72), Vector2i(76, row * 76))
+		for i in ramp.size(): sheet.fill_rect(Rect2i(156 + i * 32, row * 76 + 5, 30, 22), ramp[i])
+		# The SAME grey ramp and normals isolate finish response from material hue.
+		var shader := PixelCanvas.ShadedLayer.new(cv, false)
+		var id := shader.add_ramp(common_ramp, m["specular"], 0.0, m["specular_power"])
+		var profile := PackedByteArray()
+		for x in 96:
+			var angle := lerpf(-1.3, 1.3, float(x) / 95.0)
+			var half_light := Vector3(-0.32, -0.45, 0.83).normalized()
+			var tangent := Vector3(half_light.z, 0, -half_light.x).normalized()
+			var n := (half_light * cos(angle) + tangent * sin(angle)).normalized()
+			var color := shader.shade_normal(x, 0, n, id)
+			profile.append(color.r8)
+			sheet.fill_rect(Rect2i(156 + x * 2, row * 76 + 35, 2, 29), color)
+		profiles.append(profile)
+	check((middle["bronze"] as Color).r > (middle["bronze"] as Color).b * 1.5, "bronze midtone stays recognizably warm")
+	check(_luma(middle["iron"]) + 0.12 < _luma(middle["steel"]), "iron stays darker than steel")
+	check((middle["steel"] as Color).b > (middle["steel"] as Color).r, "steel midtone stays cool")
+	check(profiles[0] != profiles[1] and profiles[1] != profiles[2] and profiles[0] != profiles[2], "bronze/iron/steel have different specular responses even on the same grey ramp")
+	_save(sheet, "materials", stamp, "rows bronze/iron/steel; columns lit sphere, CPU normals, six stops above common-grey specular profile")
+
+func _icons_and_grips(templates: Array[String], stamp: int) -> void:
+	var sheet := Image.create(9 * 68, templates.size() * 68, false, Image.FORMAT_RGBA8)
+	sheet.fill(Color("#282630"))
+	for row in templates.size():
+		var tid := templates[row]
+		var images: Array[Image] = []
+		for col in METALS.size():
+			var material := METALS[col]
+			var it := Item.make(tid, material, 0)
+			var spec := FigurePainter.spec_generic("human", PRIMARY, SECONDARY, 11)
+			var shield := String(it.tmpl().get("slot", "")) == "shield"
+			spec["shield" if shield else "weapon"] = FigurePainter._item_spec(it)
+			var item_before := var_to_bytes(it.to_dict())
+			var spec_before := var_to_bytes(spec)
+			var uid := Item._next_uid
+			var unit_uid := Unit._next_uid
+			var shape := ItemIcon.shape_of(tid)
+			var actual := ItemIcon.image(shape, material, 0)
+			var plain := UnlitCanvas.new(ItemIcon.SIZE, ItemIcon.SIZE)
+			plain.set_frame(Vector2.ZERO, ItemIcon.RASTER_SCALE)
+			check(ItemIconArt.draw(plain, shape, material, 0), "native icon handler for " + tid)
+			var before := plain.to_image()
+			var label := tid + " " + material
+			check(_alpha_equal(actual, before) and _clear_edges(actual), label + " icon keeps full alpha mask and fits canvas")
+			check(_diff(actual, before) > 5, label + " icon actually gains metal shading")
+			check(actual.get_data() == ItemIcon.image(shape, material, 0).get_data(), label + " CPU icon is deterministic")
+			images.append(actual)
+			_triplet(sheet, before, actual, Vector2i(col * 3 * 68 + 2, row * 68 + 2), 68)
+			var painter := FigurePainter.new(spec)
+			painter.pose = "strike"; painter.t = 0.5; painter._rig()
+			var dm := FigurePainter.dims("human")
+			var size: Vector2i = dm["size"]
+			var cv := TraceCanvas.new(size.x, size.y)
+			cv.set_frame(dm["anchor"], FigurePainter.raster_scale("human"))
+			painter.cv = cv
+			var joints := var_to_bytes(painter.j)
+			if shield:
+				painter._shield()
+			else:
+				check(WeaponArt.draw(painter, painter.j["grip"], painter.j["wdir"]), label + " actual weapon handler")
+			check(not cv.touched.is_empty() and cv.bins.size() > 1, label + " actual equipped surface receives varying normals")
+			check(joints == var_to_bytes(painter.j) and cv.xf.origin == dm["anchor"] and cv.k == FigurePainter.raster_scale("human"), label + " draw preserves joints, grip frame and anchor")
+			check(cv._equipment == null and cv._part_lit.is_empty() and not cv.allocated_raster, label + " scoped draw ends cleanly with no image buffer allocation")
+			check(item_before == var_to_bytes(it.to_dict()) and spec_before == var_to_bytes(spec) and uid == Item._next_uid and unit_uid == Unit._next_uid, label + " art consumes no item/body identities or input state")
+		for i in images.size():
+			for j in range(i + 1, images.size()):
+				check(_alpha_equal(images[i], images[j]) and _diff(images[i], images[j]) > 20, tid + " materials visibly differ within the same icon silhouette")
+		print("v091 icon sheet row %d: %s (%s)" % [row, tid, ItemIcon.shape_of(tid)])
+	_save(sheet, "icons", stamp, "material groups bronze/iron/steel; each group unlit/current/delta; row ids printed above")
+
+func _full_views(stamp: int) -> void:
+	var cases: Array = [["human", "arming_sword", "round", "idle", 0.0],
+		["dwarf", "dwarf_war_axe", "kite", "strike", 0.5],
+		["moon_elf", "glaive", "buckler", "prepare", 0.5],
+		["orc", "war_hammer", "slab", "block", 0.5],
+		["goblin", "dane_axe", "round", "prone", 1.0],
+		["human", "arming_sword", "round", "dead", 1.0],
+		["human", "arming_sword", "round", "strike", 0.5, "wounded"]]
+	var cell := Vector2i(192, 192)
+	var sheet := Image.create(9 * cell.x, cases.size() * cell.y, false, Image.FORMAT_RGBA8)
+	sheet.fill(Color("#282630"))
+	for row in cases.size():
+		var cs: Array = cases[row]
+		if not shield_ids.has(cs[2]): continue
+		var u := Unit.create(cs[0], "middle_kingdom")
+		u.look = {"skin": "#d4a27a", "hair": "#5a3a22", "beard": false, "seed": 11}
+		u.equip["clothing"] = Item.make("tunic", "linen", 0)
+		if cs.size() > 5:
+			u.body.wound_part("arm_upper_l")["severed"] = true
+			var wound: Dictionary = u.body.wound_part("head")
+			wound["layers"][0]["dmg"] = 0.7; wound["layers"][0]["kind"] = "cut"; wound["layers"][0]["bleed"] = 0.2
+		var first_image: Image
+		var first_joints := PackedByteArray()
+		var material_images: Array[Image] = []
+		for col in METALS.size():
+			u.equip["main_hand"] = Item.make(cs[1], METALS[col], 0)
+			u.equip["off_hand"] = Item.make(shield_ids[cs[2]], METALS[col], 0)
+			var spec := FigurePainter.spec_for_unit(u)
+			var unit_before := var_to_bytes(u.to_dict())
+			var input_before := var_to_bytes(spec)
+			var uid := Unit._next_uid; var item_uid := Item._next_uid
+			var painter := TraceFigure.new(spec)
+			var current := painter.paint(cs[3], cs[4]) as TraceCanvas
+			var img := current.to_image()
+			var old := UnlitFigure.new(spec).paint(cs[3], cs[4]).to_image()
+			var label := "%s %s %s %s" % [cs[0], cs[1], cs[3], METALS[col]]
+			check(_alpha_equal(img, old) and _clear_edges(img), label + " full view keeps alpha and fits existing frame")
+			check(_diff_outside(img, old, current.final_metal) == 0, label + " changes only metal; body, heraldry and wounds keep exact pixels")
+			check(not current.touched.is_empty() and _diff(img, old) > 0, label + " actual equipped view gains finish")
+			check(img.get_size() == FigurePainter.frame_dims(spec, cs[3])["size"] and current._equipment == null and current._part_lit.is_empty(), label + " keeps native dimensions and ends scope before body/wound overlays")
+			if col == 0:
+				first_image = img; first_joints = var_to_bytes(painter.j)
+				check(img.get_data() == FigurePainter.render(spec, cs[3], cs[4]).get_data(), label + " tracing equals real production Image entry point")
+			else:
+				check(_alpha_equal(first_image, img) and first_joints == var_to_bytes(painter.j), label + " material never changes sockets or full-view silhouette")
+			for other in material_images:
+				check(_diff(other, img) > 5, label + " equipped material remains visibly different from each other metal")
+			material_images.append(img)
+			check(unit_before == var_to_bytes(u.to_dict()) and input_before == var_to_bytes(spec) and uid == Unit._next_uid and item_uid == Item._next_uid, label + " reads preserve actual Unit/body/equipment and identities")
+			_triplet(sheet, old, img, Vector2i(col * 3 * cell.x + 4, row * cell.y + 4), cell.x)
+		print("v091 equipped sheet row %d: %s" % [row, str(cs)])
+	_save(sheet, "equipped", stamp, "material groups bronze/iron/steel; each group unlit/current/delta; row fixtures printed above")
+
+func _quality_and_stones() -> void:
+	for shape in ["sword", "glaive", "shield_round", "shield_kite", "shield_buckler", "shield_slab"]:
+		for material in METALS:
+			var plain := ItemIcon.image(shape, material, 0)
+			var quality := ItemIcon.image(shape, material, 3)
+			var master := ItemIcon.image(shape, material, 5)
+			check(_diff(plain, quality) > 0 and _diff(quality, master) > 0 and _same_rgb(quality.get_pixel(4, 4), ItemIcon.GOLD), shape + " " + material + " preserves quality pips")
+			var gemmed := ItemIcon.legend_image(shape, material, "ruby")
+			var spot: Vector2i = ItemIcon.GEM_SPOTS[shape] * ItemIcon.RASTER_SCALE
+			var ruby := Color(ItemIcon.THING_COLORS["ruby"])
+			check(_same_rgb(gemmed.get_pixelv(spot), ruby) and _same_rgb(gemmed.get_pixel(44, 2), ruby), shape + " " + material + " keeps legendary setting and sixth gem pip")
+	# Bow colours, string, horn and release geometry are an accepted control.
+	for shape in ItemIcon.BOW_SHAPES:
+		var cv := UnlitCanvas.new(ItemIcon.SIZE, ItemIcon.SIZE)
+		cv.set_frame(Vector2.ZERO, ItemIcon.RASTER_SCALE)
+		ItemIconArt.draw(cv, shape, "wood", 0)
+		check(ItemIcon.image(shape, "wood", 0).get_data() == cv.to_image().get_data(), shape + " keeps legacy wood icon pixels")
+	# Deliberately collide heraldry with the metal palette; explicit paint scopes
+	# must protect it even when colour equality cannot distinguish paint from metal.
+	if shield_ids.has("kite"):
+		var sp := FigurePainter.spec_generic("human", PRIMARY, SECONDARY, 11)
+		sp["prim"] = FigurePainter.metal("steel")["base"]
+		sp["sec"] = FigurePainter.metal("steel")["light"]
+		sp["shield"] = FigurePainter._item_spec(Item.make(shield_ids["kite"], "steel"))
+		var traced := TraceFigure.new(sp).paint("block", 0.5) as TraceCanvas
+		var old := UnlitFigure.new(sp).paint("block", 0.5).to_image()
+		check(_diff_outside(traced.to_image(), old, traced.final_metal) == 0, "palette-colour heraldry is protected by explicit unlit paint scope")
+
+func _alpha_equal(a: Image, b: Image) -> bool:
+	if a.get_size() != b.get_size(): return false
+	var left := a.get_data(); var right := b.get_data()
+	for i in range(3, left.size(), 4):
+		if left[i] != right[i]: return false
+	return true
+
+func _diff(a: Image, b: Image) -> int:
+	if a.get_size() != b.get_size(): return -1
+	var left := a.get_data(); var right := b.get_data()
+	var count := 0
+	for i in range(0, left.size(), 4):
+		if left[i] != right[i] or left[i + 1] != right[i + 1] or left[i + 2] != right[i + 2] or left[i + 3] != right[i + 3]: count += 1
+	return count
+
+func _diff_outside(a: Image, b: Image, allowed: Dictionary) -> int:
+	if a.get_size() != b.get_size(): return -1
+	var count := 0
+	for y in a.get_height():
+		for x in a.get_width():
+			if not allowed.has(Vector2i(x, y)) and a.get_pixel(x, y) != b.get_pixel(x, y): count += 1
+	return count
+
+func _clear_edges(img: Image) -> bool:
+	for x in img.get_width():
+		if img.get_pixel(x, 0).a > 0 or img.get_pixel(x, img.get_height() - 1).a > 0: return false
+	for y in img.get_height():
+		if img.get_pixel(0, y).a > 0 or img.get_pixel(img.get_width() - 1, y).a > 0: return false
+	return true
+
+func _same_rgb(a: Color, b: Color) -> bool:
+	return a.a > 0.99 and a.r8 == b.r8 and a.g8 == b.g8 and a.b8 == b.b8
+
+func _luma(c: Color) -> float:
+	return c.r * 0.2126 + c.g * 0.7152 + c.b * 0.0722
+
+func _triplet(sheet: Image, old: Image, current: Image, origin: Vector2i, stride: int) -> void:
+	var diff := Image.create(current.get_width(), current.get_height(), false, Image.FORMAT_RGBA8)
+	diff.fill(PixelCanvas.CLEAR)
+	for y in current.get_height():
+		for x in current.get_width():
+			var a := old.get_pixel(x, y); var b := current.get_pixel(x, y)
+			if a != b: diff.set_pixel(x, y, Color.RED if a.a != b.a else Color("#ffd450"))
+	sheet.blend_rect(old, Rect2i(Vector2i.ZERO, old.get_size()), origin)
+	sheet.blend_rect(current, Rect2i(Vector2i.ZERO, current.get_size()), origin + Vector2i(stride, 0))
+	sheet.blend_rect(diff, Rect2i(Vector2i.ZERO, diff.get_size()), origin + Vector2i(stride * 2, 0))
+
+func _save(img: Image, tag: String, stamp: int, layout: String) -> void:
+	var path := "user://shaded_equipment_v091_%s_%d_%d.png" % [tag, OS.get_process_id(), stamp]
+	check(img.save_png(path) == OK, "saved task-owned CPU " + tag + " comparison PNG")
+	print("v091 CPU PNG: ", ProjectSettings.globalize_path(path), " | ", layout)

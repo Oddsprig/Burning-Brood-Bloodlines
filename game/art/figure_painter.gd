@@ -337,6 +337,15 @@ static func metal(mat: String, q: int = 0) -> Dictionary:
 		"tin":
 			m = {"base": Color("#a9b0b9"), "light": Color("#c9cfd6"), "dark": Color("#6f7680"), "shine": Color("#d9dde2"),
 				"shade": 0.08}
+		"bronze":
+			m = {"base": Color("#ae783e"), "light": Color("#dfad68"), "dark": Color("#65452f"), "shine": Color("#ffe2a4"),
+				"shade": 0.16, "specular": 0.32, "specular_power": 12.0, "contrast": 1.12}
+		"iron":
+			m = {"base": Color("#656b70"), "light": Color("#969d9f"), "dark": Color("#373d44"), "shine": Color("#bec4c5"),
+				"shade": 0.14, "specular": 0.14, "specular_power": 8.0, "contrast": 1.06}
+		"steel":
+			m = {"base": Color("#8b9caa"), "light": Color("#c2d5df"), "dark": Color("#435365"), "shine": Color("#f0f6fa"),
+				"shade": 0.18, "specular": 0.48, "specular_power": 22.0, "contrast": 1.18}
 		_:
 			var base := Color("#888888")
 			if DB.materials.has(mat):
@@ -344,10 +353,15 @@ static func metal(mat: String, q: int = 0) -> Dictionary:
 			m = {"base": base, "light": base.lightened(0.25), "dark": base.darkened(0.35), "shine": base.lightened(0.45),
 				"shade": 0.12}
 	m["q"] = q
+	# Finish metadata is consumed only by the scoped weapon/shield raster path.
+	m["metallic"] = String(DB.materials.get(mat, {}).get("kind", "")) == "metal"
 	m["trim"] = (Color("#ffd86a") if mat == "copper" else Color("#f6f9ff")) if q >= 2 else m["light"]
 	if q >= 1:
 		m["shine"] = (m["shine"] as Color).lightened(0.1 * q)
 	m["outline"] = ol(m["base"])
+	if not m.has("specular"):
+		m["specular"] = 0.30 if mat == "copper" else (0.08 if mat == "tin" else 0.03)
+	m["ramp"] = PixelCanvas.make_ramp(m["base"], m["shine"], float(m.get("contrast", 1.0)))
 	return m
 
 func _metal_end(m: Dictionary) -> void:
@@ -1482,6 +1496,7 @@ func _shield() -> void:
 	var p := prim
 	var s := sec
 	var cx := cv.map(c)
+	cv.begin_equipment(m)
 	match String(sh.get("sprite", "kite")):
 		"kite":
 			var outer := PackedVector2Array()
@@ -1491,6 +1506,7 @@ func _shield() -> void:
 				inner.append(c + q * g * 0.72 + Vector2(0, -0.3))
 			cv.begin()
 			cv.poly(outer, m["base"])
+			cv.end_equipment()
 			cv.poly(inner, p, func(x: int, y: int, col: Color) -> Color:
 				if absf(x + 0.5 - cx.x) < 0.6 * cv.k or absf(y + 0.5 - (cx.y - 1.5 * cv.k)) < 0.6 * cv.k:
 					return s
@@ -1499,26 +1515,33 @@ func _shield() -> void:
 		"round":
 			cv.begin()
 			cv.ellipse(c, 3.6 * g, 4.6 * g, m["base"])
+			cv.end_equipment()
 			cv.ellipse(c, 2.6 * g, 3.6 * g, p, func(x: int, y: int, col: Color) -> Color:
 				return s if (x + 0.5 < cx.x) == (y + 0.5 < cx.y) else col)
+			cv.begin_equipment(m)
 			cv.ellipse(c, 1.1 * g, 1.1 * g, m["light"])
 			cv.end(m["outline"], 0.14, m["shine"])
 		"slab":
 			var wood := WOOD
+			cv.end_equipment()
 			cv.begin()
 			cv.poly(PackedVector2Array([c + Vector2(-3.0, -5.0) * g, c + Vector2(2.5, -5.5) * g, c + Vector2(3.0, 5.5) * g,
 				c + Vector2(-3.0, 5.0) * g]), wood, func(x: int, _y: int, col: Color) -> Color:
 				return col.darkened(0.25) if (x - int(cx.x)) % maxi(2, int(2 * cv.k)) == 0 else col)
 			cv.capsule(c + Vector2(-1.5, -1.5) * g, c + Vector2(1.5, 2.0) * g, 0.8, p)
+			cv.begin_equipment(m)
 			cv.rect(Rect2(c + Vector2(-3.0, -3.5) * g, Vector2(6.0, 1.0) * g), m["base"])
 			cv.rect(Rect2(c + Vector2(-3.0, 3.0) * g, Vector2(6.0, 1.0) * g), m["base"])
 			cv.end(ol(wood), 0.12)
 		"buckler":
 			cv.begin()
 			cv.ellipse(c, 2.2 * g, 2.7 * g, m["base"])
+			cv.end_equipment()
 			cv.ellipse(c, 1.5 * g, 1.9 * g, p)
+			cv.begin_equipment(m)
 			cv.ellipse(c, 0.8 * g, 0.9 * g, m["light"])
 			cv.end(m["outline"], 0.14, m["shine"])
+	cv.end_equipment()
 	_sparkle(c + Vector2(-1.0, -2.0), m)
 
 # --- weapons --------------------------------------------------------------------------------------
