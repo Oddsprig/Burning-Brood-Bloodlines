@@ -220,6 +220,10 @@ static func after_load(game) -> void:
 				continue
 			_state_owner(e, b)
 			_release_unregistered(e, b)
+			# Loaded blocked/completed houses obey the same unpaid-post rule as
+			# newly generated ones, before another wage day or building bill.
+			if active_lines(w, String(t.get("faction", e.get("faction", "")))).is_empty():
+				_idle_house(e, b)
 			var L: Array = b.get("lead", [])
 			b["lead"] = [int(L[0]), int(L[1])] if L.size() >= 2 else []
 			if L.size() >= 2 and not b.has("lead_uid") and int(L[0]) >= 0 and int(L[0]) < (e["fams"] as Array).size():
