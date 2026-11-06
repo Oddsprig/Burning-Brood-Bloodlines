@@ -15,7 +15,7 @@ func check(ok: bool, label: String) -> void:
 		fails += 1
 		print("FAIL: ", label)
 
-func _recruit(town: Dictionary, role: Dictionary, target_race: String, seed_value: int) -> void:
+func _recruit(town: Dictionary, role: Dictionary, target_race: String, seed_value: int, replaced: bool = true) -> void:
 	var holder := Holders.new()
 	var before: Dictionary = WorldAudit.items(holder)
 	var from_n: int = WorldAudit.items_gone.size()
@@ -23,13 +23,17 @@ func _recruit(town: Dictionary, role: Dictionary, target_race: String, seed_valu
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
 	var u: Unit = Recruits.make_recruit(rng, town, Recruits.kit_for(role))
-	if target_race != "": Factory.adopt_family_race(u, target_race)
+	if target_race != "":
+		var person: Array = [1, 0, 0, -2400.0, "", -1, 0, "Audit Person"]
+		var family: Dictionary = {"id": 0, "race": target_race, "name": "Fixture", "pp": [person]}
+		Persons.bind({"culture": town["culture"]}, family, person, u, "hire", 1.0)
+		check(u.race == target_race and person[5] == u.uid, "native Persons.bind applies the actual household identity/race")
 	holder.company.append(u)
 	var audit: Dictionary = WorldAudit.compare_items(before, WorldAudit.items(holder), from_n, WorldAudit.items_gone.size())
 	print("RECRUIT_UID_V094 ", JSON.stringify({"role": role, "race": u.race, "audit": audit,
 		"new_unmade": WorldAudit.unmade_ids.size() - unmade_before}, "", true, true))
 	check(audit["ok"], "native recruit creation/adoption accounts for every item: " + str(role) + "/" + target_race)
-	check(WorldAudit.unmade_ids.size() > unmade_before, "the known replaced starting template was individually booked")
+	check((WorldAudit.unmade_ids.size() > unmade_before) == replaced, "only a replaced starting template was individually booked")
 	for item in u.equip.values():
 		check(not WorldAudit.unmade_ids.has(item.uid), "surviving native kit is never booked unmade")
 
@@ -75,8 +79,10 @@ func run(_tree: SceneTree) -> int:
 	var previous_tracking: bool = WorldAudit.tracking
 	WorldAudit.tracking = true
 	_recruit(town, {"kind": "job", "key": "hunter", "title": "hunter"}, "", 94001)
-	_recruit(town, {"kind": "job", "key": "smith", "title": "smith"}, "giant", 94002)
+	_recruit(town, {"kind": "job", "key": "weaponsmith", "title": "smith"}, "giant", 94002)
 	_recruit(town, {"kind": "job", "key": "market", "title": "carter"}, "giant", 94003)
+	_recruit(town, {"kind": "job", "key": "weaponsmith", "title": "smith"}, "human", 94004, false)
+	_recruit(town, {"kind": "job", "key": "weaponsmith", "title": "smith"}, "dwarf", 94005, false)
 	_negative_controls()
 	WorldAudit.tracking = previous_tracking
 	print("Recruit item custody v094: ", checks - fails, "/", checks, " checks passed")

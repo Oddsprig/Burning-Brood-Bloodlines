@@ -120,7 +120,10 @@ static func make_recruit(rng: RandomNumberGenerator, town: Dictionary, bg: Dicti
 		if tid == "":
 			continue
 		var it := Item.make(tid, Factory.town_metal(rng, town, tid), 1 if rng.randf() < 0.15 else 0)   # v0.014: the town's own metal mix (was 75% tin, fixed)
+		WorldAudit.rolled(it)   # fresh construction template, before native family-race binding may replace it
 		it.wear = rng.randi_range(0, 2)
+		if u.equip.has(it.slot()):
+			WorldAudit.drop_rolled(u.equip[it.slot()], "-recruit starting template replaced in the same slot")
 		u.equip[it.slot()] = it
 	# a plain line until the family register's story replaces it (Backstory)
 	var first: String = u.name.split(" ")[0]

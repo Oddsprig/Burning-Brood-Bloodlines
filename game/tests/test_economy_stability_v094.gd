@@ -520,6 +520,18 @@ func _capture_matches(observation: Dictionary, census: Dictionary, meta: Diction
 	return true
 
 
+func _template_disposals(first_uid: int, last_uid: int) -> Array:
+	# Causal evidence for generated templates dropped before their first ownership census.
+	var out: Array = []
+	var ids: Array = WorldAudit.unmade_ids.keys()
+	ids.sort()
+	for uid in ids:
+		if int(uid) < first_uid or int(uid) >= last_uid: continue
+		var made: Array = WorldAudit.made_log.get(int(uid), ["?", "?"])
+		out.append({"uid": int(uid), "template": made[0], "site": made[1], "reason": WorldAudit.unmade_ids[uid]})
+	return out
+
+
 func _save_checkpoint(index: int, meta: Dictionary, rows: Dictionary, previous: Dictionary) -> bool:
 	if not _clean(float(meta["end_day"])) or not _unchanged_source(): return false
 	if FileAccess.file_exists(_path(index, "save.json")) or FileAccess.file_exists(_path(index, "manifest.json")): return _bad("duplicate_checkpoint", str(index))
@@ -663,7 +675,8 @@ func _batch(tree: SceneTree, types: Dictionary) -> Dictionary:
 		"observation_contract": {"races": RACES, "maker_types_sha256": M.digest(types)},
 		"endpoint_sha256": M.digest(observation), "physical_sha256": M.digest(M.plain(M.physical_signature(audit_end))),
 		"rng": {"game": str(Game.rng.state), "world": str(Game.world.get("rng_state", ""))}}
-	var rows: Dictionary = {"schema": SCHEMA, "index": index, "daily": daily, "snapshots": snapshots, "audits": audits}
+	var rows: Dictionary = {"schema": SCHEMA, "index": index, "daily": daily, "snapshots": snapshots, "audits": audits,
+		"template_disposals": _template_disposals(int(audit_start["items"]["next"]), Item._next_uid)}
 	if not _save_checkpoint(index, meta, rows, previous): return {}
 	return {"ok": true, "finished": true, "mode": "batch", "mechanicalBatchPass": true, "overallComplete": false,
 		"allGroupsVerified": true, "checkpoint": index, "actualCompleteDays": _completed - from, "completed": _completed,
