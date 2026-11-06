@@ -148,11 +148,9 @@ static func _validate_first_name(raw_name: String) -> Dictionary:
 static func preview(game, person_uid: String, design: Dictionary) -> Dictionary:
 	if game == null or not (game.world is Dictionary):
 		return {"ok": false, "reason": "No active campaign world.", "look": {}, "name": ""}
-	if float(game.day) > 1.0:
-		return {"ok": false, "reason": "Character design is only allowed on day 1.", "look": {}, "name": ""}
 	var ph: Dictionary = game.world.get("player_house", {})
-	if not ph.is_empty() and str(ph.get("ruler_uid", "")) != person_uid:
-		return {"ok": false, "reason": "Character design is only allowed for the player's ruler.", "look": {}, "name": ""}
+	if not ph.is_empty():
+		return {"ok": false, "reason": "Character design is only allowed before choosing a campaign house.", "look": {}, "name": ""}
 	var opts: Dictionary = options(game, person_uid)
 	if opts.is_empty():
 		return {"ok": false, "reason": "This person is not a living registered character.", "look": {}, "name": ""}
@@ -234,11 +232,10 @@ static func preview(game, person_uid: String, design: Dictionary) -> Dictionary:
 static func apply(game, person_uid: String, design: Dictionary) -> Dictionary:
 	if game == null or not (game.world is Dictionary):
 		return {"ok": false, "reason": "No active campaign world."}
-	if float(game.day) > 1.0:
-		return {"ok": false, "reason": "Character design can only be applied on day 1."}
-	var ph: Dictionary = game.world.get("player_house", {})
-	if ph.is_empty() or str(ph.get("ruler_uid", "")) != person_uid:
-		return {"ok": false, "reason": "Character design is only allowed for the player's ruler."}
+	if not game.world.get("player_house", {}).is_empty():
+		return {"ok": false, "reason": "Character design is only allowed before choosing a campaign house."}
+	# Begin publishes the returned design with the chosen house only after application succeeds.
+	var ph: Dictionary = {}
 	var pre: Dictionary = preview(game, person_uid, design)
 	if not bool(pre.get("ok", false)):
 		return {"ok": false, "reason": str(pre.get("reason", "Invalid character design."))}
@@ -303,6 +300,7 @@ static func apply(game, person_uid: String, design: Dictionary) -> Dictionary:
 		"name": full_name,
 		"look": look.duplicate(true),
 		"focus": focus,
+		"design": record,
 	}
 
 static func look_for(game, person_uid: String) -> Dictionary:

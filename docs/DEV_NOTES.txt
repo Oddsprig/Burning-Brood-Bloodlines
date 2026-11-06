@@ -1,13 +1,11 @@
 BURNING BROOD: BLOODLINES - CURRENT DEVELOPER NOTES
-Updated: 2026-11-06 | source main 2c7bd93 / v0.094 | packaged Desktop/Android v0.085
+Updated: 2026-11-06 | v0.095 candidate from main 2ce6c5e | packaged Desktop/Android v0.085
 
 CURRENT SOURCE AND DOCUMENTATION
 v0.086-v0.094 are accepted normal source merges. The last packaged release remains
-v0.085. This source/documentation audit launched no game, editor, build or test.
-v0.095 is unbuilt and awaits owner go-ahead. Its recommended narrow first scope is
-reliable campaign entry, preserving historical day and real ruler/house identity.
-Politics browsing saved as location and premature save-success feedback follow
-as reliability priorities; no new council/war-goal implementation is authorized.
+v0.085. The earlier v0.094 documentation audit was source-only. The owner has now
+authorized exactly three v0.095 fixes below, with headless tests and an explicit
+full-diff/test-output approval gate before merge. No v0.095 package is claimed.
 
 Active three docs: PROJECT_MAP.md, docs/DEV_NOTES.txt, CHANGES.txt. Each must describe
 a version's actual changes in the SAME version merge or DO NOT MERGE. After each
@@ -15,6 +13,45 @@ version merge one light notes-only helper reconciles all three with final source
 lead reviews/commits/pushes normally. It counts toward the standing two-helper cap.
 See docs/BUILD_RULES.md and the shared machine GAME TESTING RULES.md. Historical
 commands/receipts and this audit never grant permission for another test or build.
+
+v0.095 - THREE BUG FIXES (candidate; merge approval pending)
+Base: 2ce6c5e632a57cff389ddcc5ceb1242abda105ee. No other audit repair is included.
+
+1. CharacterDesign.preview/apply require an empty world.player_house, not day <= 1.
+   HouseOnboarding.begin builds the chosen-house record locally, applies the
+   reviewed design before publishing it, and stores that returned name/design.
+   Once chosen, both designer calls refuse even for the same ruler on day 1.
+   Existing names, portrait overrides, native bound-unit focus and saved design
+   remain in their existing records. History day is never reset or adjusted.
+2. Politics.open_view/_select no longer write the browsed town to Game.location.
+   Screen town_id still selects the town. Existing back/back_params/return_location
+   retain Population, city/budget/person Records and nested civic return paths.
+   Records detail Back stays within Records; Close returns its caller. Normal
+   Politics Back retains origin. Native snapshots and quit/pause saves therefore
+   capture the physical origin without special save-time navigation logic.
+3. Warfare.after_battle branches on won: a win adds one battles_won, plus one
+   dragon_victories only with dragon_units; a non-win adds one battles_lost.
+   Assault, ambition, combat, loot and dragon-strength rules are unchanged.
+
+Verification: tests/test_campaign_fixes_v095.gd is one short headless batch of
+retained v019 onboarding, v039 designer logic and actual chooser checks, plus
+targeted navigation/native lifecycle save and win/loss/dragon counter controls.
+The designer and actual chooser use day 30 directly, without running history.
+Route probes exercise the real navigation handlers with drawing suppressed;
+no rendered UI, game-window or full campaign stability claim is made.
+Test Bridge d2c07bac6f004836987c7d897d9172d9, tested source c4e24d7:
+203 checks / zero failures; v019 58, designer logic 38, actual chooser 12,
+targeted navigation/native lifecycle saves/counters 95. Exit 0, zero script or
+parse errors; engine 8.859 s, complete admitted invocation 12.914 s. One headless
+process with Dummy audio and isolated test-owned APPDATA/LOCALAPPDATA. All 1492
+tracked game files byte-identical before/after/current; later edits are docs only.
+Full unedited stdout/stderr/command/receipts: test-results/v0.095_three_fixes.txt.
+Godot also logged the configured missing boot splash and shutdown diagnostics
+(34 ObjectDB instances / 10 resources). No rendered UI or leak-free claim;
+no unrelated repair or additional engine run was made. The splash path is also
+absent from the pinned baseline's tracked files. Source must remain unmerged
+until the owner reviews the full diff and actual output and explicitly says OK.
+No other audit fix or new feature is built.
 
 SHIPPED v0.086-v0.094 (source, not new packaged releases)
 

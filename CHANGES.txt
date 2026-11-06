@@ -1,10 +1,29 @@
 BURNING BROOD: BLOODLINES - ACTIVE CHANGE NOTES
-Updated: 2026-11-06 against main 2c7bd93 / source v0.094.
-Last packaged Desktop/Android release: v0.085. v0.095 remains unbuilt.
+Updated: 2026-11-06 for the v0.095 candidate from main 2ce6c5e.
+Last packaged Desktop/Android release: v0.085. v0.095 merge approval is pending.
 
 This changelog starts with the accepted v0.086-v0.094 source catch-up. Earlier
 history remains in the developer notes and immutable archives. Historical worker
 UNRUN reports are superseded by the accepted source receipts where stated.
+
+v0.095 - Initial ruler design, saved location and battle counters
+Candidate from 2ce6c5e632a57cff389ddcc5ceb1242abda105ee; not yet merged.
+Design your ruler remains available before choosing a player house regardless
+of history day, then locks after selection. History day is preserved. Begin
+applies the reviewed design before publishing the chosen-house record.
+Politics browsing keeps the viewed settlement in screen state; quit/pause saves
+retain the player's physical origin through Population and Records sub-screens.
+Normal Back navigation keeps its existing return screen and selection context.
+Wins without dragon units no longer increment losses. Dragon victories still
+require a win with dragon units; non-wins still increment losses.
+Owners (game/): campaign/character_design.gd; campaign/house_onboarding.gd;
+ui/politics.gd; campaign/warfare.gd. Version metadata is 0.095.
+Verification: tests/test_campaign_fixes_v095.gd, including the retained v019/v039
+suites and direct day-30 chooser coverage. Test Bridge d2c07bac6f004836987c7d897d9172d9:
+203 checks, zero assertion/script failures, exit 0; engine 8.859 s, total 12.914 s.
+Complete output: test-results/v0.095_three_fixes.txt, including missing-splash and
+shutdown-resource diagnostics. Owner review/merge approval remains pending.
+No other audit item, balance change, package, export or long history is included.
 
 v0.086 - Domestic animals and counted pack custody
 Normal merge: aa6c58eae26c2eeb6723d0fc20770aecc92bfc60

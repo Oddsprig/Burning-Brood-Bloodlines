@@ -31,6 +31,7 @@ func run(scene_tree: SceneTree) -> int:
 	await tree.process_frame
 	var logic = load("res://tests/claude_designer_v039.gd").new()
 	var fx: Dictionary = logic.fixture()
+	Game.day = 30.0   # Exercise the actual chooser after history without running presimulation.
 	var leader: Array = fx["leader"]
 	var leader_uid := str(leader[Persons.PERSON_UID])
 	var household := str(fx["ordinary"]["household_uid"])
@@ -105,6 +106,7 @@ func run(scene_tree: SceneTree) -> int:
 	await settle()
 	var saved: Dictionary = Game.world.get("player_house", {}).get("design", {})
 	check(bool(begun.get("ok", false)) and str(leader[7]) == "Aldric Native Cadet", "Begin applies the designed ruler name (%s)" % str(begun.get("reason", "")))
+	check(Game.day == 30.0, "actual chooser preserves history day 30 through Review and Begin")
 	check(str(Game.world.get("player_house", {}).get("ruler_name", "")) == "Aldric Native Cadet" and str(saved.get("first_name", "")) == "Aldric" and str(saved.get("focus", "")) == "martial", "player house keeps the designed name and focus")
 	var look: Dictionary = saved.get("look", {}) if saved.get("look") is Dictionary else {}
 	check(str(look.get("skin", "")) == skin_val and str(look.get("hair", "")) == hair_val and int(look.get("seed", -1)) == 4 and bool(look.get("beard", false)) and int(look.get("beard_style", -1)) == 5, "player house stores the chosen look")

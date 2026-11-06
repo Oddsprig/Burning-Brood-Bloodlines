@@ -1,0 +1,93 @@
+v0.095 THREE-FIX CANDIDATE - REVIEW EVIDENCE
+Base: 2ce6c5e632a57cff389ddcc5ceb1242abda105ee
+Tested source: c4e24d7b2d91e2f5ad4dd1b500f618d64808ebbc
+Test Bridge job: d2c07bac6f004836987c7d897d9172d9 (attempt 001)
+Outcome: 203 checks, zero assertion/script/parse failures, exit 0.
+Engine 8.859 s; complete admitted Test Bridge invocation 12.914 s.
+One headless Godot process, Dummy audio, isolated APPDATA/LOCALAPPDATA.
+All 1492 tracked game files identical before/after/current.
+Tests: native v019 onboarding 58; v039 designer logic 38; actual chooser 12;
+Politics/Population/Records routes, native quit/pause saves and counters 95.
+Day 30 was set directly; no history simulation, window, GPU or download.
+No merge/push yet. Owner full-diff/output approval is required.
+
+Diagnostics retained: missing configured splash (fallback used), 34 ObjectDB
+instances and 10 resources reported at shutdown. No runtime visual or leak-free
+claim. These diagnostics have not been runtime-attributed; no unrelated repair
+or second test is included.
+
+----- command.json (complete, unedited) -----
+{
+  "commit": "c4e24d7b2d91e2f5ad4dd1b500f618d64808ebbc",
+  "command": [
+    "C:\\Users\\bligh\\Downloads\\gemini ninja project\\.tools\\godot\\Godot_v4.7.2-stable_win64.exe",
+    "--headless",
+    "--audio-driver",
+    "Dummy",
+    "--path",
+    "C:\\Users\\bligh\\Documents\\Codex\\2026-09-22\\referenced-chatgpt-conversation-this-is-an-3\\outputs\\LegionaryAI\\.work\\brood-director\\v095-three-fixes\\game",
+    "res://tests/runner.tscn",
+    "--",
+    "--test=res://tests/test_campaign_fixes_v095.gd",
+    "--watchdog=40"
+  ],
+  "driver_sha256": "2a593ae313232eee41c0f49783675b065b5b66ecb2edd70b4719e00d02da1942"
+}
+----- godot.stdout.log (complete, unedited) -----
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+House onboarding v019: 58 checks, 0 failures
+v095 retained suite test_house_onboarding_v019.gd: 58 checks, 0 failures
+designer039: 38 checks, 0 failures
+v095 retained suite claude_designer_v039.gd: 38 checks, 0 failures
+designer ui v039: 12 checks, 0 failures
+v095 retained suite claude_designer_ui_v039.gd: 12 checks, 0 failures
+v095 three-fix batch: 203 checks, 0 failures
+== res://tests/test_campaign_fixes_v095.gd: PASS ==
+
+----- godot.stderr.log (complete, unedited) -----
+ERROR: Error opening file 'res://icon_mobile/splash.png'.
+   at: load_image (core/io/image_loader.cpp:91)
+ERROR: Non-existing or invalid boot splash at 'res://icon_mobile/splash.png'.  Loading default splash.
+   at: setup_boot_logo (main/main.cpp:3958)
+WARNING: 34 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 10 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)
+
+----- stdout.log (complete, unedited) -----
+{"outcome": "passed", "summary": "203 checks, 0 assertion failures, 0 script/parse/failure markers, exit 0, engine 8.859s", "metrics": {"commit": "c4e24d7b2d91e2f5ad4dd1b500f618d64808ebbc", "engine_seconds": 8.85899999999674, "exit_code": 0, "errors": [], "source_changes": [], "tracked_game_files": 1492, "checks": 203}, "elapsed_seconds": 12.39100000000326}
+{"job_id":"d2c07bac6f004836987c7d897d9172d9","seconds":12.4547302,"limit":60,"exit_code":0}
+
+----- stderr.log (complete, unedited) -----
+
+----- result.json (complete, unedited) -----
+{
+  "outcome": "passed",
+  "summary": "203 checks, 0 assertion failures, 0 script/parse/failure markers, exit 0, engine 8.859s",
+  "metrics": {
+    "commit": "c4e24d7b2d91e2f5ad4dd1b500f618d64808ebbc",
+    "engine_seconds": 8.85899999999674,
+    "exit_code": 0,
+    "errors": [],
+    "source_changes": [],
+    "tracked_game_files": 1492,
+    "checks": 203
+  },
+  "elapsed_seconds": 12.39100000000326
+}
+----- verified-report.json (complete, unedited) -----
+{
+  "outcome": "passed",
+  "summary": "203 checks, 0 assertion failures, 0 script/parse/failure markers, exit 0, engine 8.859s",
+  "metrics": {
+    "commit": "c4e24d7b2d91e2f5ad4dd1b500f618d64808ebbc",
+    "engine_seconds": 8.85899999999674,
+    "exit_code": 0,
+    "errors": [],
+    "source_changes": [],
+    "tracked_game_files": 1492,
+    "checks": 203
+  },
+  "elapsed_seconds": 12.39100000000326
+}

@@ -1,6 +1,16 @@
 # Burning Brood: Bloodlines — current developer map
 
-Updated 6 November 2026 against source `main` `2c7bd93` (v0.094). Source versions v0.086–v0.094 are accepted normal merges; the last packaged Desktop/Android release is v0.085. v0.095 is unbuilt pending owner go-ahead. No engine, game, build or test was run for this documentation audit.
+Updated 6 November 2026 for the v0.095 three-fix candidate, branched from `main` `2ce6c5e`. Source versions v0.086–v0.094 are accepted normal merges; the last packaged Desktop/Android release is v0.085. v0.095 passed 203 checks and awaits the owner's explicit merge approval. The older source-only audit below is pinned to v0.094.
+
+## v0.095 — initial design, browsing location and battle counters
+
+| Fix | Owner and actual boundary |
+|---|---|
+| Design a ruler after history | `game/campaign/character_design.gd` permits preview/apply only while `world.player_house` is empty, regardless of day. `house_onboarding.gd:begin` applies the reviewed design before publishing that house, then stores the returned design on it. Neither changes the historical day; both designer calls reject after selection, including on day 1. |
+| Save the physical location while browsing | `game/ui/politics.gd:open_view` and `_select` retain the viewed town in screen state without changing `Game.location`. Population, city/budget/person Records and nested civic links retain their existing return context. Back still restores the origin; `SaveSnapshot` and the native quit/pause writers naturally save that origin. No save schema or lifecycle handler changes. |
+| Count a dragonless win once | `game/campaign/warfare.gd:after_battle` increments wins for a win, increments dragon victories only for a win with dragon units, and increments losses only when not won. Assault resolution and ambitions retain their existing calls. |
+
+Verification entry: `game/tests/test_campaign_fixes_v095.gd` ran the retained onboarding/designer logic and chooser checks, then targeted route/save and counter controls in one headless batch. The chooser set day 30 directly; no long history or battle simulation ran. Test Bridge `d2c07bac6f004836987c7d897d9172d9` passed 203 checks, zero assertion/script failures, exit 0: engine 8.859 seconds, complete invocation 12.914 seconds. All 1,492 tracked game files were byte-identical before/after. [Complete test output](test-results/v0.095_three_fixes.txt) retains missing-splash and shutdown-resource diagnostics; it does not claim rendered or leak-free verification. No v0.095 package/export is claimed. Merge/push still requires the owner's review of the full diff and output.
 
 ## Read first
 
@@ -85,11 +95,11 @@ Source-only reconciliation, 2026-11-06, pinned to `2c7bd93d818810e005f7582f5687d
 
 Paths in the table are relative to `game/`. Actual armory owners in supplied source are town `armory_items`, `ArmsTrade` and `Legends` custody (`campaign/arms_trade.gd:259`, `campaign/legends.gd:413`). No separate `HouseArmory` symbol/route is present in this partial snapshot; full company/muster/mobilization/Records controls need root inspection before declaring private-armory functionality absent. Rendering implementations and combat/settlement internals belong to the other audit areas.
 
-The recommended narrow v0.095 candidate is reliable initial campaign entry (H01), preserving chosen history and one-time ruler design. Navigation/save-feedback defects H03/H04 also outrank new council or war-demand systems. This is a recommendation only; v0.095 remains unbuilt/on hold. Standing gate: `PROJECT_MAP.md`, `docs/DEV_NOTES.txt` and `CHANGES.txt` must all describe the version in the SAME merge; a post-merge light notes helper reconciles final source under the standing helper limit.
+The audit recommended initial campaign entry (H01). The owner's subsequent v0.095 authorization is exactly the three repairs described above: initial design, Politics location (H03) and dragonless-win counters. Save-success feedback (H04) remains outside that authorization. Standing gate: `PROJECT_MAP.md`, `docs/DEV_NOTES.txt` and `CHANGES.txt` must all describe the version in the SAME merge; a post-merge light notes helper reconciles final source under the standing helper limit and current allowed-model restrictions.
 
-## Recommended next unbuilt item
+## v0.095 scope and remaining design work
 
-v0.095 recommendation: reliable initial campaign entry. Offered histories longer than one day currently conflict with the mandatory designer's absolute day-one gate. Preserve the chosen history and native identity; use the initial-selection boundary. Politics saved-location and truthful save completion are the next reliability repairs. This recommendation comes from inspected source and the owner's recorded history/dynasty design, not the roadmap files. No authoritative existing map entry assigned v0.095. Council roles and negotiated war demands remain genuine proposed design gaps, ranked below entry/saved-progress failures. [Combined priority list](docs/audit_v094/README.md).
+The owner authorized only the three v0.095 fixes above, replacing the earlier hold and recommendation. Premature save-success feedback, council roles, negotiated war demands, dragon balance and all other audit items remain outside this version. The [combined priority list](docs/audit_v094/README.md) records the historical v0.094 audit; it is not evidence that those other items were repaired.
 
 ## Preserved historical repository inventory
 
