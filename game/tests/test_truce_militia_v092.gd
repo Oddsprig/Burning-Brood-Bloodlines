@@ -24,6 +24,11 @@ func run(tree: SceneTree) -> int:
 func _pair() -> Dictionary:
 	return Game.world["diplo"]["pairs"][Diplomacy.pair_key("middle_kingdom", "northern_clans")]
 
+func _settlement_boundary(tid: String) -> PackedByteArray:
+	var w: Dictionary = Game.world
+	return var_to_bytes(Game._serialize({"town": w["towns"][tid], "party": w["party"], "diplo": w["diplo"],
+		"warfare": w.get("warfare", {}), "pending": Game.pending_battle, "gold": Game.gold, "screen": Game._active_screen}))
+
 func _treaty_and_player_guards() -> void:
 	var w: Dictionary = Game.world
 	var a := "middle_kingdom"; var b := "northern_clans"
@@ -66,9 +71,16 @@ func _treaty_and_player_guards() -> void:
 	check(Game.pending_battle == pending and w.get("encounter", "") != enemy["id"]
 		and float(w["diplo"]["player"][b]["earned"]) == earned, "actual player engage refuses before changing battle or reputation")
 	var target := str(w["factions"][b]["capital"])
+	var party_pos: Vector2 = w["party"]["pos"]
+	w["party"]["pos"] = w["towns"][target]["pos"]
 	for kind in ["raid", "siege"]:
 		var preview := Warfare.preview(Game, target, kind)
 		check(not bool(preview.get("ok", false)) and str(preview["reason"]).contains("truce"), "settlement " + kind + " reports the live treaty")
+		var boundary := _settlement_boundary(target)
+		var refused := Warfare.start(Game, target, kind)
+		check(not bool(refused.get("ok", false)) and str(refused.get("reason", "")).contains("truce"), "actual settlement " + kind + " refuses the active truce")
+		check(_settlement_boundary(target) == boundary, "refused " + kind + " preserves settlement, diplomacy, coin, army and battle state")
+	w["party"]["pos"] = party_pos
 	w["diplo"]["player"][b]["earned"] = -100.0
 	check(Diplomacy.standing(Game, b) <= -50 and not Diplomacy.player_hostile(Game, b), "negative standing cannot trigger player pursuit during the realm's truce")
 	w["warbands"].erase(enemy["id"]); w["warbands"].erase(car["id"])
@@ -94,6 +106,12 @@ func _saved_expiry(path: String) -> void:
 	Diplomacy._set_state(Game, _pair(), Diplomacy.WAR)
 	check(_pair()["state"] == Diplomacy.WAR and int(_pair()["truce"]) == 0, "new war is possible after expiry and clears the elapsed treaty")
 	check(Caravans.is_prey(w, {"kind": "patrol", "faction": b}, {"kind": "caravan", "faction": a}), "AI war raids resume after expiry")
+	var target := str(w["factions"][b]["capital"])
+	var party_pos: Vector2 = w["party"]["pos"]
+	w["party"]["pos"] = w["towns"][target]["pos"]
+	for kind in ["raid", "siege"]:
+		check(bool(Warfare.preview(Game, target, kind).get("ok", false)), "settlement " + kind + " is available after exact truce expiry")
+	w["party"]["pos"] = party_pos
 	# Positive control: the same native player entry point can start a battle
 	# once the treaty expires. No BattleSim or engagement is executed here.
 	check(not Game.deployed_units().is_empty(), "saved paid muster still supplies the positive engagement control")
