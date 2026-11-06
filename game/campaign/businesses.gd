@@ -451,6 +451,10 @@ static func _who(e: Dictionary) -> Dictionary:
 ## for a material its smiths also practise town by town (data knowhow: bronze) the town's own practice under it, so a
 ## realm that may not know bronze (orcs, goblins) never smelts or works it whatever its towns have heard (v0.014).
 static func kh_of(e: Dictionary, key: String) -> float:
+	# Manufacturing follows the current faction, including in a captured town
+	# whose local culture or saved know-how mirror still belongs to its old owner.
+	if key == "steel" and Academy.faction_race(String(e.get("faction", ""))) in ["orc", "goblin"]:
+		return 0.0
 	var fk: Dictionary = e.get("fkh", {})
 	var practised: bool = TownEcon.data()["knowhow"].has(key)
 	if fk.has(key):
@@ -822,7 +826,10 @@ static func _recipe_inputs(e: Dictionary, D: Dictionary, r: Dictionary) -> Dicti
 ## A quote does not clear prices, set state, or add demand to the live economy.
 static func _recipe_choice(e: Dictionary, D: Dictionary, b: Dictionary, T: Dictionary, wd: float, bdem: Dictionary, producing: bool) -> Dictionary:
 	var recs: Array = T["recipes"]
-	var alloy := Metallurgy.alloy_recipe(e, recs) if String(b.get("type", "")) == "smelter" else {}
+	var alloy := {}
+	if String(b.get("type", "")) == "smelter":
+		alloy = Metallurgy._steel_recipe(e, recs)
+		if alloy.is_empty(): alloy = Metallurgy.alloy_recipe(e, recs)
 	var st: Dictionary = e["stock"]
 	var price: Dictionary = e["price"]
 	var G: Dictionary = D["goods"]
@@ -933,6 +940,10 @@ static func _batch_quote(e: Dictionary, recipe: Dictionary, share: float) -> flo
 ## Carry is work, never unpaid materials or a market advance. Used by both
 ## the actual purchase and the owner's read-only one-complete-batch quote.
 static func _recipe_batch_limit(e: Dictionary, b: Dictionary, best: Dictionary, ins: Dictionary, whole: int, mkt: Dictionary, share: float) -> int:
+	if best.get("out", {}).has("pig_iron"):
+		var paired := Metallurgy._pig_iron_batches(e)
+		if paired < whole:
+			whole = paired; b["state"] = "inputs"; b["why"] = "iron for steel"
 	for ig in ins:
 		var available := int(e["stock"].get(ig, 0)) / maxi(1, int(ins[ig]))
 		if available < whole:
