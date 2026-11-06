@@ -237,6 +237,7 @@ func _observe(types: Dictionary) -> Dictionary:
 	observation = M.plain(observation)
 	bad = _groups_error(observation["groups"])
 	if bad != "":
+		_evidence["failed_groups"] = observation["groups"]
 		_bad("group_coverage", bad)
 		return {}
 	return observation
@@ -262,7 +263,7 @@ func _groups_error(groups) -> String:
 	var world: Dictionary = groups["WORLD"].duplicate(true)
 	world.erase("day_wage_population_mean")
 	world.erase("food_price_population_mean")
-	if not M.equal_json(sum, world): return "race totals do not equal WORLD"
+	if not M.equal_json(sum, world): return "race totals do not equal WORLD " + M.difference_json(sum, world)
 	if int(world.get("towns", 0)) <= 0: return "empty WORLD town coverage"
 	return M.finite(groups)
 

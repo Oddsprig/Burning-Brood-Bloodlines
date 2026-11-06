@@ -21,6 +21,18 @@ static func equal_json(a, b) -> bool:
 	return typeof(a) == typeof(b) and a == b
 
 
+static func difference_json(a, b, path: String = "") -> String:
+	if equal_json(a, b): return ""
+	if a is Dictionary and b is Dictionary:
+		for k in a:
+			if not b.has(k): return path + "/" + str(k) + ":missing"
+			var bad: String = difference_json(a[k], b[k], path + "/" + str(k))
+			if bad != "": return bad
+		for k in b:
+			if not a.has(k): return path + "/" + str(k) + ":extra"
+	return path + ":expected=" + JSON.stringify(a, "", true, true) + ",actual=" + JSON.stringify(b, "", true, true)
+
+
 static func plain(value):
 	# Native serializer handles Unit/Item/typed values; JSON makes Packed values plain.
 	return JSON.parse_string(JSON.stringify(Game._serialize(value), "", true, true))
