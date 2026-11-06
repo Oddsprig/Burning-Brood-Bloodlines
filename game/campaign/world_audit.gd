@@ -87,8 +87,6 @@ static var rolled_ids: Dictionary = {}   # uid -> true: a troop's rolled templat
 static var site := ""
 
 static func note_made(it) -> void:
-	if tracking and it is Item and int(it.uid) in [58134, 58135] and "--economy-mode=items-diagnostic" in OS.get_cmdline_user_args():
-		print("ITEM_CREATION_STACK_V094 ", JSON.stringify({"uid": it.uid, "stack": get_stack()}))
 	if tracking and it is Item: made_log[int(it.uid)] = [str(it.tid), site]
 
 static func unmade(it, why: String) -> void:
