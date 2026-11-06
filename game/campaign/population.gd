@@ -105,6 +105,14 @@ static func promote(e: Dictionary, f: Dictionary, day: float, rng: RandomNumberG
 		var parts := key.split(":")
 		var age := int(floor(day / People.year_days())) - int(parts[1])
 		if cat >= 2 or int(f["age_bins"][key]) <= 0 or (draft_only and (age < ar.x or age > ar.y)): continue
+		# A resident named before this row's staggered year turn already has
+		# today's detailed age. Move just that slot out of its stored category.
+		var counted_epoch := float(f.get("population_year", floor(day / People.year_days()))) * People.year_days()
+		var counted_cat := bin_category(e, f, key, counted_epoch)
+		if counted_cat != cat:
+			f[["m", "f", "old", "kids"][counted_cat]] -= 1
+			f[["m", "f", "old", "kids"][cat]] += 1
+			if counted_cat >= 2: e["adults"] += 1
 		var p := Persons._new(e, f, race, int(parts[0]), float(parts[1].to_int()) * People.year_days(), 0, rng)
 		# Collective workforce labels are economic owners, never a person's
 		# surname. Materialize his native cultural surname with his identity.

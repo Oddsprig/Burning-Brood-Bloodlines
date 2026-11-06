@@ -175,6 +175,11 @@ static func move_households(game, from: Dictionary, f: Dictionary, to: Dictionar
 	var bins: Dictionary = f["age_bins"]
 	var moved := {}
 	var counts := [0, 0, 0, 0]   # men, women, elders, children (Population.bin_category)
+	var destination_counts := [0, 0, 0, 0]
+	# Family year turns are staggered. Debit/credit each row's stored age epoch;
+	# its ordinary turn will then age the remaining/arriving bins exactly once.
+	var source_epoch := float(f.get("population_year", floor(day / People.year_days()))) * People.year_days()
+	var destination_epoch := float(d.get("population_year", floor(day / People.year_days()))) * People.year_days()
 	var carry := 0.0
 	for key in bins.keys():
 		var have := int(bins[key])
@@ -182,7 +187,8 @@ static func move_households(game, from: Dictionary, f: Dictionary, to: Dictionar
 		var k := mini(have, int(floor(x)))
 		carry = x - float(k)
 		if k <= 0: continue
-		counts[Population.bin_category(e, f, String(key), day)] += k
+		counts[Population.bin_category(e, f, String(key), source_epoch)] += k
+		destination_counts[Population.bin_category(e2, d, String(key), destination_epoch)] += k
 		bins[key] = have - k
 		if int(bins[key]) <= 0: bins.erase(key)
 		moved[key] = k
@@ -218,9 +224,9 @@ static func move_households(game, from: Dictionary, f: Dictionary, to: Dictionar
 	var dbins: Dictionary = d["age_bins"]
 	for key in moved: dbins[key] = int(dbins.get(key, 0)) + int(moved[key])
 	for c in 4:
-		d[fields[c]] = int(d[fields[c]]) + int(counts[c])
+		d[fields[c]] = int(d[fields[c]]) + int(destination_counts[c])
 	e2["pop"] = int(e2["pop"]) + people
-	e2["adults"] = int(e2["adults"]) + counts[0] + counts[1]
+	e2["adults"] = int(e2["adults"]) + destination_counts[0] + destination_counts[1]
 	d["households"] = Population.households(d) + n
 	var price := float(Shelter.D()["estate_home"])
 	var estate: Dictionary = e2["fams"][0]
