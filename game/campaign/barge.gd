@@ -1086,15 +1086,24 @@ static func mint_day(game, t: Dictionary, e: Dictionary) -> void:
 		if _recipe_cost(e, R) >= 1000.0:
 			dear = true
 			continue
-		# the treasury pays the market for the metal out of the coin it casts and keeps face minus metal
+		# Quote the exact whole inputs before consuming anything. The per-thousand
+		# estimate (including debasement) can understate a rounded small batch.
 		var cost := 0.0
+		var inputs := {}
 		for g in R:
 			var q := mini(int(ceil(k * float(R[g]))), int(st.get(g, 0)))
+			inputs[g] = q
+			cost += float(q) * float(e["price"].get(g, 1.0))
+		var face := k * 1000.0
+		if cost >= face or float(e["treasury"]) < 0.0 or cost > float(e["treasury"]) + face:
+			dear = true
+			continue
+		# Commit exactly the accepted plan; no changed recipe, credit, or clamp.
+		for g in inputs:
+			var q: int = inputs[g]
 			st[g] = int(st[g]) - q
 			took[g] = int(took.get(g, 0)) + q
 			TownEcon.led(e, "used", g, q)
-			cost += float(q) * float(e["price"].get(g, 1.0))
-		var face := k * 1000.0
 		mkt["till"] = float(mkt["till"]) + cost
 		e["treasury"] = float(e["treasury"]) + face - cost
 		L["cast"] = float(L["cast"]) + face

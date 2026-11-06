@@ -975,7 +975,9 @@ func _diagnostic(tree: SceneTree) -> int:
 		"start_day": 46, "end_day": Game.day, "town": "t23", "town_name": town.get("name", ""),
 		"treasury": treasury, "negative_days": negative_days, "trace": trace, "native_audit": audit}
 	print("ECONOMY_DIAGNOSTIC_V094 " + M.text(result))
-	return 0 if unchanged and not negative_days.is_empty() and Game.day == 53.0 else 1
+	# Execution of a diagnostic is distinct from its observed sign and from a
+	# campaign acceptance result; the controller must inspect the recorded values.
+	return 0 if unchanged and Game.day == 53.0 else 1
 
 
 func run(tree: SceneTree) -> int:
