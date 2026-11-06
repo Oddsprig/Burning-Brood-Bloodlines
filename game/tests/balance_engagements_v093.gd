@@ -463,6 +463,8 @@ func run(tree: SceneTree) -> int:
 		if not ok or Time.get_ticks_msec() >= started + WALL_MS: break
 		var row: Dictionary = await trial_run(tree, trial, started + WALL_MS, book)
 		ok = not row.has("checkpoint_error") and row["status"] in ["complete", "complete_censored"]
+		var trial_saved := checkpoint(book)
+		ok = ok and trial_saved
 		if not ok: break
 	book["elapsed_ms"] = Time.get_ticks_msec() - started
 	book["complete"] = ok and book["trials"].size() == selected.size()
