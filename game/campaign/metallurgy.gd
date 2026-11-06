@@ -59,6 +59,34 @@ static func alloy_recipe(e: Dictionary, recipes: Array) -> Dictionary:
 		if enough: return recipe
 	return {}
 
+## Two iron bars finish as two steel bars: one becomes pig iron, the other
+## joins it in the final heat. Keep those pairs together instead of turning
+## the entire iron bin into pig iron that this furnace can no longer finish.
+static func _pig_iron_batches(e: Dictionary) -> int:
+	var stock: Dictionary = e.get("stock", {})
+	return maxi(0, int(floor((float(stock.get("iron_bars", 0)) - float(stock.get("pig_iron", 0))) / 2.0)))
+
+## Finish wanted steel before refining more feedstock or casting bronze.
+## Each selected step still uses the normal paid, whole-batch transaction.
+## Full/resting outputs and missing inputs retain the ordinary market rules.
+static func _steel_recipe(e: Dictionary, recipes: Array) -> Dictionary:
+	if Businesses.kh_of(e, "steel") <= 0.0: return {}
+	var stock: Dictionary = e.get("stock", {})
+	var resting: Dictionary = e.get("_aimrest", {})
+	if resting.has("steel_bars") or float(stock.get("steel_bars", 0)) >= Businesses.stock_cap(e, "steel_bars"): return {}
+	for output in ["steel_bars", "pig_iron", "iron_bars"]:
+		if output == "pig_iron" and _pig_iron_batches(e) <= 0: continue
+		if output == "iron_bars" and int(stock.get("iron_bars", 0)) >= maxi(2, int(stock.get("pig_iron", 0))): continue
+		if resting.has(output) or float(stock.get(output, 0)) >= Businesses.stock_cap(e, output): continue
+		for recipe in recipes:
+			if not recipe.get("out", {}).has(output): continue
+			if recipe.has("knowhow") and Businesses.kh_of(e, String(recipe["knowhow"])) <= 0.0: continue
+			var enough := true
+			for good in recipe["in"]:
+				if float(stock.get(good, 0)) < float(recipe["in"][good]): enough = false; break
+			if enough: return recipe
+	return {}
+
 static func summary(e: Dictionary) -> Dictionary:
 	var stock: Dictionary = e.get("stock", {})
 	var carried: Dictionary = e.get("recycling_carry", {})
