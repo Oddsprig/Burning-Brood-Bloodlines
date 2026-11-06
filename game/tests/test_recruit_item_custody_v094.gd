@@ -64,6 +64,36 @@ func _fresh_kit_outfit(town: Dictionary, role: Dictionary, previously_held: bool
 			check(WorldAudit.unmade_ids.has(uid), "every discarded fresh kit UID is individually booked")
 
 
+func _natural_kit_loss(town: Dictionary, service: String, made_in_window: bool = false) -> void:
+	var holder := Holders.new()
+	var local_town: Dictionary = town.duplicate(true)
+	local_town["recruits"] = []
+	var survivor: Unit = Unit.create("human", str(town["faction"]))
+	survivor.equip["main_hand"] = Item.make("shiv", "copper", 0)
+	var units: Array = [survivor]
+	local_town["recruits"] = units if service == "hire" else []
+	holder.world = {"towns": {"fixture": local_town}, "warbands": {} if service == "hire" else {"fixture": {"units": units}}}
+	var before: Dictionary = WorldAudit.items(holder)
+	var from_n: int = WorldAudit.items_gone.size()
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 94201
+	var unit: Unit = Recruits.make_recruit(rng, town, Recruits.kit_for({"kind": "state", "key": "idle", "title": "out of work"}))
+	units.append(unit)
+	if not made_in_window: before = WorldAudit.items(holder)
+	var ids: Array = []
+	for item: Item in unit.equip.values(): ids.append(item.uid)
+	Sickness._remove_unit(holder, local_town, {}, [], service, unit.uid, "Native natural-death fixture")
+	var after: Dictionary = WorldAudit.items(holder)
+	var audit: Dictionary = WorldAudit.compare_items(before, after, from_n, WorldAudit.items_gone.size())
+	check(units.size() == 1 and is_same(units[0], survivor), "natural death removes only its original unit")
+	check(audit["ok"], "native natural-death kit is individually booked: " + service + "/" + str(made_in_window))
+	var lost: Dictionary = {}
+	for row in WorldAudit.items_gone.slice(from_n): lost[int(row[0])] = str(row[1])
+	for uid in ids:
+		check(lost.has(uid) and not WorldAudit.unmade_ids.has(uid), "a deceased person's real kit is booked lost, never unmade")
+	check(lost.size() == ids.size() and after["held"].has(survivor.equip["main_hand"].uid), "survivor's actual equipment remains held and unbooked")
+
+
 func _negative_controls() -> void:
 	# A previously owned object remains a real loss even if tagged as a rolled template.
 	var held := Holders.new()
@@ -113,6 +143,9 @@ func run(_tree: SceneTree) -> int:
 	_fresh_kit_outfit(town, {"kind": "state", "key": "idle", "title": "out of work"})
 	_fresh_kit_outfit(town, {"kind": "job", "key": "weaponsmith", "title": "smith"})
 	_fresh_kit_outfit(town, {"kind": "state", "key": "idle", "title": "out of work"}, true)
+	_natural_kit_loss(town, "hire")
+	_natural_kit_loss(town, "hire", true)
+	_natural_kit_loss(town, "army")
 	_negative_controls()
 	WorldAudit.tracking = previous_tracking
 	print("Recruit item custody v094: ", checks - fails, "/", checks, " checks passed")
