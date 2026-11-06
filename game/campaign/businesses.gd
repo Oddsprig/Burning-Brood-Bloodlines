@@ -90,6 +90,8 @@ static func generate(_w: Dictionary, town: Dictionary, e: Dictionary, D: Diction
 	day_buy *= float(D["market"]["buy_share"])
 	m["till"] = day_buy * 7.0 * 2.5
 	add.call("woodcutter", maxi(1, int(ceil(wood_day / 13.0 * sm.call("woodcutter")))), 8)
+	if terr["forest"]:
+		add.call("charcoal_burner", 1 + size / 2)
 	if terr["forest"] or e["climate"] == "cold":
 		add.call("hunter", clampi(2 + int(terr.get("forest_cells", 0)) / 10, 1, 6), 6)
 	if terr["water"]:
@@ -875,7 +877,14 @@ static func _recipe_choice(e: Dictionary, D: Dictionary, b: Dictionary, T: Dicti
 			full = true
 			continue
 		if not alloy.is_empty() and r == alloy: want = INF
-		if want > bw:
+		# Equivalent furnace batches can burn either wood or charcoal. Let the
+		# actual input bill choose the fuel when both are available; recipe order
+		# must not strand cheaper imported charcoal beside expensive firewood.
+		var cheaper_fuel := false
+		if want == bw and String(b.get("type", "")) == "smelter" and not best.is_empty() \
+				and r["out"] == best["out"] and float(r.get("rate", 1.0)) == float(best.get("rate", 1.0)):
+			cheaper_fuel = _batch_cost(e, ins) < _batch_cost(e, _recipe_inputs(e, D, best))
+		if want > bw or cheaper_fuel:
 			bw = want; best = r
 	return {"best": best, "full": full, "missing": missing}
 

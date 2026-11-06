@@ -97,13 +97,13 @@ static func heads(f: Dictionary) -> int:
 
 ## Hands the family's crops need: 8 acres a hand with an ox, 4 without (barge part 3 section 1 [ours]); a
 ## family record without an ox count (older saves, tests) works as if it had its oxen.
-static func _cultivation_hands(f: Dictionary, a: float) -> float:
+static func _cultivation_hands(f: Dictionary, a: float, e: Dictionary = {}) -> float:
 	var L: Dictionary = TownEcon.data()["land"]
 	var ox := int(f.get("ox", -1))
 	var aph := float(L["acres_per_hand"])
 	var crop := a / aph
 	if ox >= 0:
-		var with_ox := minf(a, float(ox) * aph)
+		var with_ox := minf(a, (float(ox) + DomesticAnimals.draught(e, int(f.get("id", -1)))) * aph)
 		crop = with_ox / aph + (a - with_ox) / float(L["acres_no_ox"])
 	return crop
 
@@ -120,7 +120,7 @@ static func crop_work(f: Dictionary, e: Dictionary = {}, day: float = -1.0) -> D
 	for good in rows:
 		active += float(rows[good]["active"])
 		fallow += float(rows[good]["fallow"])
-	var cultivation := _cultivation_hands(f, active)
+	var cultivation := _cultivation_hands(f, active, e)
 	var upkeep := fallow / float(TownEcon.data()["land"]["acres_per_hand"]) * float(TownEcon.data()["land"].get("fallow_upkeep_share", 0.25))
 	var si := Calendar.season_index(day if day >= 0.0 else float(e.get("day", 0)))
 	var harvest_acres := 0.0

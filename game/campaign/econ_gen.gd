@@ -126,7 +126,11 @@ static func generate(w: Dictionary, town: Dictionary, rng: RandomNumberGenerator
 	meat_per_head /= maxf(0.0001, share_sum)
 	head_total = meat_day * 0.75 / maxf(0.05, meat_per_head)   # hunters and fishers bring the rest
 	head_total *= float(_start_row(e, D).get("head_mult", 1.0))   # (moon elves: few meat beasts, kept long)
-	Families.distribute_land(e, fams, {"grain": grain_acres, "fruit": fruit_acres, "flax": flax_acres}, head_total, hk, rng, hmix)
+	# Holds have little arable ground. Size their actual owned fields, not their
+	# yields or food ledger: the remaining demand must be met by paid trade.
+	var crop_ground := 0.45 if cul_id == "dwarf" and spec == "mining" else 1.0
+	Families.distribute_land(e, fams, {"grain": grain_acres * crop_ground, "fruit": fruit_acres * crop_ground,
+		"flax": flax_acres * crop_ground}, head_total, hk, rng, hmix)
 	e["territory"] = TownEcon.land_total(e)   # the town's territory = its land pool at world gen (all held by families then)
 	Barge.gen_oxen(e)   # farm families plough with oxen (one per 8 acres)
 	# ---------------------------------------------------------------- businesses
@@ -377,6 +381,8 @@ static func _deposits(w: Dictionary, town: Dictionary, hillish: int, spec: Strin
 			ch = 1.0
 		if rng.randf() < ch:
 			deps[k] = snappedf(rng.randf_range(0.5, 1.5), 0.01)
+			if k == "iron_ore" and String(town.get("culture", "")) == "dwarf":
+				deps[k] = maxf(1.0, float(deps[k]))   # holds are founded on good iron, never a poor seam
 	if spec == "mining" and deps.is_empty():
 		deps["copper_ore" if rng.randf() < 0.5 else "iron_ore"] = snappedf(rng.randf_range(0.5, 1.5), 0.01)
 	return deps
@@ -416,6 +422,9 @@ static func _opening_stocks(town: Dictionary, e: Dictionary, D: Dictionary, rng:
 	st["beer"] = int(adults * bs * 10.0)
 	st["wine"] = int(adults * (1.0 - bs) * 12.0)
 	st["wood"] = int(homes * float(needs["firewood_home"]) * float(clim["firewood"]) * 14.0) + 60
+	# Pre-history kiln work only where local woods support a burner. After
+	# generation charcoal consumes real wood through the ordinary business row.
+	st["charcoal"] = 30 + 15 * int(town["size"]) if bool(e["terrain"]["forest"]) else 0
 	st["stone"] = 30 + rng.randi_range(0, 40)
 	st["flax"] = int(pop * 0.1); st["wool"] = int(pop * 0.05); st["hides"] = int(pop * 0.03)
 	st["linen"] = int(pop * 0.03); st["wool_cloth"] = int(pop * 0.02); st["leather"] = int(pop * 0.03)

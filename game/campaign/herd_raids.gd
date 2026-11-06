@@ -30,7 +30,7 @@ static func plan(game, town: Dictionary, day: float) -> void:
 		var distance := 300.0 * 300
 		var goal := Vector2.ZERO
 		for h in Herds.herds(e).values():
-			if not Herds.GRAZE.has(String(h["k"])) or Herds.head(h) <= 0 or String(h["ow"]) == "d": continue
+			if not Herds.GRAZE.has(String(h["k"])) or Herds.head(h) <= 0 or String(h["ow"]) == "d" or h.has("work_band"): continue
 			for i in h.get("pl", []):
 				if int(i) >= Plots.count(P) or int(P["use"][int(i)]) != Plots.PASTURE: continue
 				var pos := plot_pos(town, P, int(i))
@@ -59,7 +59,7 @@ static func step(game, wb: Dictionary, dt: float, _t: float, rng: RandomNumberGe
 	if town.is_empty(): wb.erase("raid"); return false
 	var e: Dictionary = town["econ"]
 	var herd: Dictionary = Herds.herds(e).get(str(int(raid["herd"])), {})
-	if herd.is_empty() or Herds.head(herd) == 0: wb.erase("raid"); return false
+	if herd.is_empty() or Herds.head(herd) == 0 or herd.has("work_band"): wb.erase("raid"); return false
 	if raid["phase"] == "travelling":
 		if not CampaignWorld._step_along(game.world, wb, CampaignWorld.WARBAND_SPEED * dt): return true
 		# The pasture is reached before anything can be stolen or killed.
@@ -141,6 +141,7 @@ static func step(game, wb: Dictionary, dt: float, _t: float, rng: RandomNumberGe
 
 static func take(game, wb: Dictionary, town: Dictionary, h: Dictionary) -> void:
 	if Monsters.suspended_band(wb): return
+	if h.has("work_band") or not Herds.GRAZE.has(String(h["k"])) or Herds.head(h) <= 0: return
 	var e: Dictionary = town["econ"]
 	var n: int = wb["units"].size()
 	var wolves := bool(wb["raid"]["wolves"])
@@ -148,12 +149,27 @@ static func take(game, wb: Dictionary, town: Dictionary, h: Dictionary) -> void:
 	var room := maxf(0, Supplies.capacity(n) - Supplies.weight(Supplies.stores(wb)))
 	var meal_weight := float(Goods.table()["meat"]["weight"])
 	if not wolves: food = mini(food, int(room / meal_weight))
+	# Bound losses after the original food/carry calculation. Guard dogs deter
+	# taking animals; only the animals actually lost produce any carcasses/meals.
+	var planned := 0
+	var remaining := food
 	for age in ["y", "o", "g"]:
 		var meat := int(floor(float(Herds.yields(String(h["k"]), age).get("fresh_meat", 0))))
+		if meat <= 0 or remaining <= 0: continue
+		var count := mini(int(h[age]), int(ceil(float(remaining) / meat)))
+		planned += count
+		remaining -= count * meat
+	var budget := int(floor(float(planned) * DomesticAnimals.raid_share(e, h, float(game.day))))
+	var actually_taken := 0
+	for age in ["y", "o", "g"]:
+		if budget <= 0: break
+		var meat := int(floor(float(Herds.yields(String(h["k"]), age).get("fresh_meat", 0))))
 		if meat <= 0: continue
-		var take_n := mini(int(h[age]), int(ceil(float(food) / meat)))
+		var take_n := mini(budget, mini(int(h[age]), int(ceil(float(food) / meat))))
 		if take_n <= 0: continue
-		Herds.change(e, h, age, -take_n, "stolen", "wolf pasture raid" if wb["raid"]["wolves"] else "outlaw pasture raid", float(game.day))
+		take_n = -Herds.change(e, h, age, -take_n, "stolen", "wolf pasture raid" if wb["raid"]["wolves"] else "outlaw pasture raid", float(game.day))
+		actually_taken += take_n
+		budget -= take_n
 		var meals := take_n * meat
 		var carried := mini(meals, food)
 		if not wolves:
@@ -165,4 +181,4 @@ static func take(game, wb: Dictionary, town: Dictionary, h: Dictionary) -> void:
 		TownEcon.led(e, "spoil", "fresh_meat", meals - carried)
 		food -= meals
 		if food <= 0: break
-	wb["last_fed"] = float(game.day)
+	if actually_taken > 0: wb["last_fed"] = float(game.day)
