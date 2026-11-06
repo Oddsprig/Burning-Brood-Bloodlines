@@ -376,12 +376,15 @@ func _movement() -> void:
 			_tracked_move(humans[origin], humans[target], origin)
 			_cohort_move(humans[origin], humans[target])
 
-func _free_family(source: Dictionary, culture: String) -> Dictionary:
+func _free_family(source: Dictionary, culture: String, dest: Dictionary) -> Dictionary:
 	for f in source["econ"]["fams"]:
 		if f.get("estate", false) or f.get("gone", false) or Population.is_cohort(f) or Families.serving(f) > 0 or Barge._away(f): continue
 		if str(f.get("cul", "")) != culture or Persons.family_race(source["econ"], f) != "human": continue
 		var hh := str(f.get("household_uid", ""))
 		if hh == str(source["econ"]["head"].get("household_uid", "")) or hh == str(Game.world.get("player_house", {}).get("household_uid", "")): continue
+		# Recruit-pool and bound militia members are not free households. Keep
+		# the existing service admission rather than mistaking it for culture.
+		if not bool(ServiceIdentity.reserve_move(Game, source, f, dest)["ok"]): continue
 		if not Persons.pp(f).is_empty(): return f
 	return {}
 
@@ -407,7 +410,7 @@ func _person_state(t: Dictionary, f: Dictionary, p: Array) -> Dictionary:
 		"spouse": str(p[Persons.SPOUSE_UID]), "mother": str(p[Persons.MOTHER_UID]), "father": str(p[Persons.FATHER_UID])}
 
 func _tracked_move(source: Dictionary, dest: Dictionary, culture: String) -> void:
-	var family := _free_family(source, culture)
+	var family := _free_family(source, culture, dest)
 	check(not family.is_empty(), "a real free %s household is available to migrate to %s" % [culture, dest["culture"]])
 	if family.is_empty(): return
 	_pact(source, dest)
@@ -535,6 +538,10 @@ func _marriages() -> void:
 		var mother := str(bride["person"][Persons.MOTHER_UID])
 		var father := str(bride["person"][Persons.FATHER_UID])
 		# Liquidity fixture makes a positive native dowry observable.
+		# Reassignment legitimately settles accrued wages on a departing bride.
+		# Pay those existing claims before isolating the two-purse dowry boundary.
+		WageClaims.pay_family(bride["econ"], bride["family"])
+		WageClaims.pay_family(groom["econ"], groom["family"])
 		bride["family"]["purse"] = maxf(10000.0, float(bride["family"]["purse"]))
 		var bride_coin := float(bride["family"]["purse"])
 		var groom_coin := float(groom["family"]["purse"])
@@ -572,7 +579,7 @@ func _marriages() -> void:
 		_remember_person(moved["town"], moved["family"], moved["person"])
 		_remember_person(groom["town"], groom["family"], groom["person"])
 		var key := str(offer["key"])
-		expected_links[key] = Marriage.state(Game)["ai_links"][key].duplicate(true)
+		expected_links[key] = _link_state(Marriage.state(Game)["ai_links"][key])
 
 func _round_trip() -> void:
 	var coin := Barge.holdings(Game)
@@ -584,7 +591,7 @@ func _round_trip() -> void:
 		properties[str(t["id"])] = _property_totals(t)
 		for f in t["econ"]["fams"]:
 			if Population.is_cohort(f) and not f.get("gone", false):
-				cohorts[str(f["household_uid"])] = {"town": str(t["id"]), "households": Population.households(f), "bins": f["age_bins"].duplicate(true)}
+				cohorts[str(f["household_uid"])] = _cohort_state(t, f)
 	Game.save_game(); Game.wait_save()
 	var loaded := Game.load_game()
 	check(loaded, "the isolated synthetic campaign reloads through native restoration")
@@ -596,7 +603,7 @@ func _round_trip() -> void:
 		check(_property_totals(t) == properties[str(t["id"])], "save restoration preserves physical land, homes and animals")
 		for f in t["econ"]["fams"]:
 			if Population.is_cohort(f) and not f.get("gone", false):
-				restored_cohorts[str(f["household_uid"])] = {"town": str(t["id"]), "households": Population.households(f), "bins": f["age_bins"].duplicate(true)}
+				restored_cohorts[str(f["household_uid"])] = _cohort_state(t, f)
 	check(restored_cohorts == cohorts, "save restoration keeps every common household in its exact town with its age bins")
 	if restored_cohorts != cohorts: _first_diff(cohorts, restored_cohorts, "cohorts")
 	for uid in expected_people:
@@ -605,14 +612,29 @@ func _round_trip() -> void:
 		if not loc.is_empty():
 			check(_person_state(loc["town"], loc["family"], loc["person"]) == expected_people[uid], "save restoration preserves exact residence, allegiance, household, culture, race, name, birth, lineage, spouse and parents")
 	for key in expected_links:
-		check(Marriage.state(Game).get("ai_links", {}).get(key, {}) == expected_links[key], "the actual cross-culture marriage link survives native reload")
-		if Marriage.state(Game).get("ai_links", {}).get(key, {}) != expected_links[key]:
-			_first_diff(expected_links[key], Marriage.state(Game).get("ai_links", {}).get(key, {}), "link/" + str(key))
+		var actual_link := _link_state(Marriage.state(Game).get("ai_links", {}).get(key, {}))
+		check(actual_link == expected_links[key], "the actual cross-culture marriage link survives native reload")
+		if actual_link != expected_links[key]: _first_diff(expected_links[key], actual_link, "link/" + str(key))
 	if exported_arm_uid >= 0:
 		var copies := 0
 		for it: Item in Game.world["towns"][exported_arm_town]["shop"]:
 			if it.uid == exported_arm_uid: copies += 1
 		check(copies == 1, "the actual paid exported arm retains exactly its Item UID at the buyer after reload")
+
+func _cohort_state(t: Dictionary, f: Dictionary) -> Dictionary:
+	var bins := {}
+	for key in f["age_bins"]:
+		var n = f["age_bins"][key]
+		check(float(n) == float(int(n)) and int(n) >= 0, "cohort bin remains an exact nonnegative whole count")
+		bins[key] = int(n)
+	return {"town": str(t["id"]), "households": Population.households(f), "bins": bins}
+
+func _link_state(link: Dictionary) -> Dictionary:
+	var out := link.duplicate(true)
+	if out.has("day"):
+		check(float(out["day"]) == float(int(out["day"])), "marriage day remains an exact whole day")
+		out["day"] = int(out["day"])
+	return out
 
 func _first_diff(a, b, path: String) -> bool:
 	if typeof(a) != typeof(b):
