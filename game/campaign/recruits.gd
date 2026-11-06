@@ -112,9 +112,12 @@ static func make_recruit(rng: RandomNumberGenerator, town: Dictionary, bg: Dicti
 		if hint == "clothes":
 			u.equip["clothing"] = Item.make("tunic", "linen", 0)
 			u.equip["legs_under"] = Item.make("trousers", "linen", 0)
+			WorldAudit.rolled(u.equip["clothing"])
+			WorldAudit.rolled(u.equip["legs_under"])
 			continue
 		if hint == "shoes":
 			u.equip["feet"] = Item.make("shoes", "leather", 0)
+			WorldAudit.rolled(u.equip["feet"])
 			continue
 		var tid := _pick_gear(rng, culture, hint)
 		if tid == "":
