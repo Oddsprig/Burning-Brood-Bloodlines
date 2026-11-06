@@ -24,7 +24,9 @@ static func draw(f, grip: Vector2, dir: Vector2) -> bool:
 	f._n = Vector2(f._d.y, -f._d.x)
 	var m: Dictionary = FigurePainter.metal(String(w.get("mat", "copper")), int(w.get("q", 0)))
 	var cv: PixelCanvas = f.cv
-	cv.begin_equipment(m)
+	# Bows retain their accepted wood, horn, string and release-marker colours.
+	if sprite not in FigurePainter.BOW_SPRITES:
+		cv.begin_equipment(m)
 	cv.begin()
 	match sprite:
 		"sword": _sword(f, m)

@@ -17,10 +17,10 @@ static func draw(cv: PixelCanvas, shape: String, key: String, q: int) -> bool:
 	var low: Color = c.darkened(0.32)
 	var equipment := shape.begins_with("shield_") or shape in ["sword", "sabre", "knife", "dirk", "cleaver",
 		"axe", "dwarf_axe", "greataxe", "sickle", "mace", "hammer", "maul", "mattock", "club", "spear",
-		"spear_short", "spear_boar", "spear_winged", "lance", "glaive", "bow", "longbow", "recurve"]
+		"spear_short", "spear_boar", "spear_winged", "lance", "glaive"]
 	if equipment:
 		cv.begin_equipment(FigurePainter.metal(key, q), [c, hi, low, c.lightened(0.10), c.lightened(0.12),
-			c.lightened(0.15), low.lightened(0.08)])
+			c.lightened(0.15), c.darkened(0.15), c.darkened(0.43), c.darkened(0.48), low.lightened(0.08)])
 	match shape:
 		"sword", "sabre", "knife", "dirk", "cleaver":
 			_blade(cv, shape, c, hi, low, q)

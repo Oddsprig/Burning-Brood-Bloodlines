@@ -15,10 +15,10 @@ var buf := PackedColorArray()
 var xf := Transform2D.IDENTITY
 var k := 1.0
 var _part: Dictionary = {}   # Vector2i -> Color
+var _part_lit: Dictionary = {}   # equipment pixels already lit; never body pixels
 var _in_part := false
 var _equipment: ShadedLayer
 var _equipment_material: Dictionary = {}
-var _equipment_colors: Array[Color] = []
 var _equipment_ids: Dictionary = {}
 
 func _init(width: int = 32, height: int = 32) -> void:
@@ -47,13 +47,21 @@ func set_px(x: int, y: int, c: Color) -> void:
 func _put(x: int, y: int, c: Color, pat: Callable, normal: Vector3 = Vector3(0, 0, 1)) -> void:
 	if pat.is_valid():
 		c = pat.call(x, y, c)
+	var lit := false
 	if _equipment != null and x >= 0 and y >= 0 and x < w and y < h and c.a >= 0.999:
-		# Equal depth deliberately preserves the existing painter order, including
-		# fullers, straps and open crescents. The original primitive owns coverage.
-		_equipment._write(x, y, 0.0, normal, _equipment_mat(c))
-		c = _equipment.color_at(x, y)
+		var mat_id := int(_equipment_ids.get(c, 0))
+		if mat_id > 0:
+			# Stream lighting on the original mask and in the original painter order.
+			# Wood, wraps, ink and heraldry keep their accepted colours/edge shading.
+			c = _equipment.shade_normal(x, y, normal.normalized(), mat_id)
+			lit = true
 	if _in_part:
-		_part[Vector2i(x, y)] = c
+		var p := Vector2i(x, y)
+		_part[p] = c
+		if lit:
+			_part_lit[p] = true
+		elif not _part_lit.is_empty():
+			_part_lit.erase(p)
 	else:
 		set_px(x, y, c)
 
@@ -74,9 +82,19 @@ func rect(r: Rect2, c: Color, pat: Callable = Callable()) -> void:
 	var x1 := ceili(maxf(a.x, b.x) - 0.5)
 	var y0 := ceili(minf(a.y, b.y) - 0.5)
 	var y1 := ceili(maxf(a.y, b.y) - 0.5)
+	var shade_surface := _equipment != null and _equipment_ids.has(c)
+	var corners := PackedVector2Array()
+	if shade_surface:
+		# Follow the existing rectangular coverage even for a rotated local frame.
+		corners = PackedVector2Array([Vector2(minf(a.x, b.x), minf(a.y, b.y)),
+			Vector2(maxf(a.x, b.x), minf(a.y, b.y)), Vector2(maxf(a.x, b.x), maxf(a.y, b.y)),
+			Vector2(minf(a.x, b.x), maxf(a.y, b.y))])
 	for y in range(maxi(y0, -1), mini(y1, h + 1)):
 		for x in range(maxi(x0, -1), mini(x1, w + 1)):
-			_put(x, y, c, pat)
+			var normal := Vector3(0, 0, 1)
+			if shade_surface:
+				normal = ShadedLayer.bevel_normal(Vector2(x + 0.5, y + 0.5), corners, maxf(0.6, k))
+			_put(x, y, c, pat, normal)
 
 ## One logical pixel (k x k image pixels).
 func dot(p: Vector2, c: Color) -> void:
@@ -91,17 +109,14 @@ func poly(pts: PackedVector2Array, c: Color, pat: Callable = Callable()) -> void
 		m.append(q)
 		lo = lo.min(q)
 		hi = hi.max(q)
-	var center := Vector2.ZERO
-	if _equipment != null and not m.is_empty():
-		for p in m: center += p
-		center /= float(m.size())
+	var shade_surface := _equipment != null and _equipment_ids.has(c)
 	for y in range(maxi(floori(lo.y), -1), mini(ceili(hi.y) + 1, h + 1)):
 		for x in range(maxi(floori(lo.x), -1), mini(ceili(hi.x) + 1, w + 1)):
 			var pc := Vector2(x + 0.5, y + 0.5)
 			if Geometry2D.is_point_in_polygon(pc, m):
 				var normal := Vector3(0, 0, 1)
-				if _equipment != null:
-					normal = ShadedLayer.bevel_normal(pc, m, center, maxf(0.6, 2.5 * k))
+				if shade_surface:
+					normal = ShadedLayer.bevel_normal(pc, m, maxf(0.6, 2.5 * k))
 				_put(x, y, c, pat, normal)
 
 ## Thick segment with round caps; r is a local radius.
@@ -111,13 +126,14 @@ func capsule(a: Vector2, b: Vector2, r: float, c: Color, pat: Callable = Callabl
 	var rr := r * k
 	var lo := ma.min(mb) - Vector2(rr, rr)
 	var hi := ma.max(mb) + Vector2(rr, rr)
+	var shade_surface := _equipment != null and _equipment_ids.has(c)
 	for y in range(maxi(floori(lo.y), -1), mini(ceili(hi.y) + 1, h + 1)):
 		for x in range(maxi(floori(lo.x), -1), mini(ceili(hi.x) + 1, w + 1)):
 			var pc := Vector2(x + 0.5, y + 0.5)
 			var delta := pc - Geometry2D.get_closest_point_to_segment(pc, ma, mb)
 			if delta.length_squared() <= rr * rr:
 				var normal := Vector3(0, 0, 1)
-				if _equipment != null and rr > 0.0:
+				if shade_surface and rr > 0.0:
 					var d := delta / rr
 					normal = Vector3(d.x, d.y, maxf(0.18, sqrt(maxf(0.0, 1.0 - d.length_squared()))))
 				_put(x, y, c, pat, normal)
@@ -157,13 +173,14 @@ func ellipse(cn: Vector2, rx: float, ry: float, c: Color, pat: Callable = Callab
 	var ey := (absf(xf.x.y) * rx + absf(xf.y.y) * ry)
 	if ex <= 0.01 or ey <= 0.01:
 		return
+	var shade_surface := _equipment != null and _equipment_ids.has(c)
 	for y in range(maxi(floori(m.y - ey), -1), mini(ceili(m.y + ey) + 1, h + 1)):
 		for x in range(maxi(floori(m.x - ex), -1), mini(ceili(m.x + ex) + 1, w + 1)):
 			var dx := (x + 0.5 - m.x) / ex
 			var dy := (y + 0.5 - m.y) / ey
 			if dx * dx + dy * dy <= 1.0:
 				var normal := Vector3(0, 0, 1)
-				if _equipment != null:
+				if shade_surface:
 					normal = Vector3(dx, dy, maxf(0.18, sqrt(maxf(0.0, 1.0 - dx * dx - dy * dy))))
 				_put(x, y, c, pat, normal)
 
@@ -178,6 +195,7 @@ func erase_rect(r: Rect2) -> void:
 	for y in range(y0, y1):
 		for x in range(x0, x1):
 			_part.erase(Vector2i(x, y))
+			_part_lit.erase(Vector2i(x, y))
 
 ## Paint over already-drawn opaque pixels only (blood, stains). Image coordinates.
 func stain_px(x: int, y: int, c: Color) -> bool:
@@ -189,6 +207,7 @@ func stain_px(x: int, y: int, c: Color) -> bool:
 func px_img(x: int, y: int, c: Color) -> void:
 	if _in_part:
 		_part[Vector2i(x, y)] = c
+		_part_lit.erase(Vector2i(x, y))
 	else:
 		set_px(x, y, c)
 
@@ -196,21 +215,20 @@ func px_img(x: int, y: int, c: Color) -> void:
 
 func begin() -> void:
 	_part.clear()
+	_part_lit.clear()
 	_in_part = true
 
 ## Commit the current part: shade edges, outline with `outline` (alpha 0 = none).
 ## `shade` = edge light/dark strength; `shine` = colour for top-edge glints (metal, elf skin).
 func end(outline: Color, shade: float = 0.14, shine: Color = CLEAR) -> void:
 	_in_part = false
-	if _equipment != null:
-		# Surface normals already supply lighting. Retain the original outline mask.
-		shade = 0.0
 	if _part.is_empty():
 		return
 	var out := {}
+	var lit_part := not _part_lit.is_empty()
 	for p in _part:
 		var c: Color = _part[p]
-		if shade > 0.0:
+		if shade > 0.0 and (not lit_part or not _part_lit.has(p)):
 			var up := _part.has(p + Vector2i(0, -1))
 			var lf := _part.has(p + Vector2i(-1, 0))
 			var dn := _part.has(p + Vector2i(0, 1))
@@ -231,6 +249,7 @@ func end(outline: Color, shade: float = 0.14, shine: Color = CLEAR) -> void:
 	for p in out:
 		set_px(p.x, p.y, out[p])
 	_part.clear()
+	_part_lit.clear()
 
 func opaque_count() -> int:
 	var n := 0
@@ -256,35 +275,37 @@ func shaded() -> ShadedLayer:
 ## Scoped equipment normals, baked by the same rasteriser as bodies and armour.
 ## Only opted-in draw calls use this; no extra texture or cache payload is retained.
 func begin_equipment(material: Dictionary, metal_colors: Array[Color] = []) -> void:
-	_equipment = shaded()
+	end_equipment()
+	if not bool(material.get("metallic", true)):
+		return
+	# Equipment needs only material tables, not another full image's depth/normal buffers.
+	_equipment = ShadedLayer.new(self, false)
 	_equipment_material = material
 	_equipment_ids.clear()
-	_equipment_colors = metal_colors.duplicate()
+	var colors := metal_colors.duplicate()
 	for key in ["base", "light", "dark", "shine", "trim"]:
-		_equipment_colors.append(material[key])
+		colors.append(material[key])
+	for c in colors:
+		_equipment_mat(c)
 
 func end_equipment() -> ShadedLayer:
 	var result := _equipment
 	_equipment = null
 	_equipment_material = {}
-	_equipment_colors.clear()
 	_equipment_ids.clear()
 	return result
 
 func _equipment_mat(c: Color) -> int:
 	if _equipment_ids.has(c):
 		return int(_equipment_ids[c])
-	var metallic := c in _equipment_colors
 	var m := _equipment_material
 	var ramp: Array[Color]
-	if c == m["outline"]:
-		ramp = [c, c, c, c, c, c]
-	elif c == m["base"]:
+	if c == m["base"]:
 		ramp = m["ramp"]
 	else:
-		ramp = make_ramp(c, m["shine"] if metallic else Color(1.0, 0.96, 0.88), float(m.get("contrast", 1.0)) if metallic else 0.7)
-	var mat_id := _equipment.add_ramp(ramp, float(m.get("specular", 0.24)) if metallic else 0.02,
-		0.02, float(m.get("specular_power", 10.0)) if metallic else 10.0)
+		ramp = make_ramp(c, m["shine"], float(m.get("contrast", 1.0)))
+	var mat_id := _equipment.add_ramp(ramp, float(m.get("specular", 0.24)),
+		0.02, float(m.get("specular_power", 10.0)))
 	_equipment_ids[c] = mat_id
 	return mat_id
 
@@ -326,10 +347,12 @@ class ShadedLayer extends RefCounted:
 	var max_x: int = -1
 	var max_y: int = -1
 
-	func _init(canvas: PixelCanvas) -> void:
+	func _init(canvas: PixelCanvas, raster_buffers: bool = true) -> void:
 		cv = canvas
 		w = canvas.w
 		h = canvas.h
+		if not raster_buffers:
+			return
 		var n := w * h
 		fill.resize(n)
 		fill.fill(0)
@@ -349,17 +372,22 @@ class ShadedLayer extends RefCounted:
 	func add_color(base: Color, specular: float = 0.12, contrast: float = 1.0, shine_tint: Color = Color(1.0, 0.96, 0.88), dither: float = 0.06) -> int:
 		return add_ramp(PixelCanvas.make_ramp(base, shine_tint, contrast), specular, dither)
 
-	## Same bevel normal as the native polygon heightfield, on the legacy mask.
-	static func bevel_normal(p: Vector2, pts: PackedVector2Array, center: Vector2, dome: float) -> Vector3:
+	## Equipment bevels follow the nearest boundary, including concave crescent mouths.
+	## The body heightfield's original centroid normals in poly() stay unchanged.
+	static func bevel_normal(p: Vector2, pts: PackedVector2Array, dome: float) -> Vector3:
 		var min_d := INF
+		var edge_dir := Vector2.ZERO
 		for i in pts.size():
 			var closest := Geometry2D.get_closest_point_to_segment(p, pts[i], pts[(i + 1) % pts.size()])
-			min_d = minf(min_d, p.distance_to(closest))
+			var delta := closest - p
+			var distance := delta.length()
+			if distance < min_d:
+				min_d = distance
+				edge_dir = delta
 		var u := clampf(1.0 - min_d / dome, 0.0, 1.0)
 		var hz := sqrt(maxf(0.05, 1.0 - u * u))
-		var dir := p - center
-		var dlen := maxf(1.0, dir.length())
-		return (Vector3(dir.x / dlen * u * 0.65, dir.y / dlen * u * 0.65, hz) + Vector3(0, 0, 0.55)).normalized()
+		var dir := edge_dir.normalized()
+		return Vector3(dir.x * u * 0.65, dir.y * u * 0.65, hz + 0.55).normalized()
 
 	## Read the baked colour from real per-pixel normals and the chosen material.
 	func color_at(x: int, y: int, seam_darken: float = 0.0) -> Color:
@@ -368,9 +396,18 @@ class ShadedLayer extends RefCounted:
 		if m == 0: return PixelCanvas.CLEAR
 		var rmp: Array = ramps[m - 1]
 		var n := Vector3(nx_buf[idx], ny_buf[idx], nz_buf[idx])
+		# Keep the body selector inline; equipment adds no function call per body pixel.
 		var ndotl := n.dot(light_dir)
 		var spec := pow(maxf(0.0, n.dot(half_dir)), specular_powers[m - 1]) * specs[m - 1]
 		var bayer := BAYER4[(x & 1) + ((y & 1) << 1)] * dithers[m - 1]
+		var t := clampf((ndotl + 0.68) / 1.52 + spec + bayer - seam_darken, 0.0, 0.999)
+		return rmp[clampi(int(t * float(rmp.size())), 0, rmp.size() - 1)] as Color
+
+	func shade_normal(x: int, y: int, n: Vector3, mat_id: int, seam_darken: float = 0.0) -> Color:
+		var rmp: Array = ramps[mat_id - 1]
+		var ndotl := n.dot(light_dir)
+		var spec := pow(maxf(0.0, n.dot(half_dir)), specular_powers[mat_id - 1]) * specs[mat_id - 1]
+		var bayer := BAYER4[(x & 1) + ((y & 1) << 1)] * dithers[mat_id - 1]
 		var t := clampf((ndotl + 0.68) / 1.52 + spec + bayer - seam_darken, 0.0, 0.999)
 		return rmp[clampi(int(t * float(rmp.size())), 0, rmp.size() - 1)] as Color
 
