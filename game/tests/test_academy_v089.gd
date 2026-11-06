@@ -27,6 +27,52 @@ func same_counts(a: Dictionary, b: Dictionary) -> bool:
 		if int(a[good]) != int(b[good]): return false
 	return true
 
+## Include exact serialized bits as decimal formatting alone can hide float drift.
+func _load_value(value: Variant) -> String:
+	var text := "%.17f" % value if typeof(value) == TYPE_FLOAT else str(value)
+	return "%s <%s; bytes=%s>" % [text, type_string(typeof(value)), var_to_bytes(value).hex_encode()]
+
+## Empty means every key, array position and leaf is unchanged. The only allowed
+## type difference is an exactly equal int/float; no epsilon or decimal rounding.
+## strict_types is diagnostic only, to expose the old JSON-only snapshot artifacts.
+func _research_differences(a: Variant, b: Variant, path: String = "research", strict_types: bool = false) -> Array[String]:
+	var differences: Array[String] = []
+	var a_type := typeof(a)
+	var b_type := typeof(b)
+	if a_type == TYPE_DICTIONARY and b_type == TYPE_DICTIONARY:
+		for key in a:
+			var child_path := path + "[" + JSON.stringify(key) + "]"
+			if not b.has(key):
+				differences.append("%s: before=%s; after=<missing>" % [child_path, _load_value(a[key])])
+			else:
+				differences.append_array(_research_differences(a[key], b[key], child_path, strict_types))
+		for key in b:
+			if not a.has(key):
+				differences.append("%s[%s]: before=<missing>; after=%s" % [path, JSON.stringify(key), _load_value(b[key])])
+		return differences
+	if a_type == TYPE_ARRAY and b_type == TYPE_ARRAY:
+		for index in maxi(a.size(), b.size()):
+			var child_path := "%s[%d]" % [path, index]
+			if index >= a.size():
+				differences.append("%s: before=<missing>; after=%s" % [child_path, _load_value(b[index])])
+			elif index >= b.size():
+				differences.append("%s: before=%s; after=<missing>" % [child_path, _load_value(a[index])])
+			else:
+				differences.append_array(_research_differences(a[index], b[index], child_path, strict_types))
+		return differences
+	if a_type == b_type and a == b:
+		return differences
+	if not strict_types and a_type in [TYPE_INT, TYPE_FLOAT] and b_type in [TYPE_INT, TYPE_FLOAT] and a_type != b_type:
+		var number := float(a) if a_type == TYPE_FLOAT else float(b)
+		var integer := int(a) if a_type == TYPE_INT else int(b)
+		# Convert only an integral float within int64 range. Converting both sides
+		# to float would silently equate different integers beyond 2^53.
+		if is_finite(number) and number >= -9223372036854775808.0 and number < 9223372036854775808.0:
+			if number == floorf(number) and int(number) == integer:
+				return differences
+	differences.append("%s: before=%s; after=%s" % [path, _load_value(a), _load_value(b)])
+	return differences
+
 func run(tree: SceneTree) -> int:
 	var started := Time.get_ticks_msec()
 	var path := "user://test_academy_v089_%d.json" % OS.get_process_id()
@@ -159,6 +205,16 @@ func _rules_and_houses() -> void:
 	check(Academy.materials().has("charcoal") and not Academy.materials().has("wood"), "trials require charcoal rather than raw wood")
 	check(same_counts({"iron_bars": 1}, {"iron_bars": 1.0}) and not same_counts({"iron_bars": 1}, {"iron_bars": 2})
 		and not same_counts({"iron_bars": 1}, {"iron_bars": 1.5}), "material equality accepts JSON number types but rejects changed or fractional counts")
+	check(_research_differences({"v": [1, 0.125, true]}, {"v": [1.0, 0.125, true]}).is_empty(),
+		"exact research comparison accepts equal int/float values inside nested containers")
+	check(not _research_differences({"v": [1, 0.125]}, {"v": [1, 0.12500000000000003]}).is_empty()
+		and not _research_differences(9007199254740993, 9007199254740992.0).is_empty()
+		and not _research_differences(9223372036854775807, 9223372036854775808.0).is_empty(),
+		"exact research comparison rejects one-bit float drift and lossy large-integer conversions")
+	check(not _research_differences({"v": [1, 2]}, {"v": [2, 1]}).is_empty()
+		and not _research_differences({"v": 1}, {}).is_empty() and not _research_differences({}, {"v": 1}).is_empty()
+		and not _research_differences(true, 1).is_empty() and not _research_differences("1", 1).is_empty(),
+		"exact research comparison retains array order, all keys and nonnumeric types")
 	var covered := {}
 	var races := {}
 	for fid in base["factions"]:
@@ -616,7 +672,16 @@ func _save_load(path: String) -> void:
 		"till": float(b["till"]), "owed": float(b["owed"]), "lead": b["lead"].duplicate(), "lead_uid": String(b.get("lead_uid", "")),
 		"claims": b["wage_claims"].duplicate(), "receipts": float(employee.get("wage_receipts", 0.0)),
 		"stock": e["stock"].duplicate(), "research_day": int(b["research_day"]),
-		"state": JSON.parse_string(JSON.stringify(Game.world["research"][fid]))}
+		"state": (Game.world["research"][fid] as Dictionary).duplicate(true)}
+	# The native loader restores exact floats from __fx. A JSON-only round trip
+	# cannot serve as the pre-save truth; keep it solely as causal diagnostics.
+	var state_path := "research[%s]" % JSON.stringify(fid)
+	var json_state = JSON.parse_string(JSON.stringify(before["state"]))
+	var snapshot_differences := _research_differences(before["state"], json_state, state_path, true)
+	if not snapshot_differences.is_empty():
+		print("v089 JSON-only snapshot artifacts; semantic differences=",
+			_research_differences(before["state"], json_state, state_path).size())
+		for difference in snapshot_differences: print("v089 snapshot: ", difference)
 	Game.SAVE_PATH = path
 	Game.save_game()
 	check(Game.load_game(), "real isolated native save/load completes")
@@ -636,7 +701,14 @@ func _save_load(path: String) -> void:
 	if found.is_empty(): return
 	check(found[Persons.RESEARCH] == before["training"] and b["trial_credit"] == before["credit"], "fractional personal training and prepaid inputs survive native serialization")
 	check(b["lead"] == before["lead"] and String(b.get("lead_uid", "")) == before["lead_uid"] and int(b["research_day"]) == int(before["research_day"]), "head identity and once-only work guard survive reload")
-	check(near(float(b["till"]), float(before["till"])) and near(float(b["owed"]), float(before["owed"])) and Game.world["research"][fid] == before["state"], "loading neither funds the Academy nor changes research or claims")
+	var same_till := near(float(b["till"]), float(before["till"]))
+	var same_owed := near(float(b["owed"]), float(before["owed"]))
+	var research_differences := _research_differences(before["state"], Game.world["research"][fid], state_path)
+	if not same_till or not same_owed or not research_differences.is_empty():
+		printerr("LOAD v089 till: before=", _load_value(before["till"]), "; after=", _load_value(b["till"]), "; near=", same_till,
+			"; owed: before=", _load_value(before["owed"]), "; after=", _load_value(b["owed"]), "; near=", same_owed)
+		for difference in research_differences: printerr("LOAD v089 ", difference)
+	check(same_till and same_owed and research_differences.is_empty(), "loading neither funds the Academy nor changes research or claims")
 	check(b["wage_claims"] == before["claims"] and float(household.get("wage_receipts", 0.0)) == before["receipts"]
 		and same_counts(e["stock"], before["stock"]), "native reload preserves individual earned claims, receipts and exact material counts")
 	job = Persons.work(e, household).get(int(found[0]), {})
