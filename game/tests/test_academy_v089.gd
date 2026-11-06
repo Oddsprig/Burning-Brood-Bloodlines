@@ -525,6 +525,7 @@ func _save_load(path: String) -> void:
 		"claims": b["wage_claims"].duplicate(), "receipts": float(employee.get("wage_receipts", 0.0)),
 		"stock": e["stock"].duplicate(), "research_day": int(b["research_day"]),
 		"state": JSON.parse_string(JSON.stringify(Game.world["research"][fid]))}
+	print("V089 SAVE BEFORE ", JSON.stringify({"workers": b["workers"], "crew": crew.size(), "till": b["till"], "owed": b["owed"], "claims": b["wage_claims"], "receipts": before["receipts"], "state": before["state"]}))
 	Game.SAVE_PATH = path
 	Game.save_game()
 	check(Game.load_game(), "real isolated native save/load completes")
@@ -542,6 +543,7 @@ func _save_load(path: String) -> void:
 				count += 1
 	check(count == 1 and not found.is_empty(), "saved researcher reloads as exactly one actual person")
 	if found.is_empty(): return
+	print("V089 SAVE AFTER ", JSON.stringify({"workers": b["workers"], "crew": Academy._staff(e, b).size(), "till": b["till"], "owed": b["owed"], "claims": b["wage_claims"], "receipts": household.get("wage_receipts", 0.0), "state": Game.world["research"][fid]}))
 	check(found[Persons.RESEARCH] == before["training"] and b["trial_credit"] == before["credit"], "fractional personal training and prepaid inputs survive native serialization")
 	check(b["lead"] == before["lead"] and String(b.get("lead_uid", "")) == before["lead_uid"] and int(b["research_day"]) == int(before["research_day"]), "head identity and once-only work guard survive reload")
 	check(near(float(b["till"]), float(before["till"])) and near(float(b["owed"]), float(before["owed"])) and Game.world["research"][fid] == before["state"], "loading neither funds the Academy nor changes research or claims")
