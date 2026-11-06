@@ -869,7 +869,10 @@ static func _recipe_choice(e: Dictionary, D: Dictionary, b: Dictionary, T: Dicti
 				b["fg"] = (r["out"] as Dictionary).keys()[0]
 			full = true
 			continue
-		if not alloy.is_empty() and r == alloy: want = INF
+		# Furnace priority belongs to the chosen heat, including its equivalent
+		# wood/charcoal variants. Their finite input bill still chooses the fuel.
+		if not alloy.is_empty() and r["out"] == alloy["out"] \
+				and float(r.get("rate", 1.0)) == float(alloy.get("rate", 1.0)): want = INF
 		# Equivalent furnace batches can burn either wood or charcoal. Let the
 		# actual input bill choose the fuel when both are available; recipe order
 		# must not strand cheaper imported charcoal beside expensive firewood.

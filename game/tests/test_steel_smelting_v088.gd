@@ -38,6 +38,7 @@ func run(_tree: SceneTree) -> int:
 	_ladder_and_reservation()
 	_missing_inputs_and_money()
 	_market_limits_and_quotes()
+	_fuel_alternatives()
 	_manufacture_rules()
 	_quality_and_skill()
 	_saved_continuation()
@@ -163,6 +164,21 @@ func _market_limits_and_quotes() -> void:
 	quoted["e"]["fkh"]["steel"] = 0.0
 	_smelt(quoted)
 	check(int(quoted["e"]["stock"]["steel_bars"]) == 0 and int(quoted["e"]["stock"]["bronze_bars"]) > 0, "a realm without steel knowledge retains working bronze production")
+
+func _fuel_alternatives() -> void:
+	for cheap_charcoal in [true, false]:
+		var x := _fixture()
+		_stock(x, {"iron_bars": 8, "pig_iron": 8, "wood": 40, "charcoal": 40, "flux": 40})
+		x["e"]["price"]["wood"] = 100.0 if cheap_charcoal else 1.0
+		x["e"]["price"]["charcoal"] = 1.0 if cheap_charcoal else 100.0
+		var coin := _coins(x)
+		_smelt(x, 2.0)
+		var used := "charcoal" if cheap_charcoal else "wood"
+		var kept := "wood" if cheap_charcoal else "charcoal"
+		var produced := int(x["e"]["stock"]["steel_bars"])
+		check(produced > 0 and int(x["e"]["stock"][kept]) == 40, "preferred steel heats retain the cheaper feasible fuel choice from087")
+		check(40 - int(x["e"]["stock"][used]) == produced / 2 and int(x["e"]["led"]["used"].get(used, 0)) == produced / 2, "steel spends and books exactly the selected heat's fuel")
+		check(near(coin, _coins(x)), "both fuel alternatives preserve finite owner/market coin")
 
 func _manufacture_rules() -> void:
 	for fid in ["middle_kingdom", "moon_court", "orc_horde", "goblin_warren"]:
