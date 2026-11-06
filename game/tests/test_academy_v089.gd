@@ -368,6 +368,7 @@ func _hiring() -> void:
 	check(Academy.hiring_places(x["e"], cohort, x["b"]) == 0, "an unnamed cohort cannot offer scientists")
 	Families.reassign(x["e"], cohort)
 	check(int(cohort["jobs"].get(str(int(x["b"]["id"])), 0)) == 0 and int(x["b"]["workers"]) == 2, "real hiring matcher cannot create ghost Academy staff")
+	_mixed_cohort_hiring()
 	x = fixture()
 	# A real legacy keeper plus one employee accounts for the two adults once.
 	Families.set_job(x["e"], x["f"], int(x["b"]["id"]), 1)
@@ -405,6 +406,97 @@ func _hiring() -> void:
 		check(int(x["b"]["workers"]) == 0 and int(x["b"]["cap"]) == 0 and not Families.assignments_stale(x["f"]), "blocked saved house releases paid jobs before another wage day: " + fid)
 		check(String(x["b"]["lead_uid"]) == uid and Academy.lead_gone(x["e"], x["b"]) == "" and float(x["b"]["owed"]) == 3.125, "loaded idle house retains its honorary identity and outstanding salary debt: " + fid)
 	completed += 1
+
+## Two native register adults coexist with two anonymous adults. The existing
+## market, when staffed, occupies the anonymous prefix of the native job book.
+func _mixed_cohort_fixture(prefix: int = 0) -> Dictionary:
+	var x := fixture()
+	Families.set_job(x["e"], x["f"], int(x["b"]["id"]), 0)
+	x["b"]["lead"] = []
+	x["b"]["lead_uid"] = ""
+	x["f"]["cohort"] = true
+	x["f"]["households"] = 2
+	x["f"]["homes"] = 2
+	x["f"]["m"] = 3
+	x["f"]["idle"] = 4 - prefix
+	if prefix > 0:
+		x["market"]["cap"] = prefix
+		x["market"]["wage"] = float(x["b"]["wage"]) * 0.5
+		Families.set_job(x["e"], x["f"], int(x["market"]["id"]), prefix)
+	TownEcon.recount(x["e"])
+	check(Population.anonymous(x["f"], 0) == 2 and Population.anonymous(x["f"], 1) == 0,
+		"mixed native cohort has exactly two anonymous adults and two registered adults")
+	return x
+
+func _mixed_cohort_hiring() -> void:
+	var x := _mixed_cohort_fixture()
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 8923
+	var before: Dictionary = x["f"].duplicate(true)
+	var business: Dictionary = x["b"].duplicate(true)
+	check(Academy.hiring_places(x["e"], x["f"], x["b"]) == 0, "idle cohort names cannot fill an anonymous Academy job block")
+	check(x["f"] == before and x["b"] == business, "prospective cohort hiring does not mutate the real register or job book")
+	check(not Academy.appoint(x["w"], x["fid"], x["e"], x["b"], float(x["e"]["day"]), rng), "direct appointment cannot bypass the anonymous-first native placement")
+	Families.reassign(x["e"], x["f"])
+	check(int(x["b"]["workers"]) == 0 and x["f"]["jobs"].is_empty() and not Families.assignments_stale(x["f"]),
+		"ordinary hiring leaves anonymous research offers unfilled and adults correctly idle")
+	check(work(x) == 0.0 and float(x["b"]["owed"]) == 0.0 and points(x) == 0.0
+		and x["f"]["pp"] == before["pp"], "rejected cohort offer creates no research wage, training or points")
+
+	x = _mixed_cohort_fixture(2)
+	before = x["f"].duplicate(true)
+	check(Academy.hiring_places(x["e"], x["f"], x["b"]) == 2 and x["f"] == before,
+		"mixed cohort can offer both real named places after its existing anonymous jobs")
+	Families.reassign(x["e"], x["f"])
+	check(int(x["b"]["workers"]) == 2 and Academy._staff(x["e"], x["b"]).size() == 2,
+		"normal matcher hires actual mixed-cohort researchers without barring all cohort people")
+	Academy._training(x["staff"], 2.0)["skill"] = 11.0
+	check(Academy.appoint(x["w"], x["fid"], x["e"], x["b"], float(x["e"]["day"]), rng)
+		and String(x["b"]["lead_uid"]) == String(x["staff"][Persons.PERSON_UID]), "best-skilled actual cohort employee succeeds as lead with the same UID")
+	var job: Dictionary = Persons.work(x["e"], x["f"]).get(int(x["staff"][0]), {})
+	check(int(job.get("biz", -1)) == int(x["b"]["id"]) and Academy.lead_gone(x["e"], x["b"]) == "",
+		"cohort head holds the real paid place even though cohort work bypasses the lead swap")
+	check(work(x) > 0.0 and near(float(x["b"]["owed"]), 2.0 * float(x["b"]["wage"])),
+		"exactly two registered cohort employees accrue Academy wages on a paid trial day")
+	var claims: Dictionary = x["b"]["wage_claims"].duplicate()
+	var till := float(x["b"]["till"])
+	var purse := float(x["f"]["purse"])
+	var receipts := float(x["f"].get("wage_receipts", 0.0))
+	var training: Array = x["f"]["pp"].duplicate(true)
+	Academy.after_load(Game)
+	check(x["b"]["wage_claims"] == claims and float(x["b"]["till"]) == till and float(x["f"]["purse"]) == purse
+		and float(x["f"].get("wage_receipts", 0.0)) == receipts, "valid cohort staff survive load repair without settling or dropping claims")
+	check(x["f"]["pp"] == training and Academy._staff(x["e"], x["b"]).size() == int(x["b"]["workers"]),
+		"cohort load repair preserves personal training and exact named-worker accounting")
+
+	x = _mixed_cohort_fixture(2)
+	Academy._training(x["staff"], 2.0)["skill"] = 14.0
+	check(Academy.appoint(x["w"], x["fid"], x["e"], x["b"], float(x["e"]["day"]), rng), "direct appointment can fill a genuinely named prospective cohort place")
+	job = Persons.work(x["e"], x["f"]).get(int(x["head"][0]), {})
+	check(String(x["b"]["lead_uid"]) == String(x["head"][Persons.PERSON_UID]) and int(job.get("biz", -1)) == int(x["b"]["id"])
+		and int(x["b"]["workers"]) == 1, "direct cohort head is the person mapped to the single offered slot, without adding phantom places for a stronger idle name")
+
+	x = _mixed_cohort_fixture(1)
+	Families.set_job(x["e"], x["f"], int(x["b"]["id"]), 2)
+	x["f"]["idle"] = 1
+	x["b"]["till"] = 0.0
+	x["b"]["wage_claims"] = {"1": 3.125}
+	x["b"]["owed_unattributed"] = 0.0
+	x["b"]["owed"] = 3.125
+	check(Academy._staff(x["e"], x["b"]).size() == 1, "legacy mixed Academy block contains one anonymous and one named place")
+	Academy._release_unregistered(x["e"], x["b"])
+	check(int(x["b"]["workers"]) == 0 and Academy._staff(x["e"], x["b"]).is_empty()
+		and float(x["b"]["owed"]) == 3.125 and not Families.assignments_stale(x["f"]), "shortening a legacy block cannot leave its anonymous prefix paid or erase earned debt")
+
+	# Root integration guard: hiring_places sees the old book; another offer
+	# chosen later by _best_places can change the final insertion-order mapping.
+	x = _mixed_cohort_fixture(2)
+	var shop := Businesses._row(x["e"], "weaponsmith", -1, 2, TownEcon.data())
+	shop["wage"] = float(x["b"]["wage"]) * 0.75
+	shop["till"] = 100000.0
+	Families.reassign(x["e"], x["f"])
+	check(Academy._staff(x["e"], x["b"]).size() == int(x["b"]["workers"]),
+		"final normal matching must recheck named Academy slots after competing offers replace earlier jobs")
 
 func _departures_and_successor() -> void:
 	for cause in ["death", "retirement", "service", "fled", "uid", "keeper", "job"]:
@@ -525,7 +617,6 @@ func _save_load(path: String) -> void:
 		"claims": b["wage_claims"].duplicate(), "receipts": float(employee.get("wage_receipts", 0.0)),
 		"stock": e["stock"].duplicate(), "research_day": int(b["research_day"]),
 		"state": JSON.parse_string(JSON.stringify(Game.world["research"][fid]))}
-	print("V089 SAVE BEFORE ", JSON.stringify({"workers": b["workers"], "crew": crew.size(), "till": b["till"], "owed": b["owed"], "claims": b["wage_claims"], "receipts": before["receipts"], "state": before["state"]}))
 	Game.SAVE_PATH = path
 	Game.save_game()
 	check(Game.load_game(), "real isolated native save/load completes")
@@ -543,7 +634,6 @@ func _save_load(path: String) -> void:
 				count += 1
 	check(count == 1 and not found.is_empty(), "saved researcher reloads as exactly one actual person")
 	if found.is_empty(): return
-	print("V089 SAVE AFTER ", JSON.stringify({"workers": b["workers"], "crew": Academy._staff(e, b).size(), "till": b["till"], "owed": b["owed"], "claims": b["wage_claims"], "receipts": household.get("wage_receipts", 0.0), "state": Game.world["research"][fid]}))
 	check(found[Persons.RESEARCH] == before["training"] and b["trial_credit"] == before["credit"], "fractional personal training and prepaid inputs survive native serialization")
 	check(b["lead"] == before["lead"] and String(b.get("lead_uid", "")) == before["lead_uid"] and int(b["research_day"]) == int(before["research_day"]), "head identity and once-only work guard survive reload")
 	check(near(float(b["till"]), float(before["till"])) and near(float(b["owed"]), float(before["owed"])) and Game.world["research"][fid] == before["state"], "loading neither funds the Academy nor changes research or claims")

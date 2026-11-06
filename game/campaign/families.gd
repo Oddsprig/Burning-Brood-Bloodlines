@@ -853,6 +853,20 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 			var job := String(casual_ids[-bid - 1]); casual[job] = int(casual.get(job, 0)) + n; casual_total += n
 		else:
 			var key := str(bid); want[key] = int(want.get(key, 0)) + n
+	# A later competing offer can replace jobs before the cohort's named
+	# positions. Validate the exact final insertion order before paying any
+	# Academy place; never fund an anonymous prefix to reach a real person.
+	if Population.is_cohort(f) and not Academy.biz_of(e).is_empty() and want.has(str(int(e["academy"]))):
+		var academy_bid := int(e["academy"])
+		var research_key := str(academy_bid)
+		var prospective_family := f.duplicate(true)
+		var prospective_jobs: Dictionary = prospective_family["jobs"]
+		for held_key in prospective_jobs.keys():
+			if not want.has(held_key): prospective_jobs.erase(held_key)
+		for wanted_key in want:
+			prospective_jobs[wanted_key] = int(want[wanted_key])
+		if Academy._named_places(Persons.work(e, prospective_family), academy_bid) != int(want[research_key]):
+			want.erase(research_key)
 	for k in f["jobs"].keys():
 		if not want.has(k):
 			set_job(e, f, int(k), 0)

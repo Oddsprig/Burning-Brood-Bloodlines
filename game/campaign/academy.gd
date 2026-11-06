@@ -343,8 +343,25 @@ static func _staff(e: Dictionary, b: Dictionary, working_only: bool = false) -> 
 			out.append([f, p])
 	return out
 
-## The normal household matcher bounds Academy offers by registered adults.
-static func hiring_places(_e: Dictionary, f: Dictionary, b: Dictionary) -> int:
+## Read the native job mapping with a proposed Academy count. Cohorts map
+## anonymous adults before named people; an idle name alone proves no place.
+static func _prospective_work(e: Dictionary, f: Dictionary, b: Dictionary, n: int) -> Dictionary:
+	var candidate := f.duplicate(true)
+	var jobs: Dictionary = candidate["jobs"]
+	var key := str(int(b["id"]))
+	if n > 0: jobs[key] = n
+	else: jobs.erase(key)
+	return Persons.work(e, candidate)
+
+static func _named_places(work: Dictionary, bid: int) -> int:
+	var count := 0
+	for job in work.values():
+		if int(job.get("biz", -1)) == bid and not bool(job.get("keeper", false)):
+			count += 1
+	return count
+
+## The normal matcher may offer only places occupied by registered adults.
+static func hiring_places(e: Dictionary, f: Dictionary, b: Dictionary) -> int:
 	if String(b["type"]) != "academy":
 		return maxi(0, int(b["cap"]) - int(b["workers"]))
 	if bool(b.get("research_idle", false)) or f.get("gone", false) or f.get("estate", false):
@@ -353,12 +370,19 @@ static func hiring_places(_e: Dictionary, f: Dictionary, b: Dictionary) -> int:
 	for p in Persons.pp_read(f):
 		if int(p[6]) == 0 and String(p[4]) in ["", "hire", "reserve"]:
 			named += 1
-	# Named households can change from worse-paid jobs through the ordinary
-	# matcher. A cohort's unnamed jobs cannot be turned into named scientists.
 	var held := int(f["jobs"].get(str(int(b["id"])), 0))
-	var assigned := int(f.get("hands", 0)) + (f.get("keeps", []) as Array).size() + held
 	if Population.is_cohort(f):
-		assigned += Families.job_total(f) - held
+		var open := mini(named, maxi(0, int(b["cap"]) - int(b["workers"])))
+		if open <= 0: return 0
+		var bid := int(b["id"])
+		# Never buy anonymous places to bridge the offset to a real person.
+		if _named_places(_prospective_work(e, f, b, held + 1), bid) != held + 1:
+			return 0
+		# The first place proves the left edge; the full offer bounds the
+		# right edge of the contiguous named range, without changing jobs.
+		return maxi(0, _named_places(_prospective_work(e, f, b, held + open), bid) - held)
+	# Noncohort leads can swap into a paid place through mark_lead.
+	var assigned := int(f.get("hands", 0)) + (f.get("keeps", []) as Array).size() + held
 	return maxi(0, named - assigned)
 
 ## Existing anonymous places cannot impersonate registered scientists. Retain
@@ -370,8 +394,14 @@ static func _release_unregistered(e: Dictionary, b: Dictionary) -> void:
 		named[family] = int(named.get(family, 0)) + 1
 	for f in e["fams"]:
 		var held := int(f["jobs"].get(str(int(b["id"])), 0))
-		if held > int(named.get(int(f["id"]), 0)):
-			Families.set_job(e, f, int(b["id"]), int(named.get(int(f["id"]), 0)))
+		var keep := int(named.get(int(f["id"]), 0))
+		# A mixed anonymous/named block cannot retain its named tail by
+		# merely shortening the block: the anonymous prefix would remain.
+		if held > keep and keep > 0 and Population.is_cohort(f):
+			if _named_places(_prospective_work(e, f, b, keep), int(b["id"])) != keep:
+				keep = 0
+		if held > keep:
+			Families.set_job(e, f, int(b["id"]), keep)
 			var casual := 0
 			for count in f.get("cj", {}).values(): casual += int(count)
 			var old_idle := int(f.get("idle", 0))
@@ -400,12 +430,22 @@ static func appoint(w: Dictionary, fid: String, e: Dictionary, b: Dictionary, da
 		for f in e["fams"]:
 			if f.get("gone", false) or f.get("estate", false):
 				continue
+			var offered := {}
+			if not idle:
+				if int(b["workers"]) >= int(b["cap"]) or hiring_places(e, f, b) <= 0:
+					continue
+				if Population.is_cohort(f):
+					offered = _prospective_work(e, f, b, int(f["jobs"].get(str(bid), 0)) + 1)
 			var wk2 := Persons.work(e, f)
 			for pid in wk2:
 				var p := Persons.by_pid(f, int(pid))
 				if p.is_empty() or int(p[6]) != 0 or not String(p[4]) in ["", "hire"]:
 					continue
 				if not idle and String(wk2[pid].get("kind", "")) != "none":
+					continue
+				# Cohorts return before Persons.work's lead swap. The selected
+				# person must therefore hold this exact prospective paid place.
+				if not idle and Population.is_cohort(f) and int(offered.get(pid, {}).get("biz", -1)) != bid:
 					continue
 				var skill := _skill(p, float(R()["new_skill"]))
 				if _better(p, skill, best, best_skill):

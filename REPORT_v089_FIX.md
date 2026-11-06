@@ -1,20 +1,29 @@
-SOURCE ONLY / UNRUN. Handoff for failed exact8a23b32, TestBridge add7f976257643bebca9f7e35efce7d8.
+SOURCE ONLY / UNRUN. Follow-up to db6ad79 / TestBridge 130fe3a3 (eight groups, three failures).
 
-Failure classifications from source tracing:
+Root's saved-state diagnosis identifies anonymous cohort Academy employment, then load-time removal/payment causing wage/coin drift. Academy now proves proposed places through copied native Persons.work mapping. Direct appointments require the selected cohort person to occupy the offered place. Partial legacy blocks cannot retain an anonymous prefix by shortening to their named count. Earned claims remain preserved.
 
-- Three capital assertions: invalid fixture assumptions. Coverage now checks every actual economic capital, exactly one house, and every settled race; factions without economic capitals must report no house.
-- Funding and two idle-wallet failures: retained native plots can make Families.crop_work -> CropRotation.work_acres -> Families.reassign create/fund a farm for replacement family ID 1. The fixture removes inherited plots, recounts population, and asserts zero land/herd work. Public debit, house credit, private purse and total coin remain checked.
-- Legacy operator: inherited land can repopulate owns with a farm. The regression now calls after_load with valid keeper/employee accounting and verifies assignments, actual staff, unpaid claims and receipts across repeated loads.
-- Empty crew and incomplete group: invalid startup staffing precondition. Public funding uses the real army bill; an empty house receives a native Persons._new/Families.set_job fixture employee. Native disk reload checks UID, skill, prepaid fractions, claims, receipts, stock, roster and replay guard.
+New mixed-cohort regressions cover refusal, genuine named hiring, exact lead UID/skill, wages, load preservation and partial-block repair. Eight completion groups and >=100 checks remain; save assertions are unchanged.
 
-Production: Academy.after_load idles blocked/completed houses before future payroll/upkeep. Regressions distinguish earned-wage settlement from honorary-post pay. Exact counts accept whole JSON floats and reject changed/fractional quantities. Eight completion counters and >=100 checks remain.
+Required ROOT integration: hiring_places sees the current book; later competing offers can change its final order. The new regression exposes this. Correct support needs a final matcher guard, not mutation in Persons/Population readers. Only root may edit Families. Insert immediately before _best_places commits want:
 
-Changed: game/campaign/academy.gd; game/tests/test_academy_v089.gd; REPORT_v089_FIX.md.
+```gdscript
+if Population.is_cohort(f) and not Academy.biz_of(e).is_empty():
+	var academy_bid := int(e["academy"])
+	var research_key := str(academy_bid)
+	var prospective_family := f.duplicate(true)
+	var prospective_jobs: Dictionary = prospective_family["jobs"]
+	for held_key in prospective_jobs.keys():
+		if not want.has(held_key): prospective_jobs.erase(held_key)
+	for wanted_key in want:
+		prospective_jobs[wanted_key] = int(want[wanted_key])
+	if Academy._named_places(Persons.work(e, prospective_family), academy_bid) != int(want.get(research_key, 0)):
+		want.erase(research_key)
+```
 
-Root TestBridge command, from v089:
+Changed: game/campaign/academy.gd; game/tests/test_academy_v089.gd; REPORT_v089_FIX.md. Families is UNMODIFIED. Full guarantee requires root's hunk above; parsing/runtime remain UNRUN. Inherited companion passes: 8122/0 and 496/0.
+
+Root TestBridge command from v089:
 
 ```text
 godot --headless --path game res://tests/runner.tscn -- --tests=res://tests/test_academy_v089.gd,res://tests/test_academy_assignments.gd,res://tests/test_steel_smelting_v088.gd --watchdog=180
 ```
-
-Frozen handoff. Root reports legacy assignments 8122/0 and steel v088 496/0 PASS on exact4f544ce, job bc242121 (9.906s). These are inherited results, not verification of this patch. No root fixture/source was copied. This patch's parsing, runtime causality, save repair, timing and combined three-suite gate remain UNRUN; root owns application and execution.
