@@ -158,6 +158,7 @@ func _reserve() -> bool:
 	elif not DirAccess.dir_exists_absolute(_phase): return _bad("missing_phase", _phase)
 	if FileAccess.file_exists(_phase.path_join("final.json")): return _bad("duplicate_completion", "phase already finalized")
 	var existing: DirAccess = DirAccess.open(_phase)
+	if existing == null: return _bad("phase_open", _phase)
 	for name in existing.get_files():
 		if name.begins_with("failure_"): return _bad("phase_failed", "failed evidence already seals this phase; use a new phase/profile")
 	if _opts["mode"] == "batch":
@@ -674,7 +675,7 @@ func _final(types: Dictionary) -> Dictionary:
 	var history: Dictionary = _history(index, true)
 	if not _error.is_empty(): return {}
 	_completed = int(history["completed"])
-	if _completed != 240 or int(history["summary"]["days"]) != 240:
+	if _completion_error(_completed, int(history["summary"]["days"])) != "":
 		_bad("incomplete_target", "final requires exactly 240 consecutive complete daily records")
 		return {}
 	var manifest: Dictionary = history["manifest"]
@@ -693,6 +694,10 @@ func _final(types: Dictionary) -> Dictionary:
 		"summary": history["summary"], "nativeRuntime": "240 complete daily steps validated", "elapsed_ms": _elapsed()}
 	if not _write_new(_phase.path_join("final.json"), result): return {}
 	return result
+
+
+func _completion_error(completed: int, observed: int) -> String:
+	return "" if completed == 240 and observed == 240 else "incomplete_or_excess_coverage"
 
 
 func _execute(tree: SceneTree) -> Dictionary:
@@ -789,6 +794,10 @@ func _contract() -> int:
 	cases.append(["duplicate_checkpoint", _request_error(1, true, true) != ""])
 	cases.append(["duplicate_completion", _request_error(1, true, false, 240) != ""])
 	cases.append(["valid_checkpoint_request", _request_error(1, true, false, 15) == ""])
+	cases.append(["valid_target_guard_synthetic_only", _completion_error(240, 240) == ""])
+	cases.append(["reject_partial_target", _completion_error(239, 239) != ""])
+	cases.append(["reject_excess_target", _completion_error(241, 241) != ""])
+	cases.append(["reject_missing_observed_day", _completion_error(240, 239) != ""])
 	for field in ["seed", "batch_days", "years", "item_quality_value_growth", "application_version"]:
 		changed = manifest.duplicate(true)
 		changed["meta"]["params"][field] = "wrong"
