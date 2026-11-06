@@ -308,14 +308,14 @@ static func trial_run(tree: SceneTree, trial: Dictionary, deadline: int, book: D
 	if not book.is_empty(): book["trials"].append(row)
 	var pack := create_pack(trial)
 	if pack.has("error"):
-		row.merge({"status": "unmatched" if str(pack["error"]).begins_with("unmatched") else "setup_error", "error": pack})
+		row.merge({"status": "unmatched" if str(pack["error"]).begins_with("unmatched") else "setup_error", "error": pack}, true)
 		return row
 	var pools: Array = pack["pools"]
-	row["package"] = pack["package"]
+	row["package"] = plain(pack["package"])
 	row["starting_counts"] = [pools[0].size(), pools[1].size()]
 	row["physical_to_participant"] = [0, 1] if int(trial["subject_side"]) == 0 else [1, 0]
 	if not R.wanted(pools[0], pools[1]):
-		row.merge({"status": "setup_error", "error": "armies do not enter native multi-round path"}); return row
+		row.merge({"status": "setup_error", "error": "armies do not enter native multi-round path"}, true); return row
 	R.begin(Game, pools[0], pools[1])
 	# Native detached rider bodies are created once at the battle boundary and retained in this pending battle.
 	var initial_riders: Dictionary = DragonCombat.battle_riders(Game, pools[0] + pools[1])
@@ -323,7 +323,7 @@ static func trial_run(tree: SceneTree, trial: Dictionary, deadline: int, book: D
 	if str(trial["kind"]) != "race":
 		var dragon_id := str(pack["package"]["dragon"]["unit_uid"])
 		if not initial_riders.has(dragon_id) or not bool(initial_riders[dragon_id].get("detached", false)):
-			row.merge({"status": "setup_error", "error": "actual civilian rider was not supplied by native battle_riders"}); return row
+			row.merge({"status": "setup_error", "error": "actual civilian rider was not supplied by native battle_riders"}, true); return row
 	var rider_dictionary: Dictionary = Game.pending_battle["rider_bodies"]
 	var refs := remember_refs(pools)
 	var inputs: Array = []
@@ -354,7 +354,7 @@ static func trial_run(tree: SceneTree, trial: Dictionary, deadline: int, book: D
 	var st: Dictionary = Game.pending_battle["rounds"]
 	while not bool(st["over"]):
 		if Time.get_ticks_msec() >= deadline:
-			row.merge({"status": "incomplete_wall", "termination": {"reason": "wall_before_engagement"}, "censored": true}); return row
+			row.merge({"status": "incomplete_wall", "termination": {"reason": "wall_before_engagement"}, "censored": true}, true); return row
 		var picks: Array = [Game.pending_battle["round_side0"], Game.pending_battle["enemy"]]
 		var riders: Dictionary = DragonCombat.battle_riders(Game, picks[0] + picks[1])
 		var before := snapshot(pools)
@@ -382,9 +382,9 @@ static func trial_run(tree: SceneTree, trial: Dictionary, deadline: int, book: D
 		engagement["draw"] = sim.is_over() and sim.winner < 0
 		engagement["tick_capped"] = sim.tick >= int(Game.pending_battle["max_ticks"])
 		if not sim.is_over():
-			engagement.merge({"status": "incomplete_wall", "after": snapshot(pools), "aftermath_applied": false, "round_applied": false})
+			engagement.merge({"status": "incomplete_wall", "after": snapshot(pools), "aftermath_applied": false, "round_applied": false}, true)
 			row["engagements"].append(engagement)
-			row.merge({"status": "incomplete_wall", "termination": {"reason": "wall_during_engagement"}, "censored": true})
+			row.merge({"status": "incomplete_wall", "termination": {"reason": "wall_during_engagement"}, "censored": true}, true)
 			scene.free()
 			if not book.is_empty() and not checkpoint(book): row["checkpoint_error"] = true
 			return row
@@ -410,13 +410,13 @@ static func trial_run(tree: SceneTree, trial: Dictionary, deadline: int, book: D
 		var normalized := delta.duplicate(true)
 		if int(trial["subject_side"]) == 1: normalized.reverse()
 		engagement.merge({"status": "complete", "after": after, "aftermath_applied": true, "round_applied": true,
-			"native_summary": plain(summary), "round_result": plain(last), "delta_physical": delta, "delta_participants": normalized, "delta_riders": rider_delta})
+			"native_summary": plain(summary), "round_result": plain(last), "delta_physical": delta, "delta_participants": normalized, "delta_riders": rider_delta}, true)
 		row["engagements"].append(engagement)
 		previous_after = str(after["continuity_sha256"])
 		any_cap = any_cap or bool(engagement["tick_capped"]); any_draw = any_draw or bool(engagement["draw"])
 		scene.free()
-		if not all_checks(checks): row.merge({"status": "contract_error", "censored": true}); return row
-		if not book.is_empty() and not checkpoint(book): row.merge({"status": "checkpoint_error", "censored": true}); return row
+		if not all_checks(checks): row.merge({"status": "contract_error", "censored": true}, true); return row
+		if not book.is_empty() and not checkpoint(book): row.merge({"status": "checkpoint_error", "censored": true}, true); return row
 		if not bool(st["over"]): R.next_round(Game)
 	row["termination"] = termination(st)
 	row["battle_summary"] = plain(R.battle_summary(Game))
