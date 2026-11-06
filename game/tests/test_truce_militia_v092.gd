@@ -27,7 +27,8 @@ func _pair() -> Dictionary:
 func _settlement_boundary(tid: String) -> PackedByteArray:
 	var w: Dictionary = Game.world
 	return var_to_bytes(Game._serialize({"town": w["towns"][tid], "party": w["party"], "diplo": w["diplo"],
-		"warfare": w.get("warfare", {}), "pending": Game.pending_battle, "gold": Game.gold, "screen": Game._active_screen}))
+		"warfare": w.get("warfare", {}), "warbands": w["warbands"], "company": Game.company, "squads": Game.squads,
+		"pending": Game.pending_battle, "gold": Game.gold, "screen": Game._active_screen}))
 
 func _treaty_and_player_guards() -> void:
 	var w: Dictionary = Game.world
