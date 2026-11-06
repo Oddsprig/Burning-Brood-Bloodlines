@@ -750,6 +750,7 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 				if sc0 <= min_held_wage:
 					continue
 				var open0: int = Businesses.takeable(b, e)
+				if String(b["type"]) == "academy": open0 = mini(open0, Academy.hiring_places(e, f, b))
 				if open0 <= 0:
 					continue
 				for k in f["jobs"]:
@@ -768,11 +769,13 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 			if sc <= min_sc:
 				continue
 			var open: int = Businesses.takeable(b, e)
+			if String(b["type"]) == "academy": open = mini(open, Academy.hiring_places(e, f, b))
 			if open > 0:
 				cand_total = _add_cand(cand, cand_total, slots, sc, bid, 0, open)
 				changed = true
 		else:
 			var open: int = Businesses.takeable(b, e)
+			if String(b["type"]) == "academy": open = mini(open, Academy.hiring_places(e, f, b))
 			if open <= 0:
 				continue   # nobody signs on where the till is empty
 			if not known_ready:

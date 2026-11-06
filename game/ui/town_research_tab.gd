@@ -69,7 +69,9 @@ static func _summary(report: Dictionary, body: VBoxContainer) -> void:
 	var name := String(report.get("lead", ""))
 	var title := String(report.get("title", "Head"))
 	cards.add_child(TownEconTab._metric(title, name if name != "" else "Post vacant", "Skill %.1f / 15" % float(report.get("lskill", 0.0)) if name != "" else "Awaiting appointment", UiTheme.BLUE if name != "" else UiTheme.WARN))
-	var staff := TownEconTab._metric("Supporting staff", str(int(report.get("staff", 0))), "%d / %d paid places" % [int(report.get("workers", 0)), int(report.get("cap", 0))], UiTheme.BLUE)
+	var workers := int(report.get("registered_workers", report.get("workers", 0)))
+	var supporting := maxi(0, workers - (1 if name != "" else 0))
+	var staff := TownEconTab._metric("Supporting staff", str(supporting), "%d / %d paid places" % [workers, int(report.get("cap", 0))], UiTheme.BLUE)
 	staff.tooltip_text = "Supporting staff excludes the designated head; paid places include the head."
 	cards.add_child(staff)
 	var till := float(report.get("till", 0.0))
@@ -84,11 +86,14 @@ static func house_state(report: Dictionary) -> Dictionary:
 		return {"text": "Closed", "color": UiTheme.WARN}
 	if String(report.get("lead", "")) == "":
 		return {"text": "Head post vacant", "color": UiTheme.WARN}
+	if bool(report.get("idle", false)):
+		return {"text": "Idle - no line it can take", "color": UiTheme.WOOD_3}
 	if int(report.get("workers", 0)) <= 0:
 		return {"text": "Awaiting staff", "color": UiTheme.WARN}
 	var code := String(report.get("state_code", ""))
 	var why := String(report.get("why", ""))
-	if code == "busy":
+	if code == "busy" or (code == "hands" and float(report.get("day_output", 0.0)) > 0.0):
+		if code == "hands" and why == "": why = "short staffed"
 		return {"text": "Researching" + (" (materials limited)" if why == "materials" else (" - " + why if why != "" else "")), "color": UiTheme.GOOD}
 	var text: String = {"hands": "Awaiting staff", "wages": "Can't pay wages", "inputs": "Short of inputs", "nopay": "Market can't pay", "full": "Market full", "idle": "Idle"}.get(code, "Awaiting research")
 	var color: Color = {"wages": UiTheme.BAD, "inputs": UiTheme.BAD, "hands": UiTheme.WARN, "nopay": UiTheme.WARN}.get(code, UiTheme.WOOD_3)
@@ -141,6 +146,11 @@ static func _history(host: Control, t: Dictionary, report: Dictionary) -> void:
 	if bool(report.get("has", false)):
 		TownEconTab._fact(content, "Staff offer", "%.1f coins/day" % float(report.get("wage", 0.0)))
 		TownEconTab._fact(content, "Head's nominal rate", "%.1f coins/day including the supplement" % float(report.get("lead_wage", 0.0)))
+		TownEconTab._fact(content, "Earned wages awaiting payday", "%.1f coins" % float(report.get("owed", 0.0)))
+		for employee in report.get("roster", []):
+			TownEconTab._fact(content, "%s - %s" % [employee["title"], employee["name"]], "Skill %.2f / 15; %.1f coins/day" % [float(employee["skill"]), float(employee["wage"])])
+		for good in report.get("materials", {}):
+			TownEconTab._fact(content, String(good).replace("_", " ").capitalize(), "%.2f / working person-day; %d bought last trial day" % [float(report["materials"][good]), int(report.get("materials_bought", {}).get(good, 0))])
 		var live := _live_head(t, report, _realm(t))
 		if not live.is_empty():
 			var lead: Array = live["lead"].duplicate()

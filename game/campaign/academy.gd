@@ -11,7 +11,7 @@ extends RefCounted
 ## The lead is a real register person: b.lead = [family id, pid] (he holds one of the house's places; Persons.work
 ## shows him under his title). When he dies, retires (an elder), goes into service, loses his place or his family
 ## leaves the town, the post stands empty and output stops until the state appoints a successor at its next faction
-## turn: the eldest of the staff (he keeps the staff's skill) or an idle grown-up of the town (a new lead's skill).
+## turn: the best-skilled eligible staff member or an idle grown-up of the town. Training stays on the person.
 ##
 ## Research is a LIST of lines (data research.lines): each names the races that may take it and the know-how it raises.
 ## A line is active for a faction whose race may take it and whose know-how is under 100. Budget and staff split
@@ -46,7 +46,8 @@ static func biz_of(e: Dictionary) -> Dictionary:
 	var bi := int(e.get("academy", -1))
 	if bi < 0 or bi >= (e.get("biz", []) as Array).size():
 		return {}
-	return e["biz"][bi]
+	var b: Dictionary = e["biz"][bi]
+	return b if String(b.get("type", "")) == "academy" else {}
 
 # ================================================================== faction state
 static func faction_race(fid: String) -> String:
@@ -68,10 +69,13 @@ static func race_may(key: String, race: String) -> bool:
 ## (v0.014, data research.lines[].start), else (steel) the dwarf holds 100, else 0.
 static func start_kh(fid: String, key: String) -> float:
 	var F: Dictionary = DB.factions.get(fid, {})
+	var race := faction_race(fid)
+	if key == "steel":
+		if race in ["orc", "goblin"]: return 0.0
+		if race == "dwarf": return 100.0
 	if F.has(key + "_knowhow"):
 		return clampf(float(F[key + "_knowhow"]), 0.0, 100.0)
 	var Ls: Dictionary = line_of(key).get("start", {})
-	var race := faction_race(fid)
 	if Ls.has(race):
 		return clampf(float(Ls[race]), 0.0, 100.0)
 	if key == "steel" and fid == String(R().get("start_dwarf_faction", "dwarf_holds")):
@@ -85,12 +89,13 @@ static func state(w: Dictionary, fid: String) -> Dictionary:
 	if not RS.has(fid):
 		RS[fid] = {"kh": {}, "pts": {}, "interest": 0.0, "budget": 0.0, "places": 0, "paid": 0.0, "out": 0.0, "hist": [], "log": []}
 	var S: Dictionary = RS[fid]
-	if (S["kh"] as Dictionary).size() < (R()["lines"] as Array).size():   # a line added later is just a data row
-		for L in R()["lines"]:
-			var k := String(L["knowhow"])
-			if not S["kh"].has(k):
-				S["kh"][k] = start_kh(fid, k)
-				S["pts"][k] = 0.0
+	# A new data line or a missing points key is independent of dictionary size.
+	for L in R()["lines"]:
+		var k := String(L["knowhow"])
+		if not S["kh"].has(k) or not race_may(k, faction_race(fid)):
+			S["kh"][k] = start_kh(fid, k)
+		if not S["pts"].has(k):
+			S["pts"][k] = 0.0
 	return S
 
 ## The lines this faction's house works now (its race may take them, its know-how under 100).
@@ -147,7 +152,7 @@ static func sync_towns(w: Dictionary, fid: String) -> void:
 	var cap_id := String(w["factions"].get(fid, {}).get("capital", ""))
 	for tid in w["factions"].get(fid, {}).get("towns", []):
 		var t: Dictionary = w["towns"].get(tid, {})
-		if TownEcon.has_econ(t):
+		if TownEcon.has_econ(t) and String(t.get("faction", t["econ"].get("faction", ""))) == fid:
 			t["econ"]["fkh"] = (S["kh"] as Dictionary).duplicate()
 			if String(tid) == cap_id:
 				for L in R()["lines"]:
@@ -182,9 +187,14 @@ static func init_world(game) -> void:
 		sync_towns(w, fid)
 		var cap: Dictionary = w["towns"].get(String(w["factions"][fid].get("capital", "")), {})
 		if TownEcon.has_econ(cap) and not biz_of(cap["econ"]).is_empty():
+			var b := biz_of(cap["econ"])
+			_state_owner(cap["econ"], b)
+			_release_unregistered(cap["econ"], b)
+			if active_lines(w, fid).is_empty():
+				_idle_house(cap["econ"], b)
 			var rng := RandomNumberGenerator.new()
 			rng.seed = hash([int(w.get("seed", 0)), fid, "academy"])
-			appoint(w, fid, cap["econ"], biz_of(cap["econ"]), 0.0, rng)
+			appoint(w, fid, cap["econ"], b, 0.0, rng)
 
 ## Older saves: the new goods get today's base prices, each capital its house (an empty till: the next faction turn
 ## funds it), each faction its state and mirrors.
@@ -206,11 +216,36 @@ static func after_load(game) -> void:
 		if e.has("academy"):
 			e["academy"] = int(e["academy"])
 			var b := biz_of(e)
+			if b.is_empty():
+				continue
+			_state_owner(e, b)
+			_release_unregistered(e, b)
 			var L: Array = b.get("lead", [])
 			b["lead"] = [int(L[0]), int(L[1])] if L.size() >= 2 else []
+			if L.size() >= 2 and not b.has("lead_uid") and int(L[0]) >= 0 and int(L[0]) < (e["fams"] as Array).size():
+				var p := Persons.by_pid(e["fams"][int(L[0])], int(L[1]))
+				b["lead_uid"] = String(Persons.g(p, Persons.PERSON_UID, ""))
 	for fid in w.get("factions", {}):
 		state(w, fid)
 		sync_towns(w, fid)
+
+## Older public-service rows could acquire a private operator. The Academy belongs
+## to the state; release only that operator's keeper place, retaining cash/debts.
+static func _state_owner(e: Dictionary, b: Dictionary) -> void:
+	var owner := int(b.get("owner", -1))
+	b["owner"] = -1
+	b["public_funding"] = "realm"
+	b["kw"] = 0
+	b["for_sale"] = false
+	if owner < 0 or owner >= (e["fams"] as Array).size():
+		return
+	var f: Dictionary = e["fams"][owner]
+	var bid := int(b["id"])
+	f["owns"] = (f["owns"] as Array).filter(func(id): return int(id) != bid)
+	var kept := (f.get("keeps", []) as Array).any(func(id): return int(id) == bid)
+	f["keeps"] = (f.get("keeps", []) as Array).filter(func(id): return int(id) != bid)
+	if kept:
+		Families.reassign(e, f)
 
 # ================================================================== the lead
 ## Is the lead still at his post? "" = yes; else why he is gone (for the log).
@@ -228,12 +263,19 @@ static func lead_gone(e: Dictionary, b: Dictionary) -> String:
 	var p := Persons.by_pid(f.duplicate(), int(L[1]))
 	if p.is_empty():
 		return "died"
-	if int(p[6]) == 1:
+	if String(b.get("lead_uid", "")) != "" and String(Persons.g(p, Persons.PERSON_UID, "")) != String(b["lead_uid"]):
+		return "left the town"
+	if int(p[6]) != 0:
 		return "retired, grown old"
 	if not String(p[4]) in ["", "hire"]:
 		return "left for %s" % Persons.SERVICE_WORDS.get(String(p[4]), String(p[4]))
-	if int((f["jobs"] as Dictionary).get(str(int(b["id"])), 0)) <= 0:
+	# An idle house retains a named, unpaid post, not a fictitious employee.
+	if not bool(b.get("research_idle", false)) and int((f["jobs"] as Dictionary).get(str(int(b["id"])), 0)) <= 0:
 		return "left the house"
+	if not bool(b.get("research_idle", false)):
+		var job: Dictionary = Persons.work(e, f.duplicate()).get(int(L[1]), {})
+		if int(job.get("biz", -1)) != int(b["id"]) or bool(job.get("keeper", false)):
+			return "left the house"
 	return ""
 
 static func lead_name(e: Dictionary, b: Dictionary) -> String:
@@ -254,53 +296,132 @@ static func vacate(w: Dictionary, fid: String, e: Dictionary, b: Dictionary, why
 		nm = String(f.get("name", ""))
 	_log(state(w, fid), day, "the %s of %s (of the %s family) %s; the post stands empty." % [lead_title(e), house_name(e), nm, why])
 	b["lead"] = []
+	b["lead_uid"] = ""
 	b["vac"] = day
 
-## The state names a lead: the eldest of the staff (he keeps the staff's skill), else an out-of-work grown-up of the
-## town (a new lead's skill), who takes one of the house's places. False when nobody can be found.
+## Read existing personal training without changing the register (also used by appointments and reports).
+static func _skill(p: Array, fallback: float) -> float:
+	var training: Variant = Persons.g(p, Persons.RESEARCH, {})
+	return clampf(float(training.get("skill", fallback)) if training is Dictionary else fallback, 0.0, 15.0)
+
+static func _training(p: Array, fallback: float) -> Dictionary:
+	Persons._identity_pad(p)
+	if p.size() <= Persons.RESEARCH or not p[Persons.RESEARCH] is Dictionary:
+		var rng := RandomNumberGenerator.new()
+		rng.seed = hash([Persons.g(p, Persons.PERSON_UID, ""), int(p[0]), float(p[3]), "research aptitude"])
+		var initial := {"skill": clampf(fallback, 0.0, 15.0), "aptitude": rng.randf_range(0.9, 1.1)}
+		if p.size() <= Persons.RESEARCH: p.append(initial)
+		else: p[Persons.RESEARCH] = initial
+	var training: Dictionary = p[Persons.RESEARCH]
+	training["skill"] = _skill(p, fallback)
+	training["aptitude"] = clampf(float(training.get("aptitude", 1.0)), 0.9, 1.1)
+	return training
+
+## Actual named employees; a private operator's unpaid keeper place is not research staff.
+static func _staff(e: Dictionary, b: Dictionary, working_only: bool = false) -> Array:
+	var out := []
+	var bid := int(b["id"])
+	for f in e["fams"]:
+		if f.get("gone", false) or f.get("estate", false) or int(f["jobs"].get(str(bid), 0)) <= 0:
+			continue
+		var work := Persons.work(e, f)
+		for pid in work:
+			if int(work[pid].get("biz", -1)) != bid or bool(work[pid].get("keeper", false)):
+				continue
+			var p := Persons.by_pid(f, int(pid))
+			if p.is_empty() or int(p[6]) != 0 or not String(p[4]) in ["", "hire", "reserve"]:
+				continue
+			if working_only:
+				var sc := Sickness.case_of(f, int(pid))
+				var day := float(e.get("day", 0))
+				if not sc.is_empty() and int(sc[Sickness.C_BED]) == 1 and day >= float(sc[Sickness.C_ON]) and day < Sickness._stop(sc):
+					continue
+			out.append([f, p])
+	return out
+
+## The normal household matcher bounds Academy offers by registered adults.
+static func hiring_places(_e: Dictionary, f: Dictionary, b: Dictionary) -> int:
+	if String(b["type"]) != "academy":
+		return maxi(0, int(b["cap"]) - int(b["workers"]))
+	if bool(b.get("research_idle", false)) or f.get("gone", false) or f.get("estate", false):
+		return 0
+	var named := 0
+	for p in Persons.pp_read(f):
+		if int(p[6]) == 0 and String(p[4]) in ["", "hire", "reserve"]:
+			named += 1
+	# Named households can change from worse-paid jobs through the ordinary
+	# matcher. A cohort's unnamed jobs cannot be turned into named scientists.
+	var held := int(f["jobs"].get(str(int(b["id"])), 0))
+	var assigned := int(f.get("hands", 0)) + (f.get("keeps", []) as Array).size() + held
+	if Population.is_cohort(f):
+		assigned += Families.job_total(f) - held
+	return maxi(0, named - assigned)
+
+## Existing anonymous places cannot impersonate registered scientists. Retain
+## earned claims through the ordinary job setter; do not invent register people.
+static func _release_unregistered(e: Dictionary, b: Dictionary) -> void:
+	var named := {}
+	for pair in _staff(e, b):
+		var family := int(pair[0]["id"])
+		named[family] = int(named.get(family, 0)) + 1
+	for f in e["fams"]:
+		var held := int(f["jobs"].get(str(int(b["id"])), 0))
+		if held > int(named.get(int(f["id"]), 0)):
+			Families.set_job(e, f, int(b["id"]), int(named.get(int(f["id"]), 0)))
+			var casual := 0
+			for count in f.get("cj", {}).values(): casual += int(count)
+			var old_idle := int(f.get("idle", 0))
+			f["idle"] = maxi(0, Families.adults(f) - Families.serving(f) - int(f.get("hands", 0)) - (f.get("keeps", []) as Array).size() - Families.job_total(f) - casual)
+			e["idle_n"] = maxi(0, int(e.get("idle_n", 0)) + int(f["idle"]) - old_idle)
+
+static func _better(p: Array, skill: float, best: Array, best_skill: float) -> bool:
+	return best.is_empty() or skill > best_skill or (skill == best_skill and (float(p[3]) < float(best[1][3]) or (float(p[3]) == float(best[1][3]) and int(p[0]) < int(best[1][0]))))
+
+## Best-skilled staff first, else the best-trained idle adult. An idle house's honorary head takes no paid job.
 static func appoint(w: Dictionary, fid: String, e: Dictionary, b: Dictionary, day: float, rng: RandomNumberGenerator) -> bool:
 	var bid := int(b["id"])
 	var best: Array = []   # [family, person]
-	for f in e["fams"]:
-		if f.get("gone", false) or int((f["jobs"] as Dictionary).get(str(bid), 0)) <= 0:
+	var best_skill := -1.0
+	var idle := bool(b.get("research_idle", false))
+	for pair in _staff(e, b):
+		var p: Array = pair[1]
+		if not String(p[4]) in ["", "hire"]:
 			continue
-		var wk := Persons.work(e, f)
-		for pid in wk:
-			if int(wk[pid].get("biz", -1)) != bid:
-				continue
-			var p := Persons.by_pid(f, int(pid))
-			if not p.is_empty() and (best.is_empty() or float(p[3]) < float(best[1][3])):
-				best = [f, p]
+		var skill := _skill(p, float(R()["new_skill"]) if bool(b.get("personal_training", false)) else float(b.get("skill", R()["new_skill"])))
+		if _better(p, skill, best, best_skill):
+			best = pair
+			best_skill = skill
 	var from_staff := not best.is_empty()
 	if best.is_empty():
-		var fams: Array = e["fams"]
-		var n := fams.size()
-		var start := rng.randi_range(0, maxi(0, n - 1))
-		for i in n:
-			var f: Dictionary = fams[(start + i) % n]
+		for f in e["fams"]:
 			if f.get("gone", false) or f.get("estate", false):
 				continue
 			var wk2 := Persons.work(e, f)
 			for pid in wk2:
-				if String(wk2[pid].get("kind", "")) == "none":
-					best = [f, Persons.by_pid(f, int(pid))]
-					break
-			if not best.is_empty() and not (best[1] as Array).is_empty():
-				break
-			best = []
+				var p := Persons.by_pid(f, int(pid))
+				if p.is_empty() or int(p[6]) != 0 or not String(p[4]) in ["", "hire"]:
+					continue
+				if not idle and String(wk2[pid].get("kind", "")) != "none":
+					continue
+				var skill := _skill(p, float(R()["new_skill"]))
+				if _better(p, skill, best, best_skill):
+					best = [f, p]
+					best_skill = skill
 		if best.is_empty():
 			return false
 		var f2: Dictionary = best[0]
-		if int(b["workers"]) >= int(b["cap"]):
-			b["cap"] = int(b["workers"]) + 1
-		Families.set_job(e, f2, bid, int((f2["jobs"] as Dictionary).get(str(bid), 0)) + 1)
+		if not idle:
+			if int(b["workers"]) >= int(b["cap"]):
+				return false
+			Families.set_job(e, f2, bid, int((f2["jobs"] as Dictionary).get(str(bid), 0)) + 1)
 		var nl: Array = R()["new_lead"]
-		b["lskill"] = rng.randf_range(float(nl[0]), float(nl[1]))
+		b["lskill"] = _skill(best[1], rng.randf_range(float(nl[0]), float(nl[1])))
 	else:
-		b["lskill"] = maxf(float(b.get("skill", 1.0)), float(R()["new_skill"]))
+		b["lskill"] = best_skill
 	var ff: Dictionary = best[0]
 	var pp: Array = best[1]
 	b["lead"] = [int(ff["id"]), int(pp[0])]
+	b["lead_uid"] = String(Persons.g(pp, Persons.PERSON_UID, ""))
 	b.erase("vac")
 	var nm := Persons.name_of(ff, pp, Persons.race_of(e))
 	_log(state(w, fid), day, "%s is named %s of %s (skill %d of 15%s)." % [nm, lead_title(e), house_name(e), int(b["lskill"]),
@@ -311,11 +432,20 @@ static func appoint(w: Dictionary, fid: String, e: Dictionary, b: Dictionary, da
 ## Persons.work: the lead holds one of the house's places of his family, under his title.
 static func mark_lead(e: Dictionary, f: Dictionary, out: Dictionary) -> void:
 	var b := biz_of(e)
+	if bool(b.get("research_idle", false)):
+		return
 	var L: Array = b.get("lead", [])
 	if L.size() < 2 or int(L[0]) != int(f["id"]) or not out.has(int(L[1])):
 		return
 	var bid := int(b["id"])
 	var lp := int(L[1])
+	var person := Persons.by_pid(f, lp)
+	if person.is_empty() or not String(person[4]) in ["", "hire"]:
+		return
+	if String(b.get("lead_uid", "")) != "" and String(Persons.g(person, Persons.PERSON_UID, "")) != String(b["lead_uid"]):
+		return
+	if bool(out[lp].get("keeper", false)):
+		return   # the state cannot turn an unpaid private operator into a paid researcher
 	if int(out[lp].get("biz", -1)) != bid:
 		for q in out:
 			if int(out[q].get("biz", -1)) == bid:
@@ -332,19 +462,94 @@ static func mark_lead(e: Dictionary, f: Dictionary, out: Dictionary) -> void:
 static func staff_title(b: Dictionary) -> String:
 	return "chemist" if float(b.get("skill", 0.0)) >= 3.0 else "apprentice"
 
+## Completed/blocked houses keep the named post and saved cash, with no employees or purchases.
+## Earned wages still settle through set_job; no claim is erased by a research pause.
+static func _idle_house(e: Dictionary, b: Dictionary) -> void:
+	b["research_idle"] = true
+	b["cap"] = 0
+	var affected := {}
+	_lay_off(e, b, int(b["workers"]), affected)
+	Businesses.rebuild_open(e)
+	for family in affected:
+		Families.reassign(e, e["fams"][int(family)])
+	b["state"] = "idle"
+	b["why"] = "no line it can take"
+
 # ================================================================== the working day
+## v0.087 supplies charcoal. Keep the older research data row usable after that
+## predecessor is merged without adding another fuel good or charcoal recipe.
+static func materials() -> Dictionary:
+	var mats: Dictionary = (R()["mats"] as Dictionary).duplicate()
+	if mats.has("wood"):
+		mats["charcoal"] = float(mats.get("charcoal", 0.0)) + float(mats["wood"])
+		mats.erase("wood")
+	return mats
+
+## Trial fractions are prepaid: an integer purchase is recorded as used once,
+## with its unused trial capacity retained in the business. Legacy mc/mgot are
+## unpaid demand/smoothing and never become material credit.
+static func _trials(e: Dictionary, b: Dictionary, work: float, reserve: float, mkt: Dictionary, demand: Dictionary) -> Array:
+	var mats := materials()
+	var credit: Dictionary = b.get("trial_credit", {})
+	var stock: Dictionary = e["stock"]
+	var price: Dictionary = e["price"]
+	var fraction := 1.0
+	for good in mats:
+		var need := float(mats[good]) * work
+		demand[good] = float(demand.get(good, 0.0)) + need
+		if need <= 0.0: continue
+		if float(price.get(good, 0.0)) <= 0.0:
+			fraction = 0.0
+		else:
+			fraction = minf(fraction, (maxf(0.0, float(credit.get(good, 0.0))) + maxi(0, int(stock.get(good, 0)))) / need)
+	var cost := 0.0
+	var buys := {}
+	for good in mats:
+		var need := float(mats[good]) * work * fraction
+		var whole := maxi(0, int(ceil(need - float(credit.get(good, 0.0)) - 0.000000001)))
+		buys[good] = whole
+		cost += float(whole) * float(price.get(good, 0.0))
+	if fraction <= 0.0:
+		return [0.0, 0.0, "inputs"]
+	if cost > maxf(0.0, float(b["till"]) - reserve):
+		return [0.0, 0.0, "wages"]
+	var used := {}
+	for good in mats:
+		var whole := int(buys[good])
+		if whole > 0:
+			stock[good] = int(stock[good]) - whole
+			TownEcon.led(e, "used", String(good), whole)
+			used[good] = whole
+		credit[good] = maxf(0.0, float(credit.get(good, 0.0)) + whole - float(mats[good]) * work * fraction)
+	b["trial_credit"] = credit
+	b["research_materials"] = used
+	b["till"] = float(b["till"]) - cost
+	mkt["till"] = float(mkt["till"]) + cost
+	e["stats"]["sales"] = float(e["stats"]["sales"]) + cost
+	return [fraction, cost, ""]
+
 ## Businesses.daily, the house's day (w = staff at work, the lead among them). Returns coin spent on materials.
 static func day(game, town: Dictionary, e: Dictionary, b: Dictionary, w: float, mkt: Dictionary, bdem: Dictionary) -> float:
 	var world: Dictionary = game.world
-	var fid := String(e.get("faction", town.get("faction", "")))
+	var fid := String(town.get("faction", e.get("faction", "")))
 	var d := float(e.get("day", 0))
 	var RR := R()
-	# staff joining: a new hand starts at new_skill (those who leave take their skill with them; the rest keep theirs)
-	var staff_n := maxi(0, int(b["workers"]) - (1 if (b.get("lead", []) as Array).size() >= 2 else 0))
-	var prev := int(b.get("wp", staff_n))
-	if staff_n > prev:
-		b["skill"] = (float(b.get("skill", 1.0)) * prev + float(RR["new_skill"]) * (staff_n - prev)) / float(staff_n)
-	b["wp"] = staff_n
+	if int(b.get("research_day", -1)) >= int(d):
+		return 0.0
+	b["research_out_day"] = 0.0
+	b["research_materials"] = {}
+	if String(world.get("factions", {}).get(fid, {}).get("capital", "")) != String(town.get("id", "")):
+		_idle_house(e, b)
+		b["why"] = "not the faction capital"
+		return 0.0
+	var act := active_lines(world, fid)
+	if act.is_empty():
+		if not bool(b.get("research_idle", false)) or int(b["workers"]) > 0:
+			_idle_house(e, b)
+		b["state"] = "idle"
+		b["why"] = "no line it can take"
+		return 0.0
+	b["research_idle"] = false
 	var why := lead_gone(e, b)
 	if why != "":
 		if why != "none":
@@ -352,56 +557,58 @@ static func day(game, town: Dictionary, e: Dictionary, b: Dictionary, w: float, 
 		b["state"] = "hands"
 		b["why"] = "no %s" % lead_title(e)
 		return 0.0
-	# the lead's own pay on top of his place (from the house's till)
+	if b.get("closed", false) or w <= 0.0:
+		b["state"] = "hands"
+		b["why"] = "no working staff"
+		return 0.0
+	# Resolve real working people, including the head's own sickness rather than a count-only substitute.
 	var L: Array = b["lead"]
 	var lf: Dictionary = e["fams"][int(L[0])]
-	var lp := float(RR["lead_pay"]) * float(b["wage"])
-	if float(b["till"]) >= lp:
-		b["till"] = float(b["till"]) - lp
-		lf["purse"] = float(lf["purse"]) + lp
-		b["t_paid"] = float(b.get("t_paid", 0.0)) + lp
-	var act := active_lines(world, fid)
-	if act.is_empty():
-		b["state"] = "idle"
-		b["why"] = "no line it can take"
+	var crew := _staff(e, b, true)
+	var head: Array = []
+	for pair in crew:
+		if int(pair[0]["id"]) == int(L[0]) and int(pair[1][0]) == int(L[1]):
+			head = pair[1]
+	if head.is_empty():
+		b["state"] = "hands"
+		b["why"] = "%s not at work" % lead_title(e)
 		return 0.0
-	# materials for the trials: bought at market prices; shortages slow the work
-	var st: Dictionary = e["stock"]
-	var price: Dictionary = e["price"]
-	var M: Dictionary = RR["mats"]
-	if not b.has("mc"):
-		b["mc"] = {}
-	var mc: Dictionary = b["mc"]
-	var got := 1.0
-	var spent := 0.0
-	for g in M:
-		var q := float(M[g]) * w
-		bdem[g] = float(bdem.get(g, 0.0)) + q
-		var acc := float(mc.get(g, 0.0)) + q
-		var whole := int(floor(acc))
-		mc[g] = acc - whole
-		if whole <= 0:
+	w = minf(w, float(crew.size()))
+	# Reserve earned claims and the next day of basic wages before paying the head or buying trials.
+	var wage_reserve := maxf(0.0, float(b.get("owed", 0.0))) + float(b["wage"]) * float(b["workers"])
+	var lp := float(RR["lead_pay"]) * float(b["wage"])
+	if float(b["till"]) < wage_reserve + lp:
+		b["state"] = "wages"
+		b["why"] = "research wages unfunded"
+		return 0.0
+	# One queued town day must not pay, burn materials or teach twice.
+	b["research_day"] = int(d)
+	b["till"] = float(b["till"]) - lp
+	lf["purse"] = float(lf["purse"]) + lp
+	lf["wage_receipts"] = float(lf.get("wage_receipts", 0.0)) + lp
+	b["t_paid"] = float(b.get("t_paid", 0.0)) + lp
+	var trial := _trials(e, b, w, wage_reserve, mkt, bdem)
+	var matf := float(trial[0])
+	var spent := float(trial[1])
+	if matf <= 0.0:
+		b["state"] = String(trial[2])
+		b["why"] = "trial materials" if b["state"] == "inputs" else "money for trial materials"
+		return spent
+	var lead_training := _training(head, float(b.get("lskill", 1.0)))
+	var lsk := float(lead_training["skill"])
+	var aptitude := clampf(float(lead_training.get("aptitude", 1.0)), 0.9, 1.1)
+	var sum_skill := 0.0
+	var staff := []
+	for pair in crew:
+		var p: Array = pair[1]
+		if int(pair[0]["id"]) == int(L[0]) and int(p[0]) == int(L[1]):
 			continue
-		var pr := float(price.get(g, 1.0))
-		var have := mini(whole, int(st.get(g, 0)))
-		have = mini(have, int(maxf(0.0, float(b["till"])) / maxf(0.01, pr)))
-		if have > 0:
-			st[g] = int(st[g]) - have
-			TownEcon.led(e, "used", g, have)
-			var c := float(have) * pr
-			b["till"] = float(b["till"]) - c
-			mkt["till"] = float(mkt["till"]) + c
-			e["stats"]["sales"] = float(e["stats"]["sales"]) + c
-			spent += c
-		got = minf(got, float(have) / float(whole))
-	if not b.has("mgot"):
-		b["mgot"] = 1.0
-	b["mgot"] = float(b["mgot"]) * 0.9 + got * 0.1   # the materials share, smoothed (the part-days carry)
-	var matf := float(RR["mats_floor"]) + (1.0 - float(RR["mats_floor"])) * float(b["mgot"])
-	var lsk := float(b.get("lskill", 1.0))
-	var ssk := float(b.get("skill", 1.0))
+		var training := _training(p, float(RR["new_skill"]) if bool(b.get("personal_training", false)) else float(b.get("skill", RR["new_skill"])))
+		staff.append(training)
+		sum_skill += float(training["skill"])
+	var ssk := sum_skill / staff.size() if not staff.is_empty() else float(RR["new_skill"])
 	var sn := maxf(0.0, w - 1.0)
-	var pts := (lsk * float(RR["lead_k"]) + ssk * sn * float(RR["staff_k"])) * matf
+	var pts := (lsk * float(RR["lead_k"]) * aptitude + ssk * sn * float(RR["staff_k"])) * matf
 	var S := state(world, fid)
 	var wsum := 0.0
 	for Ln in act:
@@ -413,14 +620,21 @@ static func day(game, town: Dictionary, e: Dictionary, b: Dictionary, w: float, 
 	S["out"] = float(S.get("out", 0.0)) + pts
 	if not e.has("fkh"):
 		e["fkh"] = {}
-	for k in S["kh"]:
-		e["fkh"][k] = float(S["kh"][k])
+	sync_towns(world, fid)
 	# learning by working; the lead's skill sets how well the staff learn
-	var lrn := float(RR["learn"]) * (0.5 + lsk / 10.0)
-	b["skill"] = minf(15.0, ssk + lrn)
-	b["lskill"] = minf(15.0, lsk + float(RR["learn_lead"]))
+	var lrn := float(RR["learn"]) * (0.5 + lsk / 10.0) * aptitude * matf
+	var staff_share := minf(1.0, sn / staff.size()) if not staff.is_empty() else 0.0
+	for training in staff:
+		training["skill"] = minf(15.0, float(training["skill"]) + lrn * staff_share)
+	lead_training["skill"] = minf(15.0, lsk + float(RR["learn_lead"]) * matf)
+	b["personal_training"] = true
+	b["skill"] = minf(15.0, ssk + lrn * staff_share)
+	b["lskill"] = float(lead_training["skill"])
+	b["research_out_day"] = pts
 	b["state"] = "busy"
-	b["why"] = "" if got >= 0.999 else "materials"
+	b["why"] = "" if matf >= 0.999 else "materials"
+	if active_lines(world, fid).is_empty():
+		_idle_house(e, b)
 	return spent
 
 # ================================================================== the faction turn (weekly)
@@ -433,14 +647,18 @@ static func faction_turn(game, day: float) -> void:
 	for fid in w.get("factions", {}):
 		var fac: Dictionary = w["factions"][fid]
 		var S := state(w, fid)
+		if float(S.get("turn_day", -1.0)) >= day:
+			continue
 		var cap: Dictionary = w["towns"].get(String(fac.get("capital", "")), {})
 		if not TownEcon.has_econ(cap) or biz_of(cap["econ"]).is_empty() or String(cap.get("faction", "")) != String(fid):
 			sync_towns(w, fid)
 			continue
 		var e: Dictionary = cap["econ"]
 		var b := biz_of(e)
+		S["turn_day"] = day
 		var wage := float(b["wage"])
 		var act := active_lines(w, fid)
+		b["research_idle"] = act.is_empty()
 		# interest from real conditions: the treasury against the army's keep, war, steel met, the ruler's temper
 		var keep := maxf(1.0, Army.bill(game, fid) * float(I["keep_days"]))
 		var tre := float(fac.get("treasury", 0.0))
@@ -455,9 +673,9 @@ static func faction_turn(game, day: float) -> void:
 		it += float(I["temper"].get(Barge.temper(e), 0.0))
 		it = clampf(it, 0.0, 1.0)
 		S["interest"] = snappedf(it, 0.01)
-		var lead_day := wage * (1.0 + float(RR["lead_pay"]))
-		var budget := lead_day
-		var places := 1
+		# No active line: the post and unspent cash wait, without payroll or fresh transfers.
+		var budget := 0.0
+		var places := 0
 		if not act.is_empty():
 			var per := wage * (1.0 + float(RR["mat_share"]))
 			budget = it * float(RR["places_full"]) * per + wage * float(RR["lead_pay"])
@@ -479,10 +697,16 @@ static func faction_turn(game, day: float) -> void:
 				e["treasury"] = float(e["treasury"]) - a2
 				paid += a2
 			b["till"] = float(b["till"]) + paid
-		S["paid"] = snappedf(paid, 0.1)
+		S["paid"] = paid   # the receipt is the exact debit, formatting belongs to the view
 		if paid < want * 0.5 and budget > 0.0 and int(S.get("short_wk", 0)) == 0:
 			_log(S, day, "the treasury could not fund %s's budget in full." % house_name(e))
 		S["short_wk"] = 1 if paid < want * 0.5 and budget > 0.0 else 0
+		# Planned interest cannot hire people on an empty treasury. Existing till money can still fund work.
+		var available := maxf(0.0, float(b["till"]) - float(b.get("owed", 0.0)))
+		var weekly_wage := maxf(0.01, wage * 7.0)
+		var affordable := maxi(0, int(floor((available / weekly_wage - float(RR["lead_pay"])) / (1.0 + float(RR["mat_share"])))))
+		places = mini(places, affordable)
+		S["places"] = places
 		# places: a cut lays off the staff at once (the lead keeps his place while there is one)
 		var affected := {}
 		var old_cap := int(b["cap"])
@@ -517,6 +741,13 @@ static func faction_turn(game, day: float) -> void:
 		why = lead_gone(e, b)
 		if why != "" and why != "none":
 			vacate(w, fid, e, b, why, day)
+		if act.is_empty():
+			if (b.get("lead", []) as Array).is_empty():
+				var idle_rng := RandomNumberGenerator.new()
+				idle_rng.seed = hash([int(w.get("seed", 0)), fid, "idle head", int(day)])
+				appoint(w, fid, e, b, day, idle_rng)
+			b["state"] = "idle"
+			b["why"] = "no line it can take"
 		# study: one steel piece a week from the town's stalls, bought and used up
 		for Ln in act:
 			if String(Ln["knowhow"]) == "steel":
@@ -545,11 +776,13 @@ static func _lay_off(e: Dictionary, b: Dictionary, n: int, affected: Dictionary 
 			Families.set_job(e, f, bid, k - cut)
 			affected[int(f["id"])] = true
 			laid += cut
-	if laid < n and L.size() >= 2:   # nothing left to pay even the lead: his post goes too
+	if laid < n and L.size() >= 2 and int(L[0]) >= 0 and int(L[0]) < (e["fams"] as Array).size():
 		var lf: Dictionary = e["fams"][int(L[0])]
-		Families.set_job(e, lf, bid, 0)
-		affected[int(lf["id"])] = true
-		laid += 1
+		var held := int(lf["jobs"].get(str(bid), 0))
+		if held > 0:
+			Families.set_job(e, lf, bid, 0)
+			affected[int(lf["id"])] = true
+			laid += held
 	return laid
 
 ## Steel pieces in the faction's towns' stalls and armories (met in trade, in loot, from its own smiths).
@@ -557,6 +790,8 @@ static func _steel_met(w: Dictionary, fid: String) -> int:
 	var n := 0
 	for tid in w["factions"].get(fid, {}).get("towns", []):
 		var t: Dictionary = w["towns"].get(tid, {})
+		if String(t.get("faction", "")) != fid:
+			continue
 		for key in ["shop", "armory_items"]:
 			for it in t.get(key, []):
 				if it is Item and it.material == "steel":
@@ -564,7 +799,10 @@ static func _steel_met(w: Dictionary, fid: String) -> int:
 	return n
 
 static func _study(town: Dictionary, e: Dictionary, b: Dictionary, S: Dictionary, fid: String, day: float) -> void:
-	if (b.get("lead", []) as Array).size() < 2:
+	if b.get("closed", false) or bool(b.get("research_idle", false)) or lead_gone(e, b) != "":
+		return
+	var lead: Array = b["lead"]
+	if not _staff(e, b, true).any(func(pair): return int(pair[0]["id"]) == int(lead[0]) and int(pair[1][0]) == int(lead[1])):
 		return
 	var shop: Array = town.get("shop", [])
 	var pick := -1
@@ -576,7 +814,8 @@ static func _study(town: Dictionary, e: Dictionary, b: Dictionary, S: Dictionary
 		return
 	var it: Item = shop[pick]
 	var cost := Economy.base_value(town, it)
-	if float(b["till"]) < cost * 2.0:
+	var reserve := maxf(0.0, float(b.get("owed", 0.0))) + float(b["wage"]) * (float(b["workers"]) + float(R()["lead_pay"])) * 7.0
+	if float(b["till"]) < maxf(cost * 2.0, reserve + cost):
 		return
 	var mkt: Dictionary = e["biz"][int(e["mkt"])]
 	b["till"] = float(b["till"]) - cost
@@ -614,6 +853,7 @@ static func report(w: Dictionary, fid: String) -> Dictionary:
 	var owned := String(cap.get("faction", e.get("faction", ""))) == fid
 	var b := biz_of(e) if not e.is_empty() and owned else {}
 	var act := active_lines(snapshot, fid)
+	out["idle"] = act.is_empty()
 	var wsum := 0.0
 	for Ln in act:
 		wsum += float(Ln.get("weight", 1.0))
@@ -637,6 +877,26 @@ static func report(w: Dictionary, fid: String) -> Dictionary:
 		out["wage"] = float(b["wage"])
 		out["lead_wage"] = float(b["wage"]) * (1.0 + float(R()["lead_pay"]))
 		out["state"] = Businesses.state_word(b) + ((", " + String(b["why"])) if String(b.get("why", "")) != "" else "")
+		# Resolve a detached register for read-only roster queries (Persons.work can
+		# initialize old optional arrays). Skills and identities come from people.
+		out["roster"] = []
+		var view := e.duplicate(true)
+		for employee in _staff(view, biz_of(view)):
+			var f: Dictionary = employee[0]
+			var p: Array = employee[1]
+			var lead: Array = b.get("lead", [])
+			var is_lead := out["lead"] != "" and lead.size() >= 2 and int(f["id"]) == int(lead[0]) and int(p[0]) == int(lead[1])
+			var skill := _skill(p, float(b.get("lskill", 0.0)) if is_lead else float(R()["new_skill"]) if bool(b.get("personal_training", false)) else float(b.get("skill", 0.0)))
+			out["roster"].append({"family": int(f["id"]), "pid": int(p[0]), "uid": String(Persons.g(p, Persons.PERSON_UID, "")),
+				"name": Persons.name_of(f, p, Persons.race_of(e)), "skill": skill,
+				"title": lead_title(e) if is_lead else ("chemist" if skill >= 3.0 else "apprentice"),
+				"wage": float(b["wage"]) * (1.0 + float(R()["lead_pay"]) if is_lead else 1.0)})
+		out["registered_workers"] = (out["roster"] as Array).size()
+		out["materials"] = materials()
+		out["trial_credit"] = (b.get("trial_credit", {}) as Dictionary).duplicate()
+		out["materials_bought"] = (b.get("research_materials", {}) as Dictionary).duplicate()
+		out["day_output"] = float(b.get("research_out_day", 0.0))
+		out["owed"] = float(b.get("owed", 0.0))
 	for pair in lines_for(fid):
 		var Ln: Dictionary = pair[0]
 		var k := String(Ln["knowhow"])
