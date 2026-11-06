@@ -421,6 +421,7 @@ static func trim_armory(game, tid: String) -> int:
 			var units := maxi(0, int(round(it.mass())))
 			stock[key] = int(stock[key]) + units
 			TownEcon.led(town["econ"], "made", key, units)   # v0.075: the scrap is booked as made
+		WorldAudit.lose_item(it, "-trimmed surplus from a town's armoury")
 		TownEcon.led(town["econ"], "used", "arms", 1)   # v0.075: the melted piece leaves the town's holdings
 		melted += 1
 	town["armory_items"] = keep

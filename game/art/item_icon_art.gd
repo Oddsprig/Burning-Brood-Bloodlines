@@ -15,6 +15,12 @@ static func draw(cv: PixelCanvas, shape: String, key: String, q: int) -> bool:
 	var c: Color = ItemIcon.color_of(key)
 	var hi: Color = _metal_light(c, key)
 	var low: Color = c.darkened(0.32)
+	var equipment := shape.begins_with("shield_") or shape in ["sword", "sabre", "knife", "dirk", "cleaver",
+		"axe", "dwarf_axe", "greataxe", "sickle", "mace", "hammer", "maul", "mattock", "club", "spear",
+		"spear_short", "spear_boar", "spear_winged", "lance", "glaive"]
+	if equipment:
+		cv.begin_equipment(FigurePainter.metal(key, q), [c, hi, low, c.lightened(0.10), c.lightened(0.12),
+			c.lightened(0.15), c.darkened(0.15), c.darkened(0.43), c.darkened(0.48), low.lightened(0.08)])
 	match shape:
 		"sword", "sabre", "knife", "dirk", "cleaver":
 			_blade(cv, shape, c, hi, low, q)
@@ -33,7 +39,9 @@ static func draw(cv: PixelCanvas, shape: String, key: String, q: int) -> bool:
 		"loaf", "mug", "jug", "coins", "ham", "apple", "ingot", "ore", "scrap_pile", "heads", "arrow", "logs", "bolt", "hide", "gem", "sack", "bundle":
 			_goods(cv, shape, key, c, hi, low)
 		_:
+			if equipment: cv.end_equipment()
 			return false
+	if equipment: cv.end_equipment()
 	return true
 
 static func _metal_light(c: Color, key: String) -> Color:

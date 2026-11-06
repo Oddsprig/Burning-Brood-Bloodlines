@@ -152,7 +152,9 @@ func _market_limits_and_quotes() -> void:
 			x["e"]["need"]["steel_bars"] = 0.0; x["e"]["stock"]["steel_bars"] = 20
 		_smelt(x)
 		check(int(x["e"]["stock"]["bronze_bars"]) > 0 and int(x["e"]["stock"]["pig_iron"]) == 8 and int(x["e"]["stock"]["iron_bars"]) == 8, "existing bronze priority resumes while steel is " + mode)
-	var quoted := _fixture()
+	# Use a learning faction for the following zero-knowledge control. Dwarf
+	# steel knowledge is immutable at100 and cannot be cleared by a stale mirror.
+	var quoted := _fixture(100.0, "middle_kingdom")
 	_stock(quoted, {"iron_bars": 8, "pig_iron": 8, "wood": 100, "flux": 20, "copper_bars": 44, "tin_bars": 6})
 	quoted["e"]["_aimu"] = {"steel_bars": 12.0}
 	var before: Dictionary = quoted["e"].duplicate(true)

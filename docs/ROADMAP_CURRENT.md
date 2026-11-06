@@ -72,15 +72,27 @@ Notes on version order and branches:
 - `main` merged out of strict numeric sequence as versions passed tests and QC: `v0.047` before `v0.046`, and `v0.073 -> v0.080 -> v0.083 -> v0.084 -> v0.082 -> v0.081 -> v0.075 -> v0.078 -> v0.074 -> v0.079 -> v0.076 -> v0.077 -> v0.085`.
 - Branch `claude/speed-landmove` (`538d630`) remains as an unmerged branch ref, though its payroll land-sale refresh skip was included in `v0.073`.
 
-## PROPOSED (not approved yet)
+## Authorized source sequence and current owner priorities
 
-v0.086 - NOT DONE - Eight domestic herd species (goats, pigs, poultry/feathers, guard dogs, donkeys/mules) and race herd mixes (`docs/specs/next/01-animals-dwarves-eastern.md` §A)
-v0.087 - NOT DONE - Dwarf mountain hold ore-for-grain trade economy and free inter-human cultural migration/marriage (`docs/specs/next/01-animals-dwarves-eastern.md` §B–C)
-v0.088 - NOT DONE - Pig-iron and flux steel smelting ladder above iron across all six quality tiers (`docs/specs/next/02-steel-assay-house.md` §A–B)
+Owner correction (6 November 2026): a battle is a series of smaller engagements,
+not one huge clash. Combat balance measurements must follow the native engagement
+and between-engagement roster, casualty, rider and outcome transitions. Record
+each engagement and the enclosing battle separately. The v0.093 standalone survey
+draft is unaccepted and must be re-scoped to this contract before use.
+
+At most TWO helpers. Finish the next versions in order: v0.089 fixes, v0.090,
+v0.091 review and v0.092. Do not spend these slots on later work. v0.094 drafts
+are preserved and held; v0.095 is explicitly ON HOLD. No 200v200 test has run.
+The last packaged release remains v0.085; v0.086-v0.088 below are tested source
+merges, not claims of new Desktop or Android deliveries.
+
+v0.086 - SOURCE TESTED/MERGED - Eight domestic herd species; merge `aa6c58e`, domestic 1438/0, herd totals 82/0, strict audit 62/0.
+v0.087 - SOURCE TESTED/MERGED - Dwarf ore/grain trade and free inter-human migration/marriage; merge `e0df622`, targeted trade/culture and v0.086 regression block passed. Failed fixture attempts are retained.
+v0.088 - SOURCE TESTED/MERGED - Paid pig-iron/steel ladder, matching-iron reserve and cheaper fuel variants; merge `3db1c2d`, 496 steel plus 27 existing metallurgy checks passed.
 v0.089 - NOT DONE - State-funded capital Academies, lead researchers, salaried staff, and faction steel know-how progression (`docs/specs/next/02-steel-assay-house.md` §C–D)
 v0.090 - NOT DONE - Ore-mine gem pockets, refitted 25% skill-15 masterwork curve, and named gem-set legendary artifacts kept by battle winners (`docs/specs/next/03-legendary-items.md`)
 v0.091 - NOT DONE - Code-drawn 2.5D normal-mapped shields, weapons, and bronze/iron/steel specular material ramps (`docs/ROADMAP.txt` deferred `v0.064` art pass; `roadmap_review_v0071.md`)
 v0.092 - NOT DONE - Post-peace 60–120 day diplomatic truces and militia 1.25x wall-holding sally threshold (`docs/specs/barge/90-war-picks.md`; `95-resume-notes.md`)
-v0.093 - NOT DONE - Seven-race (including High/Dark Elf) and equal-coin dragon combat valuation sweep in `BalanceV070` (`roadmap_review_v0071.md`; `docs/balance_v070.md`)
-v0.094 - NOT DONE - Multi-year campaign economy, worked-land, and smith revenue stability pass after 1.25x quality pricing (`roadmap_review_v0071.md`; `docs/balance_v070.md`)
-v0.095 - NOT DONE - Dense 200v200 battle tick optimization and versioned save-migration upgrade check (`docs/ROADMAP.txt` performance contract; `build_strategy.md` §3.6 / §11)
+v0.093 - NOT DONE - Seven-race (including High/Dark Elf) and dragon valuation per engagement inside native multi-engagement battles. Preserve real transitions between engagements and report both engagement-level and battle-level outcomes. Existing dragon shadow-value draft is held for this re-scope; no measured balance claim (`docs/balance_v070.md`).
+v0.094 - HOLD / NOT DONE - Multi-year campaign economy, worked-land, and smith revenue stability after 1.25x quality pricing. Preserve the early source draft; resume only after the preceding accepted versions and an ordered root dispatch.
+v0.095 - OWNER HOLD / NOT DONE - Performance and versioned save-upgrade work is stopped. Battles must remain a series of smaller engagements; the former single 200v200 clash framing is superseded. Resume only on a new owner-authorized dispatch consistent with that battle model.
