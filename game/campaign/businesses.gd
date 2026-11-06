@@ -35,7 +35,7 @@ static func _row(e: Dictionary, type: String, owner: int, cap: int, D: Dictionar
 		# The same constructor also creates services during play. Choose an
 		# existing actual operator; no extra household or person is invented.
 		var candidates: Array = e.get("fams", []).filter(func(f): return not f.get("estate", false) and not f.get("gone", false) and not Population.is_cohort(f))
-		if not candidates.is_empty():
+		if type != "academy" and not candidates.is_empty():
 			candidates.sort_custom(func(a, c): return a["owns"].size() < c["owns"].size())
 			owner = int(candidates[0]["id"])
 			b["owner"] = owner
@@ -453,10 +453,11 @@ static func _who(e: Dictionary) -> Dictionary:
 ## for a material its smiths also practise town by town (data knowhow: bronze) the town's own practice under it, so a
 ## realm that may not know bronze (orcs, goblins) never smelts or works it whatever its towns have heard (v0.014).
 static func kh_of(e: Dictionary, key: String) -> float:
-	# Manufacturing follows the current faction, including in a captured town
-	# whose local culture or saved know-how mirror still belongs to its old owner.
-	if key == "steel" and Academy.faction_race(String(e.get("faction", ""))) in ["orc", "goblin"]:
-		return 0.0
+	# Steel's race rules also apply to a stale town mirror after conquest/load.
+	if key == "steel":
+		var race := Academy.faction_race(String(e.get("faction", "")))
+		if race in ["orc", "goblin"]: return 0.0
+		if race == "dwarf": return 100.0
 	var fk: Dictionary = e.get("fkh", {})
 	var practised: bool = TownEcon.data()["knowhow"].has(key)
 	if fk.has(key):
@@ -508,6 +509,11 @@ static func daily(game, town: Dictionary, e: Dictionary, D: Dictionary, si: int,
 		# The keeper contributes work and takes profit, never employee wages.
 		# v0.014: the keeper works his shop (barge part 3 section 4); he draws the keeper's take, not a wage
 		var w := hired + int(b.get("kw", 0))
+		# Academy resolves its own named, paid workers. Idle/vacant houses must not buy tools or do keeper work.
+		if type == "academy":
+			var research_spent := Academy.day(game, town, e, b, float(hired), mkt, bdem)
+			_finish_production_day(b, receipt_before, hired, hired, research_spent)
+			continue
 		if w <= 0:
 			b["state"] = "hands" if int(b["cap"]) > 0 else "idle"
 			continue
@@ -562,8 +568,6 @@ static func daily(game, town: Dictionary, e: Dictionary, D: Dictionary, si: int,
 			_mine(e, D, b, float(w), toolf, spec, mkt, share, rng)
 		elif type == "butcher":
 			spent += Herds.butcher_day(e, b, float(w), toolf, mkt, share, bdem)   # herds: beasts bought from their owners
-		elif type == "academy":
-			spent += Academy.day(game, town, e, b, float(w), mkt, bdem)   # v0.012: the research house's trials and research
 		else:
 			spent += _recipes(e, D, b, T, float(w), toolf, spec, mkt, share, bdem)
 		TownSanitation.add_waste(e, float(w) * float(TownSanitation.D()["trade_waste_per_hand"].get(type, 0)) if b["state"] in ["busy", "hands"] else 0, "trade")
@@ -655,12 +659,18 @@ static func books_day(e: Dictionary) -> void:
 	var lds := int(BB["struggling"]); var thr := float(BB["thriving"])
 	for bid in e["prod"]:
 		var b: Dictionary = biz[int(bid)]
+		# No eligible line means no spending, including the ordinary building bill.
+		if String(b["type"]) == "academy" and bool(b.get("research_idle", false)):
+			continue
 		if not b["closed"]:
 			_books(b, int(b["workers"]), mkt, u0, u1, lds, thr)
 
 static func _books(b: Dictionary, w: int, mkt: Dictionary, u0: float, u1: float, lds: int, thr: float) -> void:
 	var up := u0 + u1 * float(w)
-	var pay := minf(up, maxf(0.0, float(b["till"])))
+	var available := maxf(0.0, float(b["till"]))
+	if String(b["type"]) == "academy":
+		available = maxf(0.0, available - float(b.get("owed", 0.0)))
+	var pay := minf(up, available)
 	b["till"] = float(b["till"]) - pay
 	mkt["till"] = float(mkt["till"]) + pay
 	var tl := float(b["till"])
