@@ -56,8 +56,22 @@ static func contains_id(values, id: int) -> bool:
 
 
 static func plain(value):
-	# Native serializer handles Unit/Item/typed values; JSON makes Packed values plain.
-	return JSON.parse_string(JSON.stringify(Game._serialize(value), "", true, true))
+	# The existing native codec preserves floats that bare JSON cannot round-trip.
+	# A wrapper permits any top-level type and keeps codec metadata out of the value.
+	var encoded: String = Game.save_text({"value": Game._serialize(value)})
+	var parsed: Dictionary = JSON.parse_string(encoded)
+	Game.restore_exact(parsed)
+	return parsed["value"]
+
+
+static func text(value: Dictionary) -> String:
+	return Game.save_text(plain(value))
+
+
+static func parse_exact(encoded: String):
+	var parsed = JSON.parse_string(encoded)
+	if parsed is Dictionary: Game.restore_exact(parsed)
+	return parsed
 
 
 static func canonical(value):
@@ -70,6 +84,11 @@ static func canonical(value):
 		for x in value: out.append(canonical(x))
 		return out
 	if value is float and is_finite(value) and absf(value) <= 9007199254740991.0 and value == floor(value): return int(value)
+	if value is float:
+		var bits := PackedByteArray()
+		bits.resize(8)
+		bits.encode_double(0, value)
+		return {"__f64_v094": bits.hex_encode()}
 	return value
 
 

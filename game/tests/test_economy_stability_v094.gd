@@ -77,7 +77,8 @@ func _base_params() -> Dictionary:
 		"creatures": true, "history_days": 1, "years": 2, "days_per_season": 30, "seasons": 4, "target_days": 240,
 		"batch_days": _opts["batch-days"], "soft_ms": SOFT_MS, "day_ms": DAY_MS, "drain_end_ms": DRAIN_END_MS,
 		"absolute_ms": ABSOLUTE_MS, "item_quality_value_growth": 1.25, "quality_cap": 5,
-		"races": RACES, "grouping": "native town culture race; no within-town minority estimate", "autosave": "off_in_memory"}
+		"races": RACES, "grouping": "native town culture race; no within-town minority estimate", "autosave": "off_in_memory",
+		"artifact_float_codec": "existing native v074 save_text/restore_exact", "fractional_hash_codec": "IEEE754 float64 hex"}
 
 
 func _static_contract() -> bool:
@@ -126,7 +127,8 @@ func _write_new(path: String, value) -> bool:
 	if FileAccess.file_exists(path): return _bad("duplicate_artifact", path)
 	var bad: String = M.finite(value)
 	if bad != "": return _bad("artifact_nonfinite", path + bad)
-	var body: String = JSON.stringify(M.plain(value), "", true, true)
+	var body: String = M.text(value)
+	if body == "": return _bad("artifact_encode", path)
 	var file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
 	if file == null: return _bad("artifact_open", path + ":" + str(FileAccess.get_open_error()))
 	file.store_string(body)
@@ -146,6 +148,7 @@ func _read(path: String) -> Dictionary:
 	if parser.parse(FileAccess.get_file_as_string(path)) != OK or not parser.data is Dictionary:
 		_bad("artifact_json", path + ":" + parser.get_error_message())
 		return {}
+	Game.restore_exact(parser.data)
 	return parser.data
 
 
@@ -351,7 +354,9 @@ func _row_error(row: Dictionary, offset: int, origin: float, chain: String, befo
 	if row.get("clean", false) != true or not M.equal_json(row.get("pending_work", -1), 0): return "unfinished_day"
 	var bad: String = _groups_error(row.get("groups"))
 	if bad != "": return bad
-	if not row.get("makers") is Dictionary or not M.equal_json(row.get("changes"), _changes(before, row["groups"])): return "missing_or_changed_measurements"
+	if not row.get("makers") is Dictionary: return "missing_maker_measurements"
+	var expected_changes: Dictionary = _changes(before, row["groups"])
+	if not M.equal_json(row.get("changes"), expected_changes): return "changed_measurements " + M.difference_json(expected_changes, row.get("changes"))
 	if M.census_residual(before["WORLD"], row["groups"]["WORLD"]) != 0: return "native_census_residual"
 	var body: Dictionary = row.duplicate(true)
 	body.erase("chain")
@@ -674,6 +679,7 @@ func _batch(tree: SceneTree, types: Dictionary) -> Dictionary:
 		row["chain"] = M.digest({"previous": chain, "record": row})
 		var bad: String = _row_error(row, next, _origin, chain, before["groups"])
 		if bad != "":
+			_evidence["failed_daily_observation"] = row
 			_bad("new_daily_contract", bad)
 			return {}
 		chain = row["chain"]
@@ -891,6 +897,17 @@ func _contract() -> int:
 	var wrong_change: Dictionary = fractional_row.duplicate(true)
 	wrong_change["changes"]["WORLD"]["cash"]["treasury"] += 0.01
 	cases.append(["reject_changed_fractional_day_measurement", _row_error(wrong_change, 1, 1.0, ZERO_SHA, fractional_before) != ""])
+	var exact_values: Array = [1.0 / 17.0, 1.0 / 7.0, pow(2.0, -52.0), 1e-90, -0.079975,
+		53.736691176034476, 349669.79960372526, 350699.35634799715,
+		350699.35634799715 - 349669.79960372526, 221689.898177866, 0.00000010001, -3710.0881063894967]
+	for i in exact_values.size():
+		var value: float = exact_values[i]
+		var sample: Dictionary = {"value": value, "packed": PackedFloat64Array([value, value / 7.0])}
+		var original: Dictionary = {"value": value, "packed": [value, value / 7.0]}
+		var normalized: Dictionary = M.plain(sample)
+		var decoded: Dictionary = M.parse_exact(M.text(normalized))
+		cases.append(["bit_exact_native_artifact_" + str(i), M.equal_json(original, normalized) and M.equal_json(normalized, decoded)
+			and M.equal_json(normalized, M.plain(M.plain(normalized))) and M.digest(original) == M.digest(decoded)])
 	cases.append(["valid_physical", M.physical({"food": 0.0, "cash": 1}, "synthetic") == ""])
 	cases.append(["reject_negative_physical", M.physical({"food": -1}, "synthetic") != ""])
 	cases.append(["reject_nonfinite_cash", M.physical({"cash": INF}, "synthetic") != ""])
@@ -902,7 +919,7 @@ func _contract() -> int:
 	for test in cases:
 		if test[1] != true: failed.append(test[0])
 	var passed: bool = failed.is_empty() and _static_contract()
-	print("ECONOMY_V094 " + JSON.stringify({"ok": passed, "mode": "contract", "overallComplete": false, "controls": cases.size(),
+	print("ECONOMY_V094 " + M.text({"ok": passed, "mode": "contract", "overallComplete": false, "controls": cases.size(),
 		"failed_controls": failed, "nativeRuntime": "UNRUN", "native_days_advanced": 0, "scope": "synthetic protocol/JSON/physical controls, not native 240-day data or saved/load proof", "error": _error}))
 	return 0 if passed else 1
 
@@ -910,7 +927,7 @@ func _contract() -> int:
 func run(tree: SceneTree) -> int:
 	_started = Time.get_ticks_msec()
 	if not _parse():
-		print("ECONOMY_V094 " + JSON.stringify({"ok": false, "overallComplete": false, "error": _error}))
+		print("ECONOMY_V094 " + M.text({"ok": false, "overallComplete": false, "error": _error}))
 		return 1
 	if _opts["mode"] == "contract": return _contract()
 	# Authorized isolated-process override only. No set_setting(), no settings-file writes.
@@ -921,7 +938,7 @@ func run(tree: SceneTree) -> int:
 	if not result is Dictionary or result.get("finished", false) != true or result.get("ok", false) != true or result.get("allGroupsVerified", false) != true or not _error.is_empty():
 		if _error.is_empty(): _bad("aborted_runner", "no explicit finished/ok/all-groups result; refusing implicit success")
 		_persist_failure()
-		print("ECONOMY_V094 " + JSON.stringify({"ok": false, "overallComplete": false, "error": _error, "completed": _completed, "elapsed_ms": _elapsed()}))
+		print("ECONOMY_V094 " + M.text({"ok": false, "overallComplete": false, "error": _error, "completed": _completed, "elapsed_ms": _elapsed()}))
 		return 1
-	print("ECONOMY_V094 " + JSON.stringify(result, "", true, true))
+	print("ECONOMY_V094 " + M.text(result))
 	return 0
