@@ -87,6 +87,15 @@
       "weight": 20.0,
       "spoils": 0
     },
+    "charcoal": {
+      "name": "charcoal",
+      "unit": "sacks",
+      "cat": "raw",
+      "bcat": "fuel",
+      "price": 35.0,
+      "weight": 8.0,
+      "spoils": 0
+    },
     "stone": {
       "name": "stone",
       "unit": "loads",
@@ -1606,6 +1615,21 @@
         }
       ]
     },
+    "charcoal_burner": {
+      "name": "charcoal burner",
+      "wage": 95.0,
+      "recipes": [
+        {
+          "in": {
+            "wood": 2.0
+          },
+          "out": {
+            "charcoal": 1.0
+          },
+          "rate": 12.0
+        }
+      ]
+    },
     "quarry": {
       "name": "quarry",
       "wage": 80.0,
@@ -1759,6 +1783,42 @@
           },
           "rate": 6.0,
           "knowhow": "iron"
+        },
+        {
+          "in": {
+            "iron_ore": 2.0,
+            "charcoal": 1.0
+          },
+          "out": {
+            "iron_bars": 1.0
+          },
+          "rate": 3.0,
+          "knowhow": "iron"
+        },
+        {
+          "in": {
+            "iron_bars": 1.0,
+            "flux": 1.0,
+            "charcoal": 1.0
+          },
+          "out": {
+            "pig_iron": 1.0
+          },
+          "rate": 2.0,
+          "knowhow": "steel"
+        },
+        {
+          "in": {
+            "pig_iron": 1.0,
+            "iron_bars": 1.0,
+            "flux": 1.0,
+            "charcoal": 1.0
+          },
+          "out": {
+            "steel_bars": 2.0
+          },
+          "rate": 1.0,
+          "knowhow": "steel"
         }
       ]
     },
@@ -1838,6 +1898,17 @@
             "tools": 1.0
           },
           "rate": 1.3
+        },
+        {
+          "in": {
+            "wood": 1.0,
+            "iron_bars": 1.0
+          },
+          "out": {
+            "tools": 1.0
+          },
+          "rate": 1.2,
+          "knowhow": "iron"
         }
       ]
     },
