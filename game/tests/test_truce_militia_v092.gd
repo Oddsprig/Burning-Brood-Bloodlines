@@ -99,15 +99,18 @@ func _saved_expiry(path: String) -> void:
 	check(not Game.deployed_units().is_empty(), "saved paid muster still supplies the positive engagement control")
 	var enemy := {"id": "truce092_expired", "kind": "patrol", "faction": b,
 		"home": str(w["factions"][b]["capital"]), "units": [Unit.create("human", b)], "pos": w["party"]["pos"]}
-	w["warbands"][enemy["id"]] = enemy
+	var bands: Dictionary = w["warbands"]
+	w["warbands"] = {enemy["id"]: enemy} # bounded entry-point fixture, no nearby allied reinforcements
 	var pending := Game.pending_battle
 	var screen: String = Game._active_screen
 	CampaignWorld.engage(Game, enemy["id"])
 	check(str(Game.pending_battle.get("warband_id", "")) == enemy["id"] and w["encounter"] == enemy["id"]
 		and Game._active_screen == "battle", "actual player engage succeeds at the expired treaty boundary")
+	check((Game.pending_battle.get("enemy", []) as Array).size() == 1
+		and (Game.pending_battle.get("allies", []) as Array).is_empty(), "positive control remains a bounded one-enemy handoff")
 	Game.pending_battle = pending; w["encounter"] = ""
 	Game.goto(screen)
-	w["warbands"].erase(enemy["id"])
+	w["warbands"] = bands
 	completed += 1
 
 func _wall_tick() -> void:
