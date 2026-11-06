@@ -16,6 +16,10 @@ var xf := Transform2D.IDENTITY
 var k := 1.0
 var _part: Dictionary = {}   # Vector2i -> Color
 var _in_part := false
+var _equipment: ShadedLayer
+var _equipment_material: Dictionary = {}
+var _equipment_colors: Array[Color] = []
+var _equipment_ids: Dictionary = {}
 
 func _init(width: int = 32, height: int = 32) -> void:
 	w = width
@@ -40,9 +44,14 @@ func set_px(x: int, y: int, c: Color) -> void:
 		c = buf[y * w + x].blend(c)
 	buf[y * w + x] = c
 
-func _put(x: int, y: int, c: Color, pat: Callable) -> void:
+func _put(x: int, y: int, c: Color, pat: Callable, normal: Vector3 = Vector3(0, 0, 1)) -> void:
 	if pat.is_valid():
 		c = pat.call(x, y, c)
+	if _equipment != null and x >= 0 and y >= 0 and x < w and y < h and c.a >= 0.999:
+		# Equal depth deliberately preserves the existing painter order, including
+		# fullers, straps and open crescents. The original primitive owns coverage.
+		_equipment._write(x, y, 0.0, normal, _equipment_mat(c))
+		c = _equipment.color_at(x, y)
 	if _in_part:
 		_part[Vector2i(x, y)] = c
 	else:
@@ -82,10 +91,18 @@ func poly(pts: PackedVector2Array, c: Color, pat: Callable = Callable()) -> void
 		m.append(q)
 		lo = lo.min(q)
 		hi = hi.max(q)
+	var center := Vector2.ZERO
+	if _equipment != null and not m.is_empty():
+		for p in m: center += p
+		center /= float(m.size())
 	for y in range(maxi(floori(lo.y), -1), mini(ceili(hi.y) + 1, h + 1)):
 		for x in range(maxi(floori(lo.x), -1), mini(ceili(hi.x) + 1, w + 1)):
-			if Geometry2D.is_point_in_polygon(Vector2(x + 0.5, y + 0.5), m):
-				_put(x, y, c, pat)
+			var pc := Vector2(x + 0.5, y + 0.5)
+			if Geometry2D.is_point_in_polygon(pc, m):
+				var normal := Vector3(0, 0, 1)
+				if _equipment != null:
+					normal = ShadedLayer.bevel_normal(pc, m, center, maxf(0.6, 2.5 * k))
+				_put(x, y, c, pat, normal)
 
 ## Thick segment with round caps; r is a local radius.
 func capsule(a: Vector2, b: Vector2, r: float, c: Color, pat: Callable = Callable()) -> void:
@@ -97,8 +114,13 @@ func capsule(a: Vector2, b: Vector2, r: float, c: Color, pat: Callable = Callabl
 	for y in range(maxi(floori(lo.y), -1), mini(ceili(hi.y) + 1, h + 1)):
 		for x in range(maxi(floori(lo.x), -1), mini(ceili(hi.x) + 1, w + 1)):
 			var pc := Vector2(x + 0.5, y + 0.5)
-			if Geometry2D.get_closest_point_to_segment(pc, ma, mb).distance_squared_to(pc) <= rr * rr:
-				_put(x, y, c, pat)
+			var delta := pc - Geometry2D.get_closest_point_to_segment(pc, ma, mb)
+			if delta.length_squared() <= rr * rr:
+				var normal := Vector3(0, 0, 1)
+				if _equipment != null and rr > 0.0:
+					var d := delta / rr
+					normal = Vector3(d.x, d.y, maxf(0.18, sqrt(maxf(0.0, 1.0 - d.length_squared()))))
+				_put(x, y, c, pat, normal)
 
 ## 1-px line (Bresenham) at k=1; a k-wide capsule when the frame is scaled up.
 func line1(a: Vector2, b: Vector2, c: Color, pat: Callable = Callable()) -> void:
@@ -140,7 +162,10 @@ func ellipse(cn: Vector2, rx: float, ry: float, c: Color, pat: Callable = Callab
 			var dx := (x + 0.5 - m.x) / ex
 			var dy := (y + 0.5 - m.y) / ey
 			if dx * dx + dy * dy <= 1.0:
-				_put(x, y, c, pat)
+				var normal := Vector3(0, 0, 1)
+				if _equipment != null:
+					normal = Vector3(dx, dy, maxf(0.18, sqrt(maxf(0.0, 1.0 - dx * dx - dy * dy))))
+				_put(x, y, c, pat, normal)
 
 ## Remove pixels of the current part inside a local rect (cut-outs such as a coif's face hole).
 func erase_rect(r: Rect2) -> void:
@@ -177,6 +202,9 @@ func begin() -> void:
 ## `shade` = edge light/dark strength; `shine` = colour for top-edge glints (metal, elf skin).
 func end(outline: Color, shade: float = 0.14, shine: Color = CLEAR) -> void:
 	_in_part = false
+	if _equipment != null:
+		# Surface normals already supply lighting. Retain the original outline mask.
+		shade = 0.0
 	if _part.is_empty():
 		return
 	var out := {}
@@ -225,6 +253,41 @@ func to_image() -> Image:
 func shaded() -> ShadedLayer:
 	return ShadedLayer.new(self)
 
+## Scoped equipment normals, baked by the same rasteriser as bodies and armour.
+## Only opted-in draw calls use this; no extra texture or cache payload is retained.
+func begin_equipment(material: Dictionary, metal_colors: Array[Color] = []) -> void:
+	_equipment = shaded()
+	_equipment_material = material
+	_equipment_ids.clear()
+	_equipment_colors = metal_colors.duplicate()
+	for key in ["base", "light", "dark", "shine", "trim"]:
+		_equipment_colors.append(material[key])
+
+func end_equipment() -> ShadedLayer:
+	var result := _equipment
+	_equipment = null
+	_equipment_material = {}
+	_equipment_colors.clear()
+	_equipment_ids.clear()
+	return result
+
+func _equipment_mat(c: Color) -> int:
+	if _equipment_ids.has(c):
+		return int(_equipment_ids[c])
+	var metallic := c in _equipment_colors
+	var m := _equipment_material
+	var ramp: Array[Color]
+	if c == m["outline"]:
+		ramp = [c, c, c, c, c, c]
+	elif c == m["base"]:
+		ramp = m["ramp"]
+	else:
+		ramp = make_ramp(c, m["shine"] if metallic else Color(1.0, 0.96, 0.88), float(m.get("contrast", 1.0)) if metallic else 0.7)
+	var mat_id := _equipment.add_ramp(ramp, float(m.get("specular", 0.24)) if metallic else 0.02,
+		0.02, float(m.get("specular_power", 10.0)) if metallic else 10.0)
+	_equipment_ids[c] = mat_id
+	return mat_id
+
 ## Build a 6-stop Spirewing-style 2.5D colour ramp (deep shadow -> shadow -> mid-dark -> mid -> lit -> specular highlight).
 static func make_ramp(base: Color, shine_tint: Color = Color(1.0, 0.96, 0.88), contrast: float = 1.0) -> Array[Color]:
 	var cool := Color(0.06, 0.05, 0.12, 1.0)
@@ -254,7 +317,10 @@ class ShadedLayer extends RefCounted:
 	var nz_buf := PackedFloat32Array()
 	var ramps: Array = []
 	var specs := PackedFloat32Array()
+	var specular_powers := PackedFloat32Array()
 	var dithers := PackedFloat32Array()
+	var light_dir := LIGHT.normalized()
+	var half_dir := HALF_VEC.normalized()
 	var min_x: int = 999999
 	var min_y: int = 999999
 	var max_x: int = -1
@@ -273,14 +339,40 @@ class ShadedLayer extends RefCounted:
 		ny_buf.resize(n)
 		nz_buf.resize(n)
 
-	func add_ramp(ramp: Array[Color], specular: float = 0.12, dither: float = 0.06) -> int:
+	func add_ramp(ramp: Array[Color], specular: float = 0.12, dither: float = 0.06, specular_power: float = 10.0) -> int:
 		ramps.append(ramp)
 		specs.append(specular)
+		specular_powers.append(specular_power)
 		dithers.append(dither)
 		return ramps.size()
 
 	func add_color(base: Color, specular: float = 0.12, contrast: float = 1.0, shine_tint: Color = Color(1.0, 0.96, 0.88), dither: float = 0.06) -> int:
 		return add_ramp(PixelCanvas.make_ramp(base, shine_tint, contrast), specular, dither)
+
+	## Same bevel normal as the native polygon heightfield, on the legacy mask.
+	static func bevel_normal(p: Vector2, pts: PackedVector2Array, center: Vector2, dome: float) -> Vector3:
+		var min_d := INF
+		for i in pts.size():
+			var closest := Geometry2D.get_closest_point_to_segment(p, pts[i], pts[(i + 1) % pts.size()])
+			min_d = minf(min_d, p.distance_to(closest))
+		var u := clampf(1.0 - min_d / dome, 0.0, 1.0)
+		var hz := sqrt(maxf(0.05, 1.0 - u * u))
+		var dir := p - center
+		var dlen := maxf(1.0, dir.length())
+		return (Vector3(dir.x / dlen * u * 0.65, dir.y / dlen * u * 0.65, hz) + Vector3(0, 0, 0.55)).normalized()
+
+	## Read the baked colour from real per-pixel normals and the chosen material.
+	func color_at(x: int, y: int, seam_darken: float = 0.0) -> Color:
+		var idx := y * w + x
+		var m := fill[idx]
+		if m == 0: return PixelCanvas.CLEAR
+		var rmp: Array = ramps[m - 1]
+		var n := Vector3(nx_buf[idx], ny_buf[idx], nz_buf[idx])
+		var ndotl := n.dot(light_dir)
+		var spec := pow(maxf(0.0, n.dot(half_dir)), specular_powers[m - 1]) * specs[m - 1]
+		var bayer := BAYER4[(x & 1) + ((y & 1) << 1)] * dithers[m - 1]
+		var t := clampf((ndotl + 0.68) / 1.52 + spec + bayer - seam_darken, 0.0, 0.999)
+		return rmp[clampi(int(t * float(rmp.size())), 0, rmp.size() - 1)] as Color
 
 	func _write(x: int, y: int, z: float, n: Vector3, mat_id: int) -> void:
 		if x < 0 or y < 0 or x >= w or y >= h:
@@ -405,8 +497,6 @@ class ShadedLayer extends RefCounted:
 	func composite(outline: Color = Color(0.05, 0.04, 0.07, 1.0), exterior_outline: bool = true) -> void:
 		if max_x < min_x or max_y < min_y:
 			return
-		var l_dir := LIGHT.normalized()
-		var h_dir := HALF_VEC.normalized()
 		if exterior_outline and outline.a > 0.0:
 			for y in range(min_y, max_y + 1):
 				for x in range(min_x, max_x + 1):
@@ -449,11 +539,5 @@ class ShadedLayer extends RefCounted:
 						if nm != 0 and nm != m and z_buf[ny * w + nx] > z_buf[idx] + 0.35:
 							seam_darken = 0.16
 							break
-				var n := Vector3(nx_buf[idx], ny_buf[idx], nz_buf[idx])
-				var ndotl := n.dot(l_dir)
-				var spec := pow(maxf(0.0, n.dot(h_dir)), 10.0) * specs[m - 1]
-				var bayer := BAYER4[(x & 1) + ((y & 1) << 1)] * dithers[m - 1]
-				var t := clampf((ndotl + 0.68) / 1.52 + spec + bayer - seam_darken, 0.0, 0.999)
-				var ci := clampi(int(t * float(rmp.size())), 0, rmp.size() - 1)
-				cv._put(x, y, rmp[ci] as Color, Callable())
+				cv._put(x, y, color_at(x, y, seam_darken), Callable())
 

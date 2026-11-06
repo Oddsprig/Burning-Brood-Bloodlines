@@ -337,6 +337,15 @@ static func metal(mat: String, q: int = 0) -> Dictionary:
 		"tin":
 			m = {"base": Color("#a9b0b9"), "light": Color("#c9cfd6"), "dark": Color("#6f7680"), "shine": Color("#d9dde2"),
 				"shade": 0.08}
+		"bronze":
+			m = {"base": Color("#ae783e"), "light": Color("#dfad68"), "dark": Color("#65452f"), "shine": Color("#ffe2a4"),
+				"shade": 0.16, "specular": 0.32, "specular_power": 12.0, "contrast": 1.12}
+		"iron":
+			m = {"base": Color("#656b70"), "light": Color("#969d9f"), "dark": Color("#373d44"), "shine": Color("#bec4c5"),
+				"shade": 0.14, "specular": 0.14, "specular_power": 8.0, "contrast": 1.06}
+		"steel":
+			m = {"base": Color("#8b9caa"), "light": Color("#c2d5df"), "dark": Color("#435365"), "shine": Color("#f0f6fa"),
+				"shade": 0.18, "specular": 0.48, "specular_power": 22.0, "contrast": 1.18}
 		_:
 			var base := Color("#888888")
 			if DB.materials.has(mat):
@@ -348,6 +357,9 @@ static func metal(mat: String, q: int = 0) -> Dictionary:
 	if q >= 1:
 		m["shine"] = (m["shine"] as Color).lightened(0.1 * q)
 	m["outline"] = ol(m["base"])
+	if not m.has("specular"):
+		m["specular"] = 0.30 if mat == "copper" else (0.08 if mat == "tin" else 0.03)
+	m["ramp"] = PixelCanvas.make_ramp(m["base"], m["shine"], float(m.get("contrast", 1.0)))
 	return m
 
 func _metal_end(m: Dictionary) -> void:
@@ -1482,6 +1494,7 @@ func _shield() -> void:
 	var p := prim
 	var s := sec
 	var cx := cv.map(c)
+	cv.begin_equipment(m)
 	match String(sh.get("sprite", "kite")):
 		"kite":
 			var outer := PackedVector2Array()
@@ -1519,6 +1532,7 @@ func _shield() -> void:
 			cv.ellipse(c, 1.5 * g, 1.9 * g, p)
 			cv.ellipse(c, 0.8 * g, 0.9 * g, m["light"])
 			cv.end(m["outline"], 0.14, m["shine"])
+	cv.end_equipment()
 	_sparkle(c + Vector2(-1.0, -2.0), m)
 
 # --- weapons --------------------------------------------------------------------------------------
