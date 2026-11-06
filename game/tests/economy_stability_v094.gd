@@ -33,6 +33,21 @@ static func difference_json(a, b, path: String = "") -> String:
 	return path + ":expected=" + JSON.stringify(a, "", true, true) + ",actual=" + JSON.stringify(b, "", true, true)
 
 
+static func equal_partition(a, b) -> bool:
+	# Seven nonnegative group totals and JSON decimal round trips can differ by a
+	# few double rounding steps. This applies only to additive observed metrics,
+	# never to counts, save metadata, semantic hashes or native audit gates.
+	if a is Dictionary and b is Dictionary:
+		if a.size() != b.size(): return false
+		for k in a:
+			if not b.has(k) or not equal_partition(a[k], b[k]): return false
+		return true
+	if not (a is int or a is float) or not (b is int or b is float): return false
+	if not is_finite(float(a)) or not is_finite(float(b)): return false
+	if a == b: return true
+	return absf(float(a) - float(b)) <= maxf(absf(float(a)), absf(float(b))) * (8.0 * 2.220446049250313e-16)
+
+
 static func plain(value):
 	# Native serializer handles Unit/Item/typed values; JSON makes Packed values plain.
 	return JSON.parse_string(JSON.stringify(Game._serialize(value), "", true, true))

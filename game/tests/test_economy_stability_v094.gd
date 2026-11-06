@@ -263,7 +263,11 @@ func _groups_error(groups) -> String:
 	var world: Dictionary = groups["WORLD"].duplicate(true)
 	world.erase("day_wage_population_mean")
 	world.erase("food_price_population_mean")
-	if not M.equal_json(sum, world): return "race totals do not equal WORLD " + M.difference_json(sum, world)
+	for key in sum:
+		var exact: bool = key in ["towns", "population", "population_counter", "households", "hungry_households", "hungry_people", "famine_towns", "hunger_stages", "arable_acres", "owned_acres", "estate_acres", "census"]
+		var matches: bool = M.equal_json(sum[key], world[key]) if exact else M.equal_partition(sum[key], world[key])
+		if not matches:
+			return "race totals do not equal WORLD " + M.difference_json(sum[key], world[key], "/" + str(key))
 	if int(world.get("towns", 0)) <= 0: return "empty WORLD town coverage"
 	return M.finite(groups)
 
@@ -824,6 +828,16 @@ func _contract() -> int:
 		var bad_groups: Dictionary = groups.duplicate(true)
 		bad_groups.erase(race)
 		cases.append(["reject_missing_group_" + race, _groups_error(bad_groups) != ""])
+	var fractional_groups: Dictionary = groups.duplicate(true)
+	fractional_groups["human"]["food_price_population_sum"]["grain"] = 221689.89817786598
+	fractional_groups["WORLD"]["food_price_population_sum"]["grain"] = 221689.898177866
+	cases.append(["valid_native_one_ulp_partition", _groups_error(M.plain(fractional_groups)) == ""])
+	fractional_groups["WORLD"]["food_price_population_sum"]["grain"] += 0.000001
+	cases.append(["reject_non_rounding_partition_error", _groups_error(fractional_groups) != ""])
+	var bad_counts: Dictionary = groups.duplicate(true)
+	bad_counts["WORLD"]["population"] += 1
+	cases.append(["reject_population_partition_error", _groups_error(bad_counts) != ""])
+	cases.append(["metadata_still_rejects_one_ulp_error", not M.equal_json(221689.89817786598, 221689.898177866)])
 	cases.append(["valid_physical", M.physical({"food": 0.0, "cash": 1}, "synthetic") == ""])
 	cases.append(["reject_negative_physical", M.physical({"food": -1}, "synthetic") != ""])
 	cases.append(["reject_nonfinite_cash", M.physical({"cash": INF}, "synthetic") != ""])
