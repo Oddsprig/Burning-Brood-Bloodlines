@@ -440,7 +440,7 @@ static func buy_return(here: Dictionary, home: Dictionary, wb: Dictionary) -> vo
 	for o in opts:
 		var g: String = o[1]
 		var kg := float(Goods.table()[g].get("weight", 1.0))
-		var q := mini(int(o[2]), int((CAPACITY_KG - kg_used) / maxf(0.05, kg)))
+		var q := mini(int(o[2]), int((DomesticAnimals.pack_capacity(home["econ"], wb) - kg_used) / maxf(0.05, kg)))
 		q = mini(q, int(float(wb["gold"]) * 0.8 / float(o[3])))
 		if q <= 0:
 			continue
@@ -559,6 +559,7 @@ static func sail(game, wid: String, rng: RandomNumberGenerator) -> String:
 		return ""
 	if TownEcon.prof_on: _t0 = TownEcon._prof("cv_crew", _t0)
 	if TownEcon.has_econ(t):
+		DomesticAnimals.prepare_pack(t["econ"], wb, float(game.day), trip)
 		ArmsTrade.kit_guards(game, t, wb)   # v0.014: the guards' kit from the armory first, then the stalls
 	if TownEcon.prof_on: _t0 = TownEcon._prof("cv_outfit", _t0)
 	return wid
@@ -566,6 +567,7 @@ static func sail(game, wid: String, rng: RandomNumberGenerator) -> String:
 ## Per-step movement (called from CampaignWorld._move_warbands). Cheap: no pathfinding here.
 static func step(game, wid: String, wb: Dictionary, dt: float) -> void:
 	var w: Dictionary = game.world
+	DomesticAnimals.pack_tick(game, wb)
 	var party: Dictionary = w["party"]
 	if wb.get("escort", "") != "":
 		var c: Dictionary = game.contract
@@ -642,6 +644,7 @@ static func arrive(game, wid: String) -> void:
 ## Home: sell only paid quantities, return the purse to its treasury, and keep unpaid cargo on parked wagons.
 ## The home market has never charged the destination's import duty. Crew/kit are returned only once.
 static func _come_home(game, wb: Dictionary) -> bool:
+	DomesticAnimals.finish_pack(game, wb)
 	var home: Dictionary = game.world["towns"].get(wb.get("origin", ""), {})
 	wb["escort"] = ""
 	if not wb.get("crew_home", false):
@@ -678,6 +681,7 @@ static func _come_home(game, wb: Dictionary) -> bool:
 ## The home market still cannot pay for what is left. Goods go into market stock and Items into the shop
 ## (unload: no coins minted or spent). Crew and kit use the same return as a normal homecoming.
 static func _consign_unpaid(game, wb: Dictionary) -> void:
+	DomesticAnimals.finish_pack(game, wb)
 	var home: Dictionary = game.world["towns"].get(wb.get("origin", ""), {})
 	var cargo: Dictionary = wb.get("cargo", {})
 	var note := cargo_text(cargo)
@@ -747,6 +751,7 @@ static func lost(game, wid: String, by_faction: String) -> void:
 			ArmsTrade._legend_found(game, lit, null, wb["pos"])
 	ArmsTrade.field(game, (wb["units"] as Array).filter(func(u): return not u.equip.is_empty()), {}, wb["pos"])   # kit nobody took: left
 	_record_loss(wb, 1.0)
+	DomesticAnimals.finish_pack(game, wb, true)
 	WorldAudit.lose_items(wb["cargo"].get("items", []), "-lost with plundered wagons")   # v0.075 r5 (the arms book: _record_loss)
 	receipt_add(wb, "lost_coin", float(wb.get("gold", 0.0)))
 	if wb.has("supply_order_id"): SupplyOrders.lost(game, wb)
@@ -821,6 +826,7 @@ static func plunder(game, wid: String, witnesses: bool = false) -> Dictionary:
 	receipt_add(wb, "lost_coin", float(wb.get("gold", 0.0)))
 	if wb.has("supply_order_id"): SupplyOrders.lost(game, wb)
 	_finish_receipt(game, wb, "plundered")
+	DomesticAnimals.finish_pack(game, wb, true)
 	CampaignWorld.remove_warband(game, wid)
 	if game.contract.get("kind", "") == "arms_raid" and game.contract.get("target_id", "") == wid:
 		Contracts.complete(game)   # arms trade: the rival who hired the raid pays

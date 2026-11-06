@@ -90,6 +90,8 @@ static func generate(_w: Dictionary, town: Dictionary, e: Dictionary, D: Diction
 	day_buy *= float(D["market"]["buy_share"])
 	m["till"] = day_buy * 7.0 * 2.5
 	add.call("woodcutter", maxi(1, int(ceil(wood_day / 13.0 * sm.call("woodcutter")))), 8)
+	if terr["forest"]:
+		add.call("charcoal_burner", 1 + size / 2)
 	if terr["forest"] or e["climate"] == "cold":
 		add.call("hunter", clampi(2 + int(terr.get("forest_cells", 0)) / 10, 1, 6), 6)
 	if terr["water"]:
@@ -451,6 +453,10 @@ static func _who(e: Dictionary) -> Dictionary:
 ## for a material its smiths also practise town by town (data knowhow: bronze) the town's own practice under it, so a
 ## realm that may not know bronze (orcs, goblins) never smelts or works it whatever its towns have heard (v0.014).
 static func kh_of(e: Dictionary, key: String) -> float:
+	# Manufacturing follows the current faction, including in a captured town
+	# whose local culture or saved know-how mirror still belongs to its old owner.
+	if key == "steel" and Academy.faction_race(String(e.get("faction", ""))) in ["orc", "goblin"]:
+		return 0.0
 	var fk: Dictionary = e.get("fkh", {})
 	var practised: bool = TownEcon.data()["knowhow"].has(key)
 	if fk.has(key):
@@ -822,7 +828,10 @@ static func _recipe_inputs(e: Dictionary, D: Dictionary, r: Dictionary) -> Dicti
 ## A quote does not clear prices, set state, or add demand to the live economy.
 static func _recipe_choice(e: Dictionary, D: Dictionary, b: Dictionary, T: Dictionary, wd: float, bdem: Dictionary, producing: bool) -> Dictionary:
 	var recs: Array = T["recipes"]
-	var alloy := Metallurgy.alloy_recipe(e, recs) if String(b.get("type", "")) == "smelter" else {}
+	var alloy := {}
+	if String(b.get("type", "")) == "smelter":
+		alloy = Metallurgy._steel_recipe(e, recs)
+		if alloy.is_empty(): alloy = Metallurgy.alloy_recipe(e, recs)
 	var st: Dictionary = e["stock"]
 	var price: Dictionary = e["price"]
 	var G: Dictionary = D["goods"]
@@ -860,8 +869,18 @@ static func _recipe_choice(e: Dictionary, D: Dictionary, b: Dictionary, T: Dicti
 				b["fg"] = (r["out"] as Dictionary).keys()[0]
 			full = true
 			continue
-		if not alloy.is_empty() and r == alloy: want = INF
-		if want > bw:
+		# Furnace priority belongs to the chosen heat, including its equivalent
+		# wood/charcoal variants. Their finite input bill still chooses the fuel.
+		if not alloy.is_empty() and r["out"] == alloy["out"] \
+				and float(r.get("rate", 1.0)) == float(alloy.get("rate", 1.0)): want = INF
+		# Equivalent furnace batches can burn either wood or charcoal. Let the
+		# actual input bill choose the fuel when both are available; recipe order
+		# must not strand cheaper imported charcoal beside expensive firewood.
+		var cheaper_fuel := false
+		if want == bw and String(b.get("type", "")) == "smelter" and not best.is_empty() \
+				and r["out"] == best["out"] and float(r.get("rate", 1.0)) == float(best.get("rate", 1.0)):
+			cheaper_fuel = _batch_cost(e, ins) < _batch_cost(e, _recipe_inputs(e, D, best))
+		if want > bw or cheaper_fuel:
 			bw = want; best = r
 	return {"best": best, "full": full, "missing": missing}
 
@@ -933,6 +952,10 @@ static func _batch_quote(e: Dictionary, recipe: Dictionary, share: float) -> flo
 ## Carry is work, never unpaid materials or a market advance. Used by both
 ## the actual purchase and the owner's read-only one-complete-batch quote.
 static func _recipe_batch_limit(e: Dictionary, b: Dictionary, best: Dictionary, ins: Dictionary, whole: int, mkt: Dictionary, share: float) -> int:
+	if best.get("out", {}).has("pig_iron"):
+		var paired := Metallurgy._pig_iron_batches(e)
+		if paired < whole:
+			whole = paired; b["state"] = "inputs"; b["why"] = "iron for steel"
 	for ig in ins:
 		var available := int(e["stock"].get(ig, 0)) / maxi(1, int(ins[ig]))
 		if available < whole:
