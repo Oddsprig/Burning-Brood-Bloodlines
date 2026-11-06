@@ -39,8 +39,19 @@ targeted navigation/native lifecycle save and win/loss/dragon counter controls.
 The designer and actual chooser use day 30 directly, without running history.
 Route probes exercise the real navigation handlers with drawing suppressed;
 no rendered UI, game-window or full campaign stability claim is made.
-Test evidence is pending; source must remain unmerged until the owner reviews
-the full diff and actual test output. No other audit fix or new feature is built.
+Test Bridge d2c07bac6f004836987c7d897d9172d9, tested source c4e24d7:
+203 checks / zero failures; v019 58, designer logic 38, actual chooser 12,
+targeted navigation/native lifecycle saves/counters 95. Exit 0, zero script or
+parse errors; engine 8.859 s, complete admitted invocation 12.914 s. One headless
+process with Dummy audio and isolated test-owned APPDATA/LOCALAPPDATA. All 1492
+tracked game files byte-identical before/after/current; later edits are docs only.
+Full unedited stdout/stderr/command/receipts: test-results/v0.095_three_fixes.txt.
+Godot also logged the configured missing boot splash and shutdown diagnostics
+(34 ObjectDB instances / 10 resources). No rendered UI or leak-free claim;
+no unrelated repair or additional engine run was made. The splash path is also
+absent from the pinned baseline's tracked files. Source must remain unmerged
+until the owner reviews the full diff and actual output and explicitly says OK.
+No other audit fix or new feature is built.
 
 SHIPPED v0.086-v0.094 (source, not new packaged releases)
 

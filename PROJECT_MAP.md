@@ -1,6 +1,6 @@
 # Burning Brood: Bloodlines — current developer map
 
-Updated 6 November 2026 for the v0.095 three-fix candidate, branched from `main` `2ce6c5e`. Source versions v0.086–v0.094 are accepted normal merges; the last packaged Desktop/Android release is v0.085. v0.095 awaits test evidence and the owner's explicit merge approval. The older source-only audit below is pinned to v0.094.
+Updated 6 November 2026 for the v0.095 three-fix candidate, branched from `main` `2ce6c5e`. Source versions v0.086–v0.094 are accepted normal merges; the last packaged Desktop/Android release is v0.085. v0.095 passed 203 checks and awaits the owner's explicit merge approval. The older source-only audit below is pinned to v0.094.
 
 ## v0.095 — initial design, browsing location and battle counters
 
@@ -10,7 +10,7 @@ Updated 6 November 2026 for the v0.095 three-fix candidate, branched from `main`
 | Save the physical location while browsing | `game/ui/politics.gd:open_view` and `_select` retain the viewed town in screen state without changing `Game.location`. Population, city/budget/person Records and nested civic links retain their existing return context. Back still restores the origin; `SaveSnapshot` and the native quit/pause writers naturally save that origin. No save schema or lifecycle handler changes. |
 | Count a dragonless win once | `game/campaign/warfare.gd:after_battle` increments wins for a win, increments dragon victories only for a win with dragon units, and increments losses only when not won. Assault resolution and ambitions retain their existing calls. |
 
-Verification entry: `game/tests/test_campaign_fixes_v095.gd` runs the retained onboarding/designer logic and chooser checks, then targeted route/save and counter controls in one headless batch. The chooser sets day 30 directly; no long history or battle simulation is required. Test output will be recorded before merge approval. No v0.095 package/export is claimed.
+Verification entry: `game/tests/test_campaign_fixes_v095.gd` ran the retained onboarding/designer logic and chooser checks, then targeted route/save and counter controls in one headless batch. The chooser set day 30 directly; no long history or battle simulation ran. Test Bridge `d2c07bac6f004836987c7d897d9172d9` passed 203 checks, zero assertion/script failures, exit 0: engine 8.859 seconds, complete invocation 12.914 seconds. All 1,492 tracked game files were byte-identical before/after. [Complete test output](test-results/v0.095_three_fixes.txt) retains missing-splash and shutdown-resource diagnostics; it does not claim rendered or leak-free verification. No v0.095 package/export is claimed. Merge/push still requires the owner's review of the full diff and output.
 
 ## Read first
 
