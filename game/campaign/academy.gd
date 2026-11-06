@@ -220,9 +220,10 @@ static func after_load(game) -> void:
 				continue
 			_state_owner(e, b)
 			_release_unregistered(e, b)
-			# Loaded blocked/completed houses obey the same unpaid-post rule as
-			# newly generated ones, before another wage day or building bill.
-			if active_lines(w, String(t.get("faction", e.get("faction", "")))).is_empty():
+			# Repair older paid houses, but preserve current idle houses exactly.
+			# Rebuilding their open/demand indexes on load runs part of a new day.
+			var idle_repair := not bool(b.get("research_idle", false)) or int(b["cap"]) != 0 or int(b["workers"]) > 0
+			if idle_repair and active_lines(w, String(t.get("faction", e.get("faction", "")))).is_empty():
 				_idle_house(e, b)
 			var L: Array = b.get("lead", [])
 			b["lead"] = [int(L[0]), int(L[1])] if L.size() >= 2 else []
