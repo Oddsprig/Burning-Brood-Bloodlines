@@ -142,19 +142,7 @@ static func make_recruit(rng: RandomNumberGenerator, town: Dictionary, bg: Dicti
 	u.wage = maxi(2 * int(TownEcon.COIN), int(round(wage)))
 	var cost := u.wage * 10.0 * clampf(1.0 + quality * 0.35, 0.6, 2.0) * (1.0 + greed) + u.gear_value() * 0.5
 	u.hire_cost = maxi(10 * int(TownEcon.COIN), int(round(cost / 5.0)) * 5)
-	_trace_kit(u, "made")
 	return u
-
-static var _traced_unit: int = -1
-static func _trace_kit(u: Unit, stage: String) -> void:
-	if not "--economy-mode=items-diagnostic" in OS.get_cmdline_user_args(): return
-	var gear: Dictionary = {}
-	for slot in u.equip:
-		var it: Item = u.equip[slot]
-		gear[str(slot)] = [it.uid, it.tid]
-		if it.uid in [58134, 58135]: _traced_unit = u.uid
-	if u.uid == _traced_unit:
-		print("RECRUIT_FLOW_STEP_V094 ", JSON.stringify({"stage": stage, "unit": u.uid, "gear": gear}))
 
 
 const TIER_ORDER := ["---", "--", "-", "0", "+", "++"]
@@ -277,7 +265,6 @@ static func _family_pool(town: Dictionary, rng: RandomNumberGenerator) -> Array:
 		var u := make_recruit(rng, town, kit_for(role))
 		u.title = role["title"]
 		Persons.bind(e, pick, p, u, "hire", day)   # he is the register person: name, birth day, age
-		_trace_kit(u, "bound")
 		u.home_town = town["id"]
 		var first: String = Persons.first_of(e, p)
 		# an elder carries his years
@@ -297,7 +284,6 @@ static func _family_pool(town: Dictionary, rng: RandomNumberGenerator) -> Array:
 		u.hire_cost = maxi(5 * int(TownEcon.COIN), int(round(u.hire_cost * maxf(0.3, 1.0 - cut * h2) / 5.0)) * 5)
 		u.wage = maxi(int(TownEcon.COIN), int(round(u.wage * maxf(0.5, 1.0 - 0.25 * h2))))
 		out.append(u)
-		_trace_kit(u, "pooled")
 	return out
 
 ## A small worst-first heap avoids sorting every eligible person for a handful of places.
