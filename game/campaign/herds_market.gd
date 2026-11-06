@@ -93,7 +93,7 @@ static func _stockpile(e: Dictionary, si: int, day: float) -> void:
 	for hid in Herds.herds(e):
 		var h: Dictionary = Herds.herds(e)[hid]
 		var fd := Herds.feed_day(h)
-		if fd <= 0.0 or String(h["ow"]) == "d":
+		if fd <= 0.0 or String(h["ow"]) == "d" or h.has("work_band"):
 			continue
 		var gap := fd * wd - float(h["fod"])
 		if gap <= 1.0:
@@ -205,7 +205,7 @@ static func _unsold(e: Dictionary, _si: int, day: float) -> void:
 	var cap := {}
 	for o in of:
 		var h: Dictionary = hd["h"].get(str(int(o[0])), {})
-		if h.is_empty() or int(o[2]) <= 0:
+		if h.is_empty() or int(o[2]) <= 0 or float(Herds.kind(String(h["k"])).get("meat", 0.0)) <= 0.0:
 			continue
 		# what the owners could not sell they slaughter only as far as it is eaten (their larder) or sells (the
 		# market's want of fresh meat); the rest they keep. A starving herd's surplus is killed for its hides
@@ -224,7 +224,7 @@ static func _unsold(e: Dictionary, _si: int, day: float) -> void:
 				if String(h["ow"]) == "f":
 					use += larder_room(e, e["fams"][int(h["oi"])])
 			n = mini(n, int(floor(float(use) / meals + 0.5)))   # a carcass when at least half of it is used
-		if n <= 0:
+		if n <= 0 or h.has("work_band"):
 			continue
 		var got := -Herds.change(e, h, String(o[1]), -n, "slaughtered", "at home by the owners", day)
 		cap[key] = int(cap[key]) - got
@@ -337,6 +337,7 @@ static func _offers(e: Dictionary, si: int, day: float) -> void:
 	if si == 2:
 		for hid0 in hd["h"]:
 			var h0: Dictionary = hd["h"][hid0]
+			if h0.has("work_band"): continue
 			if String(h0["ow"]) == "f" or String(h0["ow"]) == "s":
 				fam_feed[int(h0["oi"])] = float(fam_feed.get(int(h0["oi"]), 0.0)) + Herds.feed_day(h0)
 		for fid0 in fam_feed:
@@ -346,7 +347,7 @@ static func _offers(e: Dictionary, si: int, day: float) -> void:
 		var h: Dictionary = hd["h"][hid]
 		var k := String(h["k"])
 		var n := Herds.head(h)
-		if n <= 0:
+		if n <= 0 or h.has("work_band"):
 			continue
 		if Herds.sick(h) > float(Herds.A()["disease_no_sale"]):   # nobody buys from a herd this sick
 			continue
@@ -358,7 +359,7 @@ static func _offers(e: Dictionary, si: int, day: float) -> void:
 			continue
 		var tgt := _target(e, h, P)
 		h["t"] = tgt
-		var surplus := maxi(0, n - tgt) if float(Herds.kind(k).get("meat", 0.0)) > 0.0 else 0   # swarms are kept (hives)
+		var surplus := maxi(0, n - tgt) if k == "dogs" or float(Herds.kind(k).get("meat", 0.0)) > 0.0 else 0
 		# the old go in autumn and winter (an old ox ploughs on until a young one replaces it; old hives stay)
 		var olds := int(h["o"]) if si >= 2 and k != "oxen" and float(Herds.kind(k).get("meat", 0.0)) > 0.0 else 0
 		var flag := ""
@@ -402,6 +403,8 @@ static func _offers(e: Dictionary, si: int, day: float) -> void:
 static func _target(e: Dictionary, h: Dictionary, P: Dictionary) -> int:
 	var k := String(h["k"])
 	var K := Herds.kind(k)
+	if k == "dogs": return DomesticAnimals.dog_target(e, Herds.grazer(e, h))
+	if k == "hens": return maxi(1, int(h.get("t", Herds.head(h))))
 	if k == "oxen":
 		if String(h["ow"]) == "f" or String(h["ow"]) == "s":
 			var f: Dictionary = e["fams"][int(h["oi"])]
@@ -453,7 +456,7 @@ static func _wants(_game, _town: Dictionary, e: Dictionary, _si: int, day: float
 		var ac := Families.acres(f)
 		if ac <= 0:
 			continue
-		var short := int(ceil(float(ac) / aph)) - maxi(0, int(f.get("ox", 0)))
+		var short := int(ceil(float(ac) / aph - DomesticAnimals.draught(e, int(f["id"])))) - maxi(0, int(f.get("ox", 0)))
 		if short <= 0:
 			continue
 		short = mini(short, 2)
@@ -486,7 +489,7 @@ static func _wants(_game, _town: Dictionary, e: Dictionary, _si: int, day: float
 	for hid in (hd["h"] as Dictionary).keys():
 		var h: Dictionary = hd["h"][hid]
 		var k := String(h["k"])
-		if not GRAZE.has(k) or String(h["ow"]) == "d":
+		if not GRAZE.has(k) or String(h["ow"]) == "d" or h.has("work_band"):
 			continue
 		var need := int(float(h["t"]) * 0.5) - Herds.head(h)
 		if need <= 0:
@@ -505,6 +508,7 @@ static func _wants(_game, _town: Dictionary, e: Dictionary, _si: int, day: float
 				hd["sok"][k] = int(hd["sok"].get(k, 0)) + 1
 				need -= 1
 	_pot_buys(e, day)
+	DomesticAnimals.buy_dogs(e, day)
 
 ## Families buy a beast for their own larder when one offered costs less than the meat in it at the market's price
 ## of keeping meat (x pot_value [ours]), they have the room and the coin (keeping pot_reserve): live animals traded
@@ -518,7 +522,7 @@ static func _pot_buys(e: Dictionary, day: float) -> void:
 		if int(o[2]) <= 0:
 			continue
 		var h: Dictionary = hd["h"].get(str(int(o[0])), {})
-		if h.is_empty() or GRAZE.find(String(h["k"])) < 0 and String(h["k"]) != "hens":
+		if h.is_empty() or h.has("work_band") or GRAZE.find(String(h["k"])) < 0 and String(h["k"]) != "hens":
 			continue
 		var meals := float(yields(String(h["k"]), String(o[1])).get("fresh_meat", 0.0))
 		var p := Herds.price(e, String(h["k"]), String(o[1]))
@@ -575,7 +579,7 @@ static func _take_offer(e: Dictionary, k: String, ages: Array, buyer_fid: int = 
 			if int(o[2]) <= 0 or String(o[1]) != String(age):
 				continue
 			var h: Dictionary = hd["h"].get(str(int(o[0])), {})
-			if h.is_empty() or String(h["k"]) != k or int(h["id"]) == buyer_hid or int(h[String(age)]) <= 0:
+			if h.is_empty() or h.has("work_band") or String(h["k"]) != k or int(h["id"]) == buyer_hid or int(h[String(age)]) <= 0:
 				continue
 			if buyer_fid >= 0 and Herds.grazer(e, h) == buyer_fid and String(h["ow"]) == "f":
 				continue
@@ -618,7 +622,7 @@ static func _products(e: Dictionary, si: int, _day: float) -> void:
 	var per_owner := []
 	for hid in hd["h"]:
 		var h: Dictionary = hd["h"][hid]
-		if String(h["ow"]) == "d":
+		if String(h["ow"]) == "d" or h.has("work_band"):
 			continue
 		var K := Herds.kind(String(h["k"]))
 		var out := {}
@@ -633,7 +637,7 @@ static func _products(e: Dictionary, si: int, _day: float) -> void:
 		if float(K.get("wax", 0.0)) > 0.0 and si <= 2:
 			out["wax"] = float(h["g"]) * float(K["wax"]) * 7.0
 		if float(K.get("moult", 0.0)) > 0.0 and si <= 2:   # v0.012: feathers gathered from the living birds (geese moult)
-			out["feathers"] = float(h["g"]) * float(K["moult"]) * 7.0
+			out["feathers"] = float(h["g"]) * float(K["moult"]) * 7.0 + float(h.get("feather_carry", 0.0))
 		if not out.is_empty():
 			per_owner.append([h, out])
 			for g in out:
@@ -658,6 +662,7 @@ static func _products(e: Dictionary, si: int, _day: float) -> void:
 				Herds._add_coin(e, h2, v)
 				dd[g] = float(dd.get(g, 0.0)) + q / 7.0
 			var rest := int(floor(float(out2[g]) - q))
+			if g == "feathers": h2["feather_carry"] = maxf(0.0, float(out2[g]) - q - float(rest))
 			if rest > 0 and g != "milk":
 				barn[g] = rest
 		for g2 in barn:
@@ -690,6 +695,7 @@ static func _manure(e: Dictionary) -> void:
 	var t := 0.0
 	for hid in hd["h"]:
 		var h: Dictionary = hd["h"][hid]
+		if h.has("work_band"): continue
 		t += Herds.ge(h) * float(Herds.kind(String(h["k"])).get("manure", 0.0))
 	hd["mt"] = snappedf(float(hd["mt"]) + (t - float(hd["mt"])) * 0.1, 0.01)
 	var acres := 0.0
@@ -864,7 +870,7 @@ static func butcher_day(e: Dictionary, b: Dictionary, wd: float, toolf: float, m
 			var o: Array = of[j]
 			if int(o[2]) <= 0: continue
 			var h: Dictionary = hd["h"].get(str(int(o[0])), {})
-			if h.is_empty() or int(h[String(o[1])]) <= 0: continue
+			if h.is_empty() or h.has("work_band") or int(h[String(o[1])]) <= 0: continue
 			var K := Herds.kind(String(h["k"]))
 			var kg := float(K.get("meat", 0.0)) * float(Herds.A()["yield_age"][AGES.find(String(o[1]))])
 			if kg <= 0.0: continue
@@ -879,7 +885,7 @@ static func butcher_day(e: Dictionary, b: Dictionary, wd: float, toolf: float, m
 			var j := int(ranked[next_offer][1])
 			var o: Array = of[j]
 			var h: Dictionary = hd["h"].get(str(int(o[0])), {})
-			if int(o[2]) > 0 and not h.is_empty() and int(h[String(o[1])]) > 0:
+			if int(o[2]) > 0 and not h.is_empty() and not h.has("work_band") and int(h[String(o[1])]) > 0:
 				best = j
 				break
 			next_offer += 1
@@ -1039,7 +1045,7 @@ static func on_sack(w: Dictionary, town: Dictionary, att: String) -> void:
 	var thief := CampaignWorld.faction_the(att)
 	for hid in (Herds.H(e)["h"] as Dictionary).keys():
 		var h: Dictionary = Herds.herds(e)[hid]
-		if not GRAZE.has(String(h["k"])) and String(h["k"]) != "oxen":
+		if h.has("work_band") or not GRAZE.has(String(h["k"])) and String(h["k"]) != "oxen":
 			continue
 		for age in AGES:
 			var n := int(floor(float(h[age]) * share))
