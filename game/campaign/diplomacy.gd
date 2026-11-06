@@ -357,11 +357,11 @@ static func pact_left(w: Dictionary, a: String, b: String) -> int:
 	var p: Dictionary = dp.get("pairs", {}).get(pair_key(a, b), {})
 	return maxi(0, int(p.get("pact_until", 0)) - int(dp.get("day", 0)))
 
-## A sworn alliance, living ruling-house marriage or non-aggression pact forbids hostilities.
+## A sworn alliance, living marriage, pact or post-peace truce forbids hostilities.
 static func peace_bound(w: Dictionary, a: String, b: String) -> bool:
 	if a == "" or b == "" or a == b: return false
 	var p: Dictionary = w.get("diplo", {}).get("pairs", {}).get(pair_key(a, b), {})
-	return p.get("state", "") == ALLIANCE or _bound(p) or pact_left(w, a, b) > 0
+	return p.get("state", "") == ALLIANCE or _bound(p) or pact_left(w, a, b) > 0 or in_truce(w, a, b)
 
 static func dynasty_bonus(game, fid: String) -> int:
 	var mine := player_realm(game.world)

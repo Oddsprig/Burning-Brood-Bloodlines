@@ -389,7 +389,7 @@ static func engage(game, wid: String) -> void:
 	if Monsters.suspended_band(wb): return
 	if Diplomacy.peace_bound(w, Diplomacy.player_realm(w), str(wb.get("faction", ""))):
 		if w.get("encounter", "") == wid: w["encounter"] = ""
-		log_event(game, "Your alliance or non-aggression pact forbids this attack.")
+		log_event(game, "Your alliance, pact or truce forbids this attack.")
 		return
 	if game.deployed_units().is_empty():
 		log_event(game, "No one is fit to fight.")
