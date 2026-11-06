@@ -1205,6 +1205,7 @@ static func _remove_unit(game, t: Dictionary, _f: Dictionary, p: Array, st: Stri
 			var rec: Array = t.get("recruits", [])
 			for i in rec.size():
 				if rec[i] is Unit and rec[i].uid == uid:
+					WorldAudit.lose_items((rec[i] as Unit).equip.values(), "-kit of a recruit who died naturally")
 					rec.remove_at(i)
 					return
 			return
@@ -1215,6 +1216,7 @@ static func _remove_unit(game, t: Dictionary, _f: Dictionary, p: Array, st: Stri
 			if units[i].uid != uid:
 				continue
 			units[i].dead = true
+			WorldAudit.lose_items((units[i] as Unit).equip.values(), "-kit of a force member who died naturally")
 			units.remove_at(i)
 			if wb.has("crew"):
 				var crew: Array = wb["crew"]
