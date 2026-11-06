@@ -10,6 +10,7 @@ var town: Dictionary
 var original_e: Dictionary
 var forge_id := -1
 var data: Dictionary
+var group_completed := false
 
 func check(ok: bool, message: String) -> void:
 	checks += 1
@@ -17,8 +18,13 @@ func check(ok: bool, message: String) -> void:
 		fails += 1
 		print("FAIL v090: ", message)
 
+func _run_group(method: String) -> void:
+	group_completed = false
+	call(method)
+	check(group_completed, method + " reaches its completion guard")
+
 func run(_tree: SceneTree) -> int:
-	_test_curve()
+	_run_group("_test_curve")
 	var old_size: String = WorldGen.gen_size
 	var old_span: float = CampaignWorld.presim_span_days
 	WorldGen.gen_size = WorldGen.WORLD_SIZE
@@ -35,15 +41,9 @@ func run(_tree: SceneTree) -> int:
 	WorldAudit.tracking = true
 	WorldAudit.made_log = {}; WorldAudit.unmade_ids = {}; WorldAudit.unmade_by = {}
 	WorldAudit.items_gone = []; WorldAudit.gone_by = {}
-	_test_mining()
-	_test_saved_cap()
-	_test_paid_and_refused()
-	_test_family_stone()
-	_test_player_winner()
-	_test_ai_winner()
-	_test_ai_overflow()
-	_test_draw()
-	_test_fit()
+	for method in ["_test_mining", "_test_saved_cap", "_test_paid_and_refused", "_test_family_stone",
+			"_test_player_winner", "_test_ai_winner", "_test_ai_overflow", "_test_creature_winner", "_test_draw", "_test_fit"]:
+		_run_group(method)
 	WorldAudit.tracking = bool(audit["tracking"])
 	WorldAudit.made_log = audit["made"]; WorldAudit.unmade_ids = audit["unmade"]
 	WorldAudit.unmade_by = audit["unmade_by"]
@@ -85,6 +85,7 @@ func _test_curve() -> void:
 		Factory.roll_quality(b, 15.0, false) # keep the determinism streams aligned
 	check(same and generic, "fixed-seed rolls repeat; anonymous production never rolls legendary")
 	check(DB.quality_mult(DB.LEGEND) == 3.0 and DB.quality_mult(5) == 2.0, "native physical quality: artifact 3 vs masterwork 2")
+	group_completed = true
 
 func _sample(got: int, n: int, p: float, label: String) -> void:
 	check(absf(got - n * p) <= 5.0 * sqrt(n * p * (1.0 - p)) + 2.0, label + " within fixed five-sigma count bound")
@@ -192,6 +193,7 @@ func _test_mining() -> void:
 	for trade in data["businesses"]:
 		if String(trade).contains("gem") and String(trade).contains("mine"): standalone = true
 	check(not standalone, "ore pockets reuse existing mines")
+	group_completed = true
 
 func _test_saved_cap() -> void:
 	var c := _fresh(); var e: Dictionary = c["e"]
@@ -217,6 +219,7 @@ func _test_saved_cap() -> void:
 			check((it == null or not it.is_legend()) and int(e["stock"]["ruby"]) == before, "sixth same-maker roll consumes no gem and is not legendary")
 	check(made == 5 and names.size() == 5 and Legends.made_by(c["p"]) == 5, "one saved smith makes at most five uniquely named artifacts")
 	check(int(e["led"]["used"].get("ruby", 0)) == 5 and absf(_coin(c) - coins) < 1.0e-4, "lifetime-cap path has real gem and coin accounting")
+	group_completed = true
 
 func _test_paid_and_refused() -> void:
 	var c := _fresh(); var e: Dictionary = c["e"]
@@ -252,6 +255,7 @@ func _test_paid_and_refused() -> void:
 	e["stock"]["copper_bars"] = 0; uid = Item._next_uid
 	result = _forge(seed_value)
 	check(result["item"] == null and Item._next_uid == uid and int(e["stock"]["ruby"]) == 1, "missing inputs stop before making an item or setting a gem")
+	group_completed = true
 
 func _test_family_stone() -> void:
 	var c := _fresh(); var e: Dictionary = c["e"]
@@ -265,6 +269,7 @@ func _test_family_stone() -> void:
 	c["b"]["till"] = p + 100.0
 	check(Legends.forge(Game, town, e, c["b"], it, rng, Game.day, 100.0) and it.gem_name() == "sapphire" and float(c["b"]["till"]) == 100.0 and float(c["f"]["purse"]) == purse + p and not e["gh"].has("sapphire") and (c["f"]["gems"] as Dictionary).is_empty(), "family receives the exact stone price; household gem totals fall once")
 	town["shop"].append(it)
+	group_completed = true
 
 func _artifact() -> Item:
 	var c := _fresh(); c["e"]["stock"]["ruby"] = 2
@@ -300,6 +305,12 @@ func _copies(it: Item, units: Array, band: Dictionary) -> int:
 func _saved_state(it: Item) -> Dictionary:
 	return JSON.parse_string(JSON.stringify(it.to_dict()))
 
+func _same_provenance(it: Item, before: Dictionary) -> bool:
+	var current := _saved_state(it); var expected := before.duplicate(true)
+	for key in ["h", "cu"]: # only custody history and the current carrier may change on transfer
+		current["lg"].erase(key); expected["lg"].erase(key)
+	return current == expected
+
 func _test_player_winner() -> void:
 	var it := _artifact()
 	if it == null: return
@@ -316,6 +327,7 @@ func _test_player_winner() -> void:
 	check(_copies(it, [player, fallen], band) == 1 and Game.stash.has(it), "exact UID has one player custody destination")
 	var restored := Item.from_dict(JSON.parse_string(JSON.stringify(it.to_dict())))
 	check(restored.uid == it.uid and _saved_state(restored) == _saved_state(it), "cold player item retains UID, maker, gem and capture history")
+	group_completed = true
 
 func _test_ai_winner() -> void:
 	var it := _artifact()
@@ -350,6 +362,7 @@ func _test_ai_winner() -> void:
 	var next := Item.make(it.tid, it.material, 0)
 	check(next.uid > it.uid, "cold item restoration preserves the allocation floor")
 	WorldAudit.unmade(next, "-v090 UID allocation probe")
+	group_completed = true
 
 func _test_ai_overflow() -> void:
 	var it := _artifact()
@@ -370,6 +383,72 @@ func _test_ai_overflow() -> void:
 	var restored := Item.from_dict(JSON.parse_string(JSON.stringify(it.to_dict())))
 	band["cargo"]["items"] = [restored]
 	check(restored.uid == it.uid and _saved_state(restored) == _saved_state(it) and _copies(it, [fallen, victor], band) == 1, "cold cargo item retains one UID and all provenance")
+	group_completed = true
+
+func _test_creature_winner() -> void:
+	var it := _artifact()
+	if it == null: return
+	var cid := ""
+	for candidate in Creatures.ids():
+		if DB.is_creature(String(candidate)):
+			cid = String(candidate); break
+	check(cid != "", "known creature fixture has an enabled native creature ID")
+	if cid == "": return
+	var rng := RandomNumberGenerator.new(); rng.seed = 90091
+	var beast := Creatures.make(rng, cid)
+	check(beast.race == cid and bool(beast.race_def().get("creature", false)), "known winner is a genuine native creature, with no human fallback")
+	var fallen := _person("Known creature's fallen carrier", "player")
+	fallen.equip["main_hand"] = it; Legends.touch(it, fallen); fallen.dead = true
+	Game.company = [fallen]
+	var band := _band([beast], false)
+	band["kind"] = "beasts"; band["faction"] = beast.faction
+	check(Monsters.is_monster_band(band) and band["faction"] != town["faction"], "known creature band has an enemy-held old home")
+	# A second genuine forge output starts in counted caravan cargo. It must join, not replace, the first prize.
+	var cargo_it: Item = _forge(_legend_seed(town["econ"]))["item"]
+	check(cargo_it != null and cargo_it.is_legend() and cargo_it.uid != it.uid, "overflow fixture uses a second genuinely forged artifact")
+	if cargo_it == null or not cargo_it.is_legend(): return
+	town["shop"].erase(cargo_it)
+	var caravan := {"id": "v090_creature_caravan", "kind": "caravan", "faction": town["faction"],
+		"home": town["id"], "units": [], "pos": town["pos"], "gold": 0.0, "cargo": {"items": [cargo_it]}}
+	Game.world["warbands"][caravan["id"]] = caravan
+	var before_item := _saved_state(it); var before_cargo := _saved_state(cargo_it)
+	var before := WorldAudit.census(Game)
+	ArmsSalvage.after_company_battle(Game, {"winner": 1, "player_units": [fallen]}, band, {}, [])
+	check(fallen.equip.is_empty() and beast.equip.is_empty() and (band.get("cargo", {}).get("items", []) as Array).has(it), "known creature winner keeps the fallen carrier's exact artifact in its own cargo")
+	check(_copies(it, [fallen, beast], band) == 1 and not Game.stash.has(it) and not ArmsTrade.armory(town).has(it) and not town["shop"].has(it), "known creature prize has exactly one destination, outside the company and enemy-held home")
+	var history: Array = it.legend["h"]; var prior_history: Array = before_item["lg"]["h"]
+	check(_same_provenance(it, before_item) and int(it.legend.get("cu", -1)) == -1, "known creature capture preserves exact UID, maker, gem, kills and physical provenance without inventing a wearer")
+	check(history.size() == prior_history.size() + 2 and history.slice(0, prior_history.size()) == prior_history
+		and String(history[-2][1]).contains(fallen.name) and String(history[-2][1]).contains(ArmsSalvage.holder_name({"band": band}))
+		and String(history[-1][1]).contains("baggage"), "known creature capture and baggage custody append once each, preserving earlier history")
+	var captured := WorldAudit.census(Game)
+	var capture_audit := WorldAudit.compare(before, captured)
+	check(bool(capture_audit["ok"]) and int(capture_audit["arms"]["held"]) == 1 and int(capture_audit["arms"]["book"]) == 1
+		and int(capture_audit["arms"]["made"]) == 0 and int(capture_audit["items"]["made"]) == 0, "strict native census: equipped corpse to counted creature cargo is one inflow, never another creation")
+	ArmsSalvage.plunder_cargo(Game, band, caravan)
+	check((caravan["cargo"]["items"] as Array).is_empty() and (band["cargo"]["items"] as Array).size() == 2
+		and _copies(it, [fallen, beast], band) == 1 and _copies(cargo_it, [fallen, beast], band) == 1, "known creature caravan overflow retains both exact prizes once")
+	check(_same_provenance(cargo_it, before_cargo) and cargo_it.legend["h"].size() == before_cargo["lg"]["h"].size() + 2
+		and not Game.stash.has(cargo_it) and not ArmsTrade.armory(town).has(cargo_it), "caravan prize keeps its provenance and records one capture and one baggage transfer at the real winner")
+	var plundered := WorldAudit.census(Game)
+	var plunder_audit := WorldAudit.compare(captured, plundered)
+	check(bool(plunder_audit["ok"]) and int(plunder_audit["arms"]["held"]) == 0 and int(plunder_audit["arms"]["book"]) == 0
+		and int(plunder_audit["arms"]["made"]) == 0 and int(plunder_audit["items"]["made"]) == 0, "strict native census: counted caravan cargo to creature cargo has zero net inflow and zero creation")
+	# Cold native Unit/Item decoding, installed back into the actual winning band's saved holders.
+	var saved_items := {}; var encoded := []
+	for held: Item in band["cargo"]["items"]:
+		saved_items[held.uid] = _saved_state(held); encoded.append(held.to_dict())
+	var payload: Dictionary = JSON.parse_string(JSON.stringify({"unit": beast.to_dict(), "items": encoded}))
+	var cold_beast := Unit.from_dict(payload["unit"]); var cold_items := []
+	for row in payload["items"]:
+		var restored := Item.from_dict(row); cold_items.append(restored)
+		check(saved_items.has(restored.uid) and _saved_state(restored) == saved_items[restored.uid], "cold creature cargo preserves each exact UID and complete provenance/history")
+	band["units"] = [cold_beast]; band["cargo"]["items"] = cold_items
+	var cold := WorldAudit.census(Game)
+	check(cold_beast.race == cid and bool(cold_beast.race_def().get("creature", false)) and cold_beast.equip.is_empty()
+		and _copies(it, [fallen, cold_beast], band) == 1 and _copies(cargo_it, [fallen, cold_beast], band) == 1, "cold native creature holder retains both prizes exactly once")
+	check(bool(WorldAudit.compare(plundered, cold)["ok"]) and (cold["items"]["dupes"] as Array).is_empty(), "cold native holder census preserves strict coin, arms and Item identity accounting")
+	group_completed = true
 
 func _test_draw() -> void:
 	var it := _artifact()
@@ -385,6 +464,7 @@ func _test_draw() -> void:
 	ArmsSalvage.after_company_battle(Game, {"winner": -1, "player_units": [mine]}, band, {}, [])
 	check(Game.stash.has(it) and survivor.equip.get("main_hand") == other and mine.equip.is_empty() and theirs.equip.is_empty(), "draw recovers each side's own fallen artifacts without inventing an AI winner")
 	check(town["econ"].get("legends_lost", []).size() == losses and _copies(it, [mine, theirs, survivor], band) == 1 and _copies(other, [mine, theirs, survivor], band) == 1, "draw has no false town loss or duplicated UID")
+	group_completed = true
 
 func _test_fit() -> void:
 	var shield := Item.make("round_shield", "copper", DB.LEGEND)
@@ -399,3 +479,4 @@ func _test_fit() -> void:
 	var fits := _person("Fitting axe fighter", "orc_horde"); fits.skills["axe"] = 2
 	var given := Legends.give([blocked, fits], heavy)
 	check(bool(given[0]) and fits.equip.get("main_hand") == heavy and blocked.equip.get("off_hand") == shield, "best fitting fighter keeps both artifacts in compatible slots")
+	group_completed = true
