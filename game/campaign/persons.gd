@@ -43,6 +43,9 @@ const HOUSE_UID := 16
 const SPOUSE_UID := 17
 const MOTHER_UID := 18
 const FATHER_UID := 19
+## v0.089: research training belongs to this living person, including after a move.
+## Optional dictionary {skill, aptitude}; Academy alone writes it on paid work days.
+const RESEARCH := 20
 
 static func _identity_pad(p: Array) -> void:
 	while p.size() <= FATHER_UID:
@@ -1165,6 +1168,15 @@ static func work(e: Dictionary, f: Dictionary) -> Dictionary:
 				"idle": "out of work"}[st], "where": "", "wage": 0.0}
 	if e.has("academy") and (f["jobs"] as Dictionary).has(str(int(e["academy"]))):
 		Academy.mark_lead(e, f, out)   # v0.012: the research house's lead holds his family's place there, under his title
+		var research := Academy.biz_of(e)
+		for p in home:
+			var job: Dictionary = out.get(int(p[0]), {})
+			if int(job.get("biz", -1)) != int(e["academy"]) or bool(job.get("keeper", false)) or String(job.get("title", "")) == Academy.lead_title(e):
+				continue
+			var fallback := float(Academy.R()["new_skill"]) if bool(research.get("personal_training", false)) else float(research.get("skill", 0.0))
+			var title := "chemist" if Academy._skill(p, fallback) >= 3.0 else "apprentice"
+			out[int(p[0])] = job.duplicate()
+			out[int(p[0])]["title"] = title
 	for p in kp(f):
 		var job := String(f.get("child_cj", {}).get(str(int(p[0])), ""))
 		if job == "" or not Shelter.cleanup_child_eligible(e, p, float(Game.day)): continue

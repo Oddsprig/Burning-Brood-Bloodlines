@@ -45,7 +45,7 @@ static func preview(game, tid: String, kind: String) -> Dictionary:
 	var mine := player_faction(game)
 	if str(town.get("faction", "")) == mine: return {"ok": false, "reason": "%s is sworn to your own realm." % town["name"]}
 	if Diplomacy.peace_bound(w, mine, str(town.get("faction", ""))):
-		return {"ok": false, "reason": "Your alliance or non-aggression pact forbids attacking this realm."}
+		return {"ok": false, "reason": "Your alliance, pact or truce forbids attacking this realm."}
 	if game.deployed_units().is_empty(): return {"ok": false, "reason": "Raise a field army before attacking a settlement."}
 	if (w["party"]["pos"] as Vector2).distance_to(town["pos"]) > NEAR: return {"ok": false, "reason": "March your army up to %s first." % town["name"]}
 	if w.get("encounter", "") != "": return {"ok": false, "reason": "Deal with the enemy in front of you first."}
