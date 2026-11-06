@@ -44,7 +44,7 @@ func _sha(value) -> bool:
 
 
 func _parse() -> bool:
-	_opts = {"mode": "contract", "phase": "v094_p1", "checkpoint": 0, "batch-days": 15, "years": 2}
+	_opts = {"mode": "contract", "phase": "v094_p1", "checkpoint": 0, "batch-days": 15, "years": 2, "input-save": "", "input-sha": ""}
 	var seen: Dictionary = {}
 	for arg in OS.get_cmdline_user_args():
 		if not arg.begins_with("--economy-"): continue
@@ -60,7 +60,10 @@ func _parse() -> bool:
 
 
 func _options_error(options: Dictionary) -> String:
-	if not options["mode"] in ["contract", "batch", "final"]: return "mode must be contract, batch, or final"
+	if not options["mode"] in ["contract", "batch", "final", "diagnostic"]: return "mode must be contract, batch, final, or diagnostic"
+	if options["mode"] == "diagnostic":
+		if str(options["input-save"]) == "" or not _sha(str(options["input-sha"])): return "diagnostic requires an exact input save and SHA256"
+	elif str(options["input-save"]) != "" or str(options["input-sha"]) != "": return "input save is diagnostic-only"
 	if int(options["checkpoint"]) < 0 or int(options["checkpoint"]) > 240: return "checkpoint out of range 0..240"
 	if int(options["batch-days"]) < 1 or int(options["batch-days"]) > 15: return "batch-days out of range 1..15"
 	if int(options["years"]) != 2: return "this experiment requires exactly two native years"
@@ -934,6 +937,47 @@ func _contract() -> int:
 	return 0 if passed else 1
 
 
+func _diagnostic(tree: SceneTree) -> int:
+	# A copied historical save and fresh per-job profile. This can never satisfy
+	# the campaign completion protocol or produce an accepted checkpoint.
+	var path: String = str(_opts["input-save"])
+	var expected_sha: String = str(_opts["input-sha"])
+	if FileAccess.get_sha256(path) != expected_sha: return 1
+	var scratch: String = Game.SAVE_PATH
+	Game.SAVE_PATH = path
+	var loaded: bool = Game.load_game()
+	Game.SAVE_PATH = scratch
+	if not loaded or Game.seed_value != 4242 or Game.day != 46.0 or int(Game.world.get(META, {}).get("completed", -1)) != 45: return 1
+	var town: Dictionary = Game.world["towns"]["t23"]
+	var treasury: float = float(town["econ"]["treasury"])
+	var trace: Array = []
+	var negative_days: Array = []
+	var anchor: Dictionary = WorldAudit.census(Game)
+	for step in 7:
+		var before: float = treasury
+		Game.advance_time(1.0, false, 0, 1000)
+		treasury = float(town["econ"]["treasury"])
+		if before != treasury: trace.append({"day": Game.day, "job": "advance_time", "before": before, "after": treasury})
+		while not Game.world.get("work", []).is_empty():
+			if _elapsed() >= ABSOLUTE_MS: return 1
+			var job = M.plain(Game.world["work"][0])
+			before = treasury
+			CampaignWorld.work_slice(Game, 1)  # Exactly one original ordered job, not an alternate town tick.
+			treasury = float(town["econ"]["treasury"])
+			if before != treasury: trace.append({"day": Game.day, "job": job, "before": before, "after": treasury})
+			await tree.process_frame
+		if treasury < 0: negative_days.append({"day": Game.day, "treasury": treasury})
+		if not Game.pending_battle.is_empty(): return 1
+	var audit: Dictionary = WorldAudit.compare(anchor, WorldAudit.census(Game))
+	var unchanged: bool = FileAccess.get_sha256(path) == expected_sha
+	var result: Dictionary = {"mode": "diagnostic", "scope": "NON_ACCEPTANCE historical replay; not a campaign pass",
+		"overallComplete": false, "input_sha256": expected_sha, "input_unchanged": unchanged,
+		"start_day": 46, "end_day": Game.day, "town": "t23", "town_name": town.get("name", ""),
+		"treasury": treasury, "negative_days": negative_days, "trace": trace, "native_audit": audit}
+	print("ECONOMY_DIAGNOSTIC_V094 " + M.text(result))
+	return 0 if unchanged and not negative_days.is_empty() and Game.day == 53.0 else 1
+
+
 func run(tree: SceneTree) -> int:
 	_started = Time.get_ticks_msec()
 	if not _parse():
@@ -943,6 +987,7 @@ func run(tree: SceneTree) -> int:
 	# Authorized isolated-process override only. No set_setting(), no settings-file writes.
 	Game.settings["autosave"] = "off"
 	Game.wait_save()
+	if _opts["mode"] == "diagnostic": return await _diagnostic(tree)
 	var result = await _execute(tree)
 	Game.wait_save()
 	if not result is Dictionary or result.get("finished", false) != true or result.get("ok", false) != true or result.get("allGroupsVerified", false) != true or not _error.is_empty():

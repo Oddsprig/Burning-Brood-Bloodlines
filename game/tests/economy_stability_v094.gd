@@ -124,7 +124,7 @@ static func finite(value, path: String = "") -> String:
 static func physical(value, path: String) -> String:
 	if value is int or value is float:
 		if not is_finite(float(value)): return path + ":nonfinite"
-		if value < 0: return path + ":negative_physical"
+		if value < 0: return path + ":negative_physical=" + Game.float_text(float(value))
 		return ""
 	if value is Dictionary:
 		for k in value:
