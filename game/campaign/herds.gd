@@ -67,7 +67,7 @@ static func labour_hands(e: Dictionary, fid: int) -> float:
 	if int(hd.get("_labour_ver", -1)) != version:
 		var hands := {}
 		for h in (hd["h"] as Dictionary).values():
-			if not String(h["ow"]) in ["f", "s"]: continue
+			if not String(h["ow"]) in ["f", "s"] or h.has("work_band"): continue
 			var per_hand := float(kind(String(h["k"])).get("per_hand", 0))
 			if per_hand <= 0.0: continue
 			var owner := str(int(h["oi"]))
@@ -149,6 +149,9 @@ static func change(e: Dictionary, h: Dictionary, age: String, dn: int, what: Str
 		if dn == 0:
 			return 0
 	h[age] = int(h[age]) + dn
+	if String(h["k"]) == "dogs" and age == "g" and dn < 0:
+		# A dead/sold guard's meal receipt cannot be reused by a new adult in this record.
+		h["guard_heads"] = maxi(0, int(h.get("guard_heads", 0)) + dn)
 	if String(h["k"]) == "horses" and age == "y" and dn < 0:
 		LivestockCare.trim_foals(h)
 	if String(h["k"]) == "horses" and age == "g" and dn < 0:
@@ -252,7 +255,7 @@ static func _transfer(e: Dictionary, from: Dictionary, to: Dictionary, age: Stri
 
 ## The family or the estate's herd of a kind (made when it has none).
 static func herd_for(e: Dictionary, fid: int, k: String, day_v: float) -> Dictionary:
-	var l := of_owner(e, "s" if fid == 0 else "f", fid, k)
+	var l := of_owner(e, "s" if fid == 0 else "f", fid, k).filter(func(h): return not h.has("work_band"))
 	if not l.is_empty():
 		return l[0]
 	return new_herd(e, k, "s" if fid == 0 else "f", fid, day_v)
@@ -509,6 +512,9 @@ static func after_load(game) -> void:
 ## v0.020: dogs are no longer livestock. Drop their live records and market/plot references on load.
 ## Historical log entries and tallies remain history; no sale, death, money or replacement animals are invented.
 static func _remove_legacy_dogs(hd: Dictionary) -> void:
+	# v0.086 restores domestic dogs. Keep this entry point for existing callers,
+	# but an authorized species must retain its exact records and references.
+	if not kind("dogs").is_empty(): return
 	var removed := {}
 	for hid in (hd["h"] as Dictionary).keys():
 		if String(hd["h"][hid]["k"]) == "dogs":
@@ -576,7 +582,7 @@ static func _fix(hd: Dictionary) -> void:
 static func _fix_herd(h: Dictionary) -> void:
 	for k in ["id", "y", "g", "o", "oi", "hun", "h0", "d0", "t"]:
 		h[k] = int(h.get(k, 0))
-	for k2 in ["da", "bred_s", "ls_n", "ls_day"]:
+	for k2 in ["da", "bred_s", "ls_n", "ls_day", "dog_feed_day", "guard_heads", "pack_feed_day"]:
 		if h.has(k2):
 			h[k2] = int(h[k2])
 	var L: Dictionary = h["led"]
@@ -633,6 +639,7 @@ static func week(game, town: Dictionary, day_v: float) -> void:
 		hd["y"] = yr
 	hd.erase("_pg"); hd.erase("_pa")
 	LivestockCare.feed_hens(e, day_v)
+	DomesticAnimals.feed_dogs(e, day_v)
 	_disease(e, rng, day_v)
 	_males(e)
 	_land_choice(e, Plots.of(town), day_v)
@@ -641,6 +648,7 @@ static func week(game, town: Dictionary, day_v: float) -> void:
 	var ids: Array = (hd["h"] as Dictionary).keys()
 	for hid in ids:
 		var h: Dictionary = hd["h"][hid]
+		if h.has("work_band"): continue
 		_life(e, h, si, day_v, rng)
 	_orphans(e, day_v)
 	_feed_all(e, P, si, day_v, rng)
@@ -721,6 +729,7 @@ static func _males(e: Dictionary) -> void:
 	for hid in herds(e):
 		var h: Dictionary = herds(e)[hid]
 		var K := kind(String(h["k"]))
+		if h.has("work_band"): continue
 		if float(K.get("fpm", 0.0)) <= 0.0:
 			continue
 		var k := String(h["k"])
@@ -771,6 +780,7 @@ static func _disease(e: Dictionary, rng: RandomNumberGenerator, day_v: float) ->
 	var any := false
 	for hid in hd["h"]:
 		var h: Dictionary = hd["h"][hid]
+		if h.has("work_band"): continue
 		if float(h.get("cs", 0.0)) > 0.0:
 			ctot[String(h["k"])] = float(ctot.get(String(h["k"]), 0.0)) + float(head(h))
 			for d in h.get("inf", {}):
@@ -784,7 +794,7 @@ static func _disease(e: Dictionary, rng: RandomNumberGenerator, day_v: float) ->
 			continue
 		var pool := []
 		for hid in hd["h"]:
-			if (DS[d]["kinds"] as Array).has(String(hd["h"][hid]["k"])) and head(hd["h"][hid]) > 0:
+			if not hd["h"][hid].has("work_band") and (DS[d]["kinds"] as Array).has(String(hd["h"][hid]["k"])) and head(hd["h"][hid]) > 0:
 				pool.append(hid)
 		if pool.is_empty():
 			continue
@@ -799,7 +809,7 @@ static func _disease(e: Dictionary, rng: RandomNumberGenerator, day_v: float) ->
 	for hid in hd["h"].keys():
 		var h: Dictionary = hd["h"][hid]
 		var n := head(h)
-		if n <= 0:
+		if n <= 0 or h.has("work_band"):
 			continue
 		var inf: Dictionary = h.get("inf", {})
 		var imm: Dictionary = h.get("imm", {})
@@ -858,6 +868,7 @@ static func _life(e: Dictionary, h: Dictionary, si: int, day_v: float, rng: Rand
 	if int(h["g"]) > 0:
 		var ol := mini(int(h["g"]), _whole(float(h["g"]) * wk / float(K["prime"]), rng))
 		h["g"] = int(h["g"]) - ol; h["o"] = int(h["o"]) + ol
+		if String(h["k"]) == "dogs": h["guard_heads"] = maxi(0, int(h.get("guard_heads", 0)) - ol)
 	if horse: LivestockCare.trim_mount_bodies(h)
 	# births by the kind's biology: in each of its breeding seasons (gestation decides how many a year fit), per grown
 	# female the owners put to the male this year (h.bred, their choice), served by the town's males (each covers
@@ -929,6 +940,7 @@ static func pool_grass(e: Dictionary, P: Dictionary, si: int) -> float:
 
 ## Bales a day the herd eats (grown head 1 x the kind's feed; young half).
 static func feed_day(h: Dictionary) -> float:
+	if String(h["k"]) in ["hens", "dogs"]: return 0.0 # grain/scraps, not hay
 	return ge(h) * float(kind(String(h["k"])).get("feed", 0.0))
 
 ## Bales a day a pasture plot grows this season (acres x season x its condition).
@@ -986,7 +998,7 @@ static func _feed_all(e: Dictionary, P: Dictionary, si: int, day_v: float, rng: 
 	for hid in (hd["h"] as Dictionary).keys():
 		var h: Dictionary = hd["h"][hid]
 		var need := feed_day(h)
-		if String(h["k"]) == "hens": continue
+		if String(h["k"]) in ["hens", "dogs"] or h.has("work_band"): continue
 		if need <= 0.0 or String(h["ow"]) == "d":
 			continue
 		var K := kind(String(h["k"]))

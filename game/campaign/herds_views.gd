@@ -31,7 +31,7 @@ static func assign_tiles(e: Dictionary, P: Dictionary) -> void:
 	for hid in hd["h"]:
 		var h: Dictionary = hd["h"][hid]
 		var k := String(h["k"])
-		if not GRAZE.has(k) or Herds.head(h) <= 0:
+		if not GRAZE.has(k) or Herds.head(h) <= 0 or h.has("work_band"):
 			continue
 		var fid := Herds.grazer(e, h)
 		if fid < 0:
@@ -184,7 +184,7 @@ static func graze_acres(e: Dictionary) -> float:
 	var a := 0.0
 	for hid in Herds.herds(e):
 		var h: Dictionary = Herds.herds(e)[hid]
-		if GRAZE.has(String(h["k"])):
+		if GRAZE.has(String(h["k"])) and not h.has("work_band"):
 			a += float(Herds.head(h)) * float(Herds.kind(String(h["k"]))["feed"])
 	return a
 
