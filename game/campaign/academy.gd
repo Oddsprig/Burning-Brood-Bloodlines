@@ -885,7 +885,7 @@ static func report(w: Dictionary, fid: String) -> Dictionary:
 			var f: Dictionary = employee[0]
 			var p: Array = employee[1]
 			var lead: Array = b.get("lead", [])
-			var is_lead := out["lead"] != "" and lead.size() >= 2 and int(f["id"]) == int(lead[0]) and int(p[0]) == int(lead[1])
+			var is_lead: bool = out["lead"] != "" and lead.size() >= 2 and int(f["id"]) == int(lead[0]) and int(p[0]) == int(lead[1])
 			var skill := _skill(p, float(b.get("lskill", 0.0)) if is_lead else float(R()["new_skill"]) if bool(b.get("personal_training", false)) else float(b.get("skill", 0.0)))
 			out["roster"].append({"family": int(f["id"]), "pid": int(p[0]), "uid": String(Persons.g(p, Persons.PERSON_UID, "")),
 				"name": Persons.name_of(f, p, Persons.race_of(e)), "skill": skill,
