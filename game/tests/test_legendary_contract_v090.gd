@@ -411,12 +411,16 @@ func _test_creature_winner() -> void:
 	var caravan := {"id": "v090_creature_caravan", "kind": "caravan", "faction": town["faction"],
 		"home": town["id"], "units": [], "pos": town["pos"], "gold": 0.0, "cargo": {"items": [cargo_it]}}
 	Game.world["warbands"][caravan["id"]] = caravan
+	# Preserve native integer day rows for an exact prefix check. The JSON
+	# provenance snapshot below intentionally reconstructs numbers as floats.
+	var prior_history: Array = (it.legend["h"] as Array).duplicate(true)
+	var prior_cargo_history: Array = (cargo_it.legend["h"] as Array).duplicate(true)
 	var before_item := _saved_state(it); var before_cargo := _saved_state(cargo_it)
 	var before := WorldAudit.census(Game)
 	ArmsSalvage.after_company_battle(Game, {"winner": 1, "player_units": [fallen]}, band, {}, [])
 	check(fallen.equip.is_empty() and beast.equip.is_empty() and (band.get("cargo", {}).get("items", []) as Array).has(it), "known creature winner keeps the fallen carrier's exact artifact in its own cargo")
 	check(_copies(it, [fallen, beast], band) == 1 and not Game.stash.has(it) and not ArmsTrade.armory(town).has(it) and not town["shop"].has(it), "known creature prize has exactly one destination, outside the company and enemy-held home")
-	var history: Array = it.legend["h"]; var prior_history: Array = before_item["lg"]["h"]
+	var history: Array = it.legend["h"]
 	check(_same_provenance(it, before_item) and int(it.legend.get("cu", -1)) == -1, "known creature capture preserves exact UID, maker, gem, kills and physical provenance without inventing a wearer")
 	check(history.size() == prior_history.size() + 2 and history.slice(0, prior_history.size()) == prior_history
 		and String(history[-2][1]).contains(fallen.name) and String(history[-2][1]).contains(ArmsSalvage.holder_name({"band": band}))
@@ -429,6 +433,7 @@ func _test_creature_winner() -> void:
 	check((caravan["cargo"]["items"] as Array).is_empty() and (band["cargo"]["items"] as Array).size() == 2
 		and _copies(it, [fallen, beast], band) == 1 and _copies(cargo_it, [fallen, beast], band) == 1, "known creature caravan overflow retains both exact prizes once")
 	check(_same_provenance(cargo_it, before_cargo) and cargo_it.legend["h"].size() == before_cargo["lg"]["h"].size() + 2
+		and (cargo_it.legend["h"] as Array).slice(0, prior_cargo_history.size()) == prior_cargo_history
 		and not Game.stash.has(cargo_it) and not ArmsTrade.armory(town).has(cargo_it), "caravan prize keeps its provenance and records one capture and one baggage transfer at the real winner")
 	var plundered := WorldAudit.census(Game)
 	var plunder_audit := WorldAudit.compare(captured, plundered)
