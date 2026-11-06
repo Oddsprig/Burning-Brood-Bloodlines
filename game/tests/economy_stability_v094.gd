@@ -48,6 +48,13 @@ static func equal_partition(a, b) -> bool:
 	return absf(float(a) - float(b)) <= maxf(absf(float(a)), absf(float(b))) * (8.0 * 2.220446049250313e-16)
 
 
+static func contains_id(values, id: int) -> bool:
+	# Native JSON arrays carry numeric IDs as floats; Array.has is type-sensitive.
+	for value in values:
+		if equal_json(value, id): return true
+	return false
+
+
 static func plain(value):
 	# Native serializer handles Unit/Item/typed values; JSON makes Packed values plain.
 	return JSON.parse_string(JSON.stringify(Game._serialize(value), "", true, true))
@@ -283,7 +290,7 @@ static func capture(race_keys: Array, types: Dictionary) -> Dictionary:
 			r["cash"]["business_tills"] += float(b.get("till", 0.0))
 			if not types.has(str(b.get("type", ""))): continue
 			var key: String = str(tid) + ":" + str(b["id"])
-			var active: bool = not bool(b.get("closed", false)) and int(b["id"]) in e.get("prod", [])
+			var active: bool = not bool(b.get("closed", false)) and contains_id(e.get("prod", []), int(b["id"]))
 			var row: Dictionary = {"town": str(tid), "race": race, "id": b["id"], "type": b["type"], "till": b["till"],
 				"closed": bool(b.get("closed", false)), "state": b.get("state", ""), "workers": b.get("workers", 0), "keeper_working": b.get("kw", 0),
 				"wage": b.get("wage", 0.0), "owed": b.get("owed", 0.0), "claims": b.get("wage_claims", {}).duplicate(),

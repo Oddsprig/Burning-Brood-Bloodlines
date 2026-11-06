@@ -819,6 +819,10 @@ func _contract() -> int:
 	cases.append(["json_nested_int_float_equivalence", M.equal_json([1, {"x": [2.0, -3]}], M.plain([1.0, {"x": [2, -3.0]}]))])
 	cases.append(["json_numeric_inequality", not M.equal_json([1, 2], [1.0, 2.01])])
 	cases.append(["json_large_integer_not_rounded_equal", not M.equal_json(9007199254740993, 9007199254740992.0)])
+	cases.append(["native_integer_producer_id", M.contains_id([1, 11, 12], 11)])
+	cases.append(["loaded_json_producer_id", M.contains_id(M.plain([1, 11, 12]), 11)])
+	cases.append(["reject_fractional_producer_id", not M.contains_id([11.25], 11)])
+	cases.append(["reject_boolean_producer_id", not M.contains_id([true], 1)])
 	for pair in [["checkpoint", -1], ["batch-days", 0], ["batch-days", 16], ["years", 1], ["phase", "../escape"], ["mode", "unknown"]]:
 		var options: Dictionary = _opts.duplicate(true)
 		options[pair[0]] = pair[1]
