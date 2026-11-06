@@ -829,15 +829,17 @@ func _contract() -> int:
 		bad_groups.erase(race)
 		cases.append(["reject_missing_group_" + race, _groups_error(bad_groups) != ""])
 	var fractional_groups: Dictionary = groups.duplicate(true)
-	fractional_groups["human"]["food_price_population_sum"]["grain"] = 221689.89817786598
-	fractional_groups["WORLD"]["food_price_population_sum"]["grain"] = 221689.898177866
+	var weighted: float = 221689.898177866
+	fractional_groups["human"]["food_price_population_sum"]["grain"] = weighted
+	fractional_groups["WORLD"]["food_price_population_sum"]["grain"] = weighted + pow(2.0, -35.0)
 	cases.append(["valid_native_one_ulp_partition", _groups_error(M.plain(fractional_groups)) == ""])
 	fractional_groups["WORLD"]["food_price_population_sum"]["grain"] += 0.000001
 	cases.append(["reject_non_rounding_partition_error", _groups_error(fractional_groups) != ""])
 	var bad_counts: Dictionary = groups.duplicate(true)
 	bad_counts["WORLD"]["population"] += 1
 	cases.append(["reject_population_partition_error", _groups_error(bad_counts) != ""])
-	cases.append(["metadata_still_rejects_one_ulp_error", not M.equal_json(221689.89817786598, 221689.898177866)])
+	# Construct adjacent doubles; the decimal lexer may round two spellings alike.
+	cases.append(["metadata_still_rejects_one_ulp_error", not M.equal_json(1.0, 1.0 + pow(2.0, -52.0))])
 	cases.append(["valid_physical", M.physical({"food": 0.0, "cash": 1}, "synthetic") == ""])
 	cases.append(["reject_negative_physical", M.physical({"food": -1}, "synthetic") != ""])
 	cases.append(["reject_nonfinite_cash", M.physical({"cash": INF}, "synthetic") != ""])
