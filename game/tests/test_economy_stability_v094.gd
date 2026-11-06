@@ -60,8 +60,8 @@ func _parse() -> bool:
 
 
 func _options_error(options: Dictionary) -> String:
-	if not options["mode"] in ["contract", "batch", "final", "diagnostic", "purse-diagnostic"]: return "unknown economy mode"
-	if options["mode"] in ["diagnostic", "purse-diagnostic"]:
+	if not options["mode"] in ["contract", "batch", "final", "diagnostic", "purse-diagnostic", "items-diagnostic"]: return "unknown economy mode"
+	if options["mode"] in ["diagnostic", "purse-diagnostic", "items-diagnostic"]:
 		if str(options["input-save"]) == "" or not _sha(str(options["input-sha"])): return "diagnostic requires an exact input save and SHA256"
 	elif str(options["input-save"]) != "" or str(options["input-sha"]) != "": return "input save is diagnostic-only"
 	if int(options["checkpoint"]) < 0 or int(options["checkpoint"]) > 240: return "checkpoint out of range 0..240"
@@ -1026,6 +1026,38 @@ func _purse_diagnostic(tree: SceneTree) -> int:
 	return 0 if unchanged and Game.day == 99.0 else 1
 
 
+func _items_diagnostic(tree: SceneTree) -> int:
+	# Preserved P9 day91 input; annotate the existing audit hook per native job.
+	var path: String = str(_opts["input-save"])
+	var expected_sha: String = str(_opts["input-sha"])
+	if FileAccess.get_sha256(path) != expected_sha: return 1
+	var scratch: String = Game.SAVE_PATH
+	Game.SAVE_PATH = path
+	var loaded: bool = Game.load_game()
+	Game.SAVE_PATH = scratch
+	if not loaded or Game.seed_value != 4242 or Game.day != 91.0 or int(Game.world.get(META, {}).get("completed", -1)) != 90: return 1
+	var anchor: Dictionary = WorldAudit.census(Game)
+	for step in 15:
+		WorldAudit.site = JSON.stringify({"day": Game.day + 1.0, "job": "advance_time"})
+		Game.advance_time(1.0, false, 0, 1000)
+		while not Game.world.get("work", []).is_empty():
+			if _elapsed() >= ABSOLUTE_MS: return 1
+			WorldAudit.site = JSON.stringify({"day": Game.day, "job": Game.world["work"][0]})
+			CampaignWorld.work_slice(Game, 1)
+			await tree.process_frame
+		if not Game.pending_battle.is_empty(): return 1
+	WorldAudit.site = ""
+	var targets: Dictionary = {}
+	for uid in [58134, 58135]:
+		targets[str(uid)] = {"made": WorldAudit.made_log.get(uid, []), "rolled": WorldAudit.rolled_ids.has(uid),
+			"unmade": WorldAudit.unmade_ids.get(uid, "")}
+	var unchanged: bool = FileAccess.get_sha256(path) == expected_sha
+	print("ECONOMY_ITEMS_DIAGNOSTIC_V094 " + M.text({"scope": "NON_ACCEPTANCE copied-input replay", "overallComplete": false,
+		"input_sha256": expected_sha, "input_unchanged": unchanged, "start_day": 91, "end_day": Game.day,
+		"target_items": targets, "native_audit": WorldAudit.compare(anchor, WorldAudit.census(Game))}))
+	return 0 if unchanged and Game.day == 106.0 else 1
+
+
 func run(tree: SceneTree) -> int:
 	_started = Time.get_ticks_msec()
 	if not _parse():
@@ -1037,6 +1069,7 @@ func run(tree: SceneTree) -> int:
 	Game.wait_save()
 	if _opts["mode"] == "diagnostic": return await _diagnostic(tree)
 	if _opts["mode"] == "purse-diagnostic": return await _purse_diagnostic(tree)
+	if _opts["mode"] == "items-diagnostic": return await _items_diagnostic(tree)
 	var result = await _execute(tree)
 	Game.wait_save()
 	if not result is Dictionary or result.get("finished", false) != true or result.get("ok", false) != true or result.get("allGroupsVerified", false) != true or not _error.is_empty():
