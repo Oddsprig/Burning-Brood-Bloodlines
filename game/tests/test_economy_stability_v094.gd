@@ -368,7 +368,8 @@ func _changes(before: Dictionary, after: Dictionary) -> Dictionary:
 			"population": int(b["population"]) - int(a["population"]), "census_residual": M.census_residual(a, b),
 			"native_made": M.delta(b["native_made_cumulative"], a["native_made_cumulative"]),
 			"wage_receipts_field_signed_change": float(b["wage_receipts_snapshot"]) - float(a["wage_receipts_snapshot"])}
-	return out
+	# Store the same decimal-normalized derived numbers that a reader recomputes.
+	return M.plain(out)
 
 
 func _history(last: int, all_save_hashes: bool) -> Dictionary:
@@ -514,8 +515,17 @@ func _unchanged_source() -> bool:
 
 
 func _capture_matches(observation: Dictionary, census: Dictionary, meta: Dictionary, types: Dictionary) -> bool:
-	if M.digest(observation) != meta.get("endpoint_sha256", ""): return _bad("load_observation_continuity", "native measured fields changed across saved/load boundary")
-	if M.digest(M.plain(M.physical_signature(census))) != meta.get("physical_sha256", ""): return _bad("load_physical_rng_continuity", "holdings, Item identities, or native RNG changed on load")
+	if M.digest(observation) != meta.get("endpoint_sha256", ""):
+		var expected: Dictionary = _read(_path(int(meta["checkpoint"]), "rows.json")).get("endpoint", {})
+		_evidence["expected_endpoint"] = expected
+		_evidence["loaded_endpoint"] = observation
+		return _bad("load_observation_continuity", M.difference_json(expected, observation))
+	var physical: Dictionary = M.plain(M.physical_signature(census))
+	if M.digest(physical) != meta.get("physical_sha256", ""):
+		var expected: Dictionary = _read(_path(int(meta["checkpoint"]), "rows.json")).get("physical_endpoint", {})
+		_evidence["expected_physical"] = expected
+		_evidence["loaded_physical"] = physical
+		return _bad("load_physical_rng_continuity", M.difference_json(expected, physical))
 	if not M.equal_json(meta.get("observation_contract"), {"races": RACES, "maker_types_sha256": M.digest(types)}): return _bad("metric_contract", "race/type definitions differ on resume")
 	return true
 
@@ -532,7 +542,7 @@ func _template_disposals(first_uid: int, last_uid: int) -> Array:
 	return out
 
 
-func _save_checkpoint(index: int, meta: Dictionary, rows: Dictionary, previous: Dictionary) -> bool:
+func _save_checkpoint(index: int, meta: Dictionary, rows: Dictionary, previous: Dictionary, types: Dictionary) -> bool:
 	if not _clean(float(meta["end_day"])) or not _unchanged_source(): return false
 	if FileAccess.file_exists(_path(index, "save.json")) or FileAccess.file_exists(_path(index, "manifest.json")): return _bad("duplicate_checkpoint", str(index))
 	if not _write_new(_path(index, "rows.json"), rows): return false
@@ -559,7 +569,14 @@ func _save_checkpoint(index: int, meta: Dictionary, rows: Dictionary, previous: 
 	if index > 0 and FileAccess.get_sha256(_path(index - 1, "save.json")) != previous["save_sha256"]: return _bad("previous_save_rewritten", str(index - 1))
 	if not _clean(float(meta["end_day"])): return false
 	# Commit marker is last. An orphan rows/save file is evidence, never a checkpoint.
-	return _write_new(_path(index, "manifest.json"), manifest)
+	if not _write_new(_path(index, "manifest.json"), manifest): return false
+	# A written checkpoint must pass its own reader before it can be called passed.
+	var readback: Dictionary = _history(index, false)
+	if not _error.is_empty() or int(readback.get("completed", -1)) != int(meta["completed"]): return false
+	if not _load_exact(index, manifest): return false
+	var loaded: Dictionary = _observe(types)
+	if not _error.is_empty(): return false
+	return _capture_matches(loaded, WorldAudit.census(Game), meta, types)
 
 
 func _batch(tree: SceneTree, types: Dictionary) -> Dictionary:
@@ -653,6 +670,7 @@ func _batch(tree: SceneTree, types: Dictionary) -> Dictionary:
 			if int(Game.day) % 120 == 0: kinds.append("year")
 		if next == 240: kinds.append("end")
 		if not kinds.is_empty(): snapshots.append(_snapshot(observation, next, kinds))
+		row = M.plain(row)  # Normalize derived maker deltas before the immutable hash.
 		row["chain"] = M.digest({"previous": chain, "record": row})
 		var bad: String = _row_error(row, next, _origin, chain, before["groups"])
 		if bad != "":
@@ -676,8 +694,9 @@ func _batch(tree: SceneTree, types: Dictionary) -> Dictionary:
 		"endpoint_sha256": M.digest(observation), "physical_sha256": M.digest(M.plain(M.physical_signature(audit_end))),
 		"rng": {"game": str(Game.rng.state), "world": str(Game.world.get("rng_state", ""))}}
 	var rows: Dictionary = {"schema": SCHEMA, "index": index, "daily": daily, "snapshots": snapshots, "audits": audits,
-		"template_disposals": _template_disposals(int(audit_start["items"]["next"]), Item._next_uid)}
-	if not _save_checkpoint(index, meta, rows, previous): return {}
+		"template_disposals": _template_disposals(int(audit_start["items"]["next"]), Item._next_uid),
+		"endpoint": observation, "physical_endpoint": M.plain(M.physical_signature(audit_end))}
+	if not _save_checkpoint(index, meta, rows, previous, types): return {}
 	return {"ok": true, "finished": true, "mode": "batch", "mechanicalBatchPass": true, "overallComplete": false,
 		"allGroupsVerified": true, "checkpoint": index, "actualCompleteDays": _completed - from, "completed": _completed,
 		"remaining": 240 - _completed, "nextCheckpoint": index + 1 if _completed < 240 else null,
@@ -853,6 +872,21 @@ func _contract() -> int:
 	cases.append(["reject_population_partition_error", _groups_error(bad_counts) != ""])
 	# Construct adjacent doubles; the decimal lexer may round two spellings alike.
 	cases.append(["metadata_still_rejects_one_ulp_error", not M.equal_json(1.0, 1.0 + pow(2.0, -52.0))])
+	var fractional_before: Dictionary = _toy_groups()
+	var fractional_after: Dictionary = _toy_groups()
+	for group in ["human", "WORLD"]:
+		fractional_before[group]["cash"]["treasury"] = 349669.79960372526
+		fractional_after[group]["cash"]["treasury"] = 350699.35634799715
+	fractional_before = M.plain(fractional_before)
+	fractional_after = M.plain(fractional_after)
+	var fractional_row: Dictionary = M.plain({"offset": 1, "day": 2, "clean": true, "pending_work": 0,
+		"groups": fractional_after, "changes": _changes(fractional_before, fractional_after),
+		"makers": {"synthetic": {"cash_delta": 350699.35634799715 - 349669.79960372526}}})
+	fractional_row["chain"] = M.digest({"previous": ZERO_SHA, "record": fractional_row})
+	cases.append(["valid_native_fractional_day_roundtrip", _row_error(M.plain(fractional_row), 1, 1.0, ZERO_SHA, fractional_before) == ""])
+	var wrong_change: Dictionary = fractional_row.duplicate(true)
+	wrong_change["changes"]["WORLD"]["cash"]["treasury"] += 0.01
+	cases.append(["reject_changed_fractional_day_measurement", _row_error(wrong_change, 1, 1.0, ZERO_SHA, fractional_before) != ""])
 	cases.append(["valid_physical", M.physical({"food": 0.0, "cash": 1}, "synthetic") == ""])
 	cases.append(["reject_negative_physical", M.physical({"food": -1}, "synthetic") != ""])
 	cases.append(["reject_nonfinite_cash", M.physical({"cash": INF}, "synthetic") != ""])
