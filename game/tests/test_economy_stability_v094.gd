@@ -78,7 +78,7 @@ func _base_params() -> Dictionary:
 		"batch_days": _opts["batch-days"], "soft_ms": SOFT_MS, "day_ms": DAY_MS, "drain_end_ms": DRAIN_END_MS,
 		"absolute_ms": ABSOLUTE_MS, "item_quality_value_growth": 1.25, "quality_cap": 5,
 		"races": RACES, "grouping": "native town culture race; no within-town minority estimate", "autosave": "off_in_memory",
-		"artifact_float_codec": "existing native v074 save_text/restore_exact", "fractional_hash_codec": "IEEE754 float64 hex"}
+		"artifact_float_codec": "existing native v074 save_text/restore_exact with detached frozen containers", "fractional_hash_codec": "IEEE754 float64 hex"}
 
 
 func _static_contract() -> bool:
@@ -149,6 +149,11 @@ func _read(path: String) -> Dictionary:
 		_bad("artifact_json", path + ":" + parser.get_error_message())
 		return {}
 	Game.restore_exact(parser.data)
+	if parser.data.get("_economy_artifact_v094", "") == "native074-frozen":
+		if not parser.data.get("payload") is Dictionary:
+			_bad("artifact_payload", path)
+			return {}
+		return parser.data["payload"]
 	return parser.data
 
 
@@ -555,19 +560,24 @@ func _save_checkpoint(index: int, meta: Dictionary, rows: Dictionary, previous: 
 	meta["rows_sha256"] = rows_sha
 	Game.world[META] = M.plain(meta)
 	Game.wait_save()
-	var before: Dictionary = Game.save_stats()
-	Game.SAVE_PATH = _path(index, "save.json")
-	Game.save_game()
-	Game.wait_save()
-	Game.SAVE_PATH = _scratch
+	# The existing native snapshot and writer, on a detached tree. Freezing its
+	# children selects v074's exact sidecar path without touching live game state.
+	var payload: Dictionary = Game._save_tree()
+	for key in payload:
+		if payload[key] is float and payload[key] != 0.0 and absf(payload[key]) < 0.1:
+			return _bad("native_root_float", "unsupported small top-level native scalar:" + str(key))
+		M.freeze_containers(payload[key])
+	var write: Dictionary = Game._write_save(_path(index, "save.json"), payload)
+	payload = {}
 	var stats: Dictionary = Game.save_stats()
-	if stats.get("last_ok", false) != true or int(stats.get("completed", 0)) <= int(before.get("completed", 0)) or bool(stats.get("pending", true)) or int(stats.get("active_snapshots", -1)) != 0: return _bad("native_save_receipt", JSON.stringify(stats))
+	if write.get("ok", false) != true or int(write.get("error", -1)) != OK or write.get("stage", "") != "complete" or int(write.get("serialized_bytes", 0)) <= 0 or bool(stats.get("pending", true)) or int(stats.get("active_snapshots", -1)) != 0: return _bad("native_save_receipt", JSON.stringify(write))
 	if not FileAccess.file_exists(_path(index, "save.json")): return _bad("missing_native_save", str(index))
 	var saved: Dictionary = _read(_path(index, "save.json"))
 	if not _error.is_empty(): return false
 	if not M.equal_json(saved.get("world", {}).get(META), meta) or not M.equal_json(saved.get("day"), meta["end_day"]) or not saved.get("world", {}).get("work", []).is_empty() or str(saved.get("rng_state", "")) != meta["rng"]["game"] or str(saved.get("world", {}).get("rng_state", "")) != meta["rng"]["world"]: return _bad("native_saved_payload", "saved day/metadata/queue/RNG differs from complete boundary")
 	var manifest: Dictionary = {"schema": SCHEMA, "index": index, "meta": meta, "rows_sha256": rows_sha,
-		"save_sha256": FileAccess.get_sha256(_path(index, "save.json")), "previous_manifest_sha256": meta["previous_manifest_sha256"]}
+		"save_sha256": FileAccess.get_sha256(_path(index, "save.json")), "previous_manifest_sha256": meta["previous_manifest_sha256"],
+		"native_writer_receipt": write}
 	var previous_sha: String = str(meta["previous_manifest_sha256"])
 	var bad: String = _manifest_error(manifest, index, previous, previous_sha, _params, _source)
 	if bad != "": return _bad("new_checkpoint_contract", bad)

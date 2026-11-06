@@ -56,21 +56,33 @@ static func contains_id(values, id: int) -> bool:
 
 
 static func plain(value):
-	# The existing native codec preserves floats that bare JSON cannot round-trip.
-	# A wrapper permits any top-level type and keeps codec metadata out of the value.
-	var encoded: String = Game.save_text({"value": Game._serialize(value)})
-	var parsed: Dictionary = JSON.parse_string(encoded)
-	Game.restore_exact(parsed)
-	return parsed["value"]
+	# Frozen detached containers take v074's exact-bit sidecar path for ALL small
+	# floats, including those the optional decimal-marker path cannot reach exactly.
+	var detached: Dictionary = {"value": Game._serialize(value)}
+	freeze_containers(detached)
+	var encoded: String = Game.save_text({"_economy_artifact_v094": "native074-frozen", "payload": detached})
+	return parse_exact(encoded)["value"]
+
+
+static func freeze_containers(value) -> void:
+	if value is Dictionary:
+		for child in value.values(): freeze_containers(child)
+		value.make_read_only()
+	elif value is Array:
+		for child in value: freeze_containers(child)
+		value.make_read_only()
 
 
 static func text(value: Dictionary) -> String:
-	return Game.save_text(plain(value))
+	var detached: Dictionary = plain(value)
+	freeze_containers(detached)
+	return Game.save_text({"_economy_artifact_v094": "native074-frozen", "payload": detached})
 
 
 static func parse_exact(encoded: String):
 	var parsed = JSON.parse_string(encoded)
 	if parsed is Dictionary: Game.restore_exact(parsed)
+	if parsed is Dictionary and parsed.get("_economy_artifact_v094", "") == "native074-frozen": return parsed["payload"]
 	return parsed
 
 
