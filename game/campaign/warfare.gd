@@ -209,9 +209,11 @@ static func after_battle(game, result: Dictionary, assault: Dictionary) -> void:
 	if game.world.is_empty() or Dynasty.selected(game).is_empty(): return
 	var st := _state(game)
 	var won := int(result.get("winner", -1)) == 0
-	if won: st["battles_won"] = int(st["battles_won"]) + 1
-	if won and not assault.get("dragon_units", []).is_empty(): st["dragon_victories"] = int(st.get("dragon_victories", 0)) + 1
-	else: st["battles_lost"] = int(st["battles_lost"]) + 1
+	if won:
+		st["battles_won"] = int(st["battles_won"]) + 1
+		if not assault.get("dragon_units", []).is_empty(): st["dragon_victories"] = int(st.get("dragon_victories", 0)) + 1
+	else:
+		st["battles_lost"] = int(st["battles_lost"]) + 1
 	var pending: Dictionary = assault.get("assault", {})
 	if not pending.is_empty():
 		DragonFear.after_battle(game, result, assault)

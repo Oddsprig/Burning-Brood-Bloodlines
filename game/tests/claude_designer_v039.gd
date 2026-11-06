@@ -84,8 +84,23 @@ func test_options_and_validation() -> void:
 	check(bool(pre.get("ok", false)) and str(pre.get("name", "")) == "Aldric Native Cadet", "preview computes full name with family surname")
 	check(fingerprint() == before, "preview and invalid checks mutate nothing")
 
+func test_apply_before_selection() -> void:
+	var fx: Dictionary = fixture()
+	Game.day = 30.0
+	Game.world["player_house"] = {}
+	var leader_uid := str(fx["leader"][Persons.PERSON_UID])
+	var before := fingerprint()
+	check(not bool(CharacterDesign.apply(Game, leader_uid, {"first_name": "A"}).get("ok", true)) and fingerprint() == before,
+		"invalid pre-selection apply at day 30 changes nothing")
+	var applied := CharacterDesign.apply(Game, leader_uid, {"first_name": "Cedric", "focus": "martial"})
+	check(bool(applied.get("ok", false)) and str(fx["leader"][7]) == "Cedric Native Cadet", "apply allowed at day 30 before choosing a house")
+	check(Game.world["player_house"].is_empty() and Game.day == 30.0, "apply stages design without publishing a house or changing history")
+	check(applied.get("design", {}).get("person_uid") == leader_uid and applied.get("design", {}).get("focus") == "martial",
+		"apply returns the real ruler design for Begin to publish")
+
 func test_begin_portrait_bind_and_save() -> void:
 	var fx: Dictionary = fixture()
+	Game.day = 30.0   # A longer history is represented directly, without simulating it.
 	var f: Dictionary = fx["ordinary"]
 	var leader: Array = fx["leader"]
 	var son: Array = fx["son"]
@@ -105,10 +120,12 @@ func test_begin_portrait_bind_and_save() -> void:
 		},
 	}
 	var before_preview: String = fingerprint()
+	check(bool(CharacterDesign.preview(Game, leader_uid, custom["design"]).get("ok", false)), "preview allowed at day 30 before a house is chosen")
 	var pre_onboard: Dictionary = HouseOnboarding.preview(Game, "seat", str(f["household_uid"]), custom)
 	check(bool(pre_onboard.get("ok", false)) and fingerprint() == before_preview, "HouseOnboarding.preview with custom.design changes nothing")
 	var begun: Dictionary = HouseOnboarding.begin(Game, "seat", str(f["household_uid"]), custom, leader_uid)
 	check(bool(begun.get("ok", false)), "HouseOnboarding.begin with custom.design succeeds")
+	check(Game.day == 30.0, "begin preserves the chosen history day")
 	check(str(leader[7]) == "Aldric Native Cadet" and leader.size() <= Persons.FATHER_UID + 1, "apply writes p[7] = first + family name without adding person slots")
 	check(str(Dynasty.ruler(Game).get("name", "")) == "Aldric Native Cadet" and str(Game.world["player_house"].get("ruler_name", "")) == "Aldric Native Cadet", "ruler name updated in Dynasty and player_house")
 	var saved_design: Dictionary = Game.world["player_house"].get("design", {})
@@ -128,9 +145,13 @@ func test_begin_portrait_bind_and_save() -> void:
 	Persons.bind(e, f, leader, u, "company", float(Game.day))
 	check(int(u.skills.get("tactician", 0)) == base_tactician + CharacterDesign.FOCUS_BONUS, "focus skill bonus is applied only once")
 	check(not bool(CharacterDesign.apply(Game, str(son[Persons.PERSON_UID]), {"first_name": "Bram"}).get("ok", true)), "apply refused for non-ruler person")
-	Game.day = 2.0
-	check(not bool(CharacterDesign.apply(Game, leader_uid, {"first_name": "Cedric"}).get("ok", true)), "apply refused when Game.day > 1")
-	check(str(leader[7]) == "Aldric Native Cadet", "refused apply after day 1 leaves ruler name unchanged")
+	var chosen_before := fingerprint()
+	check(not bool(CharacterDesign.preview(Game, leader_uid, {"first_name": "Cedric"}).get("ok", true)), "preview refused after a house is chosen")
+	check(not bool(CharacterDesign.apply(Game, leader_uid, {"first_name": "Cedric"}).get("ok", true)), "apply refused after a house is chosen")
+	check(fingerprint() == chosen_before and str(leader[7]) == "Aldric Native Cadet", "refused design leaves the chosen house, ruler and history unchanged")
+	Game.day = 1.0
+	check(not bool(CharacterDesign.preview(Game, leader_uid, {}).get("ok", true)) and not bool(CharacterDesign.apply(Game, leader_uid, {}).get("ok", true)), "chosen house blocks both calls even on day 1")
+	Game.day = 30.0
 	var raw_save: Variant = JSON.parse_string(JSON.stringify(Game._save_tree()))
 	var saved_dict: Dictionary = raw_save if raw_save is Dictionary else {}
 	var restored_world: Dictionary = Game._deserialize(saved_dict["world"])
@@ -141,6 +162,7 @@ func test_begin_portrait_bind_and_save() -> void:
 
 func run(_tree: SceneTree) -> int:
 	test_options_and_validation()
+	test_apply_before_selection()
 	test_begin_portrait_bind_and_save()
 	print("designer039: %d checks, %d failures" % [checks, fails])
 	return fails

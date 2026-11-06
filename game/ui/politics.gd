@@ -16,7 +16,7 @@ var _refresh_pending := false
 
 static func open_view(view: String, tid: String, previous: String, previous_params: Dictionary = {}) -> void:
 	var origin := Game.location
-	Game.location = tid
+	# Browsing is screen state; the company's physical location remains the save source.
 	Game.goto(view, {"town_id": tid, "back": previous, "return_location": origin, "back_params": previous_params})
 
 static func law_text(law: String) -> String:
@@ -287,7 +287,6 @@ func _budget_records(view: String, id: String, tab: String) -> void:
 
 func _select(tid: String) -> void:
 	town_id = tid
-	Game.location = tid
 	notice = ""
 	_refresh()
 

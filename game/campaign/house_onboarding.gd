@@ -124,7 +124,7 @@ static func begin(game, town_id: String, household_uid: String, custom: Dictiona
 	if party.is_empty(): return {"ok": false, "reason": "The existing campaign party is unavailable."}
 	var row: Dictionary = out["house"]; var town: Dictionary = game.world["towns"][town_id]
 	var estate_uid := str(town["econ"].get("head", {}).get("household_uid", household_uid)) if row["holds_office"] else household_uid
-	game.world["player_house"] = {"town_id": town_id, "house_uid": row["house_uid"], "household_uid": household_uid,
+	var player_house := {"town_id": town_id, "house_uid": row["house_uid"], "household_uid": household_uid,
 		"ruler_uid": row["leader_uid"], "leader_uid": row["leader_uid"], "estate_household_uid": estate_uid,
 		"native_house_name": row["native_house_name"], "house_name": out["customization"]["display_name"],
 		"ruler_name": row["leader_name"], "ruler_sex": row["leader_sex"], "ruler_race": row["leader_race"], "title": row["title"],
@@ -132,7 +132,11 @@ static func begin(game, town_id: String, household_uid: String, custom: Dictiona
 		"customization": out["customization"].duplicate(true)}
 	if custom.has("design") and custom["design"] is Dictionary:
 		var applied: Dictionary = CharacterDesign.apply(game, str(row["leader_uid"]), custom["design"])
-		if not bool(applied.get("ok", false)): game.world.erase("player_house"); return applied
+		if not bool(applied.get("ok", false)): return applied
+		player_house["ruler_name"] = applied["name"]
+		player_house["design"] = applied["design"]
+	game.world["player_house"] = player_house
+	if player_house.has("design"):
 		out["portrait_spec"] = Dynasty.portrait_for(game, Dynasty.person(game, str(row["leader_uid"])), out["customization"])
 	var pos: Vector2 = town["pos"]
 	party["pos"] = CampaignWorld.nearest_passable(game.world, pos) if str(game.world.get("terrain", "")) != "" else pos
