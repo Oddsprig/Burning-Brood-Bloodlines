@@ -1,5 +1,7 @@
 extends RefCounted
 ## Read-only observations. No economic update, grants, or inferred sales ledger.
+const CASH_ROUNDOFF_ABS: float = 1e-12
+static var cash_roundoff: Array = []
 
 static func equal_json(a, b) -> bool:
 	if (a is int or a is float) and (b is int or b is float):
@@ -121,14 +123,17 @@ static func finite(value, path: String = "") -> String:
 	return ""
 
 
-static func physical(value, path: String) -> String:
+static func physical(value, path: String, cash: bool = false) -> String:
 	if value is int or value is float:
 		if not is_finite(float(value)): return path + ":nonfinite"
+		if cash and value is float and value < 0 and value >= -CASH_ROUNDOFF_ABS:
+			cash_roundoff.append({"path": path, "value": value})
+			return ""
 		if value < 0: return path + ":negative_physical=" + Game.float_text(float(value))
 		return ""
 	if value is Dictionary:
 		for k in value:
-			var bad: String = physical(value[k], path + "/" + str(k))
+			var bad: String = physical(value[k], path + "/" + str(k), cash)
 			if bad != "": return bad
 		return ""
 	return path + ":physical_field_not_numeric"
@@ -144,10 +149,10 @@ static func numeric(value, path: String = "") -> String:
 	return path + ":not_numeric"
 
 
-static func _holders(d: Dictionary, keys: Array, path: String) -> String:
+static func _holders(d: Dictionary, keys: Array, path: String, cash: bool = false) -> String:
 	for k in keys:
 		if not d.has(k): continue
-		var bad: String = physical(d[k], path + "/" + str(k))
+		var bad: String = physical(d[k], path + "/" + str(k), cash)
 		if bad != "": return bad
 	return ""
 
@@ -163,34 +168,39 @@ static func _treasure_rows(rows: Array, path: String) -> String:
 
 
 static func validate_physical() -> String:
-	var bad: String = physical(Game.gold, "company/gold")
+	cash_roundoff = []
+	var bad: String = physical(Game.gold, "company/gold", true)
 	if bad != "": return bad
 	for tid in Game.world.get("towns", {}):
 		var t: Dictionary = Game.world["towns"][tid]
 		if not TownEcon.has_econ(t): continue
 		var e: Dictionary = t["econ"]
 		var path: String = "town/" + str(tid)
-		bad = _holders(e, ["treasury", "farm_till", "land_fund", "stock", "barn", "hh", "gh", "granary"], path)
+		bad = _holders(e, ["treasury", "farm_till", "land_fund"], path, true)
+		if bad != "": return bad
+		bad = _holders(e, ["stock", "barn", "hh", "gh", "granary"], path)
 		if bad != "": return bad
 		for b in e.get("biz", []):
-			bad = physical(b.get("till", NAN), path + "/biz/" + str(b.get("id", "?")) + "/till")
+			bad = physical(b.get("till", NAN), path + "/biz/" + str(b.get("id", "?")) + "/till", true)
 			if bad != "": return bad
 			bad = _treasure_rows(b.get("court_stock", []), path + "/business/court_stock")
 			if bad != "": return bad
 		for f in e.get("fams", []):
-			bad = physical(f.get("purse", NAN), path + "/family/" + str(f.get("id", "?")) + "/purse")
+			bad = physical(f.get("purse", NAN), path + "/family/" + str(f.get("id", "?")) + "/purse", true)
 			if bad != "": return bad
 			bad = _holders(f, ["store", "gems"], path + "/family/" + str(f.get("id", "?")))
 			if bad != "": return bad
 			bad = _treasure_rows(f.get("hoard", []), path + "/family/" + str(f.get("id", "?")) + "/hoard")
 			if bad != "": return bad
 		for row in e.get("supply_orders", []):
-			bad = _holders(row, ["reserved"], path + "/supply_order")
+			bad = _holders(row, ["reserved"], path + "/supply_order", true)
 			if bad != "": return bad
 	for key in ["factions", "lairs", "warbands"]:
 		for id in Game.world.get(key, {}):
 			var row: Dictionary = Game.world[key][id]
-			bad = _holders(row, ["treasury", "loot", "gold", "stores"], key + "/" + str(id))
+			bad = _holders(row, ["treasury", "loot", "gold"], key + "/" + str(id), true)
+			if bad != "": return bad
+			bad = _holders(row, ["stores"], key + "/" + str(id))
 			if bad != "": return bad
 			bad = _treasure_rows(row.get("loot_hoard", []), key + "/" + str(id) + "/loot_hoard")
 			if bad != "": return bad
@@ -275,7 +285,7 @@ static func _empty_group() -> Dictionary:
 
 
 static func capture(race_keys: Array, types: Dictionary) -> Dictionary:
-	var out: Dictionary = {"day": Game.day, "groups": {"WORLD": _empty_group()}, "towns": {}, "makers": {}}
+	var out: Dictionary = {"day": Game.day, "groups": {"WORLD": _empty_group()}, "towns": {}, "makers": {}, "cash_roundoff": cash_roundoff.duplicate(true)}
 	for race in race_keys: out["groups"][race] = _empty_group()
 	for tid in Game.world.get("towns", {}):
 		var t: Dictionary = Game.world["towns"][tid]

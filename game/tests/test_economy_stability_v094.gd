@@ -81,7 +81,8 @@ func _base_params() -> Dictionary:
 		"batch_days": _opts["batch-days"], "soft_ms": SOFT_MS, "day_ms": DAY_MS, "drain_end_ms": DRAIN_END_MS,
 		"absolute_ms": ABSOLUTE_MS, "item_quality_value_growth": 1.25, "quality_cap": 5,
 		"races": RACES, "grouping": "native town culture race; no within-town minority estimate", "autosave": "off_in_memory",
-		"artifact_float_codec": "existing native v074 save_text/restore_exact with detached frozen containers", "fractional_hash_codec": "IEEE754 float64 hex"}
+		"artifact_float_codec": "existing native v074 save_text/restore_exact with detached frozen containers", "fractional_hash_codec": "IEEE754 float64 hex",
+		"cash_roundoff_abs": M.CASH_ROUNDOFF_ABS, "cash_roundoff_policy": "record exact values; no mutation; quantities and counts remain strict"}
 
 
 func _static_contract() -> bool:
@@ -673,7 +674,7 @@ func _batch(tree: SceneTree, types: Dictionary) -> Dictionary:
 		_evidence["attempted_complete_offset"] = next
 		var row: Dictionary = {"offset": next, "day": Game.day, "calendar": _calendar(Game.day), "clean": true, "pending_work": 0,
 			"groups": observation["groups"], "changes": {}, "makers": M.maker_changes(before["makers"], observation["makers"]),
-			"native_encounter": str(Game.world.get("encounter", ""))}
+			"native_encounter": str(Game.world.get("encounter", "")), "cash_roundoff": observation["cash_roundoff"]}
 		row["changes"] = _changes(before["groups"], observation["groups"])
 		if int(row["changes"]["WORLD"]["census_residual"]) != 0:
 			_evidence["failed_daily_observation"] = row
@@ -923,7 +924,13 @@ func _contract() -> int:
 			and M.equal_json(normalized, M.plain(M.plain(normalized))) and M.digest(original) == M.digest(decoded)])
 	cases.append(["valid_physical", M.physical({"food": 0.0, "cash": 1}, "synthetic") == ""])
 	cases.append(["reject_negative_physical", M.physical({"food": -1}, "synthetic") != ""])
-	cases.append(["reject_nonfinite_cash", M.physical({"cash": INF}, "synthetic") != ""])
+	cases.append(["valid_recorded_cash_roundoff", M.physical(-8.881784197001252e-16, "synthetic/purse", true) == ""
+		and M.cash_roundoff[-1]["value"] == -8.881784197001252e-16])
+	cases.append(["reject_cash_beyond_roundoff_bound", M.physical(-2e-12, "synthetic/purse", true) != ""])
+	cases.append(["reject_tiny_negative_physical_quantity", M.physical(-8.881784197001252e-16, "synthetic/food") != ""])
+	cases.append(["reject_negative_cash_integer", M.physical(-1, "synthetic/purse", true) != ""])
+	cases.append(["reject_real_native_treasury_overdraft", M.physical(-197.59569512111216, "synthetic/treasury", true) != ""])
+	cases.append(["reject_nonfinite_cash", M.physical(INF, "synthetic/purse", true) != ""])
 	cases.append(["reject_nonfinite_stock", M.physical({"food": NAN}, "synthetic") != ""])
 	cases.append(["valid_lawful_debt_negative_profit_flow", M.finite({"debt": -50.0, "owed": 50.0, "profit": -3.0, "net_receipts": [-2.0]}) == ""])
 	cases.append(["reject_failed_native_audit", _audit_error({"ok": false}) != ""])
