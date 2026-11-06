@@ -60,8 +60,8 @@ func _parse() -> bool:
 
 
 func _options_error(options: Dictionary) -> String:
-	if not options["mode"] in ["contract", "batch", "final", "diagnostic"]: return "mode must be contract, batch, final, or diagnostic"
-	if options["mode"] == "diagnostic":
+	if not options["mode"] in ["contract", "batch", "final", "diagnostic", "purse-diagnostic"]: return "unknown economy mode"
+	if options["mode"] in ["diagnostic", "purse-diagnostic"]:
 		if str(options["input-save"]) == "" or not _sha(str(options["input-sha"])): return "diagnostic requires an exact input save and SHA256"
 	elif str(options["input-save"]) != "" or str(options["input-sha"]) != "": return "input save is diagnostic-only"
 	if int(options["checkpoint"]) < 0 or int(options["checkpoint"]) > 240: return "checkpoint out of range 0..240"
@@ -980,6 +980,45 @@ func _diagnostic(tree: SceneTree) -> int:
 	return 0 if unchanged and Game.day == 53.0 else 1
 
 
+func _purse_diagnostic(tree: SceneTree) -> int:
+	# Read-only copied P8 checkpoint; diagnostic output never accepts a campaign.
+	var path: String = str(_opts["input-save"])
+	var expected_sha: String = str(_opts["input-sha"])
+	if FileAccess.get_sha256(path) != expected_sha: return 1
+	var scratch: String = Game.SAVE_PATH
+	Game.SAVE_PATH = path
+	var loaded: bool = Game.load_game()
+	Game.SAVE_PATH = scratch
+	if not loaded or Game.seed_value != 4242 or Game.day != 91.0 or int(Game.world.get(META, {}).get("completed", -1)) != 90: return 1
+	var e: Dictionary = Game.world["towns"]["t14"]["econ"]
+	var family: Dictionary = {}
+	for f in e["fams"]:
+		if int(f["id"]) == 13: family = f
+	if family.is_empty(): return 1
+	var trace: Array = []
+	var anchor: Dictionary = WorldAudit.census(Game)
+	for step in 8:
+		var before: Dictionary = family.duplicate(true)
+		Game.advance_time(1.0, false, 0, 1000)
+		if before["purse"] != family["purse"]:
+			trace.append({"day": Game.day, "job": "advance_time", "before": before, "after": family.duplicate(true)})
+		while not Game.world.get("work", []).is_empty():
+			if _elapsed() >= ABSOLUTE_MS: return 1
+			var job = M.plain(Game.world["work"][0])
+			before = family.duplicate(true)
+			CampaignWorld.work_slice(Game, 1)
+			if before["purse"] != family["purse"]:
+				trace.append({"day": Game.day, "job": job, "before": before, "after": family.duplicate(true), "prices": e["price"].duplicate()})
+			await tree.process_frame
+		if not Game.pending_battle.is_empty(): return 1
+	var unchanged: bool = FileAccess.get_sha256(path) == expected_sha
+	print("ECONOMY_PURSE_DIAGNOSTIC_V094 " + M.text({"scope": "NON_ACCEPTANCE copied-input replay", "overallComplete": false,
+		"input_sha256": expected_sha, "input_unchanged": unchanged, "start_day": 91, "end_day": Game.day,
+		"town": "t14", "family_id": 13, "purse": family["purse"], "trace": trace,
+		"native_audit": WorldAudit.compare(anchor, WorldAudit.census(Game))}))
+	return 0 if unchanged and Game.day == 99.0 else 1
+
+
 func run(tree: SceneTree) -> int:
 	_started = Time.get_ticks_msec()
 	if not _parse():
@@ -990,6 +1029,7 @@ func run(tree: SceneTree) -> int:
 	Game.settings["autosave"] = "off"
 	Game.wait_save()
 	if _opts["mode"] == "diagnostic": return await _diagnostic(tree)
+	if _opts["mode"] == "purse-diagnostic": return await _purse_diagnostic(tree)
 	var result = await _execute(tree)
 	Game.wait_save()
 	if not result is Dictionary or result.get("finished", false) != true or result.get("ok", false) != true or result.get("allGroupsVerified", false) != true or not _error.is_empty():
