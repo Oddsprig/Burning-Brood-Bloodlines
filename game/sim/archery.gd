@@ -82,6 +82,19 @@ static func nearest_enemy(sim, f: Fighter) -> Array:
 			best = e
 	return [best, bd]
 
+## Nearest enemy who can still fight, on his feet or not (v0.100): [fighter or null, Chebyshev distance].
+static func nearest_active_enemy(sim, f: Fighter) -> Array:
+	var best: Fighter = null
+	var bd := 1 << 30
+	for e in sim._targets[1 - f.side]:
+		if not e.active() or e.routed or e.waiting:
+			continue
+		var d: int = maxi(absi(e.cell.x - f.cell.x), absi(e.cell.y - f.cell.y))
+		if d < bd:
+			bd = d
+			best = e
+	return [best, bd]
+
 ## An enemy within arm's reach who can still fight, on his feet or not (v0.100).
 static func foe_beside(sim, f: Fighter) -> bool:
 	return foe_beside_of(sim, f) != null
@@ -103,6 +116,14 @@ static func decide(sim, f: Fighter) -> bool:
 	var ne := nearest_enemy(sim, f)
 	var near: Fighter = ne[0]
 	var dn: int = ne[1]
+	# v0.100 review: when nobody is on his feet, a fallen enemy is still the enemy. Without this an archer who stepped
+	# clear of a fallen defender holding his ground idled two tiles away until the battle timed out as a draw.
+	var stand_near := near
+	var stand_dn := dn
+	if near == null:
+		var pe := nearest_active_enemy(sim, f)
+		near = pe[0]
+		dn = pe[1]
 	var bt: Dictionary = sim._tmpl(f.bow)
 	var min_r := int(bt.get("min_range", Formulas.BOW_MIN_RANGE))
 	if not f.bow_hand:
@@ -137,7 +158,7 @@ static func decide(sim, f: Fighter) -> bool:
 	# their feet. Without this the archer stood idle with his bow while the fallen man stabbed him.
 	# He first steps clear of the fallen man (who cannot follow quickly) and keeps his bow; only a cornered archer
 	# draws the sword. Drawing at once flipped too many foot-against-horse fights (balance_v070 mount band).
-	if near == null or dn > 1:
+	if stand_near == null or stand_dn > 1:
 		var fallen := foe_beside_of(sim, f)
 		if fallen != null:
 			if not f.hold and kite(sim, f, fallen):
@@ -168,6 +189,8 @@ static func decide(sim, f: Fighter) -> bool:
 	if t == null or not t.alive() or t.state == "fled" or t.waiting or t.state == "unconscious" or f.retarget_count % 4 == 0:
 		sim._pick_target(f)
 		t = sim.fighters[f.target] if f.target >= 0 else null
+	if t == null and stand_near == null:
+		t = near   # v0.100 review: only fallen enemies are left; shoot the nearest of them
 	if t == null:
 		sim._set_action(f, sim._idle_state(f), sim._ticks(f, 5.0))
 		return true
