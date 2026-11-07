@@ -3,6 +3,10 @@ extends RefCounted
 ## row, lane, lazy detail and action oracle. Raw live ledgers independently check
 ## active mine last-wins selection, merchant sums, business staffing and cash.
 ## Native 16 ms tests remain unchanged; this adds correctness/fit coverage.
+## v0.099: the whole test runs longer than the 3-minute limit, so it splits into short runs with --part=:
+##   --part=world   whole-world tabs        --part=faction   faction-scoped tabs + town tabs
+##   --part=wide    1280x720 native fit + same-frame checks   --part=tall   720x1280 native fit.
+##   No --part runs everything (over 3 min).
 const BASELINE := preload("res://tests/fixtures/records_v044_baseline.gd")
 const WORLD_TABS := ["Mines & land", "Census", "Merchants", "Towns", "On the move", "Food flows"]
 const TOWN_TABS := ["Businesses", "Register"]
@@ -37,6 +41,15 @@ func check(ok: bool, why: String) -> void:
 func run(st: SceneTree) -> int:
 	tree = st
 	native_probe = OS.get_cmdline_user_args().has("--records-v044-native-probe")
+	var part := ""
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--part="): part = a.trim_prefix("--part=")
+	var do_world := part in ["", "world"]
+	var do_faction := part in ["", "faction"]
+	var sizes: Array = []
+	if part in ["", "wide"]: sizes.append(Vector2i(1280, 720))
+	if part in ["", "tall"]: sizes.append(Vector2i(720, 1280))
+	if native_probe: sizes = [Vector2i(1280, 720), Vector2i(720, 1280)]
 	check(FileAccess.get_file_as_string("res://ui/rec_pages.gd").replace("\r\n", "\n").sha256_text() == BASELINE.LIVE_PAGES_SHA256, "live RecPages source exactly matches frozen delivered v043 dependency")
 	await tree.process_frame
 	Game.new_game(11)
@@ -55,13 +68,14 @@ func run(st: SceneTree) -> int:
 	var scoped: Array = all.filter(func(id): return String(Game.world["towns"][id].get("faction", "")) == fid)
 	if not native_probe:
 		for tab in WORLD_TABS:
-			_contract(all, "", tab, "original evolved whole world")
-			_contract(scoped, fid, tab, "original evolved faction")
-		for tab in TOWN_TABS: _town_contract(tid, tab, "original evolved town")
+			if do_world: _contract(all, "", tab, "original evolved whole world")
+			if do_faction: _contract(scoped, fid, tab, "original evolved faction")
+		if do_faction:
+			for tab in TOWN_TABS: _town_contract(tid, tab, "original evolved town")
 	fit = load("res://tests/test_ui_fit.gd").new()
 	fit.tree = tree
-	for size in [Vector2i(1280, 720), Vector2i(720, 1280)]: await _native(size, tid, fid)
-	if not native_probe: _same_frame(tid, fid)
+	for size in sizes: await _native(size, tid, fid)
+	if not native_probe and part in ["", "wide"]: _same_frame(tid, fid)
 	Game.location = ""
 	if native_probe:
 		print("RECORDS V044 native_probe checks=", checks, " failures=", fails, " fit_failures=", fit.fails)

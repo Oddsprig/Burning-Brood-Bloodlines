@@ -15,6 +15,16 @@ func run(tree: SceneTree) -> int:
 	await tree.process_frame
 	Game.new_game(21)
 	Game.location = ""
+	# v0.099: a new game now starts with no company, rations or coin until a house is chosen and raises men;
+	# give this test the two men, meals, beer, wine and purse it was written for.
+	var rng := RandomNumberGenerator.new(); rng.seed = 21
+	while Game.company.size() < 2:
+		var man := Factory.make_troop(rng, "middle_kingdom", DB.factions["middle_kingdom"]["troops"][0], 2)
+		man.faction = "player"
+		Game.company.append(man)
+	for k in Food.KINDS:
+		if Food.stock(Game, k) == 0: Food.add_stock(Game, k, 6)
+	if Game.gold <= 0: Game.gold = 40
 	Game.stash.append(Item.make("bearded_axe", "iron", 2))
 	Game.stash.append(Item.make("mail_shirt", "bronze", 0))
 	Goods.add_to_company(Game, "hides", 3.0)
