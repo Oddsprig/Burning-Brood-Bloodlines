@@ -1,5 +1,5 @@
 BURNING BROOD: BLOODLINES - CURRENT DEVELOPER NOTES
-Updated: 2026-11-07 | v0.098 merged (merge pending) | v0.097 merged 7b0429ab4aa596498624f862398c4bcd30e6b737 | v0.096 merged 6ed741a3134e8029496e83da18979052b015efb9 | packaged Desktop/Android v0.085
+Updated: 2026-11-07 | v0.098 merged c6d525aa01d67bafacbf96f02206749b98d19bd3 | v0.097 merged 7b0429ab4aa596498624f862398c4bcd30e6b737 | v0.096 merged 6ed741a3134e8029496e83da18979052b015efb9 | packaged Desktop/Android v0.085
 
 CURRENT SOURCE AND DOCUMENTATION
 v0.086-v0.094 are accepted normal source merges. The last packaged release remains
@@ -17,7 +17,7 @@ lead reviews/commits/pushes normally. It counts toward the standing two-helper c
 See docs/BUILD_RULES.md and the shared machine GAME TESTING RULES.md. Historical
 commands/receipts and this audit never grant permission for another test or build.
 
-v0.098 - BATTLE SCREEN, RECORDS TABLES AND PHONE LAYOUT (merged (merge pending))
+v0.098 - BATTLE SCREEN, RECORDS TABLES AND PHONE LAYOUT (merged c6d525aa01d67bafacbf96f02206749b98d19bd3)
 Base: c1b751a. Presentation only: no rule, save or simulation change. The
 combat text JSON drops its per-tick bleed numbers (same lines, same count, so
 the variant picks and the sim's random draws are unchanged). Version metadata

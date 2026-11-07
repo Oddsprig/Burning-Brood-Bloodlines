@@ -1,5 +1,5 @@
 BURNING BROOD: BLOODLINES - ACTIVE CHANGE NOTES
-Updated: 2026-11-07 for v0.098 merged as (merge pending).
+Updated: 2026-11-07 for v0.098 merged as c6d525aa01d67bafacbf96f02206749b98d19bd3.
 v0.097 merged as 7b0429ab4aa596498624f862398c4bcd30e6b737.
 v0.096 merged as 6ed741a3134e8029496e83da18979052b015efb9.
 Last packaged Desktop/Android release: v0.085. v0.096-v0.098 are source merges; no package is claimed.
@@ -9,7 +9,7 @@ history remains in the developer notes and immutable archives. Historical worker
 UNRUN reports are superseded by the accepted source receipts where stated.
 
 v0.098 - Battle screen, Records tables and phone layout
-Normal merge: (merge pending) (branch v0.098-screens-and-phone).
+Normal merge: c6d525aa01d67bafacbf96f02206749b98d19bd3 (branch v0.098-screens-and-phone).
 Base c1b751a (main after v0.097 notes). Presentation only: no rule, save or
 simulation change.
 Battle: Settings has the same look as the other playback buttons (it looked
