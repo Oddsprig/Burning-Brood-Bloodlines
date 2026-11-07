@@ -428,8 +428,8 @@ static func purse_text(game) -> String:
 	return "Day %d   %s coins   wages %s/day%s" % [int(game.day) + 1, thousands(int(game.gold)), thousands(int(game.daily_wages())),
 		("   %d men unpaid" % unpaid) if unpaid > 0 else ""]
 
-## v0.096 coin amounts for reading: whole coins with thousands separators from 100 up ("23,323"), exact cents below
-## ("12.34") where a small receipt would otherwise round away. 0 -> "0".
+## v0.096 coin amounts for reading: thousands separators and the cents kept ("23323.31" -> "23,323.31");
+## whole amounts drop the zeros ("100.00" -> "100"). 0 -> "0".
 static func coins(v: float) -> String:
 	return decimal(v, 2)
 
@@ -437,6 +437,7 @@ static func coins(v: float) -> String:
 ## A value that is whole at that precision drops its zeros ("100.00" -> "100"); nothing is rounded away beyond `places`.
 static func decimal(v: float, places: int = 2) -> String:
 	if is_inf(v) or is_nan(v): return "-"
+	places = clampi(places, 0, 6)
 	var step := int(pow(10, places))
 	var units := int(round(absf(v) * step))
 	var neg := "-" if v < 0.0 and units > 0 else ""
