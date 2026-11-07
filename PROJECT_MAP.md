@@ -1,6 +1,21 @@
 # Burning Brood: Bloodlines — current developer map
 
-Updated 6 November 2026 for v0.095, normally merged as `5e17abb014a1f01f0426406bd455e249f06a8e20` from the approved branch based on `main` `2ce6c5e`. Source versions v0.086–v0.094 are accepted normal merges; the last packaged Desktop/Android release is v0.085. v0.095 passed 203 checks; the owner reviewed the full diff and test output and explicitly approved the merge. The older source-only audit below is pinned to v0.094.
+Updated 7 November 2026 for v0.096 (readable text, fonts and layout on every page), normally merged (hash recorded after the merge) from branch `v0.096-ui-readability` based on `main` `951cf2d`. v0.095 was normally merged as `5e17abb014a1f01f0426406bd455e249f06a8e20`. Source versions v0.086–v0.094 are accepted normal merges; the last packaged Desktop/Android release is v0.085. The older source-only audit below is pinned to v0.094.
+
+## v0.096 — readable text, fonts and layout
+
+Presentation only: no rule, save or simulation change. Every page's status is in [the v0.096 page review](docs/ui_review_v096.md).
+
+| Area | Owner and boundary |
+|---|---|
+| Contrast | `game/core/sound.gd` `_fix_contrast` + `surface_behind()`; `game/ui/theme.gd` `readable()`/`is_light()`. Text colour is judged against the real panel or button surface behind it. Meta `keep_color` opts a label out. |
+| Selected vs disabled | `theme.gd` `_selected_stays_selected` (RowOn/TabOn); `game/ui/kit.gd` `mark_choice()`. Used by `ui/dragons.gd`, `ui/house_laws.gd`, `ui/politics.gd` (defence order in force). |
+| Numbers | `kit.gd` `decimal()`, `coins()`, `group_digits()` (display only); `game/ui/rec_kit.gd` `num()`; `game/ui/rec_cells.gd` draws grouped digits with `UiTheme.numeric_font()`. Records metadata keeps raw values. |
+| Fonts and styles | `theme.gd` `regular_font()` (lining figures), `numeric_font()` (lining + tabular), variations `Lead` and `Caption`, line spacing 5 px. |
+| Walls of text | `ui/guide_view.gd` (`PAGES` = title, lead, points), `ui/dragon_roost.gd` captions, `ui/politics.gd`, `ui/population.gd`, `ui/victory.gd`, `ui/baggage.gd`, `ui/muster.gd`, `ui/gameover.gd`. |
+| Layout | `ui/dynasty_card.gd` (house name width), `game/campaign/world_map.gd` (`lbl_log`), `ui/town_contracts_tab.gd`, `ui/town_market_tab.gd`, `ui/town_econ_tab.gd` (`_badge`), `ui/house_select.gd` (colour swatches), `ui/records.gd` (civic links, crest chip). |
+
+Verification entry: `game/tests/ui_pages_v096.gd` renders 63 pages to PNG (xvfb in a Linux container only). 75 UI-related tests ran one at a time in a Linux cloud container (never the owner's PC), each capped at 175 s: 44 pass, 3 stop at the cap, 28 fail, and those 28 fail identically on main `951cf2d` (older issues, not v0.096). `test_town_services_v042` differed only by grouped contract pay and now matches main. Records v043 passes; v044 keeps main's same 15 failures. Display blocks a/b/c: only `claude_prisoners_ui_v033` and `claude_marriage` fail, both identically on main. The tour rendered 63 pages at 1600x900 and 720x1280. [Test receipts](test-results/v0.096_ui_tests.txt).
 
 ## v0.095 — initial design, browsing location and battle counters
 

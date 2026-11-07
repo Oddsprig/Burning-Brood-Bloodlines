@@ -257,7 +257,9 @@ func _contract_controls(screen: Control, town: Dictionary) -> void:
 		check(not c.is_empty(), "native offer ID resolves to actual town offer")
 		if c.is_empty(): continue
 		check(entry["pay"] == Contracts.offered_pay(Game, c) and entry["duration"] == c.get("duration", null), "offer quotes reflect negotiation and actual duration")
-		check(_texts(panel).contains(String(c["title"])) and _texts(panel).contains(str(Contracts.offered_pay(Game, c))), "real title and negotiated coins visible")
+		# v0.096 shows pay with thousands separators ("1,250"); the same exact amount must be visible.
+		var pay_text := UiKit.thousands(int(Contracts.offered_pay(Game, c)))
+		check(_texts(panel).contains(String(c["title"])) and _texts(panel).contains(pay_text), "real title and negotiated coins visible")
 		var details: Control = panel.find_child("ContractDetailsBody", true, false)
 		check(details != null and not details.visible and details.get_child_count() == 0, "description remains lazy until requested")
 		(panel.find_child("ContractDetails", true, false) as Button).pressed.emit()

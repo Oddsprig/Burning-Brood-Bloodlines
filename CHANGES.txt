@@ -1,10 +1,55 @@
 BURNING BROOD: BLOODLINES - ACTIVE CHANGE NOTES
-Updated: 2026-11-06 for v0.095 merged as 5e17abb014a1f01f0426406bd455e249f06a8e20.
-Last packaged Desktop/Android release: v0.085. v0.095 is merged with explicit owner approval.
+Updated: 2026-11-07 for v0.096 merged (hash recorded after the merge).
+Last packaged Desktop/Android release: v0.085. v0.096 is a source merge; no package is claimed.
 
 This changelog starts with the accepted v0.086-v0.094 source catch-up. Earlier
 history remains in the developer notes and immutable archives. Historical worker
 UNRUN reports are superseded by the accepted source receipts where stated.
+
+v0.096 - Readable text, fonts and layout on every page
+Normal merge: branch v0.096-ui-readability (hash recorded after the merge)
+Base: 951cf2d (main after v0.095 docs). Presentation only: no rule, save or
+simulation change.
+Contrast: the global label guard (core/sound.gd) and UiTheme.readable now judge
+the real surface behind the text (surface_behind), so dark ink stays dark on
+parchment cards and light text stays light on wood. Fixes light-on-light text
+on Contracts offers, Town price badges and parchment cards.
+Selected choices: RowOn/TabOn keep the selected look while disabled
+(UiKit.mark_choice); used by Dragons toggles, Laws and the Politics defence
+order in force. Other disabled buttons read as disabled.
+Numbers: UiKit.coins/UiKit.decimal group digits and keep cents (23323.31 ->
+23,323.31); town prices keep one decimal; RecKit.num groups whole numbers;
+records cells and summary cards group bare whole numbers for display only,
+records metadata keeps the raw value.
+Fonts: body text uses lining figures; records cells use tabular lining figures
+(UiTheme.numeric_font); new Lead and Caption styles; line spacing 5 px.
+Walls of text split into short lines: Guide pages (title, lead, bullets, every
+fact kept), Dragon roost (Condition, Bond, Daily care, Last care), Politics,
+Population, Victory (stat cards + Ambitions), Baggage, Muster, Game over.
+Layout: ruler card shows the whole house name; map log readable and clear of
+the ruler card; market headers; compact trend badges; designer colour swatches.
+Page-by-page status (fixed / OK / not fixed): docs/ui_review_v096.md.
+Owners (game/): ui/theme.gd; ui/kit.gd; core/sound.gd; ui/rec_kit.gd;
+ui/rec_cells.gd; ui/guide_view.gd; ui/dragon_roost.gd; ui/politics.gd;
+ui/population.gd; ui/victory.gd; ui/baggage.gd; ui/muster.gd; ui/gameover.gd;
+ui/house.gd; ui/house_laws.gd; ui/house_select.gd; ui/dragons.gd;
+ui/dynasty_card.gd; ui/records.gd; ui/town_contracts_tab.gd;
+ui/town_econ_tab.gd; ui/town_market_tab.gd; ui/town_orders_tab.gd;
+campaign/world_map.gd. Version metadata is 0.096.
+Tests changed: tests/fixtures/records_v044_baseline.gd frozen num/metrics follow
+the one deliberate digit-grouping change; tests/test_town_services_v042.gd
+checks the visible contract pay in its grouped form. New display-only
+tests/ui_pages_v096.gd screenshot tour (63 pages).
+Verification: 75 UI-related tests ran one at a time in a Linux cloud
+container (never the owner's PC), each capped at 175 s: 44 pass, 3 stop at the
+cap, 28 fail. The same 28 fail identically on main 951cf2d (older issues, not
+v0.096); test_town_services_v042 differed only by grouped contract pay and now
+matches main. Records v043 passes; v044 keeps main's same 15 failures. Display
+blocks a/b/c: only claude_prisoners_ui_v033 and claude_marriage fail, both
+identically on main. Screenshot tour: 63 pages at 1600x900 and 720x1280.
+Receipts: test-results/v0.096_ui_tests.txt.
+Review: Sol 6.1 max read-only review of each change set; two findings (cents
+and price tenths rounded away) and two nits fixed.
 
 v0.095 - Initial ruler design, saved location and battle counters
 Normal merge: 5e17abb014a1f01f0426406bd455e249f06a8e20
