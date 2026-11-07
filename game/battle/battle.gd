@@ -384,6 +384,63 @@ func _build_ui() -> void:
 	_layout_diagnostics()
 	_refresh_speed_buttons()
 
+func _safe_area_size() -> Vector2:
+	var vp := get_viewport_rect().size
+	var safe := UiKit.safe_area_margins(get_viewport())
+	var lane: float = UiKit.diagnostics_lane(vp.x)
+	return Vector2(
+		maxf(0.0, vp.x - lane - float(safe["left"] + safe["right"])),
+		maxf(0.0, vp.y - float(safe["top"] + safe["bottom"]))
+	)
+
+## v0.101: derive toast width and count from the safe area (using actual wrapped toast heights) so feed_box fits inside 844x390 and 1280x720.
+func _toast_width() -> float:
+	var want := 660.0 if UiTheme.is_mobile() else 440.0
+	var area := _safe_area_size()
+	return clampf(minf(want, area.x * 0.65), 220.0, maxf(220.0, area.x - 20.0))
+
+func _toast_max() -> int:
+	var mobile := UiTheme.is_mobile()
+	var cap := FEED_MAX_MOBILE if mobile else FEED_MAX
+	var area := _safe_area_size()
+	var top_y := feed_box.position.y if feed_box != null else (112.0 if mobile else 74.0)
+	var min_h := float(UiKit.MOBILE_TAP) if mobile else 36.0
+	var avail_h := maxf(0.0, area.y - top_y - 8.0)
+	if feed_box == null or feed_box.get_child_count() == 0:
+		return clampi(int(floor((avail_h + 4.0) / (min_h + 4.0))), 1, cap)
+	var tw := _toast_width()
+	var children := feed_box.get_children()
+	var used_h := 0.0
+	var kept := 0
+	for i in range(children.size() - 1, -1, -1):
+		var c := children[i]
+		if not (c is Control): continue
+		var ctrl := c as Control
+		ctrl.custom_minimum_size = Vector2(tw, min_h)
+		ctrl.size.x = tw
+		var ch := maxf(min_h, maxf(ctrl.size.y, ctrl.get_combined_minimum_size().y))
+		var next_h := ch if kept == 0 else used_h + 4.0 + ch
+		if kept >= 1 and next_h > avail_h:
+			break
+		used_h = next_h
+		kept += 1
+		if kept >= cap:
+			break
+	return clampi(kept, 1, cap)
+
+func _trim_toasts() -> void:
+	if feed_box == null: return
+	var avail_h := maxf(0.0, _safe_area_size().y - feed_box.position.y - 8.0)
+	var tw := _toast_width()
+	feed_box.custom_minimum_size = Vector2(tw, 0)
+	feed_box.size.x = tw
+	var max_toasts := _toast_max()
+	while feed_box.get_child_count() > max_toasts or (feed_box.get_child_count() > 1 and feed_box.get_combined_minimum_size().y > avail_h):
+		var old := feed_box.get_child(0)
+		feed_box.remove_child(old)
+		old.queue_free()
+	feed_box.size = feed_box.get_combined_minimum_size()
+
 func _layout_diagnostics() -> void:
 	if ui == null: return
 	var safe := UiKit.safe_area_margins(get_viewport())
@@ -403,6 +460,8 @@ func _layout_diagnostics() -> void:
 				feed_box.position.y = (sc as Control).position.y + bar_h + 8.0
 		else:
 			_playback_bar.size.x = span
+	if feed_box != null:
+		_trim_toasts()
 
 func _big_button(text: String, min_size: Vector2) -> Button:
 	var b := Button.new()
@@ -866,12 +925,13 @@ func _add_feed(e: Dictionary) -> void:
 	b.tooltip_text = BattleSim.event_text(e)
 	b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	b.custom_minimum_size = Vector2(440, 36)
+	var tw := _toast_width()
+	b.custom_minimum_size = Vector2(tw, 36)
 	b.focus_mode = Control.FOCUS_NONE
 	b.add_theme_font_size_override("font_size", UiTheme.px(15))
 	if mobile:
 		# v0.098: two wrapped lines of a short, whole sentence instead of one line cut after 30 letters
-		b.custom_minimum_size = Vector2(660, float(UiKit.MOBILE_TAP))
+		b.custom_minimum_size = Vector2(tw, float(UiKit.MOBILE_TAP))
 		b.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE - 4)
 	var a: int = int(e.get("actor", -1))
 	var col := TOAST_NEUTRAL
@@ -890,10 +950,7 @@ func _add_feed(e: Dictionary) -> void:
 			select(focus_i)
 			center_on(focus_i))
 	feed_box.add_child(b)
-	while feed_box.get_child_count() > (FEED_MAX_MOBILE if mobile else FEED_MAX):
-		var old := feed_box.get_child(0)
-		feed_box.remove_child(old)
-		old.queue_free()
+	_trim_toasts()
 
 func _update_feed(delta: float) -> void:
 	for c in feed_box.get_children():

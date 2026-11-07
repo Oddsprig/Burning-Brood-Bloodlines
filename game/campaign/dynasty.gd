@@ -138,12 +138,13 @@ static func _row(loc: Dictionary, day: float, title: String = "") -> Dictionary:
 	var e: Dictionary = loc["econ"]
 	var f: Dictionary = loc["family"]
 	var p: Array = loc["person"]
+	var race := Persons.person_race(e, f, p)   # v0.101: report a married-in spouse's own race, not the household's
 	return {"person_uid": str(Persons.g(p, Persons.PERSON_UID, "")),
 		"house_uid": str(Persons.g(p, Persons.HOUSE_UID, "")), "town_id": String(town.get("id", "")),
 		"town_name": String(town.get("name", "")), "family_id": int(f["id"]),
 		"household_uid": String(f.get("household_uid", "")), "family_name": String(f.get("name", "")),
-		"pid": int(p[0]), "name": Persons.name_of(f, p, Persons.family_race(e, f)), "sex": int(p[2]),
-		"race": Persons.family_race(e, f), "age": Persons.age_of(p, day), "state": String(p[4]),
+		"pid": int(p[0]), "name": Persons.name_of(f, p, race), "sex": int(p[2]),
+		"race": race, "age": Persons.age_of(p, day), "state": String(p[4]),
 		"unit_uid": int(p[5]), "alive": bool(loc["alive"]), "title": title,
 		"spouse_pid": int(Persons.g(p, Persons.SP, -1)), "mother_pid": int(Persons.g(p, Persons.MO, -1)),
 		"father_pid": int(Persons.g(p, Persons.FA, -1)), "spouse_uid": str(Persons.g(p, Persons.SPOUSE_UID, "")),
@@ -357,7 +358,7 @@ static func _remember(w: Dictionary, e: Dictionary, f: Dictionary, p: Array, ali
 	if f.get("cohort", false) and not b["houses"].has(house) and house != str(w.get("player_house", {}).get("house_uid", "")): return
 	var old: Dictionary = b["kin"].get(uid, {})
 	b["kin"][uid] = {"house_uid": house, "born": float(p[3]), "sex": int(p[2]),
-		"race": race if race != "" else Persons.family_race(e, f), "mother_uid": str(Persons.g(p, Persons.MOTHER_UID, old.get("mother_uid", ""))),
+		"race": race if race != "" else Persons.person_race(e, f, p), "mother_uid": str(Persons.g(p, Persons.MOTHER_UID, old.get("mother_uid", ""))),
 		"father_uid": str(Persons.g(p, Persons.FATHER_UID, old.get("father_uid", ""))), "alive": alive}
 
 ## Native birth/death callers preserve ancestry before household memory trimming.
@@ -416,7 +417,7 @@ static func _index_world(game) -> void:
 						# identities/flags twice, and read remembered parent fallback
 						# only when the native slot is genuinely absent.
 						kin[uid] = {"house_uid": house, "born": float(p[3]), "sex": int(p[2]),
-							"race": race, "mother_uid": str(p[Persons.MOTHER_UID]) if size > Persons.MOTHER_UID else str(old.get("mother_uid", "")),
+							"race": String(p[Persons.RACE]) if size > Persons.RACE and String(p[Persons.RACE]) != "" else race, "mother_uid": str(p[Persons.MOTHER_UID]) if size > Persons.MOTHER_UID else str(old.get("mother_uid", "")),
 							"father_uid": str(p[Persons.FATHER_UID]) if size > Persons.FATHER_UID else str(old.get("father_uid", "")), "alive": live}
 
 static func default_law(game, town_id: String) -> String:
@@ -497,11 +498,12 @@ static func _house_adult_heirs(game, uid: String, house: String, policy: String)
 				var puid: String = str(Persons.g(p, Persons.PERSON_UID, ""))
 				if puid == "" or seen.has(puid) or str(Persons.g(p, Persons.HOUSE_UID, "")) != house: continue
 				if not _living(game, tid, f, p): continue
-				if primary != "" and fr != primary:
+				var pr := Persons.person_race(e, f, p) if String(Persons.g(p, Persons.RACE, "")) != "" else fr
+				if primary != "" and pr != primary:
 					blocked = true
 					continue
 				var age: int = Persons.age_of(p, day)
-				if age < adult_age: continue
+				if age < (int(People.ages(pr)["adult"]) if pr != fr else adult_age): continue
 				var loc: Dictionary = {"town": town, "econ": e, "family": f, "person": p, "alive": true}
 				var row: Dictionary = _row(loc, day)
 				var u: Unit = bound_unit(game, row)

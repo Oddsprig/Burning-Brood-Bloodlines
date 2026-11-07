@@ -491,6 +491,7 @@ func _build_hud() -> void:
 	lbl_contract = _label(15, UiTheme.BLUE)
 	lbl_contract.custom_minimum_size.y = 48
 	lbl_contract.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	lbl_contract.visible = false
 	column.add_child(lbl_contract)
 	lbl_trade = _label(14, UiTheme.BLUE)
 	lbl_trade.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -519,8 +520,14 @@ func _build_hud() -> void:
 	bottom_nav = PanelContainer.new()
 	bottom_nav.add_theme_stylebox_override("panel", _style(UiTheme.WOOD_2))
 	hud_root.add_child(bottom_nav)
-	var navigation := UiKit.flow(6)
-	bottom_nav.add_child(navigation)
+	# v0.101: keep bottom_nav on one sideways-scrolling row so 96 px mobile buttons do not stack and push ruler_card off-screen.
+	var nav_scroll := ScrollContainer.new()
+	nav_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	nav_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	nav_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bottom_nav.add_child(nav_scroll)
+	var navigation := UiKit.hbox(6)
+	nav_scroll.add_child(navigation)
 	navigation.add_child(_button("House", func(): Game.goto("house", {"back": "map"})))
 	navigation.add_child(_button("Army", func(): Game.goto("muster", {"back": "map"})))
 	navigation.add_child(_button("Court", func(): Game.goto("court", {"back": "map"})))
@@ -623,10 +630,15 @@ func _layout_hud() -> void:
 	top_panel.size.y = top_panel.get_combined_minimum_size().y
 	bottom_nav.position = Vector2(8, height - nav_height - 8)
 	bottom_nav.size = Vector2(width - 16, nav_height)
+	# v0.101: cap ruler_card to the vertical band between top_panel and bottom_nav; hide it when the band is smaller than its minimum.
+	var band_h := minf(bottom_nav.position.y - 16.0, bottom_nav.position.y - (top_panel.position.y + top_panel.size.y) - 12.0)
+	var avail_h := maxf(88.0, band_h)
+	ruler_card.set_height_cap(avail_h)
 	var card_size := ruler_card.custom_minimum_size   # v0.098: the card's own size (taller on a phone)
 	var card_width := minf(maxf(340.0, card_size.x), width - 16)
-	var card_h := maxf(138.0, card_size.y)
-	ruler_card.position = Vector2(8, bottom_nav.position.y - card_h - 8)
+	var card_h := minf(avail_h, maxf(88.0, card_size.y))
+	ruler_card.visible = not Dynasty.selected(Game).is_empty() and band_h >= card_h
+	ruler_card.position = Vector2(8, maxf(8.0, bottom_nav.position.y - card_h - 8))
 	ruler_card.size = Vector2(card_width, card_h)
 	if narrow:
 		lbl_log.position = Vector2(14, ruler_card.position.y - 66)

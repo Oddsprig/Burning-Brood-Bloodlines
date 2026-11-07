@@ -551,7 +551,9 @@ static func _rider_result(game, result: Dictionary, entry: Dictionary, dragon: U
 		if bb is Unit: carrier = bb
 	# An existing combat death is never rolled/handled again. A deployed rider's death is the battle's own
 	# casualty; a rider who joined only on his dragon has no roster row, so his live death is settled here.
-	if rider != null and rider.dead and not (live_dead and joined and is_same(seat.get("unit"), rider)): return {}
+	# v0.101: a pool rider counted in round rosters (player_units/enemy_units) is settled by finish_battle, not twice here.
+	var in_roster: bool = (result.get("player_units", []) as Array).has(rider) or (result.get("enemy_units", []) as Array).has(rider)
+	if rider != null and rider.dead and (in_roster or not (live_dead and joined and is_same(seat.get("unit"), rider))): return {}
 	var flying := bool(downs.get(dragon.dragon_uid, entry.get("flying", false)))
 	var outcome := rider_roll(battle_seed, dragon.dragon_uid, person_uid, downed, flying, damage, rider_protection(carrier))
 	if not downed and damage <= 0.0:

@@ -95,6 +95,22 @@ func _word(value: String, style: String, wrap: bool = false) -> Label:
 	label.add_theme_font_size_override("font_size", UiTheme.px(16))
 	return label
 
+## v0.101: cap the card's minimum height and portrait size to fit between top bar and nav on short screens (844x390).
+func set_height_cap(max_h: float) -> void:
+	var want_h := 136.0 if not UiTheme.is_mobile() else 186.0
+	var h := clampf(max_h, 88.0, want_h)
+	custom_minimum_size.y = h
+	if portrait != null:
+		var p := clampf(h - 24.0, 56.0, 112.0)
+		portrait.custom_minimum_size = Vector2(p, p)
+	if banner != null:
+		var bh := clampf(h - 48.0, 36.0, 56.0)
+		banner.custom_minimum_size = Vector2(roundf(bh * 46.0 / 56.0), bh)
+	if city_name != null:
+		city_name.visible = h >= 130.0
+	if office_state != null:
+		office_state.visible = h >= 115.0
+
 func refresh(force: bool = false) -> void:
 	if portrait == null:
 		return

@@ -1444,8 +1444,20 @@ static func _people(town: Dictionary, e: Dictionary, f: Dictionary, cul: Diction
 	# an elder dies with the chance that gives a human elder 8 years on average (of the 20 between elder 55 and lifespan
 	# 75): every race by its own elder years (v0.011: it was 8 for every race, so elves of 300, with 150 years to their
 	# lifespan, died "of old age" as fast as a human of 60; orcs and goblins, with 15 and 10, too slowly)
-	var ab := People.ages(Persons.race_of(e))
-	var po := float(old) * 7.0 / (ELDER_MEAN * maxf(1.0, float(ab["lifespan"]) - float(ab["elder"])) * yd)
+	# v0.101: each elder's weekly death chance uses his own race (per-elder over Persons.pp(f) when f has "pp", else family_race).
+	# The family's elder count `old` still sets how many may die; the rate is the mean of its elders' own races.
+	var ab := People.ages(Persons.family_race(e, f))
+	var rate := 7.0 / (ELDER_MEAN * maxf(1.0, float(ab["lifespan"]) - float(ab["elder"])) * yd)
+	if rec:
+		var n := 0
+		var sum := 0.0
+		for p in Persons.pp(f):
+			if int(p[6]) == 1:
+				var pab := People.ages(Persons.person_race(e, f, p))
+				sum += 7.0 / (ELDER_MEAN * maxf(1.0, float(pab["lifespan"]) - float(pab["elder"])) * yd)
+				n += 1
+		if n > 0: rate = sum / float(n)
+	var po := float(old) * rate
 	var r := rng.randf() / ev_mult if ev_mult > 0.0 else 99.0   # pre-rolled in the turn: events x ev_mult likely here
 	if r < pb + pk + pa + po:
 		if r < pb:

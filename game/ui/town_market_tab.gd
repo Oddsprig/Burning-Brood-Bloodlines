@@ -99,6 +99,8 @@ static func build(host: Control, t: Dictionary) -> Control:
 	tools.add_child(search)
 	tools.add_child(UiKit.button("Clear", func(): search.text = "", "Row", 72))
 	var sc := UiKit.scroll()
+	# v0.101: allow sideways scroll on phone viewports when stock rows with three action buttons exceed 844 px.
+	sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	root.add_child(sc)
 	var content := UiKit.vbox(8)
 	UiKit.expand(content)

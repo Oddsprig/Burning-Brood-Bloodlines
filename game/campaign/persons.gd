@@ -46,6 +46,8 @@ const FATHER_UID := 19
 ## v0.089: research training belongs to this living person, including after a move.
 ## Optional dictionary {skill, aptitude}; Academy alone writes it on paid work days.
 const RESEARCH := 20
+## v0.101: own race when a person marries into a household of another race ("" = family_race).
+const RACE := 21
 
 static func _identity_pad(p: Array) -> void:
 	while p.size() <= FATHER_UID:
@@ -161,14 +163,17 @@ static func first_of(e: Dictionary, p: Array) -> String:
 	var own := String(g(p, 7, ""))
 	if own != "":
 		return own.split(" ")[0]
-	var fl := names_for(race_of(e), int(p[2]))
+	var pr := String(g(p, RACE, ""))
+	var fl := names_for(pr if pr != "" else race_of(e), int(p[2]))
 	return String(fl[int(p[1]) % fl.size()])
 
 static func name_of(f: Dictionary, p: Array, race: String) -> String:
 	var own := String(g(p, 7, ""))
 	if own != "":
 		return own
-	var use := String(f.get("race", ""))
+	var use := String(g(p, RACE, ""))
+	if use == "":
+		use = String(f.get("race", ""))
 	if use == "":
 		use = race
 	var fl := names_for(use, int(p[2]))
@@ -186,6 +191,18 @@ static func family_race(e: Dictionary, f: Dictionary) -> String:
 	if r == "":
 		return race_of(e)
 	return r
+
+## v0.101: a person's own race (kept when marrying into another race's household; older saves read family_race).
+static func person_race(e: Dictionary, f: Dictionary, p: Array) -> String:
+	var r := String(g(p, RACE, ""))
+	return r if r != "" else family_race(e, f)
+
+static func set_person_race(p: Array, race: String) -> void:
+	_identity_pad(p)
+	while p.size() <= RACE:
+		# v0.101: pad RESEARCH with null so Academy._training still rolls seeded aptitude on first training day.
+		p.append(null if p.size() == RESEARCH else "")
+	p[RACE] = race
 
 static func by_pid(f: Dictionary, pid: int) -> Array:
 	if pid < 0:
@@ -457,12 +474,12 @@ static func _new(e: Dictionary, f: Dictionary, race: String, sex: int, born: flo
 ## A married woman of the family at home, of an age to bear a child (race ages: adult .. mother_max), whose husband
 ## is alive. [] when there is none.
 static func mother_for(e: Dictionary, f: Dictionary, day: float) -> Array:
-	var ab := People.ages(family_race(e, f))
-	var lo := float(ab["adult"]); var hi := float(ab.get("mother_max", float(ab["elder"]) - 10.0))
 	var yd := People.year_days()
 	for p in pp(f):
 		if int(p[2]) != 1 or int(p[6]) != 0 or not (String(p[4]) in ["", "hire", "militia"]):
 			continue
+		var ab := People.ages(person_race(e, f, p))   # v0.101: a married-in spouse uses her own race's fertile years
+		var lo := float(ab["adult"]); var hi := float(ab.get("mother_max", float(ab["elder"]) - 10.0))
 		var age := (day - float(p[3])) / yd
 		if age < lo or age >= hi:
 			continue
@@ -572,13 +589,12 @@ static func childbearing(e: Dictionary, f: Dictionary, day: float, days: float, 
 			f.erase("preg")
 	if hungry or int(f["f"]) <= 0 or int(f["m"]) <= 0:
 		return born
-	var race := family_race(e, f)
-	var ab := People.ages(race)
-	var bear := bearing(race)
 	var yd := People.year_days()
-	var chance := 1.0 - exp(-days / maxf(0.01, float(bear[2]) * yd))
 	var rng: RandomNumberGenerator = null
 	for p in pp(f):
+		var race := person_race(e, f, p)   # v0.101: married-in mother conceives by her own race's ages
+		var ab := People.ages(race)
+		var bear := bearing(race)
 		if not can_conceive(f, p, day, ab, bear, yd):
 			continue
 		var sc := Sickness.case_of(f, int(p[0]))
@@ -587,6 +603,7 @@ static func childbearing(e: Dictionary, f: Dictionary, day: float, days: float, 
 		if rng == null:
 			rng = RandomNumberGenerator.new()
 			rng.seed = hash([int(f.get("seed", 0)), int(day), "conceive"])
+		var chance := 1.0 - exp(-days / maxf(0.01, float(bear[2]) * yd))
 		if rng.randf() < chance:
 			if not f.has("preg"):
 				f["preg"] = []
@@ -656,7 +673,9 @@ static func age_up(e: Dictionary, f: Dictionary, day: float) -> bool:
 	var i := 0
 	while i < k.size():
 		var kid: Array = k[i]
-		if day - float(kid[3]) >= A:
+		var kab := People.ages(person_race(e, f, kid)) if String(g(kid, RACE, "")) != "" else ab
+		var kA := float(kab["adult"]) * yd
+		if day - float(kid[3]) >= kA:
 			k.remove_at(i)
 			kid[6] = 0
 			pp(f).append(kid)
@@ -666,17 +685,20 @@ static func age_up(e: Dictionary, f: Dictionary, day: float) -> bool:
 			e["adults"] = int(e["adults"]) + 1
 			changed = true
 			continue
-		nxt = minf(nxt, float(kid[3]) + A)
+		nxt = minf(nxt, float(kid[3]) + kA)
 		i += 1
 	var a := pp(f)
 	i = a.size() - 1
 	while i >= 0:
 		var p: Array = a[i]
 		i -= 1
+		# v0.101: a married-in spouse ages and dies by her own race's thresholds, not the household's.
+		var pab := People.ages(person_race(e, f, p)) if String(g(p, RACE, "")) != "" else ab
+		var pE := float(pab["elder"]) * yd; var pL := float(pab["lifespan"]) * yd
 		var age := day - float(p[3])
 		var home: bool = String(p[4]) == "" or _private_home_reserve(e, f, p) != null
 		if int(p[6]) == 0:
-			if home and age >= E:
+			if home and age >= pE:
 				var s2: String = ["m", "f"][int(p[2])]
 				if int(f[s2]) > 0:
 					f[s2] = int(f[s2]) - 1
@@ -684,13 +706,13 @@ static func age_up(e: Dictionary, f: Dictionary, day: float) -> bool:
 					e["adults"] = int(e["adults"]) - 1
 					p[6] = 1
 					changed = true
-			nxt = minf(nxt, float(p[3]) + (E if int(p[6]) == 0 else L))
+			nxt = minf(nxt, float(p[3]) + (pE if int(p[6]) == 0 else pL))
 		elif int(p[6]) == 1:
-			if home and age >= L and int(f["old"]) > 0:
+			if home and age >= pL and int(f["old"]) > 0:
 				die_elder(e, f, p, day)
 				changed = true
 			else:
-				nxt = minf(nxt, float(p[3]) + L)
+				nxt = minf(nxt, float(p[3]) + pL)
 	# someone away past a threshold is looked at again next week
 	f["nxa"] = maxf(nxt, day + 1.0) if nxt < INF else day + 365.0
 	return changed
@@ -912,7 +934,7 @@ static func by_name_any(e: Dictionary, f: Dictionary, uname: String) -> Array:
 
 ## The Unit takes the person's identity: his name, his birth day (and age).
 static func bind(e: Dictionary, f: Dictionary, p: Array, u: Unit, state: String, day: float) -> void:
-	Factory.adopt_family_race(u, family_race(e, f))
+	Factory.adopt_family_race(u, person_race(e, f, p))
 	if String(p[4]) != state and state != "hire":
 		log_life(p, day, "serve", state)   # his own life history: when he joined which service
 	p[4] = state
@@ -1227,6 +1249,8 @@ static func forget(e: Dictionary, f: Dictionary, p: Array) -> void:
 	if p.size() > FATHER_UID:
 		_identity_pad(remembered_row)
 		for field in [PERSON_UID, HOUSE_UID, SPOUSE_UID, MOTHER_UID, FATHER_UID]: remembered_row[field] = p[field]
+	if String(g(p, RACE, "")) != "":
+		set_person_race(remembered_row, String(p[RACE]))
 	d.append(remembered_row)
 	while d.size() > DP_MAX:
 		d.pop_front()
