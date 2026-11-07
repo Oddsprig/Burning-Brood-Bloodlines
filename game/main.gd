@@ -31,7 +31,7 @@ func _ready() -> void:
 	if DisplayServer.get_name() != "headless":
 		var icon_tex := load("res://icon_claude.png") as Texture2D
 		DisplayServer.set_icon(icon_tex.get_image() if icon_tex != null else GameIcon.make_icon_image(256))
-	get_window().title = "Burning Brood: Bloodlines - Claude Edition (v%s)" % String(ProjectSettings.get_setting("application/config/version", "?"))
+	get_window().title = "Burning Brood: Bloodlines (v%s)" % String(ProjectSettings.get_setting("application/config/version", "?"))
 	Game.goto("title")
 	for p in WARM:
 		if ResourceLoader.exists(p) and ResourceLoader.load_threaded_request(p) == OK:
