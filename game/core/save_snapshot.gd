@@ -85,7 +85,7 @@ func step(budget_us: int) -> bool:
 		var size: int = job["n"]
 		if size < 0: size = source.size()
 		if index >= size:
-			if source.size() != size: _note_changed(job)
+			_finish_job(job, size)
 			_jobs.pop_back()
 			continue
 		job["index"] = index + 1
@@ -104,6 +104,9 @@ func step(budget_us: int) -> bool:
 			# Shallow-copy scalar values natively; replace only complex values.
 			if source.is_typed() or typeof(value) > TYPE_STRING: job["output"][key] = _value(value)
 		else:
+			if index >= source.size():   # the list shrank after its copy began: stop here, _finish_job trims it
+				job["index"] = size
+				continue
 			var value = source[index]
 			if source.is_typed() or typeof(value) > TYPE_STRING: job["output"][index] = _value(value)
 		iterations += 1
@@ -118,6 +121,24 @@ func step(budget_us: int) -> bool:
 ## Campaign code must not change the world while a capture is under way (Game holds time and input meanwhile).
 ## A change found here is a bug in its caller; the copy stays readable and the warning names the keys.
 var changed_during_capture := 0
+
+## End of one container's copy (v0.100 review). A list that shrank loses its removed tail; a key removed after it was
+## copied is dropped even when another key was added and the size came out the same.
+func _finish_job(job: Dictionary, size: int) -> void:
+	if job.get("roster", false): return
+	var source = job["input"]
+	if not job.has("keys"):
+		if source.size() < size:
+			(job["output"] as Array).resize(source.size())
+		if source.size() != size: _note_changed(job)
+		return
+	var changed: bool = source.size() != size
+	for key in job["keys"]:
+		if not source.has(key) and (job["output"] as Dictionary).has(key):
+			(job["output"] as Dictionary).erase(key)
+			changed = true
+	if changed: _note_changed(job)
+
 func _note_changed(job: Dictionary) -> void:
 	changed_during_capture += 1
 	if not job.has("keys"):

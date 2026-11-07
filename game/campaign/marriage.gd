@@ -362,7 +362,9 @@ static func _log(game, text: String) -> void:
 
 ## Daily: betrothed children wed when they come of age; allied vassals keep faith; broken pairs are dissolved.
 static func daily(game) -> void:
-	if not game.world.has("marriage") or Dynasty.selected(game).is_empty(): return
+	# v0.100: the day creates the record once a house is chosen. Before v0.100 has_claim() created it as a side effect
+	# (the map's town card asks it), so other houses' own marriages began only after the map or court was opened.
+	if Dynasty.selected(game).is_empty(): return
 	var st := state(game)
 	var keep: Array = []
 	for b: Dictionary in st["betrothals"]:

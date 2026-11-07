@@ -84,12 +84,16 @@ static func nearest_enemy(sim, f: Fighter) -> Array:
 
 ## An enemy within arm's reach who can still fight, on his feet or not (v0.100).
 static func foe_beside(sim, f: Fighter) -> bool:
+	return foe_beside_of(sim, f) != null
+
+## The first such enemy, or null.
+static func foe_beside_of(sim, f: Fighter) -> Fighter:
 	for e in sim._targets[1 - f.side]:
 		if not e.active() or e.routed or e.waiting:
 			continue
 		if maxi(absi(e.cell.x - f.cell.x), absi(e.cell.y - f.cell.y)) <= 1:
-			return true
-	return false
+			return e
+	return null
 
 ## The archer's turn. Returns true when it set an action (shoot, kite, switch weapons, fetch the bow).
 static func decide(sim, f: Fighter) -> bool:
@@ -131,9 +135,15 @@ static func decide(sim, f: Fighter) -> bool:
 		return true
 	# v0.100: an enemy knocked down beside him still strikes from the ground, and nearest_enemy counts only men on
 	# their feet. Without this the archer stood idle with his bow while the fallen man stabbed him.
-	if (near == null or dn > 1) and foe_beside(sim, f):
-		to_melee(sim, f, true, "too close")
-		return true
+	# He first steps clear of the fallen man (who cannot follow quickly) and keeps his bow; only a cornered archer
+	# draws the sword. Drawing at once flipped too many foot-against-horse fights (balance_v070 mount band).
+	if near == null or dn > 1:
+		var fallen := foe_beside_of(sim, f)
+		if fallen != null:
+			if not f.hold and kite(sim, f, fallen):
+				return true
+			to_melee(sim, f, true, "too close")
+			return true
 	if near == null:
 		sim._set_action(f, sim._idle_state(f), sim._ticks(f, 5.0))
 		return true

@@ -45,6 +45,26 @@ func _snapshot_changes() -> void:
 	check(snap2.step(0), "snapshot: the copy finishes after the list grew")
 	check(out2.size() == 3 and (out2[1] as Dictionary).get("k", 0) == 1, "snapshot: the list copy keeps its first 3 entries")
 	check(snap2.changed_during_capture >= 1, "snapshot: the list change is counted")
+	# A list shrinks after its copy began (review: indexing its old length threw an error).
+	var snap4 := SaveSnapshot.new()
+	var arr4 := [1, {"k": 1}, 3, {"m": 2}]
+	var out4: Array = snap4._container(arr4)
+	arr4.resize(2)
+	check(snap4.step(0), "snapshot: the copy finishes after the list shrank")
+	check(out4.size() == 2 and (out4[1] as Dictionary).get("k", 0) == 1, "snapshot: the shrunk list copy drops the removed tail (%d)" % out4.size())
+	check(snap4.changed_during_capture >= 1, "snapshot: the shrink is counted")
+	# A key already copied is removed and another added, so the size is unchanged (review: it survived silently).
+	var snap5 := SaveSnapshot.new()
+	var big := {}
+	for i in 2000: big["k%d" % i] = i
+	var out5: Dictionary = snap5._container(big)
+	var first_done := snap5.step(1)
+	big.erase("k0")
+	big["zz"] = 1
+	check(not first_done, "snapshot: a 1 us slice stops part way through 2,000 keys")
+	check(snap5.step(0), "snapshot: the copy finishes after a copied key was swapped")
+	check(not out5.has("k0") and not out5.has("zz") and out5.size() == 1999, "snapshot: the removed key is gone from the copy (%d keys)" % out5.size())
+	check(snap5.changed_during_capture >= 1, "snapshot: the same-size swap is counted")
 	# No change: nothing counted.
 	var snap3 := SaveSnapshot.new()
 	var same := {"a": [1, 2], "b": {"c": 3}}
