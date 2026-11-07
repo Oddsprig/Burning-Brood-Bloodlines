@@ -255,7 +255,26 @@ func _open_scheme(uid: String, kind: String) -> void:
 	footer.add_child(UiKit.button("Cancel", func(): UiKit.close_modal(v), "Row", 120))
 
 # ------------------------------------------------------------------ prisoners (v0.033)
-const PRISONER_ROWS := 40   # rows listed per side in one realm's window; the rest are counted
+const PRISONER_ROWS := 40   # rows listed per side at a time in one realm's window; "Show more" lists the next ones
+const MATCH_ROWS := 24      # marriage candidates listed at a time (the old cut-off); "Show more" lists the next ones
+
+## v0.097: lists every entry, a page at a time. add_row(item) builds one row in box; the "Show more" button
+## (named ShowMoreButton) adds the next page in place, so nothing is cut off.
+func _paged_rows(box: VBoxContainer, items: Array, page: int, add_row: Callable, start: int = 0) -> void:
+	var stop := mini(items.size(), start + page)
+	for i in range(start, stop):
+		add_row.call(items[i])
+	if stop >= items.size(): return
+	var left := items.size() - stop
+	var holder: Array = []   # the button removes itself, then lists the next page where it stood
+	var more := UiKit.button("Show %d more (%d not shown)" % [mini(page, left), left], func():
+		var b: Button = holder[0]
+		box.remove_child(b)
+		b.queue_free()
+		_paged_rows(box, items, page, add_row, stop), "Row", 260)
+	holder.append(more)
+	more.name = "ShowMoreButton"
+	box.add_child(more)
 
 ## One line per realm: what you hold of theirs and what they hold of yours, with the latest bargains.
 func _prisoners_panel() -> Control:
@@ -320,29 +339,29 @@ func _open_prisoners(fid: String) -> void:
 	var seats := Prisoners.ruling(Game)
 	rows.add_child(UiKit.label("Your people they hold (%d)" % caps.size(), "H2"))
 	if caps.is_empty(): rows.add_child(UiKit.label("None.", "Muted", true))
-	for rec: Dictionary in caps.slice(0, PRISONER_ROWS):
+	var caps_box := UiKit.vbox(8); caps_box.name = "TheyHoldRows"; rows.add_child(caps_box)
+	_paged_rows(caps_box, caps, PRISONER_ROWS, func(rec: Dictionary):
 		var r := Prisoners.row(Game, rec, true, seats)
-		var line := UiKit.hbox(8); rows.add_child(line)
+		var line := UiKit.hbox(8); caps_box.add_child(line)
 		var l := UiKit.label(_prisoner_line(r), "", true); l.size_flags_horizontal = SIZE_EXPAND_FILL; line.add_child(l)
-		if bool(r["legacy"]): continue
+		if bool(r["legacy"]): return
 		var uid := int(r["uid"])
 		line.add_child(UiKit.button("Pay ransom", func(): _bargain(v, "pay", uid), "Row", 160))
 		var pick := Prisoners.exchange_pick(Game, uid, seats)
-		if pick >= 0: line.add_child(UiKit.button("Exchange", func(): _bargain(v, "exchange", uid, pick), "Row", 140))
-	if caps.size() > PRISONER_ROWS: rows.add_child(UiKit.label("and %d more" % (caps.size() - PRISONER_ROWS), "Muted", true))
+		if pick >= 0: line.add_child(UiKit.button("Exchange", func(): _bargain(v, "exchange", uid, pick), "Row", 140)))
 	rows.add_child(UiKit.label("Their people you hold (%d)" % held.size(), "H2"))
 	if held.is_empty(): rows.add_child(UiKit.label("None.", "Muted", true))
-	for rec: Dictionary in held.slice(0, PRISONER_ROWS):
+	var held_box := UiKit.vbox(8); held_box.name = "YouHoldRows"; rows.add_child(held_box)
+	_paged_rows(held_box, held, PRISONER_ROWS, func(rec: Dictionary):
 		var r := Prisoners.row(Game, rec, false, seats)
-		var line := UiKit.hbox(8); rows.add_child(line)
+		var line := UiKit.hbox(8); held_box.add_child(line)
 		var l := UiKit.label(_prisoner_line(r), "", true); l.size_flags_horizontal = SIZE_EXPAND_FILL; line.add_child(l)
-		if bool(r["legacy"]): continue
+		if bool(r["legacy"]): return
 		var uid := int(r["uid"])
 		line.add_child(UiKit.button("Ransom", func(): _bargain(v, "ransom", uid), "Row", 130))
 		line.add_child(UiKit.button("Release", func(): _bargain(v, "release", uid), "Row", 130))
 		line.add_child(UiKit.button("Execute", func(): _bargain(v, "execute", uid), "Row", 120))
-		line.add_child(UiKit.button("Sell", func(): _bargain(v, "sell", uid), "Row", 100))
-	if held.size() > PRISONER_ROWS: rows.add_child(UiKit.label("and %d more" % (held.size() - PRISONER_ROWS), "Muted", true))
+		line.add_child(UiKit.button("Sell", func(): _bargain(v, "sell", uid), "Row", 100)))
 	var footer := UiKit.hbox(8); v.add_child(footer)
 	if held.size() > 1:
 		footer.add_child(UiKit.button("Ransom all", func(): _bargain_all(v, fid, "ransom"), "Row", 160))
@@ -437,9 +456,10 @@ func _open_matches(member_uid: String, member_name: String) -> void:
 	var v := UiKit.modal(self, "A match for %s" % member_name, 1100)
 	v.add_child(UiKit.label("Green: their house would say yes. A gift from your purse can win over a doubtful house.", "Muted", true))
 	if list.is_empty(): v.add_child(UiKit.label("No unmarried nobles of a suitable age right now.", "", true))
+	elif list.size() > MATCH_ROWS: v.add_child(UiKit.label("%d possible matches, best first." % list.size(), "Muted", true))
 	var sc := UiKit.scroll(); sc.custom_minimum_size = Vector2(0, 560); v.add_child(sc)
-	var rows := UiKit.vbox(8); rows.size_flags_horizontal = SIZE_EXPAND_FILL; sc.add_child(rows)
-	for o: Dictionary in list.slice(0, 12):
+	var rows := UiKit.vbox(8); rows.size_flags_horizontal = SIZE_EXPAND_FILL; rows.name = "MatchRows"; sc.add_child(rows)
+	_paged_rows(rows, list, MATCH_ROWS, func(o: Dictionary):
 		var card := UiKit.panel("Card"); rows.add_child(card)
 		var h := UiKit.hbox(12); card.add_child(h)
 		var pt := Portrait.new(); pt.custom_minimum_size = Vector2(84, 84); pt.set_spec(Dynasty.portrait_for(Game, o["row"])); h.add_child(pt)
@@ -471,7 +491,7 @@ func _open_matches(member_uid: String, member_name: String) -> void:
 				if bool(r.get("accepted", false)):
 					Sound.sfx("event_fanfare", 0.8, 0.0, 0)
 					Game.request_autosave()
-				_refresh(), "Row" if tier > 0 else "", 230))
+				_refresh(), "Row" if tier > 0 else "", 230)))
 	v.add_child(UiKit.button("Close", func(): UiKit.close_modal(v), "Row", 120))
 
 # ------------------------------------------------------------------ tree control

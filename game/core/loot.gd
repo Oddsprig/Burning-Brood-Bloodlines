@@ -44,6 +44,14 @@ static func battle_wear(u: Unit, it: Item) -> int:
 ## Splits the beaten enemy's kit into kept items and scrap gold. Returns {"items": [Item], "gold": int,
 ## "scrap_kg": {material: kg}}. Deterministic for a seed.
 ## v0.014: a legendary piece is never scrap and never rolls: the winners always take it (taker: who, for its history).
+## v0.097: the beaten men who are not on the field for the winner to strip: those who fled, and (in a battle of
+## rounds) every man who fought and left alive with his army (BattleRounds.final_result "enemy_withdrew").
+static func left_the_field(result: Dictionary) -> Array:
+	var out: Array = (result.get("enemy_fled", []) as Array).duplicate()
+	for u in result.get("enemy_withdrew", []):
+		if not out.has(u): out.append(u)
+	return out
+
 static func spoils(enemies: Array, fled: Array, seed: int, fraction: float, taker: String = "") -> Dictionary:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed

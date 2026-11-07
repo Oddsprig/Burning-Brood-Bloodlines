@@ -1,6 +1,21 @@
 # Burning Brood: Bloodlines — current developer map
 
-Updated 7 November 2026 for v0.096 (readable text, fonts and layout on every page), normally merged as `6ed741a3134e8029496e83da18979052b015efb9` from branch `v0.096-ui-readability` based on `main` `951cf2d`. v0.095 was normally merged as `5e17abb014a1f01f0426406bd455e249f06a8e20`. Source versions v0.086–v0.094 are accepted normal merges; the last packaged Desktop/Android release is v0.085. The older source-only audit below is pinned to v0.094.
+Updated 7 November 2026 for v0.097 (six bug fixes toward an Oddsprig sale), from branch `v0.097-sale-readiness` based on `main` `623d009`, normal merge. v0.096 (readable text, fonts and layout on every page) was normally merged as `6ed741a3134e8029496e83da18979052b015efb9` from branch `v0.096-ui-readability` based on `main` `951cf2d`. v0.095 was normally merged as `5e17abb014a1f01f0426406bd455e249f06a8e20`. Source versions v0.086–v0.094 are accepted normal merges; the last packaged Desktop/Android release is v0.085. The older source-only audit below is pinned to v0.094.
+
+## v0.097 — six bug fixes toward an Oddsprig sale
+
+No save schema change (battle state key `last_fate` is added when missing).
+
+| Fix | Owner and boundary |
+|---|---|
+| No child weddings | `game/campaign/marriage.gd` `_of_age()` (household race via `Persons.family_race`, not the town culture); `daily()` weds a betrothed pair only when both are of age and ends it if either married another; `propose()` weds at once only when both are of age, else betroths; `candidates()` uses each household's own race. `wed()` takes a just-grown spouse from `kp`. `game/campaign/persons.gd` `marriages()` skips `Marriage.betrothed_uids()`. |
+| No looting of men who left the field | `game/campaign/battle_rounds.gd` `after_round()` keeps each man's latest fate in `last_fate`; `final_result()` adds `enemy_withdrew` (fought, alive, not captive) and `enemy_fled` (latest fate fled). `game/core/loot.gd` `left_the_field()`; `game/core/game.gd` `finish_battle` passes it to `Loot.spoils`, so only the dead are stripped. `final_result()` also fills `player_fled` for the aftermath (`battle/result_summary.gd`). |
+| Badly hurt dragons sit out | `battle_rounds.gd` `_can_fight()` applies the Health report "cannot fight" rule to dragons too; `grounded_riders()` keeps the rider of a hurt (living) dragon out with it (`fit()`). `game/campaign/dragon_combat.gd` `battle_riders()` seats a rider (bound or detached body) only if that rider can fight. |
+| Improvements need materials | `game/campaign/house_upkeep.gd` `improvement_preview()` needs every material in full and names the shortfall; `start_improvement()` re-checks stock before taking coin or goods. No screen uses improvements; the AI and tests do. |
+| Court lists not cut off | `marriage.gd` `candidates()` returns every match. `game/ui/court.gd` `_paged_rows()` pages matches (`MATCH_ROWS` 24, `MatchRows`) and prisoners (`PRISONER_ROWS` 40, `TheyHoldRows`/`YouHoldRows`) with a `ShowMoreButton`. |
+| Records text | `game/ui/rec_world.gd` `carriers_text()` (pack donkeys carry return loads), `has_pack_animals()` (live donkeys only); `game/ui/rec_pages.gd` `research_note()` built from `Academy.materials()` (charcoal, not wood). |
+
+Verification entry: `game/tests/test_sale_fixes_v097.gd` (47 checks, 0 failures; on the old code 12 behaviour checks fail). All Sol 6.1 max red-team findings (household race, grounded riders, just-grown spouse, town marriages vs betrothals, player retreats, dead pack herds) are fixed, each with a check that fails before its fix. `game/tests/ui_pages_v096.gd` adds `court_matches` and `court_matches_more` shots. All runs were in a Linux cloud container, one at a time, each under 3 minutes: 9 related tests pass; `claude_marriage`, `claude_prisoners_v033` and `claude_prisoners_ui_v033` fail identically on main `623d009` (older issues, not v0.097); `test_economy_short_v094` fails its version contract, which pins `config/version` to `"0.094"`. [Test receipts](test-results/v0.097_sale_fixes.txt).
 
 ## v0.096 — readable text, fonts and layout
 

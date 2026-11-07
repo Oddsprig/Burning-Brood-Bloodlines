@@ -112,6 +112,23 @@ func run(tree: SceneTree) -> int:
 	if want("house"):
 		for s in ["house", "court", "laws", "treasure", "politics", "population"]:
 			await screen(tree, s)
+			if s == "court" and main.current.has_method("_open_matches"):   # v0.097: paged match list
+				for row: Dictionary in Marriage.family(Game):
+					if bool(row.get("can_betroth", false)) and Marriage.candidates(Game, str(row["person_uid"])).size() > int(main.current.MATCH_ROWS):
+						main.current._open_matches(str(row["person_uid"]), str(row.get("name", "")))
+						var rows: Node = main.current.find_child("MatchRows", true, false)
+						var sc: ScrollContainer = rows.get_parent() if rows != null else null
+						await frames(tree, 2)
+						if sc != null: sc.scroll_vertical = int(sc.get_v_scroll_bar().max_value)
+						await shot(tree, "court_matches")
+						var found: Array = main.current.find_children("ShowMoreButton", "Button", true, false)
+						if not found.is_empty():
+							(found[0] as Button).pressed.emit()
+							await frames(tree, 2)
+							if sc != null: sc.scroll_vertical = int(sc.get_v_scroll_bar().max_value)
+							await shot(tree, "court_matches_more")
+						close_modals(main); await frames(tree, 1)
+						break
 		if main.current.has_method("_select"): pass
 	if want("dragons"):
 		await screen(tree, "dragons")

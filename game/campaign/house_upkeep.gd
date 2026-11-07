@@ -713,15 +713,12 @@ static func improvement_preview(game, household_uid: String, key: String) -> Dic
 	var stock_out: Dictionary = {}
 	var shortfalls: Dictionary = {}
 	var mat_cost: float = 0.0
-	var any_stocked: bool = false
 	for g in mats_req.keys():
 		var good: String = String(g)
 		var need: int = int(mats_req[good])
 		var have: int = maxi(0, int(st.get(good, 0)))
 		mats_out[good] = need
 		stock_out[good] = have
-		if have > 0:
-			any_stocked = true
 		if have < need:
 			shortfalls[good] = need - have
 		mat_cost += float(need) * _good_unit_price(e, good)
@@ -729,13 +726,17 @@ static func improvement_preview(game, household_uid: String, key: String) -> Dic
 	var total_cost: float = snappedf(coin_cost + mat_cost, 0.01)
 	var purse: float = float(f.get("purse", 0.0))
 	var can_afford: bool = purse >= total_cost
-	var stock_ok: bool = shortfalls.is_empty() or any_stocked
+	# v0.097: every material must be in the market in full; the house pays only for what it can actually take.
+	var stock_ok: bool = shortfalls.is_empty()
 	var weekly_up: float = float(lspec["weekly_upkeep"]) * service_scale(e)
 	var reason: String = "Ready to build %s (Level %d)." % [str(spec["name"]), next_lvl]
 	if not can_afford:
 		reason = "Insufficient household purse (need %.2f coins, have %.2f)." % [total_cost, purse]
 	elif not stock_ok:
-		reason = "Market has no construction materials in stock."
+		var short_parts: Array = []
+		for good in shortfalls.keys():
+			short_parts.append("%d %s" % [int(shortfalls[good]), String(good).replace("_", " ")])
+		reason = "The market is short of building materials: needs %s more." % ", ".join(short_parts)
 	var uid_str: String = str(f.get("household_uid", household_uid))
 	var review_tok: Dictionary = {
 		"household_uid": uid_str,
@@ -802,6 +803,9 @@ static func start_improvement(game, household_uid: String, key: String, review: 
 	# 1. Buy materials from the town market stock and pay the market till
 	var st: Dictionary = e["stock"]
 	var mats: Dictionary = prev["materials"]
+	for g in mats.keys():   # v0.097: nothing is charged or taken unless the whole set is there
+		if maxi(0, int(st.get(String(g), 0))) < int(mats[g]):
+			return {"ok": false, "reason": "The market no longer has the building materials."}
 	var bought_mats: Dictionary = {}
 	for g in mats.keys():
 		var good: String = String(g)

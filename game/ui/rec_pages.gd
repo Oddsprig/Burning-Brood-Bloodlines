@@ -6,6 +6,19 @@ extends RefCounted
 static func _m(v: float) -> String:
 	return RecData.money(v)
 
+const _TRIAL_NAMES := {"iron_bars": "iron bars", "flux": "flux stone"}
+
+## v0.097: the Research card's note names the trial inputs Academy actually buys (charcoal, not wood).
+static func research_note() -> String:
+	var names: Array = []
+	var mats: Dictionary = Academy.materials()
+	for g in mats.keys():
+		if float(mats[g]) > 0.0: names.append(str(_TRIAL_NAMES.get(String(g), String(g).replace("_", " "))))
+	var listed := "nothing"
+	if names.size() == 1: listed = str(names[0])
+	elif names.size() > 1: listed = ", ".join(names.slice(0, names.size() - 1)) + " and " + str(names[-1])
+	return "Funded by the state each faction turn; staff hired by the normal rules; trials burn %s bought at the market." % listed
+
 ## Display getters may initialize absent book slots. Never commit those
 ## defaults, named flags or missing books merely by opening a record.
 static func _detail_town(t: Dictionary) -> Dictionary:
@@ -280,7 +293,7 @@ static func business(scr, t: Dictionary, bid: int, box: VBoxContainer) -> void:
 	RecKit.kv(c, "Tools", "%d sets; %d working hands (paid staff and keeper)" % [int(b.get("tools", 0)), int(b.get("workers", 0)) + int(b.get("kw", 0))])
 	if house:   # v0.012: the state's research house - its lead, lines, materials and log
 		var fid := String(t.get("faction", ""))
-		var hc := RecKit.card(box, "Research", "Funded by the state each faction turn; staff hired by the normal rules; trials burn iron bars, flux stone and wood bought at the market.")
+		var hc := RecKit.card(box, "Research", research_note())
 		for ln in RecData.research_lines(fid):
 			RecKit.line(hc, ln, "Small")
 		var lg: Array = RecData.research_log(fid)

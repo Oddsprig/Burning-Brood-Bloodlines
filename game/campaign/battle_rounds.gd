@@ -28,7 +28,7 @@ static func begin(game, side0: Array, side1: Array) -> void:
 	var st := {"pool": [side0.duplicate(), side1.duplicate()], "round": 0, "morale": [START_MORALE, START_MORALE],
 		"start": [side0.size(), side1.size()], "dead": [0, 0], "wounded": [0, 0], "captured": [0, 0], "fled": [0, 0],
 		"captives": [[], []], "fought": {}, "household": {}, "log": [], "broke": -1, "winner": -1, "over": false,
-		"last_fought": [[], []], "dragon_downs": {}, "commander": [_commander(game, side0, true), _commander(game, side1, false)],
+		"last_fought": [[], []], "dragon_downs": {}, "last_fate": {}, "commander": [_commander(game, side0, true), _commander(game, side1, false)],
 		"defender_side": def_side}
 	game.pending_battle["rounds"] = st
 	_pick_round(game)
@@ -47,12 +47,30 @@ static func _commander(game, pool: Array, player: bool) -> int:
 			best = u
 	return best.uid if best != null else -1
 
-## Fit men waiting in a pool: alive, not taken, not too hurt to fight.
+## Fit men waiting in a pool: alive, not taken, not too hurt to fight, and not standing by a hurt dragon.
 static func fit(game, pool: Array, captives: Array) -> Array:
-	return pool.filter(func(u): return u is Unit and not u.dead and not captives.has(u) and _can_fight(game, u))
+	var grounded := grounded_riders(game, pool)
+	return pool.filter(func(u): return u is Unit and not u.dead and not captives.has(u) and _can_fight(game, u) and not grounded.has(u))
 
+## v0.097: the riders (as their own Units) of the dragons in this pool that are alive but too badly hurt to fight.
+## Each stays out with his dragon instead of joining the next round on foot. A rider whose dragon died still
+## fights on foot, as before.
+static func grounded_riders(game, pool: Array) -> Array:
+	var out: Array = []
+	for d in pool:
+		if not d is Unit or d.dead or not DragonCombat.is_dragon_unit(game, d) or _can_fight(game, d): continue
+		var person_uid := str(DragonCombat._record(game, d.dragon_uid).get("rider_person_uid", ""))
+		if person_uid == "": continue
+		var person := Dynasty.person(game, person_uid)
+		if person.is_empty() or not bool(person.get("alive", false)): continue
+		var rider: Unit = Dynasty.bound_unit(game, person)
+		if rider != null and not out.has(rider): out.append(rider)
+	return out
+
+## v0.097: a dragon too badly hurt to fight sits out later rounds like a man (the same "cannot fight" rule that
+## keeps it from marching, campaign/warfare.gd). Its rider stays out with it (grounded_riders).
 static func _can_fight(game, u: Unit) -> bool:
-	if DragonCombat.is_dragon_unit(game, u): return not u.dead
+	if u.dead: return false
 	return str(HealthReport.describe(u).get("fitness", "")) != "cannot fight"
 
 ## The next pair of units: fresh men first; those who just fought fall to the back of the line.
@@ -109,6 +127,7 @@ static func after_round(game, r: Dictionary) -> Dictionary:
 	var d := {"round": int(st["round"]), "winner": w, "names": r.get("side_names", ["Your army", "Enemy"]),
 		"fought": [0, 0], "dead": [0, 0], "wounded": [0, 0], "captured": [0, 0], "fled": [0, 0], "household": []}
 	BattleTactics.finish_round(game, st, d)
+	if not st.has("last_fate"): st["last_fate"] = {}
 	if not st.has("deeds"): st["deeds"] = {}
 	Ennoble.tally(game, r, st["commander"], st["deeds"])
 	var officers_lost := [0, 0]
@@ -135,6 +154,7 @@ static func after_round(game, r: Dictionary) -> Dictionary:
 			officers_lost[side] += 1
 			if int(st["commander"][side]) == u.uid: captain_lost[side] = true
 		if fate in ["dead", "captured", "fled", "wounded"]: d[fate][side] += 1
+		st["last_fate"][u.uid] = fate   # v0.097: each man's latest outcome (a man who fled may fight again later)
 		if is_household(game, u):
 			var rel := _relation(game, u)
 			if rel in ["commander", "officer"]: rel = ("your " if side == 0 else "enemy ") + rel
@@ -234,17 +254,29 @@ static func final_result(game, last: Dictionary) -> Dictionary:
 	BattleTactics.clear_pending(game)
 	var r := last.duplicate()
 	r["winner"] = int(st["winner"])
-	var p: Array = []; var en: Array = []; var fallen: Array = []; var fled: Array = []
+	var p: Array = []; var en: Array = []; var fallen: Array = []; var fled: Array = []; var withdrew: Array = []
+	var p_fled: Array = []
+	var fates: Dictionary = st.get("last_fate", {})
 	for u in st["fought"].keys():
-		if (st["pool"][0] as Array).has(u): p.append(u)
+		if (st["pool"][0] as Array).has(u):
+			p.append(u)
+			# v0.097: your men whose latest round ended in flight are reported fled (the aftermath counts them).
+			if not u.dead and not (st["captives"][0] as Array).has(u) and str(fates.get(u.uid, "")) == "fled": p_fled.append(u)
 		else:
 			en.append(u)
 			if u.dead: fallen.append(u)
+			elif not (st["captives"][1] as Array).has(u):
+				# v0.097: the field holds only the dead and the taken. Every other man who fought left the field
+				# alive with his army and keeps his purse and kit; those whose latest round ended in flight are
+				# also reported as fled.
+				withdrew.append(u)
+				if str(fates.get(u.uid, "")) == "fled": fled.append(u)
 	r["player_units"] = p
 	r["enemy_units"] = en.filter(func(u): return not (st["captives"][1] as Array).has(u))
 	r["enemy_fallen"] = fallen
 	r["enemy_fled"] = fled
-	r["player_fled"] = []
+	r["enemy_withdrew"] = withdrew
+	r["player_fled"] = p_fled
 	r["rounds"] = (st["log"] as Array).duplicate()
 	r["dragon_downs"] = st.get("dragon_downs", {}).duplicate()
 	r["dragon_seats"] = st.get("dragon_seats", {}).duplicate()

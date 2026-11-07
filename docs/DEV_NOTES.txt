@@ -1,12 +1,13 @@
 BURNING BROOD: BLOODLINES - CURRENT DEVELOPER NOTES
-Updated: 2026-11-07 | v0.096 merged 6ed741a3134e8029496e83da18979052b015efb9 | packaged Desktop/Android v0.085
+Updated: 2026-11-07 | v0.097 on branch v0.097-sale-readiness (normal merge to main) | v0.096 merged 6ed741a3134e8029496e83da18979052b015efb9 | packaged Desktop/Android v0.085
 
 CURRENT SOURCE AND DOCUMENTATION
 v0.086-v0.094 are accepted normal source merges. The last packaged release remains
 v0.085. The earlier v0.094 documentation audit was source-only. The owner reviewed
 the full diff and 203-check output, then explicitly approved the normal v0.095
 merge and push. v0.096 (UI readability) merges under the owner's standing order
-that the newest version goes to main once tests pass. No v0.095 or v0.096
+that the newest version goes to main once tests pass. v0.097 (six bug fixes
+toward an Oddsprig sale) merges under the same order. No v0.095-v0.097
 package is claimed.
 
 Active three docs: PROJECT_MAP.md, docs/DEV_NOTES.txt, CHANGES.txt. Each must describe
@@ -15,6 +16,82 @@ version merge one light notes-only helper reconciles all three with final source
 lead reviews/commits/pushes normally. It counts toward the standing two-helper cap.
 See docs/BUILD_RULES.md and the shared machine GAME TESTING RULES.md. Historical
 commands/receipts and this audit never grant permission for another test or build.
+
+v0.097 - SIX SALE-READINESS BUG FIXES (branch v0.097-sale-readiness)
+Base: 623d009. Rules fixes for weddings, battle loot, hurt dragons and house
+improvements, plus two screen fixes (Court lists, Records text). No save
+schema change: the new battle state key last_fate is added when missing.
+Version metadata is 0.097.
+
+1. Child weddings. Marriage.daily weds a betrothed pair only when BOTH are of
+   age (_of_age); before, only the proposer's age was checked, so an adult's
+   child could be wed to a younger child. Ages use the household's own race
+   (Persons.family_race), not the town culture, in _of_age, candidates() and
+   propose(): a moon elf of 20 in a human town is a child. propose() weds at
+   once only when both are of age, else betroths; texts say "both".
+   While they wait: Persons.marriages (a town's weekly weddings) skips anyone
+   in Marriage.betrothed_uids; daily() ends a betrothal (with a log line) if
+   either has married another, so nobody is wed twice. wed() takes a spouse
+   who came of age since the last family turn from kp (and f.kids), not pp,
+   so no copy is left behind for age_up to promote.
+2. Looting men who left the field. BattleRounds.after_round records each man's
+   latest fate in st["last_fate"]; final_result adds r["enemy_withdrew"] (every
+   enemy who fought and left alive, not taken captive) and r["enemy_fled"] (those
+   whose latest round ended in flight; a man who fled early and died later is
+   fallen). Loot.left_the_field(result) = fled + withdrew; Game.finish_battle
+   passes it to Loot.spoils, so only the dead are stripped. Captives keep the
+   prisoner rules. final_result also fills player_fled (your men alive, not
+   taken, whose latest round ended in flight; it was always empty), which the
+   aftermath (battle/result_summary.gd) counts as retreats.
+3. Badly hurt dragons fighting on. BattleRounds._can_fight now applies the
+   HealthReport "cannot fight" rule to dragons too (before, only death stopped
+   a dragon). BattleRounds.grounded_riders: a rider deployed as his own Unit
+   whose dragon is in the pool, alive and unfit, stays out with it (fit() drops
+   him) instead of joining later rounds on foot; a rider whose dragon died
+   still fights on foot. DragonCombat.battle_riders seats a bound rider or a
+   detached rider body only when that rider can fight; the dragon then fights
+   riderless.
+4. House improvements without materials. HouseUpkeep.improvement_preview needs
+   every material in full (stock_ok = no shortfall; the old any_stocked let one
+   stocked good pass) and names the shortfall. start_improvement re-checks the
+   market stock before taking any coin or goods and refuses if it is short.
+   No screen offers improvements; the AI and tests use this path.
+5. Cut-off Court lists. Marriage.candidates returns every match (no slice to
+   24). ui/court.gd _paged_rows shows the first page (24 matches, 40 prisoners)
+   and a "Show N more (M not shown)" button that adds the next page in place;
+   the old "and N more" labels are gone. Rows live in MatchRows, TheyHoldRows,
+   YouHoldRows.
+6. Records text. ui/rec_world.gd carriers_text: caravans travel by wagon with
+   drivers and porters, pack donkeys carry return loads (count of caravans
+   whose pack herd still has a living donkey, has_pack_animals). ui/rec_pages.gd research_note() is built from
+   Academy.materials(): trials burn iron bars, flux stone and charcoal (not wood).
+
+Known limits (left as they were): a man routed in a one-clash fight but not
+marked fled is still looted; a refused improvement no longer signals material
+demand to the market.
+Tests: new tests/test_sale_fixes_v097.gd (47 checks, 6 sections, one headless
+run, about 4 s once the start world is saved). On main's code it gave 12
+behaviour failures (weddings 2, loot 3, dragons 3, improvements 4) plus parse
+errors for the new helpers. Each check added for a red-team fix fails on the
+code before that fix (receipts list them). tests/ui_pages_v096.gd (xvfb tour) adds
+court_matches and court_matches_more shots when a member has more than one
+page of matches. Frozen fixtures under tests/fixtures keep the old Records
+strings on purpose.
+Verification: Linux cloud container only (never the owner's PC), one test at a
+time, each under 3 minutes. New test PASS 47/0. Related tests: 9 pass
+(test_ai_marriage_dragons_v079, claude_house_upkeep, test_ransom_upkeep_v077,
+test_rider_targeting_v081, test_campaign_fixes_v095, claude_court_events,
+claude_rounds, test_ui_modal, ui_pages_v096 house+records 29 shots). 3 fail
+identically on main 623d009 (older issues, not v0.097): claude_marriage (1),
+claude_prisoners_v033 (2), claude_prisoners_ui_v033 (1). Also
+test_economy_short_v094 fails its version contract, which pins
+config/version to "0.094" (fails on main 0.096 too). The final rerun after
+all red-team fixes adds test_population_categories_v094 (pass).
+Receipts: test-results/v0.097_sale_fixes.txt.
+Review: Sol 6.1 max red team (read-only), three passes. Found: household race
+for ages, grounded rider, just-grown spouse left in kp, town marriages breaking
+a betrothal (P1); player_fled always empty (P2); dead pack herds counted (P3).
+All fixed. Several were also in the Argon and Sol helper drafts.
 
 v0.096 - READABLE TEXT, FONTS AND LAYOUT ON EVERY PAGE (merged 6ed741a3134e8029496e83da18979052b015efb9)
 Base: 951cf2d. Presentation only; no rule, save, schema or simulation change.

@@ -63,12 +63,27 @@ static func realm_allies(game) -> Dictionary:
 static func _ages(race: String) -> Dictionary:
 	return People.ages(race)
 
+## True when this located person has reached the adult age of their own household's race (not the town's:
+## an elf household in a human town comes of age as elves do).
+static func _of_age(game, loc: Dictionary) -> bool:
+	return Persons.age_of(loc["person"], float(game.day)) >= int(_ages(Persons.family_race(loc["econ"], loc["family"]))["adult"])
+
 static func _married(loc: Dictionary) -> bool:
 	var p: Array = loc["person"]
 	if str(Persons.g(p, Persons.SPOUSE_UID, "")) != "":
 		var other := Dynasty._person(Game, str(p[Persons.SPOUSE_UID]))
 		if not other.is_empty(): return true
 	return not Persons.by_pid(loc["family"], int(Persons.g(p, Persons.SP, -1))).is_empty()
+
+## v0.097: the person uids promised in a betrothal, as a set ({} when there are none). A town's own weekly
+## marriages (Persons.marriages) pass them over, so a promised partner is not married off while waiting.
+static func betrothed_uids(game) -> Dictionary:
+	var out := {}
+	if not game.world.has("marriage"): return out
+	for b in game.world["marriage"].get("betrothals", []):
+		out[str(b.get("a", ""))] = true
+		out[str(b.get("b", ""))] = true
+	return out
 
 static func _betrothed(game, uid: String) -> bool:
 	for b: Dictionary in state(game)["betrothals"]:
@@ -115,7 +130,7 @@ static func candidates(game, member_uid: String) -> Array:
 	if me.is_empty(): return []
 	var my_sex := int(me["person"][2])
 	var my_age := Persons.age_of(me["person"], float(game.day))
-	var my_ab := _ages(Persons.race_of(me["econ"]))
+	var my_ab := _ages(Persons.family_race(me["econ"], me["family"]))   # v0.097: the household's own race
 	var child_match := my_age < int(my_ab["adult"])
 	if child_match and my_age < int(my_ab["adult"]) - 6: return []
 	var out: Array = []
@@ -126,10 +141,9 @@ static func candidates(game, member_uid: String) -> Array:
 		var head: Dictionary = e.get("head", {})
 		var ruling_hh := str(head.get("household_uid", ""))
 		var heir_uid := str(Dynasty.heir(game, tid).get("person_uid", ""))
-		var race := Persons.race_of(e)
-		var ab := _ages(race)
 		for f in e.get("fams", []):
 			if f.get("cohort", false) or f.get("estate", false) or f.get("gone", false): continue
+			var ab := _ages(Persons.family_race(e, f))   # v0.097: the household's own race, not the town's
 			if str(f.get("household_uid", "")) == "" or str(f.get("household_uid", "")) == _household_uid(game): continue
 			var ruling := str(f.get("household_uid", "")) == ruling_hh
 			for p in Persons.pp(f) + Persons.kp(f):
@@ -146,7 +160,7 @@ static func candidates(game, member_uid: String) -> Array:
 				if not Dynasty._living(game, tid, f, p) or _married(loc) or _betrothed(game, uid): continue
 				out.append(_offer(game, member_uid, loc, tid, 0, ruling))
 	out.sort_custom(func(a, b): return (1 if a["ruling_house"] else 0) * 15 + float(a["score"]) > (1 if b["ruling_house"] else 0) * 15 + float(b["score"]))
-	return out.slice(0, 24)
+	return out   # v0.097: every match is listed (Court pages them); no cut-off
 
 ## Deterministic acceptance with the reasons shown to the player (CK3-style transparency).
 static func _offer(game, member_uid: String, loc: Dictionary, tid: String, gift_tier: int, ruling: bool = true) -> Dictionary:
@@ -226,11 +240,11 @@ static func propose(game, member_uid: String, candidate_uid: String, gift_tier: 
 	if gift > 0.0:
 		payer["purse"] = float(payer["purse"]) - gift
 		their["purse"] = float(their.get("purse", 0.0)) + gift
-	var my_age := Persons.age_of(me["person"], float(game.day))
-	if my_age < int(_ages(Persons.race_of(me["econ"]))["adult"]):
+	# v0.097: wed at once only when both are of age (each by their own household's race); otherwise betroth.
+	if not (_of_age(game, me) and _of_age(game, Dynasty._person(game, candidate_uid))):
 		st["betrothals"].append({"a": member_uid, "b": candidate_uid, "day": int(game.day), "dowry_owed": true})
-		_log(game, "%s is betrothed to %s of House %s. They will wed when %s comes of age." % [me_name(game, member_uid), o["name"], o["house_name"], me_name(game, member_uid)])
-		return {"ok": true, "accepted": true, "text": "Betrothal agreed. The wedding will follow when %s comes of age." % me_name(game, member_uid)}
+		_log(game, "%s is betrothed to %s of House %s. They will wed when both come of age." % [me_name(game, member_uid), o["name"], o["house_name"]])
+		return {"ok": true, "accepted": true, "text": "Betrothal agreed. The wedding will follow when both %s and %s come of age." % [me_name(game, member_uid), o["name"]]}
 	var w := wed(game, member_uid, candidate_uid)
 	return {"ok": bool(w.get("ok", false)), "accepted": bool(w.get("ok", false)), "text": str(w.get("text", ""))}
 
@@ -256,16 +270,26 @@ static func wed(game, member_uid: String, spouse_uid: String) -> Dictionary:
 	if dowry > 0.0:
 		from_f["purse"] = float(from_f["purse"]) - dowry
 		to_f["purse"] = float(to_f.get("purse", 0.0)) + dowry
-	# Move the person record.
+	# Move the person record. v0.097: one who came of age since their family's last weekly turn is still listed
+	# with the children (kp); take them from that list and the child count, so no copy is left behind there.
 	var cat_key := "m" if int(p[2]) == 0 else "f"
 	Persons.forget(from_e, from_f, p)
-	Persons.pp(from_f).erase(p)
-	from_f[cat_key] = maxi(0, int(from_f.get(cat_key, 0)) - 1)
+	var was_child: bool = Persons.kp_read(from_f).has(p)
+	if was_child:
+		Persons.kp(from_f).erase(p)
+		from_f["kids"] = maxi(0, int(from_f.get("kids", 0)) - 1)
+		p[6] = 0
+	else:
+		Persons.pp(from_f).erase(p)
+		from_f[cat_key] = maxi(0, int(from_f.get(cat_key, 0)) - 1)
 	if not is_same(from_e, to_e):
 		p[0] = int(to_e.get("next_pid", 1)); to_e["next_pid"] = int(p[0]) + 1
 		p[Persons.MO] = -1; p[Persons.FA] = -1
 		from_e["pop"] = maxi(0, int(from_e.get("pop", 0)) - 1); to_e["pop"] = int(to_e.get("pop", 0)) + 1
-		from_e["adults"] = maxi(0, int(from_e.get("adults", 0)) - 1); to_e["adults"] = int(to_e.get("adults", 0)) + 1
+		if not was_child: from_e["adults"] = maxi(0, int(from_e.get("adults", 0)) - 1)
+		to_e["adults"] = int(to_e.get("adults", 0)) + 1
+	elif was_child:
+		to_e["adults"] = int(to_e.get("adults", 0)) + 1   # counted with this town's adults from now on
 	p[4] = ""
 	to_f[cat_key] = int(to_f.get(cat_key, 0)) + 1
 	Persons.pp(to_f).append(p)
@@ -334,7 +358,13 @@ static func daily(game) -> void:
 		if a.is_empty() or c.is_empty():
 			_log(game, "A betrothal ended: one of the pair has died.")
 			continue
-		if Persons.age_of(a["person"], float(game.day)) >= int(_ages(Persons.race_of(a["econ"]))["adult"]):
+		# v0.097: a betrothed who has since married someone else (a town's own marriages do not know of
+		# betrothals) ends the betrothal: nobody is wed twice.
+		if _married(a) or _married(c):
+			_log(game, "The betrothal of %s and %s ended: one of them has married another." % [me_name(game, str(b["a"])), me_name(game, str(b["b"]))])
+			continue
+		# v0.097: both of the pair must be of age (a child can be betrothed to a younger child).
+		if _of_age(game, a) and _of_age(game, c):
 			wed(game, str(b["a"]), str(b["b"]))
 			continue
 		keep.append(b)
