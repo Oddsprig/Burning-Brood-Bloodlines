@@ -1,5 +1,5 @@
 BURNING BROOD: BLOODLINES - CURRENT DEVELOPER NOTES
-Updated: 2026-11-07 | v0.097 on branch v0.097-sale-readiness (normal merge to main) | v0.096 merged 6ed741a3134e8029496e83da18979052b015efb9 | packaged Desktop/Android v0.085
+Updated: 2026-11-07 | v0.097 merged 7b0429ab4aa596498624f862398c4bcd30e6b737 | v0.096 merged 6ed741a3134e8029496e83da18979052b015efb9 | packaged Desktop/Android v0.085
 
 CURRENT SOURCE AND DOCUMENTATION
 v0.086-v0.094 are accepted normal source merges. The last packaged release remains
@@ -17,7 +17,7 @@ lead reviews/commits/pushes normally. It counts toward the standing two-helper c
 See docs/BUILD_RULES.md and the shared machine GAME TESTING RULES.md. Historical
 commands/receipts and this audit never grant permission for another test or build.
 
-v0.097 - SIX SALE-READINESS BUG FIXES (branch v0.097-sale-readiness)
+v0.097 - SIX SALE-READINESS BUG FIXES (merged 7b0429ab4aa596498624f862398c4bcd30e6b737)
 Base: 623d009. Rules fixes for weddings, battle loot, hurt dragons and house
 improvements, plus two screen fixes (Court lists, Records text). No save
 schema change: the new battle state key last_fate is added when missing.

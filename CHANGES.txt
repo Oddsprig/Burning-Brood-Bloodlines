@@ -1,5 +1,5 @@
 BURNING BROOD: BLOODLINES - ACTIVE CHANGE NOTES
-Updated: 2026-11-07 for v0.097 (branch v0.097-sale-readiness, normal merge to main).
+Updated: 2026-11-07 for v0.097 merged as 7b0429ab4aa596498624f862398c4bcd30e6b737.
 v0.096 merged as 6ed741a3134e8029496e83da18979052b015efb9.
 Last packaged Desktop/Android release: v0.085. v0.096 and v0.097 are source merges; no package is claimed.
 
@@ -8,7 +8,8 @@ history remains in the developer notes and immutable archives. Historical worker
 UNRUN reports are superseded by the accepted source receipts where stated.
 
 v0.097 - Six bug fixes toward an Oddsprig sale
-Branch v0.097-sale-readiness, base 623d009 (main after v0.096 notes). Normal merge.
+Normal merge: 7b0429ab4aa596498624f862398c4bcd30e6b737 (branch v0.097-sale-readiness).
+Base 623d009 (main after v0.096 notes).
 Weddings: a betrothed pair weds only when BOTH are of age; a child is no longer
 wed because the other partner came of age. Ages follow the household's own race
 (an elf of 20 in a human town is a child). Betrothal texts say so. A town no
