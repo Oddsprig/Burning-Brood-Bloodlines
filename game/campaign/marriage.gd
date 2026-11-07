@@ -63,6 +63,10 @@ static func realm_allies(game) -> Dictionary:
 static func _ages(race: String) -> Dictionary:
 	return People.ages(race)
 
+## True when this located person has reached their own race's adult age.
+static func _of_age(game, loc: Dictionary) -> bool:
+	return Persons.age_of(loc["person"], float(game.day)) >= int(_ages(Persons.race_of(loc["econ"]))["adult"])
+
 static func _married(loc: Dictionary) -> bool:
 	var p: Array = loc["person"]
 	if str(Persons.g(p, Persons.SPOUSE_UID, "")) != "":
@@ -146,7 +150,7 @@ static func candidates(game, member_uid: String) -> Array:
 				if not Dynasty._living(game, tid, f, p) or _married(loc) or _betrothed(game, uid): continue
 				out.append(_offer(game, member_uid, loc, tid, 0, ruling))
 	out.sort_custom(func(a, b): return (1 if a["ruling_house"] else 0) * 15 + float(a["score"]) > (1 if b["ruling_house"] else 0) * 15 + float(b["score"]))
-	return out.slice(0, 24)
+	return out   # v0.097: every match is listed (Court pages them); no cut-off
 
 ## Deterministic acceptance with the reasons shown to the player (CK3-style transparency).
 static func _offer(game, member_uid: String, loc: Dictionary, tid: String, gift_tier: int, ruling: bool = true) -> Dictionary:
@@ -229,8 +233,8 @@ static func propose(game, member_uid: String, candidate_uid: String, gift_tier: 
 	var my_age := Persons.age_of(me["person"], float(game.day))
 	if my_age < int(_ages(Persons.race_of(me["econ"]))["adult"]):
 		st["betrothals"].append({"a": member_uid, "b": candidate_uid, "day": int(game.day), "dowry_owed": true})
-		_log(game, "%s is betrothed to %s of House %s. They will wed when %s comes of age." % [me_name(game, member_uid), o["name"], o["house_name"], me_name(game, member_uid)])
-		return {"ok": true, "accepted": true, "text": "Betrothal agreed. The wedding will follow when %s comes of age." % me_name(game, member_uid)}
+		_log(game, "%s is betrothed to %s of House %s. They will wed when both come of age." % [me_name(game, member_uid), o["name"], o["house_name"]])
+		return {"ok": true, "accepted": true, "text": "Betrothal agreed. The wedding will follow when both %s and %s come of age." % [me_name(game, member_uid), o["name"]]}
 	var w := wed(game, member_uid, candidate_uid)
 	return {"ok": bool(w.get("ok", false)), "accepted": bool(w.get("ok", false)), "text": str(w.get("text", ""))}
 
@@ -334,7 +338,8 @@ static func daily(game) -> void:
 		if a.is_empty() or c.is_empty():
 			_log(game, "A betrothal ended: one of the pair has died.")
 			continue
-		if Persons.age_of(a["person"], float(game.day)) >= int(_ages(Persons.race_of(a["econ"]))["adult"]):
+		# v0.097: both of the pair must be of age (a child can be betrothed to a younger child).
+		if _of_age(game, a) and _of_age(game, c):
 			wed(game, str(b["a"]), str(b["b"]))
 			continue
 		keep.append(b)

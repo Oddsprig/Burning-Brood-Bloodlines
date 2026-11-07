@@ -326,7 +326,7 @@ func finish_battle(result: Dictionary) -> void:
 	var kept_from_dead := 0
 	if won:
 		var sp := Loot.spoils(result.get("enemy_units", []).filter(func(x): return x is Unit and not company.has(x) and not DragonCombat.is_dragon_unit(self, x)),
-			result.get("enemy_fled", []), int(pending_battle.get("seed", 0)) + 77, loot_fraction(), "your company")
+			Loot.left_the_field(result), int(pending_battle.get("seed", 0)) + 77, loot_fraction(), "your company")
 		loot = int(sp["coin"])
 		result["loot_coin"] = int(sp["coin"])
 		kept_items = sp["items"]

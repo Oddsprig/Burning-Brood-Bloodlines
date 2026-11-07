@@ -1,10 +1,37 @@
 BURNING BROOD: BLOODLINES - ACTIVE CHANGE NOTES
-Updated: 2026-11-07 for v0.096 merged as 6ed741a3134e8029496e83da18979052b015efb9.
-Last packaged Desktop/Android release: v0.085. v0.096 is a source merge; no package is claimed.
+Updated: 2026-11-07 for v0.097 (branch v0.097-sale-readiness, normal merge to main).
+v0.096 merged as 6ed741a3134e8029496e83da18979052b015efb9.
+Last packaged Desktop/Android release: v0.085. v0.096 and v0.097 are source merges; no package is claimed.
 
 This changelog starts with the accepted v0.086-v0.094 source catch-up. Earlier
 history remains in the developer notes and immutable archives. Historical worker
 UNRUN reports are superseded by the accepted source receipts where stated.
+
+v0.097 - Six bug fixes toward an Oddsprig sale
+Branch v0.097-sale-readiness, base 623d009 (main after v0.096 notes). Normal merge.
+Weddings: a betrothed pair weds only when BOTH are of age; a child is no longer
+wed because the other partner came of age. Betrothal texts say so.
+Battle loot: after a battle of rounds only the dead are stripped; men who fled
+or left alive with their beaten army keep their purse and kit
+(BattleRounds "enemy_withdrew", Loot.left_the_field). A man who fled early and
+died later is still looted.
+Hurt dragons: a dragon that "cannot fight" (Health report) sits out later
+rounds like a man; a rider who cannot fight is not seated, so the dragon
+fights riderless.
+House improvements: every material must be in the market in full; the reason
+names what is short; the build re-checks stock and takes nothing if short.
+Court lists: marriage matches are no longer cut at 24; matches (24 a page) and
+prisoners (40 a page) have a "Show N more (M not shown)" button.
+Records text: Carriers names pack donkeys carrying return loads; Research says
+trials burn iron bars, flux stone and charcoal (not wood).
+Owners (game/): campaign/marriage.gd; campaign/battle_rounds.gd; core/loot.gd;
+core/game.gd; campaign/dragon_combat.gd; campaign/house_upkeep.gd; ui/court.gd;
+ui/rec_world.gd; ui/rec_pages.gd. Version metadata is 0.097.
+Tests: new tests/test_sale_fixes_v097.gd (31 checks, 0 failures; 12 fail on the
+old code). tests/ui_pages_v096.gd adds Court match-list shots. 9 related tests
+pass; claude_marriage, claude_prisoners_v033 and claude_prisoners_ui_v033 fail
+identically on main 623d009 (older issues). Receipts:
+test-results/v0.097_sale_fixes.txt.
 
 v0.096 - Readable text, fonts and layout on every page
 Normal merge: 6ed741a3134e8029496e83da18979052b015efb9 (branch v0.096-ui-readability).

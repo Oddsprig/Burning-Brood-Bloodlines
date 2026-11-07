@@ -1,0 +1,99 @@
+v0.097 six sale-readiness bug fixes - test receipts
+Where: Linux cloud container (Godot 4.7.2 Linux), never the owner's PC. One Godot process at a time; every run capped at 180 s (timeout 180, --watchdog=175).
+Headless runs: godot --headless --path game res://tests/runner.tscn -- --test=res://tests/<name>.gd --watchdog=175
+Display runs: xvfb-run -a -s "-screen 0 1920x1080x24" godot --path game --rendering-method gl_compatibility res://tests/runner.tscn -- --test=res://tests/<name>.gd --watchdog=175
+Candidate = branch v0.097-sale-readiness (working tree); main = 623d009 source (candidate game/campaign, game/core, game/ui stashed, same tests).
+
+== New test, final candidate (version 0.097, start world made fresh as world_0.097_v1.json)
+ok   a house is chosen
+ok   weddings: an unmarried adult of the house with a candidate
+ok   weddings: no wedding while the betrothed is still a child
+ok   weddings: the betrothal is kept until both are of age
+ok   weddings: once both are of age they wed
+ok   weddings: the betrothal is closed by the wedding
+ok   loot: the man whose latest round ended in flight is reported fled
+ok   loot: the fled man and the man who left with his beaten army are off the field
+ok   loot: the dead (also one who fled earlier and died later) stay on the field
+ok   loot: men who left the field keep their kit (7, 7 pieces)
+ok   loot: the dead are stripped (7 -> 0 pieces)
+ok   dragons: a whole adult dragon can fight
+ok   dragons: the bled dragon is alive but cannot fight
+ok   dragons: a dragon that cannot fight is not fit for a round
+ok   dragons: the badly hurt dragon is not sent into the round
+ok   dragons: once whole it is fit again (2 picked)
+ok   dragons: the ruler has a Unit to ride as
+ok   dragons: a whole rider is seated on his dragon
+ok   dragons: a rider who cannot fight is not seated (the dragon fights riderless)
+ok   improvements: the player's household is found
+ok   improvements: preview refuses when tools are missing (The market is short of building materials: needs 1 tools more.)
+ok   improvements: the reason names the missing material
+ok   improvements: nothing is built, taken or charged when one material is short
+ok   improvements: with every material in stock the preview is ready
+ok   improvements: it builds and takes the full set
+ok   court: the first page lists 40 and offers Show more
+ok   court: Show more lists the next 40 in place
+ok   court: every entry is reachable, in order, and the button goes
+  largest match list in this world: 347 (no longer cut at 24; Court pages it 24 at a time)
+ok   records: research trials buy charcoal, not wood
+ok   records: the Research card says charcoal (Funded by the state each faction turn; staff hired by the normal rules; trials burn iron bars, flux stone and charcoal bought at the market.)
+ok   records: the Carriers line names pack donkeys (wagons (caravans) with drivers and porters; pack donkeys carry return loads (2 caravans on the road with them now); no boats in the sim)
+v097 checks 31, failures 0, 19113 ms
+== res://tests/test_sale_fixes_v097.gd: PASS ==
+exit=0 secs=28 (16.5 s of that made the start world; later runs load it in about 2 s)
+
+== Same checks on main's code (red before; temporary file tests/_red_v097.gd: the test minus the checks that call the new v0.097 helpers (25 of 31 checks), deleted after the run)
+FAIL v097: weddings: no wedding while the betrothed is still a child
+FAIL v097: weddings: the betrothal is kept until both are of age
+FAIL v097: loot: the man whose latest round ended in flight is reported fled
+FAIL v097: loot: the fled man and the man who left with his beaten army are off the field
+FAIL v097: loot: men who left the field keep their kit (0, 0 pieces)
+FAIL v097: dragons: a dragon that cannot fight is not fit for a round
+FAIL v097: dragons: the badly hurt dragon is not sent into the round
+FAIL v097: dragons: a rider who cannot fight is not seated (the dragon fights riderless)
+FAIL v097: improvements: preview refuses when tools are missing (Ready to build Manor Hall (Level 1).)
+FAIL v097: improvements: the reason names the missing material
+FAIL v097: improvements: nothing is built, taken or charged when one material is short
+FAIL v097: improvements: it builds and takes the full set
+v097 checks 25, failures 12, 3277 ms
+== res://tests/_red_v097.gd: FAIL (12) ==
+
+== Related tests on the candidate (one at a time; run before MATCH_ROWS went 12 -> 24 and before the version bump)
+claude_marriage exit=1 secs=10 == res://tests/claude_marriage.gd: FAIL (1) ==
+    FAIL marriage: an unmarried adult has a match that would accept with a generous gift
+    FAIL an unmarried adult has a match that would accept with a generous gift
+test_ai_marriage_dragons_v079 exit=0 secs=18 == res://tests/test_ai_marriage_dragons_v079.gd: PASS ==
+claude_house_upkeep exit=0 secs=18 == res://tests/claude_house_upkeep.gd: PASS ==
+claude_prisoners_v033 exit=2 secs=9 == res://tests/claude_prisoners_v033.gd: FAIL (2) ==
+    FAIL prisoners033: a member of your house rides with the army
+    FAIL prisoners033: registered men were raised (12)
+test_ransom_upkeep_v077 exit=0 secs=28 == res://tests/test_ransom_upkeep_v077.gd: PASS ==
+test_rider_targeting_v081 exit=0 secs=25 == res://tests/test_rider_targeting_v081.gd: PASS ==
+test_campaign_fixes_v095 exit=0 secs=11 == res://tests/test_campaign_fixes_v095.gd: PASS ==
+claude_court_events exit=0 secs=16 == res://tests/claude_court_events.gd: PASS ==
+claude_rounds exit=0 secs=21 == res://tests/claude_rounds.gd: PASS ==
+claude_prisoners_ui_v033 exit=1 secs=11 == res://tests/claude_prisoners_ui_v033.gd: FAIL (1) ==
+    FAIL prisoners_ui033: a house member and a man ride with the army
+ui_pages_v096 exit=1 secs=6 == res://tests/ui_pages_v096.gd: FAIL (1) ==
+test_ui_modal exit=0 secs=6 == res://tests/test_ui_modal.gd: PASS ==
+    (ui_pages_v096 exit=1 above: it needs --out=<dir>; rerun below)
+
+== Display tour after the final Court change (MATCH_ROWS 24), --only=house,records --out=<scratch>
+pages: shot court
+pages: shot court_matches
+pages: shot court_matches_more
+pages: 29 shots
+== res://tests/ui_pages_v096.gd: PASS ==
+exit=0 secs=45. court_matches: 191 possible matches, first page of 24 with the Show more button. court_matches_more (checked by eye): after one press the button reads "Show 24 more (143 not shown)".
+
+== The 3 candidate failures on main's code (identical lines: older issues, not v0.097)
+claude_marriage == res://tests/claude_marriage.gd: FAIL (1) ==
+    FAIL marriage: an unmarried adult has a match that would accept with a generous gift
+    FAIL an unmarried adult has a match that would accept with a generous gift
+claude_prisoners_v033 == res://tests/claude_prisoners_v033.gd: FAIL (2) ==
+    FAIL prisoners033: a member of your house rides with the army
+    FAIL prisoners033: registered men were raised (12)
+claude_prisoners_ui_v033 == res://tests/claude_prisoners_ui_v033.gd: FAIL (1) ==
+    FAIL prisoners_ui033: a house member and a man ride with the army
+claude_marriage and claude_prisoners_ui_v033 were already listed as failing on main in v0.096 (test-results/v0.096_ui_tests.txt).
+
+Every log also shows the configured missing boot splash (res://icon_mobile/splash.png) and, for display runs, ALSA/no-audio-device lines; these are not test results.

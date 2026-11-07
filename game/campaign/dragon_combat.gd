@@ -301,7 +301,9 @@ static func battle_riders(game, units: Array) -> Dictionary:
 		var rider: Unit = Dynasty.bound_unit(game, person)
 		if rider != null:
 			adopt_kept_body(game, person_uid, rider)
-			if not rider.dead: out[str(value.uid)] = {"unit": rider, "detached": false}
+			# v0.097: a rider too badly hurt to fight stays out of the saddle (between rounds too); the dragon
+			# fights riderless, as it does when its rider falls mid-fight.
+			if BattleRounds._can_fight(game, rider): out[str(value.uid)] = {"unit": rider, "detached": false}
 			continue
 		if not game.pending_battle.has("rider_bodies"): game.pending_battle["rider_bodies"] = {}
 		var bodies: Dictionary = game.pending_battle["rider_bodies"]
@@ -309,7 +311,7 @@ static func battle_riders(game, units: Array) -> Dictionary:
 		if not body is Unit:
 			body = _rider_body(game, person, value)
 			bodies[person_uid] = body
-		if not body.dead: out[str(value.uid)] = {"unit": body, "detached": true}
+		if BattleRounds._can_fight(game, body): out[str(value.uid)] = {"unit": body, "detached": true}
 	return out
 
 static func _rider_body(game, person: Dictionary, dragon: Unit) -> Unit:
