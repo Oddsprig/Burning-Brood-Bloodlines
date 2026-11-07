@@ -47,12 +47,28 @@ static func _commander(game, pool: Array, player: bool) -> int:
 			best = u
 	return best.uid if best != null else -1
 
-## Fit men waiting in a pool: alive, not taken, not too hurt to fight.
+## Fit men waiting in a pool: alive, not taken, not too hurt to fight, and not standing by a hurt dragon.
 static func fit(game, pool: Array, captives: Array) -> Array:
-	return pool.filter(func(u): return u is Unit and not u.dead and not captives.has(u) and _can_fight(game, u))
+	var grounded := grounded_riders(game, pool)
+	return pool.filter(func(u): return u is Unit and not u.dead and not captives.has(u) and _can_fight(game, u) and not grounded.has(u))
+
+## v0.097: the riders (as their own Units) of the dragons in this pool that are alive but too badly hurt to fight.
+## Each stays out with his dragon instead of joining the next round on foot. A rider whose dragon died still
+## fights on foot, as before.
+static func grounded_riders(game, pool: Array) -> Array:
+	var out: Array = []
+	for d in pool:
+		if not d is Unit or d.dead or not DragonCombat.is_dragon_unit(game, d) or _can_fight(game, d): continue
+		var person_uid := str(DragonCombat._record(game, d.dragon_uid).get("rider_person_uid", ""))
+		if person_uid == "": continue
+		var person := Dynasty.person(game, person_uid)
+		if person.is_empty() or not bool(person.get("alive", false)): continue
+		var rider: Unit = Dynasty.bound_unit(game, person)
+		if rider != null and not out.has(rider): out.append(rider)
+	return out
 
 ## v0.097: a dragon too badly hurt to fight sits out later rounds like a man (the same "cannot fight" rule that
-## keeps it from marching, campaign/warfare.gd); its seated rider leaves the fight with it.
+## keeps it from marching, campaign/warfare.gd). Its rider stays out with it (grounded_riders).
 static func _can_fight(game, u: Unit) -> bool:
 	if u.dead: return false
 	return str(HealthReport.describe(u).get("fitness", "")) != "cannot fight"

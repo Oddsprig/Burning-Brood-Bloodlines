@@ -65,8 +65,8 @@ func weddings() -> void:
 	if member.is_empty(): return
 	var a := Dynasty._person(Game, str(member["person_uid"]))
 	var b := Dynasty._person(Game, str(cand["person_uid"]))
-	var adult_b := int(People.ages(Persons.race_of(b["econ"]))["adult"])
-	var adult_a := int(People.ages(Persons.race_of(a["econ"]))["adult"])
+	var adult_b := int(People.ages(Persons.family_race(b["econ"], b["family"]))["adult"])
+	var adult_a := int(People.ages(Persons.family_race(a["econ"], a["family"]))["adult"])
 	var b_birth := float(b["person"][3])
 	# Member just of age, the betrothed still a child (three years short).
 	_set_age(a, float(adult_a) + 0.1)
@@ -85,6 +85,28 @@ func weddings() -> void:
 	check(not Marriage._betrothed(Game, str(cand["person_uid"])), "weddings: the betrothal is closed by the wedding")
 	var sp := Dynasty._person(Game, str(cand["person_uid"]))
 	if not sp.is_empty(): sp["person"][3] = b_birth
+	# An elf household living in a human town comes of age as elves do (40), not at the town's 16.
+	var other := {}
+	for o: Dictionary in Marriage.candidates(Game, str(member["person_uid"])):
+		var loc := Dynasty._person(Game, str(o["person_uid"]))
+		if loc.is_empty() or str(o["person_uid"]) == str(cand["person_uid"]): continue
+		if Persons.race_of(loc["econ"]) == "human" and Persons.family_race(loc["econ"], loc["family"]) == "human":
+			other = loc; break
+	check(not other.is_empty(), "weddings: a match from a human household in a human town")
+	if other.is_empty(): return
+	var other_uid := str(Persons.g(other["person"], Persons.PERSON_UID, ""))
+	var other_birth := float(other["person"][3])
+	var had_race: bool = other["family"].has("race")
+	var old_race := str(other["family"].get("race", ""))
+	_set_age(other, 20.0)
+	check(Marriage._of_age(Game, other), "weddings: a human of 20 is of age")
+	other["family"]["race"] = "moon_elf"
+	check(not Marriage._of_age(Game, other), "weddings: a moon elf of 20 in a human town is still a child")
+	var listed := Marriage.candidates(Game, str(member["person_uid"])).any(func(o): return str(o["person_uid"]) == other_uid)
+	check(not listed, "weddings: that elf child is not offered to an adult as a spouse")
+	if had_race: other["family"]["race"] = old_race
+	else: other["family"].erase("race")
+	other["person"][3] = other_birth
 
 # ------------------------------------------------------------------ 2. loot in a battle of rounds
 func _fought(r: Dictionary, units: Array, states: Array, winner: int) -> void:
@@ -179,6 +201,14 @@ func dragons(tid: String) -> void:
 	seats = DragonCombat.battle_riders(Game, [d])
 	check(not seats.has(str(d.uid)), "dragons: a rider who cannot fight is not seated (the dragon fights riderless)")
 	rider.body = BodyState.from_dict(rider_fresh.duplicate(true))
+	# A whole rider deployed with the army stays out with his badly hurt dragon (not sent in on foot).
+	var foot := troops("middle_kingdom", 2, 9713)
+	var with_rider: Array = [d, rider] + foot
+	check(BattleRounds.fit(Game, with_rider, []).has(rider), "dragons: with his dragon whole, the deployed rider is fit")
+	cripple(d)
+	var fit_now := BattleRounds.fit(Game, with_rider, [])
+	check(not fit_now.has(rider) and not fit_now.has(d) and fit_now.size() == foot.size(), "dragons: the rider of a badly hurt dragon stays out with it")
+	d.body = BodyState.from_dict(fresh.duplicate(true))
 	Game.pending_battle = {}
 
 # ------------------------------------------------------------------ 4. house improvements

@@ -63,9 +63,10 @@ static func realm_allies(game) -> Dictionary:
 static func _ages(race: String) -> Dictionary:
 	return People.ages(race)
 
-## True when this located person has reached their own race's adult age.
+## True when this located person has reached the adult age of their own household's race (not the town's:
+## an elf household in a human town comes of age as elves do).
 static func _of_age(game, loc: Dictionary) -> bool:
-	return Persons.age_of(loc["person"], float(game.day)) >= int(_ages(Persons.race_of(loc["econ"]))["adult"])
+	return Persons.age_of(loc["person"], float(game.day)) >= int(_ages(Persons.family_race(loc["econ"], loc["family"]))["adult"])
 
 static func _married(loc: Dictionary) -> bool:
 	var p: Array = loc["person"]
@@ -119,7 +120,7 @@ static func candidates(game, member_uid: String) -> Array:
 	if me.is_empty(): return []
 	var my_sex := int(me["person"][2])
 	var my_age := Persons.age_of(me["person"], float(game.day))
-	var my_ab := _ages(Persons.race_of(me["econ"]))
+	var my_ab := _ages(Persons.family_race(me["econ"], me["family"]))   # v0.097: the household's own race
 	var child_match := my_age < int(my_ab["adult"])
 	if child_match and my_age < int(my_ab["adult"]) - 6: return []
 	var out: Array = []
@@ -130,10 +131,9 @@ static func candidates(game, member_uid: String) -> Array:
 		var head: Dictionary = e.get("head", {})
 		var ruling_hh := str(head.get("household_uid", ""))
 		var heir_uid := str(Dynasty.heir(game, tid).get("person_uid", ""))
-		var race := Persons.race_of(e)
-		var ab := _ages(race)
 		for f in e.get("fams", []):
 			if f.get("cohort", false) or f.get("estate", false) or f.get("gone", false): continue
+			var ab := _ages(Persons.family_race(e, f))   # v0.097: the household's own race, not the town's
 			if str(f.get("household_uid", "")) == "" or str(f.get("household_uid", "")) == _household_uid(game): continue
 			var ruling := str(f.get("household_uid", "")) == ruling_hh
 			for p in Persons.pp(f) + Persons.kp(f):
@@ -230,8 +230,8 @@ static func propose(game, member_uid: String, candidate_uid: String, gift_tier: 
 	if gift > 0.0:
 		payer["purse"] = float(payer["purse"]) - gift
 		their["purse"] = float(their.get("purse", 0.0)) + gift
-	var my_age := Persons.age_of(me["person"], float(game.day))
-	if my_age < int(_ages(Persons.race_of(me["econ"]))["adult"]):
+	# v0.097: wed at once only when both are of age (each by their own household's race); otherwise betroth.
+	if not (_of_age(game, me) and _of_age(game, Dynasty._person(game, candidate_uid))):
 		st["betrothals"].append({"a": member_uid, "b": candidate_uid, "day": int(game.day), "dowry_owed": true})
 		_log(game, "%s is betrothed to %s of House %s. They will wed when both come of age." % [me_name(game, member_uid), o["name"], o["house_name"]])
 		return {"ok": true, "accepted": true, "text": "Betrothal agreed. The wedding will follow when both %s and %s come of age." % [me_name(game, member_uid), o["name"]]}
