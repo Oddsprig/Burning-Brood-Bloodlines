@@ -1,5 +1,5 @@
 BURNING BROOD: BLOODLINES - CURRENT DEVELOPER NOTES
-Updated: 2026-11-07 | v0.096 normal merge (hash recorded in the follow-up notes commit) | packaged Desktop/Android v0.085
+Updated: 2026-11-07 | v0.096 merged 6ed741a3134e8029496e83da18979052b015efb9 | packaged Desktop/Android v0.085
 
 CURRENT SOURCE AND DOCUMENTATION
 v0.086-v0.094 are accepted normal source merges. The last packaged release remains
@@ -16,7 +16,7 @@ lead reviews/commits/pushes normally. It counts toward the standing two-helper c
 See docs/BUILD_RULES.md and the shared machine GAME TESTING RULES.md. Historical
 commands/receipts and this audit never grant permission for another test or build.
 
-v0.096 - READABLE TEXT, FONTS AND LAYOUT ON EVERY PAGE (normal merge; hash in follow-up notes commit)
+v0.096 - READABLE TEXT, FONTS AND LAYOUT ON EVERY PAGE (merged 6ed741a3134e8029496e83da18979052b015efb9)
 Base: 951cf2d. Presentation only; no rule, save, schema or simulation change.
 Page-by-page status: docs/ui_review_v096.md (70 tour pages + 5 Company tabs).
 

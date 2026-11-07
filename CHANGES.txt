@@ -1,5 +1,5 @@
 BURNING BROOD: BLOODLINES - ACTIVE CHANGE NOTES
-Updated: 2026-11-07 for v0.096 (normal merge; hash recorded in the follow-up notes commit).
+Updated: 2026-11-07 for v0.096 merged as 6ed741a3134e8029496e83da18979052b015efb9.
 Last packaged Desktop/Android release: v0.085. v0.096 is a source merge; no package is claimed.
 
 This changelog starts with the accepted v0.086-v0.094 source catch-up. Earlier
@@ -7,7 +7,7 @@ history remains in the developer notes and immutable archives. Historical worker
 UNRUN reports are superseded by the accepted source receipts where stated.
 
 v0.096 - Readable text, fonts and layout on every page
-Normal merge of branch v0.096-ui-readability; hash recorded in the follow-up notes commit.
+Normal merge: 6ed741a3134e8029496e83da18979052b015efb9 (branch v0.096-ui-readability).
 Base: 951cf2d (main after v0.095 docs). Presentation only: no rule, save or
 simulation change.
 Contrast: the global label guard (core/sound.gd) and UiTheme.readable now judge

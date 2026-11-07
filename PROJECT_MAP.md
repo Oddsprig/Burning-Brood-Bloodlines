@@ -1,6 +1,6 @@
 # Burning Brood: Bloodlines — current developer map
 
-Updated 7 November 2026 for v0.096 (readable text, fonts and layout on every page), normal merge (hash recorded in the follow-up notes commit) of branch `v0.096-ui-readability` based on `main` `951cf2d`. v0.095 was normally merged as `5e17abb014a1f01f0426406bd455e249f06a8e20`. Source versions v0.086–v0.094 are accepted normal merges; the last packaged Desktop/Android release is v0.085. The older source-only audit below is pinned to v0.094.
+Updated 7 November 2026 for v0.096 (readable text, fonts and layout on every page), normally merged as `6ed741a3134e8029496e83da18979052b015efb9` from branch `v0.096-ui-readability` based on `main` `951cf2d`. v0.095 was normally merged as `5e17abb014a1f01f0426406bd455e249f06a8e20`. Source versions v0.086–v0.094 are accepted normal merges; the last packaged Desktop/Android release is v0.085. The older source-only audit below is pinned to v0.094.
 
 ## v0.096 — readable text, fonts and layout
 
