@@ -34,7 +34,7 @@ NOT FIXED = seen but left for a later version (reason given).
 | Dragons & eggs (list, detail, catalog) | FIXED | List/Roost and Your house/realm/All toggles show the selected choice. |
 | Dragon roost | FIXED | Fact panel split under captions: Condition, Bond, Daily care, Last care. |
 | Army (muster) | FIXED | Mounts has its own heading; horse prices grouped. |
-| Company (overview, mind, skills, gear, health) | FIXED | Roster names were cut to "Ingish Stoneb..."; names use a smaller size on desktop and carry the full name as a tooltip. The five detail tabs were reviewed. |
+| Company (overview, mind, skills, gear, health) | FIXED | Roster names were cut to "Ingish Stoneb..."; names use a smaller size on desktop; the row tooltip already gives the full name. The five detail tabs were reviewed. |
 | Baggage | FIXED | Totals on two Lead lines with grouped numbers; row values grouped. |
 | Town: Market | FIXED | Table headers bold and readable; quality coloured; quantity and coin columns in the number font. |
 | Town: Provisions, Recruits, Healer, Buildings | OK | Reviewed. |

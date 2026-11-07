@@ -46,8 +46,8 @@ Page-by-page status: docs/ui_review_v096.md (70 tour pages + 5 Company tabs).
    (Mounts heading), gameover, house, town orders/econ use UiKit.coins.
 6. Layout. dynasty_card house name column expands; world_map lbl_log 17 px ink
    on a dark backing, placed above the nav bar and clear of the ruler card,
-   hidden when empty; company roster names 19 px on desktop with a full-name
-   tooltip; town_contracts offer panel on WOOD_3; town_market header
+   hidden when empty; company roster names 19 px on desktop (row tooltip
+   already gives the full name); town_contracts offer panel on WOOD_3; town_market header
    cells; town_econ _badge compact tag; house_select colour pickers use
    add_icon_item with a swatch and design_label without the hex code.
 

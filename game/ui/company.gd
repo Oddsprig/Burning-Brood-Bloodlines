@@ -303,8 +303,7 @@ func _row(u: Unit, count_text: String, leader: bool) -> Button:
 	l.name = "RosterName"
 	# v0.096: capitals at heading size cut most names to "Ingish Stoneb..."; a smaller roster size fits whole names.
 	if not UiTheme.is_mobile():
-		l.add_theme_font_size_override("font_size", 19)
-	l.tooltip_text = u.name
+		l.add_theme_font_size_override("font_size", 19)   # the row button's tooltip already starts with the full name
 	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	l.custom_minimum_size.x = 60
 	l.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS

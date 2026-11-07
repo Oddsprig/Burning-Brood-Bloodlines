@@ -40,7 +40,7 @@ Tests changed: tests/fixtures/records_v044_baseline.gd frozen num/metrics follow
 the one deliberate digit-grouping change; tests/test_town_services_v042.gd
 checks the visible contract pay in its grouped form. New display-only
 tests/ui_pages_v096.gd screenshot tour (70 pages incl. all 8 Guide pages; Company tabs
-with --only=army). Company roster names fit (smaller desktop size, tooltip).
+with --only=army). Company roster names fit (smaller desktop size).
 Verification: 75 UI-related tests ran one at a time in a Linux cloud
 container (never the owner's PC), each capped at 175 s: 44 pass, 3 stop at the
 cap, 28 fail. The same 28 fail identically on main 951cf2d (older issues, not
