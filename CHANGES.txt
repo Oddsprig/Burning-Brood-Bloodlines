@@ -1,5 +1,5 @@
 BURNING BROOD: BLOODLINES - ACTIVE CHANGE NOTES
-Updated: 2026-11-07 for v0.099 merged as MERGE_HASH_V099.
+Updated: 2026-11-07 for v0.099 merged as 1fcb3fe758ad3a566cbb6b4466b25706fc3cd1d0.
 v0.098 merged as c6d525aa01d67bafacbf96f02206749b98d19bd3.
 v0.097 merged as 7b0429ab4aa596498624f862398c4bcd30e6b737.
 v0.096 merged as 6ed741a3134e8029496e83da18979052b015efb9.
@@ -11,7 +11,7 @@ history remains in the developer notes and immutable archives. Historical worker
 UNRUN reports are superseded by the accepted source receipts where stated.
 
 v0.099 - Release candidate: dragons in big battles, store builds, marriage ages
-Normal merge: MERGE_HASH_V099 (branch v0.099-release-candidate).
+Normal merge: 1fcb3fe758ad3a566cbb6b4466b25706fc3cd1d0 (branch v0.099-release-candidate).
 Base 7ad5a8b (main after v0.098 notes).
 Big battles: in a battle of rounds your fit bonded dragons now fight every
 round. Before, the field took the first 100 a side in pool order and dragons
