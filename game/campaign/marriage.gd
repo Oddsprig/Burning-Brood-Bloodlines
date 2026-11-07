@@ -75,6 +75,16 @@ static func _married(loc: Dictionary) -> bool:
 		if not other.is_empty(): return true
 	return not Persons.by_pid(loc["family"], int(Persons.g(p, Persons.SP, -1))).is_empty()
 
+## v0.097: the person uids promised in a betrothal, as a set ({} when there are none). A town's own weekly
+## marriages (Persons.marriages) pass them over, so a promised partner is not married off while waiting.
+static func betrothed_uids(game) -> Dictionary:
+	var out := {}
+	if not game.world.has("marriage"): return out
+	for b in game.world["marriage"].get("betrothals", []):
+		out[str(b.get("a", ""))] = true
+		out[str(b.get("b", ""))] = true
+	return out
+
 static func _betrothed(game, uid: String) -> bool:
 	for b: Dictionary in state(game)["betrothals"]:
 		if str(b["a"]) == uid or str(b["b"]) == uid: return true
@@ -347,6 +357,11 @@ static func daily(game) -> void:
 		var c := Dynasty._person(game, str(b["b"]))
 		if a.is_empty() or c.is_empty():
 			_log(game, "A betrothal ended: one of the pair has died.")
+			continue
+		# v0.097: a betrothed who has since married someone else (a town's own marriages do not know of
+		# betrothals) ends the betrothal: nobody is wed twice.
+		if _married(a) or _married(c):
+			_log(game, "The betrothal of %s and %s ended: one of them has married another." % [me_name(game, str(b["a"])), me_name(game, str(b["b"]))])
 			continue
 		# v0.097: both of the pair must be of age (a child can be betrothed to a younger child).
 		if _of_age(game, a) and _of_age(game, c):

@@ -135,6 +135,41 @@ func weddings() -> void:
 	Persons.age_up(grown["econ"], gf, float(Game.day))
 	var back := Persons.pp_read(gf).filter(func(x): return str(Persons.g(x, Persons.PERSON_UID, "")) == g_uid).size()
 	check(back == 0, "weddings: the next family turn does not bring a second copy back (%d)" % back)
+	# A betrothed who has married another meanwhile is not wed a second time: the betrothal ends.
+	var spouse_before := str(Persons.g(Dynasty._person(Game, str(member["person_uid"]))["person"], Persons.SPOUSE_UID, ""))
+	Marriage.state(Game)["betrothals"].append({"a": str(member["person_uid"]), "b": other_uid, "day": int(Game.day), "dowry_owed": true})
+	Marriage.daily(Game)
+	var spouse_after := str(Persons.g(Dynasty._person(Game, str(member["person_uid"]))["person"], Persons.SPOUSE_UID, ""))
+	check(spouse_after == spouse_before and spouse_after != other_uid and not Marriage._betrothed(Game, other_uid),
+		"weddings: a betrothed already married to another is not wed again; the betrothal ends")
+	# A town's own weekly marriages pass over a betrothed person (found by a trial run on a copy of the town).
+	var promised_uid := ""
+	var promised_e := {}
+	for tid in Game.world["towns"]:
+		var e0: Dictionary = Game.world["towns"][tid].get("econ", {})
+		if not e0.has("fams"): continue
+		var trial: Dictionary = e0.duplicate(true)
+		var single := {}
+		for f in trial["fams"]:
+			for q in Persons.pp_read(f):
+				if str(Persons.g(q, Persons.SPOUSE_UID, "")) == "": single[str(Persons.g(q, Persons.PERSON_UID, ""))] = true
+		if Persons.marriages(trial, float(Game.day)) <= 0: continue
+		for f in trial["fams"]:
+			for q in Persons.pp_read(f):
+				var u := str(Persons.g(q, Persons.PERSON_UID, ""))
+				if u != "" and single.has(u) and str(Persons.g(q, Persons.SPOUSE_UID, "")) != "":
+					promised_uid = u; break
+			if promised_uid != "": break
+		if promised_uid != "":
+			promised_e = e0; break
+	check(promised_uid != "", "weddings: a town where a single would marry this week")
+	if promised_uid == "": return
+	var pact := {"a": promised_uid, "b": "v097-promised", "day": int(Game.day), "dowry_owed": true}
+	Marriage.state(Game)["betrothals"].append(pact)
+	Persons.marriages(promised_e, float(Game.day))
+	var promised := Dynasty._person(Game, promised_uid)
+	check(not promised.is_empty() and str(Persons.g(promised["person"], Persons.SPOUSE_UID, "")) == "", "weddings: the town does not marry off a betrothed person")
+	Marriage.state(Game)["betrothals"].erase(pact)
 
 # ------------------------------------------------------------------ 2. loot in a battle of rounds
 func _fought(r: Dictionary, units: Array, states: Array, winner: int) -> void:
@@ -152,7 +187,7 @@ func rounds_loot() -> void:
 	var fled_then_killed: Unit = foes[3]   # flees round 1... and dies in round 4
 	Game.pending_battle = {"seed": 97, "enemy": foes}
 	BattleRounds.begin(Game, mine, foes)
-	BattleRounds.after_round(Game, _round([mine[0], fled_once, fled_then_killed], ["fighting", "fled", "fled"], 0))
+	BattleRounds.after_round(Game, _round([mine[0], fled_once, fled_then_killed], ["fled", "fled", "fled"], 0))   # one of yours flees too
 	BattleRounds.next_round(Game)
 	BattleRounds.after_round(Game, _round([mine[1], stood], ["fighting", "fighting"], 0))
 	BattleRounds.next_round(Game)
@@ -168,6 +203,7 @@ func rounds_loot() -> void:
 	check((r["enemy_fled"] as Array).has(fled_once) and not (r["enemy_fled"] as Array).has(stood), "loot: the man whose latest round ended in flight is reported fled")
 	check(left.has(fled_once) and left.has(stood), "loot: the fled man and the man who left with his beaten army are off the field")
 	check(not left.has(killed) and not left.has(fled_then_killed), "loot: the dead (also one who fled earlier and died later) stay on the field")
+	check((r["player_fled"] as Array) == [mine[0]], "rounds: your man who fled in round 1 is reported fled (aftermath retreat count)")
 	var kit := {}
 	for u in foes: kit[u] = u.equip.size()
 	var enemies: Array = (r["enemy_units"] as Array).filter(func(x): return x is Unit)

@@ -124,3 +124,45 @@ claude_rounds_r2 == res://tests/claude_rounds.gd: PASS ==
 test_ai_marriage_dragons_v079_r3 == res://tests/test_ai_marriage_dragons_v079.gd: PASS ==
 claude_marriage_r3 == res://tests/claude_marriage.gd: FAIL (1) ==
     claude_marriage keeps main's same single failure: an unmarried adult has a match that would accept with a generous gift
+
+== Red-team fixes, later passes (just-grown spouse; live pack donkeys; town marriages vs betrothals; betrothed already married; player_fled)
+test_sale_fixes_v097 at the final code:
+v097 checks 47, failures 0, 3622 ms
+== res://tests/test_sale_fixes_v097.gd: PASS ==
+Red before each fix (that file's change stashed, the rest kept):
+ wed() kp fix (marriage.gd):
+   FAIL v097: weddings: a just-grown spouse leaves the children's list (kids 3 -> 3, 1 copy)
+   FAIL v097: weddings: the next family turn does not bring a second copy back (1)
+   v097 checks 40, failures 2, 3228 ms
+ betrothed already married + player_fled (marriage.gd daily, battle_rounds.gd):
+   FAIL v097: weddings: a betrothed already married to another is not wed again; the betrothal ends
+   FAIL v097: rounds: your man who fled in round 1 is reported fled (aftermath retreat count)
+   v097 checks 45, failures 2, 3667 ms
+ town marriages skip the betrothed (persons.gd):
+   FAIL v097: weddings: the town does not marry off a betrothed person
+   v097 checks 47, failures 1, 3688 ms
+ live pack donkeys: new helper RecWorld.has_pack_animals (the old count was wb.has("pack_herd")); 2 checks pass.
+Final related run, one at a time:
+test_sale_fixes_v097 exit=0 secs=11 == res://tests/test_sale_fixes_v097.gd: PASS ==
+claude_marriage exit=1 secs=9 == res://tests/claude_marriage.gd: FAIL (1) ==
+test_ai_marriage_dragons_v079 exit=0 secs=19 == res://tests/test_ai_marriage_dragons_v079.gd: PASS ==
+test_economy_short_v094 exit=1 secs=6 == res://tests/test_economy_short_v094.gd: FAIL (1) ==
+test_population_categories_v094 exit=0 secs=5 == res://tests/test_population_categories_v094.gd: PASS ==
+claude_house_upkeep exit=0 secs=17 == res://tests/claude_house_upkeep.gd: PASS ==
+claude_prisoners_v033 exit=2 secs=9 == res://tests/claude_prisoners_v033.gd: FAIL (2) ==
+test_ransom_upkeep_v077 exit=0 secs=27 == res://tests/test_ransom_upkeep_v077.gd: PASS ==
+test_rider_targeting_v081 exit=0 secs=26 == res://tests/test_rider_targeting_v081.gd: PASS ==
+test_campaign_fixes_v095 exit=0 secs=9 == res://tests/test_campaign_fixes_v095.gd: PASS ==
+claude_court_events exit=0 secs=16 == res://tests/claude_court_events.gd: PASS ==
+claude_rounds exit=0 secs=18 == res://tests/claude_rounds.gd: PASS ==
+claude_prisoners_ui_v033 exit=1 secs=9 == res://tests/claude_prisoners_ui_v033.gd: FAIL (1) ==
+test_ui_modal exit=0 secs=6 == res://tests/test_ui_modal.gd: PASS ==
+    Failing lines (the three claude_* tests fail identically on main 623d009, run above; older issues):
+      claude_marriage: FAIL an unmarried adult has a match that would accept with a generous gift
+      claude_marriage: FAIL marriage: an unmarried adult has a match that would accept with a generous gift
+      claude_prisoners_v033: FAIL prisoners033: a member of your house rides with the army
+      claude_prisoners_v033: FAIL prisoners033: registered men were raised (12)
+      claude_prisoners_ui_v033: FAIL prisoners_ui033: a house member and a man ride with the army
+      test_economy_short_v094: FAIL short094: native094 version/calendar/quality contract
+    test_economy_short_v094 pins application/config/version to "0.094" (tests/test_economy_stability_v094.gd _static_contract), so it fails on main 0.096 and on 0.097 alike.
+Display tour after the pack-donkey change (--only=house,records): pages: 29 shots == res://tests/ui_pages_v096.gd: PASS ==

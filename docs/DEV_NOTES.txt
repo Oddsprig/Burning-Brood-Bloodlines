@@ -29,13 +29,20 @@ Version metadata is 0.097.
    (Persons.family_race), not the town culture, in _of_age, candidates() and
    propose(): a moon elf of 20 in a human town is a child. propose() weds at
    once only when both are of age, else betroths; texts say "both".
+   While they wait: Persons.marriages (a town's weekly weddings) skips anyone
+   in Marriage.betrothed_uids; daily() ends a betrothal (with a log line) if
+   either has married another, so nobody is wed twice. wed() takes a spouse
+   who came of age since the last family turn from kp (and f.kids), not pp,
+   so no copy is left behind for age_up to promote.
 2. Looting men who left the field. BattleRounds.after_round records each man's
    latest fate in st["last_fate"]; final_result adds r["enemy_withdrew"] (every
    enemy who fought and left alive, not taken captive) and r["enemy_fled"] (those
    whose latest round ended in flight; a man who fled early and died later is
    fallen). Loot.left_the_field(result) = fled + withdrew; Game.finish_battle
    passes it to Loot.spoils, so only the dead are stripped. Captives keep the
-   prisoner rules.
+   prisoner rules. final_result also fills player_fled (your men alive, not
+   taken, whose latest round ended in flight; it was always empty), which the
+   aftermath (battle/result_summary.gd) counts as retreats.
 3. Badly hurt dragons fighting on. BattleRounds._can_fight now applies the
    HealthReport "cannot fight" rule to dragons too (before, only death stopped
    a dragon). BattleRounds.grounded_riders: a rider deployed as his own Unit
@@ -55,31 +62,36 @@ Version metadata is 0.097.
    the old "and N more" labels are gone. Rows live in MatchRows, TheyHoldRows,
    YouHoldRows.
 6. Records text. ui/rec_world.gd carriers_text: caravans travel by wagon with
-   drivers and porters, pack donkeys carry return loads (count of caravans with
-   a pack herd shown). ui/rec_pages.gd research_note() is built from
+   drivers and porters, pack donkeys carry return loads (count of caravans
+   whose pack herd still has a living donkey, has_pack_animals). ui/rec_pages.gd research_note() is built from
    Academy.materials(): trials burn iron bars, flux stone and charcoal (not wood).
 
 Known limits (left as they were): a man routed in a one-clash fight but not
 marked fled is still looted; a refused improvement no longer signals material
 demand to the market.
-Tests: new tests/test_sale_fixes_v097.gd (37 checks, 6 sections, one headless
+Tests: new tests/test_sale_fixes_v097.gd (47 checks, 6 sections, one headless
 run, about 4 s once the start world is saved). On main's code it gave 12
 behaviour failures (weddings 2, loot 3, dragons 3, improvements 4) plus parse
-errors for the new helpers; the 3 checks added for the red-team fixes fail on
-the first v0.097 commit (rider 1, household race 2). tests/ui_pages_v096.gd (xvfb tour) adds
+errors for the new helpers. Each check added for a red-team fix fails on the
+code before that fix (receipts list them). tests/ui_pages_v096.gd (xvfb tour) adds
 court_matches and court_matches_more shots when a member has more than one
 page of matches. Frozen fixtures under tests/fixtures keep the old Records
 strings on purpose.
 Verification: Linux cloud container only (never the owner's PC), one test at a
-time, each under 3 minutes. New test PASS 37/0. Related tests: 9 pass
+time, each under 3 minutes. New test PASS 47/0. Related tests: 9 pass
 (test_ai_marriage_dragons_v079, claude_house_upkeep, test_ransom_upkeep_v077,
 test_rider_targeting_v081, test_campaign_fixes_v095, claude_court_events,
 claude_rounds, test_ui_modal, ui_pages_v096 house+records 29 shots). 3 fail
 identically on main 623d009 (older issues, not v0.097): claude_marriage (1),
-claude_prisoners_v033 (2), claude_prisoners_ui_v033 (1).
+claude_prisoners_v033 (2), claude_prisoners_ui_v033 (1). Also
+test_economy_short_v094 fails its version contract, which pins
+config/version to "0.094" (fails on main 0.096 too). The final rerun after
+all red-team fixes adds test_population_categories_v094 (pass).
 Receipts: test-results/v0.097_sale_fixes.txt.
-Review: Sol 6.1 max red team (read-only). Found the household-race and
-grounded-rider cases (also in the Argon and Sol helper drafts); both fixed.
+Review: Sol 6.1 max red team (read-only), three passes. Found: household race
+for ages, grounded rider, just-grown spouse left in kp, town marriages breaking
+a betrothal (P1); player_fled always empty (P2); dead pack herds counted (P3).
+All fixed. Several were also in the Argon and Sol helper drafts.
 
 v0.096 - READABLE TEXT, FONTS AND LAYOUT ON EVERY PAGE (merged 6ed741a3134e8029496e83da18979052b015efb9)
 Base: 951cf2d. Presentation only; no rule, save, schema or simulation change.

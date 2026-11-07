@@ -731,6 +731,7 @@ static func marriages(e: Dictionary, day: float, most: int = -1) -> int:
 	var yd := People.year_days()
 	var A := float(ab["adult"])
 	var men := []; var women := []
+	var promised := Marriage.betrothed_uids(Game)   # v0.097: betrothed people wait for their own wedding
 	for f in e["fams"]:
 		if f.get("gone", false) or f.get("estate", false) or not f.has("pp"):
 			continue
@@ -752,6 +753,8 @@ static func marriages(e: Dictionary, day: float, most: int = -1) -> int:
 			if int(p[6]) != 0 or (String(p[4]) != "" and not home_groom) or (p as Array).size() < SIZE or (String(p[7]) != "" and not home_groom and not minority):
 				continue
 			if not by_pid(f, int(p[SP])).is_empty():
+				continue
+			if not promised.is_empty() and promised.has(str(g(p, PERSON_UID, ""))):
 				continue
 			if home_groom:
 				var spouse_uid: String = str(g(p, SPOUSE_UID, ""))

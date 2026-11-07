@@ -11,11 +11,15 @@ v0.097 - Six bug fixes toward an Oddsprig sale
 Branch v0.097-sale-readiness, base 623d009 (main after v0.096 notes). Normal merge.
 Weddings: a betrothed pair weds only when BOTH are of age; a child is no longer
 wed because the other partner came of age. Ages follow the household's own race
-(an elf of 20 in a human town is a child). Betrothal texts say so.
+(an elf of 20 in a human town is a child). Betrothal texts say so. A town no
+longer marries off a betrothed person while they wait; a betrothal ends if one
+of the pair married another. A spouse who just came of age is not left behind
+as a duplicate in their old family.
 Battle loot: after a battle of rounds only the dead are stripped; men who fled
 or left alive with their beaten army keep their purse and kit
 (BattleRounds "enemy_withdrew", Loot.left_the_field). A man who fled early and
-died later is still looted.
+died later is still looted. Your own men who fled now show as retreats in the
+aftermath of a battle of rounds.
 Hurt dragons: a dragon that "cannot fight" (Health report) sits out later
 rounds like a man, and its rider stays out with it instead of fighting on
 foot; a rider who cannot fight is not seated, so the dragon fights riderless.
@@ -23,15 +27,17 @@ House improvements: every material must be in the market in full; the reason
 names what is short; the build re-checks stock and takes nothing if short.
 Court lists: marriage matches are no longer cut at 24; matches (24 a page) and
 prisoners (40 a page) have a "Show N more (M not shown)" button.
-Records text: Carriers names pack donkeys carrying return loads; Research says
+Records text: Carriers names pack donkeys carrying return loads (counting only
+caravans whose donkeys are alive); Research says
 trials burn iron bars, flux stone and charcoal (not wood).
-Owners (game/): campaign/marriage.gd; campaign/battle_rounds.gd; core/loot.gd;
+Owners (game/): campaign/marriage.gd; campaign/persons.gd; campaign/battle_rounds.gd; core/loot.gd;
 core/game.gd; campaign/dragon_combat.gd; campaign/house_upkeep.gd; ui/court.gd;
 ui/rec_world.gd; ui/rec_pages.gd. Version metadata is 0.097.
-Tests: new tests/test_sale_fixes_v097.gd (37 checks, 0 failures; 12 fail on the
-old code). Sol 6.1 max red-team findings (household race, grounded rider) fixed. tests/ui_pages_v096.gd adds Court match-list shots. 9 related tests
+Tests: new tests/test_sale_fixes_v097.gd (47 checks, 0 failures; 12 fail on the
+old code). All Sol 6.1 max red-team findings fixed (see developer notes). tests/ui_pages_v096.gd adds Court match-list shots. 9 related tests
 pass; claude_marriage, claude_prisoners_v033 and claude_prisoners_ui_v033 fail
-identically on main 623d009 (older issues). Receipts:
+identically on main 623d009 (older issues); test_economy_short_v094 pins
+version 0.094 and fails on any later version. Receipts:
 test-results/v0.097_sale_fixes.txt.
 
 v0.096 - Readable text, fonts and layout on every page

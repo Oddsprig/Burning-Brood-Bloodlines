@@ -255,9 +255,13 @@ static func final_result(game, last: Dictionary) -> Dictionary:
 	var r := last.duplicate()
 	r["winner"] = int(st["winner"])
 	var p: Array = []; var en: Array = []; var fallen: Array = []; var fled: Array = []; var withdrew: Array = []
+	var p_fled: Array = []
 	var fates: Dictionary = st.get("last_fate", {})
 	for u in st["fought"].keys():
-		if (st["pool"][0] as Array).has(u): p.append(u)
+		if (st["pool"][0] as Array).has(u):
+			p.append(u)
+			# v0.097: your men whose latest round ended in flight are reported fled (the aftermath counts them).
+			if not u.dead and not (st["captives"][0] as Array).has(u) and str(fates.get(u.uid, "")) == "fled": p_fled.append(u)
 		else:
 			en.append(u)
 			if u.dead: fallen.append(u)
@@ -272,7 +276,7 @@ static func final_result(game, last: Dictionary) -> Dictionary:
 	r["enemy_fallen"] = fallen
 	r["enemy_fled"] = fled
 	r["enemy_withdrew"] = withdrew
-	r["player_fled"] = []
+	r["player_fled"] = p_fled
 	r["rounds"] = (st["log"] as Array).duplicate()
 	r["dragon_downs"] = st.get("dragon_downs", {}).duplicate()
 	r["dragon_seats"] = st.get("dragon_seats", {}).duplicate()
