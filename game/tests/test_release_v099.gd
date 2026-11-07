@@ -4,6 +4,7 @@ extends RefCounted
 ##      and rounds took the first 100 in pool order, so with 100+ men a bonded dragon never fought.
 ##   2. the battle inspector speaks words: "(80% done)" and "Speed: steady", not "(12/15 ticks)" and "Speed 944 (lower is faster)".
 ##   3. the store build: shown name without "Claude Edition", saves folder unchanged, version and export presets.
+##   4. Muster says why no family member can ride (they serve with the realm's army, the town guard or a caravan).
 ##   godot --headless --path game res://tests/runner.tscn -- --test=res://tests/test_release_v099.gd --watchdog=170
 var fails := 0
 var checks := 0
@@ -34,6 +35,7 @@ func run(tree: SceneTree) -> int:
 	DevTools.stand_at(Game, tid)
 	dragons_in_rounds(tid)
 	inspector_words()
+	muster_words()
 	store_build()
 	print("v099 checks %d, failures %d, %d ms" % [checks, fails, Time.get_ticks_msec() - started])
 	return fails
@@ -108,3 +110,13 @@ func store_build() -> void:
 		check(FileAccess.file_exists(str(cfg.get_value(a, k, ""))), "store: Android %s exists" % k.get_file())
 	for sec in [by_name["Windows Desktop"], by_name["Android"]]:
 		check(str(cfg.get_value(sec, "exclude_filter", "")).contains("tests/*"), "store: %s leaves the tests out" % cfg.get_value(sec, "name", ""))
+
+# ------------------------------------------------------------------ 4. muster words
+func muster_words() -> void:
+	var M = load("res://ui/muster.gd")
+	var adult := int(People.ages("human")["adult"])
+	var rows := [{"state": "army", "age": adult + 4, "race": "human"}, {"state": "army", "age": adult + 10, "race": "human"},
+		{"state": "militia", "age": adult + 1, "race": "human"}, {"state": "army", "age": 2, "race": "human"}, {"state": "", "age": 3, "race": "human"}]
+	var t: String = M.no_riders_text(rows)
+	check(t.begins_with("No adult family members are free to ride with the army.") and t.contains("2 with the realm's field army") and t.contains("1 in the town guard"), "muster: says who is away serving (%s)" % t)
+	check(M.no_riders_text([{"state": "", "age": 3, "race": "human"}]) == "No adult family members are free to ride with the army.", "muster: plain line when nobody is away")

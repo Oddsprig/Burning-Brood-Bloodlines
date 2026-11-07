@@ -159,7 +159,7 @@ func _refresh_house() -> void:
 	_house_key = key
 	UiKit.clear(house_flow)
 	if candidates.is_empty() and riding.is_empty():
-		house_flow.add_child(UiKit.label("No adult family members are free to ride with the army.", "Muted", true))
+		house_flow.add_child(UiKit.label(no_riders_text(Dynasty.living_members(Game)), "Muted", true))
 		return
 	for u in riding:
 		var card := UiKit.panel("Card"); card.name = "MusterHouseRiding"
@@ -185,6 +185,21 @@ func _refresh_house() -> void:
 		ride.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		col.add_child(ride)
 		house_flow.add_child(card)
+
+## v0.099: say why nobody can ride, when family members serve elsewhere (often the realm's field army).
+static func no_riders_text(members: Array) -> String:
+	var away := {}
+	for row in members:
+		var st := str(row.get("state", ""))
+		if st in ["army", "militia", "caravan"] and int(row.get("age", 0)) >= int(People.ages(str(row.get("race", "human")))["adult"]):
+			away[st] = int(away.get(st, 0)) + 1
+	var text := "No adult family members are free to ride with the army."
+	var parts: Array = []
+	if away.has("army"): parts.append("%d with the realm's field army" % int(away["army"]))
+	if away.has("militia"): parts.append("%d in the town guard" % int(away["militia"]))
+	if away.has("caravan"): parts.append("%d with a caravan" % int(away["caravan"]))
+	if not parts.is_empty(): text += " Away serving: " + ", ".join(parts) + "."
+	return text
 
 func apply_enlist_household(person_uid: String) -> Dictionary:
 	var r: Dictionary = Mobilization.enlist_household(Game, person_uid)

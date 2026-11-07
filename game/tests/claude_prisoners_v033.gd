@@ -51,6 +51,20 @@ func _clash(winner: int, units: Array, states: Array, extra: Dictionary = {}) ->
 
 var _band_id := ""
 
+## v0.099: world generation now sends many noble adults off with the realm's field army ("with the army"), and they
+## cannot ride with yours. Put first the most populous seats whose house has a free adult who is no town's ruler.
+static func free_rider_first(game, by_pop: Array) -> Array:
+	var seats: Dictionary = Prisoners.ruling(game)["people"]
+	var saved: Dictionary = game.world.get("player_house", {})
+	var free: Array = []
+	var rest: Array = []
+	for choice: Dictionary in by_pop:
+		game.world["player_house"] = {"house_uid": str(choice["house_uid"]), "ruler_uid": str(choice["ruler_uid"])}
+		var ok := Mobilization.household_candidates(game).any(func(row): return not seats.has(str(row.get("person_uid", ""))))
+		(free if ok else rest).append(choice)
+	game.world["player_house"] = saved
+	return free + rest
+
 func run(tree: SceneTree) -> int:
 	await tree.process_frame
 	Game.wait_save()
@@ -61,6 +75,7 @@ func run(tree: SceneTree) -> int:
 	var seat := ""
 	var by_pop: Array = Dynasty.choices(Game)
 	by_pop.sort_custom(func(a, b): return int(Game.world["towns"][a["town_id"]]["econ"]["pop"]) > int(Game.world["towns"][b["town_id"]]["econ"]["pop"]))
+	by_pop = free_rider_first(Game, by_pop)
 	for choice: Dictionary in by_pop:   # the most populous seat has men and arms to raise
 		if bool(HouseOnboarding.begin(Game, str(choice["town_id"]), str(choice["household_uid"])).get("ok", false)):
 			seat = str(choice["town_id"]); break
@@ -75,10 +90,13 @@ func run(tree: SceneTree) -> int:
 	var noble: Unit = null
 	var seats := Prisoners.ruling(Game)
 	var taken := 0
+	print("prisoners033: household candidates ", Mobilization.household_candidates(Game).size(), " of ", Dynasty.living_members(Game).size(), " living members")
 	for row in Mobilization.household_candidates(Game):
 		if seats["people"].has(str(row.get("person_uid", ""))): continue
 		var er: Dictionary = Mobilization.enlist_household(Game, str(row["person_uid"]))
-		if not er.get("ok", false): continue
+		if not er.get("ok", false):
+			print("prisoners033: cannot enlist ", row.get("name", ""), " age ", row.get("age", 0), ": ", er.get("reason", ""))
+			continue
 		taken += 1
 		if noble == null: noble = er["unit"]
 		if taken >= 3: break
