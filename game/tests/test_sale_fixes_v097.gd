@@ -107,6 +107,34 @@ func weddings() -> void:
 	if had_race: other["family"]["race"] = old_race
 	else: other["family"].erase("race")
 	other["person"][3] = other_birth
+	# One who came of age since their family's weekly turn is still listed with the children: the wedding takes
+	# them from that list, and the next weekly turn does not bring a second copy into the family.
+	var grown := {}
+	for town in Game.world["towns"].values():
+		for f in town["econ"].get("fams", []):
+			if str(f.get("household_uid", "")) == "" or f == a["family"]: continue
+			for k in Persons.kp_read(f):
+				if int(k[2]) != int(a["person"][2]) and str(Persons.g(k, Persons.PERSON_UID, "")) != "":
+					grown = {"town": town, "econ": town["econ"], "family": f, "person": k}; break
+			if not grown.is_empty(): break
+		if not grown.is_empty(): break
+	check(not grown.is_empty(), "weddings: a household child of the other sex to grow up")
+	if grown.is_empty(): return
+	var gf: Dictionary = grown["family"]
+	var gp: Array = grown["person"]
+	var g_uid := str(Persons.g(gp, Persons.PERSON_UID, ""))
+	_set_age(grown, float(People.ages(Persons.family_race(grown["econ"], gf))["adult"]) + 0.5)
+	var kids0 := int(gf.get("kids", 0))
+	var pp0 := Persons.pp_read(gf).size()
+	var w := Marriage.wed(Game, str(member["person_uid"]), g_uid)
+	var to_f: Dictionary = Dynasty._person(Game, str(member["person_uid"]))["family"]
+	var copies := Persons.pp_read(to_f).filter(func(x): return str(Persons.g(x, Persons.PERSON_UID, "")) == g_uid).size()
+	check(bool(w.get("ok", false)) and not Persons.kp_read(gf).has(gp) and copies == 1 and int(gf.get("kids", 0)) == kids0 - 1 and Persons.pp_read(gf).size() == pp0,
+		"weddings: a just-grown spouse leaves the children's list (kids %d -> %d, %d copy)" % [kids0, int(gf.get("kids", 0)), copies])
+	gf["nxa"] = -1.0
+	Persons.age_up(grown["econ"], gf, float(Game.day))
+	var back := Persons.pp_read(gf).filter(func(x): return str(Persons.g(x, Persons.PERSON_UID, "")) == g_uid).size()
+	check(back == 0, "weddings: the next family turn does not bring a second copy back (%d)" % back)
 
 # ------------------------------------------------------------------ 2. loot in a battle of rounds
 func _fought(r: Dictionary, units: Array, states: Array, winner: int) -> void:
@@ -266,5 +294,19 @@ func records_text() -> void:
 	var note := RecPages.research_note()
 	check(Academy.materials().has("charcoal") and not Academy.materials().has("wood"), "records: research trials buy charcoal, not wood")
 	check(note.contains("charcoal") and not note.contains("wood"), "records: the Research card says charcoal (%s)" % note)
+	# A caravan counts as travelling with pack donkeys only while its pack herd has a living animal.
+	var herd_town := ""
+	for tid in Game.world["towns"]:
+		if Game.world["towns"][tid].get("econ", {}).has("hd"): herd_town = str(tid); break
+	check(herd_town != "", "records: a town keeps herds")
+	if herd_town != "":
+		var hh: Dictionary = Game.world["towns"][herd_town]["econ"]["hd"]["h"]
+		var hid := "97097"
+		hh[hid] = {"id": int(hid), "k": "donkeys", "ow": "s", "oi": 0, "work_band": "v097-caravan", "y": 0, "g": 3, "o": 0}
+		var wb := {"id": "v097-caravan", "kind": "caravan", "origin": herd_town, "pack_herd": hid}
+		check(RecWorld.has_pack_animals(wb), "records: a caravan with 3 pack donkeys counts")
+		hh[hid]["g"] = 0
+		check(not RecWorld.has_pack_animals(wb), "records: a caravan whose pack donkeys all died does not count")
+		hh.erase(hid)
 	var carriers := RecWorld.carriers_text(2)
 	check(not carriers.contains("no pack animals") and carriers.contains("pack donkeys"), "records: the Carriers line names pack donkeys (%s)" % carriers)

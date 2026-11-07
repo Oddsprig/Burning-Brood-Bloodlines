@@ -87,12 +87,19 @@ static func _town_people(tid: String) -> int:
 		_pc[tid] = RecData.live_people(_e(tid))
 	return int(_pc[tid])
 
-## Forces on the map in view: every one (world) or the faction's.
+## v0.097: a caravan counts as travelling with pack donkeys only while its pack herd still has a living animal.
+static func has_pack_animals(wb: Dictionary) -> bool:
+	var town: Dictionary = Game.world.get("towns", {}).get(String(wb.get("origin", "")), {})
+	if not TownEcon.has_econ(town): return false
+	var h := DomesticAnimals.pack_herd(town["econ"], wb)
+	return not h.is_empty() and Herds.head(h) > 0
+
 ## v0.097: what carries goods. Caravans are wagons with drivers and porters; a caravan leads pack donkeys bought
 ## or lent from its home town (campaign/domestic_animals.gd prepare_pack) for return loads. There are no boats.
 static func carriers_text(caravans_with_pack: int) -> String:
 	return "wagons (caravans) with drivers and porters; pack donkeys carry return loads (%d caravan%s on the road with them now); no boats in the sim" % [caravans_with_pack, "" if caravans_with_pack == 1 else "s"]
 
+## Forces on the map in view: every one (world) or the faction's.
 static func _forces(fid: String) -> Array:
 	var out := []
 	for wid in Game.world.get("warbands", {}):
@@ -280,7 +287,7 @@ static func on_the_move(scr, tids: Array, fid: String, v: VBoxContainer) -> void
 	for wb in _forces(fid):
 		if String(wb.get("kind", "")) == "caravan":
 			ncar += 1; gold += float(wb.get("gold", 0.0))
-			if wb.has("pack_herd"): npack += 1
+			if has_pack_animals(wb): npack += 1
 		if Army.is_field(wb): nfield += 1
 	var c := RecKit.card(v, "On the move")
 	RecKit.kv(c, "Caravans on the road", "%d, carrying %s in coin" % [ncar, _m(gold)])

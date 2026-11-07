@@ -260,16 +260,26 @@ static func wed(game, member_uid: String, spouse_uid: String) -> Dictionary:
 	if dowry > 0.0:
 		from_f["purse"] = float(from_f["purse"]) - dowry
 		to_f["purse"] = float(to_f.get("purse", 0.0)) + dowry
-	# Move the person record.
+	# Move the person record. v0.097: one who came of age since their family's last weekly turn is still listed
+	# with the children (kp); take them from that list and the child count, so no copy is left behind there.
 	var cat_key := "m" if int(p[2]) == 0 else "f"
 	Persons.forget(from_e, from_f, p)
-	Persons.pp(from_f).erase(p)
-	from_f[cat_key] = maxi(0, int(from_f.get(cat_key, 0)) - 1)
+	var was_child: bool = Persons.kp_read(from_f).has(p)
+	if was_child:
+		Persons.kp(from_f).erase(p)
+		from_f["kids"] = maxi(0, int(from_f.get("kids", 0)) - 1)
+		p[6] = 0
+	else:
+		Persons.pp(from_f).erase(p)
+		from_f[cat_key] = maxi(0, int(from_f.get(cat_key, 0)) - 1)
 	if not is_same(from_e, to_e):
 		p[0] = int(to_e.get("next_pid", 1)); to_e["next_pid"] = int(p[0]) + 1
 		p[Persons.MO] = -1; p[Persons.FA] = -1
 		from_e["pop"] = maxi(0, int(from_e.get("pop", 0)) - 1); to_e["pop"] = int(to_e.get("pop", 0)) + 1
-		from_e["adults"] = maxi(0, int(from_e.get("adults", 0)) - 1); to_e["adults"] = int(to_e.get("adults", 0)) + 1
+		if not was_child: from_e["adults"] = maxi(0, int(from_e.get("adults", 0)) - 1)
+		to_e["adults"] = int(to_e.get("adults", 0)) + 1
+	elif was_child:
+		to_e["adults"] = int(to_e.get("adults", 0)) + 1   # counted with this town's adults from now on
 	p[4] = ""
 	to_f[cat_key] = int(to_f.get(cat_key, 0)) + 1
 	Persons.pp(to_f).append(p)
