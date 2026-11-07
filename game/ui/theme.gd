@@ -2,7 +2,8 @@ class_name UiTheme
 extends RefCounted
 ## Shared Bloodlines theme. Historical token names retain the native UI API.
 ## Large type and finger targets for phones (96 px controls, 30 px type). Type variations:
-##   Label: "Header" (light, bold, on wood), "Title", "H2" (bold ink on parchment), "Muted", "Good", "Bad", "Small"
+##   Label: "Header" (light, bold, on wood), "Title", "H2" (bold ink on parchment), "Lead" (emphasised sentence),
+##          "Caption" (small section label in a card), "Muted", "Good", "Bad", "Small"
 ##   Button: "Row" (parchment list row), "RowOn" (selected row), "Danger", "Tab", "TabOn"
 ##   PanelContainer: "Card" (lighter parchment), "Bar" (wood strip), "Inset" (sunken parchment)
 
@@ -71,13 +72,29 @@ static func display() -> Font:
 		_display = v
 	return _display
 
+## v0.096: reading text uses Alegreya's lining figures (lnum). Its default old-style figures sink 3, 4, 5, 7 and 9
+## below the line, which made counts, prices and dates hard to scan in a game that is mostly numbers.
 static func regular_font() -> Font:
 	if _regular == null:
+		var ts := TextServerManager.get_primary_interface()
 		var v := FontVariation.new()
 		v.base_font = load("res://ui/fonts/Alegreya.ttf") as Font
-		v.variation_opentype = {TextServerManager.get_primary_interface().name_to_tag("wght"): 500}
+		v.variation_opentype = {ts.name_to_tag("wght"): 500}
+		v.opentype_features = {ts.name_to_tag("lnum"): 1}
 		_regular = v
 	return _regular
+
+## Table and stat-card figures: lining AND tabular (every digit the same width), so right-aligned columns line up.
+static var _numeric: Font
+static func numeric_font() -> Font:
+	if _numeric == null:
+		var ts := TextServerManager.get_primary_interface()
+		var v := FontVariation.new()
+		v.base_font = load("res://ui/fonts/Alegreya.ttf") as Font
+		v.variation_opentype = {ts.name_to_tag("wght"): 500}
+		v.opentype_features = {ts.name_to_tag("lnum"): 1, ts.name_to_tag("tnum"): 1}
+		_numeric = v
+	return _numeric
 
 static func contrast(foreground: Color, background: Color) -> float:
 	var a: float = foreground.srgb_to_linear().get_luminance()
@@ -85,12 +102,19 @@ static func contrast(foreground: Color, background: Color) -> float:
 	return (maxf(a,b)+0.05)/(minf(a,b)+0.05)
 
 ## Keep semantic colours, lifting only dark legacy ink against dark surfaces.
+## v0.096: on a LIGHT surface (a pale badge, chip or highlighted row) the ink is darkened toward WOOD instead,
+## so a guard can never turn dark-on-light text into light-on-light text.
 static func readable(tone: Color, surface: Color = PARCH_2) -> Color:
 	if contrast(tone,surface) >= 4.5: return tone
+	var target: Color = WOOD if is_light(surface) else INK
 	for step in 10:
-		var lifted: Color = tone.lerp(INK,float(step+1)/10.0)
+		var lifted: Color = tone.lerp(target,float(step+1)/10.0)
 		if contrast(lifted,surface) >= 4.5: return lifted
-	return INK
+	return target
+
+## A surface that dark ink reads better on than light ink.
+static func is_light(surface: Color) -> bool:
+	return contrast(WOOD, surface) > contrast(INK, surface)
 
 static func button_surface(button: BaseButton) -> Color:
 	var style_name: String = "normal"
@@ -124,7 +148,9 @@ static func _btn(t: Theme, type: String, bg: Color, fg: Color, border: Color = B
 	t.set_stylebox("hover", type, sb(bg.lightened(0.12), border, 2, 6, mx, my))
 	t.set_stylebox("pressed", type, sb(bg.darkened(0.18), border, 2, 6, mx, my))
 	t.set_stylebox("hover_pressed", type, sb(bg.darkened(0.12), border, 2, 6, mx, my))
-	t.set_stylebox("disabled", type, sb(bg.lerp(Color("444b47"), 0.65), border.lerp(Color("444b47"), 0.5), 2, 6, mx, my))
+	# v0.096: a disabled control recedes (darker than any surface, soft border, dim ink) so it can no longer be
+	# mistaken for a selected one. Selected choices use RowOn/TabOn, whose disabled look stays "selected" below.
+	t.set_stylebox("disabled", type, sb(WOOD_2.lerp(bg, 0.25), border.lerp(WOOD_2, 0.55), 2, 6, mx, my))
 	var f := StyleBoxFlat.new()
 	f.draw_center = false
 	f.border_color = BRASS
@@ -133,8 +159,13 @@ static func _btn(t: Theme, type: String, bg: Color, fg: Color, border: Color = B
 	t.set_stylebox("focus", type, f)
 	for c in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_hover_pressed_color"]:
 		t.set_color(c, type, fg)
-	t.set_color("font_disabled_color", type, fg.lerp(INK_SOFT, 0.6))
+	t.set_color("font_disabled_color", type, INK_SOFT.lerp(WOOD_2, 0.3))
 	t.set_font_size("font_size", type, base_font_size())
+
+## A selected choice is often disabled so it cannot be pressed twice; it must still LOOK selected, not unavailable.
+static func _selected_stays_selected(t: Theme, type: String) -> void:
+	t.set_stylebox("disabled", type, t.get_stylebox("normal", type))
+	t.set_color("font_disabled_color", type, t.get_color("font_color", type))
 
 static func _build() -> Theme:
 	var t := Theme.new()
@@ -145,6 +176,8 @@ static func _build() -> Theme:
 	# Labels
 	t.set_color("font_color", "Label", INK)
 	t.set_font_size("font_size", "Label", fs)
+	# v0.096: a little more air between wrapped lines; long notes no longer read as one dense block.
+	t.set_constant("line_spacing", "Label", 5)
 	_variation(t, "Header", "Label")
 	t.set_color("font_color", "Header", LIGHT)
 	t.set_font("font", "Header", bold())
@@ -165,6 +198,17 @@ static func _build() -> Theme:
 	t.set_font("font", "H2", bold())
 	t.set_font_size("font_size", "H2", 24 + bonus)
 	t.set_color("font_color", "H2", BRASS)
+	# v0.096 "Lead": a sentence that needs emphasis (a page's key fact or a guide's opening line). Headings (H2, in
+	# Cinzel capitals) are for short titles only; a whole sentence in capitals reads slowly.
+	_variation(t, "Lead", "Label")
+	t.set_color("font_color", "Lead", LIGHT)
+	t.set_font_size("font_size", "Lead", fs + 2)
+	# v0.096 "Caption": a small section label inside a card ("Bond", "Daily care"), so a long panel reads as
+	# separate parts instead of one column of lines.
+	_variation(t, "Caption", "Label")
+	t.set_font("font", "Caption", bold())
+	t.set_font_size("font_size", "Caption", 16 + bonus)
+	t.set_color("font_color", "Caption", BRASS.lerp(INK_SOFT, 0.35))
 	_variation(t, "Muted", "Label")
 	t.set_color("font_color", "Muted", INK_SOFT)
 	t.set_font_size("font_size", "Muted", 18 + bonus)
@@ -185,6 +229,7 @@ static func _build() -> Theme:
 	_btn(t, "RowOn", PURPLE, INK, COPPER_LO)
 	t.set_stylebox("normal", "RowOn", sb(PURPLE, COPPER_LO, 3, 6, 14 if is_mobile() else 12, 11 if is_mobile() else 8))
 	t.set_font("font", "RowOn", bold())
+	_selected_stays_selected(t, "RowOn")
 	_variation(t, "Danger", "Button")
 	_btn(t, "Danger", Color("783f48"), LIGHT)
 	_variation(t, "Tab", "Button")
@@ -194,6 +239,7 @@ static func _build() -> Theme:
 	_btn(t, "TabOn", PURPLE, LIGHT, BORDER)
 	t.set_font_size("font_size", "TabOn", 22 + bonus)
 	t.set_font("font", "TabOn", bold())
+	_selected_stays_selected(t, "TabOn")
 	t.set_constant("h_separation", "Button", 8)
 	# OptionButton / MenuButton follow Button
 	_btn(t, "OptionButton", PARCH_2, INK, BORDER)
@@ -236,6 +282,7 @@ static func _build() -> Theme:
 	t.set_font("normal_font", "RichTextLabel", regular_font())
 	t.set_font_size("bold_font_size", "RichTextLabel", fs)
 	t.set_font("bold_font", "RichTextLabel", bold())
+	t.set_constant("line_separation", "RichTextLabel", 5)
 	# Separators
 	var line := StyleBoxLine.new()
 	line.color = PARCH_3.darkened(0.2)

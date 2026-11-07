@@ -162,6 +162,12 @@ func _layout() -> void:
 			doll.scale = Vector2.ONE * _scale / FigurePainter.PX
 	_yard.queue_redraw()
 
+func _caption(text: String) -> void:
+	var caption := UiKit.label(text, "Caption")
+	caption.custom_minimum_size.y = 26
+	caption.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+	_facts.add_child(caption)
+
 func select(uid: String) -> void:
 	if uid == selected_uid: return
 	for index: int in _entries.size():
@@ -172,6 +178,8 @@ func select(uid: String) -> void:
 		UiKit.clear(_facts)
 		_facts.add_child(UiKit.label(str(row.get("name", "Holding")), "H2", true))
 		var quote := DragonCare.status(Game, row)
+		# v0.096: the side panel reads in four labelled parts instead of one long column of lines.
+		_caption("Condition")
 		_facts.add_child(UiKit.label(DragonsView.care_condition_text(row, quote), "", true))
 		var growth := DragonGrowth.summary(row, quote)
 		if not bool(row.get("alive", true)):
@@ -182,6 +190,7 @@ func select(uid: String) -> void:
 		elif not growth.contains("Growth is stalled:"):
 			growth += "\nGrowth: no current stall."
 		_facts.add_child(UiKit.label("Stage: %s\n%s" % [str(row.get("stage", "")).capitalize(), growth], "", true))
+		_caption("Bond")
 		var bond := DragonBond.status(Game, uid)
 		var rider: Dictionary = bond.get("rider", {})
 		var bond_line := "Bond: Unbonded"
@@ -194,7 +203,9 @@ func select(uid: String) -> void:
 			_facts.add_child(UiKit.label(str(approach["reason"]), "Muted", true))
 		for person: Dictionary in _entries[index]["people"]:
 			_facts.add_child(UiKit.label("%s: %s" % [person["role"], person["name"]], "Muted", true))
-		_facts.add_child(UiKit.label(DragonsView.care_quote_text(row, quote), "", true))
+		_caption("Daily care")
+		_facts.add_child(UiKit.label(DragonsView.care_quote_text(row, quote), "Small", true))
+		_caption("Last care")
 		_facts.add_child(UiKit.label(DragonsView.care_receipt_text(row, quote.get("last", {})), "Muted", true))
 		_yard.queue_redraw()
 		selected.emit(uid)

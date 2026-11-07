@@ -55,21 +55,21 @@ func _refresh() -> void:
 	var people := int(population_summary.get("population", 0))
 	var food := int(TownEcon.days_food(town))
 	var recruit := Population.available(town)
-	var lead := "Food runs out in %d days." % food if food < 30 else "%s people live here; %d could be recruited." % [UiKit.thousands(people), recruit]
-	body.add_child(UiKit.label(lead, "Bad" if food < 30 else "H2", true))
+	var lead := "Food runs out in %d days." % food if food < 30 else "%s people live here; %s could be recruited." % [UiKit.thousands(people), UiKit.thousands(recruit)]
+	body.add_child(UiKit.label(lead, "Bad" if food < 30 else "Lead", true))
 	fact_grid = _grid()
 	_fact("People", UiKit.thousands(people), "Everyone who lives here, named or not.")
-	_fact("Can recruit", str(recruit), "Adults who could be called up now.")
+	_fact("Can recruit", UiKit.thousands(recruit), "Adults who could be called up now.")
 	_fact("Food", "%d days" % food, "How long the stores last at the current rate.")
-	_fact("Households", str(int(population_summary.get("households", 0))), "")
-	_fact("Named", str(int(population_summary.get("detailed", 0))), "Named residents include soldiers and ruling families.")
-	_fact("Common folk", str(int(population_summary.get("anonymous", 0))), "Residents tracked as groups rather than by name.")
-	_fact("Away in service", str(int(population_summary.get("away", 0))), "Named people serving elsewhere; counted separately.")
-	_fact("Working", str(int(population_summary.get("common_jobs", 0))), "Common folk with a job.")
+	_fact("Households", UiKit.thousands(int(population_summary.get("households", 0))), "")
+	_fact("Named", UiKit.thousands(int(population_summary.get("detailed", 0))), "Named residents include soldiers and ruling families.")
+	_fact("Common folk", UiKit.thousands(int(population_summary.get("anonymous", 0))), "Residents tracked as groups rather than by name.")
+	_fact("Away in service", UiKit.thousands(int(population_summary.get("away", 0))), "Named people serving elsewhere; counted separately.")
+	_fact("Working", UiKit.thousands(int(population_summary.get("common_jobs", 0))), "Common folk with a job.")
 	_fact("Common savings", UiKit.compact_coins(float(population_summary.get("common_wealth", 0))), "Private savings of the common folk; not yours to spend.")
 	_fact("All savings", UiKit.compact_coins(float(population_summary.get("private_wealth", 0))), "Private savings of every household.")
-	_fact("Families", str(int(population_summary.get("tracked_families", 0))), "Families in the register.")
-	_fact("Folk groups", str(int(population_summary.get("cohorts", 0))), "")
+	_fact("Families", UiKit.thousands(int(population_summary.get("tracked_families", 0))), "Families in the register.")
+	_fact("Folk groups", UiKit.thousands(int(population_summary.get("cohorts", 0))), "")
 	body.add_child(_health_card())
 	if not budget.is_empty():
 		var service := UiKit.panel("Card")
@@ -105,7 +105,7 @@ func _refresh() -> void:
 		words.add_child(n)
 		words.add_child(UiKit.label("%d children · %d adults · %d elders" % [int(row.get("children", 0)), int(row.get("adults", 0)), int(row.get("elders", 0))], "", true))
 		words.add_child(UiKit.label("%d can recruit · %d at work" % [int(row.get("recruitable", 0)), int(row.get("common_jobs", 0))], "Muted", true))
-		panel.tooltip_text = "%d common folk, %d named, %d away in service, %d families in the register. Savings %.2f coins." % [int(row.get("anonymous", 0)), int(row.get("detailed", 0)), int(row.get("away", 0)), int(row.get("tracked_families", 0)), float(row.get("common_wealth", 0))]
+		panel.tooltip_text = "%d common folk, %d named, %d away in service, %d families in the register. Savings %s coins." % [int(row.get("anonymous", 0)), int(row.get("detailed", 0)), int(row.get("away", 0)), int(row.get("tracked_families", 0)), UiKit.coins(float(row.get("common_wealth", 0)))]
 		panel.mouse_filter = MOUSE_FILTER_PASS
 	_fit()
 

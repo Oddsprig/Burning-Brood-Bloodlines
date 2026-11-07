@@ -133,7 +133,11 @@ static func _cells(parent: Control, values: Array, header: bool = false) -> void
 		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		label.size_flags_stretch_ratio = float(WEIGHTS[i])
 		if i > 0: label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		if i == 2 and not header: label.add_theme_color_override("font_color", UiTheme.COPPER)
+		# v0.096: the job name leads the row; the pay reads in brass (copper was too dark on the card).
+		if i == 0 and not header:
+			label.theme_type_variation = ""
+			label.add_theme_font_override("font", UiTheme.bold())
+		if i == 2 and not header: label.add_theme_color_override("font_color", UiTheme.BRASS)
 		if header: label.add_theme_font_override("font", UiTheme.bold())
 		row.add_child(label)
 
@@ -160,11 +164,12 @@ static func _offers(scr: Control, t: Dictionary, body: VBoxContainer, state: Dic
 		var panel := UiKit.panel("Card")
 		panel.name = "ContractOffer"
 		panel.set_meta("contract_offer", {"id": String(contract.get("id", "")), "kind": String(contract.get("kind", "battle")), "pay": int(entry["pay"]), "duration": contract.get("duration", null)})
-		panel.add_theme_stylebox_override("panel", UiTheme.sb(UiTheme.LIGHT, _tone(contract), 1, 4, 8, 6))
+		# v0.096: a dark card with the job's colour as its border. The old pale card hid its light text.
+		panel.add_theme_stylebox_override("panel", UiTheme.sb(UiTheme.WOOD_3, _tone(contract), 2, 6, 10, 8))
 		body.add_child(panel)
 		var content := UiKit.vbox(4)
 		panel.add_child(content)
-		_cells(content, [String(contract.get("title", "Contract")), _limit(contract), str(int(entry["pay"]))])
+		_cells(content, [String(contract.get("title", "Contract")), _limit(contract), UiKit.thousands(int(entry["pay"]))])
 		var parties := _parties(contract)
 		if parties != "": content.add_child(UiKit.label(parties, "Muted", true))
 		var actions := UiKit.flow(8)
@@ -214,4 +219,4 @@ static func _active(scr: Control, body: VBoxContainer) -> void:
 		box.add_child(UiKit.label(String(contract.get("desc", "")), "Small", true))
 		var parties := _parties(contract)
 		if parties != "": box.add_child(UiKit.label(parties, "Small", true))
-		box.add_child(UiKit.label("Agreed pay: %d coins" % int(contract.get("pay", 0)), "Small", true)))
+		box.add_child(UiKit.label("Agreed pay: %s coins" % UiKit.thousands(int(contract.get("pay", 0))), "Small", true)))

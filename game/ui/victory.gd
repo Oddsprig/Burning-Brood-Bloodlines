@@ -12,20 +12,26 @@ func _ready() -> void:
 	heading.add_theme_font_size_override("font_size", 30)
 	root.add_child(heading)
 	root.add_child(UiKit.label("On day %d of year %d, under %s, your house achieved %d of its ambitions." % [
-		Calendar.day_of_season(Game.day) + 1, Calendar.year(Game.day), str(ruler.get("name", "its ruler")), Ambitions.completed(Game)], "", true))
+		Calendar.day_of_season(Game.day) + 1, Calendar.year(Game.day), str(ruler.get("name", "its ruler")), Ambitions.completed(Game)], "Lead", true))
 	var dragons := 0
 	for row: Dictionary in Game.world.get("dragons", {}).get("records", {}).values():
 		if bool(row.get("alive", false)) and str(row.get("owner_household_uid", "")) == str(Game.world.get("player_house", {}).get("household_uid", "")): dragons += 1
-	for line in [
-		"Battles won: %d · lost: %d" % [int(st.get("battles_won", 0)), int(st.get("battles_lost", 0))],
-		"Settlements conquered: %d" % (st.get("conquests", []) as Array).size(),
-		"Coin carried off in raids: %d" % int(float(st.get("raided_coin", 0.0)) / Item.COIN),
-		"Living dragons and eggs of your household: %d" % dragons,
-	]:
-		root.add_child(UiKit.label(line, "", true))
+	# v0.096: the record as four stat cards and a checklist card, instead of one column of plain lines.
+	var scroll := UiKit.scroll()
+	root.add_child(scroll)
+	var body := UiKit.vbox(10)
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(body)
+	RecKit.metrics(body, [
+		{"title": "Battles won", "value": UiKit.thousands(int(st.get("battles_won", 0))), "note": "lost: %s" % UiKit.thousands(int(st.get("battles_lost", 0))), "color": UiTheme.GOOD},
+		{"title": "Settlements conquered", "value": UiKit.thousands((st.get("conquests", []) as Array).size()), "color": UiTheme.BRASS},
+		{"title": "Coin carried off in raids", "value": UiKit.thousands(int(float(st.get("raided_coin", 0.0)) / Item.COIN)), "color": UiTheme.WARN},
+		{"title": "Living dragons and eggs of your household", "value": UiKit.thousands(dragons), "color": UiTheme.BLUE},
+	])
+	var goals := RecKit.card(body, "Ambitions")
 	for a: Dictionary in Ambitions.status(Game):
-		root.add_child(UiKit.label(("✔ " if a["done"] else "○ ") + str(a["name"]) + " · " + str(a["progress"]), "Muted" if not a["done"] else "", true))
-	root.add_child(UiKit.spacer())
+		var goal := UiKit.label(("✔  " if a["done"] else "○  ") + str(a["name"]) + "  ·  " + str(a["progress"]), "Good" if a["done"] else "Muted", true)
+		goals.add_child(goal)
 	var row := UiKit.hbox(12)
 	root.add_child(row)
 	row.add_child(UiKit.button("Keep playing", func(): Game.goto("map"), "", 220))

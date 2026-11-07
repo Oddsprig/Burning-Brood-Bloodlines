@@ -203,16 +203,17 @@ static func _stock(host: Control, t: Dictionary, box: Control, state: Dictionary
 	header.add_theme_stylebox_override("panel", UiTheme.sb(UiTheme.PARCH_3, UiTheme.BORDER, 1, 4, 12, 4))
 	var columns := UiKit.hbox(8)
 	header.add_child(columns)
-	var item_heading := _table_cell("Item", 100, UiTheme.INK)
+	# v0.096: one header style for every column (bold, light), so no heading looks greyed out.
+	var item_heading := _header_cell("Item", 100)
 	UiKit.expand(item_heading)
 	columns.add_child(item_heading)
 	columns.add_child(VSeparator.new())
-	columns.add_child(_table_cell("Quality", 135, UiTheme.COPPER_LO))
-	columns.add_child(_table_cell("Condition", 100, UiTheme.INK))
-	var qty_heading := _table_cell("Qty", 45, UiTheme.BLUE)
+	columns.add_child(_header_cell("Quality", 135))
+	columns.add_child(_header_cell("Condition", 100))
+	var qty_heading := _header_cell("Qty", 45)
 	qty_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	columns.add_child(qty_heading)
-	var coins_heading := _table_cell("Coins", 90, UiTheme.COPPER_LO)
+	var coins_heading := _header_cell("Coins", 90)
 	coins_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	columns.add_child(coins_heading)
 	columns.add_child(_table_cell("", 70, UiTheme.INK))
@@ -237,18 +238,22 @@ static func _stock(host: Control, t: Dictionary, box: Control, state: Dictionary
 		UiKit.expand(name)
 		item_cell.add_child(name)
 		row.add_child(VSeparator.new())
-		row.add_child(_table_cell(_quality_name(it), 135, UiTheme.COPPER_LO if it.quality > 0 else UiTheme.INK_SOFT))
+		row.add_child(_table_cell(_quality_name(it), 135, UiTheme.PURPLE_TEXT if it.quality > 0 else UiTheme.INK_SOFT))
 		var condition := "Broken" if it.broken else String(WEAR[clampi(it.wear, 0, WEAR.size() - 1)])
 		if it.dull > 0.0 and not it.broken:
 			condition += ", dull"
 		var condition_label := _table_cell(condition, 100, UiTheme.BAD if it.broken else (UiTheme.GOOD if it.wear == 0 and it.dull == 0.0 else UiTheme.WARN))
 		condition_label.tooltip_text = _condition(it)
 		row.add_child(condition_label)
-		var qty := _table_cell(str(group["items"].size()), 45, UiTheme.BLUE)
+		var qty := _table_cell(str(group["items"].size()), 45, UiTheme.INK)
+		qty.add_theme_font_override("font", UiTheme.numeric_font())
 		qty.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		row.add_child(qty)
 		var price: int = group["price"]
-		var coins := _table_cell(str(price), 90, UiTheme.COPPER_LO if price <= Game.gold else UiTheme.BAD)
+		# v0.096: prices in brass you can afford, red you cannot; lining figures with thousands separators.
+		var coins := _table_cell(UiKit.thousands(price), 90, UiTheme.BRASS if price <= Game.gold else UiTheme.BAD)
+		coins.add_theme_font_override("font", UiTheme.numeric_font())
+		coins.add_theme_font_size_override("font_size", 18)
 		coins.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		coins.tooltip_text = "%d coins per physical piece" % price
 		row.add_child(coins)
@@ -269,6 +274,12 @@ static func _stock(host: Control, t: Dictionary, box: Control, state: Dictionary
 			detail.add_theme_stylebox_override(style, detail_style)
 		row.add_child(detail)
 		box.add_child(card)
+
+static func _header_cell(text: String, width: float) -> Label:
+	var label := _table_cell(text, width, UiTheme.LIGHT)
+	label.add_theme_font_override("font", UiTheme.bold())
+	label.add_theme_font_size_override("font_size", 16)
+	return label
 
 static func _table_cell(text: String, width: float, color: Color) -> Label:
 	var label := UiKit.label(text)

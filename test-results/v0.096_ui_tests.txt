@@ -1,0 +1,133 @@
+v0.096 UI readability - test receipts
+Where: Linux cloud container (Godot 4.7.2 Linux), never the owner's PC. One Godot process at a time; every run capped at 175 s (timeout).
+Headless runs: godot --headless --path game res://tests/runner.tscn -- --test=res://tests/<name>.gd
+Display runs: xvfb-run -a godot --path game --rendering-driver opengl3 res://tests/runner.tscn -- --block=<block>
+Candidate = branch v0.096-ui-readability; main = 951cf2d checked out separately.
+
+== Candidate: 75 UI-related tests (one at a time). rc=124 means stopped at the 175 s cap.
+claude_breeding_v038 rc=0 17s == res://tests/claude_breeding_v038.gd: PASS ==
+claude_campaign rc=0 27s == res://tests/claude_campaign.gd: PASS ==
+claude_designer_ui_v039 rc=0 5s == res://tests/claude_designer_ui_v039.gd: PASS ==
+claude_dragonfear rc=0 14s == res://tests/claude_dragonfear.gd: PASS ==
+claude_laws_v037 rc=0 21s == res://tests/claude_laws_v037.gd: PASS ==
+claude_population_ui_v034 rc=0 8s == res://tests/claude_population_ui_v034.gd: PASS ==
+claude_prisoners_ui_v033 rc=1 7s == res://tests/claude_prisoners_ui_v033.gd: FAIL (1) ==
+claude_realsave rc=1 5s == res://tests/claude_realsave.gd: FAIL (1) ==
+claude_refit rc=0 9s == res://tests/claude_refit.gd: PASS ==
+claude_roadmap rc=4 54s == res://tests/claude_roadmap.gd: FAIL (4) ==
+claude_rounds rc=0 12s == res://tests/claude_rounds.gd: PASS ==
+claude_tactics_ui_v041 rc=0 4s == res://tests/claude_tactics_ui_v041.gd: PASS ==
+claude_tactics_v041 rc=0 13s == res://tests/claude_tactics_v041.gd: PASS ==
+claude_tour rc=124 175s 
+diag_campaign_render_v011 rc=2 4s == res://tests/diag_campaign_render_v011.gd: FAIL (2) ==
+diag_campaign_state_v011 rc=1 4s == res://tests/diag_campaign_state_v011.gd: FAIL (1) ==
+diag_dragon_world_v022 rc=2 3s == res://tests/diag_dragon_world_v022.gd: FAIL (2) ==
+diag_fresh_performance rc=0 16s == res://tests/diag_fresh_performance.gd: PASS ==
+diag_house_world_v019 rc=2 4s == res://tests/diag_house_world_v019.gd: FAIL (2) ==
+diag_muster_world_v017 rc=5 13s == res://tests/diag_muster_world_v017.gd: FAIL (5) ==
+diag_records_build rc=0 10s == res://tests/diag_records_build.gd: PASS ==
+diag_records_move rc=14 13s == res://tests/diag_records_move.gd: FAIL (14) ==
+diag_records_v040 rc=0 18s == res://tests/diag_records_v040.gd: PASS ==
+diag_records_v043 rc=0 15s == res://tests/diag_records_v043.gd: PASS ==
+diag_records_v044 rc=2 35s == res://tests/diag_records_v044.gd: FAIL (2) ==
+diag_records_world_v018 rc=1 3s == res://tests/diag_records_world_v018.gd: FAIL (1) ==
+diag_salvage_world_v020 rc=2 4s == res://tests/diag_salvage_world_v020.gd: FAIL (2) ==
+diag_screen_load rc=124 175s 
+test_baggage rc=1 11s == res://tests/test_baggage.gd: FAIL (1) ==
+test_battle_creatures rc=0 12s == res://tests/test_battle_creatures.gd: PASS ==
+test_battle_results_ui_v014 rc=0 11s == res://tests/test_battle_results_ui_v014.gd: PASS ==
+test_battle_screen rc=1 20s == res://tests/test_battle_screen.gd: FAIL (1) ==
+test_biz_people rc=125 14s == res://tests/test_biz_people.gd: FAIL (201) ==
+test_campaign_fixes_v095 rc=0 8s == res://tests/test_campaign_fixes_v095.gd: PASS ==
+test_campaign_tracks rc=5 44s == res://tests/test_campaign_tracks.gd: FAIL (5) ==
+test_caravan_margins_v048 rc=0 9s == res://tests/test_caravan_margins_v048.gd: PASS ==
+test_deploy rc=1 11s == res://tests/test_deploy.gd: FAIL (1) ==
+test_dragon_bond_ui_v021 rc=5 9s == res://tests/test_dragon_bond_ui_v021.gd: FAIL (5) ==
+test_dragon_care_ui rc=0 6s == res://tests/test_dragon_care_ui.gd: PASS ==
+test_dragon_combat_ui_v022 rc=5 9s == res://tests/test_dragon_combat_ui_v022.gd: FAIL (5) ==
+test_dragon_roost_v053 rc=0 22s == res://tests/test_dragon_roost_v053.gd: PASS ==
+test_dragon_ui rc=1 25s == res://tests/test_dragon_ui.gd: FAIL (1) ==
+test_dynasty_card_performance rc=0 5s == res://tests/test_dynasty_card_performance.gd: PASS ==
+test_dynasty_defeat rc=0 5s == res://tests/test_dynasty_defeat.gd: PASS ==
+test_dynasty_ui rc=0 18s == res://tests/test_dynasty_ui.gd: PASS ==
+test_econ_town rc=124 175s 
+test_flow rc=0 13s == res://tests/test_flow.gd: PASS ==
+test_governance_ui rc=0 8s == res://tests/test_governance_ui.gd: PASS ==
+test_house_laws_v018 rc=0 9s == res://tests/test_house_laws_v018.gd: PASS ==
+test_house_select_ui_v019 rc=0 12s == res://tests/test_house_select_ui_v019.gd: PASS ==
+test_identity_consistency_v070 rc=0 11s == res://tests/test_identity_consistency_v070.gd: PASS ==
+test_music_v082 rc=0 6s == res://tests/test_music_v082.gd: PASS ==
+test_muster_ui_v017 rc=0 50s == res://tests/test_muster_ui_v017.gd: PASS ==
+test_popup_cleanup_v070 rc=0 7s == res://tests/test_popup_cleanup_v070.gd: PASS ==
+test_records_paired rc=5 12s == res://tests/test_records_paired.gd: FAIL (5) ==
+test_records_performance rc=3 11s == res://tests/test_records_performance.gd: FAIL (3) ==
+test_records_snapshot rc=0 16s == res://tests/test_records_snapshot.gd: PASS ==
+test_records_ui_v018 rc=1 11s == res://tests/test_records_ui_v018.gd: FAIL (1) ==
+test_salvage_receipts_ui_v020 rc=0 7s == res://tests/test_salvage_receipts_ui_v020.gd: PASS ==
+test_supply_orders_v049 rc=0 17s == res://tests/test_supply_orders_v049.gd: PASS ==
+test_touch_scroll_v083 rc=0 4s == res://tests/test_touch_scroll_v083.gd: PASS ==
+test_touch_ui_v072 rc=0 5s == res://tests/test_touch_ui_v072.gd: PASS ==
+test_town_services_v042 rc=134 114s == res://tests/test_town_services_v042.gd: FAIL (45) ==
+test_town_v038_fit rc=0 16s == res://tests/test_town_v038_fit.gd: PASS ==
+test_truce_militia_v092 rc=0 16s == res://tests/test_truce_militia_v092.gd: PASS ==
+test_ui_coins_full rc=0 12s == res://tests/test_ui_coins_full.gd: PASS ==
+test_ui_company_remedies rc=1 10s == res://tests/test_ui_company_remedies.gd: FAIL (1) ==
+test_ui_fit rc=0 24s == res://tests/test_ui_fit.gd: PASS ==
+test_ui_load_times rc=0 60s == res://tests/test_ui_load_times.gd: PASS ==
+test_ui_records rc=11 16s == res://tests/test_ui_records.gd: FAIL (11) ==
+test_ui_records_v040 rc=125 87s == res://tests/test_ui_records_v040.gd: FAIL (244) ==
+test_ui_records_v041 rc=125 123s == res://tests/test_ui_records_v041.gd: FAIL (126) ==
+test_ui_town_dashboard rc=0 13s == res://tests/test_ui_town_dashboard.gd: PASS ==
+test_ui_town_research rc=0 12s == res://tests/test_ui_town_research.gd: PASS ==
+test_ui_town_treat_all rc=0 11s == res://tests/test_ui_town_treat_all.gd: PASS ==
+
+== Candidate: records tests run earlier
+test_ui_records_v043 PASS (main PASS)
+test_ui_records_v044 FAIL (15) - the same 15 failure lines as main 951cf2d (main FAIL (15))
+
+== Main 951cf2d: the 28 candidate failures that finished, same runner
+claude_prisoners_ui_v033 rc=1 10s == res://tests/claude_prisoners_ui_v033.gd: FAIL (1) ==
+claude_realsave rc=1 6s == res://tests/claude_realsave.gd: FAIL (1) ==
+claude_roadmap rc=4 67s == res://tests/claude_roadmap.gd: FAIL (4) ==
+diag_campaign_render_v011 rc=2 4s == res://tests/diag_campaign_render_v011.gd: FAIL (2) ==
+diag_campaign_state_v011 rc=1 5s == res://tests/diag_campaign_state_v011.gd: FAIL (1) ==
+diag_dragon_world_v022 rc=2 5s == res://tests/diag_dragon_world_v022.gd: FAIL (2) ==
+diag_house_world_v019 rc=2 4s == res://tests/diag_house_world_v019.gd: FAIL (2) ==
+diag_muster_world_v017 rc=5 16s == res://tests/diag_muster_world_v017.gd: FAIL (5) ==
+diag_records_move rc=14 16s == res://tests/diag_records_move.gd: FAIL (14) ==
+diag_records_v044 rc=2 43s == res://tests/diag_records_v044.gd: FAIL (2) ==
+diag_records_world_v018 rc=1 5s == res://tests/diag_records_world_v018.gd: FAIL (1) ==
+diag_salvage_world_v020 rc=2 4s == res://tests/diag_salvage_world_v020.gd: FAIL (2) ==
+test_baggage rc=1 10s == res://tests/test_baggage.gd: FAIL (1) ==
+test_battle_screen rc=1 18s == res://tests/test_battle_screen.gd: FAIL (1) ==
+test_biz_people rc=125 14s == res://tests/test_biz_people.gd: FAIL (201) ==
+test_campaign_tracks rc=5 42s == res://tests/test_campaign_tracks.gd: FAIL (5) ==
+test_deploy rc=1 10s == res://tests/test_deploy.gd: FAIL (1) ==
+test_dragon_bond_ui_v021 rc=5 10s == res://tests/test_dragon_bond_ui_v021.gd: FAIL (5) ==
+test_dragon_combat_ui_v022 rc=5 8s == res://tests/test_dragon_combat_ui_v022.gd: FAIL (5) ==
+test_dragon_ui rc=1 24s == res://tests/test_dragon_ui.gd: FAIL (1) ==
+test_records_paired rc=5 11s == res://tests/test_records_paired.gd: FAIL (5) ==
+test_records_performance rc=3 12s == res://tests/test_records_performance.gd: FAIL (3) ==
+test_records_ui_v018 rc=1 9s == res://tests/test_records_ui_v018.gd: FAIL (1) ==
+test_town_services_v042 rc=139 113s == res://tests/test_town_services_v042.gd: FAIL (41) ==
+test_ui_company_remedies rc=1 10s == res://tests/test_ui_company_remedies.gd: FAIL (1) ==
+test_ui_records rc=11 14s == res://tests/test_ui_records.gd: FAIL (11) ==
+test_ui_records_v040 rc=125 85s == res://tests/test_ui_records_v040.gd: FAIL (244) ==
+test_ui_records_v041 rc=125 123s == res://tests/test_ui_records_v041.gd: FAIL (126) ==
+test_ui_land_map FAIL (2) (headless, same 2 lines as candidate)
+claude_marriage FAIL (1) (xvfb, same line as candidate)
+
+== Comparison (failure lines and counts, candidate vs main)
+All 28 identical, except test_town_services_v042: candidate had 4 extra 'real title and negotiated coins visible' because pay now shows as 22,930. The test now checks the grouped amount; rerun below matches main's 41 failure lines exactly.
+
+== Candidate reruns and display blocks
+test_town_services_v042 rc=41 116s == res://tests/test_town_services_v042.gd: FAIL (41) ==
+claude_treasure_room_ui rc=0 9s == res://tests/claude_treasure_room_ui.gd: PASS ==
+test_ui_modal rc=0 5s == res://tests/test_ui_modal.gd: PASS ==
+test_ui_land_map rc=2 13s == res://tests/test_ui_land_map.gd: FAIL (2) ==
+display_a rc=0 45s == res://tests/claude_campaign.gd: PASS == == res://tests/claude_markers_v031.gd: PASS == == res://tests/claude_refit.gd: PASS == 
+display_b rc=1 32s == res://tests/claude_rounds.gd: PASS == == res://tests/claude_prisoners_ui_v033.gd: FAIL (1) == == res://tests/claude_dragonfear.gd: PASS == 
+display_c rc=1 53s == res://tests/claude_population_ui_v034.gd: PASS == == res://tests/claude_creatures_ui_v035.gd: PASS == == res://tests/claude_diplomacy_v030.gd: PASS == == res://tests/claude_marriage.gd: FAIL (1) == 
+
+== Screenshot tour tests/ui_pages_v096.gd (xvfb): PASS. 1600x900: 70 pages (all 8 Guide pages); --only=army adds the 5 Company tabs. 720x1280 --mobile: 63 pages (run before the Guide pages were added).
+== After the roster-name change (ui/company.gd): test_muster_ui_v017 PASS; test_ui_roster_tags FAIL (1) with the same script error on main 951cf2d.

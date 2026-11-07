@@ -40,8 +40,8 @@ static func _render(host: Control, tid: String, body: VBoxContainer) -> void:
 	if not TownEcon.has_econ(town): return
 	var e: Dictionary = town["econ"]
 	body.add_child(UiKit.label("Orders", "H2"))
-	body.add_child(UiKit.label("Treasury available: %.2f coins; reserved: %.2f." % [
-		float(e["treasury"]), SupplyOrders.reserved(e)], "Small", true))
+	body.add_child(UiKit.label("Treasury available: %s coins; reserved: %s." % [
+		UiKit.coins(float(e["treasury"])), UiKit.coins(SupplyOrders.reserved(e))], "Small", true))
 	body.add_child(UiKit.label("The cap includes goods and a fixed freight fee. Partial shipments are allowed. Cancelling releases unused funds; paid cargo still travels to town and can be lost to raiders.", "Muted", true))
 	var manage := SupplyOrders.can_manage(Game, tid)
 	if manage:

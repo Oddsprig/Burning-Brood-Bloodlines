@@ -93,12 +93,12 @@ static func chart(parent: Control, title: String, xs: Array, ys: Array, unit: St
 	v.add_child(UiKit.label("min %s, max %s, now %s%s, over %s %s" % [num(lo), num(hi), num(float(c.ys[-1])), unit,
 		num(span), span_word], "Muted", true))
 
-## 12 -> "12", 3.456 -> "3.46", 1234.5 -> "1235".
+## 12 -> "12", 3.456 -> "3.46", 1234.5 -> "1,235" (v0.096: thousands separators on every whole number).
 static func num(v: float) -> String:
 	if is_inf(v) or is_nan(v):
 		return "-"
 	if absf(v) >= 100.0 or is_equal_approx(v, round(v)):
-		return str(int(round(v)))
+		return UiKit.thousands(int(round(v)))
 	if absf(v) >= 10.0:
 		return "%.1f" % v
 	return "%.2f" % v
@@ -133,7 +133,7 @@ static func metrics(parent: Control, entries: Array) -> GridContainer:
 		var title := UiKit.label(String(entry.get("title", "")), "Small", true)
 		title.custom_minimum_size.x = 40
 		box.add_child(title)
-		var value := UiKit.label(String(entry.get("value", "")), "H2", true)
+		var value := UiKit.label(UiKit.group_digits(String(entry.get("value", ""))), "H2", true)
 		value.custom_minimum_size.x = 40
 		value.add_theme_font_size_override("font_size", 26)
 		value.add_theme_color_override("font_color", UiTheme.readable(tone,UiTheme.PARCH))

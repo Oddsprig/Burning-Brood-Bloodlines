@@ -81,7 +81,7 @@ func _refresh() -> void:
 	for choice in [["List", false], ["Roost", true]]:
 		var button := UiKit.button(str(choice[0]), _set_roost.bind(bool(choice[1])), "Row")
 		button.name = "DragonRoostToggle" if bool(choice[1]) else "DragonListToggle"
-		button.disabled = roost_open == bool(choice[1])
+		UiKit.mark_choice(button, roost_open == bool(choice[1]))
 		controls.add_child(button)
 	if roost_open:
 		var household := str(Dynasty.selected(Game).get("household_uid", ""))
@@ -98,7 +98,7 @@ func _refresh() -> void:
 		return
 	for choice in [["Your house", "house"], ["Your realm", "realm"], ["All holdings", "all"]]:
 		var button := UiKit.button(String(choice[0]), _choose_holdings.bind(String(choice[1])), "Row")
-		button.disabled = holdings == String(choice[1])
+		UiKit.mark_choice(button, holdings == String(choice[1]))
 		controls.add_child(button)
 	controls.add_child(UiKit.button("Hide varieties" if catalog_open else "Gem types & body forms", _toggle_catalog, "Row"))
 	var selected: Dictionary = Dynasty.selected(Game)

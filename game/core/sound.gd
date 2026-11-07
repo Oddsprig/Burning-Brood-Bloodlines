@@ -78,5 +78,19 @@ func _fix_contrast(node: Control) -> void:
 	if not node.has_theme_color_override(key): return
 	var c: Color = node.get_theme_color(key)
 	if c.a < 0.5: return
-	var fixed := UiTheme.readable(c, UiTheme.WOOD_3)
+	var fixed := UiTheme.readable(c, surface_behind(node))
 	if fixed != c: node.add_theme_color_override(key, fixed)
+
+## v0.096: the colour actually painted behind a label (its nearest opaque panel or button), so text on a pale badge
+## keeps its dark ink. Screens without a panel fall back to the dark card colour the guard always assumed.
+static func surface_behind(node: Node) -> Color:
+	var n := node.get_parent()
+	var hops := 0
+	while n != null and hops < 6:
+		if n is PanelContainer or n is Panel or n is Button:
+			var style_name := "normal" if n is Button else "panel"
+			var style := (n as Control).get_theme_stylebox(style_name) as StyleBoxFlat
+			if style != null and style.draw_center and style.bg_color.a > 0.5:
+				return style.bg_color
+		n = n.get_parent(); hops += 1
+	return UiTheme.WOOD_3

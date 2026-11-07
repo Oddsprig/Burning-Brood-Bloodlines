@@ -1,12 +1,13 @@
 BURNING BROOD: BLOODLINES - CURRENT DEVELOPER NOTES
-Updated: 2026-11-06 | v0.095 merged 5e17abb014a1f01f0426406bd455e249f06a8e20 | packaged Desktop/Android v0.085
+Updated: 2026-11-07 | v0.096 normal merge (hash recorded in the follow-up notes commit) | packaged Desktop/Android v0.085
 
 CURRENT SOURCE AND DOCUMENTATION
 v0.086-v0.094 are accepted normal source merges. The last packaged release remains
 v0.085. The earlier v0.094 documentation audit was source-only. The owner reviewed
 the full diff and 203-check output, then explicitly approved the normal v0.095
-merge and push. The lead reconciled these notes directly as authorized. No new
-test was run, and no v0.095 package is claimed.
+merge and push. v0.096 (UI readability) merges under the owner's standing order
+that the newest version goes to main once tests pass. No v0.095 or v0.096
+package is claimed.
 
 Active three docs: PROJECT_MAP.md, docs/DEV_NOTES.txt, CHANGES.txt. Each must describe
 a version's actual changes in the SAME version merge or DO NOT MERGE. After each
@@ -14,6 +15,56 @@ version merge one light notes-only helper reconciles all three with final source
 lead reviews/commits/pushes normally. It counts toward the standing two-helper cap.
 See docs/BUILD_RULES.md and the shared machine GAME TESTING RULES.md. Historical
 commands/receipts and this audit never grant permission for another test or build.
+
+v0.096 - READABLE TEXT, FONTS AND LAYOUT ON EVERY PAGE (normal merge; hash in follow-up notes commit)
+Base: 951cf2d. Presentation only; no rule, save, schema or simulation change.
+Page-by-page status: docs/ui_review_v096.md (70 tour pages + 5 Company tabs).
+
+1. Contrast. core/sound.gd _fix_contrast calls UiTheme.readable(c,
+   surface_behind(node)); surface_behind walks up to 6 parents for an opaque
+   StyleBoxFlat (PanelContainer/Panel/Button), else assumes WOOD_3.
+   readable() targets WOOD on light surfaces (is_light) and INK on dark ones.
+   Labels with meta keep_color are still left alone (town_econ _badge uses it).
+2. Selected vs disabled. theme.gd _selected_stays_selected: RowOn/TabOn
+   disabled stylebox = normal and font_disabled_color = font_color. Generic
+   disabled buttons use a dimmer stylebox/colour. UiKit.mark_choice(b, on) sets
+   RowOn + disabled for the current choice (dragons toggles, house_laws,
+   politics defence order; Feudal.governance_preview already refuses the
+   order in force, so no action is lost).
+3. Numbers. UiKit.decimal(v, places) groups the whole part and keeps `places`
+   decimals (whole values drop the zeros; places clamped 0..6). UiKit.coins =
+   decimal(v, 2). Town price column = decimal(price, 1), as the old %.1f.
+   RecKit.num groups whole numbers. UiKit.group_digits is display-only: RecCells
+   draws grouped bare integers and RecKit.metrics shows grouped values, while
+   rec_values/rec_metric metadata, tooltips and accessibility keep raw text.
+4. Fonts. regular_font adds OpenType lnum; numeric_font (lnum+tnum) for records
+   body cells. New theme variations Lead (light, +2 px) and Caption (bold, brass).
+   Label line_spacing 5, RichTextLabel line_separation 5.
+5. Text layout. GuideView.PAGES = [title, lead, points] with page_text(i);
+   dragon_roost _caption sections; politics levy/tax/defence/tribute one fact per
+   line; population, victory (RecKit.metrics + Ambitions), baggage, muster
+   (Mounts heading), gameover, house, town orders/econ use UiKit.coins.
+6. Layout. dynasty_card house name column expands; world_map lbl_log 17 px ink
+   on a dark backing, placed above the nav bar and clear of the ruler card,
+   hidden when empty; company roster names 19 px on desktop (row tooltip
+   already gives the full name); town_contracts offer panel on WOOD_3; town_market header
+   cells; town_econ _badge compact tag; house_select colour pickers use
+   add_icon_item with a swatch and design_label without the hex code.
+
+Tests: tests/fixtures/records_v044_baseline.gd frozen num/metrics follow the
+digit grouping; tests/test_town_services_v042.gd checks grouped contract pay.
+tests/ui_pages_v096.gd is a display-only screenshot tour for xvfb in a Linux
+container; never run it on the owner's PC with a window.
+Verification: 75 UI-related tests ran one at a time in a Linux cloud
+container (never the owner's PC), each capped at 175 s: 44 pass, 3 stop at the
+cap, 28 fail. The same 28 fail identically on main 951cf2d (older issues, not
+v0.096); test_town_services_v042 differed only by grouped contract pay and now
+matches main. Records v043 passes; v044 keeps main's same 15 failures. Display
+blocks a/b/c: only claude_prisoners_ui_v033 and claude_marriage fail, both
+identically on main. Screenshot tour: 70 pages at 1600x900 (+5 Company tabs
+with --only=army); 63 pages at 720x1280.
+Receipts: test-results/v0.096_ui_tests.txt.
+Review: Sol 6.1 max, read-only, each change set; findings fixed.
 
 v0.095 - THREE BUG FIXES (merged 5e17abb014a1f01f0426406bd455e249f06a8e20)
 Base: 2ce6c5e632a57cff389ddcc5ceb1242abda105ee. No other audit repair is included.

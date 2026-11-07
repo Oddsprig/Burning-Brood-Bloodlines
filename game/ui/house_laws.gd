@@ -227,7 +227,7 @@ func _add_law_choice(v: Node, law_id: String) -> void:
 	var current: bool = law_id == str(data.get("law", ""))
 	var choose := UiKit.button("In force" if current else "Choose", _choose_law.bind(law_id, v), "Row")
 	choose.name = "LawsChoose_" + law_id
-	choose.disabled = current
+	UiKit.mark_choice(choose, current)
 	choose.size_flags_horizontal = SIZE_SHRINK_BEGIN
 	v.add_child(choose)
 

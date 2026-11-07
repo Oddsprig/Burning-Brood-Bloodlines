@@ -280,11 +280,13 @@ func _refresh_mounts() -> void:
 	UiKit.clear(mounts_flow)
 	var town: Dictionary = Game.world.get("towns", {}).get(Game.location, {})
 	var n := Horses.count(Game.company)
-	mounts_flow.add_child(UiKit.label("Mounts: %d; upkeep %d grain + %d coins daily" % [n, n * Horses.GRAIN_DAY, n * Horses.COIN_DAY], "H2", true))
+	# v0.096: a short heading, then the numbers in reading text (no sentence in capitals).
+	mounts_flow.add_child(UiKit.label("Mounts", "H2", true))
+	mounts_flow.add_child(UiKit.label("Mounts: %d; upkeep %d grain + %s coins daily" % [n, n * Horses.GRAIN_DAY, UiKit.thousands(n * Horses.COIN_DAY)], "", true))
 	if not TownEcon.has_econ(town):
 		mounts_flow.add_child(UiKit.label("Visit a settlement to buy horses and pack grain.", "Muted", true))
 		return
-	mounts_flow.add_child(UiKit.label("Grown horses: %d offered at %d coins each. An unfed or unpaid mount cannot field cavalry." % [Horses.offered(town["econ"]), Horses.price(town)], "Muted", true))
+	mounts_flow.add_child(UiKit.label("Grown horses: %d offered at %s coins each. An unfed or unpaid mount cannot field cavalry." % [Horses.offered(town["econ"]), UiKit.thousands(Horses.price(town))], "Muted", true))
 	var pack := UiKit.button("Pack 7 days of horse grain", func():
 		var r := Supplies.pack_horse_grain(Game, town)
 		notice = str(r.get("reason", ""))

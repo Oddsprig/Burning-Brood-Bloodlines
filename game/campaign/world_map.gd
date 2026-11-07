@@ -501,7 +501,9 @@ func _build_hud() -> void:
 	lbl_news.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	lbl_news.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hud_root.add_child(lbl_news)
-	lbl_log = _label(14, UiTheme.INK_SOFT)
+	# v0.096: the day's events read at 17 px on a dark backing strip instead of 14 px grey straight on the terrain.
+	lbl_log = _label(17, UiTheme.INK)
+	lbl_log.add_theme_stylebox_override("normal", UiTheme.sb(Color(0.06, 0.04, 0.03, 0.78), Color(0, 0, 0, 0), 0, 6, 10, 4))
 	lbl_log.max_lines_visible = 2   # the HUD has room for two rendered lines; full history stays in Records
 	lbl_log.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	lbl_log.clip_text = true
@@ -625,11 +627,11 @@ func _layout_hud() -> void:
 	ruler_card.position = Vector2(8, bottom_nav.position.y - 146)
 	ruler_card.size = Vector2(card_width, 138)
 	if narrow:
-		lbl_log.position = Vector2(14, ruler_card.position.y - 54)
-		lbl_log.size = Vector2(width - 28, 48)
+		lbl_log.position = Vector2(14, ruler_card.position.y - 66)
+		lbl_log.size = Vector2(width - 28, 60)
 	else:
-		lbl_log.position = Vector2(card_width + 20, bottom_nav.position.y - 62)
-		lbl_log.size = Vector2(maxf(0, width - card_width - 38), 54)
+		lbl_log.position = Vector2(card_width + 20, bottom_nav.position.y - 74)
+		lbl_log.size = Vector2(maxf(0, minf(720.0, width - card_width - 38)), 66)
 	lbl_log.lines_skipped = maxi(0, lbl_log.get_line_count() - 2)   # keep the latest log lines after wrapping
 	lbl_news.position = Vector2(14, top_panel.position.y + top_panel.size.y + 6)
 	lbl_news.size.x = width - 28
@@ -679,6 +681,7 @@ func _refresh_hud() -> void:
 	lbl_contract.visible = not Game.contract.is_empty() and not Monsters.suspended_contract(Game.contract, Game.world)
 	var lg: Array = Game.world.get("log", [])
 	lbl_log.text = "\n".join(lg.slice(maxi(0, lg.size() - 4)))
+	lbl_log.visible = lbl_log.text != ""   # no empty backing strip on a quiet day
 	lbl_news.text = Diplomacy.ticker(Game)   # diplomacy: latest declaration for a few days, "" otherwise
 	btn_wait.text = "Stop" if Game.world["party"].get("waiting", false) else "Wait"
 	if sites != null:
