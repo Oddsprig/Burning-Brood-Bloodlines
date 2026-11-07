@@ -129,4 +129,5 @@ display_a rc=0 45s == res://tests/claude_campaign.gd: PASS == == res://tests/cla
 display_b rc=1 32s == res://tests/claude_rounds.gd: PASS == == res://tests/claude_prisoners_ui_v033.gd: FAIL (1) == == res://tests/claude_dragonfear.gd: PASS == 
 display_c rc=1 53s == res://tests/claude_population_ui_v034.gd: PASS == == res://tests/claude_creatures_ui_v035.gd: PASS == == res://tests/claude_diplomacy_v030.gd: PASS == == res://tests/claude_marriage.gd: FAIL (1) == 
 
-== Screenshot tour tests/ui_pages_v096.gd (xvfb): 63 pages PASS at 1600x900 and at 720x1280 --mobile.
+== Screenshot tour tests/ui_pages_v096.gd (xvfb): PASS. 1600x900: 70 pages (all 8 Guide pages); --only=army adds the 5 Company tabs. 720x1280 --mobile: 63 pages (run before the Guide pages were added).
+== After the roster-name change (ui/company.gd): test_muster_ui_v017 PASS; test_ui_roster_tags FAIL (1) with the same script error on main 951cf2d.

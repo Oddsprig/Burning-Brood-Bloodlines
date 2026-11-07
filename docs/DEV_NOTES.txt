@@ -1,5 +1,5 @@
 BURNING BROOD: BLOODLINES - CURRENT DEVELOPER NOTES
-Updated: 2026-11-07 | v0.096 merged (hash recorded after the merge) | packaged Desktop/Android v0.085
+Updated: 2026-11-07 | v0.096 normal merge (hash recorded in the follow-up notes commit) | packaged Desktop/Android v0.085
 
 CURRENT SOURCE AND DOCUMENTATION
 v0.086-v0.094 are accepted normal source merges. The last packaged release remains
@@ -16,9 +16,9 @@ lead reviews/commits/pushes normally. It counts toward the standing two-helper c
 See docs/BUILD_RULES.md and the shared machine GAME TESTING RULES.md. Historical
 commands/receipts and this audit never grant permission for another test or build.
 
-v0.096 - READABLE TEXT, FONTS AND LAYOUT ON EVERY PAGE (merge hash recorded after the merge)
+v0.096 - READABLE TEXT, FONTS AND LAYOUT ON EVERY PAGE (normal merge; hash in follow-up notes commit)
 Base: 951cf2d. Presentation only; no rule, save, schema or simulation change.
-Page-by-page status: docs/ui_review_v096.md (63 screenshotted pages).
+Page-by-page status: docs/ui_review_v096.md (70 tour pages + 5 Company tabs).
 
 1. Contrast. core/sound.gd _fix_contrast calls UiTheme.readable(c,
    surface_behind(node)); surface_behind walks up to 6 parents for an opaque
@@ -46,7 +46,8 @@ Page-by-page status: docs/ui_review_v096.md (63 screenshotted pages).
    (Mounts heading), gameover, house, town orders/econ use UiKit.coins.
 6. Layout. dynasty_card house name column expands; world_map lbl_log 17 px ink
    on a dark backing, placed above the nav bar and clear of the ruler card,
-   hidden when empty; town_contracts offer panel on WOOD_3; town_market header
+   hidden when empty; company roster names 19 px on desktop with a full-name
+   tooltip; town_contracts offer panel on WOOD_3; town_market header
    cells; town_econ _badge compact tag; house_select colour pickers use
    add_icon_item with a swatch and design_label without the hex code.
 
@@ -60,7 +61,8 @@ cap, 28 fail. The same 28 fail identically on main 951cf2d (older issues, not
 v0.096); test_town_services_v042 differed only by grouped contract pay and now
 matches main. Records v043 passes; v044 keeps main's same 15 failures. Display
 blocks a/b/c: only claude_prisoners_ui_v033 and claude_marriage fail, both
-identically on main. Screenshot tour: 63 pages at 1600x900 and 720x1280.
+identically on main. Screenshot tour: 70 pages at 1600x900 (+5 Company tabs
+with --only=army); 63 pages at 720x1280.
 Receipts: test-results/v0.096_ui_tests.txt.
 Review: Sol 6.1 max, read-only, each change set; findings fixed.
 

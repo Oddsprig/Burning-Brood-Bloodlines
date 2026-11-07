@@ -20,6 +20,13 @@ func shot(tree: SceneTree, name: String) -> void:
 	shots += 1
 	print("pages: shot ", name)
 
+func find_button(node: Node, text: String) -> Button:
+	if node is Button and (node as Button).text == text and (node as Button).is_visible_in_tree(): return node
+	for c in node.get_children():
+		var b := find_button(c, text)
+		if b != null: return b
+	return null
+
 func want(group: String) -> bool:
 	return only.is_empty() or group in only
 
@@ -56,6 +63,11 @@ func run(tree: SceneTree) -> int:
 		await shot(tree, "title")
 		GuideView.open(main.current)
 		await shot(tree, "guide_page1")
+		for i in range(1, GuideView.PAGES.size()):   # every guide page, not only the first
+			var next := find_button(main, "Next")
+			if next == null: break
+			next.pressed.emit()
+			await shot(tree, "guide_page%d" % (i + 1))
 		close_modals(main); await frames(tree, 1)
 		await screen(tree, "newgame")
 		await screen(tree, "settings", {"back": "title"})
@@ -116,6 +128,9 @@ func run(tree: SceneTree) -> int:
 		var funding := Mobilization.fund(Game, int(floor(float(Feudal._payer(Game).get("purse", 0.0)) * 0.5)))
 		var quote := Mobilization.quote(Game, tid, 120)
 		if quote.get("ok", false): Mobilization.muster(Game, tid, 120, quote["review"])
+		if Game.company.is_empty():   # this world can raise no common troops: let a house member ride so the company tabs exist
+			for row in Mobilization.household_candidates(Game).slice(0, 2):
+				Mobilization.enlist_household(Game, str(row["person_uid"]))
 		print("pages: fund ", funding.get("ok", false), " company ", Game.company.size())
 		await screen(tree, "company")
 		var cv: Node = main.current

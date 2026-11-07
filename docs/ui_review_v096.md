@@ -2,7 +2,7 @@
 
 Scope: the owner asked for every UI page to be reviewed for walls of text, font problems, font differentiation,
 readability, playability of all text and layout. Each page below was screenshotted at 1600x900 in a cloud
-container (Xvfb, `game/tests/ui_pages_v096.gd`, 63 pages, no test on the owner's PC), reviewed, fixed and
+container (Xvfb, `game/tests/ui_pages_v096.gd`: 70 pages in one run (all 8 Guide pages), plus the 5 Company tabs in an `--only=army` run; no test on the owner's PC), reviewed, fixed and
 screenshotted again. Status: FIXED = changed and checked in the after-screenshot; OK = reviewed, no change needed;
 NOT FIXED = seen but left for a later version (reason given).
 
@@ -34,9 +34,9 @@ NOT FIXED = seen but left for a later version (reason given).
 | Dragons & eggs (list, detail, catalog) | FIXED | List/Roost and Your house/realm/All toggles show the selected choice. |
 | Dragon roost | FIXED | Fact panel split under captions: Condition, Bond, Daily care, Last care. |
 | Army (muster) | FIXED | Mounts has its own heading; horse prices grouped. |
-| Company (overview, mind, skills, gear, health) | OK | Reviewed. |
+| Company (overview, mind, skills, gear, health) | FIXED | Roster names were cut to "Ingish Stoneb..."; names use a smaller size on desktop and carry the full name as a tooltip. The five detail tabs were reviewed. |
 | Baggage | FIXED | Totals on two Lead lines with grouped numbers; row values grouped. |
-| Town: Market | FIXED | Table headers bold and readable; quality, quantity and coin columns coloured and in the number font. |
+| Town: Market | FIXED | Table headers bold and readable; quality coloured; quantity and coin columns in the number font. |
 | Town: Provisions, Recruits, Healer, Buildings | OK | Reviewed. |
 | Town: Contracts | FIXED | Offer panel was light text on a light panel (unreadable); now wood panel, bold job title, brass pay, grouped numbers. |
 | Town: Town tab (Overview, People, Work, Stores, Land, Accounts, Prices, Orders, Research) | FIXED | Trend badges (Up/Down/Steady) are compact readable tags; prices grouped with one decimal kept; coin facts grouped. |
@@ -52,6 +52,6 @@ NOT FIXED = seen but left for a later version (reason given).
 | Battle screen and battle aftermath | Not in the screenshot tour (needs a live battle); unchanged apart from the global contrast, figure and selected-state changes. |
 | Very long records tables are still dense | Sorting, search and paging already exist; splitting them further would change records behaviour beyond a readability pass. |
 | Town market "Stock" column in the Town tab prices list shows raw counts | Left as raw text because existing tests read it; values there are rarely four digits. |
-| Phone layout (720x1280) | Checked with the same tour (`--mobile --size=720x1280`): no new clipping or overlap from v0.096. The phone layout itself (for example the roost facts column beside the yard, the small guide box) is unchanged and left for a phone-specific pass. |
+| Phone layout (720x1280) | Checked with the same tour (`--mobile --size=720x1280`, 63 pages before the Guide pages were added): no new clipping or overlap from v0.096. The phone layout itself (for example the roost facts column beside the yard, the small guide box) is unchanged and left for a phone-specific pass. |
 
 Tests and review: see `test-results/v0.096_ui_tests.txt` (75 UI tests one at a time in the cloud; every failure also fails the same way on main `951cf2d`) and the Sol 6.1 max read-only reviews recorded in `CHANGES.txt`.

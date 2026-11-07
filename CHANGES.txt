@@ -1,5 +1,5 @@
 BURNING BROOD: BLOODLINES - ACTIVE CHANGE NOTES
-Updated: 2026-11-07 for v0.096 merged (hash recorded after the merge).
+Updated: 2026-11-07 for v0.096 (normal merge; hash recorded in the follow-up notes commit).
 Last packaged Desktop/Android release: v0.085. v0.096 is a source merge; no package is claimed.
 
 This changelog starts with the accepted v0.086-v0.094 source catch-up. Earlier
@@ -7,7 +7,7 @@ history remains in the developer notes and immutable archives. Historical worker
 UNRUN reports are superseded by the accepted source receipts where stated.
 
 v0.096 - Readable text, fonts and layout on every page
-Normal merge: branch v0.096-ui-readability (hash recorded after the merge)
+Normal merge of branch v0.096-ui-readability; hash recorded in the follow-up notes commit.
 Base: 951cf2d (main after v0.095 docs). Presentation only: no rule, save or
 simulation change.
 Contrast: the global label guard (core/sound.gd) and UiTheme.readable now judge
@@ -39,14 +39,16 @@ campaign/world_map.gd. Version metadata is 0.096.
 Tests changed: tests/fixtures/records_v044_baseline.gd frozen num/metrics follow
 the one deliberate digit-grouping change; tests/test_town_services_v042.gd
 checks the visible contract pay in its grouped form. New display-only
-tests/ui_pages_v096.gd screenshot tour (63 pages).
+tests/ui_pages_v096.gd screenshot tour (70 pages incl. all 8 Guide pages; Company tabs
+with --only=army). Company roster names fit (smaller desktop size, tooltip).
 Verification: 75 UI-related tests ran one at a time in a Linux cloud
 container (never the owner's PC), each capped at 175 s: 44 pass, 3 stop at the
 cap, 28 fail. The same 28 fail identically on main 951cf2d (older issues, not
 v0.096); test_town_services_v042 differed only by grouped contract pay and now
 matches main. Records v043 passes; v044 keeps main's same 15 failures. Display
 blocks a/b/c: only claude_prisoners_ui_v033 and claude_marriage fail, both
-identically on main. Screenshot tour: 63 pages at 1600x900 and 720x1280.
+identically on main. Screenshot tour: 70 pages at 1600x900 (+5 Company tabs
+with --only=army); 63 pages at 720x1280.
 Receipts: test-results/v0.096_ui_tests.txt.
 Review: Sol 6.1 max read-only review of each change set; two findings (cents
 and price tenths rounded away) and two nits fixed.
