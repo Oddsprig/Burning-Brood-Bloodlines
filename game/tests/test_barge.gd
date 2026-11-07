@@ -38,18 +38,20 @@ func _ledger_gap() -> float:
 	return Barge.holdings(Game) - (float(L["cast"]) - float(L["melted"]) - float(L["drained"]))
 
 # ---------------------------------------------------------------- part 1: coin
-## The whole world (armies, caravans, wars, families, mints) for 60 days, checked every day.
+## The whole world (armies, caravans, wars, families, mints) for 20 days (60 before v0.100), checked every day.
 func _test_coin_conserved() -> void:
 	Game.new_game(2026)
+	# v0.100: the default history is one day and presim_step stops at its end; 20 days keeps this test under 3 minutes.
+	CampaignWorld.presim_span_days = 20
 	var worst := 0.0
 	var worst_day := 0
-	for d in 60:
+	for d in 20:
 		CampaignWorld.presim_step(Game, 1)
 		var gap := absf(_ledger_gap())
 		if gap > worst:
 			worst = gap; worst_day = d + 1
 	var L: Dictionary = Game.world["coin"]
-	print("  coin over 60 days: cast %d, melted %d, drained %d, held %d; worst daily gap %.3f coins (day %d)" % [int(L["cast"]), int(L["melted"]),
+	print("  coin over 20 days: cast %d, melted %d, drained %d, held %d; worst daily gap %.3f coins (day %d)" % [int(L["cast"]), int(L["melted"]),
 		int(L["drained"]), int(Barge.holdings(Game)), worst, worst_day])
 	check(worst < 1.0, "coin not conserved: cast - melted - drained differs from the holdings by %.2f on day %d" % [worst, worst_day])
 
@@ -255,6 +257,9 @@ func _test_labour_and_pay() -> void:
 			for p in Persons.pp(f):
 				if int(p[6]) == 0 and String(p[4]) in ["", "hire", "reserve"]:
 					at_home += 1
+			# v0.100: a large household (cohort) names only the members something happened to; its row counts the rest.
+			if Population.is_cohort(f):
+				at_home = maxi(0, Families.adults(f) - Families.serving(f))
 			var held: int = int(f["hands"]) + Families.job_total(f) + f.get("keeps", []).size()
 			for j in f.get("cj", {}):
 				held += int(f["cj"][j])

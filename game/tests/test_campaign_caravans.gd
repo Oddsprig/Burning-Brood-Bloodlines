@@ -31,6 +31,10 @@ func _loss_people(w: Dictionary, fid: String) -> Dictionary:
 		for f in town.get("econ", {}).get("fams", []):
 			for p in f.get("pp", []):
 				people["%s:%d:%d" % [tid, int(f["id"]), int(p[0])]] = true
+			# v0.100: a large household (cohort) names a member only when something happens to him, so a man it
+			# sends out gets his register row then. He is still one of the household's counted adults.
+			if Population.is_cohort(f):
+				people["%s:%d:*" % [tid, int(f["id"])]] = true
 	return people
 
 ## A speculative trip on this pair loses about 2,200 to a 15-day crew even though the
@@ -161,7 +165,8 @@ func run(_tree: SceneTree) -> int:
 			var family := People.fam_of(home, u.family)
 			var person := Persons.by_uid(family, u.uid) if not family.is_empty() else []
 			var identity := "%s:%d:%d" % [u.home_town, u.family, int(person[0]) if not person.is_empty() else -1]
-			check(source_people.has(identity) and not seen_people.has(identity), "attacker %d is one unique pre-existing registered person" % u.uid)
+			var known := source_people.has(identity) or (not person.is_empty() and source_people.has("%s:%d:*" % [u.home_town, u.family]))
+			check(known and not seen_people.has(identity), "attacker %d is one unique pre-existing registered person" % u.uid)
 			seen_people[identity] = true
 			var entry: Array = roll_book.get(str(u.uid), [])
 			check(u.faction == "orc_horde" and home.get("faction", "") == "orc_horde" and entry.size() >= 3

@@ -24,6 +24,15 @@ func _advance(days: float, step: float = 0.05) -> void:
 		Game.advance_time(step, false)
 		w["encounter"] = ""
 
+## v0.100: a new game now starts with no company until a house raises men; give the party the two men
+## this test was written for, so a tracker's skill has someone to belong to.
+func _two_men(seed_value: int) -> void:
+	var rng := RandomNumberGenerator.new(); rng.seed = seed_value
+	while Game.company.size() < 2:
+		var man := Factory.make_troop(rng, "middle_kingdom", DB.factions["middle_kingdom"]["troops"][0], 2)
+		man.faction = "player"
+		Game.company.append(man)
+
 func _skill_all(lvl: int) -> void:
 	for u in Game.company:
 		u.skills["tracker"] = 0
@@ -47,6 +56,7 @@ func _lonely_point(w: Dictionary, avoid: Vector2) -> Vector2:
 
 func run(tree: SceneTree) -> int:
 	Game.new_game(777)
+	_two_men(777)
 	Game.contract = {}
 	var w: Dictionary = Game.world
 	_skill_all(0)
@@ -221,6 +231,7 @@ func run(tree: SceneTree) -> int:
 	_advance(0.3)
 	# ---------------------------------------------------------------- per-frame cost, 30 bands
 	Game.new_game(31337)
+	_two_men(31337)
 	Game.contract = {}
 	w = Game.world
 	var rng := RandomNumberGenerator.new(); rng.seed = 5

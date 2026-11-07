@@ -49,8 +49,8 @@ static func preview(game, tid: String, kind: String) -> Dictionary:
 	if game.deployed_units().is_empty(): return {"ok": false, "reason": "Raise a field army before attacking a settlement."}
 	if (w["party"]["pos"] as Vector2).distance_to(town["pos"]) > NEAR: return {"ok": false, "reason": "March your army up to %s first." % town["name"]}
 	if w.get("encounter", "") != "": return {"ok": false, "reason": "Deal with the enemy in front of you first."}
-	var st := _state(game)
-	if kind == "raid" and int(st["raids"].get(tid, -999)) + RAID_COOLDOWN > int(game.day):
+	var raids: Dictionary = game.world.get("warfare", {}).get("raids", {})   # v0.100: a read; never creates the record
+	if kind == "raid" and int(raids.get(tid, -999)) + RAID_COOLDOWN > int(game.day):
 		return {"ok": false, "reason": "%s was raided recently; nothing worth taking is left yet." % town["name"]}
 	var defenders := _defenders(game, tid)
 	var diplomatic := ""
@@ -63,6 +63,8 @@ static func preview(game, tid: String, kind: String) -> Dictionary:
 		"dragon_meat": Supplies.dragon_meat_plan(game)}
 
 static func start(game, tid: String, kind: String) -> Dictionary:
+	# v0.100: the save copies the world in slices; an attack begun mid-copy would change it half way through.
+	if game.get("_save_capture") != null: return {"ok": false, "reason": "Wait for the consistent save snapshot to finish."}
 	var p := preview(game, tid, kind)
 	if not p.get("ok", false): return p
 	var w: Dictionary = game.world

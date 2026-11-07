@@ -82,6 +82,15 @@ static func nearest_enemy(sim, f: Fighter) -> Array:
 			best = e
 	return [best, bd]
 
+## An enemy within arm's reach who can still fight, on his feet or not (v0.100).
+static func foe_beside(sim, f: Fighter) -> bool:
+	for e in sim._targets[1 - f.side]:
+		if not e.active() or e.routed or e.waiting:
+			continue
+		if maxi(absi(e.cell.x - f.cell.x), absi(e.cell.y - f.cell.y)) <= 1:
+			return true
+	return false
+
 ## The archer's turn. Returns true when it set an action (shoot, kite, switch weapons, fetch the bow).
 static func decide(sim, f: Fighter) -> bool:
 	if f.bow == null or f.bow_state == "broken":
@@ -95,6 +104,8 @@ static func decide(sim, f: Fighter) -> bool:
 	if not f.bow_hand:
 		# sidearm in hand: back to the bow once the enemy is gone or pushed past min range + margin
 		if u.arrows() <= 0 or f.prone or f.grabbing >= 0 or f.grabbed_by >= 0 or not f.lodged.is_empty():
+			return false
+		if foe_beside(sim, f):   # v0.100: a fallen man beside him still fights; keep the sidearm
 			return false
 		if near != null and dn <= min_r + Formulas.BOW_SWITCH_MARGIN:
 			return false
@@ -117,6 +128,11 @@ static func decide(sim, f: Fighter) -> bool:
 		return true
 	if u.arrows() <= 0:
 		to_melee(sim, f, near != null and dn <= 1, "out of arrows")
+		return true
+	# v0.100: an enemy knocked down beside him still strikes from the ground, and nearest_enemy counts only men on
+	# their feet. Without this the archer stood idle with his bow while the fallen man stabbed him.
+	if (near == null or dn > 1) and foe_beside(sim, f):
+		to_melee(sim, f, true, "too close")
 		return true
 	if near == null:
 		sim._set_action(f, sim._idle_state(f), sim._ticks(f, 5.0))

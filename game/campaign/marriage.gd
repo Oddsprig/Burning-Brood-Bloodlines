@@ -404,7 +404,9 @@ static func daily(game) -> void:
 	Diplomacy.sync_dynasty(game)
 
 static func has_claim(game, town_id: String) -> bool:
-	return state(game)["claims"].has(town_id)
+	# v0.100: a read. state() would create the marriage record, and the attack preview runs on the map while an
+	# autosave may be copying the world.
+	return (game.world.get("marriage", {}).get("claims", {}) as Dictionary).has(town_id)
 
 static func children_of(game, uid: String) -> Array:
 	var out: Array = []

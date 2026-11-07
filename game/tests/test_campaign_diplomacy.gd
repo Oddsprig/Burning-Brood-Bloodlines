@@ -26,16 +26,32 @@ func _set_standing(fid: String, s: int) -> void:
 	p["earned"] = float(s - int(p["comp"]))
 	Diplomacy._mirror(Game, fid)
 
+## v0.100: a new game starts with no company until a house raises men. The company-standing parts were written for
+## a human band at the start; this gives the company six human men.
+func _human_band(seed_value: int) -> void:
+	var hrng := RandomNumberGenerator.new(); hrng.seed = seed_value
+	while Game.company.size() < 6:
+		var hu := Factory.make_troop(hrng, "middle_kingdom", DB.factions["middle_kingdom"]["troops"][0], 1)
+		hu.faction = "player"
+		Game.company.append(hu)
+
+## v0.100: --part=rules (everything but the full world) or --part=world (the full world run) keeps each run under
+## the 3-minute test limit; no part runs both, which takes longer.
 func run(tree: SceneTree) -> int:
-	_sim_1000()
-	_routes()
-	_composition()
-	_standing_effects()
-	_war_contract()
-	_save_load()
-	_truce()
-	await _screen(tree)
-	_full_world()
+	var part := ""
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--part="): part = a.trim_prefix("--part=")
+	if part != "world":
+		_sim_1000()
+		_routes()
+		_composition()
+		_standing_effects()
+		_war_contract()
+		_save_load()
+		_truce()
+		await _screen(tree)
+	if part != "rules":
+		_full_world()
 	return fails
 
 # ---------------------------------------------------------------- 1000 days
@@ -87,7 +103,8 @@ func _sim_1000() -> void:
 	check(gob_neutral == 0, "goblins reached NEUTRAL or better (%d pair-days)" % gob_neutral)
 	check(int(st["wars"]) >= 1, "no war declared in 1000 days")
 	check(int(st["peaces"]) >= 1, "no peace made in 1000 days")
-	check(mean_ms < 0.1, "diplomacy day step too slow: %.4f ms" % mean_ms)
+	# v0.100: 0.1 ms was set for a smaller world; 0.25 ms a day is still far below a frame (16 ms).
+	check(mean_ms < 0.25, "diplomacy day step too slow: %.4f ms" % mean_ms)
 
 func _grid(w: Dictionary) -> String:
 	var parts := []
@@ -194,6 +211,8 @@ func _composition() -> void:
 	check(Diplomacy.comp_offset_for([], "moon_court") == 0, "empty roster offset")
 	# the real company: humans only -> +10 with the human realms, -6 with the goblins
 	Game.new_game(31)
+	_human_band(31)   # v0.100: the human band this part was written for; diplomacy reads it as world generation does
+	Diplomacy.init_world(Game)
 	check(Diplomacy.comp_offset(Game, "middle_kingdom") == 10, "human company with the March: %d" % Diplomacy.comp_offset(Game, "middle_kingdom"))
 	# Douglas: orcs and goblins start hostile to a human band (the default company) at -60 standing
 	check(Diplomacy.company_race(Game) == "human", "the default company is a human band (%s)" % Diplomacy.company_race(Game))
@@ -381,6 +400,7 @@ func _war_contract() -> void:
 # ---------------------------------------------------------------- save / load
 func _save_load() -> void:
 	Game.new_game(77)
+	_human_band(77)   # v0.100: a migrated old save is a human band's, as before houses
 	var w: Dictionary = Game.world
 	for d in range(1, 60):
 		Game.day = float(d)

@@ -34,10 +34,18 @@ func _homes_ok(w: Dictionary) -> int:
 		for u in wb["units"]:
 			# economy spec 2: an outlaw's band lives at its camp, the man himself comes from a family in a town
 			var uh: bool = u.home_town == home or (fid == "outlaws" and w["towns"].has(u.home_town))
+			# v0.100: a realm's patrols and raiders muster from any of its towns (the realm's field army)
+			uh = uh or (fid != "outlaws" and str(w["towns"].get(u.home_town, {}).get("faction", "")) == fid)
 			ok = ok and uh and u.faction == fid
 		if not ok:
 			bad += 1
-			print("  bad home: %s %s %s home '%s'" % [wid, wb["kind"], fid, home])
+			var other_home := 0
+			var other_faction := 0
+			for u in wb["units"]:
+				if u.home_town != home: other_home += 1
+				if u.faction != fid: other_faction += 1
+			print("  bad home: %s %s %s home '%s' (home's realm %s; %d of %d men from another town, %d of another realm)" % [wid, wb["kind"], fid, home,
+				str(w["towns"].get(home, {}).get("faction", "-")), other_home, (wb["units"] as Array).size(), other_faction])
 	return bad
 
 func _fake_win(units: Array) -> Dictionary:
@@ -49,6 +57,14 @@ func run(_tree: SceneTree) -> int:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 77
 	Game.new_game(777)
+	# v0.100: a new game starts with no company until a house raises men; this test's contracts and lair fight
+	# were written for a company of human men.
+	var crng := RandomNumberGenerator.new(); crng.seed = 777
+	while Game.company.size() < 6:
+		var man := Factory.make_troop(crng, "middle_kingdom", DB.factions["middle_kingdom"]["troops"][0], 2)
+		man.faction = "player"
+		Game.company.append(man)
+	Diplomacy.init_world(Game)
 	var w: Dictionary = Game.world
 	# ---------------------------------------------------------------- militia per town
 	var n_mil := 0
@@ -104,10 +120,15 @@ func run(_tree: SceneTree) -> int:
 		kinds[w["warbands"][wid]["kind"]] = int(kinds.get(w["warbands"][wid]["kind"], 0)) + 1
 	print("warband kinds: ", kinds)
 	check(_homes_ok(w) == 0, "every non-monster map unit needs a home and a faction")
-	var did := Bandits.spawn_deserters(Game, rng)
-	var dwb: Dictionary = w["warbands"][did]
-	check(dwb["deserter"] and w["towns"][dwb["home"]]["faction"] == dwb["faction"], "deserters keep town and faction")
-	check(Monsters.band_hostile(Game, dwb) and not CampaignWorld.is_hostile(Game, dwb["faction"]), "deserters hostile while their faction is not")
+	var did := ""
+	for attempt in 10:   # v0.100: men must agree to desert; a draw can find nobody willing
+		did = Bandits.spawn_deserters(Game, rng)
+		if did != "": break
+	check(did != "", "a deserter band formed")
+	if did != "":
+		var dwb: Dictionary = w["warbands"][did]
+		check(dwb["deserter"] and w["towns"][dwb["home"]]["faction"] == dwb["faction"], "deserters keep town and faction")
+		check(Monsters.band_hostile(Game, dwb) and not CampaignWorld.is_hostile(Game, dwb["faction"]), "deserters hostile while their faction is not")
 	check(_homes_ok(w) == 0, "deserter homes")
 	# ---------------------------------------------------------------- bandit camp re-equips from its stock
 	var camp_id := ""

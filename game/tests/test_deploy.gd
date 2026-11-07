@@ -4,6 +4,13 @@ extends RefCounted
 func run(_tree: SceneTree) -> int:
 	var fails := 0
 	Game.new_game(77)
+	# v0.100: a new game starts with no company until a house raises men; give it the men this test was written for.
+	var rng := RandomNumberGenerator.new(); rng.seed = 77
+	while Game.company.size() < 6:
+		var man := Factory.make_troop(rng, "middle_kingdom", DB.factions["middle_kingdom"]["troops"][0], 2)
+		man.faction = "player"
+		Game.company.append(man)
+	Game.invalidate_deploy()
 	var all: int = Game.deployed_units().size()
 	var lame: Unit = Game.company[1]
 	lame.body.wound_part("leg_lower_l")["severed"] = true          # can't stand

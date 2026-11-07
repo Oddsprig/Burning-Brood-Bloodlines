@@ -7,6 +7,9 @@ var fails := 0
 var main: Node = null
 var out := ""
 var lines: Array = []
+## v0.100: --part=war (march, siege, raid) or --part=time (50 campaign days, eggs hatch); each part stays under the
+## 3-minute test limit. No part runs both, which takes longer than that limit on a software renderer.
+var part := ""
 
 func check(ok: bool, what: String) -> void:
 	checks += 1
@@ -14,6 +17,11 @@ func check(ok: bool, what: String) -> void:
 		fails += 1
 		printerr("FAIL campaign: ", what)
 	lines.append(("ok   " if ok else "FAIL ") + what)
+
+## v0.100: an autosave copies the world over many frames and holds campaign time meanwhile.
+## The test calls game code directly (no paused UI in the way), so it waits for that copy first.
+func settle_save(tree: SceneTree) -> void:
+	while Game._save_capture != null: await tree.process_frame
 
 func frames(tree: SceneTree, n: int = 3) -> void:
 	for i in n:
@@ -56,6 +64,7 @@ func fight(tree: SceneTree, label: String) -> Dictionary:
 func run(tree: SceneTree) -> int:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--out="): out = a.trim_prefix("--out=").replace("\\", "/")
+		if a.begins_with("--part="): part = a.trim_prefix("--part=")
 	if out != "": DirAccess.make_dir_recursive_absolute(out)
 	tree.root.set_flag(Window.FLAG_NO_FOCUS, true); tree.root.position = Vector2i(-20000, -20000); tree.root.size = Vector2i(1280, 720)
 	Game.settings["guide_seen"] = true
@@ -122,7 +131,7 @@ func run(tree: SceneTree) -> int:
 	check(targets.size() >= 2, "foreign settlements exist")
 	if targets.size() < 2: return fails
 	var gold_before := Game.gold
-	var tasks := [["siege", targets[0]], ["raid", targets[1]]]
+	var tasks := [["siege", targets[0]], ["raid", targets[1]]] if part != "time" else []
 	var report := {}
 	for task in tasks:
 		var kind: String = task[0]; var target: String = task[1]
@@ -130,6 +139,7 @@ func run(tree: SceneTree) -> int:
 		Game.world["party"]["pos"] = Game.world["towns"][target]["pos"]
 		Game.world["encounter"] = ""
 		Game.goto("map"); await frames(tree, 4)
+		await settle_save(tree)
 		var p := Warfare.preview(Game, target, kind)
 		check(p.get("ok", false), "%s preview at %s: %s" % [kind, Game.world["towns"][target]["name"], p.get("reason", "")])
 		if not p.get("ok", false): continue
@@ -151,6 +161,8 @@ func run(tree: SceneTree) -> int:
 		if kind == "raid" and bool(outcome.get("won", false)):
 			check(Game.gold > gold_before, "won raid carried off real coin (%d -> %d)" % [gold_before, Game.gold])
 		Game.goto("map"); await frames(tree, 4)
+	if main.current == null or not ("modal_host" in main.current):
+		Game.goto("map"); await frames(tree, 4)   # --part=time skips the war, which ends on the map
 	await shot(tree, "map_after_war")
 	# Ambitions view and guide render.
 	AmbitionsView.open(main.current.modal_host); await shot(tree, "ambitions")
@@ -165,13 +177,21 @@ func run(tree: SceneTree) -> int:
 	Game.goto("map"); await frames(tree, 2)
 	Game.location = tid; Game.world["party"]["pos"] = Game.world["towns"][tid]["pos"]
 	var worst := 0.0
-	for d in 50:
+	# Each autosave holds the calendar while it copies a large world; this stretch measures the days themselves.
+	await settle_save(tree)
+	var autosave_was = Game.settings.get("autosave", null)
+	Game.settings["autosave"] = "off"
+	var day_count := 0 if part == "war" else 50
+	for d in day_count:
+		await settle_save(tree)
 		var s := Time.get_ticks_usec()
 		Game.advance_time(1.0, false, 0, 0)
 		while not Game.world.get("work", []).is_empty():
 			CampaignWorld.work_slice(Game, 20000); await tree.process_frame
 		worst = maxf(worst, float(Time.get_ticks_usec() - s) / 1000.0)
 		await tree.process_frame
+	if autosave_was == null: Game.settings.erase("autosave")
+	else: Game.settings["autosave"] = autosave_was
 	var hatched := 0
 	for row: Dictionary in Dragons.records(Game):
 		for e in row.get("history", []):
@@ -180,8 +200,8 @@ func run(tree: SceneTree) -> int:
 		var ct: String = report["conquered"]
 		var frow2: Dictionary = Feudal._state(Game.world)["towns"].get(ct, {})
 		print("ROADMAP after 50 days: %s loyalty %.1f grievance %.1f, faction now %s (yours: %s)" % [Game.world["towns"][ct]["name"], float(frow2.get("loyalty", -1)), float(frow2.get("grievance", -1)), str(Game.world["towns"][ct]["faction"]), Warfare.player_faction(Game)])
-	check(Game.day >= day0 + 49.0, "50 campaign days advanced (%.1f -> %.1f)" % [day0, Game.day])
-	check(hatched >= 1, "%d egg(s) hatched after incubation (%d eggs before)" % [hatched, eggs_before])
+	if day_count > 0: check(Game.day >= day0 + 49.0, "50 campaign days advanced (%.1f -> %.1f)" % [day0, Game.day])
+	if day_count > 0: check(hatched >= 1, "%d egg(s) hatched after incubation (%d eggs before)" % [hatched, eggs_before])
 	report["days"] = {"ms_total": float(Time.get_ticks_usec() - t1) / 1000.0, "worst_day_ms": worst}
 	# Save and reload.
 	var digest_keys := {"towns": Game.world["towns"].size(), "company": Game.company.size(), "gold": Game.gold, "day": Game.day,

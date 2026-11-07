@@ -24,8 +24,8 @@ func begin(game) -> void:
 	# Preserve top-level field and native iteration order, including untagged roster records.
 	data["world"] = _container(game.world)
 	data["contract"] = _container(game.contract)
-	_jobs.append({"input":game.stash,"output":data["stash"],"index":0,"roster":true})
-	_jobs.append({"input":game.company,"output":data["company"],"index":0,"roster":true})
+	_jobs.append({"input":game.stash,"output":data["stash"],"index":0,"roster":true,"n":-1})
+	_jobs.append({"input":game.company,"output":data["company"],"index":0,"roster":true,"n":-1})
 	begin_us = Time.get_ticks_usec()-started
 	total_us = begin_us
 	worst_us = begin_us
@@ -51,7 +51,8 @@ func _record(object: Object) -> Dictionary:
 func _container(value):
 	if value is Dictionary:
 		var copy: Dictionary = {} if value.is_typed() else value.duplicate()
-		_jobs.append({"input":value,"output":copy,"keys":value.keys(),"index":0})
+		var keys: Array = value.keys()
+		_jobs.append({"input":value,"output":copy,"keys":keys,"index":0,"n":keys.size()})
 		return copy
 	var copy: Array = []
 	if value.is_typed() and value.get_typed_builtin() <= TYPE_STRING:
@@ -59,7 +60,7 @@ func _container(value):
 		return copy
 	if not value.is_typed(): copy = value.duplicate()
 	else: copy.resize(value.size())
-	_jobs.append({"input":value,"output":copy,"index":0})
+	_jobs.append({"input":value,"output":copy,"index":0,"n":copy.size()})
 	return copy
 
 func _value(value):
@@ -80,7 +81,11 @@ func step(budget_us: int) -> bool:
 		var job: Dictionary = _jobs[-1]
 		var source = job["input"]
 		var index: int = job["index"]
-		if index >= source.size():
+		# v0.100: a container walks the size it had when its copy began (n), never past it. Rosters (n -1) are live.
+		var size: int = job["n"]
+		if size < 0: size = source.size()
+		if index >= size:
+			if source.size() != size: _note_changed(job)
 			_jobs.pop_back()
 			continue
 		job["index"] = index + 1
@@ -91,7 +96,11 @@ func step(budget_us: int) -> bool:
 			if DERIVED_SAVE_KEYS.has(str(key)):
 				(job["output"] as Dictionary).erase(key)
 				continue
-			var value = source[key]
+			var value = source.get(key, null)   # one lookup; a missing key reads as null
+			if value == null and not source.has(key):   # removed after the copy began
+				(job["output"] as Dictionary).erase(key)
+				_note_changed(job)
+				continue
 			# Shallow-copy scalar values natively; replace only complex values.
 			if source.is_typed() or typeof(value) > TYPE_STRING: job["output"][key] = _value(value)
 		else:
@@ -105,6 +114,20 @@ func step(budget_us: int) -> bool:
 		_records.clear()
 		return true
 	return false
+
+## Campaign code must not change the world while a capture is under way (Game holds time and input meanwhile).
+## A change found here is a bug in its caller; the copy stays readable and the warning names the keys.
+var changed_during_capture := 0
+func _note_changed(job: Dictionary) -> void:
+	changed_during_capture += 1
+	if not job.has("keys"):
+		push_warning("Save snapshot: a list changed size while it was being copied (%d entries, now %d)." % [(job["output"] as Array).size(), (job["input"] as Array).size()])
+		return
+	var had: Array = job["keys"]
+	var added := []
+	for k in (job["input"] as Dictionary).keys():
+		if not had.has(k): added.append(k)
+	push_warning("Save snapshot: a dictionary changed while it was being copied (added %s, had %d keys, now %d)." % [str(added.slice(0, 8)), had.size(), (job["input"] as Dictionary).size()])
 
 func take() -> Dictionary:
 	assert(_jobs.is_empty())
