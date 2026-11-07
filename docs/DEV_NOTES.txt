@@ -1,5 +1,5 @@
 BURNING BROOD: BLOODLINES - CURRENT DEVELOPER NOTES
-Updated: 2026-11-07 | v0.097 merged 7b0429ab4aa596498624f862398c4bcd30e6b737 | v0.096 merged 6ed741a3134e8029496e83da18979052b015efb9 | packaged Desktop/Android v0.085
+Updated: 2026-11-07 | v0.098 merged (merge pending) | v0.097 merged 7b0429ab4aa596498624f862398c4bcd30e6b737 | v0.096 merged 6ed741a3134e8029496e83da18979052b015efb9 | packaged Desktop/Android v0.085
 
 CURRENT SOURCE AND DOCUMENTATION
 v0.086-v0.094 are accepted normal source merges. The last packaged release remains
@@ -7,8 +7,8 @@ v0.085. The earlier v0.094 documentation audit was source-only. The owner review
 the full diff and 203-check output, then explicitly approved the normal v0.095
 merge and push. v0.096 (UI readability) merges under the owner's standing order
 that the newest version goes to main once tests pass. v0.097 (six bug fixes
-toward an Oddsprig sale) merges under the same order. No v0.095-v0.097
-package is claimed.
+toward an Oddsprig sale) and v0.098 (battle screen, Records tables, phone
+layout) merge under the same order. No v0.095-v0.098 package is claimed.
 
 Active three docs: PROJECT_MAP.md, docs/DEV_NOTES.txt, CHANGES.txt. Each must describe
 a version's actual changes in the SAME version merge or DO NOT MERGE. After each
@@ -16,6 +16,73 @@ version merge one light notes-only helper reconciles all three with final source
 lead reviews/commits/pushes normally. It counts toward the standing two-helper cap.
 See docs/BUILD_RULES.md and the shared machine GAME TESTING RULES.md. Historical
 commands/receipts and this audit never grant permission for another test or build.
+
+v0.098 - BATTLE SCREEN, RECORDS TABLES AND PHONE LAYOUT (merged (merge pending))
+Base: c1b751a. Presentation only: no rule, save or simulation change. The
+combat text JSON drops its per-tick bleed numbers (same lines, same count, so
+the variant picks and the sim's random draws are unchanged). Version metadata
+is 0.098.
+
+Android is landscape only (display/window/handheld/orientation=4, sensor
+landscape), so phones were reviewed at 1600x720 with --mobile (a 20:9 phone is
+2000x900 logical at the 1600x900 base). The v0.096 portrait 720x1280 tour does
+not match a real phone.
+
+1. Battle bar. Settings came from UiKit.settings_button with the "Row" theme
+   variation, which the battle's minimal theme does not have, so it drew the
+   grey default button and read as disabled. battle.gd _style_hud_button gives
+   it the same dark plate and text colour as the playback buttons (also used by
+   _big_button), and no focus ring. The strength bar gets a "Standing" caption
+   (StrengthCaption) and a tooltip (gold = yours, blue = the enemy's).
+2. Battle feed. toast_text(full, cap) keeps whole sentences, as many as fit
+   (TOAST_CAP 120; phone 100); a first sentence over the cap is cut at a word
+   with "..." ("..." inside a sentence is not a sentence end). Before, lines were
+   cut at 147 letters mid-word ("The arro..."). The full line is the tooltip; the
+   Combat log is unchanged. Colours now follow the banners (TOAST_OURS gold,
+   TOAST_THEIRS blue, TOAST_NEUTRAL parchment for a line with no fighter); before,
+   your side was light blue and the enemy red, the reverse of the field.
+   data/combat_text.json: "({RATE}/tick)" removed from the four artery lines.
+3. Phone battle bar. In the sideways-scrolling strip the autowrapping status
+   label got its minimum width (0) and wrapped one letter per line; the bar grew
+   to about 500 px and pushed every button down the screen. On a phone the label
+   is one line, trimmed (BattleStatus, 26 px, min 220 px) and the playback row
+   fills the strip (SIZE_EXPAND_FILL). Phone feed lines wrap (660 px, 26 px),
+   at most FEED_MAX_MOBILE 3.
+4. Phone text. 92 hand-set text sizes (12-28 px) ignored the phone layout, so a
+   card title or a table cell was smaller than the 30 px body text around it.
+   UiTheme.px(n) adds the theme's own phone bonus (MOBILE_FONT_SIZE - FONT_SIZE,
+   +10) to sizes up to PX_DISPLAY 28; desktop sizes are unchanged. Room made for
+   it on phones: Court tree cards 176x264, DynastyCard 430x186 with a one-line
+   ruler name (the map now sizes the ruler card from its own minimum), market
+   table columns 1.5x wider.
+5. Records tables. RecCells.fit_columns caps each column of a table at its
+   widest text (header included, measured at configure as natural) plus COL_PAD
+   28, desktop only. A column never shrinks below its text, so nothing is cut
+   that was whole before; the spare width stays empty on the right. RecKit.grid
+   and RecTable._refresh call it for the heading and every row shown. Market
+   "Week record" (the biggest 7-day price move per kind) is now "Biggest 7-day
+   change"; RecMarket.price_move_text writes a doubling or more as a multiple
+   ("fresh meat ×16.5"), smaller moves as a percent ("beer +26%"). The goods
+   page column "7-day %" is "7-day change" with the same words. (Day-2 moves of
+   +1500% come from early-world prices, not the display; not changed here.)
+
+Tests: new tests/test_screens_v098.gd (55 checks, 0 failures; on the old code it cannot run: no toast_text, px, fit_columns or price_move_text). tests/claude_tour.gd
+takes --mobile and adds battle_inspector and battle_combat_log shots.
+Regression: 23 related tests and display blocks a-c on main c1b751a and on
+v0.098, one at a time: every result and failure line is the same. Older
+failures (same on main): test_battle_screen 1, test_ui_screens 1,
+test_ui_land_map 2 (timing), test_ui_roster_tags 1, test_records_ui_v018 1,
+test_ui_records 11, test_records_paired 5, test_records_performance 3,
+claude_prisoners_ui_v033 1, claude_marriage 1. test_ui_records_v044 hits the
+180 s cap on both. Desktop, phone and store screenshot tours pass.
+Receipts: test-results/v0.098_screens_phone.txt.
+Review: Sol 6.1 max red team NOT run: the PC bridge was down for the whole
+version. Self red-team pass instead; it found and fixed: "..." taken as a
+sentence end, the neutral feed colour looking like your gold, a focus ring
+on Settings, and a first column-cap design that could cut long text (replaced
+by fit-to-text). Sol reviews v0.098 when the bridge is back; fixes go in v0.099.
+Found, not changed here: in a battle of rounds your bonded dragons are last in
+the pool and may never fight (v0.099).
 
 v0.097 - SIX SALE-READINESS BUG FIXES (merged 7b0429ab4aa596498624f862398c4bcd30e6b737)
 Base: 623d009. Rules fixes for weddings, battle loot, hurt dragons and house

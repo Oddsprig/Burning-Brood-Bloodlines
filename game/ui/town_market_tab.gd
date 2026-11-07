@@ -233,7 +233,7 @@ static func _stock(host: Control, t: Dictionary, box: Control, state: Dictionary
 		row.add_child(item_cell)
 		item_cell.add_child(UiKit.icon(ItemIcon.for_item(it), 36))
 		var name := _table_cell(it.display_name(), 58, UiTheme.INK)
-		name.add_theme_font_size_override("font_size", 18)
+		name.add_theme_font_size_override("font_size", UiTheme.px(18))
 		name.tooltip_text = "%s\n%s\n%s" % [it.display_name(), UiWords.slot_name(it.slot()), it.maker_text()]
 		UiKit.expand(name)
 		item_cell.add_child(name)
@@ -253,7 +253,7 @@ static func _stock(host: Control, t: Dictionary, box: Control, state: Dictionary
 		# v0.096: prices in brass you can afford, red you cannot; lining figures with thousands separators.
 		var coins := _table_cell(UiKit.thousands(price), 90, UiTheme.BRASS if price <= Game.gold else UiTheme.BAD)
 		coins.add_theme_font_override("font", UiTheme.numeric_font())
-		coins.add_theme_font_size_override("font_size", 18)
+		coins.add_theme_font_size_override("font_size", UiTheme.px(18))
 		coins.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		coins.tooltip_text = "%d coins per physical piece" % price
 		row.add_child(coins)
@@ -261,12 +261,12 @@ static func _stock(host: Control, t: Dictionary, box: Control, state: Dictionary
 			var error := Market.buy(Game, t, it)
 			UiKit.toast(host, "Bought %s" % it.display_name() if error == "" else error, error == "")
 			host.call("refresh"), "", 70)
-		buy.add_theme_font_size_override("font_size", 17)
+		buy.add_theme_font_size_override("font_size", UiTheme.px(17))
 		buy.tooltip_text = "Buy one %s for %d coins" % [it.display_name(), price]
 		buy.disabled = price > Game.gold or it.broken
 		row.add_child(buy)
 		var detail := UiKit.button("Details", func(): _details(host, it, group["items"]), "Row", 80)
-		detail.add_theme_font_size_override("font_size", 17)
+		detail.add_theme_font_size_override("font_size", UiTheme.px(17))
 		for style in ["normal", "hover", "pressed", "disabled"]:
 			var detail_style: StyleBox = UiTheme.get_theme().get_stylebox(style, "Row").duplicate()
 			detail_style.content_margin_left = 6
@@ -278,14 +278,14 @@ static func _stock(host: Control, t: Dictionary, box: Control, state: Dictionary
 static func _header_cell(text: String, width: float) -> Label:
 	var label := _table_cell(text, width, UiTheme.LIGHT)
 	label.add_theme_font_override("font", UiTheme.bold())
-	label.add_theme_font_size_override("font_size", 16)
+	label.add_theme_font_size_override("font_size", UiTheme.px(16))
 	return label
 
 static func _table_cell(text: String, width: float, color: Color) -> Label:
 	var label := UiKit.label(text)
-	label.add_theme_font_size_override("font_size", 17)
+	label.add_theme_font_size_override("font_size", UiTheme.px(17))
 	label.add_theme_color_override("font_color", color)
-	label.custom_minimum_size.x = width
+	label.custom_minimum_size.x = width * (1.5 if UiTheme.is_mobile() else 1.0)   # v0.098: phone type is larger
 	label.clip_text = true
 	label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	label.tooltip_text = text

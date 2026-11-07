@@ -49,7 +49,7 @@ func _ready() -> void:
 	panel.add_child(content)
 	var heading := Label.new()
 	heading.text = "Terrain and combat cues"
-	heading.add_theme_font_size_override("font_size", 18)
+	heading.add_theme_font_size_override("font_size", UiTheme.px(18))
 	content.add_child(heading)
 	var sc := ScrollContainer.new()
 	sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -78,7 +78,7 @@ func _add_row(rows: VBoxContainer, id: String, text: String, cue: bool) -> void:
 	label.text = text
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	label.add_theme_font_size_override("font_size", 15)
+	label.add_theme_font_size_override("font_size", UiTheme.px(15))
 	row.add_child(label)
 
 func _layout() -> void:

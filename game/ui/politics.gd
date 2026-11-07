@@ -37,7 +37,7 @@ func _ready() -> void:
 	back_params = Game.screen_params.get("back_params", {}).duplicate(true)
 	var frame := UiKit.screen_frame(self, "Realm politics")
 	var heading: Label = frame["title"]
-	heading.add_theme_font_size_override("font_size", 24)
+	heading.add_theme_font_size_override("font_size", UiTheme.px(24))
 	heading.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 	heading.custom_minimum_size.x = 0
 	frame["bar"].add_child(UiKit.button("Back", _back, "Row", 72))
@@ -99,7 +99,7 @@ func _refresh() -> void:
 		tile.tooltip_text = "Liege: %s" % town_name(String(row.get("liege_town_id", "")))
 		tile.pressed.connect(_select.bind(String(row["town_id"])))
 		var col := UiKit.vbox(2); col.set_anchors_and_offsets_preset(PRESET_FULL_RECT, PRESET_MODE_MINSIZE, 10); col.mouse_filter = MOUSE_FILTER_IGNORE; tile.add_child(col)
-		var nm := UiKit.label(String(row.get("town_name", "")), "H2"); nm.mouse_filter = MOUSE_FILTER_IGNORE; nm.add_theme_font_size_override("font_size", 21); col.add_child(nm)
+		var nm := UiKit.label(String(row.get("town_name", "")), "H2"); nm.mouse_filter = MOUSE_FILTER_IGNORE; nm.add_theme_font_size_override("font_size", UiTheme.px(21)); col.add_child(nm)
 		var lord := UiKit.label(_office_name(office), "Small"); lord.mouse_filter = MOUSE_FILTER_IGNORE; lord.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS; col.add_child(lord)
 		var loyal := float(row.get("loyalty", 0))
 		var bar := ProgressBar.new(); bar.max_value = 100; bar.value = loyal; bar.show_percentage = false; bar.custom_minimum_size = Vector2(0, 10); bar.mouse_filter = MOUSE_FILTER_IGNORE

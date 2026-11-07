@@ -18,6 +18,12 @@ static func _weapon_name(item: Item) -> String:
 	var name := String(template.get("name", item.tid))
 	return name if template.get("plain_name", false) else "%s %s" % [item.material, name]
 
+## v0.098: the biggest price move of a kind of goods this week, said plainly. A price that doubled or more reads
+## as a multiple ("fresh meat ×16.5"), not "+1552%"; smaller moves keep the percent ("beer +26%").
+static func price_move_text(good: String, move: float) -> String:
+	if move >= 1.0: return "%s ×%s" % [good, RecKit.num(1.0 + move)]
+	return "%s %+d%%" % [good, int(round(move * 100.0))]
+
 static func market(scr, t: Dictionary, e: Dictionary, v: VBoxContainer) -> void:
 	var food_days := RecData.days_food(t)
 	var supply := TownEcon.supply_level(t, food_days)
@@ -42,7 +48,7 @@ static func market(scr, t: Dictionary, e: Dictionary, v: VBoxContainer) -> void:
 			if old != null and float(old) > 0.0:
 				var change := RecData.price(t, g) / float(old) - 1.0
 				if absf(change) > absf(move): move = change; mover = String(g)
-		var move_text := "%s %+d%%" % [RecData.good_name(e, mover), int(round(move * 100.0))] if mover != "" else "—"
+		var move_text := price_move_text(RecData.good_name(e, mover), move) if mover != "" else "—"
 		rows.append({"values": [title, str(stock), RecKit.num(stock / demand) if demand > 0.0 else "—",
 			{"text": move_text, "color": UiTheme.BAD if move > 0.05 else (UiTheme.GOOD if move < -0.05 else UiTheme.INK_SOFT)}],
 			"tap": func(): scr.page(title, func(b): _goods_page(scr, t, e, ck, b))})
@@ -54,7 +60,7 @@ static func market(scr, t: Dictionary, e: Dictionary, v: VBoxContainer) -> void:
 			for n in RecData.herds(e).values(): head += int(n)
 			rows.append({"values": ["Live animals", str(head), "—", "%d offered · %d sold" % [offered, sold]],
 				"tap": func(): scr.page("Raw", func(b): _goods_page(scr, t, e, "raw", b))})
-	RecKit.grid(c, ["Kind", "Stock units", "Market days", "Week record"], rows, [1.5, 0.8, 0.8, 2.1])
+	RecKit.grid(c, ["Kind", "Stock units", "Market days", "Biggest 7-day change"], rows, [1.5, 0.8, 0.8, 2.1])
 	arms_grid(scr, t, e, v)
 
 static func _goods_page(scr, t: Dictionary, e: Dictionary, cat: String, box: VBoxContainer) -> void:
@@ -68,7 +74,7 @@ static func _compact_goods(node: Node) -> void:
 			table.display_cells([{"k": "good", "t": "Good", "w": 2.2},
 				{"k": "price", "t": "Coins", "format": func(x): return _m(float(x))},
 				{"k": "stock", "t": "Stock"}, {"k": "days", "t": "Days", "format": func(x): return RecKit.num(float(x)) if x != null else "—"},
-				{"k": "chg", "t": "7-day %", "format": func(x): return "%+d%%" % int(round(float(x))) if x != null else "—"}])
+				{"k": "chg", "t": "7-day change", "format": func(x): return price_move_text("", float(x) / 100.0).strip_edges() if x != null else "—"}])
 		elif not table._col("kind").is_empty():
 			table.display_cells([{"k": "kind", "t": "Animal", "w": 1.8}, {"k": "head", "t": "Head"},
 				{"k": "price", "t": "Coins", "format": func(x): return _m(float(x))}, {"k": "off", "t": "Offered"}, {"k": "sold", "t": "Sold"}])

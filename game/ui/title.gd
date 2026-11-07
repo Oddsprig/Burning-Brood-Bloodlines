@@ -38,7 +38,7 @@ func _ready() -> void:
 	_column.add_child(_subtitle)
 	var vow := UiKit.wrap(UiKit.label("A house. A city. A bloodline.   ·   Claude Edition", "Muted", true), 120)
 	vow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vow.add_theme_font_size_override("font_size", 18)
+	vow.add_theme_font_size_override("font_size", UiTheme.px(18))
 	_column.add_child(vow)
 	var gap := Control.new()
 	gap.custom_minimum_size.y = 8
@@ -65,8 +65,8 @@ func _layout() -> void:
 	if _title == null: return
 	UiKit.apply_safe_area(_margin, 16, 16, 16, 16)
 	var compact := size.y < 500 or size.x < 500
-	_title.add_theme_font_size_override("font_size", 36 if compact else 54)
-	_subtitle.add_theme_font_size_override("font_size", 22 if compact else 28)
+	_title.add_theme_font_size_override("font_size", UiTheme.px(36 if compact else 54))
+	_subtitle.add_theme_font_size_override("font_size", UiTheme.px(22 if compact else 28))
 	_column.add_theme_constant_override("separation", 6 if size.y < 500 else 10)
 	for b in _buttons:
 		b.custom_minimum_size.x = clampf(size.x - 48, 272, 360)

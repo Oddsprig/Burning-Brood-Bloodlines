@@ -112,7 +112,7 @@ static func attr_grid(u: Unit, keys: Array = DB.ATTRS, compact: bool = false) ->
 		g.add_child(w)
 		var pct := int(round(Factory.attr_percentile(u.race, a, v) * 100.0))
 		var num := UiKit.label(str(pct), "H2" if not compact else "Small")
-		num.add_theme_font_size_override("font_size", 18 if compact else 20)
+		num.add_theme_font_size_override("font_size", UiTheme.px(18 if compact else 20))
 		# red exactly when the word is below typical (40-60 = typical)
 		num.add_theme_color_override("font_color", UiTheme.BAD if pct < 40 else UiTheme.INK)
 		num.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -327,7 +327,7 @@ static func _skill_row(u: Unit, s: String, later: bool) -> Control:
 	var h := UiKit.hbox(12)
 	row.add_child(h)
 	var n := UiKit.label(UiWords.skill_name(s), "H2")
-	n.add_theme_font_size_override("font_size", 21)
+	n.add_theme_font_size_override("font_size", UiTheme.px(21))
 	UiKit.shrink(n, 110)
 	h.add_child(n)
 	var lvl := u.skill(s)
@@ -373,7 +373,7 @@ static func gear(u: Unit, game, host: Control, on_change: Callable) -> Control:
 		h.add_child(UiKit.icon(ItemIcon.for_item(it) if it else null, 44))   # art/item_icon.gd (empty slot: a blank)
 		var name_l := UiKit.label(it.display_name() if it else "-", "H2" if it else "Muted")
 		if it:
-			name_l.add_theme_font_size_override("font_size", 21)
+			name_l.add_theme_font_size_override("font_size", UiTheme.px(21))
 		info.add_child(UiKit.shrink(name_l, 80))
 		var sub := []
 		if it:

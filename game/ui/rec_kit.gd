@@ -135,7 +135,7 @@ static func metrics(parent: Control, entries: Array) -> GridContainer:
 		box.add_child(title)
 		var value := UiKit.label(UiKit.group_digits(String(entry.get("value", ""))), "H2", true)
 		value.custom_minimum_size.x = 40
-		value.add_theme_font_size_override("font_size", 26)
+		value.add_theme_font_size_override("font_size", UiTheme.px(26))
 		value.add_theme_color_override("font_color", UiTheme.readable(tone,UiTheme.PARCH))
 		box.add_child(value)
 		if String(entry.get("note", "")) != "":
@@ -166,6 +166,7 @@ static func grid(parent: Control, headers: Array, rows: Array, weights: Array = 
 			if not UiTheme.is_mobile():
 				b.custom_minimum_size.y = 48
 		box.add_child(b)
+	RecCells.fit_columns(box.get_children())   # v0.098: columns as wide as their text on a desktop
 	return box
 
 ## Stock/target bars keep the exact text even above target; only the drawing saturates.

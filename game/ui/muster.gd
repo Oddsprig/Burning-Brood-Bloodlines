@@ -36,7 +36,7 @@ func _ready() -> void:
 	back = String(Game.screen_params.get("back", "map"))
 	back_params = (Game.screen_params.get("back_params", {}) as Dictionary).duplicate(true)
 	var frame: Dictionary = UiKit.screen_frame(self, "Army")
-	(frame["title"] as Label).add_theme_font_size_override("font_size", 28)
+	(frame["title"] as Label).add_theme_font_size_override("font_size", UiTheme.px(28))
 	(frame["title"] as Label).custom_minimum_size.x = 100
 	(frame["bar"] as Node).add_child(UiKit.button("Roster & gear", _roster, "Row", 140))
 	var close := UiKit.button("Back", _back, "Row", 80); close.name = "MusterBack"

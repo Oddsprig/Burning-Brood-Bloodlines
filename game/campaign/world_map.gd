@@ -450,7 +450,7 @@ func _button(text: String, cb: Callable) -> Button:
 
 func _label(fs: int = 20, col: Color = UiTheme.LIGHT) -> Label:
 	var l := Label.new()
-	l.add_theme_font_size_override("font_size", fs)
+	l.add_theme_font_size_override("font_size", UiTheme.px(fs))
 	l.add_theme_color_override("font_color", col)
 	l.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
 	l.add_theme_constant_override("outline_size", 4)
@@ -623,9 +623,11 @@ func _layout_hud() -> void:
 	top_panel.size.y = top_panel.get_combined_minimum_size().y
 	bottom_nav.position = Vector2(8, height - nav_height - 8)
 	bottom_nav.size = Vector2(width - 16, nav_height)
-	var card_width := minf(340, width - 16)
-	ruler_card.position = Vector2(8, bottom_nav.position.y - 146)
-	ruler_card.size = Vector2(card_width, 138)
+	var card_size := ruler_card.custom_minimum_size   # v0.098: the card's own size (taller on a phone)
+	var card_width := minf(maxf(340.0, card_size.x), width - 16)
+	var card_h := maxf(138.0, card_size.y)
+	ruler_card.position = Vector2(8, bottom_nav.position.y - card_h - 8)
+	ruler_card.size = Vector2(card_width, card_h)
 	if narrow:
 		lbl_log.position = Vector2(14, ruler_card.position.y - 66)
 		lbl_log.size = Vector2(width - 28, 60)

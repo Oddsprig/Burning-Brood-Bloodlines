@@ -22,7 +22,7 @@ static func open(host: Control) -> void:
 		h.add_child(mark)
 		var col := UiKit.vbox(2); col.size_flags_horizontal = Control.SIZE_EXPAND_FILL; h.add_child(col)
 		var title := UiKit.label(str(a["name"]), "H2", true)
-		title.add_theme_font_size_override("font_size", 20)
+		title.add_theme_font_size_override("font_size", UiTheme.px(20))
 		col.add_child(title)
 		col.add_child(UiKit.label(str(a["text"]), "", true))
 		col.add_child(UiKit.label(str(a["progress"]), "Muted", true))

@@ -103,7 +103,7 @@ func _slider_row(key: String, text: String) -> PanelContainer:
 	var h: HBoxContainer = UiKit.hbox(12)
 	cv.add_child(h)
 	var label: Label = UiKit.label(text, "H2", true)
-	label.add_theme_font_size_override("font_size", 22)
+	label.add_theme_font_size_override("font_size", UiTheme.px(22))
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	h.add_child(label)

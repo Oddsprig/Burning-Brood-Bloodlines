@@ -1,11 +1,37 @@
 BURNING BROOD: BLOODLINES - ACTIVE CHANGE NOTES
-Updated: 2026-11-07 for v0.097 merged as 7b0429ab4aa596498624f862398c4bcd30e6b737.
+Updated: 2026-11-07 for v0.098 merged as (merge pending).
+v0.097 merged as 7b0429ab4aa596498624f862398c4bcd30e6b737.
 v0.096 merged as 6ed741a3134e8029496e83da18979052b015efb9.
-Last packaged Desktop/Android release: v0.085. v0.096 and v0.097 are source merges; no package is claimed.
+Last packaged Desktop/Android release: v0.085. v0.096-v0.098 are source merges; no package is claimed.
 
 This changelog starts with the accepted v0.086-v0.094 source catch-up. Earlier
 history remains in the developer notes and immutable archives. Historical worker
 UNRUN reports are superseded by the accepted source receipts where stated.
+
+v0.098 - Battle screen, Records tables and phone layout
+Normal merge: (merge pending) (branch v0.098-screens-and-phone).
+Base c1b751a (main after v0.097 notes). Presentation only: no rule, save or
+simulation change.
+Battle: Settings has the same look as the other playback buttons (it looked
+disabled). The strength bar is captioned "Standing" (gold yours, blue the
+enemy's). Feed lines show whole sentences, never a line cut mid-word, in your
+banner's gold or the enemy's blue (before: blue for you, red for them); bleeding
+lines no longer print "(0.05/tick)".
+Phone (landscape): the battle top bar no longer stretches down the screen (its
+status line was squeezed to one letter per line). Feed lines wrap to two lines.
+Hand-set text sizes grow with the phone layout (+10, desktop unchanged), so no
+title or table cell is smaller than the text around it; Court tree cards, the
+ruler card and market columns got room for it.
+Records: on a desktop each table column is as wide as its widest text, not a
+share of the whole screen, so numbers sit together (nothing newly cut). The
+market column "Week record" is "Biggest 7-day change"; a price that doubled or
+more reads "fresh meat ×16.5", not "+1552%".
+Owners (game/): battle/battle.gd; data/combat_text.json; ui/theme.gd (px);
+ui/rec_cells.gd; ui/rec_kit.gd; ui/rec_table.gd; ui/rec_market.gd; ui/court.gd;
+ui/dynasty_card.gd; campaign/world_map.gd; ui/town_market_tab.gd; and the
+font sizes in 24 other ui/ and battle/ files. Version metadata is 0.098.
+Tests: new tests/test_screens_v098.gd (55 checks, 0 failures). claude_tour.gd takes
+--mobile. Same results as main c1b751a on 23 related tests and 3 display blocks. Receipts: test-results/v0.098_screens_phone.txt.
 
 v0.097 - Six bug fixes toward an Oddsprig sale
 Normal merge: 7b0429ab4aa596498624f862398c4bcd30e6b737 (branch v0.097-sale-readiness).

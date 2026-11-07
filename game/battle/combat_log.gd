@@ -44,7 +44,7 @@ func _ready() -> void:
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	add_theme_constant_override("separation", 8)
 	_state = UiKit.label("", "Muted", true); _state.name = "CombatLogStatus"
-	_state.add_theme_font_size_override("font_size", 16)
+	_state.add_theme_font_size_override("font_size", UiTheme.px(16))
 	add_child(_state)
 	var people := UiKit.hbox(8)
 	add_child(people)
@@ -66,7 +66,7 @@ func _ready() -> void:
 	_first = UiKit.button("First", func(): _set_page(0), "", 64); _first.name = "CombatLogFirst"
 	_previous = UiKit.button("Previous", func(): turn_page(-1), "", 100); _previous.name = "CombatLogPrevious"
 	_marker = UiKit.label("", "Muted", true); _marker.name = "CombatLogPage"
-	_marker.add_theme_font_size_override("font_size", 16)
+	_marker.add_theme_font_size_override("font_size", UiTheme.px(16))
 	_next = UiKit.button("Next", func(): turn_page(1), "", 72); _next.name = "CombatLogNext"
 	_last = UiKit.button("Last", func(): _set_page(_page_count() - 1), "", 64); _last.name = "CombatLogLast"
 	for control: Control in [_first, _previous, UiKit.expand(_marker), _next, _last]: nav.add_child(control)
@@ -181,12 +181,12 @@ func _build_row(row: Dictionary) -> void:
 	if text == "": text = "Recorded %s outcome; description unavailable." % String(row.get("event_type", "combat"))
 	var line := UiKit.label("Tick %d · %s" % [int(row.get("tick", entry.get("tick", 0))), text], "", true)
 	line.name = "CombatLogLine"
-	line.add_theme_font_size_override("font_size", 17)
+	line.add_theme_font_size_override("font_size", UiTheme.px(17))
 	header.add_child(line)
 	var button := UiKit.button("Details", func(): _toggle_row(seq), "", 84)
 	button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	button.name = "CombatLogDetails%d" % seq
-	button.add_theme_font_size_override("font_size", 16)
+	button.add_theme_font_size_override("font_size", UiTheme.px(16))
 	header.add_child(button)
 	var detail := UiKit.vbox(5); detail.name = "CombatLogExpanded%d" % seq
 	detail.size_flags_horizontal = Control.SIZE_EXPAND_FILL
