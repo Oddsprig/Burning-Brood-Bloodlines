@@ -33,7 +33,7 @@ Owners (game/): ui/theme.gd; ui/kit.gd; core/sound.gd; ui/rec_kit.gd;
 ui/rec_cells.gd; ui/guide_view.gd; ui/dragon_roost.gd; ui/politics.gd;
 ui/population.gd; ui/victory.gd; ui/baggage.gd; ui/muster.gd; ui/gameover.gd;
 ui/house.gd; ui/house_laws.gd; ui/house_select.gd; ui/dragons.gd;
-ui/dynasty_card.gd; ui/records.gd; ui/town_contracts_tab.gd;
+ui/dynasty_card.gd; ui/company.gd; ui/records.gd; ui/town_contracts_tab.gd;
 ui/town_econ_tab.gd; ui/town_market_tab.gd; ui/town_orders_tab.gd;
 campaign/world_map.gd. Version metadata is 0.096.
 Tests changed: tests/fixtures/records_v044_baseline.gd frozen num/metrics follow
