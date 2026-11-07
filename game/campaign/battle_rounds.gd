@@ -80,9 +80,13 @@ static func _pick_round(game) -> void:
 	var picks := [[], []]
 	for side in 2:
 		var ready := fit(game, st["pool"][side], st["captives"][side])
-		var rested := ready.filter(func(u): return not (st["last_fought"][side] as Array).has(u))
-		var tired := ready.filter(func(u): return (st["last_fought"][side] as Array).has(u))
-		picks[side] = (rested + tired).slice(0, round_size)
+		# v0.099: fit dragons go in first, every round. Game.start_battle appends them after every man, so in pool
+		# order a side of 100+ men left its bonded dragons out of round 1, and with 200+ out of every round.
+		var drakes := ready.filter(func(u): return DragonCombat.is_dragon_unit(game, u))
+		var men := ready.filter(func(u): return not drakes.has(u))
+		var rested := men.filter(func(u): return not (st["last_fought"][side] as Array).has(u))
+		var tired := men.filter(func(u): return (st["last_fought"][side] as Array).has(u))
+		picks[side] = (drakes + rested + tired).slice(0, round_size)
 	game.pending_battle["round_side0"] = picks[0]
 	game.pending_battle["enemy"] = picks[1]
 	game.pending_battle["seed"] = int(game.pending_battle.get("seed", 1)) + 7919
