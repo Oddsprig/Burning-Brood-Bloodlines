@@ -63,6 +63,17 @@ static func realm_allies(game) -> Dictionary:
 static func _ages(race: String) -> Dictionary:
 	return People.ages(race)
 
+## v0.099: an age gap is weighed in the longer-lived partner's years. Adult life runs adult..elder (human 16..55,
+## 39 years; elves 40..300, 260 years), so a 16-year limit that suits men left an elf of 164 almost no one to marry.
+## Humans, orcs and goblins with each other keep exactly the old numbers (the scale never drops below 1).
+static func age_gap_scale(race_a: String, race_b: String) -> float:
+	var human := _ages("human")
+	var base := float(int(human["elder"]) - int(human["adult"]))
+	var a := _ages(race_a)
+	var b := _ages(race_b)
+	var span := maxf(float(int(a["elder"]) - int(a["adult"])), float(int(b["elder"]) - int(b["adult"])))
+	return maxf(1.0, span / base)
+
 ## True when this located person has reached the adult age of their own household's race (not the town's:
 ## an elf household in a human town comes of age as elves do).
 static func _of_age(game, loc: Dictionary) -> bool:
@@ -130,7 +141,8 @@ static func candidates(game, member_uid: String) -> Array:
 	if me.is_empty(): return []
 	var my_sex := int(me["person"][2])
 	var my_age := Persons.age_of(me["person"], float(game.day))
-	var my_ab := _ages(Persons.family_race(me["econ"], me["family"]))   # v0.097: the household's own race
+	var my_race := Persons.family_race(me["econ"], me["family"])
+	var my_ab := _ages(my_race)   # v0.097: the household's own race
 	var child_match := my_age < int(my_ab["adult"])
 	if child_match and my_age < int(my_ab["adult"]) - 6: return []
 	var out: Array = []
@@ -155,7 +167,7 @@ static func candidates(game, member_uid: String) -> Array:
 				if child_match:
 					if age >= int(ab["adult"]) + 4 or age < int(ab["adult"]) - 6: continue
 				elif age < int(ab["adult"]) or age >= int(ab["elder"]) or int(p[6]) != 0: continue
-				if absi(age - my_age) > 16: continue
+				if float(absi(age - my_age)) > 16.0 * age_gap_scale(my_race, Persons.family_race(e, f)): continue
 				var loc := {"town": town, "econ": e, "family": f, "person": p, "alive": true}
 				if not Dynasty._living(game, tid, f, p) or _married(loc) or _betrothed(game, uid): continue
 				out.append(_offer(game, member_uid, loc, tid, 0, ruling))
@@ -189,7 +201,8 @@ static func _offer(game, member_uid: String, loc: Dictionary, tid: String, gift_
 		score += dv; reasons.append(["Your house rides dragons", dv])
 	var me := Dynasty._person(game, member_uid)
 	var my_age := Persons.age_of(me["person"], float(game.day)) if not me.is_empty() else 30
-	var gap := absf(float(my_age - int(row["age"])))
+	var my_race := Persons.family_race(me["econ"], me["family"]) if not me.is_empty() else "human"
+	var gap := absf(float(my_age - int(row["age"]))) / age_gap_scale(my_race, Persons.family_race(loc["econ"], f))   # v0.099
 	if gap > 8.0:
 		var gp := -(gap - 8.0) * 1.5
 		score += gp; reasons.append(["Age difference", gp])

@@ -1,14 +1,17 @@
 BURNING BROOD: BLOODLINES - CURRENT DEVELOPER NOTES
-Updated: 2026-11-07 | v0.098 merged c6d525aa01d67bafacbf96f02206749b98d19bd3 | v0.097 merged 7b0429ab4aa596498624f862398c4bcd30e6b737 | v0.096 merged 6ed741a3134e8029496e83da18979052b015efb9 | packaged Desktop/Android v0.085
+Updated: 2026-11-07 | v0.099 merged MERGE_HASH_V099 | v0.098 merged c6d525aa01d67bafacbf96f02206749b98d19bd3 | v0.097 merged 7b0429ab4aa596498624f862398c4bcd30e6b737 | v0.096 merged 6ed741a3134e8029496e83da18979052b015efb9 | packaged Windows/Android v0.099 (cloud build, not yet on sale)
 
 CURRENT SOURCE AND DOCUMENTATION
-v0.086-v0.094 are accepted normal source merges. The last packaged release remains
-v0.085. The earlier v0.094 documentation audit was source-only. The owner reviewed
+v0.086-v0.094 are accepted normal source merges. The last packaged release before
+v0.099 was v0.085. The earlier v0.094 documentation audit was source-only. The owner reviewed
 the full diff and 203-check output, then explicitly approved the normal v0.095
 merge and push. v0.096 (UI readability) merges under the owner's standing order
 that the newest version goes to main once tests pass. v0.097 (six bug fixes
 toward an Oddsprig sale) and v0.098 (battle screen, Records tables, phone
-layout) merge under the same order. No v0.095-v0.098 package is claimed.
+layout) merge under the same order. v0.099 (release candidate) merges under the
+coordinator's standing order to start and merge it without waiting; its Windows
+and Android packages are built but not uploaded: the listing going live waits
+for the owner's OK.
 
 Active three docs: PROJECT_MAP.md, docs/DEV_NOTES.txt, CHANGES.txt. Each must describe
 a version's actual changes in the SAME version merge or DO NOT MERGE. After each
@@ -16,6 +19,78 @@ version merge one light notes-only helper reconciles all three with final source
 lead reviews/commits/pushes normally. It counts toward the standing two-helper cap.
 See docs/BUILD_RULES.md and the shared machine GAME TESTING RULES.md. Historical
 commands/receipts and this audit never grant permission for another test or build.
+
+v0.099 - RELEASE CANDIDATE (merged MERGE_HASH_V099)
+Base: 7ad5a8b. Two rule fixes, two wording changes, the store build setup and
+test upkeep. No save schema change. Version metadata is 0.099.
+
+1. Dragons in a battle of rounds (campaign/battle_rounds.gd _pick_round).
+   Game.start_battle builds each side's pool as every man, then the dragons.
+   Rounds took the first round_size (100) fit fighters in pool order, rested
+   before tired, so with 100+ men the bonded dragons sat out round 1 and with
+   200+ every round. Now fit dragons (DragonCombat.is_dragon_unit) go first,
+   then rested men, then tired men; the round size is kept. Both sides use the
+   rule. A dragon that "cannot fight" is not fit and still sits out (v0.097).
+   DragonRiders.setup still seats the bound rider with his dragon.
+2. Marriage age gaps (campaign/marriage.gd age_gap_scale). candidates() cut
+   at a 16-year gap and _offer() took -1.5 a year past 8, in raw years for
+   every race. Now the gap is divided by max(1, longer adult span / human
+   adult span), where adult span = elder - adult (data/economy.json ages:
+   human 39, orc 23, goblin 17, troll 60, giant 82, dwarf 95, elves 260). So
+   men, orcs and goblins with each other are unchanged; elves x6.67, dwarves
+   x2.44. Mixed pairs use the longer-lived partner's scale.
+3. Battle inspector (battle/inspector.gd): action_done_pct() and pace_word()
+   (tempo < 0.9 quick, <= 1.15 steady, <= 1.5 slowed, else badly slowed).
+   The tick counts and DF speed stay in the Combat log calc lines.
+4. Muster (ui/muster.gd no_riders_text): when nobody can ride, the line adds
+   how many adults are away with the realm's field army, the town guard or a
+   caravan. World generation puts many noble adults in the field army.
+5. Store build. project.godot config/name "Burning Brood: Bloodlines";
+   custom_user_dir_name keeps "Burning Brood Bloodlines Claude Edition" so the
+   save folder does not move. main.gd window title and the title tagline drop
+   "Claude Edition" (the owner was asked; this is the recommended option and
+   is reversible). config/windows_native_icon = icon_windows.ico (copy of the
+   repo's BloodlinesClaude.ico). export_presets.cfg: preset.1 "Windows Desktop"
+   (x86_64, embed_pck, modify_resources, file/product version 0.99.0.0,
+   publisher Oddsprig); Android preset version 0.099 / code 99, export path
+   build/android/, launcher icons from icon_mobile/ (192, adaptive background
+   = the red dragon art without its gold frame, empty foreground, monochrome
+   crown) and icon_mobile/splash.png (the store key art faded into the boot
+   colour). tools/build_release.sh exports both; the Android release keystore
+   lives outside Git (owner's project files, release-signing/) and is passed
+   by GODOT_ANDROID_KEYSTORE_RELEASE_PATH/_USER/_PASSWORD.
+   Cloud build host: Godot 4.7.2 export templates from the official GitHub
+   release (SHA-512 checked); dl.google.com is blocked, so apksigner, adb and
+   zipalign come from Ubuntu packages, linked into a minimal SDK folder
+   (platform-tools/adb, build-tools/31.0.2/apksigner).
+   Checks: the .exe carries the icon and version resources and runs the game
+   to the title screen (desktop Godot --main-pack on the exe); the .apk is
+   signed v2+v3 (apksigner verify), reads com.burningbrood.bloodlines 0.099
+   (99), min SDK 24, arm64-v8a, landscape, label "Burning Brood: Bloodlines",
+   and its packed game data runs to the title screen. Not run on a real phone.
+6. Tests. New tests/test_release_v099.gd (33 checks). Updated to current rules, each
+   failing the same way on main 7ad5a8b: test_battle_screen (captured men leave
+   the company), claude_prisoners_v033 and claude_prisoners_ui_v033 (pick a
+   seat with a free adult rider), test_ui_land_map (tap just off the map),
+   test_army_scale_monster_pause (FIELD_WEEKLY_GROWTH / FIELD_LIMIT),
+   test_art_map_tokens (skip unraised monster bands; user:// sheets),
+   test_baggage (gives itself men, food and coin), test_art_paperdoll
+   (BodyState.wound_part). claude_marriage passes through fix 2.
+   test_ui_records_v044 takes --part=world|faction|wide|tall (35/37/130/49 s);
+   its frozen v0.043 oracle (rec_pages.gd SHA, v0.043 Merchants/On the move
+   rows) can no longer match, the same on main.
+   Full sweep of every tests/*.gd one at a time is still running for v0.100:
+   every failure checked so far is the same on main (pre-existing).
+   Known (same on main): test_ui_land_map 1,500-plot compose 160 ms vs a
+   120 ms gate here (the gate was set on the owner's PC); test_humanoid_art_import
+   expects a goblin 18 px tall, data/factions.json gives 0.82 x 24 = 20 (an art
+   call, not changed). Opening a Register
+   family detail in Records removes an empty "kp" list from family 0 of t0
+   (saved-data purity, found by test_ui_records_v044; not changed).
+Receipts: test-results/v0.099_release_candidate.txt.
+Review: Sol 6.1 max red team NOT run (the PC bridge is still down); self
+red-team: the dragon pick keeps the round size and the hurt-dragon rule,
+both sides; the age scale never lowers a limit; no key or password in Git.
 
 v0.098 - BATTLE SCREEN, RECORDS TABLES AND PHONE LAYOUT (merged c6d525aa01d67bafacbf96f02206749b98d19bd3)
 Base: c1b751a. Presentation only: no rule, save or simulation change. The

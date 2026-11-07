@@ -4,7 +4,7 @@ extends RefCounted
 ## land in %TEMP%/copper_tokens/.
 
 var fails := 0
-const OUT := "C:/Users/bligh/AppData/Local/Temp/copper_tokens/"
+const OUT := "user://copper_tokens/"   # v0.099: was a path on one Windows PC
 
 func check(ok: bool, msg: String) -> void:
 	if not ok:
@@ -141,11 +141,14 @@ func run(tree: SceneTree) -> int:
 	var kinds := [["middle_kingdom", "patrol"], ["orc_horde", "raider"], ["goblin_warren", "raider"], ["moon_court", "patrol"],
 		["northern_clans", "caravan"], ["outlaws", "bandit"], ["middle_kingdom", "militia"]]
 	var vis := [big]
-	for i in 39:
-		var kd: Array = kinds[i % kinds.size()]
+	var tries := 0
+	while vis.size() < 40 and tries < 400:
+		var kd: Array = kinds[tries % kinds.size()]
+		tries += 1
 		var p := ppos + Vector2(rng.randf_range(-300, 300), rng.randf_range(-300, 300))
 		# staged (Army.enlist): a scene of 40 forces, more men than the nearby towns could spare (war pick 4)
-		vis.append(CampaignWorld.spawn_warband(Game, kd[0], p, rng.randi_range(2, 40), kd[1], rng, {"staged": true}))
+		var wid := CampaignWorld.spawn_warband(Game, kd[0], p, rng.randi_range(2, 40), kd[1], rng, {"staged": true})
+		if wid != "": vis.append(wid)   # v0.099: a band of a paused monster faction is not raised ("" id); skip it
 	MapTokens.sync(root, tokens, Game, vis, 1.0, true, player)
 	check(tokens.size() == 40, "40 tokens (%d)" % tokens.size())
 	for i in 30:

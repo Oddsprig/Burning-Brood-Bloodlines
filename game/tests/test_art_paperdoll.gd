@@ -68,11 +68,13 @@ func run(tree: SceneTree) -> int:
 		printerr("FAIL copper and tin render identically")
 		fails += 1
 	# wounds + severed parts change the picture and never crash
-	var w: Unit = units[0]
+	# v0.099: take the first body with hands (a beast has none), and wound parts through BodyState.wound_part:
+	# body.parts holds only wounded parts now, so writing body.parts["hand_r"] directly found no entry.
+	var w: Unit = units.filter(func(x): return ["hand_r", "arm_lower_l", "leg_lower_r", "head", "torso_upper"].all(func(pid): return x.body.has_part(pid)))[0]
 	var before := FigurePainter.render(FigurePainter.spec_for_unit(w), "idle", 0.0)
 	for pid in ["hand_r", "arm_lower_l", "leg_lower_r", "head"]:
-		w.body.parts[pid]["severed"] = true
-	for l in w.body.parts["torso_upper"]["layers"]:
+		w.body.wound_part(pid)["severed"] = true
+	for l in w.body.wound_part("torso_upper")["layers"]:
 		l["dmg"] = 0.8
 		l["bleed"] = 0.3
 	w.body.blood = w.body.blood_max * 0.4

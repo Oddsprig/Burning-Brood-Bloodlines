@@ -121,7 +121,7 @@ func run(tree: SceneTree) -> int:
 		check(view.card_box.get_child_count() >= 2, "plot %d card shown" % i)
 	print("tap -> card: worst %.2f ms over %d taps" % [worst, taps])
 	check(worst < 16.0, "tap -> card under 16 ms (worst %.2f ms)" % worst)
-	view.tap(Vector2(-500, -500))
+	view.tap(view.off - Vector2(20, 20))   # v0.099: just off the map's top-left corner (a fixed -500,-500 lands on the map when it is panned or zoomed)
 	check(view.sel == -1, "tap off the map clears the card (town buildings)")
 	# ---------------------------------------------------------------- 1,500 plots
 	var big := _big_town(town)

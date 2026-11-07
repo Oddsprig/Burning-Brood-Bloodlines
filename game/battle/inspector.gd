@@ -174,6 +174,18 @@ func _process(delta: float) -> void:
 	if tab == "health" and _health_age > 1.0:
 		_render_health()
 
+## v0.099: plain words for the inspector, not raw ticks or DF speed numbers.
+static func action_done_pct(total: int, left: int) -> int:
+	if total <= 0: return 100
+	return clampi(int(round(100.0 * float(total - left) / float(total))), 0, 100)
+
+## Tempo multiplies every action's time (1.0 = an unhindered average fighter).
+static func pace_word(tempo: float) -> String:
+	if tempo < 0.9: return "quick"
+	if tempo <= 1.15: return "steady"
+	if tempo <= 1.5: return "slowed"
+	return "badly slowed"
+
 func _update_state() -> void:
 	var f: Fighter = fighter
 	var st: String = f.state
@@ -181,7 +193,7 @@ func _update_state() -> void:
 	if st == "preparing" and f.current_attack != "":
 		s = "State: preparing to %s" % f.current_attack
 	if st in ["moving", "preparing", "recovering"]:
-		s += "  (%d/%d ticks)" % [maxi(0, f.action_total - f.action_ticks), f.action_total]
+		s += "  (%d%% done)" % action_done_pct(f.action_total, f.action_ticks)
 	var flags := []
 	if f.prone and st != "dead": flags.append("prone")
 	if f.routed and st != "fled": flags.append("routing")
@@ -194,7 +206,7 @@ func _update_state() -> void:
 		s += "\nEngaging: " + sim.fighters[f.target].unit.name
 	var inhand: String = f.wielded.display_name() if f.wielded != null else "nothing (unarmed)"
 	s += "\nIn hand: " + inhand
-	s += "\nSpeed %d (lower is faster)   tempo x%.2f   morale %d" % [int(round(f.speed)), f.tempo, int(round(f.morale))]
+	s += "\nSpeed: %s   Morale %d" % [pace_word(f.tempo), int(round(f.morale))]
 	state_label.text = s
 
 func _on_scrolled(_v: float) -> void:

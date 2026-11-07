@@ -42,6 +42,20 @@ func _person(u: Unit) -> Array:
 	var f: Dictionary = People.fam_of(town, u.family) if not town.is_empty() else {}
 	return Persons.by_uid(f, u.uid) if not f.is_empty() else []
 
+## v0.099: world generation now sends many noble adults off with the realm's field army ("with the army"), and they
+## cannot ride with yours. Put first the most populous seats whose house has a free adult who is no town's ruler.
+static func free_rider_first(game, by_pop: Array) -> Array:
+	var seats: Dictionary = Prisoners.ruling(game)["people"]
+	var saved: Dictionary = game.world.get("player_house", {})
+	var free: Array = []
+	var rest: Array = []
+	for choice: Dictionary in by_pop:
+		game.world["player_house"] = {"house_uid": str(choice["house_uid"]), "ruler_uid": str(choice["ruler_uid"])}
+		var ok := Mobilization.household_candidates(game).any(func(row): return not seats.has(str(row.get("person_uid", ""))))
+		(free if ok else rest).append(choice)
+	game.world["player_house"] = saved
+	return free + rest
+
 func run(tree: SceneTree) -> int:
 	var size := Vector2i(1600, 900)
 	for a in OS.get_cmdline_user_args():
@@ -60,6 +74,7 @@ func run(tree: SceneTree) -> int:
 		return 1
 	var by_pop: Array = Dynasty.choices(Game)
 	by_pop.sort_custom(func(a, b): return int(Game.world["towns"][a["town_id"]]["econ"]["pop"]) > int(Game.world["towns"][b["town_id"]]["econ"]["pop"]))
+	by_pop = free_rider_first(Game, by_pop)
 	var seat := ""
 	for choice: Dictionary in by_pop:
 		if bool(HouseOnboarding.begin(Game, str(choice["town_id"]), str(choice["household_uid"])).get("ok", false)):

@@ -128,7 +128,9 @@ func _small_battle(tree: SceneTree) -> int:
 	var r: Dictionary = Game.last_result
 	for k in ["winner", "player_units", "enemy_units", "enemy_fallen", "events", "loot_gold", "growth"]:
 		fails += _check(r.has(k), "result has " + k)
-	fails += _check(Game.company.size() == company_before - dead_players, "dead removed from company")
+	# v0.099: men downed on a field the enemy holds are now taken prisoner (BattleRounds), so they leave the company too.
+	var captured := int((r.get("captured", [0, 0]) as Array)[0])
+	fails += _check(Game.company.size() == company_before - dead_players - captured, "dead and captured removed from company (%d before, %d dead, %d taken, %d left)" % [company_before, dead_players, captured, Game.company.size()])
 	fails += _check(Game.pending_battle.is_empty(), "pending battle cleared")
 	b.queue_free()
 	await tree.process_frame

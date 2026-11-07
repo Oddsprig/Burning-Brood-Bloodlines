@@ -49,7 +49,8 @@ func run(_tree: SceneTree) -> int:
 	check(learning.size() == 1 and learning[0]["entry"]["d"]["lvl"] == 5, "aftermath retains learning summary")
 	check(CampaignWorld.field_target({}) == 100 and CampaignWorld.field_target({"size": "large"}) == 150 and
 		CampaignWorld.field_target({"size": "huge"}) == 200, "100/150/200 initial field targets")
-	check(CampaignWorld.field_target({}, 7) == 125 and CampaignWorld.field_target({}, 1000) == 200, "weekly request growth capped")
+	# v0.099: field armies grow FIELD_WEEKLY_GROWTH a week up to FIELD_LIMIT (the v0.032 caps: 50 a week; 25 and 200 were the first numbers).
+	check(CampaignWorld.field_target({}, 7) == 100 + CampaignWorld.FIELD_WEEKLY_GROWTH and CampaignWorld.field_target({}, 1.0e6) == CampaignWorld.FIELD_LIMIT, "weekly request growth capped")
 	var rng := RandomNumberGenerator.new(); rng.seed = 23
 	var creature := {"id": "frozen", "kind": "beasts", "faction": "beasts", "pos": Vector2(2, 3), "units": []}
 	var initial := creature.duplicate(true); var rs := rng.state
