@@ -1,0 +1,230 @@
+test_sapphire_spirewing_v061|headless|rc=0|6.2s|fails=0|script_err=0|== res://tests/test_sapphire_spirewing_v061.gd: PASS ==
+test_dragon_concepts|headless|rc=0|5.2s|fails=0|script_err=0|== res://tests/test_dragon_concepts.gd: PASS ==
+test_balance_v070|headless|rc=0|76.9s|fails=0|script_err=0|== res://tests/test_balance_v070.gd: PASS ==
+test_trolls_giants_v071|headless|rc=0|5.9s|fails=0|script_err=0|== res://tests/test_trolls_giants_v071.gd: PASS ==
+test_ransom_upkeep_v077|headless|rc=0|26.4s|fails=0|script_err=0|== res://tests/test_ransom_upkeep_v077.gd: PASS ==
+test_rider_fit_v072|headless|rc=0|5.4s|fails=0|script_err=0|== res://tests/test_rider_fit_v072.gd: PASS ==
+test_touch_ui_v072|headless|rc=0|5.1s|fails=0|script_err=0|== res://tests/test_touch_ui_v072.gd: PASS ==
+test_battle_screen|headless|rc=1|19.7s|fails=1|script_err=0|== res://tests/test_battle_screen.gd: FAIL (1) ==
+    FAIL: dead removed from company
+test_ui_land_map|headless|rc=2|16.1s|fails=2|script_err=0|== res://tests/test_ui_land_map.gd: FAIL (2) ==
+    FAIL: tap off the map clears the card (town buildings)
+    FAIL: overlay change on 1,500 plots composes in 166.9 ms (< 120)
+test_touch_scroll_v083|headless|rc=0|5.2s|fails=0|script_err=0|== res://tests/test_touch_scroll_v083.gd: PASS ==
+test_identity_consistency_v070|headless|rc=0|14.2s|fails=0|script_err=0|== res://tests/test_identity_consistency_v070.gd: PASS ==
+test_popup_cleanup_v070|display|rc=0|9.1s|fails=0|script_err=0|== res://tests/test_popup_cleanup_v070.gd: PASS ==
+test_ui_modal|headless|rc=0|5.1s|fails=0|script_err=0|== res://tests/test_ui_modal.gd: PASS ==
+claude_population_v034|headless|rc=0|15.3s|fails=0|script_err=0|== res://tests/claude_population_v034.gd: PASS ==
+claude_prisoners_v033|headless|rc=2|8.6s|fails=2|script_err=0|== res://tests/claude_prisoners_v033.gd: FAIL (2) ==
+    FAIL prisoners033: a member of your house rides with the army
+    FAIL prisoners033: registered men were raised (12)
+claude_intrigue_v032|headless|rc=0|33.0s|fails=0|script_err=0|== res://tests/claude_intrigue_v032.gd: PASS ==
+claude_creatures_v035|headless|rc=0|38.6s|fails=0|script_err=0|== res://tests/claude_creatures_v035.gd: PASS ==
+claude_campaign|display|rc=0|38.0s|fails=0|script_err=0|== res://tests/claude_campaign.gd: PASS ==
+claude_markers_v031|display|rc=0|10.7s|fails=0|script_err=0|== res://tests/claude_markers_v031.gd: PASS ==
+claude_refit|display|rc=0|11.1s|fails=0|script_err=0|== res://tests/claude_refit.gd: PASS ==
+claude_rounds|display|rc=0|17.5s|fails=0|script_err=0|== res://tests/claude_rounds.gd: PASS ==
+claude_prisoners_ui_v033|display|rc=1|9.7s|fails=1|script_err=0|== res://tests/claude_prisoners_ui_v033.gd: FAIL (1) ==
+    FAIL prisoners_ui033: a house member and a man ride with the army
+claude_dragonfear|display|rc=0|19.8s|fails=0|script_err=0|== res://tests/claude_dragonfear.gd: PASS ==
+claude_population_ui_v034|display|rc=0|10.0s|fails=0|script_err=0|== res://tests/claude_population_ui_v034.gd: PASS ==
+claude_creatures_ui_v035|display|rc=0|16.1s|fails=0|script_err=0|== res://tests/claude_creatures_ui_v035.gd: PASS ==
+claude_diplomacy_v030|headless|rc=0|14.9s|fails=0|script_err=0|== res://tests/claude_diplomacy_v030.gd: PASS ==
+claude_marriage|headless|rc=1|8.4s|fails=2|script_err=0|== res://tests/claude_marriage.gd: FAIL (1) ==
+    FAIL marriage: an unmarried adult has a match that would accept with a generous gift
+    FAIL an unmarried adult has a match that would accept with a generous gift
+economy_stability_v094|headless|rc=1|5.1s|fails=0|script_err=0|== res://tests/economy_stability_v094.gd: FAIL (1) ==
+test_academy_v089|headless|rc=0|15.9s|fails=0|script_err=0|== res://tests/test_academy_v089.gd: PASS ==
+test_campaign_fixes_v095|headless|rc=0|8.7s|fails=0|script_err=0|== res://tests/test_campaign_fixes_v095.gd: PASS ==
+test_domestic_animals_v086|headless|rc=0|24.3s|fails=0|script_err=0|== res://tests/test_domestic_animals_v086.gd: PASS ==
+test_dwarf_cultures_v087|headless|rc=0|23.4s|fails=0|script_err=0|== res://tests/test_dwarf_cultures_v087.gd: PASS ==
+test_economy_short_v094|headless|rc=1|5.4s|fails=1|script_err=0|== res://tests/test_economy_short_v094.gd: FAIL (1) ==
+    FAIL short094: native094 version/calendar/quality contract
+test_economy_stability_v094|headless|rc=1|5.5s|fails=0|script_err=0|== res://tests/test_economy_stability_v094.gd: FAIL (1) ==
+test_engagement_contract_v093|headless|rc=0|8.4s|fails=0|script_err=0|== res://tests/test_engagement_contract_v093.gd: PASS ==
+test_legendary_contract_v090|headless|rc=0|15.4s|fails=0|script_err=0|== res://tests/test_legendary_contract_v090.gd: PASS ==
+test_mint_affordability_v094|headless|rc=0|5.5s|fails=0|script_err=0|== res://tests/test_mint_affordability_v094.gd: PASS ==
+test_population_categories_v094|headless|rc=0|5.2s|fails=0|script_err=0|== res://tests/test_population_categories_v094.gd: PASS ==
+test_recruit_item_custody_v094|headless|rc=0|5.6s|fails=0|script_err=0|== res://tests/test_recruit_item_custody_v094.gd: PASS ==
+test_release_v099|headless|rc=0|8.8s|fails=0|script_err=0|== res://tests/test_release_v099.gd: PASS ==
+test_sale_fixes_v097|headless|rc=0|10.6s|fails=0|script_err=0|== res://tests/test_sale_fixes_v097.gd: PASS ==
+test_screens_v098|headless|rc=0|12.7s|fails=0|script_err=0|== res://tests/test_screens_v098.gd: PASS ==
+test_shaded_equipment_v091|headless|rc=0|8.0s|fails=0|script_err=0|== res://tests/test_shaded_equipment_v091.gd: PASS ==
+test_steel_smelting_v088|headless|rc=0|4.9s|fails=0|script_err=0|== res://tests/test_steel_smelting_v088.gd: PASS ==
+test_truce_militia_v092|headless|rc=0|18.1s|fails=0|script_err=0|== res://tests/test_truce_militia_v092.gd: PASS ==
+claude_breeding_v038|display|rc=0|26.8s|fails=0|script_err=0|== res://tests/claude_breeding_v038.gd: PASS ==
+claude_court_events|headless|rc=0|17.3s|fails=0|script_err=0|== res://tests/claude_court_events.gd: PASS ==
+claude_designer_ui_v039|headless|rc=0|8.1s|fails=0|script_err=0|== res://tests/claude_designer_ui_v039.gd: PASS ==
+claude_designer_v039|headless|rc=0|5.6s|fails=0|script_err=0|== res://tests/claude_designer_v039.gd: PASS ==
+claude_fangs_v036|headless|rc=0|14.2s|fails=0|script_err=0|== res://tests/claude_fangs_v036.gd: PASS ==
+claude_house_upkeep|headless|rc=0|16.3s|fails=0|script_err=0|== res://tests/claude_house_upkeep.gd: PASS ==
+claude_laws_v037|headless|rc=0|16.8s|fails=0|script_err=0|== res://tests/claude_laws_v037.gd: PASS ==
+claude_officers|headless|rc=0|16.3s|fails=0|script_err=0|== res://tests/claude_officers.gd: PASS ==
+claude_realsave|display|rc=1|8.8s|fails=0|script_err=2|== res://tests/claude_realsave.gd: FAIL (1) ==
+    SCRIPT ERROR: Out of bounds get index '0' (on base: 'Array')
+    runner: 1 runtime script error(s) during res://tests/claude_realsave.gd (see SCRIPT ERROR above); each counts as a failure
+claude_roadmap|display|rc=4|130.3s|fails=2|script_err=3|== res://tests/claude_roadmap.gd: FAIL (4) ==
+    SCRIPT ERROR: Invalid access of index '52' on a base object of type: 'Array'.
+    SCRIPT ERROR: Invalid access of index '53' on a base object of type: 'Array'.
+    FAIL campaign: 50 campaign days advanced (2.0 -> 9.0)
+    FAIL campaign: 0 egg(s) hatched after incubation (27 eggs before)
+claude_settlement_ui_v040|headless|rc=0|10.0s|fails=0|script_err=0|== res://tests/claude_settlement_ui_v040.gd: PASS ==
+claude_settlement_v040|headless|rc=0|9.2s|fails=0|script_err=0|== res://tests/claude_settlement_v040.gd: PASS ==
+claude_tactics_ui_v041|headless|rc=0|5.0s|fails=0|script_err=0|== res://tests/claude_tactics_ui_v041.gd: PASS ==
+claude_tactics_v041|display|rc=0|54.8s|fails=0|script_err=0|== res://tests/claude_tactics_v041.gd: PASS ==
+claude_treasure_room_ui|headless|rc=0|9.9s|fails=0|script_err=0|== res://tests/claude_treasure_room_ui.gd: PASS ==
+claude_troop_upkeep|headless|rc=0|25.8s|fails=0|script_err=0|== res://tests/claude_troop_upkeep.gd: PASS ==
+farm_fixture_tools|headless|rc=1|5.1s|fails=0|script_err=0|== res://tests/farm_fixture_tools.gd: FAIL (1) ==
+health_util|headless|rc=1|14.2s|fails=0|script_err=0|== res://tests/health_util.gd: FAIL (1) ==
+portrait_quick_render|headless|rc=1|5.2s|fails=0|script_err=0|== res://tests/portrait_quick_render.gd: FAIL (1) ==
+reference_smarter_loops|headless|rc=1|5.4s|fails=0|script_err=0|== res://tests/reference_smarter_loops.gd: FAIL (1) ==
+reference_supply_lookups|headless|rc=1|5.3s|fails=0|script_err=0|== res://tests/reference_supply_lookups.gd: FAIL (1) ==
+sim_util|headless|rc=1|5.1s|fails=0|script_err=2|== res://tests/sim_util.gd: FAIL (1) ==
+    SCRIPT ERROR: Invalid call to function 'run' in base 'RefCounted (sim_util.gd)'. Expected 3 argument(s).
+    runner: 1 runtime script error(s) during res://tests/sim_util.gd (see SCRIPT ERROR above); each counts as a failure
+test_academy_assignments|headless|rc=0|15.7s|fails=0|script_err=0|== res://tests/test_academy_assignments.gd: PASS ==
+test_ai_marriage_dragons_v079|headless|rc=0|16.7s|fails=0|script_err=0|== res://tests/test_ai_marriage_dragons_v079.gd: PASS ==
+test_arms_trade|headless|rc=124|290.9s|fails=3|script_err=0|
+    FAIL: the clash had a loser
+    FAIL: kept + scrapped + fled-with + survivors' kit == kit in play (95 vs 126)
+    FAIL: the town's own smiths refill a short armory
+test_army_equipment_v045|headless|rc=0|51.2s|fails=0|script_err=0|== res://tests/test_army_equipment_v045.gd: PASS ==
+test_army_scale_monster_pause|headless|rc=1|5.7s|fails=1|script_err=0|== res://tests/test_army_scale_monster_pause.gd: FAIL (1) ==
+    FAIL army scale / monster pause: weekly request growth capped
+test_art_map_tokens|headless|rc=32|16.2s|fails=1|script_err=33|== res://tests/test_art_map_tokens.gd: FAIL (32) ==
+    SCRIPT ERROR: Invalid access to property or key of type 'String' on a base object of type 'Dictionary'.
+    FAIL: 40 tokens (6)
+    SCRIPT ERROR: Invalid access to property or key of type 'String' on a base object of type 'Dictionary'.
+    SCRIPT ERROR: Invalid access to property or key of type 'String' on a base object of type 'Dictionary'.
+test_art_menus|headless|rc=0|155.6s|fails=0|script_err=0|== res://tests/test_art_menus.gd: PASS ==
+test_art_paperdoll|headless|rc=1|26.0s|fails=0|script_err=2|== res://tests/test_art_paperdoll.gd: FAIL (1) ==
+    SCRIPT ERROR: Invalid access to property or key 'hand_r' on a base object of type 'Dictionary'.
+    runner: 1 runtime script error(s) during res://tests/test_art_paperdoll.gd (see SCRIPT ERROR above); each counts as a failure
+test_art_redesign|headless|rc=0|11.8s|fails=0|script_err=0|== res://tests/test_art_redesign.gd: PASS ==
+test_backstory_story|headless|rc=0|413.3s|fails=0|script_err=0|== res://tests/test_backstory_story.gd: PASS ==
+test_baggage|headless|rc=1|13.0s|fails=3|script_err=2|== res://tests/test_baggage.gd: FAIL (1) ==
+    SCRIPT ERROR: Out of bounds get index '1' (on base: 'Array')
+    runner: 1 runtime script error(s) during res://tests/test_baggage.gd (see SCRIPT ERROR above); each counts as a failure
+test_bandit_camp_funding|headless|rc=4|224.2s|fails=4|script_err=0|== res://tests/test_bandit_camp_funding.gd: FAIL (4) ==
+    FAIL: seed 5150: camp setup/recruitment changed population, identities or physical food
+    FAIL: funded recruitment changed real people, food or cash
+    FAIL: seed 5158: camp setup/recruitment changed population, identities or physical food
+    FAIL: funded recruitment changed real people, food or cash
+test_barge|headless|rc=27|201.9s|fails=27|script_err=0|== res://tests/test_barge.gd: FAIL (27) ==
+    FAIL: Elmfield: 8 families hold more places than they have people at home
+    FAIL: Wexstead: 8 families hold more places than they have people at home
+    FAIL: Grubpit: 8 families hold more places than they have people at home
+    FAIL: Mirewarren: 8 families hold more places than they have people at home
+test_battle_creatures|headless|rc=0|14.6s|fails=0|script_err=0|== res://tests/test_battle_creatures.gd: PASS ==
+test_battle_pace_v014|headless|rc=0|6.3s|fails=0|script_err=0|== res://tests/test_battle_pace_v014.gd: PASS ==
+test_battle_presentation_state|headless|rc=0|13.9s|fails=0|script_err=0|== res://tests/test_battle_presentation_state.gd: PASS ==
+test_battle_readability_v055|headless|rc=0|9.9s|fails=0|script_err=0|== res://tests/test_battle_readability_v055.gd: PASS ==
+test_battle_result_summary_v014|headless|rc=0|53.5s|fails=0|script_err=0|== res://tests/test_battle_result_summary_v014.gd: PASS ==
+test_battle_results_ui_v014|display|rc=0|12.5s|fails=0|script_err=0|== res://tests/test_battle_results_ui_v014.gd: PASS ==
+test_battle_visual_purity|headless|rc=0|5.9s|fails=0|script_err=0|== res://tests/test_battle_visual_purity.gd: PASS ==
+test_biz_people|headless|rc=125|44.2s|fails=201|script_err=0|== res://tests/test_biz_people.gd: FAIL (201) ==
+    FAIL: world gen: Millmere's Edda Coldwater's jeweler is at work but names no keeper
+    FAIL: world gen: Millmere's Ursel Thorne's herbalist is at work but names no keeper
+    FAIL: world gen: Millmere's Edda Coldwater's butcher is at work but names no keeper
+    FAIL: world gen: Millmere's Ivo Stone's salter is at work but names no keeper
+test_bloodlines_ruler_art|headless|rc=0|6.8s|fails=0|script_err=0|== res://tests/test_bloodlines_ruler_art.gd: PASS ==
+test_bows_econ|headless|rc=0|57.8s|fails=0|script_err=0|== res://tests/test_bows_econ.gd: PASS ==
+test_bows_melee_digest|headless|rc=5|5.5s|fails=5|script_err=0|== res://tests/test_bows_melee_digest.gd: FAIL (5) ==
+test_bows_sim|headless|rc=2|8.2s|fails=2|script_err=0|== res://tests/test_bows_sim.gd: FAIL (2) ==
+    FAIL: a cornered archer must switch to the sidearm
+    FAIL: an archer should back off (kite) as the enemy closes
+test_builder_payments|headless|rc=0|171.1s|fails=0|script_err=0|== res://tests/test_builder_payments.gd: PASS ==
+test_calendar|headless|rc=0|5.1s|fails=0|script_err=0|== res://tests/test_calendar.gd: PASS ==
+test_campaign_caravans|headless|rc=32|354.9s|fails=32|script_err=0|== res://tests/test_campaign_caravans.gd: FAIL (32) ==
+    FAIL: wool not delivered
+    FAIL: attacker 4982 is one unique pre-existing registered person
+    FAIL: attacker 4983 is one unique pre-existing registered person
+    FAIL: attacker 4984 is one unique pre-existing registered person
+test_campaign_census|headless|rc=2|22.0s|fails=2|script_err=0|== res://tests/test_campaign_census.gd: FAIL (2) ==
+    FAIL: four seasons of census rows per town (0 rows)
+    FAIL: 60-day daily buffer (2)
+test_campaign_contracts|headless|rc=0|82.4s|fails=0|script_err=0|== res://tests/test_campaign_contracts.gd: PASS ==
+test_campaign_diplomacy|headless|rc=124|189.7s|fails=8|script_err=0|
+    FAIL: diplomacy day step too slow: 0.1817 ms
+    FAIL: human company with the March: 0
+    FAIL: the default company is a human band ()
+    FAIL: orc_horde start standing -60 and hostile to a human band: 0
+test_campaign_focus_v011|headless|rc=0|7.7s|fails=0|script_err=0|== res://tests/test_campaign_focus_v011.gd: PASS ==
+test_campaign_map_lookups|headless|rc=0|12.0s|fails=0|script_err=0|== res://tests/test_campaign_map_lookups.gd: PASS ==
+test_campaign_monsters|headless|rc=1|29.4s|fails=1|script_err=2|== res://tests/test_campaign_monsters.gd: FAIL (1) ==
+    FAIL: every non-monster map unit needs a home and a faction
+    SCRIPT ERROR: Invalid access to property or key of type 'String' on a base object of type 'Dictionary'.
+    runner: 1 runtime script error(s) during res://tests/test_campaign_monsters.gd (see SCRIPT ERROR above); each counts as a failure
+test_campaign_save|headless|rc=0|25.2s|fails=0|script_err=0|== res://tests/test_campaign_save.gd: PASS ==
+test_campaign_tracks|headless|rc=6|182.6s|fails=4|script_err=3|== res://tests/test_campaign_tracks.gd: FAIL (6) ==
+    SCRIPT ERROR: Out of bounds get index '0' (on base: 'Array')
+    FAIL: Tracker 10 should extend track sight by 180 px
+    FAIL: skilled read: { "age_text": "fresh", "count_text": "several", "what_text": "two-legged walkers", "dir_text": "east", "mark": false, "pos": (2268.0, 780.0), "title": "Tracks", "text": "The tracks are fresh. Several two-legged walkers passed here, heading east.\n(A better tracker would read more.)" }
+    FAIL: skilled age: fresh
+test_campaign_war|headless|rc=124|180.0s|fails=4|script_err=0|
+    FAIL: the war band never went for the caravan in sight
+    FAIL: the war band did not catch the caravan in 5 days
+    FAIL: an interception counted
+    FAIL: the patrol did not march on the town's word
+test_campaign_warbands|headless|rc=1|200.0s|fails=1|script_err=0|== res://tests/test_campaign_warbands.gd: FAIL (1) ==
+    FAIL: warbands are not roaming
+test_campaign_world|headless|rc=0|244.9s|fails=0|script_err=0|== res://tests/test_campaign_world.gd: PASS ==
+test_caravan_margins_v048|headless|rc=0|9.7s|fails=0|script_err=0|== res://tests/test_caravan_margins_v048.gd: PASS ==
+test_casual_matching|headless|rc=1|14.2s|fails=1|script_err=0|== res://tests/test_casual_matching.gd: FAIL (1) ==
+    FAIL: all cultures use the same casual matcher
+test_casual_occupancy_save|headless|rc=0|501.4s|fails=0|script_err=0|== res://tests/test_casual_occupancy_save.gd: PASS ==
+test_casual_short_pay|headless|rc=0|4.7s|fails=0|script_err=0|== res://tests/test_casual_short_pay.gd: PASS ==
+test_child_cleanup|headless|rc=3|68.5s|fails=3|script_err=0|== res://tests/test_child_cleanup.gd: FAIL (3) ==
+    FAIL cleanup children are not also farm helpers
+    FAIL cleanup children are not also farm helpers
+    FAIL cleanup children are not also farm helpers
+test_combat_journal_v016|headless|rc=0|5.0s|fails=0|script_err=0|== res://tests/test_combat_journal_v016.gd: PASS ==
+test_combat_log_ui_v016|display|rc=0|10.4s|fails=0|script_err=0|== res://tests/test_combat_log_ui_v016.gd: PASS ==
+test_company_wages_v046|headless|rc=2|12.7s|fails=2|script_err=0|== res://tests/test_company_wages_v046.gd: FAIL (2) ==
+    FAIL: V046_SAVE names an authentic readable campaign
+    FAIL: fresh native company supplies two real nonofficers with identical positive wages
+test_conquered_towns_v078|headless|rc=0|5.3s|fails=0|script_err=0|== res://tests/test_conquered_towns_v078.gd: PASS ==
+test_core|headless|rc=0|19.1s|fails=0|script_err=0|== res://tests/test_core.gd: PASS ==
+test_deploy|headless|rc=1|12.6s|fails=0|script_err=2|== res://tests/test_deploy.gd: FAIL (1) ==
+    SCRIPT ERROR: Out of bounds get index '1' (on base: 'Array')
+    runner: 1 runtime script error(s) during res://tests/test_deploy.gd (see SCRIPT ERROR above); each counts as a failure
+test_draft_pool_v076|headless|rc=0|614.4s|fails=0|script_err=0|== res://tests/test_draft_pool_v076.gd: PASS ==
+test_dragon_asset_succession|headless|rc=0|4.9s|fails=0|script_err=0|== res://tests/test_dragon_asset_succession.gd: PASS ==
+test_dragon_bond_ui_v021|display|rc=5|10.4s|fails=5|script_err=0|== res://tests/test_dragon_bond_ui_v021.gd: FAIL (5) ==
+    FAIL dragon bond UI: reviewed remote release signals/saves once
+    FAIL dragon bond UI: success has exactly one UI signal and one async save
+    FAIL dragon bond UI: reviewed remote release signals/saves once
+    FAIL dragon bond UI: success has exactly one UI signal and one async save
+test_dragon_bond_v021|headless|rc=0|5.5s|fails=0|script_err=0|== res://tests/test_dragon_bond_v021.gd: PASS ==
+test_dragon_care|headless|rc=0|5.6s|fails=0|script_err=0|== res://tests/test_dragon_care.gd: PASS ==
+test_dragon_care_release|headless|rc=0|40.0s|fails=0|script_err=0|== res://tests/test_dragon_care_release.gd: PASS ==
+test_dragon_care_ui|headless|rc=0|7.4s|fails=0|script_err=0|== res://tests/test_dragon_care_ui.gd: PASS ==
+test_dragon_colours_v064|headless|rc=0|376.8s|fails=0|script_err=0|== res://tests/test_dragon_colours_v064.gd: PASS ==
+test_dragon_combat_ui_v022|display|rc=5|95.2s|fails=5|script_err=0|== res://tests/test_dragon_combat_ui_v022.gd: FAIL (5) ==
+    FAIL dragon combat UI v022: authorized remote withdrawal saved/changed once
+    FAIL dragon combat UI v022: successful explicit order saved/changed once
+    FAIL dragon combat UI v022: authorized remote withdrawal saved/changed once
+    FAIL dragon combat UI v022: successful explicit order saved/changed once
+test_dragon_combat_v022|headless|rc=0|5.7s|fails=0|script_err=0|== res://tests/test_dragon_combat_v022.gd: PASS ==
+test_dragon_damage_art|headless|rc=0|5.2s|fails=0|script_err=0|== res://tests/test_dragon_damage_art.gd: PASS ==
+test_dragon_growth|headless|rc=0|5.1s|fails=0|script_err=0|== res://tests/test_dragon_growth.gd: PASS ==
+test_dragon_growth_v052|headless|rc=0|131.6s|fails=0|script_err=0|== res://tests/test_dragon_growth_v052.gd: PASS ==
+test_dragon_identities|headless|rc=0|4.9s|fails=0|script_err=0|== res://tests/test_dragon_identities.gd: PASS ==
+test_dragon_models|headless|rc=0|721.8s|fails=0|script_err=0|== res://tests/test_dragon_models.gd: PASS ==
+test_dragon_mount_preview|headless|rc=0|10.9s|fails=0|script_err=0|== res://tests/test_dragon_mount_preview.gd: PASS ==
+test_dragon_provisions_v050|headless|rc=0|172.3s|fails=0|script_err=0|== res://tests/test_dragon_provisions_v050.gd: PASS ==
+test_dragon_release|headless|rc=0|31.7s|fails=0|script_err=0|== res://tests/test_dragon_release.gd: PASS ==
+test_dragon_roost_v053|headless|rc=0|25.5s|fails=0|script_err=0|== res://tests/test_dragon_roost_v053.gd: PASS ==
+test_dragon_ui|headless|rc=1|30.4s|fails=0|script_err=0|== res://tests/test_dragon_ui.gd: FAIL (1) ==
+test_dragon_view_v022|headless|rc=0|6.5s|fails=0|script_err=0|== res://tests/test_dragon_view_v022.gd: PASS ==
+test_dynasty_defeat|headless|rc=0|6.0s|fails=0|script_err=0|== res://tests/test_dynasty_defeat.gd: PASS ==
+test_dynasty_foundation|headless|rc=0|5.8s|fails=0|script_err=0|== res://tests/test_dynasty_foundation.gd: PASS ==
+test_dynasty_release|headless|rc=4|25.2s|fails=4|script_err=0|== res://tests/test_dynasty_release.gd: FAIL (4) ==
+    FAIL: native world contains the actual 100-person starting army and towns
+    FAIL: every real population/wealth pool and permanent death ledger survives persistence
+    FAIL: native business operators, public funding/property and all company resident identities survive persistence
+    FAIL: new game uses its own user-data namespace
+test_dynasty_ui|headless|rc=0|19.1s|fails=0|script_err=0|== res://tests/test_dynasty_ui.gd: PASS ==
+test_earned_bonds_v051|headless|rc=0|30.3s|fails=0|script_err=0|== res://tests/test_earned_bonds_v051.gd: PASS ==
+test_econ_army|headless|rc=1|65.4s|fails=1|script_err=0|== res://tests/test_econ_army.gd: FAIL (1) ==
+    FAIL: a succession fight takes over 10 ms (median 10.13)
