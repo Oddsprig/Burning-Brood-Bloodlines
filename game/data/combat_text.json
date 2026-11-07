@@ -466,9 +466,9 @@
 	},
 	"decisive": {
 		"artery": [
-			"{D} is bleeding from the {P} ({RATE}/tick): the {ART} is cut and blood jets out!",
-			"Blood fountains from {d}'s {P} ({RATE}/tick)!",
-			"{D}'s {ART} is opened: blood pumps from the {P} ({RATE}/tick)!"
+			"{D} is bleeding from the {P}: the {ART} is cut and blood jets out!",
+			"Blood fountains from {d}'s {P}!",
+			"{D}'s {ART} is opened: blood pumps from the {P}!"
 		],
 		"sever": [
 			"{D}'s {P} is hacked off!",
@@ -1159,7 +1159,7 @@
 		},
 		"decisive": {
 			"artery": [
-				"{D} is bleeding badly from the {P} ({RATE}/tick)!"
+				"{D} is bleeding badly from the {P}!"
 			],
 			"sever": [
 				"{D}'s {P} is cut off!"

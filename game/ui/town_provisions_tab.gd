@@ -48,7 +48,7 @@ static func _metric(title: String, value: String, detail: String, color: Color) 
 	box.add_child(UiKit.label(title, "Small"))
 	var number := UiKit.label(value, "H2")
 	number.add_theme_color_override("font_color", color)
-	number.add_theme_font_size_override("font_size", 24)
+	number.add_theme_font_size_override("font_size", UiTheme.px(24))
 	box.add_child(number)
 	box.add_child(UiKit.label(detail, "Small"))
 	return panel

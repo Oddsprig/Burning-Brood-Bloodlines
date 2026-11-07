@@ -62,7 +62,7 @@ static func _metric(title: String, value: String, detail: String, tone: Color) -
 	card.add_child(v)
 	v.add_child(UiKit.label(title, "Muted"))
 	var number := UiKit.label(value, "H2", true)
-	number.add_theme_font_size_override("font_size", 24)
+	number.add_theme_font_size_override("font_size", UiTheme.px(24))
 	v.add_child(number)
 	var small := UiKit.label(detail, "Small", true)
 	small.add_theme_color_override("font_color", UiTheme.INK_SOFT if tone.get_luminance() < 0.25 else tone)
@@ -144,7 +144,7 @@ static func _fact(body: VBoxContainer, key: String, value: String) -> void:
 	tile.add_child(v)
 	v.add_child(UiKit.label(key, "Muted", true))
 	var val := UiKit.label(value, "", true)
-	val.add_theme_font_size_override("font_size", 22)
+	val.add_theme_font_size_override("font_size", UiTheme.px(22))
 	v.add_child(val)
 
 static func _badge(text: String, tone: Color) -> Control:
@@ -248,7 +248,7 @@ static func _work(host: Control, t: Dictionary, body: VBoxContainer) -> void:
 			business.add_child(UiKit.label("State-funded", "Muted", true))
 			var research := UiKit.button("Research", func(): _select_section(host, t, body, "Research"), "Row")
 			research.name = "AcademyResearch"
-			research.add_theme_font_size_override("font_size", 17)
+			research.add_theme_font_size_override("font_size", UiTheme.px(17))
 			business.add_child(research)
 		var status := UiKit.vbox(2)
 		status.add_child(_badge(Businesses.state_word(b), tone))
@@ -442,7 +442,7 @@ static func _price_rows(host: Control, t: Dictionary, list: VBoxContainer, query
 		var detail := UiKit.button("Details", func():
 			UiKit.message(host, label + " · price details", ["Current price: %.1f coins per %s" % [price, Goods.unit_of(g)], "Last weekly price: %.1f coins" % previous, "Market stock: %d %s" % [int(Goods.supply(t, g)), Goods.unit_of(g)], "Reason: " + why if why != "" else "No price reason recorded."]), "Row")
 		detail.tooltip_text = why if why != "" else "No price reason recorded."
-		detail.add_theme_font_size_override("font_size", 17)
+		detail.add_theme_font_size_override("font_size", UiTheme.px(17))
 		detail.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		var row := _table_row(list, [label + "\n" + Goods.unit_of(g), UiKit.decimal(price, 1), _badge(trend, UiTheme.BLUE if trend != "= Steady" else UiTheme.WOOD_3), str(int(Goods.supply(t, g))), detail], weights)
 		row.tooltip_text = why

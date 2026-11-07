@@ -58,7 +58,7 @@ func _ready() -> void:
 	p.add_child(v)
 	var top := UiKit.hbox()
 	var t := UiKit.wrap(UiKit.label("New bloodline", "H2", true), 80)
-	t.add_theme_font_size_override("font_size", 28)
+	t.add_theme_font_size_override("font_size", UiTheme.px(28))
 	top.add_child(t)
 	top.add_child(UiKit.button("Back", _back, "Row", 72))
 	v.add_child(top)

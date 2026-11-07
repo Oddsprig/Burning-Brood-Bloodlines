@@ -48,6 +48,14 @@ static func set_mobile_override(v: Variant) -> void:
 static func base_font_size() -> int:
 	return MOBILE_FONT_SIZE if is_mobile() else FONT_SIZE
 
+## v0.098 phone pass: a fixed text size written for the desktop, raised on a phone by the same +10 the theme
+## gives its own sizes (Small 17 -> 27), so a hand-sized label is never smaller than the text around it.
+## Desktop sizes are unchanged. Display sizes above PX_DISPLAY (titles, banners) already read on a phone and stay.
+const PX_DISPLAY := 28
+static func px(n: int) -> int:
+	if not is_mobile() or n > PX_DISPLAY: return n
+	return n + (MOBILE_FONT_SIZE - FONT_SIZE)
+
 static func get_theme() -> Theme:
 	if _theme == null:
 		_theme = _build()

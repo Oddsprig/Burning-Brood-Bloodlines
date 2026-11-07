@@ -68,7 +68,7 @@ func _ready() -> void:
 	if view == "town" and sel == "":
 		view = "world"
 	day_l = UiKit.label("", "Header")
-	day_l.add_theme_font_size_override("font_size", 18)
+	day_l.add_theme_font_size_override("font_size", UiTheme.px(18))
 	day_l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	UiKit.shrink(day_l, 60)
 	bar.add_child(day_l)
@@ -196,7 +196,7 @@ func refresh() -> void:
 	for tn in visible_tabs:
 		var tname := String(tn)
 		var b := RecKit.chip_button(tname, tname == tab, func(): show_tab(tname), 96)
-		b.add_theme_font_size_override("font_size", 18)
+		b.add_theme_font_size_override("font_size", UiTheme.px(18))
 		b.set_meta("records_tab",tname)
 		tabs_box.add_child(b)
 	_fit_navigation()

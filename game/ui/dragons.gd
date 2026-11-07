@@ -37,7 +37,7 @@ func _ready() -> void:
 	roost_uid = str(Game.screen_params.get("roost_uid", ""))
 	var frame := UiKit.screen_frame(self, "Dragons & eggs")
 	var heading: Label = frame["title"]
-	heading.add_theme_font_size_override("font_size", 24)
+	heading.add_theme_font_size_override("font_size", UiTheme.px(24))
 	heading.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 	UiKit.fit_title(heading)
 	frame["bar"].add_child(UiKit.button("Back", _back, "Row", 72))

@@ -47,7 +47,7 @@ func _ready() -> void:
 	v.add_child(head)
 	name_label = Label.new()
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	name_label.add_theme_font_size_override("font_size", 26)
+	name_label.add_theme_font_size_override("font_size", UiTheme.px(26))
 	name_label.add_theme_color_override("font_color", Color(1, 0.88, 0.55))
 	name_label.clip_text = true
 	head.add_child(name_label)
@@ -59,12 +59,12 @@ func _ready() -> void:
 	head.add_child(close)
 	info_label = Label.new()
 	info_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	info_label.add_theme_font_size_override("font_size", 16)
+	info_label.add_theme_font_size_override("font_size", UiTheme.px(16))
 	info_label.add_theme_color_override("font_color", Color(0.86, 0.84, 0.78))
 	v.add_child(info_label)
 	state_label = Label.new()
 	state_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	state_label.add_theme_font_size_override("font_size", 17)
+	state_label.add_theme_font_size_override("font_size", UiTheme.px(17))
 	state_label.add_theme_color_override("font_color", Color(0.6, 0.9, 1.0))
 	v.add_child(state_label)
 	var tabs := HBoxContainer.new()
@@ -93,8 +93,8 @@ func _ready() -> void:
 	health_text.bbcode_enabled = true
 	health_text.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	health_text.scroll_active = true
-	health_text.add_theme_font_size_override("normal_font_size", 17)
-	health_text.add_theme_font_size_override("bold_font_size", 18)
+	health_text.add_theme_font_size_override("normal_font_size", UiTheme.px(17))
+	health_text.add_theme_font_size_override("bold_font_size", UiTheme.px(18))
 	v.add_child(health_text)
 	_set_tab("log")
 
@@ -264,7 +264,7 @@ func _make_entry(entry: Dictionary) -> Control:
 	var calc_s := str(r.get("calc", ""))
 	var more := "  +" if (not detail.is_empty() or calc_s != "") else ""
 	b.text = "[%d] %s%s" % [int(r.get("tick", entry.get("tick", 0))), str(r.get("text", "")), more]
-	b.add_theme_font_size_override("font_size", 16)
+	b.add_theme_font_size_override("font_size", UiTheme.px(16))
 	var col := Color(0.93, 0.91, 0.85) if entry.get("k", "") != "move" else Color(0.62, 0.62, 0.58)
 	b.add_theme_color_override("font_color", col)
 	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -272,14 +272,14 @@ func _make_entry(entry: Dictionary) -> Control:
 	var det := Label.new()
 	det.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	det.text = "\n".join(detail.map(func(x): return "  " + str(x))) if not detail.is_empty() else "  (no further detail)"
-	det.add_theme_font_size_override("font_size", 15)
+	det.add_theme_font_size_override("font_size", UiTheme.px(15))
 	det.add_theme_color_override("font_color", Color(1.0, 0.82, 0.55))
 	det.visible = false
 	box.add_child(det)
 	var calc := Label.new()
 	calc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	calc.text = calc_s if calc_s != "" else "(no calculation recorded)"
-	calc.add_theme_font_size_override("font_size", 14)
+	calc.add_theme_font_size_override("font_size", UiTheme.px(14))
 	calc.add_theme_color_override("font_color", Color(0.6, 0.95, 0.65))
 	var cb := StyleBoxFlat.new()
 	cb.bg_color = Color(0.03, 0.06, 0.04, 0.95)

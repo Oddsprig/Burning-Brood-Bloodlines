@@ -41,7 +41,7 @@ func _ready() -> void:
 	if not assault.is_empty():
 		var banner := UiKit.panel("Card")
 		var line := UiKit.label(str(assault.get("text", "")), "H2", true)
-		line.add_theme_font_size_override("font_size", 22)
+		line.add_theme_font_size_override("font_size", UiTheme.px(22))
 		line.add_theme_color_override("font_color", UiTheme.GOOD if bool(assault.get("won", false)) else UiTheme.WARN)
 		banner.add_child(line)
 		content.add_child(banner)
@@ -84,12 +84,12 @@ func _build_overview(parent: Control) -> void:
 	box.add_child(title)
 	var loot := UiKit.label("Loot: %s coins · Kept: %d items · Returned gear: %d pieces · Army wallet: %s coins" % [UiKit.thousands(int(result.get("loot_gold", 0))), (result.get("loot_items", []) as Array).size(), int(result.get("fallen_gear", 0)), UiKit.thousands(Game.gold)], "", true)
 	loot.name = "ResultsLootTotal"
-	loot.add_theme_font_size_override("font_size", 18)
+	loot.add_theme_font_size_override("font_size", UiTheme.px(18))
 	box.add_child(loot)
 	var supplies: Dictionary = result.get("supplies_taken", {})
 	var supply_label := UiKit.label("Supplies taken: " + (Supplies.text(supplies) if not supplies.is_empty() else "none"), "Muted", true)
 	supply_label.name = "ResultsSupplies"
-	supply_label.add_theme_font_size_override("font_size", 17)
+	supply_label.add_theme_font_size_override("font_size", UiTheme.px(17))
 	box.add_child(supply_label)
 	var table := GridContainer.new()
 	table.name = "BothSideTotals"
@@ -105,7 +105,7 @@ func _build_overview(parent: Control) -> void:
 	table_scroll.add_child(table)
 	for heading: String in ["Side", "Slain", "Seriously\nwounded", "Other\nwounded", "Unhurt", "Retreated*"]:
 		var head := UiKit.label(heading, "Muted", true)
-		head.add_theme_font_size_override("font_size", 17)
+		head.add_theme_font_size_override("font_size", UiTheme.px(17))
 		head.custom_minimum_size.x = 245 if heading == "Side" else 85
 		head.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		table.add_child(head)
@@ -114,13 +114,13 @@ func _build_overview(parent: Control) -> void:
 		var side: Dictionary = summary["sides"][index]
 		var name_label := UiKit.label("%s (%d)" % [side["name"], int(side["total"])], "", true)
 		name_label.name = "Side%dName" % index
-		name_label.add_theme_font_size_override("font_size", 18)
+		name_label.add_theme_font_size_override("font_size", UiTheme.px(18))
 		name_label.custom_minimum_size.x = 245
 		table.add_child(name_label)
 		for key: String in ["slain", "seriously_wounded", "other_wounded", "unhurt", "fled"]:
 			var metric := UiKit.label(str(int(side.get(key, 0))))
 			metric.name = "Side%d_%s" % [index, key]
-			metric.add_theme_font_size_override("font_size", 20)
+			metric.add_theme_font_size_override("font_size", UiTheme.px(20))
 			metric.add_theme_color_override("font_color", UiTheme.BAD if key == "slain" else UiTheme.INK)
 			table.add_child(metric)
 		var losses: Array[String] = []
@@ -134,7 +134,7 @@ func _build_overview(parent: Control) -> void:
 	box.add_child(overlap)
 	var important := UiKit.label("Officers slain: " + (" · ".join(officers) if not officers.is_empty() else "none"), "", true)
 	important.name = "ResultsOfficerLosses"
-	important.add_theme_font_size_override("font_size", 17)
+	important.add_theme_font_size_override("font_size", UiTheme.px(17))
 	important.add_theme_color_override("font_color", UiTheme.BRASS)
 	box.add_child(important)
 	for rider: Dictionary in result.get("rider_outcomes", []):
@@ -147,7 +147,7 @@ func _build_overview(parent: Control) -> void:
 	if taken.size() == 2 and int(taken[0]) + int(taken[1]) > 0:
 		var prisoners := UiKit.label("Taken prisoner: %d of yours · %d of theirs. Ransom or exchange them at Court." % [int(taken[0]), int(taken[1])], "", true)
 		prisoners.name = "ResultsPrisoners"
-		prisoners.add_theme_font_size_override("font_size", 17)
+		prisoners.add_theme_font_size_override("font_size", UiTheme.px(17))
 		prisoners.add_theme_color_override("font_color", UiTheme.BRASS)
 		box.add_child(prisoners)
 

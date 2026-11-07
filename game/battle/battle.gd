@@ -35,6 +35,7 @@ const SLOWMO_TIME := 1.4              # real seconds
 const SLOWMO_COOLDOWN := 2.5
 const DRAG_THRESHOLD := 12.0
 const FEED_MAX := 4
+const FEED_MAX_MOBILE := 3   # v0.098: phone lines are bigger; three keep the field in view
 const FEED_LIFE := 10.0
 const RESULT_DELAY := 1.2
 ## World-map terrain name -> sim terrain (movement multiplier key in Formulas.TERRAIN_MOVE) and map look.
@@ -290,6 +291,7 @@ func _build_ui() -> void:
 		bar_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 		bar_scroll.mouse_filter = Control.MOUSE_FILTER_PASS
 		bar.position = Vector2.ZERO
+		bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL   # v0.098: fill the strip, so the status line gets its width
 		ui.add_child(bar_scroll)
 		bar_scroll.add_child(bar)
 	else:
@@ -308,6 +310,9 @@ func _build_ui() -> void:
 	# settings (gear) as an overlay; playback pauses while it is open
 	var gear: Button = UiKit.settings_button(ui, "", true)
 	gear.custom_minimum_size = Vector2(maxf(120.0, UiKit.touch_min(56)), UiKit.touch_min(56))
+	gear.name = "BattleSettings"
+	gear.focus_mode = Control.FOCUS_NONE   # like its neighbours: no focus ring left after a tap
+	_style_hud_button(gear)   # v0.098: same dark plate as its neighbours, so it no longer reads as disabled
 	gear.pressed.connect(_on_settings_opened)   # connected after UiKit's, so the overlay already exists
 	bar.add_child(gear)
 	var history := _big_button("Combat log", Vector2(116, 56))
@@ -320,18 +325,37 @@ func _build_ui() -> void:
 	sp.add_theme_stylebox_override("panel", _box(Color(0, 0, 0, 0.55), 8))
 	bar.add_child(sp)
 	status_label = Label.new()
-	status_label.add_theme_font_size_override("font_size", 18)
+	status_label.add_theme_font_size_override("font_size", UiTheme.px(18))
 	status_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	status_label.custom_minimum_size = Vector2(0, 40)
+	if UiTheme.is_mobile():
+		# v0.098: inside the sideways-scrolling strip a wrapping label was squeezed to one letter per line,
+		# which stretched every button down the screen. One line, trimmed with "..." when it runs out of room.
+		status_label.name = "BattleStatus"
+		status_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+		status_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		status_label.clip_text = true
+		status_label.custom_minimum_size = Vector2(220, 40)
+		status_label.add_theme_font_size_override("font_size", 26)
 	var sh := HBoxContainer.new()
 	sh.add_theme_constant_override("separation", 14)
 	sh.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	sp.add_child(sh)
 	sh.add_child(status_label)
+	var cap := Label.new()   # v0.098: the bar said nothing on its own
+	cap.name = "StrengthCaption"
+	cap.text = "Standing"
+	cap.add_theme_font_size_override("font_size", 15 if not UiTheme.is_mobile() else 24)
+	cap.add_theme_color_override("font_color", Color("f2dfb0"))
+	cap.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	cap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	sh.add_child(cap)
 	strength_bar = Control.new()
+	strength_bar.name = "StrengthBar"
+	strength_bar.tooltip_text = "Fighters still standing: yours in gold, the enemy's in blue"
 	strength_bar.custom_minimum_size = Vector2(120, 26)
 	strength_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	strength_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -340,7 +364,7 @@ func _build_ui() -> void:
 	# decisive-moment feed
 	feed_box = VBoxContainer.new()
 	feed_box.position = Vector2(10, 74)
-	feed_box.custom_minimum_size = Vector2(500, 0)
+	feed_box.custom_minimum_size = Vector2(500 if not UiTheme.is_mobile() else 660, 0)
 	feed_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	feed_box.add_theme_constant_override("separation", 4)
 	ui.add_child(feed_box)
@@ -388,13 +412,19 @@ func _big_button(text: String, min_size: Vector2) -> Button:
 		var min_h := float(UiKit.MOBILE_TAP)
 		b.custom_minimum_size = Vector2(maxf(min_size.x, min_h), maxf(min_size.y, min_h))
 	b.focus_mode = Control.FOCUS_NONE
+	_style_hud_button(b)
+	return b
+
+## The battle bar's one button look (dark plate, gold when on), shared by Settings so every button reads alike.
+func _style_hud_button(b: Button) -> void:
 	b.add_theme_stylebox_override("normal", _box(Color(0.12, 0.1, 0.09, 0.85), 6))
 	b.add_theme_stylebox_override("hover", _box(Color(0.2, 0.17, 0.14, 0.9), 6))
 	b.add_theme_stylebox_override("pressed", _box(Color(0.85, 0.6, 0.2, 0.95), 6))
 	b.add_theme_stylebox_override("hover_pressed", _box(Color(0.92, 0.68, 0.25, 0.95), 6))
+	b.add_theme_color_override("font_color", Color(0.95, 0.9, 0.8))
+	b.add_theme_color_override("font_hover_color", Color(1.0, 0.95, 0.85))
 	b.add_theme_color_override("font_pressed_color", Color(0.1, 0.06, 0.02))
 	b.add_theme_color_override("font_hover_pressed_color", Color(0.1, 0.06, 0.02))
-	return b
 
 func _box(c: Color, margin: int) -> StyleBoxFlat:
 	var sb := StyleBoxFlat.new()
@@ -454,7 +484,7 @@ func open_combat_log(participant: int = -1) -> void:
 	var header := UiKit.hbox(12)
 	content.add_child(header)
 	var title := UiKit.label("Combat log · battle paused", "Title", true)
-	title.add_theme_font_size_override("font_size", 28)
+	title.add_theme_font_size_override("font_size", UiTheme.px(28))
 	header.add_child(title)
 	var back := UiKit.button("Back to battle", close_combat_log, "", 170)
 	back.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE if UiTheme.is_mobile() else 18)
@@ -799,25 +829,54 @@ func _trigger_slowmo(idx: int) -> void:
 		_nudge_amount = 1.0
 
 # ------------------------------------------------------------------ feed
+## v0.098: a toast shows whole sentences only (as many as fit in `cap` letters), never a line cut mid-word;
+## a first sentence longer than `cap` is cut at a word with "...". The Combat log keeps the full line.
+const TOAST_CAP := 120
+const TOAST_CAP_MOBILE := 100   # two wrapped phone lines
+static func toast_text(full: String, cap: int = TOAST_CAP) -> String:
+	var s := full.strip_edges()
+	if s.length() <= cap: return s
+	var out := ""
+	var i := 0
+	while i < s.length():
+		var j := i
+		# a sentence ends at . ! or ? before a space or the end; the dots of "..." do not end one
+		while j < s.length() and not (s[j] in ".!?" and (j + 1 == s.length() or s[j + 1] == " ") and not (s[j] == "." and j > 0 and s[j - 1] == ".")):
+			j += 1
+		var sentence := s.substr(i, j - i + 1).strip_edges()
+		var joined := sentence if out == "" else out + " " + sentence
+		if joined.length() > cap: break
+		out = joined
+		i = j + 1
+	if out != "": return out
+	var cut := s.substr(0, cap - 3)
+	var sp := cut.rfind(" ")
+	if sp > cap / 2: cut = cut.substr(0, sp)
+	return cut.rstrip(",;:. ") + "..."
+
+## Your side's lines in gold and the enemy's in blue, matching their banners and the Standing bar.
+const TOAST_OURS := Color(1.0, 0.84, 0.52)
+const TOAST_THEIRS := Color(0.68, 0.84, 1.0)
+const TOAST_NEUTRAL := Color(0.93, 0.9, 0.84)   # a line with no fighter behind it: plain parchment, not a side's colour
+
 func _add_feed(e: Dictionary) -> void:
 	var b := Button.new()
-	b.text = BattleSim.event_text(e)
+	var mobile := UiTheme.is_mobile()
+	b.text = toast_text(BattleSim.event_text(e), TOAST_CAP_MOBILE if mobile else TOAST_CAP)
+	b.tooltip_text = BattleSim.event_text(e)
 	b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	b.custom_minimum_size = Vector2(440, 36)
 	b.focus_mode = Control.FOCUS_NONE
-	b.add_theme_font_size_override("font_size", 15)
-	if UiTheme.is_mobile():
-		b.custom_minimum_size.y = float(UiKit.MOBILE_TAP)
-		b.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE)
-		b.autowrap_mode = TextServer.AUTOWRAP_OFF
-		b.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-		b.clip_text = true
-	if b.text.length() > 150: b.text = b.text.substr(0, 147) + "..."   # the Combat log keeps the full line
+	b.add_theme_font_size_override("font_size", UiTheme.px(15))
+	if mobile:
+		# v0.098: two wrapped lines of a short, whole sentence instead of one line cut after 30 letters
+		b.custom_minimum_size = Vector2(660, float(UiKit.MOBILE_TAP))
+		b.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE - 4)
 	var a: int = int(e.get("actor", -1))
-	var col := Color(1.0, 0.92, 0.6)
+	var col := TOAST_NEUTRAL
 	if a >= 0 and a < sim.fighters.size():
-		col = Color(0.65, 0.85, 1.0) if sim.fighters[a].side == 0 else Color(1.0, 0.6, 0.55)
+		col = TOAST_OURS if sim.fighters[a].side == 0 else TOAST_THEIRS
 	b.add_theme_color_override("font_color", col)
 	b.add_theme_color_override("font_hover_color", col)
 	b.add_theme_stylebox_override("normal", _box(Color(0, 0, 0, 0.6), 8))
@@ -831,7 +890,7 @@ func _add_feed(e: Dictionary) -> void:
 			select(focus_i)
 			center_on(focus_i))
 	feed_box.add_child(b)
-	while feed_box.get_child_count() > FEED_MAX:
+	while feed_box.get_child_count() > (FEED_MAX_MOBILE if mobile else FEED_MAX):
 		var old := feed_box.get_child(0)
 		feed_box.remove_child(old)
 		old.queue_free()
@@ -934,7 +993,7 @@ func _banner(title: String, sub: String, secs: float) -> void:
 	t.add_theme_constant_override("outline_size", 10)
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	var s := Label.new(); s.text = sub
-	s.add_theme_font_size_override("font_size", 22)
+	s.add_theme_font_size_override("font_size", UiTheme.px(22))
 	s.add_theme_color_override("font_outline_color", Color(0.05, 0.03, 0.02))
 	s.add_theme_constant_override("outline_size", 6)
 	s.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

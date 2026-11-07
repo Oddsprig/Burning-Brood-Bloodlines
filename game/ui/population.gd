@@ -20,7 +20,7 @@ func _ready() -> void:
 	back_params = Game.screen_params.get("back_params", {}).duplicate(true)
 	var frame := UiKit.screen_frame(self, "Population")
 	var heading: Label = frame["title"]
-	heading.add_theme_font_size_override("font_size", 24)
+	heading.add_theme_font_size_override("font_size", UiTheme.px(24))
 	heading.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 	heading.custom_minimum_size.x = 0
 	frame["bar"].add_child(UiKit.button("Back", _back, "Row", 72))
@@ -101,7 +101,7 @@ func _refresh() -> void:
 		panel.add_child(words)
 		words.add_child(UiKit.label(String(row.get("race", "")).replace("_", " ").capitalize(), "H2", true))
 		var n := UiKit.label(UiKit.thousands(int(row.get("population", 0))), "H2")
-		n.add_theme_font_size_override("font_size", 26)
+		n.add_theme_font_size_override("font_size", UiTheme.px(26))
 		words.add_child(n)
 		words.add_child(UiKit.label("%d children · %d adults · %d elders" % [int(row.get("children", 0)), int(row.get("adults", 0)), int(row.get("elders", 0))], "", true))
 		words.add_child(UiKit.label("%d can recruit · %d at work" % [int(row.get("recruitable", 0)), int(row.get("common_jobs", 0))], "Muted", true))

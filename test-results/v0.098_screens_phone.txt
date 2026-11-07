@@ -1,0 +1,156 @@
+v0.098 - battle screen, Records tables and phone layout: test receipts
+Branch v0.098-screens-and-phone, base main c1b751a. Linux cloud container, Godot 4.7.2,
+one Godot process at a time (checked before each start), every run capped at 180 s.
+
+== New test: tests/test_screens_v098.gd (headless), final run on the committed code
+  ok: a short line is shown whole
+  ok: a long line keeps its whole first sentence, not a cut second one (The copper bodkin arrow strikes Rakust Oakenshield in the left lower leg, running through the muscle!)
+  ok: as many whole sentences as fit
+  ok: within the desktop cap
+  ok: the phone cap keeps the start of the first sentence (The copper bodkin arrow strikes Rakust Oakenshield in the left lower leg, running through the...)
+  ok: one long sentence is cut with ... (The human March bowman Clara's copper bodkin arrow hits Litast Deepdelver in the right upper leg, ripping the muscle...)
+  ok: the cut falls between words, not inside one
+  ok: edges trimmed
+  ok: an ellipsis inside a sentence is not a sentence end
+  ok: a first sentence with an ellipsis is cut like any other, not taken as a whole sentence (Wait...)
+  ok: no per-tick bleed rates in any combat line
+  ok: desktop sizes unchanged
+  ok: phone small sizes +10, like the theme's own
+  ok: phone display sizes stay
+  ok: a 16 px desktop label is near the phone body size
+  ok: a big rise reads as a multiple (fresh meat ×16.5)
+  ok: a small rise keeps the percent
+  ok: a fall keeps the percent
+  ok: doubled reads x2
+  ok: no unexplained Week record heading
+  ok: desktop: a 3-column table no longer spreads over 1560 px ([145.0, 139.0, 144.0])
+  ok: desktop: every cell is at least as wide as its text, so nothing new is cut
+  ok: desktop: header and rows share the same column widths
+  ok: desktop: a long text column keeps its full share (507 of 507)
+  ok: phone: columns keep the full width ([506.666656494141, 506.666656494141, 506.666656494141])
+  ok: phone: a long text column keeps its full share (507 of 507)
+  ok: desktop: world fixture loads
+  ok: desktop: Settings and Combat log buttons found
+  ok: desktop: Settings has the same plate as Combat log
+  ok: desktop: and the same text colour
+  ok: desktop: the strength bar has a caption
+  ok: desktop: its tooltip says whose colour is whose
+  ok: desktop: playback bar is one row high (56 px)
+  ok: desktop: two feed lines
+  ok: desktop: the feed shows whole sentences (The copper bodkin arrow strikes Rakust Oakenshield in the left lower leg, running through the muscle!)
+  ok: desktop: the full line stays in the tooltip
+  ok: desktop: your side's line is gold like your banners
+  ok: desktop: the enemy's line is blue like theirs
+  ok: desktop: feed keeps at most its line count (4)
+  ok: phone: world fixture loads
+  ok: phone: Settings and Combat log buttons found
+  ok: phone: Settings has the same plate as Combat log
+  ok: phone: and the same text colour
+  ok: phone: the strength bar has a caption
+  ok: phone: its tooltip says whose colour is whose
+  ok: phone: playback bar is one row high (96 px)
+  ok: phone: status line is one trimmed line
+  ok: phone: status line has room (905 px)
+  ok: phone: two feed lines
+  ok: phone: the feed shows the line's start, cut between words (The copper bodkin arrow strikes Rakust Oakenshield in the left lower leg, running through the...)
+  ok: phone: the full line stays in the tooltip
+  ok: phone: your side's line is gold like your banners
+  ok: phone: the enemy's line is blue like theirs
+  ok: phone: a feed line wraps instead of cutting at 30 letters
+  ok: phone: feed keeps at most its line count (3)
+test_screens_v098: 0 failures
+== res://tests/test_screens_v098.gd: PASS ==
+
+== Before the fix (battle/, ui/, data/, campaign/ stashed; same test)
+SCRIPT ERROR: Parse Error: Static function "toast_text()" not found in base "res://battle/battle.gd".
+SCRIPT ERROR: Parse Error: Static function "toast_text()" not found in base "res://battle/battle.gd".
+SCRIPT ERROR: Parse Error: Cannot infer the type of "t" variable because the value doesn't have a set type.
+SCRIPT ERROR: Parse Error: Static function "toast_text()" not found in base "res://battle/battle.gd".
+SCRIPT ERROR: Parse Error: Cannot find member "TOAST_CAP" in base "res://battle/battle.gd".
+SCRIPT ERROR: Parse Error: Cannot find member "TOAST_CAP_MOBILE" in base "res://battle/battle.gd".
+   (the old code has no toast_text, caps, px or price_move_text: the test cannot run; 39 errors)
+
+== Regression: each test on main c1b751a (worktree) and on v0.098, one at a time
+   Failure lines compared with diff; timings in ms differ run to run.
+main_test_battle_screen exit=1 secs=21 == res://tests/test_battle_screen.gd: FAIL (1) == 
+cand_test_battle_screen exit=1 secs=37 == res://tests/test_battle_screen.gd: FAIL (1) == 
+main_test_battle_visual_purity exit=0 secs=7 == res://tests/test_battle_visual_purity.gd: PASS == 
+cand_test_battle_visual_purity exit=0 secs=6 == res://tests/test_battle_visual_purity.gd: PASS == 
+main_test_combat_log_ui_v016 exit=0 secs=11 == res://tests/test_combat_log_ui_v016.gd: PASS == 
+cand_test_combat_log_ui_v016 exit=0 secs=10 == res://tests/test_combat_log_ui_v016.gd: PASS == 
+main_test_battle_results_ui_v014 exit=0 secs=12 == res://tests/test_battle_results_ui_v014.gd: PASS == 
+cand_test_battle_results_ui_v014 exit=0 secs=11 == res://tests/test_battle_results_ui_v014.gd: PASS == 
+main_test_battle_creatures exit=0 secs=15 == res://tests/test_battle_creatures.gd: PASS == 
+cand_test_battle_creatures exit=0 secs=14 == res://tests/test_battle_creatures.gd: PASS == 
+main_test_touch_ui_v072 exit=0 secs=5 == res://tests/test_touch_ui_v072.gd: PASS == 
+cand_test_touch_ui_v072 exit=0 secs=5 == res://tests/test_touch_ui_v072.gd: PASS == 
+main_test_touch_scroll_v083 exit=0 secs=6 == res://tests/test_touch_scroll_v083.gd: PASS == 
+cand_test_touch_scroll_v083 exit=0 secs=6 == res://tests/test_touch_scroll_v083.gd: PASS == 
+main_test_popup_cleanup_v070 exit=0 secs=8 == res://tests/test_popup_cleanup_v070.gd: PASS == 
+cand_test_popup_cleanup_v070 exit=0 secs=9 == res://tests/test_popup_cleanup_v070.gd: PASS == 
+main_test_ui_modal exit=0 secs=6 == res://tests/test_ui_modal.gd: PASS == 
+cand_test_ui_modal exit=0 secs=5 == res://tests/test_ui_modal.gd: PASS == 
+main_test_ui_screens exit=1 secs=14 == res://tests/test_ui_screens.gd: FAIL (1) == 
+cand_test_ui_screens exit=1 secs=13 == res://tests/test_ui_screens.gd: FAIL (1) == 
+main_test_ui_land_map exit=2 secs=17 == res://tests/test_ui_land_map.gd: FAIL (2) == 
+cand_test_ui_land_map exit=2 secs=16 == res://tests/test_ui_land_map.gd: FAIL (2) == 
+main_test_performance_panel exit=0 secs=8 == res://tests/test_performance_panel.gd: PASS == 
+cand_test_performance_panel exit=0 secs=8 == res://tests/test_performance_panel.gd: PASS == 
+main_test_muster_ui_v017 exit=0 secs=62 == res://tests/test_muster_ui_v017.gd: PASS == 
+cand_test_muster_ui_v017 exit=0 secs=63 == res://tests/test_muster_ui_v017.gd: PASS == 
+main_test_ui_roster_tags exit=1 secs=13 == res://tests/test_ui_roster_tags.gd: FAIL (1) == 
+cand_test_ui_roster_tags exit=1 secs=13 == res://tests/test_ui_roster_tags.gd: FAIL (1) == 
+main_test_records_ui_v018 exit=1 secs=14 == res://tests/test_records_ui_v018.gd: FAIL (1) == 
+cand_test_records_ui_v018 exit=1 secs=13 == res://tests/test_records_ui_v018.gd: FAIL (1) == 
+main_test_ui_records exit=11 secs=20 == res://tests/test_ui_records.gd: FAIL (11) == 
+cand_test_ui_records exit=11 secs=20 == res://tests/test_ui_records.gd: FAIL (11) == 
+main_test_ui_records_v043 exit=0 secs=52 == res://tests/test_ui_records_v043.gd: PASS == 
+cand_test_ui_records_v043 exit=0 secs=55 == res://tests/test_ui_records_v043.gd: PASS == 
+main_test_ui_records_v044 exit=124 secs=180 
+cand_test_ui_records_v044 exit=124 secs=180 
+main_test_records_snapshot exit=0 secs=21 == res://tests/test_records_snapshot.gd: PASS == 
+cand_test_records_snapshot exit=0 secs=22 == res://tests/test_records_snapshot.gd: PASS == 
+main_test_records_paired exit=5 secs=15 == res://tests/test_records_paired.gd: FAIL (5) == 
+cand_test_records_paired exit=5 secs=14 == res://tests/test_records_paired.gd: FAIL (5) == 
+main_test_records_performance exit=3 secs=13 == res://tests/test_records_performance.gd: FAIL (3) == 
+cand_test_records_performance exit=3 secs=14 == res://tests/test_records_performance.gd: FAIL (3) == 
+main_test_sale_fixes_v097 exit=0 secs=10 == res://tests/test_sale_fixes_v097.gd: PASS == 
+cand_test_sale_fixes_v097 exit=0 secs=11 == res://tests/test_sale_fixes_v097.gd: PASS == 
+main_claude_court_events exit=0 secs=17 == res://tests/claude_court_events.gd: PASS == 
+cand_claude_court_events exit=0 secs=16 == res://tests/claude_court_events.gd: PASS == 
+cand_test_screens_v098 exit=0 secs=14 == res://tests/test_screens_v098.gd: PASS == 
+main_display_a exit=0 secs=45 == res://tests/claude_campaign.gd: PASS == == res://tests/claude_markers_v031.gd: PASS == == res://tests/claude_refit.gd: PASS == 
+cand_display_a exit=0 secs=46 == res://tests/claude_campaign.gd: PASS == == res://tests/claude_markers_v031.gd: PASS == == res://tests/claude_refit.gd: PASS == 
+main_display_b exit=1 secs=34 == res://tests/claude_rounds.gd: PASS == == res://tests/claude_prisoners_ui_v033.gd: FAIL (1) == == res://tests/claude_dragonfear.gd: PASS == 
+cand_display_b exit=1 secs=34 == res://tests/claude_rounds.gd: PASS == == res://tests/claude_prisoners_ui_v033.gd: FAIL (1) == == res://tests/claude_dragonfear.gd: PASS == 
+main_display_c exit=1 secs=60 == res://tests/claude_population_ui_v034.gd: PASS == == res://tests/claude_creatures_ui_v035.gd: PASS == == res://tests/claude_diplomacy_v030.gd: PASS == == res://tests/claude_marriage.gd: FAIL (1) == 
+cand_display_c exit=1 secs=57 == res://tests/claude_population_ui_v034.gd: PASS == == res://tests/claude_creatures_ui_v035.gd: PASS == == res://tests/claude_diplomacy_v030.gd: PASS == == res://tests/claude_marriage.gd: FAIL (1) == 
+
+== Comparison
+Same result and same failure lines on main and v0.098 for every test above.
+Older failures, identical on main: test_battle_screen (1: dead removed from company),
+test_ui_screens (1), test_ui_land_map (2, timing), test_ui_roster_tags (1), test_records_ui_v018 (1),
+test_ui_records (11; its tab-switch timing line: main 46.7 ms, v0.098 57.3 ms, both over its 16 ms gate),
+test_records_paired (5), test_records_performance (3), claude_prisoners_ui_v033 (1), claude_marriage (1).
+test_ui_records_v044 does not finish in 180 s on main or v0.098 (stopped by the cap); its first 17
+failure lines are identical. It needs splitting to meet the 3-minute rule (v0.099).
+test_battle_screen took 37 s on v0.098 because the 0.098 world fixture was built on first use.
+
+== Screenshot tours after the fixes (xvfb, one at a time)
+b4_phone exit=0 secs=84 == res://tests/claude_tour.gd: PASS ==
+b4_desk exit=0 secs=86 == res://tests/claude_tour.gd: PASS ==
+p4_phone exit=0 secs=34 == res://tests/ui_pages_v096.gd: PASS ==
+p4_desk exit=0 secs=41 == res://tests/ui_pages_v096.gd: PASS ==
+store_tour exit=0 secs=93 == res://tests/claude_tour.gd: PASS ==
+store_pages exit=0 secs=49 == res://tests/ui_pages_v096.gd: PASS ==
+store_dragon_battle (claude_tour --size=1920x1080 --battle-only --troops=60): PASS, 92 s; 6 breaths, 58 breath hits.
+Phone = 1600x720 --mobile (landscape, 2000x900 logical). Before the fixes (same tours, 1600x720 --mobile):
+battle_land PASS 87 s, pages_land1-3 PASS 43/46/33 s; portrait 720x1280 runs were stopped (Android is landscape only).
+Reviewed by eye: phone battle bar one row, feed two lines in team colours, inspector and combat log readable;
+Court tree cards and the ruler card fit their text on a phone; desktop Records tables packed, nothing cut;
+"Biggest 7-day change" reads "fresh meat ×16.5".
+
+== Found while capturing store images (not changed in v0.098; v0.099)
+A big battle (over 100 men a side) goes in rounds of 100, picked in pool order, and the bonded dragons are
+appended after every man (core/game.gd start_battle -> BattleRounds.begin), so with 100+ men they miss round 1
+and may never fight. With 60 men (one clash) both dragons fought and breathed.

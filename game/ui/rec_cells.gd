@@ -22,6 +22,7 @@ func configure(values: Array, shares: Array, titles: Array, is_header: bool = fa
 		var fs := UiTheme.MOBILE_FONT_SIZE if UiTheme.is_mobile() else (17 if is_header else 18)
 		# v0.096: body cells use lining, tabular figures so right-aligned numbers line up column by column.
 		line.add_string(txt if is_header else UiKit.group_digits(txt), UiTheme.bold() if is_header else UiTheme.numeric_font(), fs)
+		natural.append(line.get_line_width())
 		cells.append(line)
 	set_meta("rec_values", plain)
 	var descriptions := []
@@ -39,13 +40,37 @@ func configure(values: Array, shares: Array, titles: Array, is_header: bool = fa
 	resized.connect(_fit)
 	_fit()
 
+## v0.098: on a wide desktop a column is never wider than its widest text (header included) plus COL_PAD, so a
+## three-column table no longer puts 500 px between each number; the spare width stays empty on the right.
+## A column only ever shrinks to text that fits, so nothing is cut that was whole before. Phones keep the full spread.
+const COL_PAD := 28.0
+var natural: Array = []   # each cell's untrimmed text width
+var caps: Array = []      # per column, set by fit_columns() for the whole table
+
+## Give every row of one table (header row included) the same per-column caps: its widest text in that column.
+static func fit_columns(rows: Array) -> void:
+	var widest := []
+	for r in rows:
+		if not (r is RecCells): continue
+		for i in (r as RecCells).natural.size():
+			if i >= widest.size(): widest.append(0.0)
+			widest[i] = maxf(float(widest[i]), float(r.natural[i]))
+	var c := widest.map(func(w): return float(w) + COL_PAD)
+	for r in rows:
+		if r is RecCells:
+			(r as RecCells).caps = c
+			(r as RecCells)._fit()
+
 func _fit() -> void:
 	var total := 0.0
 	for w in weights: total += float(w)
 	if total <= 0.0: total = float(cells.size())
 	var usable := maxf(0.0, size.x - 20.0 - 10.0 * maxi(0, cells.size() - 1))
 	for i in cells.size():
-		cells[i].width = usable * (float(weights[i]) if i < weights.size() else 1.0) / total
+		var share := float(weights[i]) if i < weights.size() else 1.0
+		cells[i].width = usable * share / total
+		if not UiTheme.is_mobile() and i < caps.size():
+			cells[i].width = minf(cells[i].width, float(caps[i]))
 		cells[i].alignment = HORIZONTAL_ALIGNMENT_LEFT if i == 0 else HORIZONTAL_ALIGNMENT_RIGHT
 	queue_redraw()
 

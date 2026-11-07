@@ -40,7 +40,7 @@ func _process(delta: float) -> void:
 
 func _ready() -> void:
 	theme = UiTheme.get_theme()
-	custom_minimum_size = Vector2(300, 136)
+	custom_minimum_size = Vector2(300, 136) if not UiTheme.is_mobile() else Vector2(430, 186)   # v0.098: room for phone-sized text
 	for st in ["normal", "hover", "pressed"]:
 		add_theme_stylebox_override(st, UiTheme.sb(UiTheme.WOOD_3.lightened(0.05 if st == "hover" else 0.0), UiTheme.BRASS, 2, 10))
 	var inset := MarginContainer.new()
@@ -72,15 +72,15 @@ func _ready() -> void:
 	top.add_child(office_state)
 	house_name = _word("", "")
 	house_name.add_theme_font_override("font", UiTheme.bold())
-	house_name.add_theme_font_size_override("font_size", 18)
+	house_name.add_theme_font_size_override("font_size", UiTheme.px(18))
 	house_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	house_name.clip_text = true
 	house_name.custom_minimum_size.x = 40
 	house_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(house_name)
 	ruler_name = _word("", "", true)
-	ruler_name.add_theme_font_size_override("font_size", 19)
-	ruler_name.max_lines_visible = 2
+	ruler_name.add_theme_font_size_override("font_size", UiTheme.px(19))
+	ruler_name.max_lines_visible = 2 if not UiTheme.is_mobile() else 1
 	ruler_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	words.add_child(ruler_name)
 	city_name = _word("", "Muted", true)
@@ -92,7 +92,7 @@ func _ready() -> void:
 func _word(value: String, style: String, wrap: bool = false) -> Label:
 	var label := UiKit.label(value, style, wrap)
 	label.mouse_filter = MOUSE_FILTER_IGNORE
-	label.add_theme_font_size_override("font_size", 16)
+	label.add_theme_font_size_override("font_size", UiTheme.px(16))
 	return label
 
 func refresh(force: bool = false) -> void:

@@ -214,7 +214,7 @@ func _head(fid: String) -> Control:
 	l.text = short_name(fid)
 	l.add_theme_color_override("font_color", UiTheme.LIGHT)
 	l.add_theme_font_override("font", UiTheme.bold())
-	l.add_theme_font_size_override("font_size", 18)
+	l.add_theme_font_size_override("font_size", UiTheme.px(18))
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -227,7 +227,7 @@ func _cell(a: String, b: String) -> Control:
 	var l := Label.new()
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	l.add_theme_font_size_override("font_size", 17)
+	l.add_theme_font_size_override("font_size", UiTheme.px(17))
 	if a == b:
 		p.add_theme_stylebox_override("panel", UiTheme.sb(UiTheme.PARCH_3, UiTheme.PARCH_3.darkened(0.2), 1, 6, 8, 4))
 		l.text = "-"
@@ -243,7 +243,7 @@ func _cell(a: String, b: String) -> Control:
 			tt = "Non-aggression until year %d" % Calendar.year(float(pair["pact_until"]))
 		if tt != "":
 			l.text += "\n" + tt
-			l.add_theme_font_size_override("font_size", 15)
+			l.add_theme_font_size_override("font_size", UiTheme.px(15))
 			l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		l.add_theme_color_override("font_color", UiTheme.LIGHT)
 		l.add_theme_font_override("font", UiTheme.bold())

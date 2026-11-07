@@ -250,6 +250,8 @@ func _refresh() -> void:
 		button.set_meta("rec_tap", tap)
 		_rows_box.add_child(button)
 		_rows_box.move_child(button, i)
+	if not display_columns.is_empty():   # v0.098: one set of column widths for the heading and every row shown
+		RecCells.fit_columns([_heading] + _rows_box.get_children().filter(func(n): return n is RecCells and not n.is_queued_for_deletion()))
 	if s.size() > limit:
 		_rows_box.add_child(UiKit.button("Show %d more" % mini(LIMIT, s.size() - limit), func(): limit += LIMIT; _refresh(), "Row"))
 	if s.is_empty():

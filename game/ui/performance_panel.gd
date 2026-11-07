@@ -53,11 +53,11 @@ func _ready() -> void:
 	_combat_history = _label(contents)
 	_ownership = _label(contents)
 	_scan = UiKit.button("Refresh owner counts", _refresh_owners)
-	_scan.add_theme_font_size_override("font_size", 13)
+	_scan.add_theme_font_size_override("font_size", UiTheme.px(13))
 	contents.add_child(_scan)
 	var heading: Label = _label(contents); heading.text = "Calculations · ms per call"
 	for _i in JOB_ROWS: _jobs.append(_label(contents))
-	_source = _label(contents); _source.add_theme_font_size_override("font_size", 12)
+	_source = _label(contents); _source.add_theme_font_size_override("font_size", UiTheme.px(12))
 	get_viewport().size_changed.connect(_fit)
 	if tracker == null: tracker = get_node_or_null("/root/Perf") as PerformanceTracker
 	if tracker != null: tracker.mark_open()
@@ -67,7 +67,7 @@ static func _label(parent: Node) -> Label:
 	var value := Label.new()
 	value.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	value.add_theme_font_size_override("font_size", 13)
+	value.add_theme_font_size_override("font_size", UiTheme.px(13))
 	value.add_theme_color_override("font_color", Color("#e8e7df"))
 	parent.add_child(value)
 	return value

@@ -110,7 +110,7 @@ func _refresh() -> void:
 	elif Game.company.is_empty(): todo = "Your army is not raised. Fund it below, then raise troops in Army."
 	elif Game.unpaid_count() > 0: todo = "%d soldiers are unpaid: fund the army wallet." % Game.unpaid_count()
 	if todo != "":
-		var tp := UiKit.panel("Inset"); var tl := UiKit.label(todo, "", true); tl.add_theme_font_size_override("font_size", 22); tl.add_theme_color_override("font_color", UiTheme.WARN); tp.add_child(tl); body.add_child(tp)
+		var tp := UiKit.panel("Inset"); var tl := UiKit.label(todo, "", true); tl.add_theme_font_size_override("font_size", UiTheme.px(22)); tl.add_theme_color_override("font_color", UiTheme.WARN); tp.add_child(tl); body.add_child(tp)
 	var accounts: Dictionary = Dynasty.accounts(Game)
 	var arms := UiKit.wrap(UiKit.label("House arms (your common soldiers): %s" % ArmsPool.summary(Game, "player"), "", true), 80)
 	arms.mouse_filter = MOUSE_FILTER_PASS

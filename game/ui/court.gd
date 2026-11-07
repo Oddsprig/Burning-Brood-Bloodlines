@@ -119,7 +119,7 @@ func _direction(data: Dictionary) -> Control:
 		text = "Heir: %s.  Your family is settled." % heir.get("name", "?")
 	var p := UiKit.panel("Inset")
 	var l := UiKit.label(text, "", true)
-	l.add_theme_font_size_override("font_size", 22)
+	l.add_theme_font_size_override("font_size", UiTheme.px(22))
 	l.add_theme_color_override("font_color", tone)
 	p.add_child(l)
 	return p
@@ -465,7 +465,7 @@ func _open_matches(member_uid: String, member_name: String) -> void:
 		var pt := Portrait.new(); pt.custom_minimum_size = Vector2(84, 84); pt.set_spec(Dynasty.portrait_for(Game, o["row"])); h.add_child(pt)
 		var col := UiKit.vbox(2); col.size_flags_horizontal = SIZE_EXPAND_FILL; col.custom_minimum_size.x = 360; h.add_child(col)
 		var name := UiKit.label("%s of House %s" % [o["name"], o["house_name"]], "H2", true)
-		name.add_theme_font_size_override("font_size", 21)
+		name.add_theme_font_size_override("font_size", UiTheme.px(21))
 		col.add_child(name)
 		col.add_child(UiKit.label("%s, %d · %s" % ["woman" if int(o["sex"]) == 1 else "man", int(o["age"]), o["town_name"]], "Muted", true))
 		var yes: bool = o["accepts"]
@@ -557,7 +557,7 @@ class FamilyTree:
 		var d: Dictionary = data[uid]
 		var row: Dictionary = d["row"]
 		var b := Button.new()
-		b.custom_minimum_size = Vector2(150, 214)
+		b.custom_minimum_size = Vector2(150, 214) if not UiTheme.is_mobile() else Vector2(176, 264)   # v0.098: phone text is +10
 		b.focus_mode = FOCUS_NONE
 		b.theme_type_variation = "Row"
 		var heir_uid := str(Dynasty.selected_heir(Game).get("person_uid", ""))
@@ -586,7 +586,7 @@ class FamilyTree:
 
 	func _l(t: String, size: int, col: Color, bold := false) -> Label:
 		var l := Label.new(); l.text = t; l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		l.add_theme_font_size_override("font_size", size); l.add_theme_color_override("font_color", col)
+		l.add_theme_font_size_override("font_size", UiTheme.px(size)); l.add_theme_color_override("font_color", col)
 		l.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS; l.clip_text = true
 		l.mouse_filter = MOUSE_FILTER_IGNORE
 		if bold: l.add_theme_font_override("font", UiTheme.bold())

@@ -67,7 +67,7 @@ static func _actions(scr: Control, t: Dictionary, parent: Control, data: Diction
 	var treat := UiKit.button("Treat all (%d) · %d coins" % [int(data["treatable"]), int(data["quote"])],
 		func(): scr._treat_all_confirm(t), "", 230)
 	treat.name = "TreatAll"
-	treat.add_theme_font_size_override("font_size", 18)
+	treat.add_theme_font_size_override("font_size", UiTheme.px(18))
 	treat.disabled = int(data["treatable"]) == 0
 	treat.tooltip_text = "Review the existing treatment quote. Most critical wounds are treated first; treatment stops if coins run short."
 	actions.add_child(treat)

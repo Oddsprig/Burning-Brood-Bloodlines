@@ -36,14 +36,14 @@ static func round_panel(d: Dictionary, on_next: Callable, battle_over: bool) -> 
 
 	var waiting := UiKit.label("Waiting to fight: %d vs %d" % [_at(d, "fresh_left", 0), _at(d, "fresh_left", 1)])
 	waiting.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	waiting.add_theme_font_size_override("font_size", 26)
+	waiting.add_theme_font_size_override("font_size", UiTheme.px(26))
 	waiting.add_theme_color_override("font_color", UiTheme.LIGHT)
 	v.add_child(waiting)
 	var am: Dictionary = d.get("aftermath", {})
 	if int(am.get("medics", 0)) > 0:
 		var al := UiKit.label("Aftermath: %d medics · %d of the holders' wounded bandaged · %d enemy wounded taken and tended · %d bled out" % [int(am["medics"]), int(am["tended_own"]), int(am["tended_enemy"]), int(am["bled_out"][0]) + int(am["bled_out"][1])], "", true)
 		al.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		al.add_theme_font_size_override("font_size", 20)
+		al.add_theme_font_size_override("font_size", UiTheme.px(20))
 		al.add_theme_color_override("font_color", UiTheme.INK_SOFT)
 		v.add_child(al)
 
@@ -84,7 +84,7 @@ static func battle_panel(d: Dictionary, on_continue: Callable) -> PanelContainer
 	var rounds := int(d.get("rounds", 0))
 	var sub := UiKit.label("%d round%s" % [rounds, "" if rounds == 1 else "s"], "Muted")
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	sub.add_theme_font_size_override("font_size", 24)
+	sub.add_theme_font_size_override("font_size", UiTheme.px(24))
 	v.add_child(sub)
 
 	v.add_child(_table(d, [
@@ -102,7 +102,7 @@ static func battle_panel(d: Dictionary, on_continue: Callable) -> PanelContainer
 	if retreat != "":
 		var line := UiKit.label(retreat, "Muted", true)
 		line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		line.add_theme_font_size_override("font_size", 22)
+		line.add_theme_font_size_override("font_size", UiTheme.px(22))
 		v.add_child(line)
 
 	v.add_child(_centred_button("Continue", func() -> void:
@@ -123,7 +123,7 @@ static func _card() -> PanelContainer:
 static func _title(text: String, px: int, colour: Color) -> Label:
 	var t := UiKit.label(text, "H2", true)
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	t.add_theme_font_size_override("font_size", px)
+	t.add_theme_font_size_override("font_size", UiTheme.px(px))
 	t.add_theme_color_override("font_color", colour)
 	return t
 
@@ -140,20 +140,20 @@ static func _table(d: Dictionary, rows: Array) -> GridContainer:
 		var head := UiKit.label(_name(d, side), "H2", true)
 		head.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		head.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		head.add_theme_font_size_override("font_size", 26)
+		head.add_theme_font_size_override("font_size", UiTheme.px(26))
 		head.add_theme_color_override("font_color", UiTheme.BRASS if side == 0 else UiTheme.LIGHT)
 		g.add_child(head)
 	for r in rows:
 		var row: Array = r
 		var key := UiKit.label(String(row[0]), "Muted")
-		key.add_theme_font_size_override("font_size", 22)
+		key.add_theme_font_size_override("font_size", UiTheme.px(22))
 		key.add_theme_color_override("font_color", UiTheme.INK_SOFT)
 		g.add_child(key)
 		for side in 2:
 			var val := UiKit.label(str(_at(d, String(row[1]), side)))
 			val.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			val.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			val.add_theme_font_size_override("font_size", 28)
+			val.add_theme_font_size_override("font_size", UiTheme.px(28))
 			val.add_theme_color_override("font_color", UiTheme.LIGHT)
 			g.add_child(val)
 	return g
@@ -166,7 +166,7 @@ static func _morale_row(d: Dictionary, side: int) -> HBoxContainer:
 
 	var who := UiKit.label(_name(d, side), "Muted", true)
 	who.custom_minimum_size = Vector2(220, 0)
-	who.add_theme_font_size_override("font_size", 20)
+	who.add_theme_font_size_override("font_size", UiTheme.px(20))
 	who.add_theme_color_override("font_color", UiTheme.INK_SOFT)
 	h.add_child(who)
 
@@ -191,7 +191,7 @@ static func _morale_row(d: Dictionary, side: int) -> HBoxContainer:
 	var sign := "+" if change > 0 else ""
 	var num := UiKit.label("%d (%s%d)" % [morale, sign, change])
 	num.custom_minimum_size = Vector2(150, 0)
-	num.add_theme_font_size_override("font_size", 26)
+	num.add_theme_font_size_override("font_size", UiTheme.px(26))
 	var num_colour := UiTheme.LIGHT
 	if change > 0:
 		num_colour = UiTheme.GOOD
@@ -208,7 +208,7 @@ static func _household(v: VBoxContainer, d: Dictionary) -> void:
 		return
 	v.add_child(HSeparator.new())
 	var head := UiKit.label("Household", "H2")
-	head.add_theme_font_size_override("font_size", 24)
+	head.add_theme_font_size_override("font_size", UiTheme.px(24))
 	head.add_theme_color_override("font_color", UiTheme.BRASS)
 	v.add_child(head)
 	if rows.size() > 8:
@@ -223,18 +223,18 @@ static func _household(v: VBoxContainer, d: Dictionary) -> void:
 		var h := UiKit.hbox(12)
 		var who := UiKit.label(String(row.get("name", "")), "", true)
 		who.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		who.add_theme_font_size_override("font_size", 22)
+		who.add_theme_font_size_override("font_size", UiTheme.px(22))
 		who.add_theme_color_override("font_color", UiTheme.LIGHT)
 		h.add_child(who)
 		var rel := String(row.get("relation", ""))
 		if rel != "":
 			var rel_l := UiKit.label(rel, "Muted")
-			rel_l.add_theme_font_size_override("font_size", 20)
+			rel_l.add_theme_font_size_override("font_size", UiTheme.px(20))
 			rel_l.add_theme_color_override("font_color", UiTheme.INK_SOFT)
 			h.add_child(rel_l)
 		var fate := String(row.get("fate", ""))
 		var fate_l := UiKit.label(fate.capitalize())
-		fate_l.add_theme_font_size_override("font_size", 22)
+		fate_l.add_theme_font_size_override("font_size", UiTheme.px(22))
 		fate_l.add_theme_color_override("font_color", _fate_colour(fate))
 		h.add_child(fate_l)
 		v.add_child(h)
@@ -266,7 +266,7 @@ static func _tactics_section(v: VBoxContainer, d: Dictionary, battle_over: bool 
 		var last := UiKit.label("You: %s  -  Them: %s" % [face0, face1], "", true)
 		last.name = "TacticLast"
 		last.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		last.add_theme_font_size_override("font_size", 22)
+		last.add_theme_font_size_override("font_size", UiTheme.px(22))
 		last.add_theme_color_override("font_color", UiTheme.LIGHT)
 		v.add_child(last)
 	var note := str(d.get("tactic_note", ""))
@@ -274,7 +274,7 @@ static func _tactics_section(v: VBoxContainer, d: Dictionary, battle_over: bool 
 		var nl := UiKit.label(note, "", true)
 		nl.name = "TacticNote"
 		nl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		nl.add_theme_font_size_override("font_size", 20)
+		nl.add_theme_font_size_override("font_size", UiTheme.px(20))
 		nl.add_theme_color_override("font_color", UiTheme.INK_SOFT)
 		v.add_child(nl)
 	if battle_over:
@@ -283,7 +283,7 @@ static func _tactics_section(v: VBoxContainer, d: Dictionary, battle_over: bool 
 	var head := UiKit.label("Orders for the next round", "H2")
 	head.name = "TacticOrders"
 	head.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	head.add_theme_font_size_override("font_size", 24)
+	head.add_theme_font_size_override("font_size", UiTheme.px(24))
 	head.add_theme_color_override("font_color", UiTheme.BRASS)
 	v.add_child(head)
 	var row := UiKit.flow(8)
@@ -315,7 +315,7 @@ static func _tactic_column(tactic: String, terrain: String, current: String, but
 	var dl := UiKit.label(desc, "Muted", true)
 	dl.name = "TacticDesc_" + tactic
 	dl.custom_minimum_size.x = 160
-	dl.add_theme_font_size_override("font_size", 15)
+	dl.add_theme_font_size_override("font_size", UiTheme.px(15))
 	dl.add_theme_color_override("font_color", UiTheme.INK_SOFT)
 	col.add_child(b)
 	col.add_child(dl)
@@ -387,7 +387,7 @@ static func _first_tactic(v: Variant) -> String:
 static func _centred_button(text: String, cb: Callable) -> CenterContainer:
 	var c := CenterContainer.new()
 	var b := UiKit.button(text, cb, "Row", 340)
-	b.add_theme_font_size_override("font_size", 24)
+	b.add_theme_font_size_override("font_size", UiTheme.px(24))
 	c.add_child(b)
 	return c
 

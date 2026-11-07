@@ -1,6 +1,6 @@
 extends RefCounted
 ## Screenshot tour of the real screens through main.tscn: title, map, house, dragons, town, army, battle, results.
-## -- --test=res://tests/claude_tour.gd --out=<dir> [--size=1280x720] [--only=a,b]
+## -- --test=res://tests/claude_tour.gd --out=<dir> [--size=1280x720] [--only=a,b] [--battle-only] [--mobile] [--troops=N]
 var out := ""
 var fails := 0
 var main: Node = null
@@ -31,6 +31,7 @@ func run(tree: SceneTree) -> int:
 		if a.begins_with("--size="):
 			var p := a.trim_prefix("--size=").split("x")
 			size = Vector2i(int(p[0]), int(p[1]))
+		if a == "--mobile": UiTheme.set_mobile_override(true)   # v0.098: the phone layout on a desktop run
 	DirAccess.make_dir_recursive_absolute(out)
 	tree.root.set_flag(Window.FLAG_NO_FOCUS, true); tree.root.position = Vector2i(-20000, -20000)
 	tree.root.size = size
@@ -99,10 +100,13 @@ func run(tree: SceneTree) -> int:
 	await screen(tree, "town")
 	# Raise a force and fight an actual enemy band.
 	var funding := Mobilization.fund(Game, int(floor(float(Feudal._payer(Game).get("purse", 0.0)) * 0.8)))
-	var quote := Mobilization.quote(Game, tid, 200)
+	var troops := 200   # v0.098: --troops=N (under 100 a battle is one clash, so the bonded dragons fight from the start)
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--troops="): troops = int(arg.trim_prefix("--troops="))
+	var quote := Mobilization.quote(Game, tid, troops)
 	print("tour: fund ", funding.get("ok", false), " quote ", quote.get("planned", 0))
 	if quote.get("ok", false):
-		Mobilization.muster(Game, tid, 200, quote["review"])
+		Mobilization.muster(Game, tid, troops, quote["review"])
 	print("tour: company ", Game.company.size())
 	for dragon: Dictionary in Dragons.records(Game):
 		var uid := str(dragon["id"])
@@ -140,6 +144,12 @@ func run(tree: SceneTree) -> int:
 		worst = maxf(worst, float(now - last) / 1000.0); last = now
 		nframes += 1
 		if nframes == 300: await shot(tree, "battle_mid")
+		if nframes == 340 and b.has_method("select"):   # v0.098: the unit inspector and the combat log, for the phone pass
+			for i in b.sim.fighters.size():
+				if b.sim.fighters[i].side == 0 and b.sim.fighters[i].active():
+					b.select(i); await shot(tree, "battle_inspector"); b.select(-1); break
+			if b.has_method("open_combat_log"):
+				b.open_combat_log(-1); await shot(tree, "battle_combat_log"); b.close_combat_log()
 		if breath_shots < 2 and "sim" in b and b.sim != null:
 			for e in b.sim.new_events:
 				if str(e.get("type", "")) == "breath":

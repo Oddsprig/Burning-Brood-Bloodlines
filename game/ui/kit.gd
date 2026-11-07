@@ -132,7 +132,7 @@ static func chip(text: String, bg: Color, fg: Color = UiTheme.LIGHT) -> PanelCon
 	l.add_theme_color_override("font_color", UiTheme.WOOD if fg == UiTheme.LIGHT and bg.get_luminance() > 0.45 else fg)
 	l.set_meta("keep_color", true)
 	l.add_theme_font_override("font", UiTheme.bold())
-	l.add_theme_font_size_override("font_size", 18)
+	l.add_theme_font_size_override("font_size", UiTheme.px(18))
 	p.add_child(l)
 	return p
 
