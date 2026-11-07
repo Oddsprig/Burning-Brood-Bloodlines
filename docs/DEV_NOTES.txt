@@ -24,9 +24,11 @@ schema change: the new battle state key last_fate is added when missing.
 Version metadata is 0.097.
 
 1. Child weddings. Marriage.daily weds a betrothed pair only when BOTH are of
-   their own race's adult age (_of_age); before, only the proposer's age was
-   checked, so an adult's child could be wed to a younger child. propose()
-   texts now say the wedding follows when both come of age.
+   age (_of_age); before, only the proposer's age was checked, so an adult's
+   child could be wed to a younger child. Ages use the household's own race
+   (Persons.family_race), not the town culture, in _of_age, candidates() and
+   propose(): a moon elf of 20 in a human town is a child. propose() weds at
+   once only when both are of age, else betroths; texts say "both".
 2. Looting men who left the field. BattleRounds.after_round records each man's
    latest fate in st["last_fate"]; final_result adds r["enemy_withdrew"] (every
    enemy who fought and left alive, not taken captive) and r["enemy_fled"] (those
@@ -36,8 +38,12 @@ Version metadata is 0.097.
    prisoner rules.
 3. Badly hurt dragons fighting on. BattleRounds._can_fight now applies the
    HealthReport "cannot fight" rule to dragons too (before, only death stopped
-   a dragon). DragonCombat.battle_riders seats a bound rider or a detached
-   rider body only when that rider can fight; the dragon then fights riderless.
+   a dragon). BattleRounds.grounded_riders: a rider deployed as his own Unit
+   whose dragon is in the pool, alive and unfit, stays out with it (fit() drops
+   him) instead of joining later rounds on foot; a rider whose dragon died
+   still fights on foot. DragonCombat.battle_riders seats a bound rider or a
+   detached rider body only when that rider can fight; the dragon then fights
+   riderless.
 4. House improvements without materials. HouseUpkeep.improvement_preview needs
    every material in full (stock_ok = no shortfall; the old any_stocked let one
    stocked good pass) and names the shortfall. start_improvement re-checks the
@@ -56,21 +62,24 @@ Version metadata is 0.097.
 Known limits (left as they were): a man routed in a one-clash fight but not
 marked fled is still looted; a refused improvement no longer signals material
 demand to the market.
-Tests: new tests/test_sale_fixes_v097.gd (31 checks, 6 sections, one headless
+Tests: new tests/test_sale_fixes_v097.gd (37 checks, 6 sections, one headless
 run, about 4 s once the start world is saved). On main's code it gave 12
 behaviour failures (weddings 2, loot 3, dragons 3, improvements 4) plus parse
-errors for the new helpers. tests/ui_pages_v096.gd (xvfb tour) adds
+errors for the new helpers; the 3 checks added for the red-team fixes fail on
+the first v0.097 commit (rider 1, household race 2). tests/ui_pages_v096.gd (xvfb tour) adds
 court_matches and court_matches_more shots when a member has more than one
 page of matches. Frozen fixtures under tests/fixtures keep the old Records
 strings on purpose.
 Verification: Linux cloud container only (never the owner's PC), one test at a
-time, each under 3 minutes. New test PASS 31/0. Related tests: 9 pass
+time, each under 3 minutes. New test PASS 37/0. Related tests: 9 pass
 (test_ai_marriage_dragons_v079, claude_house_upkeep, test_ransom_upkeep_v077,
 test_rider_targeting_v081, test_campaign_fixes_v095, claude_court_events,
 claude_rounds, test_ui_modal, ui_pages_v096 house+records 29 shots). 3 fail
 identically on main 623d009 (older issues, not v0.097): claude_marriage (1),
 claude_prisoners_v033 (2), claude_prisoners_ui_v033 (1).
 Receipts: test-results/v0.097_sale_fixes.txt.
+Review: Sol 6.1 max red team (read-only). Found the household-race and
+grounded-rider cases (also in the Argon and Sol helper drafts); both fixed.
 
 v0.096 - READABLE TEXT, FONTS AND LAYOUT ON EVERY PAGE (merged 6ed741a3134e8029496e83da18979052b015efb9)
 Base: 951cf2d. Presentation only; no rule, save, schema or simulation change.

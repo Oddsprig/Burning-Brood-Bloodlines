@@ -4,7 +4,7 @@ Headless runs: godot --headless --path game res://tests/runner.tscn -- --test=re
 Display runs: xvfb-run -a -s "-screen 0 1920x1080x24" godot --path game --rendering-method gl_compatibility res://tests/runner.tscn -- --test=res://tests/<name>.gd --watchdog=175
 Candidate = branch v0.097-sale-readiness (working tree); main = 623d009 source (candidate game/campaign, game/core, game/ui stashed, same tests).
 
-== New test, final candidate (version 0.097, start world made fresh as world_0.097_v1.json)
+== New test at the first v0.097 commit 26c2200 (version 0.097, start world made fresh as world_0.097_v1.json); final counts are in the red-team section below
 ok   a house is chosen
 ok   weddings: an unmarried adult of the house with a candidate
 ok   weddings: no wedding while the betrothed is still a child
@@ -97,3 +97,30 @@ claude_prisoners_ui_v033 == res://tests/claude_prisoners_ui_v033.gd: FAIL (1) ==
 claude_marriage and claude_prisoners_ui_v033 were already listed as failing on main in v0.096 (test-results/v0.096_ui_tests.txt).
 
 Every log also shows the configured missing boot splash (res://icon_mobile/splash.png) and, for display runs, ALSA/no-audio-device lines; these are not test results.
+
+== Red-team fixes (Sol 6.1 max findings: grounded rider; household race for wedding ages), commit 24047a5
+test_sale_fixes_v097 after both fixes (exit=0 secs=11):
+ok   weddings: a match from a human household in a human town
+ok   weddings: a human of 20 is of age
+ok   weddings: a moon elf of 20 in a human town is still a child
+ok   weddings: that elf child is not offered to an adult as a spouse
+ok   dragons: with his dragon whole, the deployed rider is fit
+ok   dragons: the rider of a badly hurt dragon stays out with it
+v097 checks 37, failures 0, 3392 ms
+== res://tests/test_sale_fixes_v097.gd: PASS ==
+Red before, rider check (previous battle_rounds.gd stashed):
+FAIL v097: dragons: the rider of a badly hurt dragon stays out with it
+v097 checks 33, failures 1, 3382 ms
+== res://tests/test_sale_fixes_v097.gd: FAIL (1) ==
+Red before, household-race checks (previous marriage.gd stashed):
+FAIL v097: weddings: a moon elf of 20 in a human town is still a child
+FAIL v097: weddings: that elf child is not offered to an adult as a spouse
+v097 checks 37, failures 2, 3460 ms
+== res://tests/test_sale_fixes_v097.gd: FAIL (2) ==
+Reruns after the fixes, one at a time:
+test_rider_targeting_v081_r2 == res://tests/test_rider_targeting_v081.gd: PASS ==
+claude_court_events_r2 == res://tests/claude_court_events.gd: PASS ==
+claude_rounds_r2 == res://tests/claude_rounds.gd: PASS ==
+test_ai_marriage_dragons_v079_r3 == res://tests/test_ai_marriage_dragons_v079.gd: PASS ==
+claude_marriage_r3 == res://tests/claude_marriage.gd: FAIL (1) ==
+    claude_marriage keeps main's same single failure: an unmarried adult has a match that would accept with a generous gift
