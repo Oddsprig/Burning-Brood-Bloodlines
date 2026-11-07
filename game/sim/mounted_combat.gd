@@ -55,7 +55,7 @@ static func sync(sim) -> void:
 				sim.occ[sim._ci(horse.cell)] = horse.idx
 			sim._tcells_ok = false
 			if rider.active() and not rider.prone and (horse.unit.dead or horse.prone or not horse.active()):
-				sim._fall(rider, "pain", Formulas.KNOCKDOWN_TICKS)
+				sim._fall(rider, "pain", 0)   # v0.100: no blow struck him; like other stance-loss falls (0 ticks). The full KNOCKDOWN_TICKS left an unhurt man helpless beside a standing enemy
 			if horse.unit.dead: Horses.casualty(rider.unit, horse.unit)
 		else:
 			follow(sim, rider)
