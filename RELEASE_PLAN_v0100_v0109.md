@@ -130,6 +130,8 @@ The ten versions below take it there. One goal per version, and every version go
   - Rig it with Godot bones (Skeleton2D) and give it these animations: standing, walking, wing beat, flying, breathing fire, hurt and death.
   - The saddle and rider hang on the base-of-neck bone, so they can never sit on the wings.
   - Show it side by side with today's sprite in the roost and in battle.
+- **Cause of today's saddle problem:** v0.072 added art/rider_fit.gd. Its anchor_px() puts the saddle "just tailward of the higher wing root" instead of using the v0.066 neck-base seat point (seat_px). Battle and the mount preview read that anchor, so the rider moved back onto the wings. The v0.066 seat data itself was never changed.
+- **Guard test:** tests/test_saddle_neck_base.gd. For every breed and pose, the saddle point must lie between the neck root and the front edge of the wing root, never behind it. The rider must be drawn in front of the near wing. The test joins the official suite, so any later change that moves the saddle fails it.
 - **Reference:** the earlier saddle work in project files v0066/v0066_dragon_seat_closeup.png, v0066/v0066_dragon_before_after_*.png and the v0062 and v0063 spirewing mount images.
 - **Files:** new art/dragon_bone_rig.gd, art/dragon parts (SVG or code), battle/dragon_view.gd (behind a switch), art/rider_fit.gd.
 - **Done when:**
