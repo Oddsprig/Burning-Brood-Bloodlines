@@ -1,12 +1,50 @@
 BURNING BROOD: BLOODLINES - ACTIVE CHANGE NOTES
-Updated: 2026-11-07 for v0.098 merged as c6d525aa01d67bafacbf96f02206749b98d19bd3.
+Updated: 2026-11-07 for v0.099 merged as MERGE_HASH_V099.
+v0.098 merged as c6d525aa01d67bafacbf96f02206749b98d19bd3.
 v0.097 merged as 7b0429ab4aa596498624f862398c4bcd30e6b737.
 v0.096 merged as 6ed741a3134e8029496e83da18979052b015efb9.
-Last packaged Desktop/Android release: v0.085. v0.096-v0.098 are source merges; no package is claimed.
+Packaged release: v0.099 (Windows .exe and signed Android .apk, built in the cloud
+container; not yet uploaded or on sale). v0.096-v0.098 are source merges.
 
 This changelog starts with the accepted v0.086-v0.094 source catch-up. Earlier
 history remains in the developer notes and immutable archives. Historical worker
 UNRUN reports are superseded by the accepted source receipts where stated.
+
+v0.099 - Release candidate: dragons in big battles, store builds, marriage ages
+Normal merge: MERGE_HASH_V099 (branch v0.099-release-candidate).
+Base 7ad5a8b (main after v0.098 notes).
+Big battles: in a battle of rounds your fit bonded dragons now fight every
+round. Before, the field took the first 100 a side in pool order and dragons
+are listed after every man, so with 100+ men a dragon never fought. Men still
+rotate (rested before tired) and a dragon too hurt to fight still sits out.
+The enemy's dragons follow the same rule.
+Marriage: an age gap is weighed in the longer-lived partner's years (adult
+life adult..elder: men 39 years, elves 260, dwarves 95). Elf and dwarf houses
+had almost no one to marry (an elf of 164 had no matches; now 19). Men, orcs
+and goblins keep exactly the old 16-year limit and score.
+Battle inspector: "(80% done)" and "Speed: steady   Morale 70" instead of
+"(12/15 ticks)" and "Speed 944 (lower is faster) tempo x1.04".
+Muster: when no family member can ride, it says who is away serving (the
+realm's field army, the town guard, a caravan).
+Store build: the shown name is "Burning Brood: Bloodlines" (title tagline,
+window title, app name; the save folder name is unchanged, so saves still
+load). New Windows Desktop export preset (one 64-bit .exe with the game inside,
+red dragon icon, publisher Oddsprig, version 0.99.0.0). Android preset 0.099
+(code 99) with launcher icons, a monochrome crown for themed icons and the boot
+splash that project.godot named but was never committed (icon_mobile/).
+tools/build_release.sh rebuilds both; the Android release key is passed by
+environment and is never in Git.
+Tests: new tests/test_release_v099.gd (33 checks, 0 failures; fails 2 on the
+old dragon code). Nine older tests updated to current rules (all failed the
+same way on main): test_battle_screen, claude_prisoners_v033,
+claude_prisoners_ui_v033, claude_marriage (by the fix), test_ui_land_map,
+test_army_scale_monster_pause, test_art_map_tokens, test_baggage,
+test_art_paperdoll. test_ui_records_v044 splits into four runs under 3 minutes
+(--part=world|faction|wide|tall).
+Owners (game/): campaign/battle_rounds.gd; campaign/marriage.gd;
+battle/inspector.gd; ui/muster.gd; ui/title.gd; main.gd; project.godot;
+export_presets.cfg; icon_mobile/; icon_windows.ico; tools/build_release.sh.
+Version metadata is 0.099. Receipts: test-results/v0.099_release_candidate.txt.
 
 v0.098 - Battle screen, Records tables and phone layout
 Normal merge: c6d525aa01d67bafacbf96f02206749b98d19bd3 (branch v0.098-screens-and-phone).

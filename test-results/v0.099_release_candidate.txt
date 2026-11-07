@@ -1,0 +1,136 @@
+v0.099 - release candidate: test and build receipts
+Branch v0.099-release-candidate, base main 7ad5a8b. Linux cloud container, Godot 4.7.2,
+one Godot process at a time (checked before each start), every run capped at 180 s.
+
+== New test: tests/test_release_v099.gd (headless), final run on the committed code
+ok   a house is chosen
+ok   rounds: two whole adult dragons
+ok   rounds: both dragons fight round 1 though more men wait than a round holds (4 picked)
+ok   rounds: the round is still 4 a side
+ok   rounds: fit dragons fight the next round too (they do not sit out as tired)
+ok   rounds: the men still rotate: round 1's men rest while the others fight
+ok   rounds: a dragon too hurt to fight still sits out (v0.097 rule kept)
+ok   inspector: action progress in percent (12 of 15 ticks = 80%)
+ok   inspector: odd tick counts stay within 0..100
+ok   inspector: pace words from tempo
+ok   inspector: no raw ticks or DF speed number left in the state line
+ok   muster: says who is away serving (No adult family members are free to ride with the army. Away serving: 2 with the realm's field army, 1 in the town guard.)
+ok   muster: plain line when nobody is away
+ok   marriage: men, orcs and goblins keep the old 16-year limit
+ok   marriage: elves weigh a gap in their own long lives (x6.67)
+ok   marriage: dwarves between men and elves
+ok   store: shown name is Burning Brood: Bloodlines (got Burning Brood: Bloodlines)
+ok   store: the save folder name is unchanged, so old saves still load
+ok   store: version 0.099
+ok   store: title screen and window title drop Claude Edition
+ok   store: the boot splash image exists (res://icon_mobile/splash.png)
+ok   store: export presets load
+ok   store: Windows Desktop and Android presets
+ok   store: Windows is one 64-bit .exe with the game inside
+ok   store: the Windows icon file exists
+ok   store: Android version 0.099 (code 99)
+ok   store: no release key or password in the committed presets
+ok   store: Android main_192x192 exists
+ok   store: Android adaptive_foreground_432x432 exists
+ok   store: Android adaptive_background_432x432 exists
+ok   store: Android adaptive_monochrome_432x432 exists
+ok   store: Windows Desktop leaves the tests out
+ok   store: Android leaves the tests out
+v099 checks 33, failures 0, 3028 ms
+== res://tests/test_release_v099.gd: PASS ==
+Before the dragon fix the two round checks failed (FAIL 2).
+
+== Official full suite (tests/run_full_suite_headless.ps1 list), final run
+block_headless rc=0 74s
+block_mobile_v072 rc=1 32s
+block_display_a rc=0 44s
+block_display_b rc=0 41s
+block_display_c rc=0 43s
+art_list rc=1 37s
+== block display_a: 3 tests, 0 failing ==
+== block display_b: 3 tests, 0 failing ==
+== block display_c: 4 tests, 0 failing ==
+== block headless: 4 tests, 0 failing ==
+FAIL: overlay change on 1,500 plots composes in 166.2 ms (< 120)
+== block mobile_v072: 3 tests, 1 failing ==
+  test_ui_land_map.gd FAIL (1) (11 s)
+FAIL humanoid import: goblin released native logical height/raster
+== block: 6 tests, 1 failing ==
+  test_humanoid_art_import.gd FAIL (1) (3 s)
+Single-test blocks from the sweep on the candidate: spirewing_v061 (2 PASS), balance_v070 PASS,
+trolls_giants_v071 PASS, ransom_upkeep_v077 PASS, rider_fit_v072 PASS, touch_scroll_v083 (2 PASS),
+identity_v070 PASS, popup_cleanup_v070 (2 PASS); art: claude_fangs_v036, test_art_menus, test_art_redesign PASS.
+Left failing, same on main 7ad5a8b:
+  test_ui_land_map: 1,500-plot overlay compose 160-166 ms vs a 120 ms gate (cloud CPU; main 160.3 ms).
+  test_humanoid_art_import: goblin logical height 20 px (data/factions.json goblin height 0.82) vs 18 expected
+  (0.75); not changed: it is an art decision.
+
+== Battle-round regressions after the dragon fix (candidate)
+=== test_sale_fixes_v097 rc=0 11s
+=== test_rider_targeting_v081 rc=0 23s
+=== test_ransom_upkeep_v077 rc=0 27s
+=== test_engagement_contract_v093 rc=0 9s
+=== claude_rounds rc=0 19s
+
+== Marriage and court tests after the age-gap fix (candidate): all PASS
+  claude_marriage (was FAIL 1 on main: an elf of 164 had 0 matches, now 19), test_sale_fixes_v097,
+  test_ai_marriage_dragons_v079, claude_court_events, claude_diplomacy_v030, claude_intrigue_v032,
+  test_dwarf_cultures_v087
+
+== Older tests updated to current rules (each failed the same way on main 7ad5a8b; PASS now)
+  test_battle_screen (dead removed from company: captured men leave too)
+  claude_prisoners_v033 (2), claude_prisoners_ui_v033 (1): the most populous seat's adults all serve
+    with the realm's field army; the tests pick a seat with a free adult rider
+  test_army_scale_monster_pause (field growth 50 a week up to 1000, the v0.032 caps)
+  test_art_map_tokens (32 script errors: bands of a paused monster faction get no id)
+  test_baggage (3 + script error: a new game has no company, food or coin)
+  test_art_paperdoll (script error: body.parts holds only wounded parts)
+  test_ui_land_map tap-off check (a fixed -500,-500 landed on the panned map)
+  test_mobilization_v017, test_muster_ui_v017 re-run after the Muster wording: PASS
+
+== test_ui_records_v044 split (--part), each under 3 minutes
+rec44 world rc=4 35s
+rec44 faction rc=4 37s
+rec44 wide rc=12 130s
+rec44 tall rc=3 49s
+  Failures are the frozen v0.043 oracle (rec_pages.gd SHA; v0.043 Merchants and On the move rows),
+  the same on main. Found: opening a Register family detail removes an empty kp list from t0 family 0.
+
+== Full sweep of every tests/*.gd (tools, helpers and screenshot tours skipped), still running for v0.100
+  100 tests so far; every failure checked on main fails the same way:
+  economy_stability_v094 / test_economy_stability_v094 / test_economy_short_v094 (pinned to version 0.094),
+  claude_realsave (needs --save=<a player's save>), claude_roadmap, test_arms_trade (over 180 s),
+  test_bandit_camp_funding 4, test_barge 27, test_biz_people 201, test_bows_melee_digest 5;
+  helper scripts with no run(): farm_fixture_tools, health_util, sim_util, portrait_quick_render,
+  reference_smarter_loops, reference_supply_lookups.
+
+== Release builds (tools/build_release.sh), final
+== Windows: windows/BurningBrood_Bloodlines.exe
+156563392 bytes
+8c6adc8dc309e0170dbc23f19e6f92cd51cba0c76c2c1b18e065e39d642d9ba2
+ PE32+ executable (GUI) x86-64 (stripped to external PDB), for MS Windows, 12 sections
+   FileVersion = 0.99.0.0
+   ProductVersion = 0.99.0.0
+   CompanyName = Oddsprig
+   ProductName = Burning Brood: Bloodlines
+   FileDescription = Burning Brood: Bloodlines
+   icon images: 6
+== Android: android/BurningBrood_Bloodlines_v0099.apk
+72507062 bytes
+68f7b5059543651286a9effc561166c3e522c9904c8e01f1c34a8f868a2b7879
+Verifies
+Verified using v1 scheme (JAR signing): false
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): true
+Verified using v4 scheme (APK Signature Scheme v4): false
+Signer #1 certificate DN: CN=Burning Brood Bloodlines, O=Burning Brood, C=US
+package: name='com.burningbrood.bloodlines' versionCode='99' versionName='0.099' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'
+sdkVersion:'24'
+targetSdkVersion:'36'
+application-label:'Burning Brood: Bloodlines'
+native-code: 'arm64-v8a'
+   A: android:screenOrientation(0x0101001e)=(type 0x10)0xb
+Smoke run: desktop Godot --main-pack on the .exe, 60 frames at 1600x900: title screen
+  'Burning Brood / Bloodlines / A house. A city. A bloodline.', 0 script errors.
+  The .apk's packed game data runs to the same title screen on desktop Godot. Not run on a phone.
+Copies for upload: owner's project files builds/v0.099/ (with SHA256SUMS.txt).

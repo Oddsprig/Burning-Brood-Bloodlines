@@ -1,6 +1,22 @@
 # Burning Brood: Bloodlines — current developer map
 
-Updated 7 November 2026 for v0.098 (battle screen, Records tables and phone layout), normally merged as `c6d525aa01d67bafacbf96f02206749b98d19bd3` from branch `v0.098-screens-and-phone` based on `main` `c1b751a`. v0.097 (six bug fixes toward an Oddsprig sale) was normally merged as `7b0429ab4aa596498624f862398c4bcd30e6b737` from branch `v0.097-sale-readiness` based on `main` `623d009`. v0.096 (readable text, fonts and layout on every page) was normally merged as `6ed741a3134e8029496e83da18979052b015efb9` from branch `v0.096-ui-readability` based on `main` `951cf2d`. v0.095 was normally merged as `5e17abb014a1f01f0426406bd455e249f06a8e20`. Source versions v0.086–v0.094 are accepted normal merges; the last packaged Desktop/Android release is v0.085. The older source-only audit below is pinned to v0.094.
+Updated 7 November 2026 for v0.099 (release candidate: dragons in big battles, store builds, marriage ages), normally merged as `MERGE_HASH_V099` from branch `v0.099-release-candidate` based on `main` `7ad5a8b`. v0.098 (battle screen, Records tables and phone layout) was normally merged as `c6d525aa01d67bafacbf96f02206749b98d19bd3` from branch `v0.098-screens-and-phone` based on `main` `c1b751a`. v0.097 (six bug fixes toward an Oddsprig sale) was normally merged as `7b0429ab4aa596498624f862398c4bcd30e6b737` from branch `v0.097-sale-readiness` based on `main` `623d009`. v0.096 (readable text, fonts and layout on every page) was normally merged as `6ed741a3134e8029496e83da18979052b015efb9` from branch `v0.096-ui-readability` based on `main` `951cf2d`. v0.095 was normally merged as `5e17abb014a1f01f0426406bd455e249f06a8e20`. Source versions v0.086–v0.094 are accepted normal merges; v0.099 is the first package since v0.085 (Windows .exe and signed Android .apk, built in the cloud container, not yet on sale). The older source-only audit below is pinned to v0.094.
+
+## v0.099 — release candidate: dragons in big battles, store builds, marriage ages
+
+Two rule fixes, two wording changes, the Windows/Android store build setup and test upkeep. No save schema change. Version metadata 0.099.
+
+| Change | Owner and boundary |
+|---|---|
+| Dragons in big battles | `game/campaign/battle_rounds.gd` `_pick_round()`: fit dragons (`DragonCombat.is_dragon_unit`) go into every round first, then rested men, then tired men, cut at `round_size`. `Game.start_battle` lists dragons after every man, so before this a side of 100+ men left its bonded dragons out. Both sides; a dragon that cannot fight still sits out. |
+| Marriage age gaps | `game/campaign/marriage.gd` `age_gap_scale()`: `candidates()` (16-year cut) and `_offer()` ("Age difference", -1.5 a year past 8) divide the gap by max(1, longer adult span / human adult span), adult span = elder - adult. Men, orcs, goblins unchanged; elves x6.67, dwarves x2.44. |
+| Inspector words | `game/battle/inspector.gd` `action_done_pct()`, `pace_word()`: "(80% done)", "Speed: steady   Morale 70". Raw ticks and speed stay in the Combat log. |
+| Muster line | `game/ui/muster.gd` `no_riders_text()`: names how many adults are away (realm's field army, town guard, caravan). |
+| Store name | `game/project.godot` `config/name` and `main.gd` window title and `ui/title.gd` tagline drop "Claude Edition"; `custom_user_dir_name` is unchanged so saves stay put. |
+| Store builds | `game/export_presets.cfg`: `Windows Desktop` (x86_64, pack embedded, `icon_windows.ico`, 0.99.0.0, publisher Oddsprig) and `Android` 0.099 / 99 with `game/icon_mobile/` launcher icons (incl. monochrome) and `splash.png`. `game/tools/build_release.sh` builds both; the Android release key is passed by `GODOT_ANDROID_KEYSTORE_RELEASE_*` and is never in Git. |
+| Tests | New `game/tests/test_release_v099.gd`. Nine older tests updated to current rules (same failures on main). `test_ui_records_v044.gd --part=world|faction|wide|tall` keeps each run under 3 minutes. |
+
+Verification entry: `game/tests/test_release_v099.gd` (fails 2 on the old dragon code). Official full suite (blocks + art list) green except two checks that fail the same on main: the `test_ui_land_map` 1,500-plot timing gate and the `test_humanoid_art_import` goblin height (18 expected, data gives 20). Builds: the .exe runs to the title screen; the .apk is signed v2+v3 and its game data runs to the title screen; not run on a phone. [Test receipts](test-results/v0.099_release_candidate.txt).
 
 ## v0.098 — battle screen, Records tables and phone layout
 
