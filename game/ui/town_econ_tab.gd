@@ -444,7 +444,7 @@ static func _price_rows(host: Control, t: Dictionary, list: VBoxContainer, query
 		detail.tooltip_text = why if why != "" else "No price reason recorded."
 		detail.add_theme_font_size_override("font_size", 17)
 		detail.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-		var row := _table_row(list, [label + "\n" + Goods.unit_of(g), RecKit.num(price), _badge(trend, UiTheme.BLUE if trend != "= Steady" else UiTheme.WOOD_3), str(int(Goods.supply(t, g))), detail], weights)
+		var row := _table_row(list, [label + "\n" + Goods.unit_of(g), UiKit.decimal(price, 1), _badge(trend, UiTheme.BLUE if trend != "= Steady" else UiTheme.WOOD_3), str(int(Goods.supply(t, g))), detail], weights)
 		row.tooltip_text = why
 	if count == 0:
 		list.add_child(UiKit.label("No goods match these filters.", "Muted", true))

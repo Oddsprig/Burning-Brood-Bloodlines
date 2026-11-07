@@ -431,9 +431,20 @@ static func purse_text(game) -> String:
 ## v0.096 coin amounts for reading: whole coins with thousands separators from 100 up ("23,323"), exact cents below
 ## ("12.34") where a small receipt would otherwise round away. 0 -> "0".
 static func coins(v: float) -> String:
+	return decimal(v, 2)
+
+## v0.096: grouped digits that keep the given decimal places ("23323.31" -> "23,323.31", "125.4" -> "125.4" at 1 place).
+## A value that is whole at that precision drops its zeros ("100.00" -> "100"); nothing is rounded away beyond `places`.
+static func decimal(v: float, places: int = 2) -> String:
 	if is_inf(v) or is_nan(v): return "-"
-	if absf(v) >= 100.0 or is_equal_approx(v, round(v)): return thousands(int(round(v)))
-	return "%.2f" % v
+	var step := int(pow(10, places))
+	var units := int(round(absf(v) * step))
+	var neg := "-" if v < 0.0 and units > 0 else ""
+	var whole := units / step
+	var frac := units % step
+	if frac == 0 or places <= 0:
+		return neg + thousands(whole)
+	return neg + thousands(whole) + "." + str(frac).pad_zeros(places)
 
 ## v0.096: one look for "this is the current choice". The button may stay disabled (pressing it again does nothing),
 ## but it reads as selected (RowOn) instead of greyed out.
