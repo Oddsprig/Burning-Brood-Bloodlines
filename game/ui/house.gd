@@ -129,7 +129,7 @@ func _refresh() -> void:
 	_account("Army wallet", float(accounts.get("company_wallet", 0.0)), "Your raised army's pay and supplies", false)
 	var town_stats: Dictionary = Game.world.get("towns", {}).get(tid, {}).get("econ", {}).get("stats", {})
 	var feudal: Dictionary = Feudal.summary(Game, tid)
-	accounts_grid.tooltip_text = "Each purse has its own owner; viewing never moves coin. %s%s" % [PoliticsView.levy_text(town_stats), (" Last tribute to your liege: %.2f coins." % float(feudal["tribute"])) if feudal.has("tribute") else ""]
+	accounts_grid.tooltip_text = "Each purse has its own owner; viewing never moves coin. %s%s" % [PoliticsView.levy_text(town_stats), (" Last tribute to your liege: %s coins." % UiKit.coins(float(feudal["tribute"]))) if feudal.has("tribute") else ""]
 	var fund_button := UiKit.button("Fund army from house", _fund_army, "Row")
 	fund_button.disabled = not commands_settlement
 	if fund_button.disabled: fund_button.tooltip_text = "Your household does not hold settlement command."
@@ -169,7 +169,7 @@ func _refresh() -> void:
 func _fund_army() -> void:
 	var accounts: Dictionary = Dynasty.accounts(Game)
 	var modal := UiKit.modal(self, "Fund army from house", 440)
-	modal.add_child(UiKit.label("House purse: %.2f coins\nArmy wallet: %.2f coins" % [float(accounts.get("house_purse", 0)), float(accounts.get("company_wallet", 0))], "", true))
+	modal.add_child(UiKit.label("House purse: %s coins\nArmy wallet: %s coins" % [UiKit.coins(float(accounts.get("house_purse", 0))), UiKit.coins(float(accounts.get("company_wallet", 0)))], "", true))
 	modal.add_child(UiKit.label("Choose how much to transfer. City and faction treasuries have separate owners.", "Muted", true))
 	var amount := SpinBox.new()
 	amount.min_value = 1
@@ -188,7 +188,7 @@ func _fund_army() -> void:
 		var preview: Dictionary = Feudal.action_preview(Game, tid, "fund_army", "", coins)
 		if not bool(preview.get("ok", false)):
 			notice = String(preview.get("reason", "")); _refresh(); return
-		UiKit.confirm(self, "Transfer %.2f coins from your house purse to the army wallet?" % coins, "Transfer", _apply_funding.bind(coins)), "Row"))
+		UiKit.confirm(self, "Transfer %s coins from your house purse to the army wallet?" % UiKit.coins(coins), "Transfer", _apply_funding.bind(coins)), "Row"))
 
 func _apply_funding(amount: float) -> Dictionary:
 	var result: Dictionary = Feudal.fund_army(Game, amount)

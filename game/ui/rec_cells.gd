@@ -20,7 +20,8 @@ func configure(values: Array, shares: Array, titles: Array, is_header: bool = fa
 		var line := TextLine.new()
 		line.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		var fs := UiTheme.MOBILE_FONT_SIZE if UiTheme.is_mobile() else (17 if is_header else 18)
-		line.add_string(txt, UiTheme.bold() if is_header else UiTheme.regular_font(), fs)
+		# v0.096: body cells use lining, tabular figures so right-aligned numbers line up column by column.
+		line.add_string(txt if is_header else UiKit.group_digits(txt), UiTheme.bold() if is_header else UiTheme.numeric_font(), fs)
 		cells.append(line)
 	set_meta("rec_values", plain)
 	var descriptions := []

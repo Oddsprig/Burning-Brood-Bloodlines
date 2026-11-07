@@ -169,17 +169,18 @@ func _selected_card() -> void:
 static func levy_text(stats: Dictionary) -> String:
 	if not stats.has("estate_tax_received"):
 		return "No private estate levy recorded yet. City treasury is separate."
-	return "Local lord's household received %.2f coins in the latest estate levy (day %d). Total private levies: %.2f coins. City treasury is separate." % [float(stats["estate_tax_received"]), int(stats.get("estate_tax_day", 0)), float(stats.get("lord_tax", 0))]
+	return "Local lord's household received %s coins in the latest estate levy (day %d). Total private levies: %s coins. City treasury is separate." % [UiKit.coins(float(stats["estate_tax_received"])), int(stats.get("estate_tax_day", 0)), UiKit.coins(float(stats.get("lord_tax", 0)))]
 
 static func tax_text(values: Dictionary) -> String:
 	var quote: Dictionary = values.get("tax_quote", {})
-	var receipt := "No levy recorded yet" if int(values.get("estate_tax_day", -1)) < 0 else "Last receipt %.2f coins · day %d" % [float(values.get("estate_tax_received", 0)), int(values["estate_tax_day"])]
-	return "Common folk estate tax: %.0f%% · Current monthly estimate %.2f coins\nProtected food reserve %.2f coins · Taxable savings %.2f coins\n%s → %s's house purse" % [float(quote.get("rate", 0)) * 100, float(quote.get("monthly_due", 0)), float(quote.get("food_reserve", 0)), float(quote.get("taxable_wealth", 0)), receipt, values.get("lord_name", "Local lord")]
+	var receipt := "No levy recorded yet" if int(values.get("estate_tax_day", -1)) < 0 else "Last receipt %s coins · day %d" % [UiKit.coins(float(values.get("estate_tax_received", 0))), int(values["estate_tax_day"])]
+	# v0.096: one fact per line instead of two facts joined on each line.
+	return "Common folk estate tax: %.0f%%\nCurrent monthly estimate: %s coins\nTaxable savings: %s coins · protected food reserve %s coins\n%s → %s's house purse" % [float(quote.get("rate", 0)) * 100, UiKit.coins(float(quote.get("monthly_due", 0))), UiKit.coins(float(quote.get("taxable_wealth", 0))), UiKit.coins(float(quote.get("food_reserve", 0))), receipt, values.get("lord_name", "Local lord")]
 
 static func defence_text(values: Dictionary) -> String:
 	var policy := String(values.get("defence_policy", "auto_defence"))
 	var order := {"muster": "Militia on duty", "stand_down": "Militia stood down", "auto_defence": "Automatic defence"}
-	return "%s · %d militia · %d guards\nGarrison pay %.2f coins/day from city treasury · Realm field army %d, pay %.2f coins/day from faction treasury\nSettlement food reserve: %d days" % [order.get(policy, policy), int(values.get("militia_count", 0)), int(values.get("guard_count", 0)), float(values.get("garrison_wages_daily", 0)), int(values.get("realm_army_count", 0)), float(values.get("realm_army_wages_daily", 0)), int(values.get("food_days", 0))]
+	return "%s · %d militia · %d guards\nGarrison pay: %s coins/day from city treasury\nRealm field army: %s men, %s coins/day from faction treasury\nSettlement food reserve: %d days" % [order.get(policy, policy), int(values.get("militia_count", 0)), int(values.get("guard_count", 0)), UiKit.coins(float(values.get("garrison_wages_daily", 0))), UiKit.thousands(int(values.get("realm_army_count", 0))), UiKit.coins(float(values.get("realm_army_wages_daily", 0))), int(values.get("food_days", 0))]
 
 static func budget_warnings(values: Dictionary) -> String:
 	var lines: Array[String] = []
@@ -194,10 +195,10 @@ static func budget_warnings(values: Dictionary) -> String:
 static func tribute_text(values: Dictionary) -> String:
 	var sent := "No private tribute recorded"
 	if int(values.get("tribute_day", -1)) >= 0 and String(values.get("liege_town_id", "")) != "":
-		sent = "Sent %.2f coins to %s's house · day %d" % [float(values.get("tribute_sent", 0)), values.get("liege_name", "the liege"), int(values["tribute_day"])]
+		sent = "Sent %s coins to %s's house · day %d" % [UiKit.coins(float(values.get("tribute_sent", 0))), values.get("liege_name", "the liege"), int(values["tribute_day"])]
 	var received := "No vassal tribute recorded"
 	if int(values.get("tribute_received_day", -1)) >= 0:
-		received = "Received %.2f coins from vassal houses · day %d" % [float(values.get("tribute_received", 0)), int(values["tribute_received_day"])]
+		received = "Received %s coins from vassal houses · day %d" % [UiKit.coins(float(values.get("tribute_received", 0))), int(values["tribute_received_day"])]
 	return sent + "\n" + received
 
 func _governance_card() -> void:
@@ -239,6 +240,9 @@ func _governance_button(row: Control, title: String, action: String, amount: flo
 	var preview: Dictionary = Feudal.governance_preview(Game, town_id, action, amount)
 	var button := UiKit.button(title, _request_governance.bind(town_id, action, amount), "Row")
 	button.disabled = not bool(preview.get("ok", false))
+	# v0.096: the defence order already in force reads as the selected choice, not as an unavailable button.
+	if action in ["muster", "stand_down", "auto_defence"] and String(budget.get("defence_policy", "auto_defence")) == action:
+		UiKit.mark_choice(button, true)
 	button.tooltip_text = String(preview.get("reason", ""))
 	row.add_child(button)
 
@@ -246,7 +250,7 @@ func _choose_funding(action: String) -> void:
 	var tid := town_id
 	var values: Dictionary = Feudal.budget(Game, tid)
 	var modal := UiKit.modal(self, "Fund city treasury" if action == "fund_garrison" else "Fund realm treasury", 500)
-	modal.add_child(UiKit.label("%s's house purse: %.2f coins\nPublic funds remain separate from your army wallet." % [values.get("payer_name", "Your ruler"), float(values.get("payer_purse", 0))], "", true))
+	modal.add_child(UiKit.label("%s's house purse: %s coins\nPublic funds remain separate from your army wallet." % [values.get("payer_name", "Your ruler"), UiKit.coins(float(values.get("payer_purse", 0)))], "", true))
 	var amount := SpinBox.new()
 	amount.min_value = 1; amount.max_value = maxf(1, floor(float(values.get("payer_purse", 0))))
 	amount.step = 1; amount.value = minf(100, amount.max_value); amount.custom_minimum_size.y = UiKit.touch_min(48)
@@ -263,7 +267,7 @@ static func governance_text(tid: String, preview: Dictionary) -> String:
 	var action := String(preview.get("action", ""))
 	if action.begins_with("fund_"):
 		var account := "city treasury" if preview.get("recipient_account", "") == "town_treasury" else "faction treasury"
-		return "Transfer %.2f coins from %s's house purse to %s's %s?\nThis funds shared public costs." % [float(preview.get("cost", 0)), preview.get("payer_name", "Your ruler"), preview.get("recipient_name", ""), account]
+		return "Transfer %s coins from %s's house purse to %s's %s?\nThis funds shared public costs." % [UiKit.coins(float(preview.get("cost", 0))), preview.get("payer_name", "Your ruler"), preview.get("recipient_name", ""), account]
 	var text := town_name(tid) + "\n" + String(preview.get("reason", ""))
 	if action == "tax_policy":
 		text += "\nCommon folk pay %.0f%% → %.0f%% of taxable savings to %s's house purse after their protected food reserve." % [float(preview.get("current_tax_rate", 0)) * 100, float(preview.get("proposed_tax_rate", 0)) * 100, preview.get("recipient_name", "the local lord")]
@@ -317,7 +321,7 @@ func _request_action(action: String, target_fid: String = "") -> void:
 		_refresh()
 		return
 	var label := "Swear oath" if action == "swear" else ("Grant" if action == "grant" else "Apply pressure")
-	var text := "%s\n%s\nHouse purse pays %.2f coins." % [town_name(town_id), preview.get("reason", ""), float(preview.get("cost", 0))]
+	var text := "%s\n%s\nHouse purse pays %s coins." % [town_name(town_id), preview.get("reason", ""), UiKit.coins(float(preview.get("cost", 0)))]
 	if target_fid != "": text += "\nNew realm: " + UiWords.faction_name(target_fid)
 	UiKit.confirm(self, text, label, _apply_action.bind(action, target_fid))
 

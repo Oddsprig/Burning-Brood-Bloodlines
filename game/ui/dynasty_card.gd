@@ -68,6 +68,7 @@ func _ready() -> void:
 	var head := UiKit.hbox(6); head.mouse_filter = MOUSE_FILTER_IGNORE; words.add_child(head)
 	head.add_child(banner)
 	var top := UiKit.vbox(0); top.mouse_filter = MOUSE_FILTER_IGNORE; head.add_child(top)
+	top.size_flags_horizontal = SIZE_EXPAND_FILL   # v0.096: the house name gets the card's width, not 40 px ("House ...")
 	top.add_child(office_state)
 	house_name = _word("", "")
 	house_name.add_theme_font_override("font", UiTheme.bold())

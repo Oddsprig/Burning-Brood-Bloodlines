@@ -176,7 +176,9 @@ func refresh() -> void:
 		crest = UiKit.chip(UiWords.faction_name(fid), UiWords.faction_color(fid))
 		var crest_name := crest.get_child(0) as Label
 		crest_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-		crest_name.custom_minimum_size.x = 100
+		# v0.096: the realm's whole name fits (up to 360 px); the day line gives way first ("The Hol..." before).
+		var crest_font: Font = UiTheme.bold()
+		crest_name.custom_minimum_size.x = minf(360.0, ceilf(crest_font.get_string_size(crest_name.text, HORIZONTAL_ALIGNMENT_LEFT, -1, 18).x) + 2.0)
 		crest.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		bar.add_child(crest)
 		bar.move_child(crest, 2)
@@ -276,10 +278,14 @@ func _draw_body() -> void:
 	page_sc.visible = have_page
 	if list_sc.visible:
 		if view == "town":
+			# v0.096: these open other screens, so they read as links ("Open ... →"), not as a third row of tabs.
 			var links := UiKit.flow()
 			list_box.add_child(links)
-			links.add_child(UiKit.button("Politics", _open_civic.bind("politics"), "Row"))
-			links.add_child(UiKit.button("Population", _open_civic.bind("population"), "Row"))
+			var open_label := UiKit.label("Open:", "Muted")
+			open_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			links.add_child(open_label)
+			links.add_child(UiKit.button("Politics  →", _open_civic.bind("politics"), "Row"))
+			links.add_child(UiKit.button("Population  →", _open_civic.bind("population"), "Row"))
 		var c: Control
 		if view == "town":
 			c = RecTown.build(self, RecData.town(sel), tab)

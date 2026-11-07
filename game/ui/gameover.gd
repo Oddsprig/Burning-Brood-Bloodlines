@@ -20,9 +20,10 @@ func _ready() -> void:
 	var names: Array = r.get("dead_names", [])
 	if not names.is_empty():
 		lines.append("Fallen in the last battle: " + ", ".join(names) + ".")
-	lines.append("Coins left in the chest: %d." % Game.gold)
-	for l in lines:
-		root.add_child(UiKit.label(l, "", true))
+	lines.append("Coins left in the chest: %s." % UiKit.thousands(Game.gold))
+	# v0.096: the outcome sentence leads; the details follow in reading text.
+	for i in lines.size():
+		root.add_child(UiKit.label(String(lines[i]), "Lead" if i == 0 else "", true))
 	root.add_child(UiKit.spacer())
 	var row := UiKit.hbox(12)
 	root.add_child(row)

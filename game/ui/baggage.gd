@@ -33,7 +33,7 @@ func _ready() -> void:
 	root.add_child(tabs_box)
 	ctl_box = UiKit.flow(8)
 	root.add_child(ctl_box)
-	totals_l = UiKit.label("", "H2", true)
+	totals_l = UiKit.label("", "Lead", true)   # v0.096: a totals sentence, not a capitals heading
 	totals_l.name = "Totals"
 	root.add_child(totals_l)
 	var pp := UiKit.panel()
@@ -89,8 +89,8 @@ func refresh() -> void:
 	var rows := shown()
 	var tt := Baggage.totals(rows)
 	var ta := Baggage.totals(all)
-	totals_l.text = "%s: %d rows, %s, worth %d coins.   All baggage: %s, worth %d coins." % [Baggage.CAT_NAMES[cat], rows.size(),
-		UiWords.kg(float(tt["kg"])), int(tt["value"]), UiWords.kg(float(ta["kg"])), int(ta["value"])]
+	totals_l.text = "%s: %d rows, %s, worth %s coins.\nAll baggage: %s, worth %s coins." % [Baggage.CAT_NAMES[cat], rows.size(),
+		UiWords.kg(float(tt["kg"])), UiKit.thousands(int(tt["value"])), UiWords.kg(float(ta["kg"])), UiKit.thousands(int(ta["value"]))]
 	UiKit.clear(list_box)
 	if rows.is_empty():
 		list_box.add_child(UiKit.label("Nothing here.", "Muted"))
@@ -110,7 +110,7 @@ func _row(r: Dictionary) -> Control:
 	info.add_child(UiKit.shrink(nl, 80))
 	info.add_child(UiKit.wrap(UiKit.label(Baggage.detail(r), "Muted"), 80))
 	h.add_child(info)
-	var vl := UiKit.label("%d coins" % int(r["value"]), "H2")
+	var vl := UiKit.label("%s coins" % UiKit.thousands(int(r["value"])), "H2")
 	vl.add_theme_color_override("font_color", UiTheme.COPPER_LO)
 	vl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	h.add_child(vl)

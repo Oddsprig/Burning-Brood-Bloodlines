@@ -448,14 +448,33 @@ func _build_design() -> void:
 	_design_ready = true
 	_apply_design_state()
 
+## v0.096 player words for the design keys ("seed" is the hairstyle index) and colour swatches instead of hex codes.
+const DESIGN_WORDS := {"skin": "Skin tone", "hair": "Hair colour", "seed": "Hairstyle", "female_set": "Look set", "beard": "Beard", "beard_style": "Beard style"}
+
+static func design_label(text: String) -> String:
+	var cut := text.find(" (#")
+	return text.substr(0, cut) if cut > 0 and text.ends_with(")") else text
+
+static func _swatch(hex: String) -> Texture2D:
+	if not hex.begins_with("#") or not Color.html_is_valid(hex): return null
+	var img := Image.create(22, 22, false, Image.FORMAT_RGBA8)
+	img.fill(Color.html(hex))
+	for i in 22:
+		for edge: Vector2i in [Vector2i(i, 0), Vector2i(i, 21), Vector2i(0, i), Vector2i(21, i)]:
+			img.set_pixelv(edge, UiTheme.BORDER)
+	return ImageTexture.create_from_image(img)
+
 func _design_picker(key: String, items: Array) -> OptionButton:
-	editor.add_child(UiKit.label(key.capitalize(),"Small"))
+	editor.add_child(UiKit.label(String(DESIGN_WORDS.get(key, key.capitalize())),"Small"))
 	var button := OptionButton.new(); button.name = "DesignPick_"+key; button.custom_minimum_size.y = UiKit.touch_min(48)
 	button.size_flags_horizontal = SIZE_EXPAND_FILL
 	var values: Array = []
 	for item in items:
 		var entry: Dictionary = item
-		button.add_item(String(entry.get("label",entry.get("value",""))))
+		var words := design_label(String(entry.get("label",entry.get("value",""))))
+		var swatch := _swatch(String(entry.get("value",""))) if entry.get("value") is String else null
+		if swatch != null: button.add_icon_item(swatch, words)
+		else: button.add_item(words)
 		values.append(entry.get("value"))
 	button.set_meta("design_values",values)
 	editor.add_child(button)

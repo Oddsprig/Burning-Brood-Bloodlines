@@ -428,6 +428,20 @@ static func purse_text(game) -> String:
 	return "Day %d   %s coins   wages %s/day%s" % [int(game.day) + 1, thousands(int(game.gold)), thousands(int(game.daily_wages())),
 		("   %d men unpaid" % unpaid) if unpaid > 0 else ""]
 
+## v0.096 coin amounts for reading: whole coins with thousands separators from 100 up ("23,323"), exact cents below
+## ("12.34") where a small receipt would otherwise round away. 0 -> "0".
+static func coins(v: float) -> String:
+	if is_inf(v) or is_nan(v): return "-"
+	if absf(v) >= 100.0 or is_equal_approx(v, round(v)): return thousands(int(round(v)))
+	return "%.2f" % v
+
+## v0.096: one look for "this is the current choice". The button may stay disabled (pressing it again does nothing),
+## but it reads as selected (RowOn) instead of greyed out.
+static func mark_choice(b: Button, selected: bool) -> Button:
+	b.theme_type_variation = "RowOn" if selected else "Row"
+	b.disabled = selected
+	return b
+
 ## 1234567 -> "1,234,567".
 static func thousands(n: int) -> String:
 	var s := str(absi(n))
@@ -436,6 +450,15 @@ static func thousands(n: int) -> String:
 		out = "," + s.substr(s.length() - 3) + out
 		s = s.substr(0, s.length() - 3)
 	return ("-" if n < 0 else "") + s + out
+
+## v0.096: display-only digit grouping for a cell or card that holds a bare whole number ("103210" -> "103,210").
+## Anything else (words, decimals, "3 / 5") is returned unchanged; records keep the raw text in their metadata.
+static func group_digits(text: String) -> String:
+	var t := text.strip_edges()
+	var digits := t.trim_prefix("-")
+	if digits.length() < 4 or not digits.is_valid_int() or digits.begins_with("+"):
+		return text
+	return thousands(int(t))
 
 static func purse(game) -> Label:
 	var l := label(purse_text(game), "Header")

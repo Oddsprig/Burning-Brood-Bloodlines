@@ -153,8 +153,18 @@ static func _badge(text: String, tone: Color) -> Control:
 	p.add_theme_stylebox_override("panel", UiTheme.sb(tone, tone.darkened(0.25), 1, 4, 6, 3))
 	var label := UiKit.label(text, "Small", true)
 	label.add_theme_color_override("font_color", UiTheme.WOOD if tone.get_luminance() > 0.45 else UiTheme.LIGHT)
+	label.set_meta("keep_color", true)   # v0.096: dark ink on a pale badge stays dark
 	p.add_child(label)
-	return p
+	if text.length() > 14:
+		return p
+	# v0.096: a short state ("busy", "↑ Up") is a compact tag, not a bright bar across the whole column.
+	label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	label.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	p.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	p.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var holder := HBoxContainer.new()
+	holder.add_child(p)
+	return holder
 
 static func _overview_panel(host: Control, t: Dictionary, body: VBoxContainer) -> void:
 	var e: Dictionary = t["econ"]
@@ -192,7 +202,7 @@ static func _people(host: Control, t: Dictionary, body: VBoxContainer) -> void:
 	var population: Dictionary = Population.summary(e)
 	body.add_child(UiKit.button("Population by race", func(): PoliticsView.open_view("population", String(t["id"]), "town", {"tab": "Town", "econ_section": "People"}), "Row"))
 	_fact(body, "Tracked families / common folk groups", "%d / %d" % [int(population["tracked_families"]), int(population["cohorts"])])
-	_fact(body, "Common folk private savings", "%.2f coins" % float(population["common_wealth"]))
+	_fact(body, "Common folk private savings", "%s coins" % UiKit.coins(float(population["common_wealth"])))
 	_fact(body, "Available to recruit", str(Population.available(t)))
 	body.add_child(UiKit.button("Open family register (%d families)" % _live(e), func(): families_picker(host, t), "Row"))
 	var history: Array = e["stats"].get("pop_hist", [])
@@ -349,7 +359,7 @@ static func _accounts(t: Dictionary, body: VBoxContainer) -> void:
 		body.add_child(UiKit.button("Manage taxes & defence", func(): PoliticsView.open_view("politics", String(t.get("id", "")), "town", {"tab": "Town", "econ_section": "Accounts"}), "Row"))
 	var feudal: Dictionary = Feudal.summary(Game, String(t.get("id", "")))
 	if feudal.has("tribute"):
-		_fact(body, "Last private tribute to liege", "%.2f coins" % float(feudal["tribute"]))
+		_fact(body, "Last private tribute to liege", "%s coins" % UiKit.coins(float(feudal["tribute"])))
 	_heading(body, "Treasury & public spending")
 	_fact(body, "Treasury", "%d coins" % int(e["treasury"]))
 	_fact(body, "Tax collected this season", "%d coins" % int(tax.get("paid", 0.0)))
@@ -434,7 +444,7 @@ static func _price_rows(host: Control, t: Dictionary, list: VBoxContainer, query
 		detail.tooltip_text = why if why != "" else "No price reason recorded."
 		detail.add_theme_font_size_override("font_size", 17)
 		detail.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-		var row := _table_row(list, [label + "\n" + Goods.unit_of(g), "%.1f" % price, _badge(trend, UiTheme.BLUE if trend != "= Steady" else UiTheme.WOOD_3), str(int(Goods.supply(t, g))), detail], weights)
+		var row := _table_row(list, [label + "\n" + Goods.unit_of(g), RecKit.num(price), _badge(trend, UiTheme.BLUE if trend != "= Steady" else UiTheme.WOOD_3), str(int(Goods.supply(t, g))), detail], weights)
 		row.tooltip_text = why
 	if count == 0:
 		list.add_child(UiKit.label("No goods match these filters.", "Muted", true))
