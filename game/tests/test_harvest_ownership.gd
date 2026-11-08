@@ -250,11 +250,18 @@ func api_food_budget() -> void:
 	add(e, "grain", 800, {"f:1": 1.0}, 60.0)
 	add(e, "fruit", 200, {"f:1": 1.0}, 60.0)
 	claims.reserve_food(e, f)
-	var budget := (float(EconGen.YEAR_DAYS) - 20.0) * 4.4
-	near(float(f["hv"]), budget, "child-adjusted annual reserve subtracts food already in the household larder")
-	near(float(claims.owned(e, "f:1", "grain", true)), budget, "annual food budget protects actual grain ownership once")
+	# v0.100: 98a752c reserves to the next harvest window: day 60 -> day 150 = 90 days.
+	var budget := (90.0 - 20.0) * 4.4
+	near(float(claims.food_reserve_days(e, f)), 90.0, "autumn reserve reaches the next summer harvest")
+	near(float(f["hv"]), budget, "child-adjusted seasonal reserve subtracts food already in the household larder")
+	near(float(claims.owned(e, "f:1", "grain", true)), budget, "seasonal food budget protects actual grain ownership once")
 	near(float(claims.owned(e, "f:1", "fruit", true)), 0.0, "food budget cannot reserve the same meals again in another crop")
-	check(claims.available(e, "grain") == 360 and claims.available(e, "fruit") == 200, "only real output above annual food budget becomes surplus")
+	check(claims.available(e, "grain") == 492 and claims.available(e, "fruit") == 200, "only real output above seasonal food budget becomes surplus")
+	# v0.100: Former landowners still retain the original full-year food fallback.
+	f["land"] = {}; claims.reserve_food(e, f)
+	near(float(claims.food_reserve_days(e, f)), float(EconGen.YEAR_DAYS), "landless producer retains a full-year reserve horizon")
+	near(float(f["hv"]), (float(EconGen.YEAR_DAYS) - 20.0) * 4.4, "landless producer's child-adjusted annual reserve remains physically backed")
+	check(claims.available(e, "grain") == 360 and claims.available(e, "fruit") == 200, "landless annual reserve exposes only its actual surplus")
 	f["store"]["food"] = float(EconGen.YEAR_DAYS)
 	claims.reserve_food(e, f)
 	near(float(f["hv"]), 0.0, "already full-year larder releases the remaining real crop surplus")
@@ -304,14 +311,15 @@ func run(_tree: SceneTree) -> int:
 	if FileAccess.file_exists("res://campaign/harvest_claims.gd"):
 		claims = load("res://campaign/harvest_claims.gd")
 	check(claims != null, "dated physical harvest ownership API exists (expected baseline regression)")
-	for culture in ["middle", "northern", "orc", "goblin", "moon_elf", "dwarf", "steppe"]:
+	# v0.100: 8b1b703 resolves every eater's race; 6210641 already uses the culture key eastern.
+	for culture in ["middle", "northern", "orc", "goblin", "moon_elf", "dwarf", "eastern"]:
 		for spec in [[[8, 1.0], [8, 0.0]], [[8, 1.0], [8, 0.5]], [[4, 1.0], [12, 0.5]]]:
 			production_sale(culture, spec)
 		produced_food_before_broker(culture)
 	rotation_sale(); dated_staffing(); dated_transfer()
 	if claims != null:
 		api_fifo_and_fairness(); api_fractional_carry(); api_loss_and_limits(); api_food_budget()
-		for culture in ["middle", "northern", "orc", "goblin", "moon_elf", "dwarf", "steppe"]:
+		for culture in ["middle", "northern", "orc", "goblin", "moon_elf", "dwarf", "eastern"]:
 			api_multioutput_and_retention(culture)
 		generated_food()
 	print("HARVEST OWNERSHIP checks=", checks, " failures=", fails)

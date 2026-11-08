@@ -1,4 +1,4 @@
-## Frozen v0.033 baseline output oracle (production file apart from class_name).
+## v0.100: v0.033 bookkeeping oracle with the deliberate 98a752c food-window policy.
 extends RefCounted
 ## Ownership accounts for the existing integer barn inventory. Shares may be
 ## fractional, like joint ownership of a batch; goods themselves remain whole.
@@ -217,12 +217,30 @@ static func take(e: Dictionary, good: String, n: int, respect_reserves: bool = t
 static func lose(e: Dictionary, good: String, n: int) -> int:
 	return int(take(e, good, n, false)["n"])
 
+## v0.100: Unoptimized policy from 98a752c; keep the reference bookkeeping independent.
+static func food_reserve_days(e: Dictionary, f: Dictionary) -> float:
+	var seasons: Array = [false, false, false, false]
+	var cuts: Dictionary = TownEcon.data()["land"]["harvest_seasons"]
+	for good in FOOD:
+		if float(f.get("land", {}).get(good, 0.0)) <= 0.0: continue
+		if CropRotation.family_yield(e, f, String(good)) <= 0.0: continue
+		for cut in cuts.get(good, []):
+			if float(cut[1]) > 0.0: seasons[int(cut[0])] = true
+	var day: float = float(e.get("day", 0))
+	var si: int = Calendar.season_index(day)
+	var remaining: int = Calendar.DAYS_PER_SEASON - Calendar.day_of_season(day) + 1
+	for offset in range(1, 5):
+		var next: int = (si + offset) % 4
+		if seasons[next] and not seasons[(next + 3) % 4]:
+			return maxf(7.0, float(remaining + (offset - 1) * Calendar.DAYS_PER_SEASON))
+	return float(EconGen.YEAR_DAYS)
+
 static func reserve_food(e: Dictionary, f: Dictionary) -> void:
 	ensure(e)
 	if not e.has("harvest_book"): return
 	var key := "f:%d" % int(f["id"])
 	var rate := float(Barge.eaters(e, f, float(e.get("day", 0)))[0]) * float(TownEcon.data()["needs"]["food"])
-	var budget := maxf(0.0, (float(EconGen.YEAR_DAYS) - maxf(0.0, float(f["store"]["food"]))) * rate)
+	var budget := maxf(0.0, (food_reserve_days(e, f) - maxf(0.0, float(f["store"]["food"]))) * rate)
 	if f.get("gone", false) or f.get("estate", false): budget = 0.0
 	for good in FOOD:
 		var target := minf(budget, owned(e, key, good))

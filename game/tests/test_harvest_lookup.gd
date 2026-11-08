@@ -1,6 +1,6 @@
 extends RefCounted
-## Differential sequences use the frozen shipped v0.033 implementation as the
-## output oracle, including authoritative lots, cash, reserves and family hv.
+## v0.100: Differential sequences use v0.033 bookkeeping with 98a752c's food window.
+## v0.100: Exact authoritative lots, cash, reserves, family hv and saved output still agree.
 
 var checks := 0
 var fails := 0
