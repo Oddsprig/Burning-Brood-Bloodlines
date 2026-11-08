@@ -172,11 +172,14 @@ static func free_first(e: Dictionary, pool: Array) -> Array:
 ## The open places of b a hand would sign on for: already earned wages commit their coins before hiring.
 ## Remaining cash must cover the existing two-day reserve for current and new hands. (Before: any till over two days of ONE wage was open for all its places: a farm with 795 coins
 ## and 62 places to fill took on hands it could not pay, then read "can't pay wages".)
-static func takeable(b: Dictionary) -> int:
+# v0.100: synced post-v0.035 design (commit 98a752c): with the town passed,
+# a farm's surplus grain backs kind wages in local takeable.
+static func takeable(b: Dictionary, e: Dictionary = {}) -> int:
 	if b.get("closed", false) or float(b["wage"]) <= 0:
 		return 0
 	var w := maxf(0.01, float(b["wage"]))
-	var available := maxf(0.0, float(b["till"]) - maxf(0.0, float(b.get("owed", 0.0))))
+	var backing := float(b["till"]) + farm_kind_value(e, b)
+	var available := maxf(0.0, backing - maxf(0.0, float(b.get("owed", 0.0))))
 	var can := int(floor(available / (2.0 * w))) - int(b["workers"])
 	return maxi(0, mini(int(b["cap"]) - int(b["workers"]), can))
 
@@ -258,10 +261,10 @@ static func refresh_hiring(e: Dictionary) -> void:
 	for bid in ids:
 		var b: Dictionary = e["biz"][int(bid)]
 		open_n += int(b["cap"]) - int(b["workers"])
-		# Synced post-v0.035 signature (commit 98a752c): with the town passed,
-		# a farm's surplus grain backs kind wages in takeable, as in the
+		# v0.100: synced post-v0.035 signature (commit 98a752c): with the town passed,
+		# a farm's surplus grain backs kind wages in local takeable, as in the
 		# current refresh_hiring this fixture is paired against.
-		if Businesses.takeable(b, e) > 0:
+		if takeable(b, e) > 0:
 			top = maxf(top, float(b["wage"]))
 	e["open_n"] = open_n
 	e["open_top"] = top   # the best pay an open place whose till can pay it offers (a worse-paid hand looks again)
@@ -1253,6 +1256,24 @@ static func town_inherits(b: Dictionary) -> void:
 	if String(b["type"]) == "farm":
 		b["cap"] = 0
 		b["closed"] = true
+
+## v0.100: synced post-v0.035 helper (commit 98a752c): only existing surplus
+## grain backs kind wages. The owner's food reserve and other producers' grain
+## cannot finance these places.
+static func farm_kind_value(e: Dictionary, b: Dictionary) -> float:
+	if e.is_empty() or b.get("type", "") != "farm" or b.get("closed", false): return 0.0
+	var fid: int = int(b.get("owner", -1))
+	if fid < 0: return 0.0
+	var fams: Variant = e.get("fams")
+	if not (fams is Array) or fid >= (fams as Array).size(): return 0.0
+	var f: Dictionary = (fams as Array)[fid]
+	if f.get("gone", false) or int(f.get("farm", -1)) != int(b["id"]): return 0.0
+	var pair: Array = HarvestClaims.owned_pair(e, "f:%d" % fid, "grain")
+	var grain: float = maxf(0.0, float(pair[0]) - float(pair[1]))
+	if grain <= 0.0: return 0.0
+	var prices: Variant = e.get("price")
+	if not (prices is Dictionary): return 0.0
+	return grain * maxf(0.0, float((prices as Dictionary).get("grain", 0.0)))
 
 ## Move the existing owner's coins into the existing farm reserve. Funding is
 ## separate from the weekly books and cannot pay or erase earned wage claims.

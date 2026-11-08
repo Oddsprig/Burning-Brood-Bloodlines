@@ -684,20 +684,16 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 	var want := {}
 	var casual := {}
 	var casual_total := 0
-	var any_new := false
 	for i in mini(slots, cand.size()):
-		if int(cand[i][2]) == 0: any_new = true
 		var bid := int(cand[i][1])
 		if bid < 0:
 			var job := String(casual_ids[-bid - 1]); casual[job] = int(casual.get(job, 0)) + 1; casual_total += 1
 		else:
 			var key := str(bid); want[key] = int(want.get(key, 0)) + 1
-	# Synced post-v0.035 design (v0.089, commit bc028fa): a cohort's Academy
-	# places are kept only when the exact final job order puts that many
+	# v0.100: synced post-v0.035 design (v0.089, commit bc028fa): a cohort's
+	# Academy places are kept only when the exact final job order puts that many
 	# named people in them; the places are not backfilled by other offers.
-	# (Only when this call actually changes the family's places, matching the
-	# current matcher's early return when nothing it held is displaced.)
-	if (any_new or want != f["jobs"]) and Population.is_cohort(f) and not Academy.biz_of(e).is_empty() and want.has(str(int(e["academy"]))):
+	if Population.is_cohort(f) and not Academy.biz_of(e).is_empty() and want.has(str(int(e["academy"]))):
 		var academy_bid := int(e["academy"])
 		var research_key := str(academy_bid)
 		var prospective_family := f.duplicate(true)

@@ -842,6 +842,14 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 			cand_total = _add_cand(cand, cand_total, slots, cw, -ci - 1, 0, available)
 			changed = true
 	if not held_ready or not changed:
+		# v0.100: a dropped or trimmed prefix job can shift retained Academy
+		# places into anonymous cohort slots even when no new offer is taken.
+		if Population.is_cohort(f) and not Academy.biz_of(e).is_empty() and f["jobs"].has(str(int(e["academy"]))):
+			var academy_bid := int(e["academy"])
+			var research_key := str(academy_bid)
+			if Academy._named_places(Persons.work(e, f), academy_bid) != int(f["jobs"][research_key]):
+				set_job(e, f, academy_bid, 0)
+				return job_total(f)
 		return held_total
 	var want := {}
 	var casual := {}

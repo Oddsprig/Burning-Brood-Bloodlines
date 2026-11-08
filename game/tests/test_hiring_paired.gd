@@ -104,6 +104,77 @@ func run(_tree: SceneTree) -> int:
 			if e.has("hd"):
 				e["hd"].erase("_labour"); e["hd"]["_labour_ver"] = -1
 			pair(e, "reassign", int(day), "cold crop/herd caches and season/year boundary")
+	# v0.100: cohort holds two anonymous jobs then two named Academy jobs; when
+	# the prefix employer closes with no replacement offers, reassignment must
+	# drop the now-anonymous Academy places instead of keeping them on early return.
+	var acad_town: Dictionary = {}
+	for town in towns:
+		if not Academy.biz_of(town["econ"]).is_empty():
+			acad_town = town
+			break
+	if acad_town.is_empty() and not towns.is_empty():
+		acad_town = towns[0]
+	if not acad_town.is_empty():
+		var e: Dictionary = acad_town["econ"].duplicate(true)
+		e["day"] = 0.0; Game.day = 0.0
+		if Academy.biz_of(e).is_empty():
+			Academy.gen_town({"capital": true}, e)
+		var academy_b: Dictionary = Academy.biz_of(e)
+		var academy_bid := int(academy_b["id"])
+		var prefix_b: Dictionary = {}
+		for b in e["biz"]:
+			if int(b["id"]) != academy_bid and String(b["type"]) != "farm":
+				prefix_b = b
+				break
+		var cohort: Dictionary = {}
+		for f in e["fams"]:
+			if not f.get("estate", false) and Population.is_cohort(f):
+				cohort = f
+				break
+		if cohort.is_empty():
+			for f in e["fams"]:
+				if not f.get("estate", false):
+					cohort = f
+					break
+		check(not prefix_b.is_empty() and not cohort.is_empty(), "cohort prefix-closure fixture ready")
+		if not prefix_b.is_empty() and not cohort.is_empty():
+			var prefix_bid := int(prefix_b["id"])
+			e["cjcap"] = {}; e["cjused"] = {}; e["barn"] = {}; e.erase("harvest_book")
+			# v0.100: clear physical work too, so the source cohort's plots and
+			# herds cannot consume the four adults or open a replacement farm.
+			e.erase("plots"); e.erase("hd")
+			e["hands"] = 0; e["idle_n"] = 0
+			for f in e["fams"]:
+				if not is_same(f, cohort) and not f.get("estate", false):
+					f["gone"] = true; f["jobs"] = {}; f["owns"] = []; f["keeps"] = []
+			for b in e["biz"]:
+				b["workers"] = 0; b["cap"] = 0; b["till"] = 0.0; b["owed"] = 0.0; b["closed"] = false
+			cohort["gone"] = false; cohort["owns"] = []; cohort["keeps"] = []
+			cohort["land"] = {}; cohort["herd"] = {}; cohort["ox"] = 0; cohort["farm"] = -1
+			cohort["hands"] = 0; cohort["serve"] = {}; cohort["unpaid"] = 0
+			cohort.erase("hl"); cohort.erase("cj")
+			cohort["m"] = 2; cohort["f"] = 2; cohort["old"] = 0; cohort["kids"] = 0
+			Population.initialize(e, cohort)
+			var rng := RandomNumberGenerator.new(); rng.seed = 20260100
+			Population.promote(e, cohort, 0.0, rng)
+			Population.promote(e, cohort, 0.0, rng)
+			prefix_b["cap"] = 2; prefix_b["workers"] = 2; prefix_b["wage"] = 12.0; prefix_b["till"] = 240.0
+			academy_b["cap"] = 2; academy_b["workers"] = 2; academy_b["wage"] = 10.0; academy_b["till"] = 240.0; academy_b["research_idle"] = false
+			cohort["jobs"] = {str(prefix_bid): 2, str(academy_bid): 2}; cohort["idle"] = 0
+			TownEcon.recount(e)
+			check(Population.anonymous(cohort, 0) + Population.anonymous(cohort, 1) == 2
+				and Academy._named_places(Persons.work(e, cohort), academy_bid) == 2, "two anonymous prefix jobs precede two named Academy jobs")
+			pair(e, "reassign", 1, "cohort retains valid named Academy jobs before prefix closure")
+			prefix_b["closed"] = true
+			Businesses.refresh_hiring(e)
+			check((e["open"] as Array).is_empty() and (e["cjcap"] as Dictionary).is_empty(), "prefix closure has no replacement regular or casual offers")
+			pair(e, "reassign", 0, "cohort prefix closure invalidates retained Academy jobs")
+			var after_e: Dictionary = e.duplicate(true)
+			Families.reassign(after_e, after_e["fams"][int(cohort["id"])])
+			var after_cohort: Dictionary = after_e["fams"][int(cohort["id"])]
+			check((after_cohort["jobs"] as Dictionary).is_empty() and int(after_e["biz"][prefix_bid]["workers"]) == 0
+				and int(after_e["biz"][academy_bid]["workers"]) == 0 and int(after_cohort["idle"]) == 4
+				and int(after_e["idle_n"]) == 4 and not Families.assignments_stale(after_cohort), "cohort prefix closure drops now-anonymous Academy jobs and leaves all four adults idle")
 	Game.day = original_day
 	print("HIRING PAIRED checks=", checks, " failures=", fails)
 	return fails
