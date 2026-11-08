@@ -1,5 +1,11 @@
 extends RefCounted
-## Same-input comparison against frozen v0.035 methods, including dictionary order.
+## Same-input comparison against the v0.035 methods, including dictionary order.
+## The fixtures keep the original (slow) algorithms, with the intended post-v0.035
+## design rules synced into their helpers: the labour-market/farm-cash-flow pass
+## (commit 98a752c: staff_left_day, grain-backed farm places, the owner's food
+## reserve in fund_farm, per-worker field hands), domestic-animal draught
+## (v0.086, commit 11c0add) and Academy named-researcher places (v0.089,
+## commits 5aa9bac and bc028fa). The exact-equality check is unchanged.
 const OLD_BIZ := preload("res://tests/fixtures/businesses_v035_hiring.gd")
 const OLD_FAM := preload("res://tests/fixtures/families_v035_hiring.gd")
 var fails := 0

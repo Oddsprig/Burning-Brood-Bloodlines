@@ -258,7 +258,10 @@ static func refresh_hiring(e: Dictionary) -> void:
 	for bid in ids:
 		var b: Dictionary = e["biz"][int(bid)]
 		open_n += int(b["cap"]) - int(b["workers"])
-		if takeable(b) > 0:
+		# Synced post-v0.035 signature (commit 98a752c): with the town passed,
+		# a farm's surplus grain backs kind wages in takeable, as in the
+		# current refresh_hiring this fixture is paired against.
+		if Businesses.takeable(b, e) > 0:
 			top = maxf(top, float(b["wage"]))
 	e["open_n"] = open_n
 	e["open_top"] = top   # the best pay an open place whose till can pay it offers (a worse-paid hand looks again)

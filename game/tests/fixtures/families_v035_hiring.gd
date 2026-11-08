@@ -85,13 +85,15 @@ static func heads(f: Dictionary) -> int:
 
 ## Hands the family's crops need: 8 acres a hand with an ox, 4 without (barge part 3 section 1 [ours]); a
 ## family record without an ox count (older saves, tests) works as if it had its oxen.
-static func _cultivation_hands(f: Dictionary, a: float) -> float:
+static func _cultivation_hands(f: Dictionary, a: float, e: Dictionary = {}) -> float:
 	var L: Dictionary = TownEcon.data()["land"]
 	var ox := int(f.get("ox", -1))
 	var aph := float(L["acres_per_hand"])
 	var crop := a / aph
 	if ox >= 0:
-		var with_ox := minf(a, float(ox) * aph)
+		# Synced post-v0.035 design (v0.086, commit 11c0add): donkeys/mules
+		# add draught coverage on top of the family's oxen.
+		var with_ox := minf(a, (float(ox) + DomesticAnimals.draught(e, int(f.get("id", -1)))) * aph)
 		crop = with_ox / aph + (a - with_ox) / float(L["acres_no_ox"])
 	return crop
 
@@ -104,7 +106,7 @@ static func crop_work(f: Dictionary, e: Dictionary = {}, day: float = -1.0) -> D
 	for good in rows:
 		active += float(rows[good]["active"])
 		fallow += float(rows[good]["fallow"])
-	var cultivation := _cultivation_hands(f, active)
+	var cultivation := _cultivation_hands(f, active, e)
 	var upkeep := fallow / float(TownEcon.data()["land"]["acres_per_hand"]) * float(TownEcon.data()["land"].get("fallow_upkeep_share", 0.25))
 	var si := Calendar.season_index(day if day >= 0.0 else float(e.get("day", 0)))
 	var harvest_acres := 0.0
@@ -403,6 +405,16 @@ static func refresh_worked(e: Dictionary, f: Dictionary) -> void:
 	if f.get("gone", false):
 		return
 	var need := need_hands(f, e)
+	var helpers := 0.0 if (f.get("estate", false) or need <= 0.0) else minf(need, Barge.helper_hands(e, f, float(e.get("day", 0))))
+	_refresh_worked_with(e, f, need, helpers)
+
+# Synced post-v0.035 design (commit 98a752c, the labour-market/farm-cash-flow
+# pass): hired hands are discounted by their own families' hunger and
+# bedridden sickness (field_hands), and the landholder's own output mult
+# applies only to its own hands and helpers, not to hired hands.
+static func _refresh_worked_with(e: Dictionary, f: Dictionary, need: float, helpers: float) -> void:
+	if f.get("gone", false):
+		return
 	f["work_need"] = need
 	f["work_crop_year"] = Calendar.year(float(e.get("day", 0)))
 	if need <= 0.0:
@@ -410,17 +422,30 @@ static func refresh_worked(e: Dictionary, f: Dictionary) -> void:
 		return
 	var estate: bool = f.get("estate", false)
 	var own := 0 if estate else int(f["hands"])
-	var helpers := 0.0 if estate else minf(need, Barge.helper_hands(e, f, float(e.get("day", 0))))
-	var hired := 0
+	var hired: float = 0.0
 	var bid := int(f.get("farm", -1))
 	if bid >= 0 and bid < (e["biz"] as Array).size():
 		var b: Dictionary = e["biz"][bid]
 		if not b.get("closed", false):
-			hired = int(b["workers"])
+			hired = field_hands(e, b)
 			if not estate:
-				hired = mini(hired, maxi(0, int(ceil(need - float(own) - helpers - 0.3))))
-	var worked := clampf((float(own + hired) + helpers) / need, 0.0, 1.0)
-	set_worked(e, f, worked * (1.0 if estate else Barge.output_mult(int(f.get("hungry", 0)))))
+				hired = minf(hired, float(maxi(0, int(ceil(need - float(own) - helpers - 0.3)))))
+	var own_output: float = 1.0 if estate else Barge.output_mult(int(f.get("hungry", 0)))
+	set_worked(e, f, clampf(((float(own) + helpers) * own_output + hired) / need, 0.0, 1.0))
+
+static func field_hands(e: Dictionary, b: Dictionary) -> float:
+	var hands: float = float(b["workers"])
+	if hands <= 0.0: return 0.0
+	var day: float = float(e.get("day", 0))
+	var key: String = str(int(b["id"]))
+	for worker in e.get("fams", []):
+		var n: int = int(worker.get("jobs", {}).get(key, 0))
+		if n <= 0: continue
+		var bed: int = 0
+		for c in worker.get("sk", {}).values():
+			if int(c[Sickness.C_BIZ]) == int(b["id"]) and int(c[Sickness.C_BED]) == 1 and day >= float(c[Sickness.C_ON]) and day < Sickness._stop(c): bed += 1
+		hands -= float(n) - float(maxi(0, n - bed)) * Barge.output_mult(int(worker.get("hungry", 0)))
+	return clampf(hands, 0.0, float(b["workers"]))
 
 # ================================================================== jobs
 static func set_job(e: Dictionary, f: Dictionary, bid: int, n: int) -> void:
@@ -430,6 +455,10 @@ static func set_job(e: Dictionary, f: Dictionary, bid: int, n: int) -> void:
 		return
 	var b: Dictionary = e["biz"][bid]
 	if n < cur:
+		# Synced post-v0.035 design (commit 98a752c): the weekly wage review
+		# (Businesses.bid_day) holds a full employer's pay for seven days
+		# after staff leave, so departures stamp the business.
+		b["staff_left_day"] = int(e.get("day", 0))
 		WageClaims.pay_business(e, f, b)
 	b["workers"] = maxi(0, int(b["workers"]) + n - cur)
 	e["open_n"] = maxi(0, int(e.get("open_n", 0)) - (n - cur))
@@ -527,7 +556,9 @@ static func reassign(e: Dictionary, f: Dictionary) -> void:
 		var old_cap := int(fb["cap"])
 		fb["cap"] = maxi(0, int(ceil(hneed - float(own) - helpers - 0.3)))
 		if int(fb["cap"]) > old_cap:
-			var funded := Businesses.fund_farm(f, fb)
+			# Synced post-v0.035 signature (commit 98a752c): with the town
+			# passed, fund_farm keeps the owner's essential food reserve.
+			var funded := Businesses.fund_farm(f, fb, e)
 			if funded > 0.0:
 				f["farm_funding_pending"] = float(f.get("farm_funding_pending", 0.0)) + funded
 	f["farm_harvest"] = hv
@@ -631,7 +662,12 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 		var b: Dictionary = biz[int(bid)]
 		if b.get("closed", false):
 			continue
-		var open := Businesses.takeable(b)
+		# Synced post-v0.035 signature (commit 98a752c): with the town passed,
+		# a farm's surplus grain backs kind wages in takeable.
+		var open := Businesses.takeable(b, e)
+		# Synced post-v0.035 design (v0.089, commit 5aa9bac): Academy places
+		# are limited to this family's named researchers.
+		if String(b["type"]) == "academy": open = mini(open, Academy.hiring_places(e, f, b))
 		if open <= 0:
 			continue   # nobody signs on where the till is empty
 		var sc := _pay_score(e, b, known)
@@ -648,12 +684,30 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 	var want := {}
 	var casual := {}
 	var casual_total := 0
+	var any_new := false
 	for i in mini(slots, cand.size()):
+		if int(cand[i][2]) == 0: any_new = true
 		var bid := int(cand[i][1])
 		if bid < 0:
 			var job := String(casual_ids[-bid - 1]); casual[job] = int(casual.get(job, 0)) + 1; casual_total += 1
 		else:
 			var key := str(bid); want[key] = int(want.get(key, 0)) + 1
+	# Synced post-v0.035 design (v0.089, commit bc028fa): a cohort's Academy
+	# places are kept only when the exact final job order puts that many
+	# named people in them; the places are not backfilled by other offers.
+	# (Only when this call actually changes the family's places, matching the
+	# current matcher's early return when nothing it held is displaced.)
+	if (any_new or want != f["jobs"]) and Population.is_cohort(f) and not Academy.biz_of(e).is_empty() and want.has(str(int(e["academy"]))):
+		var academy_bid := int(e["academy"])
+		var research_key := str(academy_bid)
+		var prospective_family := f.duplicate(true)
+		var prospective_jobs: Dictionary = prospective_family["jobs"]
+		for held_key in prospective_jobs.keys():
+			if not want.has(held_key): prospective_jobs.erase(held_key)
+		for wanted_key in want:
+			prospective_jobs[wanted_key] = int(want[wanted_key])
+		if Academy._named_places(Persons.work(e, prospective_family), academy_bid) != int(want[research_key]):
+			want.erase(research_key)
 	for k in f["jobs"].keys():
 		if not want.has(k):
 			set_job(e, f, int(k), 0)
@@ -735,7 +789,7 @@ static func _to_trades(e: Dictionary, f: Dictionary, own: int, ad: int, need: fl
 		var b: Dictionary = biz[int(bid)]
 		if String(b["type"]) in field_types or b.get("closed", false):
 			continue
-		var n := Businesses.takeable(b)
+		var n := Businesses.takeable(b, e)
 		if n <= 0:
 			continue
 		var count := mini(n, own)
