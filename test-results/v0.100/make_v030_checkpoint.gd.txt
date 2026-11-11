@@ -1,0 +1,93 @@
+extends RefCounted
+## Makes a REAL v0.030 campaign save for newer-version import tests: starts a new campaign exactly
+## as the game does (ui/newgame.gd _begin -> ui/presim.gd), lets a few real days pass, calls the
+## real Game.save_game(), then copies the save file's exact bytes to tests/fixtures/ before the
+## test runner deletes the per-process save it redirected (tests/runner.gd lines 12 and 47-49).
+## The JSON is never built by hand: every byte comes from Game.save_game() -> _save_tree().
+##
+## Run it through the v0.030 scene test runner (autoloads DB/Game are only visible to scripts
+## compiled after they load, so -s does not work here; see tests/runner.gd):
+##   Godot_v4.7.2-stable_win64_console.exe --headless --path <game folder> res://tests/runner.tscn -- --test=res://tools/make_v030_checkpoint.gd --watchdog=170
+## run(tree) returns the failure count, so exit code 0 means the fixture was written and verified.
+##
+## Choices (both are real New Campaign screen options, ui/newgame.gd): world size "normal"
+## (WorldGen.SIZES, 89 ms per simulated day on the measured laptop) and 1 presim year (the
+## minimum, CampaignWorld.PRESIM_YEARS_MIN = 120 days). The defaults (large, 5 years = 600 days
+## at 249 ms/day, about 150 s) would not finish well under 3 minutes; normal/1 year is about
+## 11 s of presim. Seed is fixed so the fixture is reproducible (tests pass a seed to new_game;
+## only the title screen leaves it random).
+
+const SEED := 2026
+const SIZE_KEY := "normal"   # WorldGen.SIZES key (ui/newgame.gd _begin sets WorldGen.gen_size)
+const PRESIM_YEARS := 1      # CampaignWorld.PRESIM_YEARS_MIN; 1 year = 4 * 30 = 120 days
+## Real days after the player "arrives", in small steps. Presim drains the whole work queue every
+## day (on_time with days >= 0.25 runs every queued job), so a save taken right at presim_finish
+## would have world.work empty. Small steps drain only about days * queue jobs per call
+## (campaign/world.gd on_time), so stopping just after a midnight leaves real pending work.
+const EXTRA_STEP := 0.05     # one sim sub-step (CampaignWorld.STEP); also how tests step the map
+const EXTRA_DAYS := 2.05     # two wage/food days, ending just past the midnight that queues day 3
+const FIXTURE := "res://tests/fixtures/harvest_legacy_v030_save.json"
+
+var fails := 0
+
+func check(ok: bool, msg: String) -> void:
+	if not ok:
+		print("FAIL: ", msg)
+		fails += 1
+
+func run(_tree: SceneTree) -> int:
+	# The runner already redirects the save to a per-process test file; if this is ever run some
+	# other way, still never touch the player's real save (same idea as tests/test_presim.gd).
+	if Game.SAVE_PATH == "user://save.json":
+		Game.SAVE_PATH = "user://v030_checkpoint_save_%d.json" % OS.get_process_id()
+	# --- a new campaign, exactly as the game starts one (ui/newgame.gd _begin, then ui/presim.gd)
+	WorldGen.gen_size = SIZE_KEY
+	CampaignWorld.presim_years = PRESIM_YEARS
+	var t0 := Time.get_ticks_msec()
+	Game.new_game(SEED)
+	check(not Game.world.is_empty() and Game.world.has("towns"), "new_game made no world")
+	check(Game.company.size() > 0, "new_game made no company")
+	var presim_days := CampaignWorld.presim_total(Game)
+	while CampaignWorld.presim_left(Game) > 0:
+		CampaignWorld.presim_step(Game, 1)   # one day per call, as ui/presim.gd does per frame budget
+	CampaignWorld.presim_finish(Game, Time.get_ticks_msec() - t0)
+	print("checkpoint: presim done: %d days, day %.2f, gold %d, towns %d" % [presim_days, Game.day, Game.gold, Game.world["towns"].size()])
+	# --- a few real days with the company alive (wages, food, healing, world jobs): resting steps
+	# (in_town = true, so no party travel or contact fight can start off-screen)
+	var target_day := Game.day + EXTRA_DAYS
+	while Game.day < target_day - 0.001:
+		Game.advance_time(EXTRA_STEP, true)
+	var pending: int = (Game.world.get("work", []) as Array).size()
+	print("checkpoint: real days done: day %.2f, gold %d, pending work jobs %d" % [Game.day, Game.gold, pending])
+	check(pending > 0, "no pending work in world.work (a drained queue is not the state wanted)")
+	check(Game.gold > 0 and Game.gold < 600 * Item.COIN, "gold did not move like wages were paid")
+	# --- the real save, then an exact byte copy before the runner deletes SAVE_PATH
+	Game.save_game()
+	check(Game.has_save(), "save_game wrote nothing to " + Game.SAVE_PATH)
+	if fails > 0:
+		return fails
+	var bytes := FileAccess.get_file_as_bytes(Game.SAVE_PATH)
+	check(not bytes.is_empty(), "save file is empty: " + Game.SAVE_PATH)
+	var dir := ProjectSettings.globalize_path(FIXTURE.get_base_dir())
+	DirAccess.make_dir_recursive_absolute(dir)
+	check(DirAccess.dir_exists_absolute(dir), "cannot make fixture folder " + dir)
+	var out := FileAccess.open(FIXTURE, FileAccess.WRITE)
+	check(out != null, "cannot open fixture for writing: " + FIXTURE)
+	if out != null:
+		out.store_buffer(bytes)
+		out.close()
+	# --- verify the copy: byte-identical, and the save really carries world/day/gold
+	var back := FileAccess.get_file_as_bytes(FIXTURE)
+	check(back == bytes, "fixture bytes differ from the save bytes")
+	var d = JSON.parse_string(FileAccess.get_file_as_string(FIXTURE))
+	check(typeof(d) == TYPE_DICTIONARY, "fixture does not parse as a JSON dictionary")
+	if typeof(d) == TYPE_DICTIONARY:
+		for k in ["world", "day", "gold"]:
+			check(d.has(k), "fixture is missing key " + k)
+		check(absf(float(d.get("day", -1.0)) - Game.day) < 0.001, "saved day %s != game day %f" % [str(d.get("day")), Game.day])
+		check(int(d.get("gold", -1)) == Game.gold, "saved gold differs from game gold")
+		var w: Dictionary = d.get("world", {})
+		check(not w.is_empty() and w.has("towns"), "saved world has no towns")
+		check(int((w.get("work", []) as Array).size()) == pending, "saved pending work differs from live queue")
+	print("checkpoint: fixture written: %s (%d bytes, seed %d, size %s, presim %d d + %.2f d, save was %s)" % [ProjectSettings.globalize_path(FIXTURE), bytes.size(), SEED, SIZE_KEY, presim_days, EXTRA_DAYS, ProjectSettings.globalize_path(Game.SAVE_PATH)])
+	return fails

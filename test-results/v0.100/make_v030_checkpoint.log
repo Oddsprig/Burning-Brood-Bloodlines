@@ -1,0 +1,6 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+checkpoint: presim done: 120 days, day 120.00, gold 12000, towns 23
+checkpoint: real days done: day 122.05, gold 8160, pending work jobs 240
+checkpoint: fixture written: C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v030-save/game/tests/fixtures/harvest_legacy_v030_save.json (14358896 bytes, seed 2026, size normal, presim 120 d + 2.05 d, save was C:/Users/bligh/AppData/Roaming/Copper Oath v0.030/test_save_29688.json)
+== res://tools/make_v030_checkpoint.gd: PASS ==
