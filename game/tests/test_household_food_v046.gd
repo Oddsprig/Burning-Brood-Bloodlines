@@ -289,6 +289,9 @@ func keeping_recipes(culture: String) -> void:
 func legacy_age_lookup() -> void:
 	var e := {"day": 1000.0, "wf": 0.75}
 	var f := Families._blank(1)
+	# v0.100: 8b1b703 sizes meals by household race even without child records.
+	# v0.100: keep the culture-free age fallback, with explicit human meal shares.
+	f["race"] = "human"
 	f["m"] = 1
 	f["f"] = 1
 	f["old"] = 1
@@ -309,6 +312,7 @@ func legacy_age_lookup() -> void:
 	for empty_register in [false, true]:
 		for complete_cache in [false, true]:
 			f = Families._blank(1)
+			f["race"] = "human"
 			f["m"] = 1
 			f["f"] = 1
 			f["old"] = 1
