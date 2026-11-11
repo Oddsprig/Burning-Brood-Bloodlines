@@ -17,6 +17,7 @@ func run(tree: SceneTree) -> int:
 	Game.new_game(11)
 	_census_reads()
 	_academy_keeper_reads()
+	_academy_idle_keeper_reads()
 	var towns := 0
 	var businesses := 0
 	var old_us := 0
@@ -40,7 +41,8 @@ func run(tree: SceneTree) -> int:
 			actual.append([keeper, staff])
 		new_us += Time.get_ticks_usec() - started
 		for i in actual.size():
-			check(actual[i][0] == expected[i][0], "every business keeps its expected keeper identity, name and explanation")
+			check(actual[i][0] == expected[i][0], "every business keeps its expected keeper identity, name and explanation: %s, business %d (%s), expected %s, got %s" %
+				[String(t.get("name", "")), int(RecData.biz(e)[i]["id"]), String(RecData.biz(e)[i]["type"]), str(expected[i][0]), str(actual[i][0])])
 			check(actual[i][1] == expected[i][1], "every business keeps staff order, names, person IDs, titles and actual wages")
 			businesses += 1
 		# A fresh build in the same frame must observe ordinary edits, including legacy integer keys.
@@ -186,9 +188,9 @@ func _compare_rendered(table: RecTable) -> void:
 		check(table._rows_box.get_child(i).get_meta("rec_row") == [r["_l"], r["_r"], (r["_d"] as Callable).call()], "sort, reverse, filter and search keep displayed row information")
 	check(table._count.text == "%d shown of %d" % [mini(expected.size(), table.limit), table.rows.size()], "count agrees with current filter, search and page")
 
-# Only the Academy expectation changed after v0.033: its registered head is a state post.
-# Read the register and paid household place directly; never derive an expectation from
-# RecData.keeper, Academy.lead_name/lead_gone, or whichever employee comes first.
+# v0.100: Academy expectations follow 5aa9bac (v0.089), including unpaid idle heads.
+# v0.100: read the register and active head's paid household place directly; never use
+# v0.100: RecData.keeper, Academy.lead_name/lead_gone, or the first employee as the oracle.
 func _expected_keeper(e: Dictionary, b: Dictionary) -> Dictionary:
 	if String(b.get("type", "")) != "academy":
 		return _old_keeper(e, b)
@@ -208,8 +210,9 @@ func _expected_keeper(e: Dictionary, b: Dictionary) -> Dictionary:
 		if not person.is_empty(): break
 	if person.is_empty() or int(person[6]) == 1 or not String(person[4]) in ["", "hire"]:
 		return {}
-	# Academy's saved paid-place contract uses the canonical string business key.
-	if int((f.get("jobs", {}) as Dictionary).get(str(int(b["id"])), 0)) <= 0:
+	# v0.100: 5aa9bac (v0.089) keeps an idle Academy's named head as an unpaid post.
+	# v0.100: active heads still require the canonical string-keyed paid household place.
+	if not bool(b.get("research_idle", false)) and int((f.get("jobs", {}) as Dictionary).get(str(int(b["id"])), 0)) <= 0:
 		return {}
 	return {"fid": int(lead[0]), "pid": int(lead[1]), "name": Persons.name_of(f, person, Persons.race_of(e)),
 		"how": _academy_head_title(e) + " (state-funded head)"}
@@ -305,6 +308,38 @@ func _academy_keeper_reads() -> void:
 	b.erase("lead")
 	_academy_reads_match(e, "old Academy save without a designated head field")
 	check(not b.has("lead"), "browsing an old Academy does not create an appointment")
+
+func _academy_idle_keeper_reads() -> void:
+	# v0.100: reproduce the unpaid posts of orc/goblin/dwarf Academies since 5aa9bac.
+	var head := {"id": 0, "name": "Honorary household", "jobs": {}, "kp": [],
+		"pp": [[16, 0, 0, -12000, "", -1, 0, "Older Adult"], [17, 0, 0, -10000, "", -1, 0, "Honorary Head"]]}
+	var b := {"id": 0, "type": "academy", "owner": -1, "kw": 0, "wage": 12.5, "skill": 1.0,
+		"cap": 0, "workers": 0, "research_idle": true, "lead": [0, 17]}
+	var e := {"culture": "middle", "academy": 0, "biz": [b], "fams": [head]}
+	var expected := {"fid": 0, "pid": 17, "name": "Honorary Head", "how": "Master (state-funded head)"}
+	check(_expected_keeper(e, b) == expected, "idle Academy retains the exact honorary head, name and state-post explanation without a paid job")
+	check(_old_staff(e, 0).is_empty(), "honorary head creates no paid staff row")
+	_academy_reads_match(e, "idle honorary head without any paid places")
+	b["research_idle"] = false
+	check(_expected_keeper(e, b).is_empty(), "active Academy still requires a paid head place")
+	_academy_reads_match(e, "active house cannot use an unpaid honorary post")
+	b["research_idle"] = true
+	for service in ["army", "reserve", "hire", ""]:
+		head["pp"][1][4] = service
+		check(_expected_keeper(e, b) == ({} if service in ["army", "reserve"] else expected), "honorary head retains exact identity and service eligibility: " + service)
+		_academy_reads_match(e, "idle head service role " + service)
+	head["pp"][1][6] = 1
+	check(_expected_keeper(e, b).is_empty(), "retired honorary head cannot be replaced by another adult")
+	_academy_reads_match(e, "retired honorary head")
+	head["pp"][1][6] = 0
+	head["gone"] = true
+	check(_expected_keeper(e, b).is_empty(), "departed household cannot keep an honorary head post")
+	_academy_reads_match(e, "departed honorary household")
+	head.erase("gone")
+	for designation in [[0, 999], []]:
+		b["lead"] = designation
+		check(_expected_keeper(e, b).is_empty(), "idle house cannot invent a missing head or fill a vacant post")
+		_academy_reads_match(e, "idle missing or vacant head %s" % str(designation))
 
 func _academy_keeper_matches(e: Dictionary, label: String) -> void:
 	var before := var_to_bytes(e)
