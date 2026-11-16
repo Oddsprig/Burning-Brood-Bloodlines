@@ -1,0 +1,13 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.88 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 5090 Laptop GPU
+
+v0.106: wrote C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v106/test-results/v0.106/capture_roost_old_vs_bone_rig.png
+v0.106: wrote C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v106/test-results/v0.106/capture_battle_old_vs_bone_rig.png
+v0.106: wrote C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v106/test-results/v0.106/renders/rig_side_rest.png
+v0.106: wing_beat most-open sample t=1.300 s (reach 531.3)
+v0.106: wrote C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v106/test-results/v0.106/renders/rig_wings_spread.png
+v0.106: wrote C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v106/test-results/v0.106/renders/rig_flying.png
+v0.106: wrote C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v106/test-results/v0.106/renders/rig_rider_neck_saddle.png
+v0.106: wrote C:/Users/bligh/Documents/Codex/2026-09-22/referenced-chatgpt-conversation-this-is-an-3/outputs/LegionaryAI/.work/bb-v106/test-results/v0.106/renders/old_vs_rig.png
+v0.106: two fixture comparisons + five review PNGs saved; recording and user OK still required
+== res://tests/capture_v106_dragon.gd: PASS ==
