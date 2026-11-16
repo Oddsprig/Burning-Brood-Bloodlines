@@ -1,5 +1,8 @@
 {
 	"_note": "Test blocks for tests/runner.gd (--block=<name>): each block runs in ONE Godot process and the whole block must finish in under 60 s (180 s hard cap; user rule 2026-10-17). 'headless' runs with --headless; 'display_*' need a display (xvfb-run in a Linux container). Run blocks one at a time.",
+	"tutorial_v103": [
+		"res://tests/test_tutorial_v103.gd"
+	],
 	"spirewing_v061": [
 		"res://tests/test_sapphire_spirewing_v061.gd",
 		"res://tests/test_dragon_concepts.gd"
