@@ -1,6 +1,23 @@
 BURNING BROOD: BLOODLINES - CURRENT DEVELOPER NOTES
-Updated: 2026-11-16 | v0.104 merged b6f1244 (base 4231e57) | v0.103 merged b81e96e (base f76ed6d) | v0.102 small house merged ead6ecf | v0.100 SALVAGE merged 0d86f7b, 11 blocks / 28 tests pass | last package v0.099 (Windows/Android, not on sale)
+Updated: 2026-11-16 | v0.105 on ab317f2 | v0.104 merged b6f1244 (base 4231e57) | v0.103 merged b81e96e (base f76ed6d) | v0.102 small house merged ead6ecf | v0.100 SALVAGE merged 0d86f7b, 11 blocks / 28 tests pass | last package v0.099 (Windows/Android, not on sale)
 Testing: follow HOW TO TEST at the top of AGENTS.md and CLAUDE.md. Run tests in blocks through runner.gd and blocks.json, one Godot launch per block, and only the blocks that cover a version's changes. The full suite runs only before a store launch.
+
+v0.105 CLEAR BATTLES
+Base main ab317f2.
+- battle/readability_fx.gd: Light default; compact symbols; one marker per man
+  per shock; capped new morale markers; Full/Off modes.
+- battle/readability_legend.gd: legend glyphs follow the mode.
+- battle/battle.gd: initial marker mode and live setting handler.
+- core/game.gd: battle_markers setting and battle_markers_mode().
+- ui/settings.gd: Light/Full/Off choice (merge kept the v0.104 Tutorial/Replay
+  rows above the choices).
+- tests/test_clear_battles_v105.gd (block clear_battles_v105); new block
+  v105_battle (battle_presentation_state, battle_readability_v055).
+  capture_v105_screens.gd is not a block (needs a renderer).
+Tests (2026-11-16, PC, Test Bridge, one headless launch per block): 5 blocks /
+11 tests PASS: clear_battles_v105, v105_battle (battle_presentation_state,
+battle_readability_v055), battle_a (5 battle tests), tutorial_v103 (settings
+page), v100_world (house_onboarding_v019, release_v099).
 
 v0.104 TUTORIAL CHAPTER ONE
 Base main 4231e57. Ported by hand (Muse): bb-v104 working changes over 4c9cb37,

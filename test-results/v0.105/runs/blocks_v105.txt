@@ -1,0 +1,5 @@
+clear_battles_v105	--block=clear_battles_v105
+v105_battle	--block=v105_battle
+battle_a	--block=battle_a
+tutorial_v103	--block=tutorial_v103
+v100_world	--block=v100_world

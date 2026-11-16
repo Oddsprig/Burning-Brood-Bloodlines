@@ -57,7 +57,7 @@ func _build() -> void:
 	list.add_child(UiKit.label("Tutorial", "H2"))
 	list.add_child(_replay_row())
 	list.add_child(UiKit.label("Replay opens New Campaign with the guide selected. Create world begins a new campaign; Back keeps your current one.", "Muted", true))
-	# v0.014: settings with named choices (Gore: Full / Reduced); the button shows the current one and cycles
+	# v0.014 / v0.105: settings with named choices (Gore, Battle markers: Light / Full / Off, etc.); the button shows the current one and cycles
 	var choices: Dictionary = Game.SETTING_CHOICES if "SETTING_CHOICES" in Game else {}
 	for key in choices:
 		var c: Dictionary = choices[key]
@@ -65,7 +65,7 @@ func _build() -> void:
 			list.add_child(_slider_row(String(key), String(c["label"])))
 			continue
 		var opts: Array = c["options"]
-		var cur: Variant = Game.setting(key)
+		var cur: Variant = Game.battle_markers_mode() if key == "battle_markers" else Game.setting(key)
 		var idx := 0
 		for i in opts.size():
 			if opts[i][0] == cur:

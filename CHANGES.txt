@@ -1,5 +1,6 @@
 BURNING BROOD: BLOODLINES - ACTIVE CHANGE NOTES
-Updated: 2026-11-16 for v0.104 merged as b6f1244 (base 4231e57).
+Updated: 2026-11-16 for v0.105 (base main ab317f2).
+v0.104 merged as b6f1244 (base 4231e57).
 v0.103 merged as b81e96e (base f76ed6d).
 v0.102 small house merged as ead6ecf (base f897872); 4 blocks / 10 tests pass.
 v0.100 SALVAGE merged as 0d86f7b (base 0f36e00); 11 blocks / 28 tests pass.
@@ -13,6 +14,23 @@ container; not yet uploaded or on sale). v0.096-v0.098 are source merges.
 This changelog starts with the accepted v0.086-v0.094 source catch-up. Earlier
 history remains in the developer notes and immutable archives. Historical worker
 UNRUN reports are superseded by the accepted source receipts where stated.
+
+v0.105 - Clearer battle markers
+Base main ab317f2 (v0.104). Source: bb-v105 working changes plus the reviewed
+v0.105 merge fixes (UID sidecars).
+Battle markers default to Light: small fear and retreat signs replace the large
+fear circles and floating FEAR/ROUT words. Repeated shocks share one marker per
+man, and crowded breaks show fewer short-lived signs. Settings offers Light,
+Full or Off and remembers the choice; Full keeps the older circles and words,
+Off hides fear and retreat markers. Changing it mid-battle updates the markers.
+Other cues (breath, volleys, rider danger) stay. Presentation only: morale and
+combat outcomes are unchanged.
+Open: before/after 100-on-100 dragon pictures and rendered frame time are not
+captured (capture_v105_screens.gd needs a real renderer). Version metadata: 0.105.
+Tests (2026-11-16, PC, Test Bridge, one headless launch per block): 5 blocks /
+11 tests PASS: clear_battles_v105, v105_battle (battle_presentation_state,
+battle_readability_v055), battle_a (5 battle tests), tutorial_v103 (settings
+page), v100_world (house_onboarding_v019, release_v099).
 
 v0.104 - Tutorial chapter: choose a house, borrow, fund an army and march
 Base main 4231e57 (v0.103). Source: bb-v104 work over 4c9cb37, the v0.102

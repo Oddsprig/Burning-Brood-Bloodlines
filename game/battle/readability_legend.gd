@@ -10,7 +10,8 @@ class Sample extends Control:
 	var cue := false
 	func _draw() -> void:
 		if cue:
-			Cues.symbol(self, id, Vector2(21,18), Cues.INFO[id][1])
+			# v0.105: sample the active Light/Full glyph style in the legend.
+			Cues.symbol(self, id, Vector2(21,18), Cues.INFO[id][1], 1, Game.battle_markers_mode() == "light")
 		elif Ground.PATTERNS.has(id):
 			draw_rect(Rect2(2,2,38,30), Ground.PALETTES[id]["base"])
 			Ground.paint_pattern(self, Rect2(2,2,38,30), id, Color("#e8dfbb"))

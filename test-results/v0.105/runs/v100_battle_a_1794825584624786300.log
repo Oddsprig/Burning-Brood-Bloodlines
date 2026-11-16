@@ -1,0 +1,64 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+dev: loaded the start world in 1865 ms
+small battle: 335 ticks, winner 1, 2 deaths, 0 severs, 367 events
+  small: 3.4 s
+dev: loaded the start world in 1477 ms
+large battle: 393 ticks, winner 1
+  large: 2.4 s
+dev: loaded the start world in 1489 ms
+choke battle: 24000 ticks, winner -1
+  choke: 4.1 s
+== res://tests/test_battle_screen.gd: PASS ==
+Battle result summary checkpoint: 100/100 complete
+Battle result summary checkpoint: 200/200 complete
+Battle result summary checkpoint: identity/sparse fallbacks complete
+Battle result summary checkpoint: bounded native ticks complete
+Battle result summary v014: 110 assertions; failures=0
+== res://tests/test_battle_result_summary_v014.gd: PASS ==
+Gore render v016: 139 checks, 0 failures; native GPU RGBA, full/reduced, 30 chunks + pools
+== res://tests/test_gore_render_v016.gd: PASS ==
+GORE ten synchronous native battles and repeated claim rendering; required wall time UNMEASURED; external 59-second wall cap required (target under 60 seconds)
+  674 strike entries from 10 battles
+  gore full: claims found { "weapon bent": 125, "through armour": 21, "cry of pain": 114, "stuck": 35, "guts": 40, "weapon snapped": 6, "skull": 61, "armour dented": 6, "lung": 23, "spine": 9, "brain": 32, "slain": 27, "severed": 11, "edge chipped": 16, "artery": 11, "tooth": 4, "windpipe": 1, "armour broken": 1 }
+  --- sample lines (gore full) ---
+    The human warrior Tin spears Copper 0 in the left upper leg with his tin boar spear, tearing the muscle! The human warrior Tin's tin boar spear comes away from Copper 0's left upper leg bone bent out of true!
+    Copper 0 stabs the human warrior Tin's right foot through his leather shoes with his copper arming sword, cutting through the bone and running through the muscle!
+    The human warrior Tin stabs Copper 0 in the right lower arm with his tin boar spear, skewering the muscle and cracking the bone! The tin boar spear is lodged firmly in the wound! The human warrior Tin's tin boar spear bends against Copper 0's right lower arm bone! Copper 0 screams.
+    The human warrior Tin spears Copper 0 in the upper body with his tin boar spear, battering the muscle. The human warrior Tin's tin boar spear bends against Copper 0's copper mail shirt!
+    The human warrior Tin spears Copper 0 in the lower body with his tin boar spear, perforating the guts and skewering the muscle! Copper 0's guts spill out, and he clutches at them! Copper 0 grunts and staggers.
+    The human warrior Tin stabs Copper 0 in the left lower leg with his tin boar spear, skewering the muscle! A small vessel is nicked. The human warrior Tin's tin boar spear bends against Copper 0's left lower leg bone!
+    The human warrior Tin stabs Copper 0's lower body through his copper mail shirt with his copper arming sword, puncturing the guts and skewering the muscle! Copper 0 bellows in pain.
+    Copper 0 punches the human warrior Tin's left lower leg hard, bruising the muscle.
+    The human warrior Tin stabs Copper 0's right upper arm through his copper mail shirt with his tin boar spear, shattering the bone and battering the muscle! The human warrior Tin swung his tin boar spear with such force it snapped in half on Copper 0's copper mail shirt! Copper 0 cries out.
+    The human warrior Tin's fist connects with Copper 0's right upper arm, battering the muscle.
+    Lunging, the human warrior Tin buries his tin boar spear in Copper 0's lower body, piercing the stomach and skewering the muscle!
+    The human warrior Tin hammers Copper 1's head, and the copper nasal helm holds firm. The copper nasal helm buckles inward. The blow bends the human warrior Tin's tin boar spear on Copper 1's copper nasal helm!
+    The human warrior Tin drives his tin boar spear into Copper 1's left lower leg, skewering the muscle and breaking the bone! The blow bends the human warrior Tin's tin boar spear on Copper 1's left lower leg bone! Copper 1 howls with pain.
+    Copper 1 spears the human warrior Tin in the right lower arm with his copper arming sword, cutting through the bone and skewering the muscle!
+  gore reduced: claims found { "weapon bent": 125, "through armour": 21, "cry of pain": 114, "stuck": 35, "guts": 40, "weapon snapped": 6, "skull": 61, "armour dented": 6, "lung": 23, "spine": 9, "brain": 32, "slain": 29, "severed": 9, "edge chipped": 16, "artery": 11, "tooth": 4, "windpipe": 1, "armour broken": 1 }
+GORE selected=all (claims excludes setting/performance/gear coverage)
+  gore layer 50v50: 858 ticks, mean 0.154 ms, worst 0.613 ms; 900 decals (cap 900), 38 pools, 84 drops in flight
+  snap line: Arnold stabs Grushnak in the hand with his tin arming sword; the steel gauntlet takes the blow. Arnold swung his tin arming sword with such force it snapped in half on Grushnak's steel gauntlet!
+  tin maces vs steel plate: 2 weapon damage events
+  copper mace on a copper pot helm: 40 dents in 42 probes
+== res://tests/test_gore_text.gd: PASS ==
+mace -> upper body, 200 strikes each:
+  copper mail shirt: covered 200, intact 200, ribs broken under intact mail 111 (56%)
+  copper lamellar:   covered 195, intact 195, ribs broken under intact lamellar 10 (5%)
+  no armor:          ribs broken 101 (51%)
+copper mail shirt penetration (upper body):
+  copper spear stab    80 / 193 (41%)
+  copper sword stab   100 / 196 (51%)
+  copper sword slash    5 / 200 (3%)
+  tin sword slash       0 / 200 (0%)
+tin mail shirt penetration:
+  copper spear stab   194 / 197 (98%)
+  copper sword slash  187 / 200 (94%)
+== res://tests/test_sim_armor.gd: PASS ==
+== block battle_a: 5 tests, 0 failing ==
+  test_battle_screen.gd PASS (10 s)
+  test_battle_result_summary_v014.gd PASS (1 s)
+  test_gore_render_v016.gd PASS (5 s)
+  test_gore_text.gd PASS (4 s)
+  test_sim_armor.gd PASS (1 s)

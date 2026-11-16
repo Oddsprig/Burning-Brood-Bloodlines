@@ -1322,6 +1322,7 @@ const DEFAULT_SETTINGS := {
 	"gore": "full",   # v0.014 (Douglas 22:51): "full" | "reduced" (a later phone-store build): blood, decals and log words
 	"battery_saver": false,   # v0.072: true caps the game at 30 FPS (core/mobile_perf.gd)
 	"autosave": "week",   # v0.084: week | season | day | off. Off still saves on Save and on quit.
+	"battle_markers": "light",   # v0.105: light | full | off. Light cuts fear circles and floating FEAR/ROUT words.
 }
 ## Settings with named choices (the screen cycles through them): key -> {label, options [value, shown name]}.
 const SETTING_CHOICES := {
@@ -1335,10 +1336,21 @@ const SETTING_CHOICES := {
 		"hint": "Battery saver caps the game at 30 frames a second: less heat and longer battery life on phones. Smooth runs at up to 60 on phones."},
 	"autosave": {"label": "Autosave", "options": [["week", "Weekly"], ["season", "Each season"], ["day", "Daily"], ["off", "Off"]],
 		"hint": "Weekly is the default: at most once every 7 in-game days. Each season is 30 days. Off still saves when you press Save or quit. A battle is never interrupted by a save."},
+	"battle_markers": {"label": "Battle markers", "options": [["light", "Light"], ["full", "Full"], ["off", "Off"]],
+		"hint": "Light is the default: one small marker per man without fear circles or floating FEAR/ROUT words, throttled on mass breaks. Full shows every fear circle and word. Off hides fear and rout markers."},
 }
 
 func gore_full() -> bool:
 	return String(setting("gore")) != "reduced"
+
+static func _normalize_battle_markers(v: Variant) -> String:
+	var s := String(v).strip_edges().to_lower()
+	if s == "full" or s == "off" or s == "light":
+		return s
+	return "light"
+
+func battle_markers_mode() -> String:
+	return _normalize_battle_markers(setting("battle_markers"))
 const SETTING_LABELS := {
 	"battle_event_slowmo": "Automatic battle slow motion",
 	"show_performance": "Performance overlay (F3)",
@@ -1351,6 +1363,8 @@ func setting(key: String):
 	return settings.get(key, DEFAULT_SETTINGS.get(key))
 
 func set_setting(key: String, value) -> void:
+	if key == "battle_markers":
+		value = _normalize_battle_markers(value)
 	var previous: Variant = setting(key)
 	settings[key] = value
 	CombatText.gore_full = gore_full()   # v0.014: the log's word set follows the Gore setting
@@ -1368,6 +1382,7 @@ func load_settings() -> void:
 		var d = JSON.parse_string(FileAccess.get_file_as_string(SETTINGS_PATH))
 		if d is Dictionary:
 			settings.merge(d, true)
+	settings["battle_markers"] = _normalize_battle_markers(settings.get("battle_markers", "light"))
 	CombatText.gore_full = gore_full()
 	for key: String in settings:
 		if previous.get(key, DEFAULT_SETTINGS.get(key)) != settings[key]:

@@ -41,6 +41,9 @@
 		"res://tests/test_popup_cleanup_v070.gd",
 		"res://tests/test_ui_modal.gd"
 	],
+	"clear_battles_v105": [
+		"res://tests/test_clear_battles_v105.gd"
+	],
 	"headless": [
 		"res://tests/claude_population_v034.gd",
 		"res://tests/claude_prisoners_v033.gd",
@@ -125,5 +128,9 @@
 		"res://tests/test_recruit_brief.gd",
 		"res://tests/test_recruit_item_custody_v094.gd",
 		"res://tests/test_house_onboarding_v019.gd"
+	],
+	"v105_battle": [
+		"res://tests/test_battle_presentation_state.gd",
+		"res://tests/test_battle_readability_v055.gd"
 	]
 }

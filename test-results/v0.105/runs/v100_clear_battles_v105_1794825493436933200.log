@@ -1,0 +1,41 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ok   default battle_markers setting is light
+ok   battle_markers_mode() defaults to light
+ok   SETTING_CHOICES includes battle_markers
+ok   battle_markers has exactly 3 values: light, full, off
+ok   battle_markers saves and reloads value: full
+ok   battle_markers saves and reloads value: off
+ok   battle_markers saves and reloads value: light
+ok   legacy settings without battle_markers load and default to light
+ok   settings screen shows Choice_battle_markers at Light
+ok   settings button cycles Light -> Full
+ok   settings button cycles Full -> Off
+ok   settings button cycles Off -> Light
+ok   ReadabilityFx node is in the scene tree for mode contract checks
+ok   Off mode draws no fear circles, no FEAR/ROUT words, and no morale markers
+ok   Light mode emits and draws 1 small marker when a man takes morale shock
+ok   Light mode draws 0 fear circles and 0 floating FEAR/ROUT words
+ok   Light mode keeps at most 1 marker per man across repeated fear shocks
+ok   Light mode upgrades a man's fear marker in-place on rout (at most 1 marker per man)
+ok   dead/fled fighter morale marker is cleaned up on observe
+ok   Light mode throttles 20 simultaneous breaks to 3 markers (cap 3)
+ok   Light mode records aggregated/throttled mass breaks (17 throttled)
+ok   Light mode mass break draws 0 fear circles, 0 words, and <= 1 marker per man
+ok   Full mode keeps all 20 markers on mass break (20 vs Light 3)
+ok   Full mode draws fear circles (20) and floating FEAR/ROUT words (20)
+ok   Battle screen initializes ReadabilityFx in light mode
+ok   seeded one actor-bound live marker before live switch
+ok   live Off prunes live markers
+ok   Battle screen updates ReadabilityFx live when set to full
+ok   Full mode allows multiple markers on an actor before switching to Light
+ok   Battle screen updates ReadabilityFx live when set back to light and prunes duplicate actor markers
+100v100 marker work (median over 64 real frames): Light 220.0 us/frame (32.0 us _draw, 7.0 draw calls, max morale 6) vs Full 1037.0 us/frame (768.5 us _draw, 366.0 draw calls, max morale 64)
+ok   100v100 ReadabilityFx nodes are in the scene tree and _draw executes on all 64 measured frames
+ok   100v100 Light active markers (6) present, under cap and below Full (64)
+ok   100v100 median CanvasItem draw calls per frame at Light (7.0) is lower than Full (366.0)
+ok   100v100 median per-frame marker time at Light (220.0 us total, 32.0 us _draw) is within slack of Full (1037.0 us total, 768.5 us _draw)
+ok   100v100 Light draws 0 fear circles and 0 morale words while Full draws both
+ok   test_clear_battles_v105 finishes well under 3-minute budget (1923 ms)
+clear_battles_v105: 36 checks, 0 failures (1923 ms)
+== res://tests/test_clear_battles_v105.gd: PASS ==
