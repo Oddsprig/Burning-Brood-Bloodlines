@@ -149,6 +149,8 @@ Read the original handoff or inherited specifications only as needed.
   and simulation. Repeat phone QA only when requested or near the export milestone.
 - Extend native people, property, ledgers, army and BattleSim identities. No
   duplicate population, market, money system or dragon combat resolver.
+- DRAGONS (owner's choice, 2026-11-16): keep the current sprite dragons. The bone-rig
+  prototype (branch v0.106-dragon-rig) is not to be merged; v0.107 is dropped.
 - HELPERS (owner's rule, 2026-11-16; supersedes the Sol/Luna lines below): no Sol
   at all. Main helpers: Google Carbon (high), Argon 4.0 (high) and Muse Wonder (high).
   Grok (high) only for simple, bounded tasks: listings, small edits, running a known

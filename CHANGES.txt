@@ -12,6 +12,11 @@ v0.096 merged as 6ed741a3134e8029496e83da18979052b015efb9.
 Packaged release: v0.099 (Windows .exe and signed Android .apk, built in the cloud
 container; not yet uploaded or on sale). v0.096-v0.098 are source merges.
 
+Version map (2026-11-16): v0.101 was folded into the v0.100 salvage (no separate
+v0.101 release). v0.107 (bone-rig dragon rollout) is DROPPED: the owner chose to
+keep the current sprite dragons. The prototype stays on branch v0.106-dragon-rig
+(0e6378c) as a record only; do not merge it. Next version: v0.108 (store prep).
+
 This changelog starts with the accepted v0.086-v0.094 source catch-up. Earlier
 history remains in the developer notes and immutable archives. Historical worker
 UNRUN reports are superseded by the accepted source receipts where stated.
