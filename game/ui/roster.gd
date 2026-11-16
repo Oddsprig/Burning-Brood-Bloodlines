@@ -106,14 +106,15 @@ static func offer(game, recruit: Unit) -> Dictionary:
 
 ## Hire a recruit from a town (Recruits.hire, at offer terms) into a squad (-1 = unassigned).
 static func hire(game, town: Dictionary, recruit: Unit, officer_uid: int) -> String:
-	if game.company.filter(func(u): return not u.dead).size() >= MAX_COMPANY:
-		return "the company is full (%d people)" % MAX_COMPANY
-	var cost := int(offer(game, recruit)["hire_cost"])
-	if game.gold < cost:
-		return "not enough coins (%d needed)" % cost
+	# v0.102: use the native hiring refusal so every entry point gives the same next step.
+	var why := Recruits.hire_refusal(game, town, recruit)
+	if why != "":
+		return why
 	if officer_uid != -1 and not has_room(game, officer_uid):
-		return "that squad is full"
+		return "That squad is full. Choose another squad or leave this recruit unassigned."
 	if not Recruits.hire(game, town, recruit):
-		return "could not hire"
+		why = Recruits.hire_refusal(game, town, recruit)
+		# v0.102: the fallback names the actual Town Recruits tab.
+		return why if why != "" else "The recruit's terms changed. Review Town Recruits and try again."
 	recruit.squad = officer_uid
 	return ""

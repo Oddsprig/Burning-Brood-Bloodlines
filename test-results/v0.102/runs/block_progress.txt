@@ -1,0 +1,50 @@
+01:21:32 QUEUED small_house_v102: job cf938940d33942e5b6d12b667e5942ae
+01:21:37 WAITING_LANE small_house_v102: job cf938940d33942e5b6d12b667e5942ae
+01:21:47 RUNNING small_house_v102: job cf938940d33942e5b6d12b667e5942ae
+01:21:52 FAILED small_house_v102: job cf938940d33942e5b6d12b667e5942ae
+01:21:52 FAILED small_house_v102: v100_small_house_v102_1794810092391551300|bb-v102-main|--block=small_house_v102|tb=failed|fails=1|script_err=13|log=v100_small_house_v102_1794810092391551300.log
+01:21:52 DONE blocks=3 failures=1
+01:26:31 COOLDOWN small_house_v102: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 283 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:31:48 AM EST.\"}"}
+01:27:31 COOLDOWN small_house_v102: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 343 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:31:48 AM EST.\"}"}
+01:28:31 COOLDOWN small_house_v102: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 403 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:31:48 AM EST.\"}"}
+01:29:32 COOLDOWN small_house_v102: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 463 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:31:48 AM EST.\"}"}
+01:30:32 COOLDOWN small_house_v102: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 523 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:31:48 AM EST.\"}"}
+01:31:32 COOLDOWN small_house_v102: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 583 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:31:48 AM EST.\"}"}
+01:32:32 QUEUED small_house_v102: job c1226b4c407f40bea2a77d980753ec29
+01:32:37 WAITING_LANE small_house_v102: job c1226b4c407f40bea2a77d980753ec29
+01:32:47 RUNNING small_house_v102: job c1226b4c407f40bea2a77d980753ec29
+01:32:52 PASSED small_house_v102: job c1226b4c407f40bea2a77d980753ec29
+01:32:52 PASS small_house_v102: v100_small_house_v102_1794810391507687100|bb-v102-main|--block=small_house_v102|tb=passed|fails=0|script_err=0|log=v100_small_house_v102_1794810391507687100.log
+01:32:55 QUEUED v102_army: job 6df12b84bd704234a205966488ce74b8
+01:33:00 WAITING_LANE v102_army: job 6df12b84bd704234a205966488ce74b8
+01:33:10 RUNNING v102_army: job 6df12b84bd704234a205966488ce74b8
+01:33:56 PASSED v102_army: job 6df12b84bd704234a205966488ce74b8
+01:33:56 PASS v102_army: v100_v102_army_1794810775480436800|bb-v102-main|--block=v102_army|tb=passed|fails=0|script_err=0|log=v100_v102_army_1794810775480436800.log
+01:33:58 QUEUED v102_town: job de72666a224c41b28864517a9695a962
+01:34:03 WAITING_LANE v102_town: job de72666a224c41b28864517a9695a962
+01:34:08 RUNNING v102_town: job de72666a224c41b28864517a9695a962
+01:34:44 PASSED v102_town: job de72666a224c41b28864517a9695a962
+01:34:44 PASS v102_town: v100_v102_town_1794810838643148200|bb-v102-main|--block=v102_town|tb=passed|fails=0|script_err=0|log=v100_v102_town_1794810838643148200.log
+01:34:44 DONE blocks=3 failures=0
+01:35:12 QUEUED v100_world: job c2c67600879f4703a50a7330f5a7343d
+01:35:17 WAITING_LANE v100_world: job c2c67600879f4703a50a7330f5a7343d
+01:35:27 RUNNING v100_world: job c2c67600879f4703a50a7330f5a7343d
+01:35:42 FAILED v100_world: job c2c67600879f4703a50a7330f5a7343d
+01:35:42 FAILED v100_world: v100_v100_world_1794810912215886200|bb-v102-main|--block=v100_world|tb=failed|fails=6|script_err=0|log=v100_v100_world_1794810912215886200.log
+01:35:42 DONE blocks=1 failures=1
+01:36:03 COOLDOWN v100_world: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 21 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:45:41 AM EST.\"}"}
+01:37:03 COOLDOWN v100_world: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 82 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:45:41 AM EST.\"}"}
+01:38:03 COOLDOWN v100_world: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 142 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:45:41 AM EST.\"}"}
+01:39:03 COOLDOWN v100_world: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 202 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:45:41 AM EST.\"}"}
+01:40:03 COOLDOWN v100_world: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 262 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:45:41 AM EST.\"}"}
+01:41:04 COOLDOWN v100_world: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 323 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:45:41 AM EST.\"}"}
+01:42:04 COOLDOWN v100_world: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 383 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:45:41 AM EST.\"}"}
+01:43:04 COOLDOWN v100_world: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 443 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:45:41 AM EST.\"}"}
+01:44:04 COOLDOWN v100_world: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 503 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:45:41 AM EST.\"}"}
+01:45:05 COOLDOWN v100_world: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 564 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:45:41 AM EST.\"}"}
+01:46:05 QUEUED v100_world: job d4551d16874541368aea1da7769ae839
+01:46:10 WAITING_LANE v100_world: job d4551d16874541368aea1da7769ae839
+01:46:20 RUNNING v100_world: job d4551d16874541368aea1da7769ae839
+01:46:30 PASSED v100_world: job d4551d16874541368aea1da7769ae839
+01:46:30 PASS v100_world: v100_v100_world_1794810962773838500|bb-v102-main|--block=v100_world|tb=passed|fails=0|script_err=0|log=v100_v100_world_1794810962773838500.log
+01:46:30 DONE blocks=1 failures=0

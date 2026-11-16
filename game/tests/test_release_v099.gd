@@ -92,7 +92,9 @@ func store_build() -> void:
 	var name_ := str(ProjectSettings.get_setting("application/config/name", ""))
 	check(name_ == "Burning Brood: Bloodlines", "store: shown name is Burning Brood: Bloodlines (got %s)" % name_)
 	check(str(ProjectSettings.get_setting("application/config/custom_user_dir_name", "")) == "Burning Brood Bloodlines Claude Edition", "store: the save folder name is unchanged, so old saves still load")
-	check(str(ProjectSettings.get_setting("application/config/version", "")) == "0.100", "store: version 0.100")
+	# The version is 0.XXX; store builds must agree with it (Android code = XXX, Windows 0.XXX.0.0).
+	var ver := str(ProjectSettings.get_setting("application/config/version", ""))
+	check(ver.begins_with("0.") and ver.length() == 5 and ver.substr(2).is_valid_int(), "store: version is 0.XXX (got %s)" % ver)
 	check(not FileAccess.get_file_as_string("res://ui/title.gd").contains("Claude Edition") and not FileAccess.get_file_as_string("res://main.gd").contains("Claude Edition"), "store: title screen and window title drop Claude Edition")
 	var splash := str(ProjectSettings.get_setting("application/boot_splash/image", ""))
 	check(splash != "" and FileAccess.file_exists(splash), "store: the boot splash image exists (%s)" % splash)
@@ -107,7 +109,9 @@ func store_build() -> void:
 	var a: String = by_name["Android"] + ".options"
 	check(cfg.get_value(w, "binary_format/embed_pck", false) == true and str(cfg.get_value(w, "binary_format/architecture", "")) == "x86_64", "store: Windows is one 64-bit .exe with the game inside")
 	check(FileAccess.file_exists(str(cfg.get_value(w, "application/icon", ""))), "store: the Windows icon file exists")
-	check(str(cfg.get_value(a, "version/name", "")) == "0.100" and int(cfg.get_value(a, "version/code", 0)) == 100, "store: Android version 0.100 (code 100)")
+	check(str(cfg.get_value(a, "version/name", "")) == ver and int(cfg.get_value(a, "version/code", 0)) == ver.substr(2).to_int(), "store: Android version matches %s" % ver)
+	check(str(cfg.get_value(w, "application/file_version", "")) == ver + ".0.0" and str(cfg.get_value(w, "application/product_version", "")) == ver + ".0.0", "store: Windows version matches %s" % ver)
+	check(str(cfg.get_value(by_name["Android"], "export_path", "")).ends_with("_v0%s.apk" % ver.substr(2)), "store: Android file name carries the version")
 	check(str(cfg.get_value(a, "keystore/release_password", "")) == "" and str(cfg.get_value(a, "keystore/release", "")) == "", "store: no release key or password in the committed presets")
 	for k in ["launcher_icons/main_192x192", "launcher_icons/adaptive_foreground_432x432", "launcher_icons/adaptive_background_432x432", "launcher_icons/adaptive_monochrome_432x432"]:
 		check(FileAccess.file_exists(str(cfg.get_value(a, k, ""))), "store: Android %s exists" % k.get_file())
@@ -121,8 +125,10 @@ func muster_words() -> void:
 	var rows := [{"state": "army", "age": adult + 4, "race": "human"}, {"state": "army", "age": adult + 10, "race": "human"},
 		{"state": "militia", "age": adult + 1, "race": "human"}, {"state": "army", "age": 2, "race": "human"}, {"state": "", "age": 3, "race": "human"}]
 	var t: String = M.no_riders_text(rows)
-	check(t.begins_with("No adult family members are free to ride with the army.") and t.contains("2 with the realm's field army") and t.contains("1 in the town guard"), "muster: says who is away serving (%s)" % t)
-	check(M.no_riders_text([{"state": "", "age": 3, "race": "human"}]) == "No adult family members are free to ride with the army.", "muster: plain line when nobody is away")
+	# v0.102: each away member is listed by name, and the line always names a next step.
+	check(t.begins_with("No adult family members are free to ride with the army.") and t.count("with the realm's field army") == 2 and t.count("in the town guard") == 1 and t.contains("no set return date") and t.contains("Raise settlement troops"), "muster: says who is away serving (%s)" % t)
+	var plain: String = M.no_riders_text([{"state": "", "age": 3, "race": "human"}])
+	check(plain.begins_with("No adult family members are free to ride with the army.") and not plain.contains("Away serving") and not plain.contains("return date") and plain.contains("Raise settlement troops"), "muster: plain line with a next step when nobody is away (%s)" % plain)
 
 # ------------------------------------------------------------------ 5. marriage age gaps by lifespan
 func marriage_ages() -> void:

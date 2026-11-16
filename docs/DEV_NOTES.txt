@@ -1,6 +1,38 @@
 BURNING BROOD: BLOODLINES - CURRENT DEVELOPER NOTES
-Updated: 2026-11-16 | v0.100 SALVAGE merged 0d86f7b, 11 blocks / 28 tests pass | last package v0.099 (Windows/Android, not on sale)
+Updated: 2026-11-16 | v0.102 small house on f897872 | v0.100 SALVAGE merged 0d86f7b, 11 blocks / 28 tests pass | last package v0.099 (Windows/Android, not on sale)
 Testing: follow HOW TO TEST at the top of AGENTS.md and CLAUDE.md. Run tests in blocks through runner.gd and blocks.json, one Godot launch per block, and only the blocks that cover a version's changes. The full suite runs only before a store launch.
+
+v0.102 SMALL-HOUSE ARMY PATH
+Base main f897872. Goal (RELEASE_PLAN_v0100_v0109.md): a penniless non-ruling
+house reaches a raised household army and marches, with useful refusals.
+- campaign/feudal.gd: can_act_household() permits home-house funding and muster
+  without town office; funding and borrowing require being at home. Settlement
+  taxes, levies and public authority keep can_act().
+- campaign/loans.gd: the selected house gets a 1,200-coin charter credit floor.
+  Only explicit player borrowing may use the treasury reserve; weekly AI
+  quote/lend calls keep allow_reserve=false. Borrowing debits real treasury
+  coin and credits the private purse with native debt/interest. Destitution,
+  arrears, debt limits and empty treasuries still refuse; no free grant.
+- campaign/mobilization.gd: drops paid helmet/expensive torso kit and tries a
+  cheaper unused weapon before refusing a candidate; continues to affordable
+  candidates; clears the funding warning once a real departure can be planned.
+- ui/muster.gd, ui/house.gd: borrow/fund reviews, sensible fund amount,
+  autosave on success, visible reasons beside disabled controls. Realm-army
+  service has no invented return date; family riders are optional.
+- Wording owners: campaign/house_onboarding, dynasty, recruits, contracts,
+  horses, supplies, world, world_map; core/food; ui/company, roster, town,
+  town_contracts_tab, town_provisions_tab.
+- No feature switch and no new required save field.
+Tests (2026-11-16, PC, Test Bridge, one headless Godot launch per block):
+4 blocks / 10 tests PASS: small_house_v102 (new test, 3 seeds), v102_army
+(mobilization_v017, muster_ui_v017, feudal_governance), v102_town
+(campaign_contracts, recruit_brief, recruit_item_custody_v094,
+house_onboarding_v019), v100_world (house_onboarding_v019, release_v099).
+Fixes during acceptance: the new test's fixture now runs native crafter/price
+setup and waits a frame before reading the Army screen; test_release_v099
+checks the new named "away serving" line and reads the version from
+project.godot instead of a fixed number.
+Limits: three synthetic seeds; no fresh-campaign, phone or packaging check.
 
 v0.100 SALVAGE
 Acceptance (2026-11-16, PC, Test Bridge, one headless Godot launch per block):

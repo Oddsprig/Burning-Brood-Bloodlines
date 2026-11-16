@@ -254,12 +254,19 @@ static func draw_horse_grain(game, quantity: int) -> int:
 ## Packing uses the same market, named meal lots and price as the provision screen.
 ## Stock leaves the town ledger exactly once, as it does in provision().
 static func pack_horse_grain(game, town: Dictionary, days: int = 7) -> Dictionary:
-	if not TownEcon.has_econ(town) or not Mobilization._here(game, str(town["id"])):
-		return {"ok": false, "reason": "Visit the market to pack grain."}
+	# v0.102: distinguish missing horses, grain and coin so packing has an actionable refusal.
+	if not TownEcon.has_econ(town):
+		return {"ok": false, "reason": "This settlement has no working market. Visit another market to buy grain."}
+	if not Mobilization._here(game, str(town["id"])):
+		return {"ok": false, "reason": "Your army is away from this market. Travel here before packing grain."}
 	var quantity := Horses.count(game.company) * Horses.GRAIN_DAY * maxi(0, days)
 	quantity = mini(quantity, maxi(0, int(town["econ"]["stock"].get("grain", 0))))
 	var cost := Food.food_cost(town, "grain", quantity)
-	if quantity <= 0 or game.gold < cost: return {"ok": false, "reason": "Not enough grain or army coins."}
+	if quantity <= 0:
+		if Horses.count(game.company) == 0: return {"ok": false, "reason": "Your army has no living horses. Buy a mount first, or march on foot without horse grain."}
+		if days <= 0: return {"ok": false, "reason": "No days of grain were requested. Choose at least one day."}
+		return {"ok": false, "reason": "This market has no grain for sale. Visit another market or wait for fresh stock."}
+	if game.gold < cost: return {"ok": false, "reason": "Packing this grain costs %d coins; the army purse is short. Return home to fund it, then pack grain again." % cost}
 	Goods.take(town, "grain", quantity)
 	TownEcon.led(town["econ"], "used", "grain", quantity)
 	game.gold -= cost

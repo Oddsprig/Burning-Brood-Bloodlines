@@ -1,5 +1,6 @@
 BURNING BROOD: BLOODLINES - ACTIVE CHANGE NOTES
-Updated: 2026-11-16 for v0.100 SALVAGE merged as 0d86f7b (base 0f36e00); 11 blocks / 28 tests pass.
+Updated: 2026-11-16 for v0.102 small house (base main f897872 / v0.100).
+v0.100 SALVAGE merged as 0d86f7b (base 0f36e00); 11 blocks / 28 tests pass.
 v0.099 merged as 1fcb3fe758ad3a566cbb6b4466b25706fc3cd1d0.
 v0.098 merged as c6d525aa01d67bafacbf96f02206749b98d19bd3.
 v0.097 merged as 7b0429ab4aa596498624f862398c4bcd30e6b737.
@@ -10,6 +11,32 @@ container; not yet uploaded or on sale). v0.096-v0.098 are source merges.
 This changelog starts with the accepted v0.086-v0.094 source catch-up. Earlier
 history remains in the developer notes and immutable archives. Historical worker
 UNRUN reports are superseded by the accepted source receipts where stated.
+
+v0.102 - A small house can fund and raise its own army
+Base main f897872 (v0.100 salvage). v0.101 was dropped as a separate version.
+A house that does not rule its town can fund its own household army at home.
+House and Army screens offer borrowing into the house purse, followed by a
+separate transfer into the army purse. Loans use real town coin and create
+real debt; the house does not receive lordship or control of public funds.
+Raising men tries cheaper weapons and armour when the first kit costs too much.
+A partly affordable muster no longer warns that no troops can be funded.
+Family riders are optional: adults serving the realm keep their duties, and
+the Army screen names who is away and says field service has no set return
+date. You can raise or hire other men and march without them.
+More refused actions explain the obstacle and the next step, including
+borrowing, funding, hiring, supplies, contracts and household choices.
+Version metadata: 0.102, Android code 102, Windows 0.102.0.0.
+Tests (2026-11-16, PC, Test Bridge, one headless Godot launch per block):
+4 blocks / 10 tests PASS: small_house_v102 (new test, 3 seeds), v102_army
+(mobilization_v017, muster_ui_v017, feudal_governance), v102_town
+(campaign_contracts, recruit_brief, recruit_item_custody_v094,
+house_onboarding_v019), v100_world (house_onboarding_v019, release_v099).
+Fixes during acceptance: the new test's fixture now runs native crafter/price
+setup and waits a frame before reading the Army screen; test_release_v099
+checks the new named "away serving" line and reads the version from
+project.godot instead of a fixed number.
+Open: three seeded fixtures do not prove every generated poor house (e.g. an
+indebted or destitute one) can bootstrap; Muse's two LOW review notes stand.
 
 v0.100 - SALVAGE (base main 0f36e00 / v0.099)
 Ships reviewed daily plot-use searches and battle speed-ups r1/r2/r3/r5;

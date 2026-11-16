@@ -73,39 +73,44 @@ static func settlements(game) -> Array:
 	return out
 
 static func customization(custom: Dictionary, native_name: String) -> Dictionary:
+	# v0.102: rejected house details explain the limit and how to correct it.
 	for key in custom:
-		if not key in ["display_name", "emblem", "primary_color", "secondary_color", "design"]: return {"ok": false, "reason": "Only display name, emblem and banner colours can be customized."}
+		if not key in ["display_name", "emblem", "primary_color", "secondary_color", "design"]: return {"ok": false, "reason": "These house details cannot be changed. Edit the name, emblem or banner colours in Customize House."}
 	var display := str(custom.get("display_name", native_name))
 	var normalized := ""
 	for i in display.length():
 		var code := display.unicode_at(i)
-		if code < 32 or code == 127 or display[i] in ["[", "]", "<", ">"]: return {"ok": false, "reason": "Use a plain display name without control characters or markup."}
+		if code < 32 or code == 127 or display[i] in ["[", "]", "<", ">"]: return {"ok": false, "reason": "This name contains forbidden characters. Enter plain text without brackets."}
 		if display[i] == " ":
 			if normalized != "" and not normalized.ends_with(" "): normalized += " "
 		else: normalized += display[i]
 	display = normalized.strip_edges()
-	if display.length() < 1 or display.length() > 40: return {"ok": false, "reason": "Choose a display name between one and forty characters."}
+	if display.length() < 1 or display.length() > 40: return {"ok": false, "reason": "House names need 1-40 characters. Enter a name within that limit."}
 	var emblem := str(custom.get("emblem", "crown"))
-	if not EMBLEMS.has(emblem): return {"ok": false, "reason": "Choose an available house emblem."}
+	if not EMBLEMS.has(emblem): return {"ok": false, "reason": "This emblem is unavailable. Choose one shown in Customize House."}
 	var primary := str(custom.get("primary_color", DEFAULT_PRIMARY)); var secondary := str(custom.get("secondary_color", DEFAULT_SECONDARY))
 	for color in [primary, secondary]:
-		if color.length() != 7 or not color.begins_with("#"): return {"ok": false, "reason": "Banner colours must use a six-digit hexadecimal colour."}
+		if color.length() != 7 or not color.begins_with("#"): return {"ok": false, "reason": "This banner colour is invalid. Pick a colour in Customize House."}
 		for i in range(1, 7):
-			if "0123456789abcdef".find(color.substr(i, 1).to_lower()) < 0: return {"ok": false, "reason": "Choose a valid banner colour."}
+			if "0123456789abcdef".find(color.substr(i, 1).to_lower()) < 0: return {"ok": false, "reason": "This banner colour is invalid. Pick a colour in Customize House."}
 	return {"ok": true, "reason": "", "customization": {"display_name": display, "emblem": emblem,
 		"primary_color": primary.to_upper(), "secondary_color": secondary.to_upper()}}
 
 static func preview(game, town_id: String, household_uid: String, custom: Dictionary = {}) -> Dictionary:
+	# v0.102: invalid selections point back to the house chooser or designer.
 	var row: Dictionary = {}
 	for candidate in houses(game, town_id):
 		if candidate["household_uid"] == household_uid: row = candidate; break
-	if row.is_empty(): return {"ok": false, "reason": "This local house no longer has an eligible registered leader."}
+	if row.is_empty(): return {"ok": false, "reason": "This house has no eligible living leader. Choose another local house."}
 	var normalized: Dictionary = customization(custom, str(row["native_house_name"]))
 	if not normalized["ok"]: return normalized
 	if custom.has("design"):
-		if not (custom["design"] is Dictionary): return {"ok": false, "reason": "Character design must be a dictionary."}
+		if not (custom["design"] is Dictionary): return {"ok": false, "reason": "This character design is invalid. Reopen Customize House and review it again."}
 		var dp: Dictionary = CharacterDesign.preview(game, str(row["leader_uid"]), custom["design"])
-		if not bool(dp.get("ok", false)): return dp
+		# v0.102: forwarded designer errors also need a player-facing recovery step.
+		if not bool(dp.get("ok", false)):
+			dp["reason"] = str(dp.get("reason", "The character design is invalid.")) + " Reopen Customize House and review the character."
+			return dp
 	var person: Dictionary = Dynasty.person(game, str(row["leader_uid"]))
 	var display: Dictionary = normalized["customization"]
 	var rights := "This household rules the settlement. Its title and current authority remain in force." if row["holds_office"] else "Your household keeps its property and wealth. Selection grants no town lordship, levy, public armory or treasury authority."
@@ -115,13 +120,14 @@ static func preview(game, town_id: String, household_uid: String, custom: Dictio
 		"rights_text": rights, "portrait_spec": Dynasty.portrait_for(game, person, display)}
 
 static func begin(game, town_id: String, household_uid: String, custom: Dictionary = {}, expected_person_uid: String = "") -> Dictionary:
-	if not game.world.get("player_house", {}).is_empty(): return {"ok": false, "reason": "A campaign house has already been chosen."}
-	if game.get("_save_capture") != null or not game.world.get("work", []).is_empty(): return {"ok": false, "reason": "Let the current world and save work finish before beginning."}
+	# v0.102: beginning refusals name a recovery step without changing selection rules.
+	if not game.world.get("player_house", {}).is_empty(): return {"ok": false, "reason": "A campaign house is already chosen. Open House to manage it, or start a new campaign."}
+	if game.get("_save_capture") != null or not game.world.get("work", []).is_empty(): return {"ok": false, "reason": "The world or save is still updating. Wait for it to finish, then press Begin again."}
 	var out: Dictionary = preview(game, town_id, household_uid, custom)
 	if not out["ok"]: return out
 	if expected_person_uid != "" and expected_person_uid != str(out["leader_uid"]): return {"ok": false, "reason": "This house's eligible leader changed. Review the house again."}
 	var party: Dictionary = game.world.get("party", {})
-	if party.is_empty(): return {"ok": false, "reason": "The existing campaign party is unavailable."}
+	if party.is_empty(): return {"ok": false, "reason": "Your campaign party is missing. Return to the title screen and start a new campaign."}
 	var row: Dictionary = out["house"]; var town: Dictionary = game.world["towns"][town_id]
 	var estate_uid := str(town["econ"].get("head", {}).get("household_uid", household_uid)) if row["holds_office"] else household_uid
 	var player_house := {"town_id": town_id, "house_uid": row["house_uid"], "household_uid": household_uid,
@@ -132,7 +138,10 @@ static func begin(game, town_id: String, household_uid: String, custom: Dictiona
 		"customization": out["customization"].duplicate(true)}
 	if custom.has("design") and custom["design"] is Dictionary:
 		var applied: Dictionary = CharacterDesign.apply(game, str(row["leader_uid"]), custom["design"])
-		if not bool(applied.get("ok", false)): return applied
+		# v0.102: a changed character must be reviewed again before starting.
+		if not bool(applied.get("ok", false)):
+			applied["reason"] = str(applied.get("reason", "The character design could not be applied.")) + " Review the house and character again before Begin."
+			return applied
 		player_house["ruler_name"] = applied["name"]
 		player_house["design"] = applied["design"]
 	game.world["player_house"] = player_house

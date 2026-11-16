@@ -221,7 +221,11 @@ func _recruits(t: Dictionary) -> Control:
 	var recs: Array = Diplomacy.visible_recruits(Game, t)
 	if recs.is_empty():
 		var empty := UiKit.vbox()
-		empty.add_child(UiKit.label("Nobody here is looking for work.", "Muted", true))
+		# v0.102: distinguish an empty hiring pool from recruits refusing low standing.
+		var why := "No recruits are looking for work here. Wait for new recruits or visit another settlement."
+		if not (t.get("recruits", []) as Array).is_empty():
+			why = "Your standing here is too low to hire the local recruits. Visit a neutral settlement for men."
+		empty.add_child(UiKit.label(why, "Muted", true))
 		return empty
 	var sc := UiKit.scroll()
 	var grid := GridContainer.new()
@@ -277,9 +281,13 @@ func _recruit_card(t: Dictionary, r: Unit) -> Control:
 		row.add_child(UiKit.button("Family", func(): TownEconTab.family_modal(self, t, family_index), "Row", 90))
 	row.add_child(UiKit.spacer())
 	var hb := UiKit.button("Hire", func(): _hire(t, r), "", 140)
-	hb.disabled = cost > Game.gold
+	# v0.102: show the same reason as Roster.hire before the player clicks a disabled button.
+	var hire_reason := Recruits.hire_refusal(Game, t, r)
+	hb.disabled = hire_reason != ""
+	hb.tooltip_text = hire_reason
 	row.add_child(hb)
 	v.add_child(row)
+	if hire_reason != "": v.add_child(UiKit.label(hire_reason, "Muted", true))
 	return card
 
 func _recruit_details(r: Unit) -> void:
@@ -449,7 +457,24 @@ func _accept(_t: Dictionary, c: Dictionary) -> void:
 	if Contracts.accept(Game, c):
 		UiKit.toast(self, "Contract accepted: %s" % c.get("title", ""))
 	else:
-		UiKit.toast(self, "Cannot take this contract now", false)
+		# v0.102: expose the failed contract gate instead of hiding it behind a generic toast.
+		var why := Contracts.refusal(Game, c)
+		if _has_active_contract():
+			why = "You already have an active contract. Finish or abandon it in Contracts before taking another."
+		elif why == "":
+			if ArmsTrade.special_job(c):
+				why = "This old trade job is no longer offered. Choose another contract."
+			elif Monsters.suspended_contract(c, Game.world):
+				why = "This creature job is unavailable. Choose another contract."
+			elif not Game.world.get("towns", {}).has(String(c.get("town_id", ""))):
+				why = "The employer's settlement is gone. Choose a job in another settlement."
+			elif String(c.get("kind", "")) == "escort":
+				why = "The merchants could not send a caravan. Choose another job or wait for trade to recover."
+			elif MonsterContracts.handles(c) and String(c.get("kind", "")) != "hunt":
+				why = "The target is no longer there. Choose another contract."
+			else:
+				why = "The job's target force could not gather. Choose another job or visit another settlement."
+		UiKit.toast(self, why, false)
 	refresh()
 
 # ------------------------------------------------------------------ arrows (bows), on the Provisions tab

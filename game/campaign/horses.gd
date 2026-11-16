@@ -43,15 +43,16 @@ static func price(town: Dictionary) -> int:
 static func quote(game, town: Dictionary, u: Unit) -> Dictionary:
 	var cost := price(town)
 	var reason := ""
-	if not TownEcon.has_econ(town): reason = "No livestock market."
-	elif not Mobilization._here(game, str(town["id"])): reason = "Visit this settlement to trade horses."
-	elif u == null or not game.company.has(u) or u.dead: reason = "Select a living field soldier."
-	elif u.race in NO_MOUNT_RACES: reason = "Trolls and giants fight on foot only."
-	elif not can_mount_race(u.race): reason = "This body cannot ride."
-	elif u.horse != null: reason = "This soldier already owns a mount."
-	elif Mobilization.is_medic(game, u) or _dragon_rider(game, u): reason = "This soldier has another assignment."
-	elif offered(town["econ"]) < 1: reason = "No grown horses are offered."
-	elif game.gold < cost: reason = "Fund the army purse first."
+	# v0.102: horses are optional; every purchase refusal gives a next step.
+	if not TownEcon.has_econ(town): reason = "This settlement has no livestock market. Visit another market or march on foot."
+	elif not Mobilization._here(game, str(town["id"])): reason = "Your army is away from this market. Travel here to trade horses."
+	elif u == null or not game.company.has(u) or u.dead: reason = "No living field soldier is selected. Raise or hire men, then choose a rider."
+	elif u.race in NO_MOUNT_RACES: reason = "Trolls and giants cannot ride horses. March them on foot."
+	elif not can_mount_race(u.race): reason = "This soldier cannot ride a horse. Choose another rider or march on foot."
+	elif u.horse != null: reason = "This soldier already has a mount. Choose another rider or march with the current army."
+	elif Mobilization.is_medic(game, u) or _dragon_rider(game, u): reason = "This soldier is a medic or dragon rider. Choose another soldier for a horse."
+	elif offered(town["econ"]) < 1: reason = "No grown horses are for sale. Wait for stock, visit another market or march on foot."
+	elif game.gold < cost: reason = "The army purse needs %d coins for a horse. Return home to fund it, or march on foot." % cost
 	return {"ok": reason == "", "reason": reason, "cost": cost}
 
 static func _dragon_rider(game, u: Unit) -> bool:
@@ -73,19 +74,22 @@ static func buy(game, town: Dictionary, u: Unit) -> Dictionary:
 
 ## AI supply provisioning and player purchases share this one native stock transfer.
 static func buy_for(game, town: Dictionary, u: Unit, payer: Dictionary, purchase_day: int = -1) -> Dictionary:
+	# v0.102: keep the same purchase gates, but distinguish rider, stock and coin problems.
 	var trade_day := int(game.day) if purchase_day < 0 else purchase_day
 	if u == null or u.dead or not can_mount_race(u.race) or u.horse != null or not TownEcon.has_econ(town):
-		return {"ok": false, "reason": "No eligible rider or market."}
+		return {"ok": false, "reason": "The rider or livestock market is unavailable. Choose an unmounted rider at a working market, or march on foot."}
 	var e: Dictionary = town["econ"]
 	var cost := price(town)
-	if offered(e) < 1 or Army._funds(payer) < cost:
-		return {"ok": false, "reason": "No affordable grown horse."}
+	if offered(e) < 1:
+		return {"ok": false, "reason": "No grown horses are for sale. Wait for stock, visit another market or march on foot."}
+	if Army._funds(payer) < cost:
+		return {"ok": false, "reason": "A horse costs %d coins; its payer is short. Fund the army purse or march on foot." % cost}
 	var healthy: Array = []
 	for row: Array in Herds.H(e)["of"]:
 		var h: Dictionary = Herds.herds(e).get(str(int(row[0])), {})
 		if not h.is_empty() and Herds.sick(h) <= float(Herds.A()["disease_no_sale"]): healthy.append(row)
 	var offer := Herds._take_offer(e, "horses", ["g"], -1, -1, {"horses": {"g": healthy}})
-	if offer.is_empty(): return {"ok": false, "reason": "The offer has sold."}
+	if offer.is_empty(): return {"ok": false, "reason": "That horse has sold. Review the market again or march on foot."}
 	var seller: Dictionary = Herds.herds(e)[str(int(offer[0]))]
 	var saved: Array = seller.get("mount_bodies", [])
 	var horse: Unit
@@ -120,12 +124,16 @@ static func _put(e: Dictionary, h: Dictionary, horse: Unit, day: float, detail: 
 	h["mount_bodies"].append(horse.to_dict()) # a body snapshot attached to one already-counted head
 
 static func sell(game, town: Dictionary, u: Unit) -> Dictionary:
-	if u == null or u.horse == null or u.horse.dead or not game.company.has(u) \
-			or not TownEcon.has_econ(town) or not Mobilization._here(game, str(town["id"])):
-		return {"ok": false, "reason": "Visit a livestock market with your living mount."}
+	# v0.102: a failed sale names the missing mount, market, visit or buyer funds.
+	if u == null or u.horse == null or u.horse.dead or not game.company.has(u):
+		return {"ok": false, "reason": "No living army mount is selected. Choose a soldier with a living horse to sell."}
+	if not TownEcon.has_econ(town):
+		return {"ok": false, "reason": "This settlement has no livestock market. Visit another market to sell the horse."}
+	if not Mobilization._here(game, str(town["id"])):
+		return {"ok": false, "reason": "Your army is away from this market. Travel here with the horse before selling it."}
 	var e: Dictionary = town["econ"]
 	var cost := price(town)
-	if float(e["treasury"]) < cost: return {"ok": false, "reason": "The town cannot afford this horse."}
+	if float(e["treasury"]) < cost: return {"ok": false, "reason": "The town lacks %d coins to buy this horse. Try another market or wait for town income." % cost}
 	var h := Herds.herd_for(e, 0, "horses", float(game.day))
 	e["treasury"] = float(e["treasury"]) - cost
 	game.gold += cost

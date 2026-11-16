@@ -434,15 +434,28 @@ static func offer(game, u: Unit) -> Dictionary:
 	var f := clampf(1.0 - 0.01 * neg, 0.75, 1.0)
 	return {"hire_cost": maxi(5 * int(TownEcon.COIN), int(round(u.hire_cost * f / 5.0)) * 5), "wage": maxi(int(TownEcon.COIN), int(round(u.wage * f)))}
 
+## v0.102: why hiring a recruit from a town pool is refused, naming a clear next step.
+static func hire_refusal(game, town: Dictionary, u: Unit) -> String:
+	if u == null or not town.get("recruits", []).has(u):
+		# v0.102: name the actual hiring tab so this recovery step is easy to find.
+		return "That recruit is no longer available. Choose another person in Town Recruits."
+	if game.company.filter(func(member): return not member.dead).size() >= Roster.MAX_COMPANY:
+		return "Your company is at its full size. Stand down a soldier at home before hiring another."
+	if not Diplomacy.visible_recruits(game, town).has(u):
+		return "Your standing here is too low to hire this recruit. Earn standing with this realm or visit another settlement instead."
+	var o := offer(game, u)
+	if game.gold < int(o["hire_cost"]):
+		# v0.102: both commands need home presence; borrowed house coin still needs a transfer.
+		return "The army purse needs %d coins to hire %s. Return home to transfer house coin into it; borrow into the house purse first if needed." % [int(o["hire_cost"]), u.name]
+	return ""
+
 ## Hire a recruit from a town pool into the company at offer() terms. Returns false if gold is short.
 static func hire(game, town: Dictionary, u: Unit) -> bool:
-	if game.company.filter(func(member): return not member.dead).size() >= Roster.MAX_COMPANY:
+	var why := hire_refusal(game, town, u)
+	if why != "":
+		if game.get("world") is Dictionary: CampaignWorld.log_event(game, why)
 		return false
 	var o := offer(game, u)
-	if game.gold < int(o["hire_cost"]) or not town["recruits"].has(u):
-		return false
-	if not Diplomacy.visible_recruits(game, town).has(u):
-		return false   # diplomacy: below -20 standing half the faction's own race won't sign, below -50 none
 	game.gold -= int(o["hire_cost"])
 	u.wage = int(o["wage"])
 	town["recruits"].erase(u)

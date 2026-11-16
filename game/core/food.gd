@@ -341,14 +341,16 @@ static func food_cost(town: Dictionary, good: String, qty: int) -> int:
 
 ## Buy a specific real market food, retaining its local name through travel/save/load.
 static func buy_food(game, town: Dictionary, good: String, qty: int) -> String:
+	# v0.102: road-food failures say how to find stock or fund the purchase.
 	if not Goods.FOODS.has(good):
-		return "not a road provision"
+		return "This good is not road food. Choose food from Town Provisions instead."
 	qty = mini(qty, int(floor(Goods.supply(town, good))))
 	if qty <= 0:
-		return "none for sale here"
+		return "No food is available for this order. Choose another food, wait for stock or visit another market."
 	var coins := food_cost(town, good, qty)
 	if coins > game.gold:
-		return "not enough coins (%d needed)" % coins
+		# v0.102: this order may already be the smallest lot offered by the screen.
+		return "This food costs %d coins; the army purse is short. Return home to fund the army." % coins
 	var title := food_name(town, good)
 	Goods.take(town, good, qty) # synchronous, exact withdrawal prevalidated against the same stock above
 	game.gold -= coins
@@ -772,14 +774,16 @@ static func _take_supply(town: Dictionary, kind: String, qty: int) -> void:
 
 ## Buys qty (clipped to the town's supply). Returns "" or a reason.
 static func buy(game, town: Dictionary, kind: String, qty: int) -> String:
+	# v0.102: named food and drink purchases use the same short recovery advice.
 	var av := available(town, kind)
 	if av >= 0:
 		qty = mini(qty, av)
 	if qty <= 0:
-		return "none for sale here"
+		return "Nothing is available for this order. Choose another provision, wait for stock or visit another market."
 	var c := cost(town, kind, qty)
 	if c > game.gold:
-		return "not enough coins (%d needed)" % c
+		# v0.102: this order may already be the smallest lot offered by the screen.
+		return "These provisions cost %d coins; the army purse is short. Return home to fund the army." % c
 	game.gold -= c
 	Goods.pay_market(town, float(c))   # economy: the gold goes to the town's market
 	_take_supply(town, kind, qty)
@@ -811,14 +815,15 @@ static func feast_cost(game, town: Dictionary) -> int:
 
 ## Feast the company: belly 100, make merry met, stress -15, the night's drink (Free want, favourite drink).
 static func feast(game, town: Dictionary) -> String:
+	# v0.102: optional tavern refusals also identify the next available step.
 	if not has_tavern(town):
-		return "there is no tavern here"
+		return "There is no tavern here. Visit another settlement or buy road food in Provisions instead."
 	var men := eaters(game)
 	if men.is_empty():
-		return "no one to feast"
+		return "No living soldiers can feast. Raise troops in Army or hire men in Town Recruits first."
 	var c := feast_cost(game, town)
 	if c > game.gold:
-		return "not enough coins (%d needed)" % c
+		return "The feast costs %d coins; the army purse is short. Return home to fund it, or buy a smaller lot of road food." % c
 	game.gold -= c
 	Goods.pay_market(town, float(c))   # economy: the tavern's custom goes to the town's market
 	for u in men:

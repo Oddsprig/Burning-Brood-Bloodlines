@@ -30,9 +30,15 @@ static func build(host: Control, town: Dictionary) -> Control:
 				var coins := Food.feast_cost(Game, town)
 				var feast := UiKit.button("Feast the company · %s coins" % UiKit.thousands(coins), func(): host._feast(town))
 				feast.disabled = coins > Game.gold
+				# v0.102: explain a disabled optional feast without hiding the road-food route.
+				feast.tooltip_text = "The army purse cannot pay for this feast. Return home to fund it, or buy a smaller lot of road food." if feast.disabled else "Pay from the army purse to feast the living company."
 				list.add_child(feast)
+				# v0.102: a short, wrapping reason remains visible on touch screens.
+				if feast.disabled:
+					list.add_child(UiKit.label("Army purse short for a feast. Return home to fund it.", "Muted", true))
 			else:
-				list.add_child(UiKit.label("No tavern here.", "Muted"))
+				# v0.102: a missing tavern does not block buying marching provisions.
+				list.add_child(UiKit.label("No tavern here. Buy road food in Food & drink, or visit another settlement.", "Muted", true))
 		_:
 			_food(host, town, list)
 	return root
@@ -96,8 +102,11 @@ static func _columns(header: bool = false) -> HBoxContainer:
 
 static func _stock_row(host: Control, town: Dictionary, good: String, edible: bool) -> Control:
 	var panel := UiKit.panel("Card")
+	# v0.102: put one shared purchase reason below the row so phone columns stay readable.
+	var content := UiKit.vbox(4)
+	panel.add_child(content)
 	var row := UiKit.hbox(10)
-	panel.add_child(row)
+	content.add_child(row)
 	row.add_child(UiKit.icon(ItemIcon.for_thing(good), 36))
 	var name_box := UiKit.vbox(0)
 	UiKit.expand(name_box)
@@ -114,6 +123,7 @@ static func _stock_row(host: Control, town: Dictionary, good: String, edible: bo
 		value.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		value.add_theme_color_override("font_color", field[2])
 		row.add_child(value)
+	var purchase_reason := ""
 	for qty in [10, 50]:
 		var count: int = mini(qty, available) if available >= 0 else qty
 		var price: int = Food.food_cost(town, good, count) if edible else Food.cost(town, good, count)
@@ -133,7 +143,17 @@ static func _stock_row(host: Control, town: Dictionary, good: String, edible: bo
 		buy.name = "BuyProvision_%s_%d" % [good, qty]
 		buy.tooltip_text = "%d coins for %d" % [price, count]
 		buy.disabled = count <= 0 or price > Game.gold
+		# v0.102: show the stock or coin barrier behind disabled provision purchases.
+		if count <= 0:
+			buy.tooltip_text = "None of this provision is for sale. Choose another food, wait for stock or visit another market."
+			purchase_reason = "Out of stock. Try another provision or market."
+		elif price > Game.gold:
+			# v0.102: stock can shrink either lot; only suggest a genuinely smaller purchase.
+			buy.tooltip_text = ("This lot costs %d coins; the army purse is short. Choose the smaller lot or return home to fund the army." if count > 10 else "This lot costs %d coins; the army purse is short. Return home to fund the army.") % price
+			purchase_reason = "Army purse short. Return home to fund it."
 		row.add_child(buy)
+	if purchase_reason != "":
+		content.add_child(UiKit.label(purchase_reason, "Muted", true))
 	return panel
 
 ## Pure conservative reserve quote, capped to stock and purse. FIFO supplies cover
@@ -189,7 +209,8 @@ static func _pack_preview(host: Control, town: Dictionary) -> void:
 	box.add_child(HSeparator.new())
 	box.add_child(UiKit.kv("Total", "%d coins" % int(plan["total"]), UiTheme.COPPER_LO))
 	if int(plan["missing"]) > 0:
-		box.add_child(UiKit.label("%d portions still short: limited stock or coins." % int(plan["missing"]), "Bad", true))
+		# v0.102: a partial pack names how the player can fill the shortfall.
+		box.add_child(UiKit.label("%d portions short: limited market stock or army coin. Fund the army purse or try another market." % int(plan["missing"]), "Bad", true))
 	elif int(plan["needed"]) == 0:
 		box.add_child(UiKit.label("You already carry a full seven-day reserve.", "Good"))
 	var buttons := UiKit.hbox()
@@ -211,5 +232,11 @@ static func _pack_preview(host: Control, town: Dictionary) -> void:
 		UiKit.toast(host, "Food packed · %d coins" % int(plan["total"]))
 		host.refresh(), "", 190)
 	buy.disabled = plan["lines"].is_empty()
+	# v0.102: distinguish a full reserve from a lack of affordable market food.
+	if buy.disabled:
+		buy.tooltip_text = "Your seven-day reserve is already packed. Close this window and march when ready." if int(plan["needed"]) == 0 else "No affordable food can be packed here. Fund the army purse or try another market."
 	buttons.add_child(buy)
 	box.add_child(buttons)
+	# v0.102: the pack-purchase button also gives its reason without a tooltip.
+	if buy.disabled:
+		box.add_child(UiKit.label("The reserve is already packed." if int(plan["needed"]) == 0 else "No affordable food here. Fund the army purse or try another market.", "Muted", true))
