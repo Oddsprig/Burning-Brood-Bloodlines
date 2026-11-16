@@ -1,0 +1,16 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+mobilization native conservation case complete
+mobilization household command case complete
+mobilization negotiated-hire/natural-death case complete
+mobilization empty-home survivor case complete
+mobilization v017: 308 checks, 0 failures
+== res://tests/test_mobilization_v017.gd: PASS ==
+Muster UI v017: 890 assertions, 15 desktop fit cases; failures=0
+== res://tests/test_muster_ui_v017.gd: PASS ==
+Feudal governance: 42 checks, 0 failures
+== res://tests/test_feudal_governance.gd: PASS ==
+== block v102_army: 3 tests, 0 failing ==
+  test_mobilization_v017.gd PASS (2 s)
+  test_muster_ui_v017.gd PASS (42 s)
+  test_feudal_governance.gd PASS (0 s)

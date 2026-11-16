@@ -1,0 +1,6 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+v0.104 UI route: zero-purse non-ruling household via native borrowing
+v0.104 hardship fixture: reduce native House purse from 10177.6204703391 to 0 before selection
+test_tutorial_chapter_v104: 596 checks, 0 failures, 37.77 s; 0 screenshots
+== res://tests/test_tutorial_chapter_v104.gd: PASS ==

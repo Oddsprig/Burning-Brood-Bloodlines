@@ -5,7 +5,7 @@ extends RefCounted
 ## buttons and checks: the highlight sits on the right control at 1280x720, 1920x1080 and a
 ## phone landscape size (2340x1080); each step waits for its action; Back works; Skip and
 ## Replay work; progress survives save and load (and an old save without the field loads);
-## Settings shows Replay tutorial and it opens the overlay.
+## Settings shows Replay tutorial; v0.104: it opens New Campaign with chapter one selected; the engine sample stays isolated here.
 ## Target: alone, headless, under 3 minutes (duration unverified until run).
 ## Save checks use the cached Normal/one-day campaign; cold setup generates it once.
 ##   godot --headless --path game res://tests/runner.tscn -- --block=tutorial_v103
@@ -14,6 +14,9 @@ extends RefCounted
 
 var fails := 0
 var _save_fixture: Dictionary = {}
+var old_main: Node # v0.104: restore navigation even when setup returns early.
+var old_screen := ""
+var old_params: Dictionary = {}
 
 # v0.103: catch raw touches leaking past the dim into a screen's unhandled gestures.
 class InputProbe extends Control:
@@ -85,9 +88,10 @@ func _button(parent, name: String) -> Button:
 	return button
 
 # v0.103: failed setup still releases our fixtures and restores the tutorial/theme globals.
-func _finish(viewport: SubViewport, settings_viewport: SubViewport = null) -> int:
+func _finish(tree: SceneTree, viewport: SubViewport, settings_viewport: SubViewport = null) -> int:
+	Game.wait_save()
+	Game.reset_tutorial_progress() # v0.104: disable deferred chapter resumes before releasing either fixture.
 	if not _save_fixture.is_empty():
-		Game.wait_save()
 		Game._active_screen = String(_save_fixture["screen"])
 		WorldGen.gen_size = String(_save_fixture["size"])
 		CampaignWorld.presim_span_days = int(_save_fixture["history"])
@@ -97,9 +101,11 @@ func _finish(viewport: SubViewport, settings_viewport: SubViewport = null) -> in
 		viewport.queue_free()
 	if is_instance_valid(settings_viewport):
 		settings_viewport.queue_free()
+	await _frames(tree, 2) # v0.104: retire overlays and their signal connections before the next same-process test.
 	UiTheme.set_mobile_override(null)
-	Game.tutorial_step = 0
-	Game.tutorial_done = false
+	Game.reset_tutorial_progress() # v0.104: teardown callbacks cannot restore stale chapter/step/done.
+	Game.settings["tutorial_chapter_requested"] = false
+	Game.main = old_main; Game._active_screen = old_screen; Game.screen_params = old_params
 	print("test_tutorial_v103: %d failure(s)" % fails)
 	return fails
 
@@ -205,12 +211,16 @@ func _layouts(tree: SceneTree, viewport: SubViewport, overlay, target: Control, 
 				"navigation fits inside the text box: button=%s button_rect=%s box_rect=%s%s" % [name, str(button_rect), str(box.get_global_rect()), geometry])
 
 func run(tree: SceneTree) -> int:
+	old_main = Game.main; old_screen = Game._active_screen; old_params = Game.screen_params.duplicate(true)
+	Game.main = null # v0.104: this sample owns its navigation without driving a previous test's screen.
+	Game.reset_tutorial_progress() # v0.104: clear all progress before any setup or early failure.
+	Game.settings["tutorial_chapter_requested"] = false
 	UiTheme.set_mobile_override(false)   # v0.103: phone theme gets its own checks below.
 	var tut_script: Script = load("res://campaign/tutorial.gd") as Script
 	var overlay_script: Script = load("res://ui/tutorial_overlay.gd") as Script
 	check(tut_script != null and overlay_script != null, "tutorial scripts load")
 	if tut_script == null or overlay_script == null:
-		return _finish(null)
+		return await _finish(tree, null)
 
 	# 1. The shipped steps are valid data.
 	var shipped: Array = tut_script.load_steps()
@@ -229,7 +239,7 @@ func run(tree: SceneTree) -> int:
 	tree.root.add_child.call_deferred(viewport)
 	await _frames(tree, 2)
 	if not _in_tree(viewport, "sample viewport"):
-		return _finish(viewport)
+		return await _finish(tree, viewport)
 	var host := InputProbe.new()
 	host.set_anchors_preset(Control.PRESET_FULL_RECT)
 	host.mouse_filter = Control.MOUSE_FILTER_IGNORE   # v0.103: raw-touch leak checks need an unhandled path.
@@ -273,7 +283,7 @@ func run(tree: SceneTree) -> int:
 	var state := {"ready": false}
 	await _frames(tree, 4)
 	if not _in_tree(overlay, "sample tutorial overlay"):
-		return _finish(viewport)
+		return await _finish(tree, viewport)
 	overlay.state_of = func(key: String): return state.get(key)
 
 	var next_button: Button = _button(overlay, "TutorialNext")
@@ -352,7 +362,7 @@ func run(tree: SceneTree) -> int:
 	var overlay2 = overlay_script.open(host, tut2)
 	await _frames(tree, 3)
 	if not _in_tree(overlay2, "Skip tutorial overlay"):
-		return _finish(viewport)
+		return await _finish(tree, viewport)
 	var skip_button: Button = _button(overlay2, "TutorialSkip")
 	_press(viewport, skip_button, true)
 	await _frames(tree, 3)
@@ -371,7 +381,7 @@ func run(tree: SceneTree) -> int:
 	overlay2 = overlay_script.open(host, tut2)
 	await _frames(tree, 4)
 	if not _in_tree(overlay2, "explanatory tutorial overlay"):
-		return _finish(viewport)
+		return await _finish(tree, viewport)
 	_press(viewport, _button(overlay2, "TutorialNext"))
 	check(tut2.index == 1, "Next advances an explanatory step")
 	_press(viewport, _button(overlay2, "TutorialBack"), true)
@@ -387,25 +397,30 @@ func run(tree: SceneTree) -> int:
 	var campaign_ok: bool = await DevTools.start_world(tree, Game.SAVE_PATH)
 	check(campaign_ok, "the Normal/one-day tutorial save campaign loads")
 	if not campaign_ok:
-		return _finish(viewport)
+		return await _finish(tree, viewport)
 	var house_town: String = DevTools.choose_house(Game)
 	check(house_town != "", "the tutorial save campaign begins with a real household")
 	if house_town == "":
-		return _finish(viewport)
+		return await _finish(tree, viewport)
 	Game._active_screen = "settings"
 	var eligible: bool = MobileApp.can_autosave()
 	check(eligible, "the finalized tutorial campaign is eligible to save in Settings")
 	if not eligible:
-		return _finish(viewport)
-	# Progress survives save/load; missing tutorial fields also default in schema 2.
+		return await _finish(tree, viewport)
+	# Progress survives save/load; a save missing the optional tutorial fields also defaults safely.
 	Game.tutorial_step = 1
 	Game.tutorial_done = false
+	Game.tutorial_chapter = true # v0.104: exercise chapter_one, not only the older sample's step/done fields.
 	if not _save_checkpoint("Tutorial progress"):
-		return _finish(viewport)
+		return await _finish(tree, viewport)
 	Game.tutorial_step = 0
 	Game.tutorial_done = true
+	Game.tutorial_chapter = false
+	Game.settings["tutorial_chapter_requested"] = true # v0.104: loading must consume a stale new-campaign choice, not carry it forward.
 	check(Game.load_game(), "the save reloads")
+	check(not bool(Game.setting("tutorial_chapter_requested")), "v0.104: loading clears the pending new-campaign guide request")
 	check(Game.tutorial_step == 1 and not Game.tutorial_done, "tutorial progress survives save and load")
+	check(Game.tutorial_chapter, "v0.104: chapter_one survives save and load")
 	var resumed = tut_script.new()   # v0.103: use the public resume API, not just the saved scalar values.
 	resumed.setup(SAMPLE)
 	resumed.bind_game(Game)
@@ -414,7 +429,7 @@ func run(tree: SceneTree) -> int:
 	check(resumed.active and resumed.index == 1, "a new engine resumes the loaded step")
 	resumed.skip()
 	if not _save_checkpoint("Skipped tutorial"):
-		return _finish(viewport)
+		return await _finish(tree, viewport)
 	Game.tutorial_done = false
 	check(Game.load_game(), "the skipped tutorial save reloads")
 	var finished = tut_script.new()
@@ -423,60 +438,56 @@ func run(tree: SceneTree) -> int:
 	finished.start_saved()
 	check(Game.tutorial_done and not finished.active and finished.is_finished, "a skipped tutorial stays finished after load and bind")
 	var old_tree: Dictionary = Game._save_tree()
+	var old_progress: Dictionary = old_tree["tutorial"]
+	old_progress.erase("chapter_one") # v0.104: a v0.103-style progress object must not opt in to chapter one.
+	var old_progress_receipt: Dictionary = Game._write_save(Game.SAVE_PATH, old_tree)
+	check(bool(old_progress_receipt.get("ok", false)), "v0.104: the step/done-only save writes")
+	if not bool(old_progress_receipt.get("ok", false)): return await _finish(tree, viewport) # v0.104: never load stale bytes.
+	Game.tutorial_chapter = true
+	check(Game.load_game(), "v0.104: the step/done-only save loads")
+	check(not Game.tutorial_chapter and Game.tutorial_step == 1 and Game.tutorial_done, "v0.104: old progress stays intact with chapter one off")
 	old_tree.erase("tutorial")
 	var receipt: Dictionary = Game._write_save(Game.SAVE_PATH, old_tree)
 	check(bool(receipt.get("ok", false)), "the old-style save (no tutorial field) writes")
 	if not bool(receipt.get("ok", false)):
-		return _finish(viewport)
+		return await _finish(tree, viewport)
 	Game.tutorial_step = 5
 	Game.tutorial_done = true
+	Game.tutorial_chapter = true # v0.104: prove an absent chapter flag replaces a previously enabled one.
 	check(Game.load_game(), "an old save without the tutorial field loads")
 	check(Game.tutorial_step == 0 and not Game.tutorial_done, "missing tutorial progress defaults to step 0, not done")
+	check(not Game.tutorial_chapter, "v0.104: a save without tutorial progress keeps chapter one off")
 
-	# 10. Settings has Replay tutorial, and it opens the overlay.
+	# v0.104: Settings Replay opens New Campaign, whose actual chapter is covered by test_tutorial_chapter_v104.
 	var settings_viewport := SubViewport.new()
 	settings_viewport.size = Vector2i(1280, 720)
 	settings_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	tree.root.add_child.call_deferred(settings_viewport)   # v0.103: use the same safe fixture attachment.
 	await _frames(tree, 2)
 	if not _in_tree(settings_viewport, "Settings viewport"):
-		return _finish(viewport, settings_viewport)
+		return await _finish(tree, viewport, settings_viewport)
 	var settings_scene := load("res://ui/settings.tscn") as PackedScene
 	check(settings_scene != null, "Settings scene loads")
 	if settings_scene == null:
-		return _finish(viewport, settings_viewport)
+		return await _finish(tree, viewport, settings_viewport)
 	var settings_screen := settings_scene.instantiate() as Control
 	settings_viewport.add_child(settings_screen)
 	await _frames(tree, 4)
 	if not _in_tree(settings_screen, "Settings screen"):
-		return _finish(viewport, settings_viewport)
+		return await _finish(tree, viewport, settings_viewport)
 	check(settings_screen.get_node_or_null("TutorialOverlay") == null, "Settings is unobstructed with default/old-save progress")
 	var replay_button: Button = _button(settings_screen, "ReplayTutorial")
 	check(replay_button != null and replay_button.text == "Replay tutorial", "Settings shows Replay tutorial")
 	if replay_button != null:
 		_press(settings_viewport, replay_button)
 		await _frames(tree, 4)
-		var settings_overlay: Node = settings_screen.get_node_or_null("TutorialOverlay")
-		check(settings_overlay != null, "Replay tutorial opens the tutorial overlay")
-		if _in_tree(settings_overlay, "Settings Replay tutorial overlay"):
-			check(Game.tutorial_step == 0 and not Game.tutorial_done, "Settings Replay resets completed progress")
-			for i in shipped.size():
-				if i > 0:
-					_press(settings_viewport, _button(settings_overlay, "TutorialNext"))
-				var anchor: String = String(shipped[i]["anchor"])
-				var target: Control = _control(settings_screen, anchor)
-				check(target != null, "the shipped anchor %s exists in Settings" % anchor)
-				if target != null:
-					await _layouts(tree, settings_viewport, settings_overlay, target)
-			var s_skip: Button = _button(settings_overlay, "TutorialSkip")
-			_press(settings_viewport, s_skip, true)
-			await _frames(tree, 3)
-			check(settings_screen.get_node_or_null("TutorialOverlay") == null, "Skip closes the replayed tutorial")
-	# v0.103: an actual Settings reopen resumes loaded progress, while a finished run stays closed.
+		check(Game._active_screen == "newgame" and bool(Game.screen_params.get("tutorial", false)), "Replay opens chapter-enabled New Campaign")
+		check(settings_screen.get_node_or_null("TutorialOverlay") == null, "chapter anchors are never searched under Settings")
+	# v0.104: reopening Settings leaves the sample's saved progress untouched.
 	Game.tutorial_step = 1
 	Game.tutorial_done = false
 	if not _save_checkpoint("Settings resume"):
-		return _finish(viewport, settings_viewport)
+		return await _finish(tree, viewport, settings_viewport)
 	Game.tutorial_step = 0
 	Game.tutorial_done = true
 	check(Game.load_game(), "Settings resume fixture loads")
@@ -486,21 +497,17 @@ func run(tree: SceneTree) -> int:
 	settings_viewport.add_child(settings_screen)
 	await _frames(tree, 6)
 	if not _in_tree(settings_screen, "reopened Settings screen"):
-		return _finish(viewport, settings_viewport)
-	var resumed_overlay: Node = settings_screen.get_node_or_null("TutorialOverlay")
-	check(resumed_overlay != null, "Settings reopens the unfinished saved tutorial")
-	if _in_tree(resumed_overlay, "Settings resumed tutorial overlay"):
-		var resumed_tutorial = resumed_overlay.get("tutorial")
-		check(resumed_tutorial != null and resumed_tutorial.index == 1, "Settings resumes the correct saved step")
-		_press(settings_viewport, _button(resumed_overlay, "TutorialSkip"))
-		await _frames(tree, 3)
+		return await _finish(tree, viewport, settings_viewport)
+	check(settings_screen.get_node_or_null("TutorialOverlay") == null, "Settings does not hijack unfinished campaign progress")
+	check(Game.tutorial_step == 1 and not Game.tutorial_done, "opening Settings preserves saved progress")
+	Game.tutorial_done = true
 	settings_screen.queue_free()
 	await _frames(tree, 2)
 	settings_screen = settings_scene.instantiate() as Control
 	settings_viewport.add_child(settings_screen)
 	await _frames(tree, 4)
 	if not _in_tree(settings_screen, "finished-tutorial Settings screen"):
-		return _finish(viewport, settings_viewport)
+		return await _finish(tree, viewport, settings_viewport)
 	check(settings_screen.get_node_or_null("TutorialOverlay") == null, "a skipped tutorial does not reopen over Settings")
 
 	# v0.103: inactive/retained overlays, clipping, hidden duplicate anchors, and honest button identity.
@@ -519,7 +526,7 @@ func run(tree: SceneTree) -> int:
 	var retained = overlay_script.open(host, idle)
 	await _frames(tree, 4)
 	if not _in_tree(retained, "retained tutorial overlay"):
-		return _finish(viewport, settings_viewport)
+		return await _finish(tree, viewport, settings_viewport)
 	retained.auto_free = false
 	var before: int = int(presses["outside"])
 	_press(viewport, outside)
@@ -555,7 +562,7 @@ func run(tree: SceneTree) -> int:
 	var mismatch_overlay = overlay_script.open(host, mismatch)
 	await _frames(tree, 4)
 	if not _in_tree(mismatch_overlay, "mismatched-action tutorial overlay"):
-		return _finish(viewport, settings_viewport)
+		return await _finish(tree, viewport, settings_viewport)
 	check(mismatch_overlay.current_target() == b1, "the mismatched completion fixture highlights the real StepOne" + _geometry(viewport, mismatch_overlay, b1))
 	before = int(presses["StepOne"])
 	_press(viewport, b1)
@@ -571,7 +578,7 @@ func run(tree: SceneTree) -> int:
 	var phone_overlay = overlay_script.open(host, phone)
 	await _frames(tree, 4)
 	if not _in_tree(phone_overlay, "phone tutorial overlay"):
-		return _finish(viewport, settings_viewport)
+		return await _finish(tree, viewport, settings_viewport)
 	for i in SAMPLE.size():
 		phone.start(i)
 		await _layouts(tree, viewport, phone_overlay, [b1, b2, b3][i], [SIZES[2]])
@@ -584,9 +591,6 @@ func run(tree: SceneTree) -> int:
 	UiTheme.set_mobile_override(null)
 
 	# v0.103: a screen-opening action must survive the old screen being freed, for screen AND button steps.
-	var old_main: Node = Game.main
-	var old_screen: String = Game._active_screen
-	var old_params: Dictionary = Game.screen_params
 	for kind in ["screen", "button"]:
 		var driver := ScreenDriver.new()
 		viewport.add_child(driver)
@@ -621,8 +625,4 @@ func run(tree: SceneTree) -> int:
 			check(moving.is_finished, "input reaches the destination after screen replacement" + _geometry(viewport, moving_overlay, destination))
 		driver.queue_free()
 		await _frames(tree, 3)
-	Game.main = old_main
-	Game._active_screen = old_screen
-	Game.screen_params = old_params
-
-	return _finish(viewport, settings_viewport)
+	return await _finish(tree, viewport, settings_viewport)

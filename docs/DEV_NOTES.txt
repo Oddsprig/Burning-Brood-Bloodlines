@@ -1,6 +1,29 @@
 BURNING BROOD: BLOODLINES - CURRENT DEVELOPER NOTES
-Updated: 2026-11-16 | v0.103 merged b81e96e (base f76ed6d) | v0.102 small house merged ead6ecf | v0.100 SALVAGE merged 0d86f7b, 11 blocks / 28 tests pass | last package v0.099 (Windows/Android, not on sale)
+Updated: 2026-11-16 | v0.104 on 4231e57 | v0.103 merged b81e96e (base f76ed6d) | v0.102 small house merged ead6ecf | v0.100 SALVAGE merged 0d86f7b, 11 blocks / 28 tests pass | last package v0.099 (Windows/Android, not on sale)
 Testing: follow HOW TO TEST at the top of AGENTS.md and CLAUDE.md. Run tests in blocks through runner.gd and blocks.json, one Godot launch per block, and only the blocks that cover a version's changes. The full suite runs only before a store launch.
+
+v0.104 TUTORIAL CHAPTER ONE
+Base main 4231e57. Ported by hand (Muse): bb-v104 working changes over 4c9cb37,
+integration_v0102_borrowing_r2 (Borrow step, MusterBorrowReview/Cancel/Confirm,
+tutorial_order meta) and v0104_merge_fixes (prospective-house quote; save checks
+use main's receipt: completed count + last_ok, tutorial object on disk).
+- campaign/tutorial_chapter.gd: chapter state, hosts, resume and recovery.
+- data/tutorial.json: 17 steps (settlement, house, purse, borrow, fund, raise,
+  house, map, march order).
+- ui/newgame.gd (guide offer), settings.gd (Replay), house.gd, muster.gd
+  (Borrow review, one-soldier default in the chapter), campaign/world_map.gd
+  (march helper, show_order now typed bool), ui/presim_map.gd (palette falls
+  back to its first colour for regions past the list, like map_terrain.gd).
+- tests/test_tutorial_chapter_v104.gd: picks a house only after the first save
+  finishes (quotes refuse while a save is capturing); SpinBox typing clears
+  with End+Backspace and waits a frame after Enter; state comparisons treat
+  -40 and -40.0 as equal (JSON reload turns whole numbers into floats); diff
+  printouts on failure. Routes: default = small house via borrowing;
+  --ruling-house = funded control (its own launch).
+Tests (2026-11-16, PC, Test Bridge, one headless launch per block):
+PASS: tutorial_chapter_v104 default (596 checks, 38 s) and --ruling-house (423
+checks, 30 s), tutorial_v103, small_house_v102, v102_army (mobilization_v017,
+muster_ui_v017, feudal_governance).
 
 v0.103 GUIDED TUTORIAL FRAMEWORK
 Base main f76ed6d; source v0.103-tutorial 4c9cb37 (range 73f7ab3..4c9cb37 only).

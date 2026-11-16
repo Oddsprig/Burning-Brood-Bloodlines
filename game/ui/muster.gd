@@ -54,7 +54,7 @@ func _ready() -> void:
 	var status := _card("ArmyStatusCard")
 	state_label = _line(status, "MusterState", "H2")
 	wallet_label = _line(status, "MusterWallet")
-	var funding := UiKit.flow(8); status.add_child(funding)
+	var funding := UiKit.flow(8); funding.name = "MusterFunding"; status.add_child(funding) # v0.104: amount and review stay usable in one cut-out.
 	funding.add_child(UiKit.label("Move coin from your house purse:", "", true))
 	fund_input = SpinBox.new(); fund_input.name = "MusterFundingAmount"
 	fund_input.min_value = 0; fund_input.max_value = 999999999; fund_input.step = 1
@@ -65,7 +65,9 @@ func _ready() -> void:
 	funding.add_child(fund_button)
 	# v0.102: allow a small house to borrow coin from the settlement treasury where the house purse is shown.
 	borrow_button = UiKit.button("Borrow coin", request_borrow, "Row", 140); borrow_button.name = "MusterBorrow"
-	funding.add_child(borrow_button)
+	var borrowing := UiKit.flow(8) # v0.104: keep Borrow outside the Army-transfer highlight.
+	status.add_child(borrowing)
+	borrowing.add_child(borrow_button)
 	# v0.102: funding refusals must be readable without hovering a disabled button.
 	funding_label = _line(status, "MusterFundingReason", "Muted")
 	var house := _card("MusterHouseCard")
@@ -82,6 +84,7 @@ func _ready() -> void:
 	selection.add_child(UiKit.label("How many to raise:", "", true))
 	count_input = SpinBox.new(); count_input.name = "MusterCount"
 	count_input.min_value = 1; count_input.max_value = 200; count_input.step = 1; count_input.value = 100
+	if Game.tutorial_chapter and not Game.tutorial_done: count_input.value = 1 # v0.104: a bounded first muster, using the native quote.
 	count_input.custom_minimum_size = Vector2(150, UiKit.touch_min(48))
 	count_input.value_changed.connect(func(_value: float): _queue_refresh())
 	selection.add_child(count_input)
@@ -278,7 +281,9 @@ static func raise_text(quote: Dictionary) -> String:
 
 func _review(title: String, text: String, action: Callable) -> void:
 	var modal := UiKit.modal(self, title, 560)
+	modal.name = "MusterReview" # v0.104: distinguish a real native review from a button press.
 	modal.add_child(UiKit.label(text,"",true))
+	modal.set_meta("tutorial_order", title) # v0.104: loan, transfer and muster reviews have distinct identities.
 	var actions := UiKit.flow(8); modal.add_child(actions)
 	var cancel := UiKit.button("Cancel", func(): UiKit.close_modal(modal), "Row", 120); cancel.name = "MusterCancel"
 	var confirm := UiKit.button("Confirm", func(): UiKit.close_modal(modal); action.call(), "Row", 120); confirm.name = "MusterConfirm"
@@ -374,6 +379,7 @@ func request_borrow() -> void:
 	var need := float(current_quote.get("required_funding", 0.0)) - float(current_status.get("payer_purse", 0.0))
 	var default_amt := clampf(ceilf(need) if need >= 1.0 else float(q.get("max_borrow", 100.0)), 1.0, float(q.get("max_borrow", 1.0)))
 	var modal := UiKit.modal(self, "Borrow coin for your house", 480)
+	modal.name = "MusterBorrowReview" # v0.104: highlight the native amount, terms and Borrow control together.
 	modal.add_child(UiKit.label("Borrow real coin from the %s of %s into your house purse.\nCredit left: %s coins · Current debt: %s coins · Weekly interest: %.0f%%" % [
 		String(q.get("head_title", "head")), String(q.get("town_name", "this settlement")),
 		coins(q.get("credit_left", 0.0)), coins(q.get("debt", 0.0)), float(q.get("rate", 0.0)) * 100.0], "", true))
@@ -383,11 +389,15 @@ func request_borrow() -> void:
 	amount.custom_minimum_size = Vector2(170, UiKit.touch_min(48))
 	modal.add_child(amount)
 	var actions := UiKit.flow(8); modal.add_child(actions)
-	actions.add_child(UiKit.button("Cancel", func(): UiKit.close_modal(modal), "Row", 120))
-	actions.add_child(UiKit.button("Borrow", func():
+	var cancel := UiKit.button("Cancel", func(): UiKit.close_modal(modal), "Row", 120)
+	cancel.name = "MusterBorrowCancel" # v0.104: expose real Cancel for the input walkthrough.
+	actions.add_child(cancel)
+	var confirm := UiKit.button("Borrow", func():
 		var req := floorf(amount.value)
 		UiKit.close_modal(modal)
-		apply_borrow(req), "Row", 120))
+		apply_borrow(req), "Row", 120)
+	confirm.name = "MusterBorrowConfirm" # v0.104: this calls apply_borrow, never the Army-transfer command.
+	actions.add_child(confirm)
 
 func apply_borrow(amount: float) -> Dictionary:
 	var outcome: Dictionary = Mobilization.borrow(Game, amount)

@@ -68,6 +68,9 @@ var _hud_troops := 0
 var _hud_wages := 0
 var _hud_unpaid := 0
 var _hud_layout_queued := false
+var tutorial_march: Button # v0.104: a named, real march order on the HUD for chapter one's last step.
+var tutorial_town := ""
+var _tutorial_town_searched := false # v0.104: cache an unreachable result for this map screen too.
 
 func _ready() -> void:
 	MusicManager.play_scene("campaign_map")
@@ -141,6 +144,7 @@ func _ready() -> void:
 # ================================================================== loop
 func _process(delta: float) -> void:
 	var started := Time.get_ticks_usec()
+	_refresh_tutorial_march() # v0.104: this control exists only while the chapter asks for its march.
 	_process_map(delta)
 	Perf.record_us("Map frame", Time.get_ticks_usec() - started, true)
 	Perf.set_stage("Settling campaign jobs" if not Game.world.get("work", []).is_empty() else "Map · travelling" if CampaignWorld.is_travelling(Game) or Game.world.get("party", {}).get("waiting", false) else "Map · paused")
@@ -488,6 +492,10 @@ func _build_hud() -> void:
 	lbl_wages = _label(16, UiTheme.GOOD)
 	lbl_wages.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	column.add_child(lbl_wages)
+	tutorial_march = _button("March to a nearby town", _tutorial_march)
+	tutorial_march.name = "TutorialMarchTown"
+	tutorial_march.hide()
+	column.add_child(tutorial_march)
 	lbl_contract = _label(15, UiTheme.BLUE)
 	lbl_contract.custom_minimum_size.y = 48
 	lbl_contract.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -693,6 +701,39 @@ func _refresh_hud() -> void:
 	_layout_hud()
 	Perf.record_us("Map interface", Time.get_ticks_usec() - started)
 
+## v0.104: the map is a Node2D; carry the existing overlay onto the HUD's untransformed canvas.
+func tutorial_host() -> Control:
+	return hud_root
+
+func _refresh_tutorial_march() -> void:
+	if tutorial_march == null: return
+	var view := hud_root.get_node_or_null("TutorialOverlay") as TutorialOverlay
+	var show_order: bool = view != null and view.tutorial != null and view.tutorial.active and String(view.tutorial.current().get("id", "")) == "march_nearby"
+	tutorial_march.visible = show_order
+	if not show_order or tutorial_town != "" or _tutorial_town_searched: return
+	_tutorial_town_searched = true # v0.104: do not sort towns/find paths again every frame after a failed search.
+	var party: Vector2 = Game.world.get("party", {}).get("pos", Vector2.ZERO)
+	var towns: Dictionary = Game.world.get("towns", {})
+	var choices: Array = towns.keys().filter(func(tid):
+		return String(tid) != String(Game.world.get("start_town", "")) and not CampaignWorld.is_hostile(Game, String(towns[tid]["faction"])))
+	choices.sort_custom(func(a, b): return party.distance_squared_to(towns[a]["pos"]) < party.distance_squared_to(towns[b]["pos"]))
+	for tid in choices:
+		if not CampaignWorld.find_path(Game.world, party, towns[tid]["pos"]).is_empty():
+			tutorial_town = String(tid)
+			break
+	tutorial_march.disabled = tutorial_town == "" or Game.company.is_empty()
+	tutorial_march.text = "March to %s" % String(towns[tutorial_town]["name"]) if tutorial_town != "" else "No friendly town is reachable"
+
+func _tutorial_march() -> void:
+	# v0.104: use the same native route command as tapping a town, with no teleport or time skip.
+	var town: Dictionary = Game.world.get("towns", {}).get(tutorial_town, {})
+	if town.is_empty() or CampaignWorld.is_hostile(Game, String(town["faction"])): return
+	if CampaignWorld.set_travel(Game, town["pos"], tutorial_town):
+		follow = true
+		Game.request_autosave()
+	else:
+		toast("No road leads there.")
+
 func toast(text: String) -> void:
 	lbl_toast.text = text
 	lbl_toast.visible = true
@@ -725,7 +766,7 @@ func _on_save() -> void:
 	Game.save_game_async()   # manual Save: always writes, ignoring the autosave interval
 	toast("Game saved.")
 
-## Ambition toasts and the one-time victory screen; the first-visit guide.
+## v0.104: ambition toasts and the one-time victory screen; Help is opened manually.
 var _amb_t := 0.0
 func _ambition_tick() -> void:
 	_amb_t -= 0.2
@@ -741,9 +782,7 @@ func _ambition_tick() -> void:
 		st["pending_victory"] = false
 		Game.goto("victory")
 		return
-	if not bool(Game.setting("guide_seen")) and not Dynasty.selected(Game).is_empty():
-		Game.set_setting("guide_seen", true)
-		GuideView.open(modal_host, false)
+	# v0.104: Help stays on the navigation bar as a reference. Chapter one supplies the first-campaign guidance.
 
 # ---------------------------------------------------------------- info panel
 func _band_commander(wb: Dictionary) -> String:

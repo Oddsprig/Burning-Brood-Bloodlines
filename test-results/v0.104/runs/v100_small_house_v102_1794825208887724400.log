@@ -1,0 +1,55 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)
+seed 101: House 0 -> borrow 1200 -> Army transfer -> hire 1 -> muster 1 -> unled march; day unchanged
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)
+seed 202: House 0 -> borrow 1200 -> Army transfer -> hire 1 -> muster 1 -> unled march; day unchanged
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)
+seed 303: House 0 -> borrow 1200 -> Army transfer -> hire 1 -> muster 1 -> unled march; day unchanged
+v102 small house: 3 completed seeds, 1139 checks, 149 refusal cases, 0 failures, 555 ms
+== res://tests/test_small_house_path_v102.gd: PASS ==
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)
+ERROR: Error calling deferred method: 'Node(sound.gd)::_fix_contrast': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:220)

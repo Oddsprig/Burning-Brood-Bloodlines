@@ -167,13 +167,14 @@ func _cell_col(x: int, y: int, lv: int) -> Color:
 	# climate and realms: the region's grass and forest floor, dry badlands, and the realm borders
 	var c: Color
 	if t == "f":
-		c = Color(FOREST_FLOOR[r]) if r >= 0 else WOOD
+		# v0.104 fix: elf regions (sunwood, nightwood) sit past the palette; reuse its first colour like map_terrain.gd.
+		c = Color(FOREST_FLOOR[r] if r < FOREST_FLOOR.size() else FOREST_FLOOR[0]) if r >= 0 else WOOD
 	elif t == "s":
 		c = SILVER
 	elif t == "b":
 		c = DRY
 	else:
-		c = Color(GRASS[r]) if r >= 0 else Color("#7cc24a")
+		c = Color(GRASS[r] if r < GRASS.size() else GRASS[0]) if r >= 0 else Color("#7cc24a")
 	if r >= 0:
 		for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
 			var nx: int = x + d.x; var ny: int = y + d.y

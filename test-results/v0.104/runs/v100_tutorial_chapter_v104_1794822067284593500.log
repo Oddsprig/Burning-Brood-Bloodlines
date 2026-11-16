@@ -1,0 +1,32 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+v0.104 UI route: zero-purse non-ruling household via native borrowing
+v0.104 hardship fixture: reduce native House purse from 10177.6204703391 to 0 before selection
+SCRIPT ERROR: Parse Error: Cannot infer the type of "show_order" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://campaign/world_map.gd:711)
+   GDScript backtrace (most recent call first):
+       [0] _scene (res://main.gd:48)
+       [1] show_screen (res://main.gd:64)
+       [2] goto (res://core/game.gd:87)
+       [3] <anonymous lambda> (res://ui/house.gd:95)
+       [4] click (res://tests/test_tutorial_chapter_v104.gd:60)
+       [5] press (res://tests/test_tutorial_chapter_v104.gd:71)
+       [6] run (res://tests/test_tutorial_chapter_v104.gd:590)
+       [7] step (res://tests/test_tutorial_chapter_v104.gd:146)
+       [8] frames (res://tests/test_tutorial_chapter_v104.gd:42)
+ERROR: Failed to load script "res://campaign/world_map.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+   GDScript backtrace (most recent call first):
+       [0] _scene (res://main.gd:48)
+       [1] show_screen (res://main.gd:64)
+       [2] goto (res://core/game.gd:87)
+       [3] <anonymous lambda> (res://ui/house.gd:95)
+       [4] click (res://tests/test_tutorial_chapter_v104.gd:60)
+       [5] press (res://tests/test_tutorial_chapter_v104.gd:71)
+       [6] run (res://tests/test_tutorial_chapter_v104.gd:590)
+       [7] step (res://tests/test_tutorial_chapter_v104.gd:146)
+       [8] frames (res://tests/test_tutorial_chapter_v104.gd:42)
+FAIL v0.104: overlay exists for march_nearby
+test_tutorial_chapter_v104: 576 checks, 1 failures, 40.73 s; 0 screenshots
+runner: 1 runtime script error(s) during res://tests/test_tutorial_chapter_v104.gd (see SCRIPT ERROR above); each counts as a failure
+== res://tests/test_tutorial_chapter_v104.gd: FAIL (2) ==
