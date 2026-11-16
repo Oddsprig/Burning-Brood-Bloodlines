@@ -149,6 +149,11 @@ Read the original handoff or inherited specifications only as needed.
   and simulation. Repeat phone QA only when requested or near the export milestone.
 - Extend native people, property, ledgers, army and BattleSim identities. No
   duplicate population, market, money system or dragon combat resolver.
+- WINDOWS AND SCREENSHOTS (owner's rule, 2026-11-16): game windows open only with the
+  owner's OK for that run. Whenever a game window is open for any OKed reason, also save
+  screenshots of what is on screen to test-results/<version>/shots/. Store screenshots are
+  NOT captured in windows: the listing uses the existing images in store-images/ and store/
+  (Nov 7).
 - DRAGONS (owner's choice, 2026-11-16): keep the current sprite dragons. The bone-rig
   prototype (branch v0.106-dragon-rig) is not to be merged; v0.107 is dropped.
 - HELPERS (owner's rule, 2026-11-16; supersedes the Sol/Luna lines below): no Sol
