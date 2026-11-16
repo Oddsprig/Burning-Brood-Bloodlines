@@ -1,5 +1,6 @@
 BURNING BROOD: BLOODLINES - ACTIVE CHANGE NOTES
-Updated: 2026-11-16 for v0.103 merged as b81e96e (base f76ed6d).
+Updated: 2026-11-16 for v0.104 (base main 4231e57).
+v0.103 merged as b81e96e (base f76ed6d).
 v0.102 small house merged as ead6ecf (base f897872); 4 blocks / 10 tests pass.
 v0.100 SALVAGE merged as 0d86f7b (base 0f36e00); 11 blocks / 28 tests pass.
 v0.099 merged as 1fcb3fe758ad3a566cbb6b4466b25706fc3cd1d0.
@@ -12,6 +13,27 @@ container; not yet uploaded or on sale). v0.096-v0.098 are source merges.
 This changelog starts with the accepted v0.086-v0.094 source catch-up. Earlier
 history remains in the developer notes and immutable archives. Historical worker
 UNRUN reports are superseded by the accepted source receipts where stated.
+
+v0.104 - Tutorial chapter: choose a house, borrow, fund an army and march
+Base main 4231e57 (v0.103). Source: bb-v104 work over 4c9cb37, the v0.102
+borrowing integration (r2) and the reviewed v0.104 merge fixes, ported by hand.
+A 17-step chapter guides a new campaign from choosing a settlement and house to
+reading the house purse, borrowing (a poor house), moving House coin into the
+Army, raising one soldier and ordering a march to a nearby friendly town.
+Every order still needs real coin, people, supplies and your confirmation; the
+march order ends the chapter. New Campaign offers the guide; Settings Replay
+opens New Campaign with it selected. Progress is saved; confirmation screens
+resume at safe points without repeating a committed loan, transfer or muster.
+Game fixes found by the tests: the world-history map no longer errors on the
+elf regions (sunwood, nightwood) past its colour list; the map screen's march
+helper had an untyped variable that stopped world_map.gd compiling; chapter
+resume no longer logs a missing-meta error.
+Not carried: test_tutorial_legacy_v104.gd (needs the old schema-2 save rework,
+not on main). Version metadata: 0.104.
+Tests (2026-11-16, PC, Test Bridge, one headless launch per block):
+PASS: tutorial_chapter_v104 default (596 checks, 38 s) and --ruling-house (423
+checks, 30 s), tutorial_v103, small_house_v102, v102_army (mobilization_v017,
+muster_ui_v017, feudal_governance).
 
 v0.103 - Guided tutorial framework and Replay tutorial
 Base main f76ed6d (v0.102). Source: v0.103-tutorial 4c9cb37 plus reviewed merge fixes.

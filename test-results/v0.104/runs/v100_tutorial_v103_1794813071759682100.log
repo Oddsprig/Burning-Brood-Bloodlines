@@ -1,0 +1,6 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+dev: made the start world user://fixtures/world_0.103_v1.json in 11597 ms
+dev: loaded the start world in 1725 ms
+test_tutorial_v103: 0 failure(s)
+== res://tests/test_tutorial_v103.gd: PASS ==

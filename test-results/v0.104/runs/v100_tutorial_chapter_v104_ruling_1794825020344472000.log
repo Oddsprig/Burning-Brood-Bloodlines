@@ -1,0 +1,5 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+v0.104 UI route: explicit ruling-house control
+test_tutorial_chapter_v104: 423 checks, 0 failures, 30.32 s; 0 screenshots
+== res://tests/test_tutorial_chapter_v104.gd: PASS ==

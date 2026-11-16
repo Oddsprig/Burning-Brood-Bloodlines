@@ -92,8 +92,12 @@ func _refresh() -> void:
 		content.add_child(UiKit.label("Minor ruler · Regent: " + String(regent.get("name", "No regent appointed")), "", true))
 	var actions := UiKit.flow()
 	content.add_child(actions)
-	actions.add_child(UiKit.button("Campaign map", func(): Game.goto("map")))
-	actions.add_child(UiKit.button("Army", func(): Game.goto("muster", {"back": "house", "back_params": {"back": back}}), "Row"))
+	var campaign_map := UiKit.button("Campaign map", func(): Game.goto("map"))
+	campaign_map.name = "HouseMap" # v0.104: the real navigation control is the chapter anchor.
+	actions.add_child(campaign_map)
+	var army := UiKit.button("Army", func(): Game.goto("muster", {"back": "house", "back_params": {"back": back}}), "Row")
+	army.name = "HouseArmy" # v0.104:
+	actions.add_child(army)
 	var laws := UiKit.button("Laws", func(): Game.goto("laws", {"town_id": tid, "back": "house", "back_params": {"back": back}}), "Row")
 	laws.name = "HouseLawsButton"
 	actions.add_child(laws)
@@ -260,6 +264,7 @@ func _apply_borrow(amount: float) -> Dictionary:
 
 func _account(title: String, amount: float, owner: String, private: bool) -> void:
 	var panel := UiKit.panel("Card" if private else "Inset")
+	if private: panel.name = "HousePurse" # v0.104: highlight only the owned purse, not public treasuries.
 	panel.size_flags_horizontal = SIZE_EXPAND_FILL
 	accounts_grid.add_child(panel)
 	var words := UiKit.vbox(4)

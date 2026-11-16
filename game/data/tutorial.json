@@ -1,24 +1,92 @@
 {
-	"version": 1,
-	"_note": "Guided tutorial steps (campaign/tutorial.gd reads this; ui/tutorial_overlay.gd draws it). Each step: id, anchor (a Control name, a tutorial_anchor meta value, or a node path from the overlay's host), one short line of text, and done: what counts as done. done kinds: next (press Next), button (press the anchored button; done.anchor defaults to the step anchor), screen (a screen opens: done.screen is a Game screen name), state (a host state key reaches done.equals). v0.103 ships this short Settings-anchored sample so Replay tutorial works today; v0.104 replaces it with chapter one and adds anchors on the campaign screens.",
+	"version": 2,
+	"chapter": "From a small house to a household army",
+	"_note": "v0.104: Chapter one uses the v0.103 overlay and v0.102 native private-house borrowing, funding, muster and travel. The two borrowing steps are skipped when real House coin covers the one-soldier shortfall. Loans create native debt in the House purse; the Army transfer remains separate. host restores a screen; back=false is a committed-order boundary.",
 	"steps": [
 		{
-			"id": "welcome",
-			"anchor": "ReplayTutorial",
-			"text": "Welcome. This tutorial highlights one control at a time and waits until you use it. Press Next to continue.",
+			"id": "choose_settlement", "host": "house_select", "anchor": "OnboardingRows",
+			"text": "Every house belongs somewhere. Choose a settlement in the highlighted list; its place appears on the map.",
+			"done": {"kind": "state", "key": "settlement_selected"}
+		},
+		{
+			"id": "settlement_continue", "host": "house_select", "anchor": "OnboardingNext",
+			"text": "Press Continue to see the existing households that live here.",
+			"done": {"kind": "state", "key": "houses_open"}
+		},
+		{
+			"id": "choose_house", "host": "house_select", "anchor": "OnboardingRows",
+			"text": "Choose a small local house. Read its role and purse beside the map: selecting a household keeps its real people, property and rights.",
+			"done": {"kind": "state", "key": "house_selected"}
+		},
+		{
+			"id": "customize_ruler", "host": "house_select", "anchor": "OnboardingNext",
+			"text": "Continue through your house and ruler choices, keeping their defaults for this lesson. Press Review when ready. You can customize them in a later campaign.",
+			"done": {"kind": "state", "key": "review_ready"}
+		},
+		{
+			"id": "begin_house", "host": "house_select", "anchor": "OnboardingBegin",
+			"text": "Check the reviewed household and purse. Begin commits your choice. Your field army starts unraised.",
+			"done": {"kind": "screen", "screen": "house"}
+		},
+		{
+			"id": "read_purse", "host": "house", "anchor": "HousePurse", "back": false,
+			"text": "This is your house's private purse. Army coin is separate. If the purse cannot cover one soldier, this lesson will show borrowing and its debt before the Army transfer. Press Next after reading.",
 			"done": {"kind": "next"}
 		},
 		{
-			"id": "settings_toggle",
-			"anchor": "Toggle_battle_event_slowmo",
-			"text": "Settings take effect at once and are saved straight away. This switch turns automatic battle slow motion on or off.",
+			"id": "find_men", "host": "house", "anchor": "HouseArmy",
+			"text": "Open Army to inspect available settlement people, equipment, food and coin. You can raise and march common soldiers without a family rider; relatives serving the realm keep their duties.",
+			"done": {"kind": "screen", "screen": "muster"}
+		},
+		{
+			"id": "choose_men", "host": "muster", "anchor": "MusterCount",
+			"text": "Start with one soldier: set this count to 1. Read the available people, equipment, meals and coin shortfall. A poor house will borrow next, then transfer House coin into Army funds. Press Next when ready.",
 			"done": {"kind": "next"}
 		},
 		{
-			"id": "replay_any_time",
-			"anchor": "ReplayTutorial",
-			"text": "That is the whole sample. You can replay the tutorial any time from Settings, and Skip tutorial ends it early.",
-			"done": {"kind": "next"}
+			"id": "borrow_coin", "host": "muster", "anchor": "MusterBorrow",
+			"text": "Your House purse cannot cover the one-soldier shortfall. Open Borrow coin. The settlement lends real treasury coin, recorded as your household's debt; check the credit and weekly interest.",
+			"done": {"kind": "state", "key": "borrowing_review"}
+		},
+		{
+			"id": "confirm_borrow", "host": "muster", "anchor": "MusterBorrowReview",
+			"text": "Enter enough coin to cover the shortfall shown in Army, within the available credit. Read the debt and weekly interest, then press Borrow. The loan enters your House purse; you must still transfer it into Army funds.",
+			"done": {"kind": "state", "key": "house_borrowed"}
+		},
+		{
+			"id": "fund_army", "host": "muster", "anchor": "MusterFunding",
+			"text": "Transfer House coin into Army funds to cover the one-soldier shortfall and some marching pay. Enter an amount within your purse and press Review transfer. Any loan remains a household debt.",
+			"done": {"kind": "state", "key": "funding_review"}
+		},
+		{
+			"id": "confirm_funding", "host": "muster", "anchor": "MusterConfirm",
+			"text": "Check the selected household payer and amount. Confirm debits its private House purse and credits Army funds. Borrowing and this transfer are separate orders.",
+			"done": {"kind": "state", "key": "army_funded"}
+		},
+		{
+			"id": "raise_army", "host": "muster", "anchor": "MusterRaise",
+			"text": "Review raising one common soldier. The native quote uses actual people, equipment and meals and reserves three days of pay. Family riders are optional. If funds are short, use Back to review the transfer.",
+			"done": {"kind": "button"}
+		},
+		{
+			"id": "confirm_muster", "host": "muster", "anchor": "MusterConfirm",
+			"text": "Check the number, cost and daily pay, then Confirm. The chapter waits until living soldiers actually join your field army.",
+			"done": {"kind": "state", "key": "army_raised"}
+		},
+		{
+			"id": "return_house", "host": "muster", "anchor": "MusterBack", "back": false,
+			"text": "Your household army is raised. Return to House. Any loan remains recorded, and your family members keep their native duties unless you separately enlist them.",
+			"done": {"kind": "screen", "screen": "house"}
+		},
+		{
+			"id": "open_map", "host": "house", "anchor": "HouseMap",
+			"text": "Open the campaign map to give your household army its first march order.",
+			"done": {"kind": "screen", "screen": "map"}
+		},
+		{
+			"id": "march_nearby", "host": "map", "anchor": "TutorialMarchTown",
+			"text": "Press the highlighted march order for a nearby friendly town. This starts a real route. You now have a household army on campaign; Help remains your reference.",
+			"done": {"kind": "state", "key": "march_started"}
 		}
 	]
 }

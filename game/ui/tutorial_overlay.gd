@@ -221,15 +221,20 @@ func _show_step() -> void:
 	var step: Dictionary = tutorial.current()
 	_text.text = String(step.get("text", ""))
 	_counter.text = "%d / %d" % [tutorial.index + 1, tutorial.step_count()]
-	_back_button.disabled = tutorial.index <= 0
+	_back_button.disabled = tutorial.index <= 0 or not bool(step.get("back", true)) # v0.104: campaign commit boundaries.
 	_next_button.disabled = not tutorial.can_advance()
 	_next_button.text = "Done" if tutorial.index >= tutorial.step_count() - 1 else "Next"
 	_target = null
+	_raise_overlay.call_deferred() # v0.104: keep the dim above reviews, after the parent's ready/add-child work.
 	_resolve_target()
 	_reveal_target.call_deferred()   # v0.103: reveal scrolled Settings anchors after container layout.
 	_wire_target()
 	_rect = _compute_rect()
 	_layout()
+
+func _raise_overlay() -> void:
+	if is_inside_tree() and not is_queued_for_deletion():
+		get_parent().move_child(self, get_parent().get_child_count() - 1)
 
 ## Places the four dim rects around the cut-out and the text box near it, on screen.
 func _layout() -> void:
@@ -356,10 +361,18 @@ func _check_state_step() -> void:
 
 func _on_screen_changed(screen: String) -> void:
 	# v0.103: Game.goto() retires the old screen before emitting this signal. Carry the overlay to the new host.
-	if is_instance_valid(search_root) and search_root.is_queued_for_deletion():
+	var ancestor: Node = search_root
+	var retiring := false
+	while is_instance_valid(ancestor):
+		if ancestor.is_queued_for_deletion(): retiring = true; break
+		ancestor = ancestor.get_parent()
+	if retiring: # v0.104: a map HUD's parent Node2D retires, rather than the HUD itself.
 		var game: Node = get_tree().root.get_node_or_null("Game")
 		var main: Node = game.get("main") if game != null else null
-		var host: Control = (main.get("current") as Control) if is_instance_valid(main) else null
+		var destination: Node = (main.get("current") as Node) if is_instance_valid(main) else null
+		var host: Control = destination as Control
+		if host == null and is_instance_valid(destination) and destination.has_method("tutorial_host"):
+			host = destination.call("tutorial_host") as Control # v0.104: the Node2D map hosts overlays on its HUD canvas.
 		if is_instance_valid(host):
 			search_root = host
 			reparent(host, false)
@@ -378,7 +391,7 @@ func _on_completed(_skipped: bool) -> void:
 		queue_free()
 
 func _on_back() -> void:
-	if tutorial != null:
+	if tutorial != null and bool(tutorial.current().get("back", true)): # v0.104: match the disabled button.
 		tutorial.back_step()
 
 func _on_next() -> void:

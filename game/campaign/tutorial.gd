@@ -69,6 +69,8 @@ static func validate_steps(raw: Array) -> Array:
 			"anchor": anchor,
 			"text": text,
 			"done": done,
+			"host": String(s.get("host", "")), # v0.104: chapter navigation; generic samples leave this empty.
+			"back": bool(s.get("back", true)), # v0.104: stop Back at committed campaign orders.
 		})
 	return out
 

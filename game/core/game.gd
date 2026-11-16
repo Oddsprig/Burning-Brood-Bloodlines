@@ -53,6 +53,7 @@ var screen_params: Dictionary = {}
 ## Guided tutorial progress (campaign/tutorial.gd, v0.103): the step to resume at, and whether the tutorial was finished or skipped.
 var tutorial_step: int = 0
 var tutorial_done: bool = false
+var tutorial_chapter: bool = false # v0.104: opt-in chapter; old saves do not start it unexpectedly.
 ## Food and drink (core/food.gd): stock lots {"meal"|"beer"|"wine": [[qty, age_days], ...]}, company-wide rations,
 ## and the meal clock (next tick time, last drain time, marching time since).
 var provisions: Dictionary = {"meal": [], "beer": [], "wine": []}
@@ -85,6 +86,17 @@ func goto(screen: String, params: Dictionary = {}) -> void:
 	if main != null:
 		main.show_screen(SCREENS.get(screen, screen))
 	screen_changed.emit(screen)
+	call_deferred("_resume_tutorial_chapter") # v0.104: let the existing overlay move before considering a saved resume.
+
+func _resume_tutorial_chapter() -> void:
+	var chapter: Script = load("res://campaign/tutorial_chapter.gd") as Script # v0.104: no new global-class cache dependency in the autoload.
+	chapter.resume()
+
+func reset_tutorial_progress() -> void:
+	# v0.104: campaign replacement and tutorial fixtures own their resets, not the shared test runner.
+	tutorial_chapter = false
+	tutorial_step = 0
+	tutorial_done = false
 
 ## Complete combat histories are transient; only the current battle/results own them.
 func _release_result_history() -> void:
@@ -221,7 +233,10 @@ func new_game_begin(game_seed: int = 0) -> Dictionary:
 	Unit._next_uid = 1   # a new world numbers its people and things from 1 (same seed = same world, same ids)
 	_release_result_history()
 	contract = {}; location = ""; pending_battle = {}; last_result = {}
-	tutorial_step = 0; tutorial_done = false   # a new campaign starts the guided tutorial fresh
+	var chapter_requested := bool(settings.get("tutorial_chapter_requested", false)) # v0.104: preserve only this campaign's explicit choice.
+	reset_tutorial_progress() # v0.104: discard the previous campaign's chapter, step and completion.
+	tutorial_chapter = chapter_requested
+	set_setting("tutorial_chapter_requested", false) # v0.104: consume this one-shot choice before direct starts/fixtures.
 	invalidate_deploy()
 	for fid in DB.factions:
 		rep[fid] = -40 if DB.factions[fid].get("player_hostile", false) else 0
@@ -604,7 +619,7 @@ func _finish_capture() -> void:
 	_save_status["item_records"] = _save_capture.item_records
 	_save_status["reused_records"] = _save_capture.reused_records
 	var d := _save_capture.take()
-	d["tutorial"] = {"step": tutorial_step, "done": tutorial_done}   # v0.103 (same line in _save_tree)
+	d["tutorial"] = {"step": tutorial_step, "done": tutorial_done, "chapter_one": tutorial_chapter} # v0.104: same payload in both save paths.
 	_save_capture = null
 	if is_inside_tree(): get_tree().paused = _save_was_paused
 	_start_writer(d)
@@ -1124,7 +1139,7 @@ func _save_tree() -> Dictionary:
 	snapshot.begin(self)
 	snapshot.step(0)
 	var tree := snapshot.take()
-	tree["tutorial"] = {"step": tutorial_step, "done": tutorial_done}   # v0.103 (same line in _finish_capture)
+	tree["tutorial"] = {"step": tutorial_step, "done": tutorial_done, "chapter_one": tutorial_chapter} # v0.104: same payload in both save paths.
 	return tree
 
 func has_save() -> bool:
@@ -1170,9 +1185,13 @@ func load_game() -> bool:
 	for k in d.get("squads", {}):
 		squads[int(k)] = d["squads"][k]
 	rep = d.get("rep", {}); world = _deserialize(d.get("world", {})); location = d.get("location", "")
+	reset_tutorial_progress() # v0.104: loading replaces live progress; missing fields keep the cleared defaults.
 	var tut: Dictionary = d.get("tutorial", {}) if d.get("tutorial", {}) is Dictionary else {}   # v0.103: absent in older saves
 	tutorial_step = maxi(0, int(tut.get("step", 0)))
 	tutorial_done = bool(tut.get("done", false))
+	tutorial_chapter = bool(tut.get("chapter_one", false)) # v0.104: old samples are not campaign chapters.
+	if bool(settings.get("tutorial_chapter_requested", false)):
+		set_setting("tutorial_chapter_requested", false) # v0.104: a loaded campaign cannot leave a pending new-campaign opt-in.
 	contract = _deserialize(d.get("contract", {}))
 	Unit._next_uid = maxi(Unit._next_uid, ServiceIdentity.uid_floor(self))
 	Unit._next_uid = maxi(Unit._next_uid, DragonCombat.uid_floor(self))
@@ -1297,7 +1316,7 @@ const DEFAULT_SETTINGS := {
 	"battle_speed": 1.0,
 	"battle_event_slowmo": false,
 	"show_performance": false,   # diagnostics overlay (F3)
-	"guide_seen": false,         # the campaign guide opens once on the first map visit
+	"guide_seen": false,         # v0.104: legacy setting retained; Help no longer opens on a first map visit.
 	"music_volume": 0.5,
 	"sfx_volume": 0.5,
 	"gore": "full",   # v0.014 (Douglas 22:51): "full" | "reduced" (a later phone-store build): blood, decals and log words

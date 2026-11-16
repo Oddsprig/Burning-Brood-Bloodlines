@@ -20,6 +20,7 @@ var creatures_check: CheckButton
 var house_cap_spin: SpinBox
 var sick_slider: HSlider
 var sick_lbl: Label
+var guide_check: CheckButton # v0.104: offer chapter one before replacing the campaign.
 
 func _ready() -> void:
 	theme = UiTheme.get_theme()
@@ -153,7 +154,14 @@ func _ready() -> void:
 	v.add_child(HSeparator.new())
 	est = UiKit.wrap(UiKit.label("", "", true), 80)
 	v.add_child(est)
+	guide_check = CheckButton.new()
+	guide_check.name = "ChapterOneGuide"
+	guide_check.text = "Guide me: from a house to a household army"
+	guide_check.button_pressed = bool(Game.screen_params.get("tutorial", not bool(Game.settings.get("tutorial_offered", false))))
+	guide_check.custom_minimum_size.y = UiKit.tap_height()
+	v.add_child(guide_check)
 	var go := UiKit.button("Create world", _begin, "", 0)
+	go.name = "CreateWorld" # v0.104: stable first-campaign offer anchor for UI checks.
 	go.custom_minimum_size.y = UiKit.touch_min(64)
 	v.add_child(go)
 	_refresh()
@@ -211,6 +219,8 @@ func _sick_text() -> void:
 
 ## The chosen options for the next new world (Create world applies them, then builds it).
 func _apply() -> void:
+	Game.set_setting("tutorial_chapter_requested", guide_check.button_pressed) # v0.104: read by new_game_begin after generation starts.
+	Game.set_setting("tutorial_offered", true)
 	WorldGen.gen_size = size_key
 	WorldGen.steppe_enabled = steppe_check.button_pressed
 	Game.settings["steppe_enabled"] = steppe_check.button_pressed
@@ -226,4 +236,4 @@ func _begin() -> void:
 	Game.goto("presim", {"new_world": true})   # visible generation, the years before, then the map
 
 func _back() -> void:
-	Game.goto(String(Game.screen_params.get("back", "title")))
+	Game.goto(String(Game.screen_params.get("back", "title")), Game.screen_params.get("back_params", {})) # v0.104: Replay's Back retains the Settings return route.
