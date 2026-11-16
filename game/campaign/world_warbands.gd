@@ -177,8 +177,11 @@ static func spawn_warband(game, fid: String, pos: Vector2, count: int, kind: Str
 	# (monsters wave 1: bandits' home is their camp; monsters belong to a lair or to none)
 	if not w["towns"].has(wb["home"]) and not w.get("lairs", {}).has(wb["home"]) and not Monsters.is_monster_faction(fid):
 		wb["home"] = nearest_faction_town(w, fid, p)
-	for u in units:
-		u.home_town = wb["home"]
+	for u: Unit in units:
+		# A supplied registered person keeps the town/family that actually owns his record.
+		# The force's base may be another town or an outlaw camp. Fresh rolls still need a home.
+		if u.family < 0:
+			u.home_town = wb["home"]
 	w["warbands"][id] = wb
 	if w.has("army"):
 		_t0 = Time.get_ticks_usec()
@@ -492,14 +495,19 @@ static func _move_warbands(game, dt: float, t: float, rng: RandomNumberGenerator
 	var w: Dictionary = game.world
 	var party: Dictionary = w["party"]
 	var ppow := -1.0
+	var missing := {}   # read-only fallback, never stored or passed to a callee
 	for wid in w["warbands"].keys():
-		var wb: Dictionary = w["warbands"].get(wid, {})
+		var wb: Dictionary = w["warbands"].get(wid, missing)
 		if wb.is_empty() or Monsters.suspended_band(wb) or wid == w.get("encounter", ""):
 			continue
 		WarAI.sync_objective(wb, t)
 		if float(wb["rest_until"]) > t:
 			continue
-		if wb["kind"] == "caravan":
+		var kind: String = wb["kind"]
+		# step_band -> Militia.step would return without writes or RNG draws.
+		if kind == "militia" and not wb.get("mustered", false) and not wb.get("professional", false) and not wb.has("raid"):
+			continue
+		if kind == "caravan":
 			Caravans.step(game, wid, wb, dt)
 			continue
 		if Monsters.step_band(game, wid, wb, dt, t, rng, true):   # identical suspension check already completed above
@@ -576,7 +584,8 @@ static func _warband_clashes(game, t: float, rng: RandomNumberGenerator) -> void
 	for k in w["warbands"]:   # monsters wave 1: militia/packs/dens/camps fight through Militia.tick instead
 		# These native kinds never enter this resolver. Reject them before an
 		# otherwise unused full-roster creature scan; both predicates are pure.
-		if not w["warbands"][k]["kind"] in Monsters.NO_CLASH and not Monsters.suspended_band(w["warbands"][k]):
+		var wb: Dictionary = w["warbands"][k]
+		if not wb["kind"] in Monsters.NO_CLASH and not Monsters.suspended_band(wb):
 			ids.append(k)
 	var enc: String = w.get("encounter", "")
 	var pairs := _clash_pairs(w, ids)

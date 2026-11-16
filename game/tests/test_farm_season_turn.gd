@@ -57,8 +57,8 @@ func scenario(seed_v: int) -> void:
 		if day == 67:
 			var marker: bool = bool(f.get("farm_harvest", false))
 			var cap: int = int(farm["cap"])
-			# The ordinary save writer serializes floats at JSON precision.
-			var till: float = float(JSON.parse_string(JSON.stringify([farm["till"]]))[0])
+			# The native writer retains the exact pre-save float; keep that strict expectation.
+			var till: float = float(farm["till"])
 			Game.save_game()
 			check(Game.load_game(), "seasonal farm campaign saves and loads")
 			town = Game.world["towns"][town_id]; e = town["econ"]; f = e["fams"][int(f["id"])]

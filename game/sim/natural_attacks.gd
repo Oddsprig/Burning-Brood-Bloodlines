@@ -33,7 +33,8 @@ static func part_ok(f: Fighter, prefix: String) -> bool:
 	return false
 
 static func run_speed(f: Fighter) -> float:
-	var gaits: Array = f.unit.race_def().get("gait", Formulas.GAIT_DEFAULT)
+	var rd: Dictionary = f.rdef if not f.rdef.is_empty() else f.unit.race_def()   # perf: the battle-cached race def
+	var gaits: Array = rd.get("gait", Formulas.GAIT_DEFAULT)
 	return RUN_SPEED_K / maxf(50.0, float(gaits[0])) / maxf(0.5, f.tempo)
 
 ## Deterministic charge momentum: mass x speed (scales linearly with both).
@@ -52,6 +53,8 @@ static func _table(race: String, rd: Dictionary) -> Dictionary:
 		return _cache[race]
 	var plan: Dictionary = DB.bodies.get(String(rd.get("body", "quadruped")), {})
 	var rows := []
+	var all_attacks := []
+	var no_charge := []
 	var shake: Array = []
 	for a in rd.get("attacks", []):
 		var need := String(a.get("needs", ""))
@@ -63,6 +66,8 @@ static func _table(race: String, rd: Dictionary) -> Dictionary:
 		var c: Dictionary = a.duplicate(true)
 		c["creature"] = true
 		rows.append([c, pids])
+		all_attacks.append(c)
+		if not c.get("charge", false): no_charge.append(c)
 		if a.get("latch", false) and shake.is_empty():
 			var s: Dictionary = c.duplicate(true)
 			s["verb"] = "shake"
@@ -76,12 +81,12 @@ static func _table(race: String, rd: Dictionary) -> Dictionary:
 	fb["latch"] = false
 	fb["p"] = float(fb.get("p", 3.0)) * 0.3
 	fb["v"] = float(fb.get("v", 6.0))
-	var tb := {"rows": rows, "shake": shake, "fallback": [fb]}
+	var tb := {"rows": rows, "shake": shake, "fallback": [fb], "all": all_attacks, "no_charge": no_charge}
 	_cache[race] = tb
 	return tb
 
 static func _have(f: Fighter, pids: Array) -> bool:
-	if pids.is_empty():
+	if pids.is_empty() or f.lost.is_empty():
 		return true
 	for pid in pids:
 		if not f.lost.has(pid):
@@ -89,7 +94,7 @@ static func _have(f: Fighter, pids: Array) -> bool:
 	return false
 
 ## The creature's usable attacks against t. Latched onto t: only the held bite ("shake").
-static func attacks_for(sim, f: Fighter, t: Fighter) -> Array:
+static func attacks_for(sim: BattleSim, f: Fighter, t: Fighter) -> Array:
 	if f.dragon:
 		var usable: Array = []
 		for row: Array in f.dragon_attacks:
@@ -119,6 +124,11 @@ static func attacks_for(sim, f: Fighter, t: Fighter) -> Array:
 	var tb: Dictionary = _cache[f.unit.race] if _cache.has(f.unit.race) else _table(f.unit.race, f.unit.race_def())   # perf: no race lookup once cached
 	if t != null and f.grabbing == t.idx and not (tb["shake"] as Array).is_empty() and _have(f, tb["shake"][1]):
 		return [tb["shake"][0]]
+	# Injuries without a sever do not change _have. Reuse the race table's ordered
+	# lists in this common case; attack choice/swing only read them.
+	if f.lost.is_empty():
+		var intact: Array = tb["all"] if charge_ready(sim, f) else tb["no_charge"]
+		return intact if not intact.is_empty() else tb["fallback"]
 	var out := []
 	for row in tb["rows"]:
 		var a: Dictionary = row[0]
@@ -151,7 +161,7 @@ static func swing(f: Fighter, atk: Dictionary, strength: float, ex_ratio: float)
 
 ## After a delivered creature attack: a charge spends the run-up; a latching bite that got through the coat
 ## rolls the grab contest (the wrestling code) and holds on.
-static func after_strike(sim, f: Fighter, t: Fighter, atk: Dictionary) -> void:
+static func after_strike(sim: BattleSim, f: Fighter, t: Fighter, atk: Dictionary) -> void:
 	if atk.get("charge", false):
 		f.last_move_tick = -1000
 		return
@@ -174,7 +184,7 @@ static func after_strike(sim, f: Fighter, t: Fighter, atk: Dictionary) -> void:
 		sim._ev_simple("hit", f.idx, t.idx, "latch_ok", {"roll": rr, "part": ls.get("part", "")})
 
 ## Creature decisions before the ordinary attack/move choice. Returns true if an action was started.
-static func decide(sim, f: Fighter) -> bool:
+static func decide(sim: BattleSim, f: Fighter) -> bool:
 	if f.grabbing < 0:
 		return false
 	var t: Fighter = sim.fighters[f.grabbing]
@@ -189,7 +199,7 @@ static func decide(sim, f: Fighter) -> bool:
 
 ## Pack drag: the latched creature (and every packmate holding the same victim) pulls against the victim:
 ## the takedown contest (Formulas.grab_chance) with the holders' summed mass.
-static func drag_chance(sim, f: Fighter, t: Fighter) -> float:
+static func drag_chance(sim: BattleSim, f: Fighter, t: Fighter) -> float:
 	var mass: float = sim._contest_mass(f)
 	for o in sim._targets[f.side]:
 		if o != f and o.grabbing == t.idx and o.present():

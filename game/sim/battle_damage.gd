@@ -19,17 +19,20 @@ const PS_DIGIT_W := BattleSim.PS_DIGIT_W
 const PS_DIGIT_OK := BattleSim.PS_DIGIT_OK
 const PS_ARMS := BattleSim.PS_ARMS
 const ARMOR_BROKEN_KINDS := BattleSim.ARMOR_BROKEN_KINDS
+const _EMPTY_ARR: Array = []          # shared read-only default (never written through)
+static var _empty_ld: Dictionary = {} # shared read-only layer-def default (never written through)
 
-static func _deliver(sim, f: Fighter) -> void:
+static func _deliver(sim: BattleSim, f: Fighter) -> void:
 	var pa := f.pending_attack
 	var rec: int = sim._ticks(f, float(pa.get("rec_raw", 4.5)))
 	var ti := int(pa.get("target", -1))
 	var t: Fighter = sim.fighters[ti] if ti >= 0 else null
-	if t != null and t.alive() and t.state != "fled" and sim._in_reach(f, t) and f.lodged.is_empty():
+	if t != null and t.state != "dead" and t.state != "fled" and sim._in_reach(f, t) and f.lodged.is_empty():   # perf: alive() inlined
+		var atk: Dictionary = pa["atk"]
 		sim._event("attack", f.idx, t.idx, "", false)
-		sim._strike(f, t, pa["atk"], pa["swing"], pa.get("pre", {}))
-		if pa["atk"].get("creature", false):
-			NaturalAttacks.after_strike(sim, f, t, pa["atk"])   # monsters wave 1: latch, charge run-up spent
+		_strike(sim, f, t, atk, pa["swing"], pa.get("pre", _empty_ld))   # perf: direct (was via BattleSim._strike)
+		if atk.get("creature", false):
+			NaturalAttacks.after_strike(sim, f, t, atk)   # monsters wave 1: latch, charge run-up spent
 	else:
 		sim._log(f, "ev", {"key": "notarget", "al": f.label, "v": f.current_attack, "vk": f.voff, "vc": 0})
 	if f.state == "preparing":
@@ -51,7 +54,7 @@ static func debug_strike(sim, ai: int, di: int, part_id: String = "", attack_idx
 	sim._force_land = false
 	return sim.last_strike
 
-static func _strike(sim, a: Fighter, d: Fighter, atk: Dictionary, sw: Dictionary, pre: Dictionary) -> void:
+static func _strike(sim: BattleSim, a: Fighter, d: Fighter, atk: Dictionary, sw: Dictionary, pre: Dictionary) -> void:
 	var V: bool = sim.verbose
 	var steps := []
 	var au := a.unit
@@ -79,7 +82,7 @@ static func _strike(sim, a: Fighter, d: Fighter, atk: Dictionary, sw: Dictionary
 			D["via"] = shot["via"]
 	a.swing_count += 1
 	if a.swing_count == 1 and a.cul != "" and not arrow:   # v0.014: his battle cry, once, on his first blow (log only)
-		sim._say(a, d, "cry")
+		BattleMorale._say(sim, a, d, "cry")
 	sim.last_strike = {"attacker": a.idx, "defender": d.idx, "verb": verb, "landed": false, "part": "", "armor": [], "tissue": [],
 		"p": 0.0, "E": 0.0, "q": 0.0, "severed": false, "artery": false, "glanced": false, "defence": "", "lodged": false}
 	if V and not pre.is_empty():
@@ -127,7 +130,7 @@ static func _strike(sim, a: Fighter, d: Fighter, atk: Dictionary, sw: Dictionary
 			seen = sr["ok"]
 			if sim.tick - d.last_flank_tick >= Formulas.FLANK_SHOCK_COOLDOWN:
 				d.last_flank_tick = sim.tick
-				sim._shock(d, Formulas.SHOCK_FLANKED, "flanked", false)
+				BattleMorale._shock(sim, d, Formulas.SHOCK_FLANKED, "flanked", false)
 		if seen:
 			var kind := ""
 			var def := 0.0
@@ -169,6 +172,8 @@ static func _strike(sim, a: Fighter, d: Fighter, atk: Dictionary, sw: Dictionary
 				if d.defence_ticks.size() > 8:
 					d.defence_ticks.pop_front()
 				du.body.exertion += Formulas.exertion_defend(du.attr("END"), d.breath_bad) * d.fatigue_mult
+				if d.belly_state == "starving" or d.belly_state == "hungry":   # v0.100: defending also spends wind and can trigger the gasp line
+					sim._food_gasp(d)
 				var sk: String = "shield_user" if kind == "block" else (ds if kind == "parry" else "dodger")
 				if not cr["ok"]:
 					sim._learn(d, sk, Learning.XP_DEFEND)
@@ -187,22 +192,15 @@ static func _strike(sim, a: Fighter, d: Fighter, atk: Dictionary, sw: Dictionary
 	sim._learn(a, wskill, Learning.XP_HIT)
 	# ---- body part (DF: weighted by relsize; no armor/wound evaluation; skill-blind anatomy)
 	var body := du.body
-	if d.parts_cache.is_empty():
-		var cids := []
-		var cws := []
-		var cnames := []
-		for p in body.plan()["parts"]:
-			if not d.lost.has(p["id"]) and not p.get("internal", false):   # DF: inner parts are reached through their parent
-				cids.append(p["id"])
-				cws.append(float(p.get("relsize", 100)))
-				cnames.append(p.get("name", p["id"]))
-		d.parts_cache = [cids, cws, cnames]
+	if d.parts_cache.size() < 6:
+		_cache_parts(d)
 	var ids: Array = d.parts_cache[0]
 	var ws: Array = d.parts_cache[1]
 	var names: Array = d.parts_cache[2]
-	if helpless and not arrow and ids.has("head"):   # (an arrow falls where it falls)
-		ws = ws.duplicate()
-		ws[ids.find("head")] *= Formulas.HELPLESS_HEAD_WEIGHT
+	var sums: PackedFloat64Array = d.parts_cache[3]
+	if helpless and not arrow:   # (an arrow falls where it falls)
+		ws = d.parts_cache[4]
+		sums = d.parts_cache[5]
 	if ids.is_empty():
 		D["out"] = "harmless"
 		_strike_end(sim, a, d, D, "miss", "", false)
@@ -210,7 +208,7 @@ static func _strike(sim, a: Fighter, d: Fighter, atk: Dictionary, sw: Dictionary
 	var part_id: String = sim._force_part
 	var force_inner := ""
 	if part_id == "":
-		var prr := Formulas.roll_body_part(sim.rng, ws, names)
+		var prr := Formulas.roll_weighted_cached(sim.rng, "part", ws, names, sums)
 		if V: steps.append(prr)
 		part_id = ids[prr["i"]]
 	elif _pdef(body, part_id).get("internal", false):   # inspection strike aimed at an inner part: through its parent
@@ -265,6 +263,8 @@ static func _strike(sim, a: Fighter, d: Fighter, atk: Dictionary, sw: Dictionary
 		D["dragon_attack"] = provenance
 		sim.last_strike["dragon_attack"] = provenance.duplicate(true)
 	var sharp := Formulas.sharpness(float(wmat.get("max_edge", 10000)))
+	var w_sy := float(wmat.get("shear_yield", 70000))   # perf: the weapon material's edge-test values, read once per strike
+	var w_sf := float(wmat.get("shear_fracture", 220000))
 	var budget := pen_mm * q * sharp if edged else 0.0  # a dull (tin) edge cuts shallower (tuned)
 	# v0.014 gear damage: a chipped edge (Item.dull) cuts less and shallower; the head is tested for bends/snaps
 	# only when the blow is struck with it (not a pommel or shaft bash)
@@ -284,7 +284,8 @@ static func _strike(sim, a: Fighter, d: Fighter, atk: Dictionary, sw: Dictionary
 	sim.last_strike["q"] = q
 	# ---- armor coverage (one roll per worn piece over that part); helmets never cover the face and are off vs the helpless
 	var covering := []
-	var worn: Array = d.armor_for.get(part_id, d.armor_for.get(String(pdef.get("armor_as", "")), []))   # fingers under the gauntlet ...
+	var wornv = d.armor_for.get(part_id)   # perf: the nested get() evaluated its fallback on every strike
+	var worn: Array = wornv if wornv != null else d.armor_for.get(String(pdef.get("armor_as", "")), _EMPTY_ARR)   # fingers under the gauntlet ...
 	var cov_sk := 0.0
 	var cov_kin := 0.0
 	var cov_au := 0.0
@@ -310,7 +311,7 @@ static func _strike(sim, a: Fighter, d: Fighter, atk: Dictionary, sw: Dictionary
 		var th: float = float(item["t"]) * (1.0 - Formulas.SPOT_WEAKEN * float(item.get("w", 0.0)))   # a damaged spot
 		var nm: String = item["name"]
 		if edged:
-			var R := Formulas.edge_resistance(mat, wmat, contact, qa, qw, th, true)
+			var R := Formulas.edge_resistance_w(mat, w_sy, w_sf, sharp, contact, qa, qw, th, true)
 			if energy >= R:
 				var e0 := energy
 				if arrow:   # bows: the arrow spends part of the layer's resistance cutting through it
@@ -371,6 +372,7 @@ static func _strike(sim, a: Fighter, d: Fighter, atk: Dictionary, sw: Dictionary
 	# blow gets through them (organs, ribs, spine, skull, brain); a part "around" the pick is passed first (skull).
 	# Sparse body: an unhurt part is read from the plan's shared copy and stored (body.wound_part) on its first wound.
 	var tou := Formulas.tou_mult(du.attr("TOU"))
+	var bscale := body.scale   # perf: hoisted out of the layer loop (never changes during a strike)
 	var str_musc := pow(maxf(200.0, du.combat_strength() if d.dragon else float(du.attr("STR"))) / 1000.0, Formulas.STR_MUSCLE_EXP)
 	var cut_all := edged and not glanced
 	var pain_raw := 0.0
@@ -408,7 +410,7 @@ static func _strike(sim, a: Fighter, d: Fighter, atk: Dictionary, sw: Dictionary
 			var L: Dictionary = layers[i]
 			var tissue: String = L["tissue"]
 			var lname: String = L.get("name", tissue)
-			var ld: Dictionary = ldm.get(lname, {})
+			var ld: Dictionary = ldm.get(lname, _empty_ld)
 			if ld.has("hit"):
 				var ir := Formulas.roll_inner_layer(sim.rng, lname, float(ld["hit"]))
 				if V: steps.append(ir)
@@ -421,7 +423,7 @@ static func _strike(sim, a: Fighter, d: Fighter, atk: Dictionary, sw: Dictionary
 				break
 			reached = true
 			var tmat: Dictionary = _tmat(sim, String(ld.get("mat", tissue)))
-			var th := float(ld.get("t", L.get("t", 1.0))) * body.scale * (str_musc if tissue == "muscle" else 1.0)
+			var th := float(ld.get("t", L.get("t", 1.0))) * bscale * (str_musc if tissue == "muscle" else 1.0)
 			if d.dragon and ld.has("dragon_material"):
 				tmat = d.dragon_profile[str(ld["dragon_material"]) + "_material"]
 			if d.dragon and ld.has("dragon_geometry"):
@@ -438,7 +440,7 @@ static func _strike(sim, a: Fighter, d: Fighter, atk: Dictionary, sw: Dictionary
 				stopped_part = seg_pid
 				if V: steps.append(["spent"])
 			if edged:
-				var R := Formulas.edge_resistance(tmat, wmat, contact, 1.0, qw, th, false)
+				var R := Formulas.edge_resistance_w(tmat, w_sy, w_sf, sharp, contact, 1.0, qw, th, false)
 				if energy >= R:
 					var depth := minf(th, budget)
 					var e_spend := 0.0
@@ -556,7 +558,7 @@ static func _strike(sim, a: Fighter, d: Fighter, atk: Dictionary, sw: Dictionary
 			if not spent and (p >= 0.2 or energy >= 1.0) and (force_inner != "" or not (inner_info[0] as Array).is_empty()):
 				var pick := force_inner
 				if pick == "":
-					var irr := Formulas.roll_inner_part(sim.rng, inner_info[1], inner_info[2])
+					var irr := Formulas.roll_weighted_cached(sim.rng, "inner", inner_info[1], inner_info[2], inner_info[5])
 					if V: steps.append(irr)
 					pick = String(inner_info[0][irr["i"]])
 				var around := String(_pdef(body, pick).get("around", ""))
@@ -602,7 +604,7 @@ static func _strike(sim, a: Fighter, d: Fighter, atk: Dictionary, sw: Dictionary
 			np["nerve_s"] = true
 			d_funcs.append("nerve")
 			d_funcs.append("numb")
-	var need_p := Formulas.SEVER_MIN_P * body.scale * float(pdef.get("relsize", 100)) / 100.0
+	var need_p := Formulas.SEVER_MIN_P * bscale * float(pdef.get("relsize", 100)) / 100.0
 	var conn_ok := conn_cut or String(inner_info[3]) == ""   # DF CONNECTOR (upper spine, skull) must be cut through too
 	if not knocked and ext_cut_all and conn_ok and pdef.get("severable", false) and contact >= Formulas.SEVER_MIN_CONTACT and p >= need_p:
 		severed = true
@@ -687,7 +689,7 @@ static func _strike(sim, a: Fighter, d: Fighter, atk: Dictionary, sw: Dictionary
 		a.reach_tiles = 1
 		sim._event("snap", a.idx, d.idx, "", false, part_id)
 	if death_cause != "" or severed:
-		sim._say(a, d, "kill" if death_cause != "" else "maim", rel)
+		BattleMorale._say(sim, a, d, "kill" if death_cause != "" else "maim", rel)
 	if D["layers"].size() > 0:
 		sim._event("wound", a.idx, d.idx, "", false, part_id)
 	if D["lodged"]:
@@ -698,25 +700,25 @@ static func _strike(sim, a: Fighter, d: Fighter, atk: Dictionary, sw: Dictionary
 		se["momentum_left"] = p
 		se["direction"] = Vector2(float(signi(d.cell.x - a.cell.x)), -0.5)
 	if death_cause != "":
-		sim._kill(d, a.idx, death_cause)
+		BattleMorale._kill(sim, d, a.idx, death_cause)
 		return
 	if not d.alive():
 		return
 	if "guts" in D["funcs"]:
 		sim._event("guts", a.idx, d.idx, CombatText.decisive("guts", {"D": BattleSim._cap(d.label), "d": d.label, "P": D["pname"], "his": d.pron},
 			0.0, a.voff + sim.tick), true, part_id)
-	sim._update_functions(d, true, "" if severed else part_id, inner_hit)
+	_update_functions(sim, d, true, "" if severed else part_id, inner_hit)
 	if "airway" in D["funcs"] or "drown" in D["funcs"]:
 		sim._ev_simple("stun", d.idx, -1, "breath", {})
 	if pain_eff > 0.0:
-		sim._shock(d, pain_eff / Formulas.SHOCK_WOUND_DIV + (Formulas.SHOCK_SEVER if severed else 0.0), "wounded", pain_eff >= Formulas.PAIN_STUN)
+		BattleMorale._shock(sim, d, pain_eff / Formulas.SHOCK_WOUND_DIV + (Formulas.SHOCK_SEVER if severed else 0.0), "wounded", pain_eff >= Formulas.PAIN_STUN)
 	if d.state != "unconscious" and d.alive():
 		if body.pain > Formulas.PAIN_KO:
-			sim._knock_out(d, "pain")
+			BattleMorale._knock_out(sim, d, "pain")
 		elif d.think_dmg >= Formulas.THINK_KO:
-			sim._knock_out(d, "head")
+			BattleMorale._knock_out(sim, d, "head")
 		elif not d.prone and (pain_eff >= Formulas.PAIN_KNOCKDOWN or stagger >= Formulas.STAGGER_KNOCKDOWN):
-			sim._fall(d, "knocked" if stagger >= Formulas.STAGGER_KNOCKDOWN else "pain", Formulas.KNOCKDOWN_TICKS)
+			_fall(sim, d, "knocked" if stagger >= Formulas.STAGGER_KNOCKDOWN else "pain", Formulas.KNOCKDOWN_TICKS)
 		else:
 			var add := int(round(stagger * Formulas.STAGGER_TICKS_PER))
 			var why := ""
@@ -881,14 +883,16 @@ static func _has_vital(pdef: Dictionary) -> bool:
 	return false
 
 static func _strike_end(sim, a: Fighter, d: Fighter, D: Dictionary, ev_type: String, part: String, decisive: bool) -> void:
-	var entry := {"tick": sim.tick, "k": "strike", "d": D}
 	var key: String = "strike:" + String(D["out"])
 	D["vc"] = int(a.vcount.get(key, 0))
 	a.vcount[key] = int(D["vc"]) + 1
+	if not sim.capture_history and sim.combat_journal == null:
+		sim._event(ev_type, a.idx, d.idx, "", decisive, part)
+		return
+	var entry: Dictionary = {"tick": sim.tick, "k": "strike", "d": D}
 	a.log.append(entry)
 	d.log.append(entry)
-	var e: Dictionary = sim._event(ev_type, a.idx, d.idx, "", decisive, part)
-	e["entry"] = entry
+	sim._event(ev_type, a.idx, d.idx, "", decisive, part, entry)
 
 ## Applies damage to one tissue layer; returns {"pain", "bleed", "death", "funcs"} (pain raw, before tolerance).
 static func _wound_layer(sim, f: Fighter, part_id: String, pdef: Dictionary, L: Dictionary, ld: Dictionary, dmg: float,
@@ -899,7 +903,7 @@ static func _wound_layer(sim, f: Fighter, part_id: String, pdef: Dictionary, L: 
 
 ## _wound_layer without the result dictionary (the strike path, perf): returns the raw pain, leaves the bleed added
 ## in _wl_bleed and a death cause (or "") in _wl_death, and appends lost functions to `funcs_out`.
-static func _wound_core(sim, f: Fighter, part_id: String, pdef: Dictionary, L: Dictionary, ld: Dictionary, dmg: float,
+static func _wound_core(sim: BattleSim, f: Fighter, part_id: String, pdef: Dictionary, L: Dictionary, ld: Dictionary, dmg: float,
 		kind: String, edge: bool, through: bool, tou: float, funcs_out: Array) -> float:
 	sim._wl_bleed = 0.0
 	sim._wl_death = ""
@@ -969,7 +973,7 @@ static func _wound_core(sim, f: Fighter, part_id: String, pdef: Dictionary, L: D
 ## Recomputes stance (legs) and grasp (hands) from wounds; drops items and falls as needed.
 ## Reads healing's permanent body.parts[id]["impair"] (0..1) too. Per-part results are cached in f.pstat;
 ## `only` recomputes just the struck part (the common case) before aggregating.
-static func _update_functions(sim, f: Fighter, announce: bool, only: String = "", only2: String = "") -> void:
+static func _update_functions(sim: BattleSim, f: Fighter, announce: bool, only: String = "", only2: String = "") -> void:
 	var body := f.unit.body
 	# perf: the totals below are a fold over the parts with rel = true; when the struck part was and stays rel = false
 	# (or its status did not change) they are the stored ones (f.pagg) from the last fold over the same pstat.
@@ -1005,16 +1009,24 @@ static func _fold_functions(_sim, f: Fighter) -> void:
 	var right_why := ""
 	var left_why := ""
 	var stance_why := ""
-	var dw := {"r": 0.0, "l": 0.0}    # fingers: DF relative size of each hand's fingers, and of those that still close
-	var dok := {"r": 0.0, "l": 0.0}
+	var dwr := 0.0    # fingers: DF relative size of each hand's fingers, and of those that still close (perf: locals, was two dictionaries)
+	var dwl := 0.0
+	var dokr := 0.0
+	var dokl := 0.0
 	# pstat entry: [stance, leg, bad, spine, why, eye, eye_ok, grasp, rel, digit, digit w, digit ok, arms] (_part_status)
-	for s: Array in f.pstat.values():
+	for pid in f.pstat:   # perf: no values() copy (same insertion order)
+		var s: Array = f.pstat[pid]
 		if not s[PS_REL]:   # perf: a part that changes none of the totals below
 			continue
 		if s[PS_DIGIT] != "":
-			dw[s[PS_DIGIT]] += float(s[PS_DIGIT_W])
-			if s[PS_DIGIT_OK]:
-				dok[s[PS_DIGIT]] += float(s[PS_DIGIT_W])
+			if s[PS_DIGIT] == "r":
+				dwr += float(s[PS_DIGIT_W])
+				if s[PS_DIGIT_OK]:
+					dokr += float(s[PS_DIGIT_W])
+			elif s[PS_DIGIT] == "l":
+				dwl += float(s[PS_DIGIT_W])
+				if s[PS_DIGIT_OK]:
+					dokl += float(s[PS_DIGIT_W])
 			continue
 		if s[PS_SPINE]:
 			stance_lost = true
@@ -1041,18 +1053,18 @@ static func _fold_functions(_sim, f: Fighter) -> void:
 				left_ok = false
 				left_why = s[PS_WHY]
 	# grip (v0.013): the share of a hand's fingers, by DF relative size, that can still close; none = it cannot hold
-	f.grip_r = dok["r"] / dw["r"] if dw["r"] > 0.0 else 1.0
-	f.grip_l = dok["l"] / dw["l"] if dw["l"] > 0.0 else 1.0
-	if dw["r"] > 0.0 and dok["r"] <= 0.0 and right_ok:
+	f.grip_r = dokr / dwr if dwr > 0.0 else 1.0
+	f.grip_l = dokl / dwl if dwl > 0.0 else 1.0
+	if dwr > 0.0 and dokr <= 0.0 and right_ok:
 		right_ok = false
 		right_why = "fingers"
-	if dw["l"] > 0.0 and dok["l"] <= 0.0 and left_ok:
+	if dwl > 0.0 and dokl <= 0.0 and left_ok:
 		left_ok = false
 		left_why = "fingers"
 	f.pagg = [stance_lost, leg_imp, right_ok, left_ok, eyes, eyes_ok, right_why, left_why, stance_why]
 
 ## The consequences of the function totals (unchanged from the inline version).
-static func _apply_functions(sim, f: Fighter, announce: bool, stance_lost: bool, leg_imp: float, right_ok: bool, left_ok: bool,
+static func _apply_functions(sim: BattleSim, f: Fighter, announce: bool, stance_lost: bool, leg_imp: float, right_ok: bool, left_ok: bool,
 		eyes: int, eyes_ok: int, right_why: String, left_why: String, stance_why: String) -> void:
 	f.leg_impair = leg_imp
 	f.tempo_tick = -1000
@@ -1071,7 +1083,7 @@ static func _apply_functions(sim, f: Fighter, announce: bool, stance_lost: bool,
 		else:
 			f.prone = true
 
-static func _part_status(sim, f: Fighter, p: Dictionary) -> Array:
+static func _part_status(sim: BattleSim, f: Fighter, p: Dictionary) -> Array:
 	var body := f.unit.body
 	var pid: String = p["id"]
 	var lost := f.lost.has(pid)
@@ -1103,7 +1115,8 @@ static func _part_status(sim, f: Fighter, p: Dictionary) -> Array:
 			if dm <= 0.0:
 				continue
 			var t: String = L["tissue"]
-			var lf: Array = ldm.get(L.get("name", t), {}).get("functions", [])
+			var ldd = ldm.get(L.get("name", t))
+			var lf: Array = (ldd as Dictionary).get("functions", _EMPTY_ARR) if ldd != null else _EMPTY_ARR
 			if t == "bone":
 				bone_d = maxf(bone_d, dm)
 			elif t == "muscle":
@@ -1135,6 +1148,25 @@ static func _part_status(sim, f: Fighter, p: Dictionary) -> Array:
 static func _pdef(body: BodyState, pid: String) -> Dictionary:
 	return body.part_def(pid)   # BodyState caches {id -> def} per plan
 
+## Pure derived anatomy cache; a sever still clears it through _mark_lost.
+## Slots 0..2 retain the original IDs, weights and names. Both weight variants use
+## the same arithmetic/order as the old per-strike helpless-head adjustment.
+static func _cache_parts(f: Fighter) -> void:
+	var ids := []
+	var weights := []
+	var names := []
+	for p: Dictionary in f.unit.body.plan()["parts"]:
+		if not f.lost.has(p["id"]) and not p.get("internal", false):
+			ids.append(p["id"])
+			weights.append(float(p.get("relsize", 100)))
+			names.append(p.get("name", p["id"]))
+	var helpless_weights := weights.duplicate()
+	var head := ids.find("head")
+	if head >= 0:
+		helpless_weights[head] *= Formulas.HELPLESS_HEAD_WEIGHT
+	f.parts_cache = [ids, weights, names, Formulas.prepare_weighted(weights),
+		helpless_weights, Formulas.prepare_weighted(helpless_weights)]
+
 ## Marks a severed part and everything attached below it as lost (cache of BodyState.is_lost).
 static func _mark_lost(f: Fighter, pid: String) -> void:
 	f.parts_cache = []
@@ -1148,11 +1180,11 @@ static func _mark_lost(f: Fighter, pid: String) -> void:
 				f.lost[id] = true
 				changed = true
 
-## The struck part's inner parts (cached per plan part): [ids, relsize weights, names, connector id, under-pressure id].
+## The struck part's inner parts: [ids, weights, names, connector, under-pressure, weight prefix sums].
 static func _inner_of(sim, body: BodyState, pid: String, pdef: Dictionary) -> Array:
 	var ck: String = pdef.get("_ck", pid)
 	var e = sim._inner_cache.get(ck)
-	if e == null:
+	if e == null or e.size() < 6:
 		var ids := []
 		var ws := []
 		var nm := []
@@ -1167,7 +1199,7 @@ static func _inner_of(sim, body: BodyState, pid: String, pdef: Dictionary) -> Ar
 				ids.append(p["id"])   # DF: every inner part is a pick by its relsize (the skull alone, or the brain through it)
 				ws.append(float(p.get("relsize", 100)))
 				nm.append(p.get("name", p["id"]))
-		e = [ids, ws, nm, conn, press]
+		e = [ids, ws, nm, conn, press, Formulas.prepare_weighted(ws)]
 		sim._inner_cache[ck] = e
 	return e
 
@@ -1271,9 +1303,9 @@ static func _twist(sim, f: Fighter) -> void:
 	sim._ev_simple("hit", f.idx, v.idx, "twist", {"w": f.lodged["item"].display_name(), "part": pdef.get("name", part),
 		"layer": lname, "dmg": dmg, "pain": pain, "p": p})
 	if res["death"] != "":
-		sim._kill(v, f.idx, res["death"])
+		BattleMorale._kill(sim, v, f.idx, res["death"])
 	elif v.unit.body.pain > Formulas.PAIN_KO and v.state != "unconscious":
-		sim._knock_out(v, "pain")
+		BattleMorale._knock_out(sim, v, "pain")
 
 ## Exit tear on the deepest layer reached when a stuck weapon comes out.
 static func _exit_tear(sim, v: Fighter, lod: Dictionary, mult: float) -> void:
@@ -1353,10 +1385,12 @@ static func _rip_free(sim, f: Fighter) -> void:
 static func _decide_unarmed_extra(sim, f: Fighter) -> bool:
 	if f.prone or not (sim._part_ok(f, "hand_r") or sim._part_ok(f, "hand_l")):
 		return false
+	var fc := f.cell   # perf: _dist inlined in the two scans below (same Chebyshev distances)
 	var best := -1
 	var best_d := 99
 	for i in sim.ground.size():
-		var dd: int = sim._dist(f.cell, sim.ground[i]["cell"])
+		var gc: Vector2i = sim.ground[i]["cell"]
+		var dd := maxi(absi(gc.x - fc.x), absi(gc.y - fc.y))
 		if dd <= Formulas.RETRIEVE_RADIUS and dd < best_d:
 			best = i
 			best_d = dd
@@ -1369,11 +1403,15 @@ static func _decide_unarmed_extra(sim, f: Fighter) -> bool:
 		sim._move_toward(f, g["cell"])
 		return f.cell != before
 	for o in sim.fighters:
-		if o.stuck_in_me.is_empty() or not (o.state == "dead" or o.helpless()) or sim._dist(f.cell, o.cell) > Formulas.RETRIEVE_RADIUS:
+		# perf: helpless() inlined and the distance computed once (same checks, same order of candidates)
+		if o.stuck_in_me.is_empty() or not (o.state == "dead" or o.state == "unconscious" or o.prone):
+			continue
+		var odd := maxi(absi(o.cell.x - fc.x), absi(o.cell.y - fc.y))
+		if odd > Formulas.RETRIEVE_RADIUS:
 			continue
 		for s in o.stuck_in_me:
 			if int(s["wielder"]) < 0:
-				if sim._dist(f.cell, o.cell) <= 1:
+				if odd <= 1:
 					sim._begin_special(f, "retrieve", Formulas.RETRIEVE_TICKS + int(s["layers"]), {"body": o.idx, "s": s})
 					return true
 				var before2 := f.cell

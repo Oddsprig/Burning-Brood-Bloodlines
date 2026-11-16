@@ -59,9 +59,19 @@ func retired_officer_floor() -> void:
 	Game.world["factions"][fid]["treasury"] = 0.0
 	Game.world["factions"][fid]["loot"] = 0.0
 	Army.faction_day(Game, fid, int(Game.day), true)
+	# The split day retires unpaid men only after its native pay chunks finish.
+	var pay_rng: RandomNumberGenerator = CampaignWorld._rng(Game.world)
+	while not Game.world["work"].is_empty():
+		var next_job: Array = Game.world["work"][0]
+		if String(next_job[0]) != "army_pay" or String(next_job[1]) != fid:
+			break
+		CampaignWorld._do_work(Game, pay_rng)
+	Game.world["rng_state"] = str(pay_rng.state)
 	check(not Persons.live_uids(Game).has(officer.uid) and not Army.state(Game.world)["roll"].has(str(officer.uid)), "split faction turn lawfully releases the highest allocated officer")
 	check((r["posts"] as Array).has(officer.uid), "queued tree boundary retains the departed officer UID")
 	var legacy := Game._save_tree()
+	# Unversioned legacy fixtures must enter migration; schema 2 resumes exactly.
+	legacy.erase("version")
 	legacy.erase("next_unit_uid")
 	var file := FileAccess.open(Game.SAVE_PATH, FileAccess.WRITE)
 	file.store_string(JSON.stringify(legacy)); file.close()
@@ -72,6 +82,7 @@ func retired_officer_floor() -> void:
 	r = Army.rec(Game.world, fid)
 	r["fights"].append({"p": 0, "c": [candidate], "beat": []})
 	legacy = Game._save_tree(); legacy.erase("next_unit_uid")
+	legacy.erase("version")
 	file = FileAccess.open(Game.SAVE_PATH, FileAccess.WRITE)
 	file.store_string(JSON.stringify(legacy)); file.close()
 	Unit._next_uid = 1
@@ -235,6 +246,8 @@ func run(_tree: SceneTree) -> int:
 	Game.world["census_fate"][str(retained)] = ["battle", "retained reference", 0]
 	check(ServiceIdentity.uid_floor(Game) > retained, "old-save retained fate references bound future allocation")
 	var legacy := Game._save_tree()
+	# Unversioned legacy fixtures must enter migration; schema 2 resumes exactly.
+	legacy.erase("version")
 	legacy.erase("next_unit_uid")
 	var legacy_file := FileAccess.open(Game.SAVE_PATH, FileAccess.WRITE)
 	legacy_file.store_string(JSON.stringify(legacy)); legacy_file.close()

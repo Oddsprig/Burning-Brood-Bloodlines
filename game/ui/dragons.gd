@@ -64,6 +64,8 @@ func _context() -> Dictionary:
 	return {"back": back, "back_params": back_params, "dragon_uid": detail_uid, "holdings": holdings, "roost": roost_open, "roost_uid": roost_uid}
 
 func _refresh() -> void:
+	if Game._day_job_wait_observer(_refresh):
+		return
 	_refresh_pending = false
 	UiKit.clear(body)
 	model_card = null

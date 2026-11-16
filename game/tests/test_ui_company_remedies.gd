@@ -18,6 +18,10 @@ func run(tree: SceneTree) -> int:
 	for wid in w["warbands"].keys():
 		CampaignWorld.remove_warband(Game, wid)
 	w["work"] = []
+	# v0.100: v0.017 (e460f8b) starts unraised; muster a real resident through the native house path.
+	var town_id := DevTools.choose_house(Game)
+	if town_id != "":
+		DevTools.raise_army(Game, town_id, 1)
 	var u: Unit = null
 	var pr := []
 	for x in Game.company:
@@ -53,6 +57,8 @@ func run(tree: SceneTree) -> int:
 	tree.root.add_child.call_deferred(s)
 	await tree.process_frame
 	await tree.process_frame
+	# v0.100: remedies live under the Care & tavern sub-section of the Provisions tab.
+	s.set_meta("provisions_section", "Care & tavern")
 	s.show_tab("Provisions")
 	await tree.process_frame
 	var b := s.find_child("BuyRemedies", true, false) as Button

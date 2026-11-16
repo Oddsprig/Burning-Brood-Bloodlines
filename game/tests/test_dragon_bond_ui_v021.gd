@@ -101,6 +101,23 @@ func page_ids(page: DragonsView) -> Array:
 		if node.has_meta("bond_person_uid"): ids.append(node.get_meta("bond_person_uid"))
 	return ids
 
+# v0.084 weekly/coalesced autosaves: older_tests_unfixed_diagnosis.md entries 24/31.
+# Receipt keys and drained-worker contract: test_save_ownership_v012.gd:120-126.
+func save_receipt(before: Dictionary, writes: int, context: String) -> void:
+	var after: Dictionary = Game.save_stats()
+	for counter: String in ["started", "completed"]:
+		check(int(after[counter]) == int(before[counter]) + writes, context + ": exact " + counter + " count")
+	check(int(after["failed"]) == int(before["failed"]), context + ": zero failed writes")
+	check(not bool(after["pending"]) and int(after["active_snapshots"]) == 0, context + ": save worker fully drained")
+	if writes > 0:
+		check(bool(after["last_ok"]) and str(after["last_stage"]) == "complete" and int(after["last_error"]) == OK,
+			context + ": successful completed native write")
+
+func saved_payload() -> Dictionary:
+	var decoded: Variant = JSON.parse_string(FileAccess.get_file_as_string(Game.SAVE_PATH))
+	check(decoded is Dictionary, "isolated native save contains a complete JSON object")
+	return decoded if decoded is Dictionary else {}
+
 func run(scene_tree: SceneTree) -> int:
 	tree = scene_tree; await tree.process_frame; Game.wait_save()
 	var started: int = Time.get_ticks_usec()
@@ -114,6 +131,17 @@ func run(scene_tree: SceneTree) -> int:
 		check(DirAccess.make_dir_recursive_absolute(report_dir) == OK and not FileAccess.file_exists(report_dir.path_join("dragon-bond-ui.json")),"fresh private bond report")
 		if fails > 0: tree = null; return fails
 		tree.root.set_flag(Window.FLAG_NO_FOCUS,true); tree.root.position = Vector2i(-20000,-20000); tree.root.visible = true
+	# Run as the sole --test in a fresh headless process; runner reset_between() keeps the autosave stamp.
+	# In-memory fixture policy only; preserve the user's setting and all native stamps/counters.
+	check(Game.SAVE_PATH.begins_with("user://test_"), "runner supplies an isolated native save path")
+	if fails > 0: tree = null; return fails
+	var had_autosave: bool = Game.settings.has("autosave")
+	var old_autosave: Variant = Game.settings.get("autosave")
+	Game.settings["autosave"] = "week"
+	check(Game.autosave_interval_days() == 7, "v0.084 weekly policy is exactly seven native days")
+	var first_save: Dictionary = {}
+	var first_state: Dictionary = {}
+	var first_save_path: String = Game.SAVE_PATH + ".first-order"
 	var original: Dictionary = {"world":Game.world,"company":Game.company,"stash":Game.stash,"squads":Game.squads,"gold":Game.gold,"day":Game.day,
 		"location":Game.location,"contract":Game.contract,"pending":Game.pending_battle,"result":Game.last_result,"params":Game.screen_params,"main":Game.main,
 		"screen":Game._active_screen,"provisions":Game.provisions,"rations":Game.rations,"clock":Game.food_clock,"rng":Game.rng.state,
@@ -176,6 +204,8 @@ func run(scene_tree: SceneTree) -> int:
 		fit_check(fit,viewport,page,size,"picker"); await capture(viewport,size,"picker")
 		check(fixture.snapshot() == before,"paging/search/portrait/native review never creates people, Units, gear or money")
 		var save_count: int = int(Game.save_stats().get("started",0))
+		var save_before: Dictionary = Game.save_stats().duplicate(true)
+		var expected_writes: int = 1 if size == WINDOWS[0] else 0
 		page._review_bond_candidate(); await settle()
 		check(page._bond_picker.is_empty(),"review discards candidate rows and cached people")
 		var text: String = words(find(page,"BondReviewContent"))
@@ -183,11 +213,13 @@ func run(scene_tree: SceneTree) -> int:
 		fit_check(fit,viewport,page,size,"bind_review"); await capture(viewport,size,"bind_review")
 		(find(page,"BondReviewCancel") as Button).pressed.emit(); await settle()
 		check(fixture.snapshot() == before and probe.changes == 0 and int(Game.save_stats().get("started",0)) == save_count,"Cancel is pure and makes no save or change event")
+		save_receipt(save_before,0,"bind Cancel")
 		page._request_bond(fixture.dragon_uid,"bind",fixture.adult_uid); await settle()
 		var old_keeper: String = String(fixture.row()["custodian_person_uid"]); fixture.row()["custodian_person_uid"] = fixture.namesake_uid
 		var stale: String = fixture.snapshot()
 		(find(page,"BondConfirmBind") as Button).pressed.emit(); await settle()
 		check(fixture.snapshot() == stale and probe.changes == 0 and int(Game.save_stats().get("started",0)) == save_count,"changed source invalidates displayed confirmation without signal/save/mutation")
+		save_receipt(save_before,0,"stale source refusal")
 		check(page.notice != "" and String(fixture.row()["rider_person_uid"]) == "","stale rejection is visible and does not fabricate a bond")
 		fixture.row()["custodian_person_uid"] = old_keeper
 		page._request_bond(fixture.dragon_uid,"bind",fixture.adult_uid); await settle()
@@ -196,11 +228,20 @@ func run(scene_tree: SceneTree) -> int:
 		stale = fixture.snapshot()
 		(find(page,"BondConfirmBind") as Button).pressed.emit(); await settle()
 		check(fixture.snapshot() == stale and probe.changes == 0 and int(Game.save_stats().get("started",0)) == save_count,"changed actual leader rejects the reviewed order without new mutation or save")
+		save_receipt(save_before,0,"stale leader refusal")
 		Game.world = unchanged_world
 		page._request_bond(fixture.dragon_uid,"bind",fixture.adult_uid); await settle()
 		(find(page,"BondConfirmBind") as Button).pressed.emit(); Game.wait_save(); await settle()
 		check(String(fixture.row()["rider_person_uid"]) == fixture.adult_uid and bool(DragonBond.status(Game,fixture.dragon_uid)["active"]),"explicit actual confirmation binds selected native person")
-		check(probe.changes == 1 and int(Game.save_stats().get("started",0)) == save_count+1,"success has exactly one UI signal and one async save")
+		check(probe.changes == 1,"success has exactly one UI signal")
+		save_receipt(save_before,expected_writes,"successful bind follows weekly policy")
+		if size == WINDOWS[0]:
+			first_save = saved_payload()
+			check(DirAccess.copy_absolute(
+				ProjectSettings.globalize_path(Game.SAVE_PATH),
+				ProjectSettings.globalize_path(first_save_path)) == OK,
+				"preserve the first completed native save bytes")
+			first_state = JSON.parse_string(fixture.snapshot())
 		check(fixture.native_snapshot() == native_before and source_fields(fixture.row()) == independent,"bond preserves all native population/coin/Units/items/body and independent dragon appearance/owner/care")
 		portrait = find(page,"BondedPersonPortrait") as Portrait
 		check(portrait != null and portrait._spec == rider_spec(unit),"bonded status shows actual rider model/equipment, never a preview substitute")
@@ -213,16 +254,20 @@ func run(scene_tree: SceneTree) -> int:
 		fit_check(fit,viewport,page,size,"release_review"); await capture(viewport,size,"release_review")
 		(find(page,"BondReviewCancel") as Button).pressed.emit(); await settle()
 		check(fixture.snapshot() == before and probe.changes == 1,"release Cancel preserves the actual relationship")
+		save_receipt(save_before,expected_writes,"release Cancel starts no write")
 		Game.location = "b"; Game.world["party"]["pos"] = Game.world["towns"]["b"]["pos"]
 		before = fixture.snapshot(); page._refresh(); await settle()
 		check(fixture.snapshot() == before and bool(DragonBond.status(Game,fixture.dragon_uid)["active"]) and not (find(page,"DragonReleaseBond") as Button).disabled,"remote pure view retains surviving bond and real release")
 		page._request_bond(fixture.dragon_uid,"release",""); await settle()
 		(find(page,"BondConfirmRelease") as Button).pressed.emit(); Game.wait_save(); await settle()
-		check(probe.changes == 2 and int(Game.save_stats().get("started",0)) == save_count+2,"reviewed remote release signals/saves once")
+		check(probe.changes == 2,"reviewed remote release signals exactly once")
+		save_receipt(save_before,expected_writes,"same-day remote release coalesces")
 		check(String(fixture.row()["rider_person_uid"]) == "" and String(fixture.row()["last_rider_person_uid"]) == fixture.adult_uid,"release retains exact previous rider identity")
 		check(unit.equip["helm"] == helmet and not unit.dead and Game.company.has(unit),"release leaves actual Unit/body/private gear untouched")
 		before = fixture.snapshot(); page._open_bond_picker(fixture.dragon_uid); await settle()
 		check(page._bond_picker.is_empty() and (find(page,"DragonBindRider") as Button).disabled and page.notice != "","remote initial bond is disabled with actual reason")
+		check(probe.changes == 2,"remote bind refusal emits no additional signal")
+		save_receipt(save_before,expected_writes,"remote bind refusal starts no write")
 		check(fixture.snapshot() == before and Game.location == "b" and Game.world["party"]["pos"] == Game.world["towns"]["b"]["pos"],"browsing never teleports party to bypass contact")
 		fit_check(fit,viewport,page,size,"away"); await capture(viewport,size,"away")
 		page._person_record(fixture.adult_uid)
@@ -241,7 +286,40 @@ func run(scene_tree: SceneTree) -> int:
 		Game.world["dragons"]["records"][fixture.dragon_uid] = member_owned
 		viewport.queue_free(); page = null; viewport = null; unit = null; helmet = null; portrait = null
 		await settle()
-	Game.wait_save(); Game.changed.disconnect(probe.changed); probe.queue_free(); probe = null; await settle()
+	# Elapse the controlled fixture clock by the literal documented interval.
+	# No private autosave stamp/counter is assigned; the native request decides eligibility.
+	check(Game.day == 0.0, "all three native UI fixtures exercised same-day coalescing")
+	var interval_before: Dictionary = Game.save_stats().duplicate(true)
+	var closed_sha: String = FileAccess.get_sha256(Game.SAVE_PATH)
+	Game.day += 7.0 - 1.0 / 1024.0
+	Game.request_autosave(); Game.wait_save(); await settle()
+	save_receipt(interval_before,0,"request just before seven days stays coalesced")
+	check(FileAccess.get_sha256(Game.SAVE_PATH) == closed_sha,
+		"request before seven days preserves the completed save bytes")
+	Game.day += 1.0 / 1024.0
+	Game.request_autosave(); Game.wait_save(); await settle()
+	save_receipt(interval_before,1,"first naturally eligible weekly request")
+	var interval_state: Dictionary = JSON.parse_string(fixture.snapshot())
+	var interval_sha: String = FileAccess.get_sha256(Game.SAVE_PATH)
+	Game.request_autosave(); Game.wait_save(); await settle()
+	save_receipt(interval_before,1,"repeat request on eligible day coalesces")
+	check(FileAccess.get_sha256(Game.SAVE_PATH) == interval_sha, "same-day repeat preserves the completed save bytes")
+	Game.changed.disconnect(probe.changed)
+	var reload_before: Dictionary = Game.save_stats().duplicate(true)
+	check(not first_save.is_empty() and not first_state.is_empty(), "first eligible order supplied an actual completed save")
+	if not first_save.is_empty() and not first_state.is_empty():
+		var interval_save_path: String = Game.SAVE_PATH
+		Game.SAVE_PATH = first_save_path
+		check(Game.load_game(), "isolated first completed native save loads")
+		Game.SAVE_PATH = interval_save_path
+		check(fixture.same_values(first_state,JSON.parse_string(fixture.snapshot())), "first saved state reloads exact native identities, bodies, holdings and RNG")
+		check(str(fixture.row()["rider_person_uid"]) == fixture.adult_uid and bool(DragonBond.status(Game,fixture.dragon_uid)["active"]), "first completed save reloads the exact actual rider bond")
+	check(Game.load_game(), "isolated eligible-interval native save loads")
+	check(fixture.same_values(interval_state,JSON.parse_string(fixture.snapshot())), "eligible-interval reload keeps exact native identities, bodies, holdings and RNG")
+	check(str(fixture.row()["rider_person_uid"]) == "" and str(fixture.row()["last_rider_person_uid"]) == fixture.adult_uid, "eligible weekly save reloads release and exact prior rider")
+	save_receipt(reload_before,0,"isolated reloads start no writes")
+	check(FileAccess.get_sha256(Game.SAVE_PATH) == interval_sha, "native reload preserves the completed save bytes")
+	Game.wait_save(); probe.queue_free(); probe = null; await settle()
 	check(int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT)) <= orphan_before,"picker/review/refresh cleanup leaves no orphan controls")
 	Game.world = original["world"]; Game.company = original["company"]; Game.stash = original["stash"]; Game.squads = original["squads"]
 	Game.gold = float(original["gold"]); Game.day = float(original["day"]); Game.location = String(original["location"])
@@ -258,6 +336,8 @@ func run(scene_tree: SceneTree) -> int:
 			file.store_string(JSON.stringify({"version":"0.021","checks":checks,"failures":fails+int(fit.fails),"fit_cases":fit_cases,"fit_failures":int(fit.fails),
 				"captures":captures,"desktop_fit_cases":fit_cases,"sizes":[[1280,720],[1920,1080],[2560,1440]],"duration_seconds":float(Time.get_ticks_usec()-started)/1000000.0,"no_phone_qa":true,"performance_panel":true,"no_focus":tree.root.get_flag(Window.FLAG_NO_FOCUS),"offscreen":tree.root.position.x < -10000},"\t")); file.close()
 		else: check(false,"native report saved")
+	if had_autosave: Game.settings["autosave"] = old_autosave
+	else: Game.settings.erase("autosave")
 	tree.root.size = original["size"]; tree.root.set_flag(Window.FLAG_NO_FOCUS,bool(original["no_focus"])); tree.root.position = original["position"]; tree.root.visible = bool(original["visible"])
 	print("Dragon bond UI v021: %d checks, %d failures; %d desktop fit cases, %d fit failures." % [checks,fails,fit_cases,int(fit.fails)])
 	var result: int = fails+int(fit.fails)

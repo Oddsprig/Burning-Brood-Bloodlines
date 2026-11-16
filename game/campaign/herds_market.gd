@@ -839,6 +839,16 @@ static func _fees(e: Dictionary, P: Dictionary, h: Dictionary) -> void:
 		e["treasury"] = float(e["treasury"]) + fee
 		h["fee"] = snappedf(float(h.get("fee", 0.0)) + fee, 0.01)
 
+# A local business and a foreign drover must never share a town's owner map.
+# Each holder is populated lazily by the original owner_text/title call.
+static func _herd_owner_names(h: Dictionary, local: Array[Dictionary], by_town: Dictionary) -> Array[Dictionary]:
+	if String(h["ow"]) != "d": return local
+	var town_id: String = String(h.get("ot", ""))
+	if not by_town.has(town_id):
+		var scope: Array[Dictionary] = [{}]
+		by_town[town_id] = scope
+	return by_town[town_id]
+
 # ================================================================== the butcher (one line in Businesses.daily)
 ## A butcher's day: buys the beasts offered (cheapest meat first) at the town's price from their owners, up to
 ## his hands' kilos a day and the fresh meat the salters and the market want, and turns each into meat, hide,
@@ -877,7 +887,9 @@ static func butcher_day(e: Dictionary, b: Dictionary, wd: float, toolf: float, m
 			var v := _carcass_value(e, h, String(o[1])) * share - Herds.price(e, String(h["k"]), String(o[1]))
 			ranked.append([v / kg, j])
 		ranked.sort_custom(func(a, b2): return a[0] > b2[0] if a[0] != b2[0] else a[1] < b2[1])
-	var next_offer := 0
+	var next_offer: int = 0
+	var owner_names_scope: Array[Dictionary] = [{}]
+	var other_owner_names: Dictionary = {}
 	while kgcap > 1.0 and guard < 200:
 		guard += 1
 		var best := -1
@@ -903,7 +915,7 @@ static func butcher_day(e: Dictionary, b: Dictionary, wd: float, toolf: float, m
 			b["state"] = "wages"; b["why"] = "money for beasts"
 			break
 		var kg2 := float(Herds.kind(String(h2["k"])).get("meat", 0.0)) * float(Herds.A()["yield_age"][AGES.find(age)])
-		if Herds.change(e, h2, age, -1, "slaughtered", "by %s" % Businesses.title(e, b), float(e.get("day", 0))) == 0:
+		if Herds.change(e, h2, age, -1, "slaughtered", "by %s" % Businesses.title(e, b, owner_names_scope), float(e.get("day", 0))) == 0:
 			o2[2] = 0
 			continue
 		o2[2] = int(o2[2]) - 1
@@ -920,7 +932,7 @@ static func butcher_day(e: Dictionary, b: Dictionary, wd: float, toolf: float, m
 		var oc: Dictionary = b["oc"]
 		for g in yl:
 			oc[g] = float(oc.get(g, 0.0)) + float(yl[g])
-		_chain(b, "from", Herds.owner_text(e, h2), 1, String(h2["k"]))
+		_chain(b, "from", Herds.owner_text(e, h2, _herd_owner_names(h2, owner_names_scope, other_owner_names)), 1, String(h2["k"]))
 	b["carry"] = 0.0
 	for g in (b["oc"] as Dictionary).keys():   # whole units out; the part-units carry to the next beast
 		var whole := int(floor(float(b["oc"][g])))
@@ -1098,15 +1110,17 @@ static func _drovers(game, town: Dictionary, e: Dictionary, day: float) -> void:
 		var dh := {"id": -1, "k": k2, "y": 0, "g": 0, "o": 0, "ow": "d", "oi": int(b["id"]), "ot": String(town["id"]), "fod": 0.0, "hun": 0,
 			"lac": 0.0, "h0": 0, "d0": int(day), "led": {"b": 0, "in": 0, "out": 0, "sl": 0, "st": 0, "d": {}}, "pl": [], "t": 0}
 		var cap := int(DV["head_hand"]) * int(b["workers"])
-		var p := Herds.price(e, k2)
+		var p: float = Herds.price(e, k2)
+		var owner_names_scope: Array[Dictionary] = [{}]
+		var other_owner_names: Dictionary = {}
 		while cap > 0 and float(b["till"]) >= p:
 			var o2 := _take_offer(e, k2, ["g", "y"])
 			if o2.is_empty():
 				break
 			var s: Dictionary = Herds.herds(e)[str(int(o2[0]))]
 			var pa := Herds.price(e, k2, String(o2[1]))
-			if Herds._transfer(e, s, dh, String(o2[1]), 1, "sold", "bought", "to %s, for %s" % [Businesses.title(e, b), String(w["towns"][String(best[0])]["name"])],
-					"from %s of %s" % [Herds.owner_text(e, s), String(town["name"])], day) > 0:
+			if Herds._transfer(e, s, dh, String(o2[1]), 1, "sold", "bought", "to %s, for %s" % [Businesses.title(e, b, owner_names_scope), String(w["towns"][String(best[0])]["name"])],
+					"from %s of %s" % [Herds.owner_text(e, s, _herd_owner_names(s, owner_names_scope, other_owner_names)), String(town["name"])], day) > 0:
 				b["till"] = float(b["till"]) - pa
 				Herds._add_coin(e, s, pa)
 				Herds.H(e)["sok"][k2] = int(Herds.H(e)["sok"].get(k2, 0)) + 1
@@ -1180,6 +1194,7 @@ static func droves_day(game, day: float) -> void:
 			h["led"]["out"] = 0
 			h["da"] = int(day)
 			hd["h"][str(id)] = h
+			hd.erase("_owner_herds_ver")
 			for age in AGES:
 				if int(h[age]) > 0:
 					(hd["of"] as Array).append([id, age, int(h[age])])

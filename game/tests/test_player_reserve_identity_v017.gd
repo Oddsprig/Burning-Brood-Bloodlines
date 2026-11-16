@@ -362,11 +362,38 @@ func reserve_aging_checks(town: Dictionary) -> void:
 	for item: Item in held_items: exact = exact and estate.has(item)
 	check(exact and owned_items() == owned_before and u.equip.is_empty(), "old-age settlement conserves physical Item owners before census ID retirement")
 
+# v0.100: 6210641 already caps public reserves; use a below-cap control to prove marker exclusion.
+func reserve_target_checks(town: Dictionary, held: Array) -> void:
+	var actual: Unit = held[0][0]
+	var person: Array = held[0][2]
+	var family := Families._blank(-1)
+	family["m"] = 5
+	family["serve"] = {"reserve": 1}
+	family["pp"] = [person]
+	family["player_reserve_uids"] = {}
+	family["player_reserve_uids"][str(actual.uid)] = true
+	var probe := {"size": 0, "econ": {"stock": {}, "fams": [family], "treasury": 1.0e9}}
+	check(Population.available(probe) == 2 and TownDefence.militia_cap(probe) == 6,
+		"v0.100: independent two-civilian reserve control stays below the public cap")
+	check(TownDefence.militia_target(probe) == 2,
+		"v0.100: actual private reserve marker excludes its held person before the cap")
+	family["player_reserve_uids"].erase(str(actual.uid))
+	check(TownDefence.militia_target(probe) == 3,
+		"v0.100: same unmarked public reserve person counts toward the target")
+	probe["econ"]["treasury"] = 0.0
+	check(TownDefence.militia_target(probe) == 0, "v0.100: reserve still requires actual drill funding")
+	var treasury_before := float(town["econ"]["treasury"])
+	town["econ"]["treasury"] = 1.0e9
+	check(TownDefence.militia_target(town) == mini(Population.available(town), TownDefence.militia_cap(town)),
+		"private reserve marker excludes held people from capped public militia target")
+	town["econ"]["treasury"] = treasury_before
+
 func run(tree: SceneTree) -> int:
 	await tree.process_frame
 	var original: Dictionary = {"world": Game.world, "company": Game.company.duplicate(), "stash": Game.stash.duplicate(),
 		"squads": Game.squads.duplicate(true), "day": Game.day, "gold": Game.gold, "location": Game.location,
-		"rng": Game.rng.state, "unit_next": Unit._next_uid, "item_next": Item._next_uid}
+		"rng": Game.rng.state, "unit_next": Unit._next_uid, "item_next": Item._next_uid,
+		"gold_gone": TownEcon.gold_gone}
 	var original_sha: String = native_sha()
 	var dims: Array = [WorldGen.W, WorldGen.H, WorldGen.K, WorldGen.TF, WorldGen.KD]
 	Fixture.new().fixture()
@@ -379,10 +406,7 @@ func run(tree: SceneTree) -> int:
 	for row: Array in held: complete = complete and row.size() == 3
 	check(complete, "three exact actual register/physical-holder fixture identities, not allocation receipts")
 	if complete:
-		var treasury_before: float = float(town["econ"]["treasury"])
-		town["econ"]["treasury"] = 1.0e9 # fixture removes the affordability cap, not a gameplay funding claim
-		check(TownDefence.militia_target(town) == Population.available(town), "private reserve marker excludes held people from public militia target")
-		town["econ"]["treasury"] = treasury_before
+		reserve_target_checks(town, held)
 		presence_checks(town, held[0])
 		death_checks(town, held[0], held[1])
 		var third: Unit = held[2][0]
@@ -404,6 +428,7 @@ func run(tree: SceneTree) -> int:
 	Game.squads = original["squads"]; Game.day = float(original["day"]); Game.gold = int(original["gold"])
 	Game.location = String(original["location"]); Game.rng.state = int(original["rng"])
 	Unit._next_uid = int(original["unit_next"]); Item._next_uid = int(original["item_next"])
+	TownEcon.gold_gone = float(original["gold_gone"])
 	WorldGen.W = int(dims[0]); WorldGen.H = int(dims[1]); WorldGen.K = float(dims[2])
 	WorldGen.TF = float(dims[3]); WorldGen.KD = float(dims[4])
 	Game.invalidate_deploy()

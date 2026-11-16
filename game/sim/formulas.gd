@@ -334,10 +334,15 @@ static func sharpness(max_edge: float) -> float:
 
 static func edge_resistance(layer_mat: Dictionary, weapon_mat: Dictionary, contact: float, qa: float, qw: float,
 		thickness_mm: float, is_armor: bool) -> float:
-	var rsy := float(layer_mat.get("shear_yield", 20000)) / maxf(1.0, float(weapon_mat.get("shear_yield", 70000)))
-	var rsf := float(layer_mat.get("shear_fracture", 20000)) / maxf(1.0, float(weapon_mat.get("shear_fracture", 220000)))
+	return edge_resistance_w(layer_mat, float(weapon_mat.get("shear_yield", 70000)), float(weapon_mat.get("shear_fracture", 220000)),
+		sharpness(float(weapon_mat.get("max_edge", 10000))), contact, qa, qw, thickness_mm, is_armor)
+
+## edge_resistance with the weapon material's values already read (one strike tests many layers against one weapon).
+static func edge_resistance_w(layer_mat: Dictionary, w_shear_yield: float, w_shear_fracture: float, sha: float, contact: float, qa: float, qw: float,
+		thickness_mm: float, is_armor: bool) -> float:
+	var rsy := float(layer_mat.get("shear_yield", 20000)) / maxf(1.0, w_shear_yield)
+	var rsf := float(layer_mat.get("shear_fracture", 20000)) / maxf(1.0, w_shear_fracture)
 	var a := pow(maxf(contact, 1.0), EDGE_CONTACT_EXP)
-	var sha := sharpness(float(weapon_mat.get("max_edge", 10000)))
 	var r := (rsy + (a + 1.0) * rsf) * qa / (sha * qw)
 	if is_armor:
 		return r * EDGE_C_ARMOR * sqrt(maxf(thickness_mm, 0.5) / ARMOR_THICK_REF)
@@ -940,13 +945,55 @@ static func roll_weighted(rng: RandomNumberGenerator, name: String, weights: Arr
 			break
 	return {"n": name, "i": pick, "r": r, "total": total, "label": str(labels[pick])}
 
+## Derived prefix sums for fixed anatomy weights. Keep the old left-to-right sum exactly.
+## Non-monotone/non-finite input uses roll_weighted instead (no assumptions for debug/custom bodies).
+static func prepare_weighted(weights: Array) -> PackedFloat64Array:
+	var sums := PackedFloat64Array()
+	sums.resize(weights.size())
+	var total := 0.0
+	for i in weights.size():
+		var w := float(weights[i])
+		if w < 0.0 or not is_finite(w):
+			return PackedFloat64Array()
+		total += w
+		if not is_finite(total):
+			return PackedFloat64Array()
+		sums[i] = total
+	return sums
+
+## Same single draw and strict r < cumulative boundary as roll_weighted.
+## Cached sums remove the full sum pass and binary search removes the linear pick pass.
+static func roll_weighted_cached(rng: RandomNumberGenerator, name: String, weights: Array, labels: Array, sums: PackedFloat64Array) -> Dictionary:
+	if sums.is_empty() or sums.size() != weights.size():
+		return roll_weighted(rng, name, weights, labels)
+	var total := sums[sums.size() - 1]
+	var r := rng.randf() * total
+	var lo := 0
+	var hi := sums.size()
+	while lo < hi:
+		var mid := (lo + hi) / 2
+		if r < sums[mid]:
+			hi = mid
+		else:
+			lo = mid + 1
+	var pick := mini(lo, weights.size() - 1)
+	return {"n": name, "i": pick, "r": r, "total": total, "label": str(labels[pick])}
+
 static func roll_attack_choice(rng: RandomNumberGenerator, attacks: Array) -> Dictionary:
-	var ws := []
-	var ls := []
-	for a in attacks:
-		ws.append(float(a.get("w", 1)))
-		ls.append(a.get("verb", "attack"))
-	return roll_weighted(rng, "attack", ws, ls)
+	# Keep roll_weighted's sum order, single draw and strict cumulative test,
+	# without building temporary weights/labels arrays for every attack.
+	var total := 0.0
+	for a: Dictionary in attacks:
+		total += float(a.get("w", 1))
+	var r := rng.randf() * total
+	var acc := 0.0
+	var pick := attacks.size() - 1
+	for i in attacks.size():
+		acc += float(attacks[i].get("w", 1))
+		if r < acc:
+			pick = i
+			break
+	return {"n": "attack", "i": pick, "r": r, "total": total, "label": str(attacks[pick].get("verb", "attack"))}
 
 static func roll_body_part(rng: RandomNumberGenerator, weights: Array, labels: Array) -> Dictionary:
 	return roll_weighted(rng, "part", weights, labels)

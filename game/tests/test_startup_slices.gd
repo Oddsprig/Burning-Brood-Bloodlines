@@ -1,4 +1,4 @@
-extends "res://tests/diag_startup_slices.gd"
+extends "res://tests/fixtures/older_201_startup_v100.gd"
 ## Focused scheduling gate: use separate fresh processes to avoid global UID-counter
 ## resets between worlds. First run STARTUP_MODE=atomic STARTUP_FIXED_RAIDS=1, then
 ## STARTUP_MODE=sliced STARTUP_FIXED_RAIDS=1 STARTUP_COMPARE_DIR=<atomic output>.

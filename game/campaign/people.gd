@@ -287,7 +287,7 @@ static func draft_pool(town: Dictionary) -> Array:
 					break
 		if not young:
 			continue
-		var wk := _work_kinds(f)
+		var wk: Dictionary = _work_kinds(e, f)
 		var hard := Families.hardship(f)
 		for p in Persons.pp(f):
 			if int(p[6]) != 0 or String(p[4]) != "" or int(p[5]) >= 0:
@@ -306,35 +306,23 @@ static func draft_pool(town: Dictionary) -> Array:
 		return false)
 	return out
 
-## pid -> the kind of place Persons.work gives him (land/herd, job, casual, none), by the same rule and order
-## (grown-ups at home oldest first: the family's land and herd hands, then its jobs, then casual work), without
-## building the titles and wages (the draft runs as a map-frame job).
-static func _work_kinds(f: Dictionary) -> Dictionary:
-	var home := []
-	for p in Persons.pp(f):
-		if int(p[6]) == 0 and (String(p[4]) == "" or String(p[4]) == "hire"):
-			home.append(p)
-	home.sort_custom(func(x, y): return float(x[3]) < float(y[3]) if float(x[3]) != float(y[3]) else int(x[0]) < int(y[0]))
-	var hands := maxi(0, int(f.get("hands", 0)))
-	var keeps: int = f.get("keeps", []).size()
-	var jobs := 0
-	for k in f["jobs"]:
-		jobs += int(f["jobs"][k])
-	var cas := 0
-	for j in f.get("cj", {}):
-		cas += int(f["cj"][j])
-	var out := {}
-	for i in home.size():
-		var k := "none"
-		if i < keeps:
-			k = "keeper"
-		elif i < keeps + hands:
-			k = "land"
-		elif i < keeps + hands + jobs:
-			k = "job"
-		elif i < keeps + hands + jobs + cas:
-			k = "casual"
-		out[int(home[i][0])] = k
+## Recruitment consumes the same assignments as Records, including home reserves
+## and the derived responsible workers of anonymous cohorts.
+static func _work_kinds(e: Dictionary, f: Dictionary) -> Dictionary:
+	var out: Dictionary = {}
+	var read_e: Dictionary = e.duplicate()
+	if e.has("hd"): read_e["hd"] = (e["hd"] as Dictionary).duplicate()
+	# A caller doing one read-only census may already have validated the same
+	# town-wide owner names. The detached herd cache still belongs to read_e.
+	var names_scope: Array[Dictionary] = [{}]
+	var shared_names: Array = TownSweep.owner_names(e)
+	if not shared_names.is_empty(): names_scope[0] = shared_names[0]
+	var work: Dictionary = Persons.work(read_e, f, names_scope)
+	TownSweep.remember_owner_names(e, names_scope[0])
+	for pid in work:
+		var job: Dictionary = work[pid]
+		var kind: String = String(job.get("kind", "none"))
+		out[pid] = "keeper" if bool(job.get("keeper", false)) else ("land" if kind == "herd" else kind)
 	return out
 
 ## Takes the first in the pool who can still go (his family keeps two grown-ups at home); marks him for the role
@@ -398,8 +386,6 @@ static func release(town: Dictionary, fid: int, role: String, uid: int = -1) -> 
 		sv[role] = int(sv[role]) - 1
 		if int(sv[role]) <= 0:
 			sv.erase(role)
-		if not f["gone"]:
-			Families.reassign(_e(town), f)
 	# the person comes home
 	var p: Array = Persons.by_uid(f, uid) if uid >= 0 else []
 	if p.is_empty():
@@ -410,6 +396,8 @@ static func release(town: Dictionary, fid: int, role: String, uid: int = -1) -> 
 	if not p.is_empty():
 		Persons.set_home(p)
 		Sickness.came_home(town, f, p)   # sickness: his open case comes home with him
+	if not f["gone"]:
+		Families.reassign(_e(town), f)
 
 ## Wages into the family purse. Returns what was paid (0 when the family is gone or the town has no economy:
 ## the caller then keeps its gold).
@@ -492,6 +480,7 @@ static func casualty_rec(game, tid: String, fid: int, uname: String, kind: Strin
 			var sv: Dictionary = f["serve"]
 			if int(sv.get(role, 0)) > 0:
 				sv[role] = int(sv[role]) - 1
+				TownSweep.service_left(f)
 				if int(sv[role]) <= 0:
 					sv.erase(role)
 		var s := "m"
@@ -502,6 +491,7 @@ static func casualty_rec(game, tid: String, fid: int, uname: String, kind: Strin
 				Persons.forget(e, f, p)
 				Persons.drop_im(f, int(p[0]))
 				Persons.kp(f).erase(p)
+				TownSweep.family_changed(f)
 			else:
 				Persons.remove(f, p, e)
 			if int(f[s]) > 0:

@@ -8,6 +8,9 @@ var weights: Array = []
 var headings: Array = []
 var header := false
 
+# Fixed appearance shared by all cells; no caller mutates these style resources.
+static var _styles: Array[StyleBoxFlat] = []
+
 func configure(values: Array, shares: Array, titles: Array, is_header: bool = false, tone: Color = UiTheme.INK) -> void:
 	header = is_header
 	weights = shares.duplicate()
@@ -34,9 +37,14 @@ func configure(values: Array, shares: Array, titles: Array, is_header: bool = fa
 	focus_mode = Control.FOCUS_NONE
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	custom_minimum_size = Vector2(0, UiKit.touch_min(48 if is_header else 56))
-	add_theme_stylebox_override("normal", UiTheme.sb(UiTheme.PARCH_2, UiTheme.PARCH_3, 1, 3, 8, 4))
-	add_theme_stylebox_override("hover", UiTheme.sb(UiTheme.PARCH_3 if is_header else UiTheme.PARCH, UiTheme.PARCH_3, 1, 3, 8, 4))
-	add_theme_stylebox_override("pressed", UiTheme.sb(UiTheme.PURPLE, UiTheme.PURPLE_TEXT, 2, 3, 8, 4))
+	if _styles.is_empty():
+		_styles = [UiTheme.sb(UiTheme.PARCH_2, UiTheme.PARCH_3, 1, 3, 8, 4),
+			UiTheme.sb(UiTheme.PARCH, UiTheme.PARCH_3, 1, 3, 8, 4),
+			UiTheme.sb(UiTheme.PARCH_3, UiTheme.PARCH_3, 1, 3, 8, 4),
+			UiTheme.sb(UiTheme.PURPLE, UiTheme.PURPLE_TEXT, 2, 3, 8, 4)]
+	add_theme_stylebox_override("normal", _styles[0])
+	add_theme_stylebox_override("hover", _styles[2 if is_header else 1])
+	add_theme_stylebox_override("pressed", _styles[3])
 	resized.connect(_fit)
 	_fit()
 

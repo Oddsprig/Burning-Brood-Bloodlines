@@ -6,6 +6,10 @@ extends RefCounted
 ## real pieces, and maker's marks survive trade and save/load. Retired special
 ## contracts are covered by the migration matrix in test_military_supply.gd.
 
+
+# v0.100: reuse the economy year chain's native save, independent snapshot and type checks.
+const EconChecks = preload("res://tests/test_econ_town.gd")
+const PARTS: Array[String] = ["controls", "world1", "world2", "world3", "world4", "world5", "world6", "world7", "world8"]
 var fails := 0
 
 func check(ok: bool, msg: String) -> void:
@@ -73,18 +77,32 @@ func _quiet(w: Dictionary) -> void:
 	w["party"]["safe_until"] = 1.0e9
 
 func run(_tree: SceneTree) -> int:
+	# v0.100: controls and every 15-day world part are separate required invocations, never two generations in one.
+	var part: String = OS.get_environment("ARMS_ONLY")
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--part="): part = arg.trim_prefix("--part=")
+	check(part in PARTS, "v0.100: choose one arms --part=%s; every part is required separately" % "|".join(PackedStringArray(PARTS)))
+	if fails > 0: return fails
+	var previous_size: String = WorldGen.gen_size
+	var previous_span: int = CampaignWorld.presim_span_days
+	WorldGen.gen_size = "normal"
+	CampaignWorld.presim_span_days = 1
 	Game.SAVE_PATH = "user://test_save_arms_%d.json" % OS.get_process_id()
-	Game.new_game(5150)
-	var w: Dictionary = Game.world
-	_quiet(w)
-	_test_generation(w)
-	_test_clash_loot(w)
-	_test_militia_and_raid(w)
-	_test_foreign_rekit(w)
-	_test_smiths_first(w)
-	_test_marks_save(w)
-	_test_market(w)
-	_test_full_world()
+	if part == "controls":
+		Game.new_game(5150)
+		var w: Dictionary = Game.world
+		_quiet(w)
+		_test_generation(w)
+		if fails == 0: _test_clash_loot(w)
+		if fails == 0: _test_militia_and_raid(w)
+		if fails == 0: _test_foreign_rekit(w)
+		if fails == 0: _test_smiths_first(w)
+		if fails == 0: _test_marks_save(w)
+		if fails == 0: _test_market(w)
+	else:
+		_test_full_world(int(part.trim_prefix("world")))
+	WorldGen.gen_size = previous_size
+	CampaignWorld.presim_span_days = previous_span
 	return fails
 
 ## Market trade: a caravan carries the pieces the destination's armory is short of first.
@@ -111,17 +129,59 @@ func _test_market(_w0: Dictionary) -> void:
 	check(ok, "caravans pick what the destination's armory is short of (%d picked)" % picks.size())
 
 ## The real world for 120 days: wars, clashes, re-kits, contracts. Numbers for the change notes.
-func _test_full_world() -> void:
-	ArmsTrade.ledger = {}
-	ArmsTrade.spoils_gold = {"soldiers": 0.0, "coffer": 0.0}
-	Game.new_game(6061)
+func _test_full_world(part: int) -> void:
+	# v0.100: all 120 actual campaign days survive eight process boundaries; test-only ledgers travel too.
+	var started: int = Time.get_ticks_msec()
+	var handoff: EconChecks = EconChecks.new()
+	var context: Dictionary = {}
+	# The shared handoff stages completion; invalidate this attempt before any native work.
+	var completion_path: String = handoff._year_path(part, "arms") + ".complete.json"
+	check(handoff._year_write_receipt(completion_path, {"complete": false, "passed": false,
+		"chain": "arms", "completed_part": part, "run": handoff._run_chain}),
+		"v0.100: arms completion marker initialized before this attempt")
+	if fails > 0: return
+	if part == 1:
+		ArmsTrade.ledger = {}
+		ArmsTrade.spoils_gold = {"soldiers": 0.0, "coffer": 0.0}
+		Game.new_game(6061)
+		check(Game.day == 0.0, "v0.100: arms world chain begins at day zero")
+		context = {"chain_id": "%s-%d" % [str(Time.get_unix_time_from_system()), OS.get_process_id()],
+			"start_day": 0, "worst_us": 0, "sim_ms": 0}
+	else:
+		context = handoff._year_load(part - 1, "arms")
+		fails += handoff.fails
+		if context.is_empty() or fails > 0: return
+		var complete: bool = true
+		for key in ["ledger", "spoils_gold", "worst_us", "sim_ms"]:
+			if not context.has(key): complete = false
+		check(complete, "v0.100: arms handoff retains all cumulative ledgers and timings")
+		if not complete: return
+		ArmsTrade.ledger = context["ledger"].duplicate(true)
+		ArmsTrade.spoils_gold = context["spoils_gold"].duplicate(true)
+	if fails > 0: return
 	var w: Dictionary = Game.world
-	var worst := 0
-	var t0 := Time.get_ticks_msec()
-	for i in 120:
-		var a := Time.get_ticks_usec()
-		Game.advance_time(1.0, false)
+	var worst: int = int(context["worst_us"])
+	var t0: int = Time.get_ticks_msec()
+	for i in EconChecks.CHAIN_PART_DAYS:
+		var a: int = Time.get_ticks_usec()
+		DevTools.run_days(Game, 1)
 		worst = maxi(worst, Time.get_ticks_usec() - a)
+	context["sim_ms"] = int(context["sim_ms"]) + Time.get_ticks_msec() - t0
+	context["worst_us"] = worst
+	context["ledger"] = ArmsTrade.ledger.duplicate(true)
+	context["spoils_gold"] = ArmsTrade.spoils_gold.duplicate(true)
+	check(Game.day == float(part * EconChecks.CHAIN_PART_DAYS) and (w["work"] as Array).is_empty(),
+		"v0.100: arms world%d completes every native day with no pending jobs" % part)
+	if fails > 0: return
+	if part < 8:
+		var saved: bool = handoff._year_save(part, context, "arms")
+		fails += handoff.fails
+		check(saved, "v0.100: arms checkpoint completes its exact native readback")
+		print("v0.100: arms world%d checkpoint day %d, elapsed %d ms" % [part, int(Game.day), Time.get_ticks_msec() - started])
+		check(Time.get_ticks_msec() - started < 150000, "v0.100: arms part finishes within 150 s")
+		if fails == 0: _publish_world_part(handoff)
+		return
+	check(Game.day == 120.0, "v0.100: all 120 arms world days completed")
 	var st: Dictionary = w["arms"]["stats"]
 	var short_n := 0; var arm_n := 0; var tgt_n := 0
 	for tid in w["towns"]:
@@ -132,7 +192,7 @@ func _test_full_world() -> void:
 		for c in e.get("arms_tgt", {}):
 			tgt_n += int(e["arms_tgt"][c])
 	print("-- 120 days (%.1f s, worst day %.1f ms): contracts %s; armories %d pieces vs targets %d, %d short; dead men's kit %s; spoils gold to the men %.0f, to the coffers %.0f" % [
-		(Time.get_ticks_msec() - t0) / 1000.0, worst / 1000.0, str(st), arm_n, tgt_n, short_n, str(ArmsTrade.ledger),
+		int(context["sim_ms"]) / 1000.0, worst / 1000.0, str(st), arm_n, tgt_n, short_n, str(ArmsTrade.ledger),
 		float(ArmsTrade.spoils_gold["soldiers"]), float(ArmsTrade.spoils_gold["coffer"])])
 	for l in (w["arms"]["hist"] as Array).slice(-6):
 		print("   ", l)
@@ -140,6 +200,21 @@ func _test_full_world() -> void:
 	check(int(w["arms"].get("supply_day", -1)) >= 110, "ten-day internal supply runs during the campaign")
 	check(not (w["work"] as Array).any(func(j): return String(j[0]) in ["arms_day", "arms_week", "arms_spawn"]), "retired contract jobs are never scheduled")
 	check(int(ArmsTrade.ledger.get("scrapped", 0)) + int(ArmsTrade.ledger.get("looted", 0)) > 0, "AI fights put the dead men's kit somewhere")
+	if fails == 0:
+		var saved: bool = handoff._year_save(part, context, "arms")
+		fails += handoff.fails
+		check(saved, "v0.100: arms checkpoint completes its exact native readback")
+	print("v0.100: arms world%d final assertions and checkpoint elapsed %d ms" % [part, Time.get_ticks_msec() - started])
+	check(Time.get_ticks_msec() - started < 150000, "v0.100: arms part finishes within 150 s")
+	if fails == 0: _publish_world_part(handoff)
+
+func _publish_world_part(handoff: EconChecks) -> void:
+	# Publish only after this caller has passed its readback, assertions and budget.
+	var pending: Dictionary = handoff._pending_receipt
+	check(not pending.is_empty(), "v0.100: arms checkpoint has a verified completion candidate")
+	if pending.is_empty(): return
+	check(handoff._year_write_receipt(str(pending["path"]), pending["data"]),
+		"v0.100: verified arms completion receipt writes completely")
 
 func _test_generation(w: Dictionary) -> void:
 	var n := 0; var arm := 0; var marked := 0; var shop := 0
@@ -221,8 +296,8 @@ func _test_militia_and_raid(w: Dictionary) -> void:
 		CampaignWorld.remove_warband(Game, x)
 	# an orc band takes a human caravan
 	var car := Caravans.spawn(Game, ta["id"], rng, "", "", {"items": [Item.make("arming_sword", "copper", 2), Item.make("nasal_helm", "tin", 1)], "goods": {}})
+	check(car != "", "caravan raid control creates the required native caravan")
 	if car == "":
-		print("   (no caravan could leave: raid part skipped)")
 		return
 	var cw: Dictionary = w["warbands"][car]
 	var r := CampaignWorld.spawn_warband(Game, "orc_horde", cw["pos"], 10, "raider", rng, {"home": tb["id"]})
@@ -237,6 +312,8 @@ func _test_militia_and_raid(w: Dictionary) -> void:
 		if not w["warbands"].has(car):
 			break
 		CampaignWorld._warband_clashes(Game, Game.day, rng)
+	check(not w["warbands"].has(car),
+		"caravan raid control completes the required native raid within six clashes")
 	if w["warbands"].has(car):
 		print("   (the guards beat the orcs off)")
 	else:
@@ -318,17 +395,28 @@ func _test_marks_save(w: Dictionary) -> void:
 	ArmsTrade.armory(t).append(it)
 	var uid := it.uid
 	var txt := it.maker_text()
+	var saved_mark: Dictionary = it.mark.duplicate(true)
 	# a caravan sells it into a foreign town: the mark travels
 	var tb := _town_of(w, "moon_court")
 	tb["econ"]["biz"][int(tb["econ"]["mkt"])]["till"] = 99999.0
 	var it2 := Item.make("arming_sword", "tin", 1)
 	ArmsTrade.mark(it2, t, smith)
+	var traded_mark: Dictionary = it2.mark.duplicate(true)
+	var traded_text: String = it2.maker_text()
 	Caravans.sell_cargo(tb, {"items": [it2], "goods": {}}, t["name"])
-	check((tb["shop"] as Array).has(it2) and it2.maker_text().find(t["name"]) >= 0, "the mark survives trade")
+	check((tb["shop"] as Array).has(it2)
+		and it2.mark == traded_mark
+		and it2.maker_text() == traded_text,
+		"the complete mark survives trade")
 	var old := Item.from_dict({"uid": 999999, "tid": "mail_shirt", "mat": "tin", "q": 0})
 	check(old.mark.is_empty() and old.maker_text().begins_with("maker unknown"), "old saves: maker unknown")
-	Game.save_game()
-	Game.load_game()
+	# v0.100: fail at the writer/loader before inspecting a dependent roundtrip.
+	var written: bool = Game.save_game()
+	check(written, "v0.100: maker marks fixture saves")
+	if not written: return
+	var loaded: bool = Game.load_game()
+	check(loaded, "v0.100: maker marks fixture loads")
+	if not loaded: return
 	var w2: Dictionary = Game.world
 	var t2: Dictionary = w2["towns"][t["id"]]
 	var found: Item = null
@@ -336,6 +424,8 @@ func _test_marks_save(w: Dictionary) -> void:
 		if x.uid == uid:
 			found = x
 	print("-- marks: '%s'; after load '%s'; contracts kept %d" % [txt, found.maker_text() if found else "-", (w2.get("arms", {}).get("c", {}) as Dictionary).size()])
-	check(found != null and found.maker_text() == txt, "the mark survives save/load")
+	check(found != null and found.mark == saved_mark
+		and found.maker_text() == txt,
+		"the complete mark survives save/load")
 	check((w2["arms"]["c"] as Dictionary).size() == (w["arms"]["c"] as Dictionary).size(), "arms contracts survive save/load")
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(Game.SAVE_PATH))

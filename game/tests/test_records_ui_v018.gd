@@ -135,10 +135,25 @@ func run(scene_tree: SceneTree) -> int:
 		check(DirAccess.make_dir_recursive_absolute(report_dir) == OK and not FileAccess.file_exists(report_dir.path_join("records-ui.json")),"fresh private Records directory")
 		if fails > 0: tree = null; return fails
 		tree.root.set_flag(Window.FLAG_NO_FOCUS,true); tree.root.position = Vector2i(-20000,-20000); tree.root.visible = true
-	check(UiTheme.regular_font() is FontFile and UiTheme.bold() is FontFile,"actual bundled regular and bold fonts")
+	# v0.100: 6210641 uses Cinzel/Alegreya variations; e7f4771 adds lining/tabular figures.
+	var regular := UiTheme.regular_font() as FontVariation
+	var bold := UiTheme.bold() as FontVariation
+	check(regular != null and bold != null,"actual bundled regular and bold font variations")
+	if regular != null and bold != null:
+		check(regular.base_font is FontFile and regular.base_font.resource_path == "res://ui/fonts/Alegreya.ttf"
+			and bold.base_font is FontFile and bold.base_font.resource_path == "res://ui/fonts/Cinzel.ttf","font variations resolve the actual bundled source files")
+		var ts := TextServerManager.get_primary_interface()
+		check(float(regular.variation_opentype.get(ts.name_to_tag("wght"), 0)) == 500.0
+			and float(bold.variation_opentype.get(ts.name_to_tag("wght"), 0)) == 700.0,"body and heading font weights retain the delivered design")
+		check(int(regular.opentype_features.get(ts.name_to_tag("lnum"), 0)) == 1,"body font retains lining figures")
+		var numeric := UiTheme.numeric_font() as FontVariation
+		check(numeric != null and int(numeric.opentype_features.get(ts.name_to_tag("lnum"), 0)) == 1
+			and int(numeric.opentype_features.get(ts.name_to_tag("tnum"), 0)) == 1,"table figures retain lining and tabular features")
 	check(UiTheme.get_theme().default_font == UiTheme.regular_font() and UiTheme.get_theme().get_font("font","RowOn") == UiTheme.bold(),"default/body and selected rows resolve bundled font files")
-	check(FileAccess.get_sha256("res://ui/fonts/LiberationSans-Regular.ttf") == "f8ace1f892b2bd9dc1792ba7f097fa7588f84fed48321480e04de5390828221f" and FileAccess.get_sha256("res://ui/fonts/LiberationSans-Bold.ttf") == "361c61b82d575c5c35fd9157fda8b0194bcfcd0d88ea8521a4fb5dd53d33dddc","bundled font bytes are source-exact")
-	check(FileAccess.file_exists("res://ui/fonts/LICENSE_LIBERATION") and "SIL OPEN FONT LICENSE" in FileAccess.get_file_as_string("res://ui/fonts/LICENSE_LIBERATION"),"full font redistribution license retained")
+	check(FileAccess.get_sha256("res://ui/fonts/Alegreya.ttf") == "ba5564634b93a8f8ba57b48cd4f1ae7417d2b4656fbac779028679b00de3cf12"
+		and FileAccess.get_sha256("res://ui/fonts/Cinzel.ttf") == "f4d83d34d1f6c741193e4acf4b3dff9531e5a67b6aa65228d00a7db72a4e0f34","active bundled font bytes are source-exact")
+	for license_file in ["LICENSE_ALEGREYA_OFL.txt", "LICENSE_CINZEL_OFL.txt"]:
+		check("SIL OPEN FONT LICENSE" in FileAccess.get_file_as_string("res://ui/fonts/" + license_file),"full active font redistribution license retained: " + license_file)
 	var original: Dictionary = {"world":Game.world,"company":Game.company,"stash":Game.stash,"squads":Game.squads,"gold":Game.gold,"day":Game.day,
 		"location":Game.location,"contract":Game.contract,"pending":Game.pending_battle,"result":Game.last_result,"params":Game.screen_params,"main":Game.main,
 		"screen":Game._active_screen,"provisions":Game.provisions,"rations":Game.rations,"clock":Game.food_clock,"rng":Game.rng.state,

@@ -35,7 +35,11 @@ static func start_world(tree: SceneTree, save_path: String, creatures: bool = fa
 		Dynasty.prepare_world(Game); Game.new_game_finalize()
 		DirAccess.make_dir_recursive_absolute(WORLD_DIR)
 		Game.SAVE_PATH = file
-		Game.save_game(); Game.wait_save()
+		# v0.100: a refused checkpoint must not be reported as made or clear the live world.
+		if not Game.save_game():
+			Game.SAVE_PATH = save_path
+			return false
+		Game.wait_save()
 		print("dev: made the start world %s in %d ms" % [file, Time.get_ticks_msec() - t0])
 	var t1 := Time.get_ticks_msec()
 	Game.SAVE_PATH = file
@@ -81,6 +85,40 @@ static func set_round_size(n: int) -> void:
 	BattleRounds.round_size = maxi(2, n)
 
 ## ------------------------------------------------------------------ time-skips through the game's own state
+# v0.100: put a freshly generated native world just before the year boundary.
+# This is a developer setup, not a claim to have simulated the preceding year.
+# v0.100: a boundary-window fixture only; econ year1..year4 now simulate the whole year instead.
+# next_refresh, tax season, ages and due dates keep generated contents; they are not late-year history.
+# Rebase household turns too: skipping the calendar must not charge 118 days
+# of food, purse drain or wages on the first turn. Native daily jobs own the rollover.
+static func near_year_end(game) -> bool:
+	var w: Dictionary = game.world
+	# v0.100: validate all cursors before assignments can mask missing generation fields.
+	if not w.has("last_day") or not w.has("work") or not (w["work"] is Array): return false
+	if float(game.day) != 0.0 or int(w["last_day"]) != 0: return false
+	if not w.has("towns") or w["towns"].is_empty() or not w["work"].is_empty(): return false
+	for town: Dictionary in w["towns"].values():
+		if not TownEcon.has_econ(town): return false
+		var e0: Dictionary = town["econ"]
+		for key in ["day", "wage_day", "fams", "sk"]:
+			if not e0.has(key): return false
+		if not (e0["sk"] is Dictionary) or not e0["sk"].has("q") or not e0["sk"].has("qd"): return false
+		if not (e0["sk"]["q"] is Dictionary) or not e0["sk"]["q"].is_empty(): return false
+		for f0: Dictionary in e0["fams"]:
+			if not f0.has("last"): return false
+	var day := EconGen.YEAR_DAYS - 2
+	game.day = float(day)
+	w["last_day"] = day
+	game.food_clock = {"next": Food.next_tick_after(game.day), "last": game.day, "march": 0.0}
+	for town: Dictionary in w["towns"].values():
+		var e: Dictionary = town["econ"]
+		e["day"] = day
+		e["wage_day"] = day
+		e["sk"]["qd"] = day   # v0.100: use the validated existing book, never create one.
+		for f: Dictionary in e["fams"]:
+			f["last"] = float(day)
+	return true
+
 ## A woman of a family carries a child due in `days` (the native Persons.childbearing pregnancy record); it is born
 ## at the family's next weekly turn on or after that day.
 static func due_birth(game, mother_uid: String, father_uid: String, days: float = 1.0) -> bool:
@@ -148,6 +186,7 @@ static func horse_fixture(town: Dictionary) -> Dictionary:
 			break
 	if h.is_empty() or int(h["g"]) < 1 or pasture < 0: return {}
 	e["hd"]["h"] = {str(int(h["id"])): h}
+	e["hd"].erase("_owner_herds_ver")
 	e["hd"]["cpool"] = []
 	e["hd"]["pc"] = {}
 	e["hf_now"] = 1.0

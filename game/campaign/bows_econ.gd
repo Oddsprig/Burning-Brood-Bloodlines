@@ -282,14 +282,17 @@ static func make_bows(town: Dictionary, e: Dictionary, D: Dictionary, b: Diction
 	var prog := float(b.get("bowp", 0.0)) + wd * toolf * spec
 	var spent := 0.0
 	var made := 0
-	var start := rng.randi() % pool.size()
+	var start: int = rng.randi() % pool.size()
+	var maker_scope: Array[Dictionary] = [{}]
+	var input_scope: Dictionary = {}
 	while made < 3:
 		# the first style (from a rolled one) whose inputs the bins hold
 		var tid := ""
 		var missing := ""
 		for k in pool.size():
 			var cand: String = pool[(start + k) % pool.size()]
-			var gi := Businesses.gear_inputs(cand, "wood")
+			if not input_scope.has(cand): input_scope[cand] = Businesses.gear_inputs(cand, "wood")
+			var gi: Dictionary = input_scope[cand]
 			var ok := true
 			for ig in gi:
 				if int(st.get(ig, 0)) < int(gi[ig]):
@@ -308,7 +311,7 @@ static func make_bows(town: Dictionary, e: Dictionary, D: Dictionary, b: Diction
 		var need := 1.0 / maxf(0.01, float(t.get("rate", 0.4)))
 		if prog < need:
 			break
-		var ins := Businesses.gear_inputs(tid, "wood")
+		var ins: Dictionary = input_scope[tid]
 		var cost := 0.0
 		for ig in ins:
 			bdem[ig] = float(bdem.get(ig, 0.0)) + float(ins[ig])
@@ -322,7 +325,7 @@ static func make_bows(town: Dictionary, e: Dictionary, D: Dictionary, b: Diction
 		it.vr = Factory.roll_bow_variance(rng, skill)
 		ArmsTrade.mark(it, town, b)   # arms trade: the bowyer's mark
 		if it.is_legend():
-			Legends.forge(Game, town, e, b, it, rng, float(e.get("day", 0)))
+			Legends.forge(Game, town, e, b, it, rng, float(e.get("day", 0)), 0.0, maker_scope)
 		var value := Economy.base_value(town, it) * share
 		if it.is_legend():
 			value = minf(value, maxf(0.0, float(mkt["till"])))

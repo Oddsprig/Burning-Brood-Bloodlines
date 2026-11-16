@@ -125,8 +125,18 @@ static func after_round(game, r: Dictionary) -> Dictionary:
 	for uid: String in r.get("dragon_downs", {}):
 		st["dragon_downs"][uid] = bool(st["dragon_downs"].get(uid, false)) or bool(r["dragon_downs"][uid])
 	DragonCombat.merge_seats(st, r.get("dragon_seats", {}))   # v0.081: riders' live fights across rounds
-	var units: Array = r.get("fighter_units", [])
-	var states: Array = r.get("fighter_states", [])
+	var units: Array = r.get("fighter_units", []).duplicate()
+	var states: Array = r.get("fighter_states", []).duplicate()
+	# v0.101: count a pool member seated on a dragon off-round (dropped from fighter_units as seat_joined) once in this round.
+	for seat: Variant in r.get("dragon_seats", {}).values():
+		if not (seat is Dictionary) or bool(seat.get("detached", false)): continue
+		var ru: Variant = seat.get("unit")
+		if not (ru is Unit): continue
+		if not (st["pool"][0] as Array).has(ru) and not (st["pool"][1] as Array).has(ru): continue
+		if bool(seat.get("dead", false)) or str(seat.get("state", "")) == "dead": ru.dead = true
+		if units.has(ru): continue
+		units.append(ru)
+		states.append("dead" if ru.dead else str(seat.get("state", "alive")))
 	var w := int(r.get("winner", -1))
 	var d := {"round": int(st["round"]), "winner": w, "names": r.get("side_names", ["Your army", "Enemy"]),
 		"fought": [0, 0], "dead": [0, 0], "wounded": [0, 0], "captured": [0, 0], "fled": [0, 0], "household": []}

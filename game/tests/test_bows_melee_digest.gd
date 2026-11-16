@@ -1,16 +1,27 @@
 extends RefCounted
-## bows: melee-only battles must stay bit-identical to the sim before bows landed (Douglas).
-## Each battle below uses fixed rosters (explicit troop templates copied here, so faction data edits cannot change
-## them) and is digested over every event, every rendered log line and its calc text, and the end state of every
-## body. The expected digests were recorded on the commit before the bows work (5f8d605 "Bows spec").
+## bows: melee-only battles must match their reviewed recording after deliberate data/text changes.
+## Explicit troop templates freeze equipment and skill ranges; live race data still determines attributes/size.
+## Every event, rendered log/detail/calc and final body is hashed. Original archive hashes stay pinned below.
 
 const U = preload("res://tests/sim_util.gd")
+const Observations = preload("res://tests/class_d_observations.gd")
 
 ## Recorded before bows (5f8d605); re-recorded at v0.014: the v0.013 anatomy had already changed every digest, and
 ## v0.014 gear damage (bends, chips, dents, snaps change later blows) and the new log wording change them by design.
 ## Re-recorded at v0.070 from the live headless run: sword thrust and spear recovery in the weapon tables
 ## changed these melee digests on purpose. A mismatch means melee results (or the log text) changed.
+## v0.100: reviewed v0.080 goblin STR/TOU/mass tuning and v0.098 artery-text change.
+## Apply only after independent original-trace comparison; receipt: test-results/v0.100/melee_reference/v100_refresh_receipt.md.
 const EXPECT := {
+	"soldiers": "d50e2137b900ed2a2f64bd69143a073b",
+	"middle_vs_goblins": "25ce1f38be5aa4829e6924335f516186",
+	"elves_vs_orcs": "c4cd645170afecd58a5955f4b920cdb7",
+	"corridor_stream": "a4b9550c5a182935160cd0e4317830ac",
+	"wolves": "6c84b428beb0e4a477d0665236a075a1",
+}
+
+## --melee-reference authenticates only the original v0.070a recording, never the replacement targets above.
+const REFERENCE_EXPECT: Dictionary = {
 	"soldiers": "43b8a3143e684a60899f436dd9c17e17",
 	"middle_vs_goblins": "4c9c7903c5520585f1c70413f5ce4d44",
 	"elves_vs_orcs": "8ad711a865626d0df1f519c3e902f2a7",
@@ -62,6 +73,63 @@ static func digest(sim: BattleSim) -> String:
 				ctx.update(("%s %.6f %s" % [pid, float(L["dmg"]), String(L.get("kind", ""))]).to_utf8_buffer())
 	return ctx.finish().hex_encode()
 
+## Exact hash input fragments, for comparing an authenticated archived trace to a mismatch.
+## Kept separate from digest() so all five complete golden gates use the original hash algorithm.
+static func digest_chunks(sim: BattleSim) -> Array[String]:
+	var chunks: Array[String] = ["%d|%d" % [sim.winner, sim.tick]]
+	for event: Dictionary in sim.events:
+		chunks.append("%d|%s|%d|%d|%s" % [event["tick"], event["type"], event["actor"], event["target"], BattleSim.event_text(event)])
+	for fighter: Fighter in sim.fighters:
+		for entry: Dictionary in fighter.log:
+			var rendered: Dictionary = BattleSim.render_entry(entry)
+			chunks.append("%d:%s:%s:%s" % [entry["tick"], rendered["text"], "|".join(PackedStringArray(rendered["detail"])), rendered["calc"]])
+		chunks.append("%s %.6f %.6f %.6f %d %d" % [fighter.state, fighter.unit.body.blood, fighter.unit.body.pain, fighter.unit.body.exertion, fighter.cell.x, fighter.cell.y])
+		for part: String in fighter.unit.body.parts:
+			for layer: Dictionary in fighter.unit.body.parts[part]["layers"]:
+				chunks.append("%s %.6f %s" % [part, float(layer["dmg"]), String(layer.get("kind", ""))])
+	return chunks
+
+func _reference() -> Dictionary:
+	var path: String = ""
+	var selected: bool = false
+	for argument: String in OS.get_cmdline_user_args():
+		if not argument.begins_with("--melee-reference="): continue
+		if selected:
+			printerr("FAIL: supply --melee-reference exactly once")
+			return {"ok": false}
+		selected = true
+		path = argument.trim_prefix("--melee-reference=")
+	if not selected: return {"ok": true, "traces": {}}
+	if path == "" or not FileAccess.file_exists(path):
+		printerr("FAIL: melee reference archive is missing or unreadable: ", path)
+		return {"ok": false}
+	var traces: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if not traces is Dictionary or traces.size() != REFERENCE_EXPECT.size():
+		printerr("FAIL: melee reference must contain all five archived hash-input arrays")
+		return {"ok": false}
+	for key: String in REFERENCE_EXPECT:
+		if not traces.has(key) or not traces[key] is Array or traces[key].is_empty():
+			printerr("FAIL: melee reference has no archived chunks for ", key)
+			return {"ok": false}
+		var context: HashingContext = HashingContext.new()
+		context.start(HashingContext.HASH_MD5)
+		for chunk: Variant in traces[key]:
+			if not chunk is String:
+				printerr("FAIL: non-string archived melee hash input for ", key)
+				return {"ok": false}
+			context.update(str(chunk).to_utf8_buffer())
+		if context.finish().hex_encode() != REFERENCE_EXPECT[key]:
+			printerr("FAIL: archived melee chunks do not authenticate against original v0.070a EXPECT for ", key)
+			return {"ok": false}
+	return {"ok": true, "traces": traces}
+
+static func first_difference(actual: Array[String], expected: Array) -> Dictionary:
+	for index: int in mini(actual.size(), expected.size()):
+		if actual[index] != expected[index]:
+			return {"index": index, "expected": expected[index], "actual": actual[index]}
+	if actual.size() != expected.size(): return {"index": mini(actual.size(), expected.size()), "expected_size": expected.size(), "actual_size": actual.size()}
+	return {}
+
 static func battles() -> Dictionary:
 	var out := {}
 	# 1. sim_util soldiers: copper swords and shields vs tin spears
@@ -99,9 +167,31 @@ static func battles() -> Dictionary:
 	out["wolves"] = U.run(men, wolves, 21, {"w": 16, "h": 8, "log_moves": true})
 	return out
 
+static func observation(sim: BattleSim) -> Dictionary:
+	var events: Array = []
+	for event: Dictionary in sim.events:
+		events.append({"event": event.duplicate(true), "text": BattleSim.event_text(event)})
+	var fighters: Array = []
+	for fighter: Variant in sim.fighters:
+		var logs: Array = []
+		for entry: Dictionary in fighter.log:
+			logs.append({"entry": entry.duplicate(true), "rendered": BattleSim.render_entry(entry)})
+		fighters.append({"uid": fighter.unit.uid, "name": fighter.unit.name, "state": fighter.state,
+			"cell": fighter.cell, "blood": fighter.unit.body.blood, "pain": fighter.unit.body.pain,
+			"exertion": fighter.unit.body.exertion, "part_order": fighter.unit.body.parts.keys(),
+			"parts": fighter.unit.body.parts.duplicate(true), "logs": logs})
+	return {"digest_chunks": digest_chunks(sim), "winner": sim.winner, "tick": sim.tick, "events": events, "fighters": fighters}
+
 func run(_tree: SceneTree) -> int:
-	var fails := 0
-	var bs := battles()
+	var fails: int = 0
+	var archive: Dictionary = _reference()
+	if not bool(archive["ok"]): return 1
+	var bs: Dictionary = battles()
+	var actual_keys: Array = bs.keys(); actual_keys.sort()
+	var expected_keys: Array = EXPECT.keys(); expected_keys.sort()
+	if actual_keys != expected_keys:
+		printerr("FAIL: melee digest must execute every immutable battle: ", actual_keys)
+		return 1
 	for k in bs:
 		var sim: BattleSim = bs[k]
 		var dg := digest(sim)
@@ -111,4 +201,14 @@ func run(_tree: SceneTree) -> int:
 			"PASS" if ok else ("(no recorded digest)" if exp == "" else "FAIL: expected " + exp)])
 		if not ok:
 			fails += 1
+			var chunks: Array[String] = digest_chunks(sim)
+			var archived: Dictionary = archive["traces"]
+			if archived.has(k):
+				print("MELEE_FIRST_DIFFERENCE ", JSON.stringify({"case": k, "difference": first_difference(chunks, archived[k])}))
+			else:
+				printerr("FAIL: independent archived melee trace needed for ", k, "; current output cannot authenticate a replacement golden")
+			printerr("FAIL: melee digest ", k, " actual ", dg, " expected ", exp)
+			if not Observations.write("bows_melee_digest", {"case": k, "actual": dg, "expected": exp,
+				"expected_trace_available": archived.has(k), "reference_difference": first_difference(chunks, archived[k]) if archived.has(k) else {}, "observed": observation(sim)}):
+				fails += 1
 	return fails

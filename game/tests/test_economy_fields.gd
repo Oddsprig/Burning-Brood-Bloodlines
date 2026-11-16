@@ -1,4 +1,5 @@
 extends RefCounted
+const CohortAccounts = preload("res://tests/fixtures/cohort_accounts_v100.gd")
 var fails := 0
 var checks := 0
 func check(ok: bool, msg: String) -> void:
@@ -22,7 +23,8 @@ func run(_tree: SceneTree) -> int:
 					if String(before[i]) != String(P["variety"][i]): rotated = true
 					check(CropRotation.ROWS.has(P["variety"][i]), "every staple field has a real variety or fallow")
 			check(areas == 0 or rotated, "staple fields rotate between years")
-			check(not Herds.A()["kinds"].has("rats") and not Herds.A()["kinds"].has("bees") and not Herds.A()["kinds"].has("dogs"), "household small stock excludes rats, dogs and hive animals")
+			check(not Herds.A()["kinds"].has("rats") and not Herds.A()["kinds"].has("bees"), "household small stock excludes rats and hive animals")
+			check(Herds.A()["kinds"].has("dogs"), "v0.086 retains the native paid and fed household dog kind")
 			var coins := Barge.holdings(Game)
 			TownDefence.daily(Game, town)
 			check(absf(Barge.holdings(Game) - coins) < 0.01, "professional guard wages conserve coins")
@@ -34,6 +36,8 @@ func run(_tree: SceneTree) -> int:
 			for f in e["fams"]:
 				if f.get("gone", false) or f.get("estate", false): continue
 				var available := Persons.pp(f).filter(func(p): return int(p[6]) == 0 and String(p[4]) in ["", "hire", "reserve"]).size()
+				var anonymous: Array[int] = CohortAccounts.bins(e, f)
+				available += anonymous[0] + anonymous[1]
 				var held: int = int(f["hands"]) + Families.job_total(f) + f.get("keeps", []).size()
 				for j in f.get("cj", {}): held += int(f["cj"][j])
 				check(held <= available, "civilian jobs, shop keepers and casual work fit the actual people")

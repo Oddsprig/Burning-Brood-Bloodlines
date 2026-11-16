@@ -20,8 +20,13 @@ func _draw_and_quit() -> void:
 	painter.snapshot_v066_bust = false
 	var sheet = load("res://tests/test_portraits_v067.gd").new()
 	sheet.helper = load("res://tests/test_races_v065.gd").new()
-	var out_dir := ProjectSettings.globalize_path("res://").path_join("../test-results")
+	var runs_dir: String = ProjectSettings.globalize_path("res://").path_join("../test-results/runs").simplify_path()
+	var run_id: String = "%d_%d_%d" % [int(Time.get_unix_time_from_system()), OS.get_process_id(), Time.get_ticks_usec()]
+	var out_dir: String = runs_dir.path_join("portrait_quick_render_" + run_id)
+	while DirAccess.dir_exists_absolute(out_dir):
+		out_dir += "_"
 	DirAccess.make_dir_recursive_absolute(out_dir)
+	print("Evidence output: ", out_dir)
 	var races: Array[String] = ["moon_elf", "dark_elf"]
 	if race_arg != "":
 		races = [race_arg]

@@ -2,7 +2,8 @@ extends RefCounted
 ## Bounded v0.053 art contracts; no world generation or battle simulation.
 var checks := 0
 var fails := 0
-const HEIGHTS := {"human": 24.0, "orc": 26.0, "high_elf": 26.0, "moon_elf": 25.0, "dark_elf": 24.0, "dwarf": 17.0, "goblin": 18.0, "troll": 38.0}
+# v0.100: daaec20 (v0.080) deliberately raises goblin height to 0.82; the native 24-unit rig rounds to 20.
+const HEIGHTS := {"human": 24.0, "orc": 26.0, "high_elf": 26.0, "moon_elf": 25.0, "dark_elf": 24.0, "dwarf": 17.0, "goblin": 20.0, "troll": 38.0}
 const FRAMES := {"idle": 4, "walk": 8, "prepare": 4, "strike": 5, "recover": 4, "hit": 3, "block": 3, "dodge": 4, "prone": 1, "dead": 1}
 
 func check(ok: bool, why: String) -> void:

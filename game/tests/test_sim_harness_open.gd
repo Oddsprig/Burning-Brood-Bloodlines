@@ -5,6 +5,17 @@ extends RefCounted
 ## Douglas: outcomes are whatever the DF mechanics produce. Only mechanical-correctness checks gate (R vs R symmetry);
 ## every veteran band is informational (printed, TRACKED, never tuned toward).
 
+const Parts201 = preload("res://tests/fixtures/older_201_parts_v100.gd")
+var _part_begin: int = 0
+var _part_end: int = -1
+var _part_raw: Dictionary = {}
+var _aggregate: Dictionary = {}
+var _aggregate_call: int = 0
+var _runplan_keys: Array = []
+var _runplan_started: int = 0
+const VS_NAMES: Array = ["rr", "v25", "v50", "v100", "v5", "v1", "un", "sup"]
+const BAND_NAMES: Array = ["rr", "v25", "v50", "v100", "v5", "v1", "vv", "un", "sup", "wounded", "waves"]
+
 const U = preload("res://tests/sim_util.gd")
 const N := 300            # seeds per band (aim ~1000 when time allows)
 const GATE := false
@@ -12,8 +23,12 @@ const OPTS := {"w": 20, "h": 10, "log_moves": false, "verbose": false, "max_tick
 
 ## One side of V (or R) vs k recruits. Returns {"win", "die", "ticks", "ctx": {death_ctx: n}, "xp": main weapon xp}.
 func _vs(make_a: Callable, k: int, seed0: int, n: int = N) -> Dictionary:
+	if not _aggregate.is_empty():
+		var cached: Dictionary = _aggregate[VS_NAMES[_aggregate_call]]
+		_aggregate_call += 1
+		return cached
 	var st := {"win": 0, "die": 0, "ticks": 0.0, "ctx": {}, "xp": 0.0}
-	for i in n:
+	for i: int in range(_part_begin, n if _part_end < 0 else mini(n, _part_end)):
 		var a: Unit = make_a.call()
 		var xp0 := _xp_total(a, "sword")
 		var foes := []
@@ -31,6 +46,7 @@ func _vs(make_a: Callable, k: int, seed0: int, n: int = N) -> Dictionary:
 	st["win_pct"] = 100.0 * st["win"] / n
 	st["die_pct"] = 100.0 * st["die"] / n
 	st["xp_avg"] = st["xp"] / n
+	st["samples"] = n if _part_end < 0 else _part_end - _part_begin
 	return st
 
 func _xp_total(u: Unit, s: String) -> float:
@@ -41,6 +57,29 @@ func _xp_total(u: Unit, s: String) -> float:
 	return t
 
 func run(_tree: SceneTree) -> int:
+	if _aggregate.is_empty():
+		var required: Array = ["setup", "verify"]
+		for band: String in BAND_NAMES:
+			for index: int in (N * 2 if band == "v1" else N): required.append("%s:%d" % [band, index])
+		var batch_requested: bool = false
+		for argument: String in OS.get_cmdline_user_args():
+			if argument == "--speed-parts" or argument.begins_with("--speed-parts="): batch_requested = true
+		var batch: String = Parts201.option("--speed-parts")
+		if batch_requested:
+			if batch.is_empty(): return 1
+			if Parts201.option("--speed-part", "all") != "all": return 1
+			var endpoints: PackedStringArray = batch.split("..", true)
+			if endpoints.size() != 2: return 1
+			var first: int = required.find(endpoints[0])
+			var last: int = required.find(endpoints[1])
+			# Setup and verification are independent invocations; every selected sample is complete.
+			if first < 2 or last < first or last - first >= 64: return 1
+			_runplan_keys = required.slice(first, last + 1)
+			_runplan_started = Time.get_ticks_usec()
+			return _split_harness(_tree, "runplan-batch")
+		var part: String = Parts201.select(required)
+		if part.is_empty(): return 1
+		if part != "all": return _split_harness(_tree, part)
 	var fails := 0
 	var t0 := Time.get_ticks_msec()
 	print("open-ground harness, %d seeds per band" % N)
@@ -78,18 +117,21 @@ func run(_tree: SceneTree) -> int:
 	return fails
 
 func _vs_vv() -> float:
+	if not _aggregate.is_empty(): return 100.0 * int(_aggregate["vv"]["win"]) / N
 	var win := 0
-	for i in N:
+	for i: int in range(_part_begin, N if _part_end < 0 else mini(N, _part_end)):
 		var sim: BattleSim = U.run([U.veteran(100)], [U.veteran(100)], 800 + i * 7919, OPTS)
 		if sim.winner == 0:
 			win += 1
+	_part_raw = {"win": win, "samples": N if _part_end < 0 else _part_end - _part_begin}
 	return 100.0 * win / N
 
 ## V100 survives a first 3R fight, keeps the wounds through one day of rest, then fights a fresh 3R.
 func _wounded_next_day() -> float:
+	if not _aggregate.is_empty(): return 100.0 * int(_aggregate["wounded"]["win"]) / maxf(1.0, float(_aggregate["wounded"]["fights"]))
 	var fights := 0
 	var win := 0
-	for i in N:
+	for i: int in range(_part_begin, N if _part_end < 0 else mini(N, _part_end)):
 		var v := U.veteran(100)
 		var s1: BattleSim = U.run([v], [U.recruit(), U.recruit(), U.recruit()], 900 + i * 7919, OPTS)
 		if v.dead or s1.winner != 0:
@@ -102,13 +144,15 @@ func _wounded_next_day() -> float:
 		var s2: BattleSim = U.run([v], [U.recruit(), U.recruit(), U.recruit()], 950 + i * 7919, OPTS)
 		if s2.winner == 0:
 			win += 1
+	_part_raw = {"win": win, "fights": fights, "samples": N if _part_end < 0 else _part_end - _part_begin}
 	return 100.0 * win / maxf(1.0, float(fights))
 
 ## Three waves of 3R with no rest in between (wounds, blood, pain and exertion carry over).
 func _waves() -> float:
+	if not _aggregate.is_empty(): return 100.0 * int(_aggregate["waves"]["survived"]) / N
 	var reached := 0
 	var survived := 0
-	for i in N:
+	for i: int in range(_part_begin, N if _part_end < 0 else mini(N, _part_end)):
 		var v := U.veteran(100)
 		var ok := true
 		for w in 3:
@@ -120,4 +164,91 @@ func _waves() -> float:
 				break
 		if ok:
 			survived += 1
+	_part_raw = {"survived": survived, "reached": reached, "samples": N if _part_end < 0 else _part_end - _part_begin}
 	return 100.0 * survived / maxf(1.0, float(N))
+
+## One complete original sample, including every conditional continuation, per short process.
+func _allocation_state() -> Array:
+	return [Unit._next_uid, Item._next_uid, str(Game.rng.state)]
+
+func _sample(band: String, index: int) -> Dictionary:
+	_part_begin = index; _part_end = index + 1
+	match band:
+		"rr": return _vs(func() -> Unit: return U.recruit(), 1, 100)
+		"v25": return _vs(func() -> Unit: return U.veteran(25), 1, 200)
+		"v50": return _vs(func() -> Unit: return U.veteran(50), 2, 300)
+		"v100": return _vs(func() -> Unit: return U.veteran(100), 3, 400)
+		"v5": return _vs(func() -> Unit: return U.veteran(100), 5, 500)
+		"v1": return _vs(func() -> Unit: return U.veteran(100), 1, 600, N * 2)
+		"vv": _vs_vv()
+		"un": return _vs(func() -> Unit: return U.veteran(100, U.good_copper(0, false)), 3, 700)
+		"sup": return _vs(func() -> Unit: return U.veteran(100, U.good_copper(3)), 3, 400)
+		"wounded": _wounded_next_day()
+		"waves": _waves()
+	return _part_raw
+
+func _split_harness(tree: SceneTree, part: String) -> int:
+	var completed: int = 0
+	var runner: Node = tree.current_scene
+	var counter: Object = null
+	if not _runplan_keys.is_empty():
+		if runner == null: return 1
+		counter = runner.get("script_errors")
+		if counter == null or not counter.has_method("total"): return 1
+	var io: RefCounted = Parts201.new("harness_open")
+	if io.fails > 0: return 1
+	if part == "setup":
+		return 0 if io.write_record("setup", {"chain": "%d-%d" % [OS.get_process_id(), Time.get_ticks_usec()], "after": _allocation_state()}) else 1
+	var setup: Dictionary = io.read_record("setup")
+	if setup.is_empty(): return 1
+	var previous: String = "setup"
+	var preceding: Dictionary = setup
+	for band: String in BAND_NAMES:
+		var total: int = N * 2 if band == "v1" else N
+		var sum: Dictionary = {"win": 0, "die": 0, "ticks": 0.0, "xp": 0.0, "ctx": {}, "fights": 0, "survived": 0, "reached": 0, "samples": 0}
+		for index: int in total:
+			var key: String = "%s:%d" % [band, index]
+			if part == key or _runplan_keys.has(key):
+				if not _runplan_keys.is_empty() and Time.get_ticks_usec() - _runplan_started >= 40000000:
+					io.fail("batch deadline; incomplete or overdue sample batch fails"); return 1
+				var errors_before: int = 0 if counter == null else int(counter.call("total"))
+				# Restore real predecessor allocation cursors, never arbitrary fresh UIDs.
+				Unit._next_uid = int(preceding["after"][0]); Item._next_uid = int(preceding["after"][1])
+				Game.rng.state = int(preceding["after"][2])
+				var before: Array = _allocation_state()
+				var raw: Dictionary = _sample(band, index)
+				if int(raw.get("samples", -1)) != 1: return 1
+				if counter != null and int(counter.call("total")) != errors_before: return 1
+				var written: bool = io.write_record(key, {"chain": setup["chain"], "previous": FileAccess.get_sha256(io.path(previous)),
+					"before": before, "after": _allocation_state(), "raw": raw})
+				if not written: return 1
+				if part == key: return 0
+				completed += 1
+				print("RUNPLAN_SAMPLE key=", key, " samples=1 parent=PARTIAL")
+			# Only visit the prefix needed for this selector; verification requires all samples.
+			var record: Dictionary = io.read_record(key)
+			if record.is_empty(): return 1
+			if record.get("chain") != setup["chain"] or record.get("previous") != FileAccess.get_sha256(io.path(previous)) or record.get("before") != preceding["after"]:
+				io.fail("missing, reordered or mixed sample: " + key); return 1
+			var raw: Dictionary = record.get("raw", {})
+			if int(raw.get("samples", -1)) != 1: return 1
+			for field: String in ["win", "die", "ticks", "xp", "fights", "survived", "reached", "samples"]:
+				sum[field] += raw.get(field, 0)
+			for cause: String in raw.get("ctx", {}): sum["ctx"][cause] = int(sum["ctx"].get(cause, 0)) + int(raw["ctx"][cause])
+			previous = key; preceding = record
+			if part == "runplan-batch" and key == str(_runplan_keys.back()):
+				if Time.get_ticks_usec() - _runplan_started >= 40000000:
+					io.fail("batch deadline; overdue sample batch fails"); return 1
+				print("RUNPLAN_HARNESS first=", _runplan_keys.front(), " last=", key, " complete_samples=", completed, " body_wall_usec=", Time.get_ticks_usec() - _runplan_started, " parent=PARTIAL")
+				return 0 if completed == _runplan_keys.size() and io.fails == 0 else 1
+		if part == "verify":
+			if int(sum["samples"]) != total: return 1
+			sum["win_pct"] = 100.0 * int(sum["win"]) / total
+			sum["die_pct"] = 100.0 * int(sum["die"]) / total
+			sum["xp_avg"] = float(sum["xp"]) / total
+			_aggregate[band] = sum
+	if part != "verify": return 1
+	# The untouched original band expressions apply only to the complete raw aggregate.
+	var result: int = run(tree)
+	if result != 0: return result
+	return 0 if io.write_record("verify", {"chain": setup["chain"], "last": FileAccess.get_sha256(io.path(previous)), "bands": _aggregate, "failures": result}) else 1

@@ -117,6 +117,18 @@ func reload_check(tree: SceneTree) -> int:
 		"saved_endpoint_sha256": M.digest(loaded), "resumed_endpoint_sha256": M.digest(next), "live_endpoint_sha256": M.digest(manifest["live_next"])})
 
 func run(tree: SceneTree) -> int:
+	var selected_protocol: String = OS.get_environment("ECONOMY_PROTOCOL")
+	var protocol_seen: bool = not selected_protocol.is_empty()
+	for argument: String in OS.get_cmdline_user_args():
+		if argument.begins_with("--economy-protocol="):
+			if protocol_seen: return 1
+			protocol_seen = true
+			selected_protocol = argument.substr(19)
+			if selected_protocol.is_empty(): return 1
+	if selected_protocol == "v099_r1":
+		var current_protocol: Variant = load("res://tests/economy_current_v099_r1.gd").new()
+		return await current_protocol.run_current(tree, "short")
+	if not selected_protocol.is_empty() and selected_protocol != "v094": return 1
 	started = Time.get_ticks_msec()
 	h._started = started
 	for arg in OS.get_cmdline_user_args():

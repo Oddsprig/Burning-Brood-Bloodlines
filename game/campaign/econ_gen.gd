@@ -191,6 +191,7 @@ static func generate(w: Dictionary, town: Dictionary, rng: RandomNumberGenerator
 	e["bdem"] = {}
 	e["rep"] = 0
 	e["day"] = 0
+	e["wage_day"] = 0   # v0.100: fresh native cursor; a missing saved cursor must fail validation.
 	# opening demand: what the households use (business wants join from the first market day)
 	e["dem"] = TownEcon.household_use(e, 0)
 	for g in TownEcon.data()["goods"]:

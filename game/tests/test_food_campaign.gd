@@ -8,6 +8,8 @@ extends RefCounted
 ## plus stock (oldest first, spoilage, out-of-stock sharing), market buying from town supply, the town feast,
 ## favourite drink rolls, and a save/load round trip of stock, rations and meters (and old-save migration).
 
+const Fixture = preload("res://tests/fixtures/group_g_v100.gd")
+
 var fails := 0
 
 func check(cond: bool, what: String) -> void:
@@ -19,7 +21,8 @@ func check(cond: bool, what: String) -> void:
 
 ## A bare campaign with one or more plain men, no world (Game.advance_time still drives the food clock).
 func _setup(n: int = 1, appetite: int = 50, meals: int = 1000, beer: int = 1000, wine: int = 0) -> Array:
-	Game.new_game(321)
+	# v0.100: these standalone food clocks do not need to generate a world for every subcase.
+	Fixture.bare(321)
 	Game.world = {"party": {"path": [Vector2(1, 1)]}}   # "travelling": the party marches
 	Game.location = ""
 	Game.company.clear()
@@ -200,7 +203,9 @@ func _test_market_and_feast() -> void:
 	town["goods"]["beer"] = 0
 	check(Food.buy(Game, town, "beer", 5) != "", "none left to buy")
 	# a real generated town: the gold goes to its market and the meals come out of its stock
-	Game.new_game(17)
+	Fixture.new_world(17)
+	check(not Game.world.get("towns", {}).is_empty(), "food market fixture has a generated town")
+	if Game.world.get("towns", {}).is_empty(): return
 	var rt: Dictionary = Game.world["towns"].values()[0]
 	var till0 := Goods.market_gold(rt)
 	var food0 := Goods.supply(rt, "food")
@@ -256,7 +261,11 @@ func _test_fav_drink() -> void:
 
 # ------------------------------------------------------------------ save / load
 func _test_save_load() -> void:
-	Game.new_game(77)
+	Fixture.new_world(77)
+	# v0.100: serialization needs an explicit subject; the intended unraised start has no company[2].
+	var leaders := Fixture.company(77, [2])
+	check(leaders.size() == 1 and Game.company.size() == 3, "food save fixture has an officer and two troops")
+	if leaders.size() != 1 or Game.company.size() != 3: return
 	var u: Unit = Game.company[2]
 	u.belly = 23.5; u.buzz = 41.25; u.hungover = true; u.drink_days = 2; u.mass_mult = 0.91; u.fav_drink = "wine"
 	u.fav_bonus = true; u.drank_eq = 1.5; u.merry_day = 3.0

@@ -1,4 +1,5 @@
 extends RefCounted
+const SpeedParts = preload("res://tests/fixtures/older_speed_parts_v100.gd")
 ## v0.052 individual growth. One DevTools start world; the curve checks are records.
 var checks := 0
 var fails := 0
@@ -309,12 +310,15 @@ func inherit_and_wounds() -> void:
 	check(float(profile_after["body_mass_kg"]) > float(profile_before["body_mass_kg"]) and float(profile_after["tooth_length_cm"]) > float(profile_before["tooth_length_cm"]), "the wounded dragon's mass and teeth still grow")
 
 func run(tree: SceneTree) -> int:
-	curve_cases()
-	founders()
-	screen_and_hardness()
-	if not await DevTools.start_world(tree, "user://test_dragon_growth_v052.json"):
-		check(false, "the start world failed to load")
-	else:
-		inherit_and_wounds()
+	var speed_part: String = SpeedParts.select(["curve","founders","screen","inherit"])
+	if speed_part == "": return 1
+	if SpeedParts.includes(speed_part, "curve"): curve_cases()
+	if SpeedParts.includes(speed_part, "founders"): founders()
+	if SpeedParts.includes(speed_part, "screen"): screen_and_hardness()
+	if SpeedParts.includes(speed_part, "inherit"):
+		if not await DevTools.start_world(tree, "user://test_dragon_growth_v052.json"):
+			check(false, "the start world failed to load")
+		else:
+			inherit_and_wounds()
 	print("dragon growth v052: %d checks, %d failures" % [checks, fails])
 	return fails

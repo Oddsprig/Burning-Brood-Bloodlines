@@ -1,4 +1,6 @@
 extends RefCounted
+const SpeedCheckpoint = preload("res://tests/fixtures/older_speed_checkpoint_v100.gd")
+const SpeedParts = preload("res://tests/fixtures/older_speed_parts_v100.gd")
 ## v0.014 recruit stories (Douglas: "needs to be more of a story, less of a list"): Backstory.story tells ONE short
 ## story in time order from recorded facts only. Checks, on real register people after 90 days of play, in every
 ## culture's wording (middle, northern, eastern, orc, goblin, moon_elf, dwarf):
@@ -18,12 +20,30 @@ func check(ok: bool, msg: String) -> void:
 		fails += 1
 
 func run(_tree: SceneTree) -> int:
-	Game.new_game(4242)
+	var speed_part: String = SpeedParts.select(["setup","day1","day2","day3","day4","day5","day6","day7","day8","day9","day10","day11","day12","day13","day14","day15","day16","day17","day18","day19","day20","day21","day22","day23","day24","day25","day26","day27","day28","day29","day30","day31","day32","day33","day34","day35","day36","day37","day38","day39","day40","day41","day42","day43","day44","day45","day46","day47","day48","day49","day50","day51","day52","day53","day54","day55","day56","day57","day58","day59","day60","day61","day62","day63","day64","day65","day66","day67","day68","day69","day70","day71","day72","day73","day74","day75","day76","day77","day78","day79","day80","day81","day82","day83","day84","day85","day86","day87","day88","day89","day90","checks"])
+	if speed_part == "": return 1
+	var handoff: RefCounted = SpeedCheckpoint.new("backstory90")
+	if speed_part == "all" or speed_part == "setup":
+		Game.new_game(4242)
+		Game.world["party"]["safe_until"] = 1.0e9
+	else:
+		var previous: int = 90 if speed_part == "checks" else int(speed_part.trim_prefix("day")) - 1
+		if not handoff.load_step(previous): return 1
 	var w: Dictionary = Game.world
-	w["party"]["safe_until"] = 1.0e9
-	for i in 90:
+	if speed_part == "setup":
+		handoff.context["start_day"] = Game.day
+		return 0 if handoff.save_step(0) else 1
+	if speed_part.begins_with("day"):
+		var step: int = int(speed_part.trim_prefix("day"))
 		Game.advance_time(1.0, false)
 		w["encounter"] = ""
+		check(Game.day == float(handoff.context["start_day"]) + step, "all ninety native days are consecutive")
+		if fails > 0: return fails
+		return 0 if handoff.save_step(step) else 1
+	if speed_part == "all":
+		for i in 90:
+			Game.advance_time(1.0, false)
+			w["encounter"] = ""
 	var ids: Array = w["towns"].keys()
 	ids.sort()
 	var by_cul := {}

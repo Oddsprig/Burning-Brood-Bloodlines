@@ -85,10 +85,14 @@ static func road_path(w: Dictionary, from_tid: String, to_tid: String) -> Array:
 					_rg[pr[0]] = []
 				(_rg[pr[0]] as Array).append([pr[1], i, ln])
 	# Dijkstra over the towns (a few dozen nodes: the plain O(n^2) form)
+	var batch_routes: Array = _batch_route_tree(w, from_tid, to_tid)
 	var dist := {from_tid: 0.0}
 	var via := {}   # town -> [previous town, road index]
 	var done := {}
-	while true:
+	if not batch_routes.is_empty():
+		dist = batch_routes[0]
+		via = batch_routes[1]
+	while batch_routes.is_empty():
 		var cur := ""; var cd := INF
 		for tt in dist:
 			if not done.has(tt) and float(dist[tt]) < cd:
@@ -870,3 +874,43 @@ static func describe(w: Dictionary, wb: Dictionary) -> String:
 	return "Merchants of %s %s %s, %d guards, carrying %s." % [o.get("name", "?"), "heading home from" if home else "bound for",
 		d.get("name", "?") if not home else w["towns"].get(wb.get("last_dest", ""), {}).get("name", "market"),
 		(wb["units"] as Array).size(), cargo_text(wb.get("cargo", {}), float(wb.get("gold", 0.0)))]
+
+# One synchronous partner scan shares one ordered single-source search. No
+# world/road references survive the scan; path assembly and grid fallback stay
+# native, including each quote's position draws and passability checks.
+static var _route_scope: Dictionary = {}
+
+static func begin_route_batch(w: Dictionary, source: String) -> Dictionary:
+	var previous: Dictionary = _route_scope
+	_route_scope = {"world": w, "source": source}
+	return previous
+
+static func finish_route_batch(previous: Dictionary) -> void:
+	_route_scope = previous
+
+static func _batch_route_tree(w: Dictionary, source: String, target: String) -> Array:
+	if _route_scope.is_empty() or not is_same(_route_scope["world"], w) or String(_route_scope["source"]) != source: return []
+	if not _route_scope.has("tree") or not is_same(_route_scope.get("graph"), _rg):
+		_route_scope["graph"] = _rg
+		_route_scope["tree"] = [{source: 0.0}, {}, {}]
+	var state: Array = _route_scope["tree"]
+	var dist: Dictionary = state[0]
+	var via: Dictionary = state[1]
+	var done: Dictionary = state[2]
+	if done.has(target): return [dist, via]
+	while true:
+		var current: String = ""
+		var current_dist: float = INF
+		for town_id: Variant in dist:
+			if not done.has(town_id) and float(dist[town_id]) < current_dist:
+				current_dist = float(dist[town_id])
+				current = String(town_id)
+		# Stop at precisely the same target boundary as a fresh native search.
+		if current == "" or current == target: break
+		done[current] = true
+		for link: Array in _rg.get(current, []):
+			var next_dist: float = current_dist + float(link[2])
+			if next_dist < float(dist.get(link[0], INF)):
+				dist[link[0]] = next_dist
+				via[link[0]] = [current, int(link[1])]
+	return [dist, via]

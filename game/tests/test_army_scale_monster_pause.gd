@@ -49,8 +49,17 @@ func run(_tree: SceneTree) -> int:
 	check(learning.size() == 1 and learning[0]["entry"]["d"]["lvl"] == 5, "aftermath retains learning summary")
 	check(CampaignWorld.field_target({}) == 100 and CampaignWorld.field_target({"size": "large"}) == 150 and
 		CampaignWorld.field_target({"size": "huge"}) == 200, "100/150/200 initial field targets")
-	# v0.099: field armies grow FIELD_WEEKLY_GROWTH a week up to FIELD_LIMIT (the v0.032 caps: 50 a week; 25 and 200 were the first numbers).
-	check(CampaignWorld.field_target({}, 7) == 100 + CampaignWorld.FIELD_WEEKLY_GROWTH and CampaignWorld.field_target({}, 1.0e6) == CampaignWorld.FIELD_LIMIT, "weekly request growth capped")
+	# Intended v0.032 rule: +50 per completed week, cap 1000 (older_tests_unfixed_diagnosis.md, entry 16;
+	# campaign/world.gd:29-31 and WorldWarbands.field_target). Literal boundaries are independent of constants.
+	for target: Dictionary in [{"size": "normal", "base": 100}, {"size": "large", "base": 150}, {"size": "huge", "base": 200}]:
+		var options: Dictionary = {"size": target["size"]}
+		var initial_target: int = int(target["base"])
+		var cap_day: int = ((1000 - initial_target) / 50) * 7
+		for boundary: Array in [[0, initial_target], [6, initial_target], [7, initial_target + 50], [14, initial_target + 100], [cap_day - 1, 950], [cap_day, 1000], [1000000, 1000]]:
+			check(CampaignWorld.field_target(options, float(boundary[0])) == int(boundary[1]),
+				"%s day %d target is exactly %d" % [target["size"], boundary[0], boundary[1]])
+	# v0.035 creature selection belongs to the world, not a previous test's global state.
+	Monsters.use_world({"creatures_enabled": false})
 	var rng := RandomNumberGenerator.new(); rng.seed = 23
 	var creature := {"id": "frozen", "kind": "beasts", "faction": "beasts", "pos": Vector2(2, 3), "units": []}
 	var initial := creature.duplicate(true); var rs := rng.state
@@ -80,5 +89,6 @@ func run(_tree: SceneTree) -> int:
 		if TownEcon.data()["cultures"][key].get("race", "") == "orc": captured["econ"]["culture"] = key
 	var resident := CampaignWorld.make_resident_troop(rng, "middle_kingdom", captured)
 	check(resident.race == "orc" and resident.faction == "middle_kingdom", "resident body and political allegiance separate")
+	Monsters.use_world(Game.world)
 	print("army scale / creature pause: %d checks, %d failures" % [checks, fails])
 	return fails

@@ -196,6 +196,25 @@ static func init_world(game) -> void:
 			rng.seed = hash([int(w.get("seed", 0)), fid, "academy"])
 			appoint(w, fid, cap["econ"], b, 0.0, rng)
 
+## Initial plot/workforce reconciliation can staff a previously empty house.
+## Retry only missing or displaced heads after those assignments are final.
+static func finish_world(game) -> void:
+	var w: Dictionary = game.world
+	for fid in w.get("factions", {}):
+		var cap: Dictionary = w["towns"].get(String(w["factions"][fid].get("capital", "")), {})
+		if not TownEcon.has_econ(cap): continue
+		var e: Dictionary = cap["econ"]
+		var b: Dictionary = biz_of(e)
+		if b.is_empty(): continue
+		var why: String = lead_gone(e, b)
+		if why == "": continue
+		if why != "none": vacate(w, fid, e, b, why, 0.0)
+		# Retry real paid staff; a fresh hire would need another workforce turn.
+		if not _staff(e, b).any(func(pair): return String(pair[1][4]) in ["", "hire"]): continue
+		var rng := RandomNumberGenerator.new()
+		rng.seed = hash([int(w.get("seed", 0)), fid, "academy"])
+		appoint(w, fid, e, b, 0.0, rng)
+
 ## Older saves: the new goods get today's base prices, each capital its house (an empty till: the next faction turn
 ## funds it), each faction its state and mirrors.
 static func after_load(game) -> void:
@@ -254,7 +273,7 @@ static func _state_owner(e: Dictionary, b: Dictionary) -> void:
 
 # ================================================================== the lead
 ## Is the lead still at his post? "" = yes; else why he is gone (for the log).
-static func lead_gone(e: Dictionary, b: Dictionary) -> String:
+static func lead_gone(e: Dictionary, b: Dictionary, work_scope: Array[Dictionary] = []) -> String:
 	var L: Array = b.get("lead", [])
 	if L.size() < 2:
 		return "none"
@@ -278,7 +297,11 @@ static func lead_gone(e: Dictionary, b: Dictionary) -> String:
 	if not bool(b.get("research_idle", false)) and int((f["jobs"] as Dictionary).get(str(int(b["id"])), 0)) <= 0:
 		return "left the house"
 	if not bool(b.get("research_idle", false)):
-		var job: Dictionary = Persons.work(e, f.duplicate()).get(int(L[1]), {})
+		var work: Dictionary = _research_work(e, f.duplicate())
+		# Reuse only within the day's subsequent read-only staff scan. A missing
+		# live kp must still be initialized by that scan's original work call.
+		if not work_scope.is_empty() and f.has("kp"): work_scope[0][int(f["id"])] = work
+		var job: Dictionary = work.get(int(L[1]), {})
 		if int(job.get("biz", -1)) != int(b["id"]) or bool(job.get("keeper", false)):
 			return "left the house"
 	return ""
@@ -322,14 +345,36 @@ static func _training(p: Array, fallback: float) -> Dictionary:
 	training["aptitude"] = clampf(float(training.get("aptitude", 1.0)), 0.9, 1.1)
 	return training
 
-## Actual named employees; a private operator's unpaid keeper place is not research staff.
-static func _staff(e: Dictionary, b: Dictionary, working_only: bool = false) -> Array:
+# Academy's internal eligibility/staff readers consume biz/keeper or the
+# idle marker. The shared cohort mapper also retains the appointed head;
+# attendance preserves the same blocks, anonymous offset and home sort.
+# Keep the full public prospective_work result and all noncohort mapping.
+static func _research_work(e: Dictionary, f: Dictionary, owner_names_scope: Array[Dictionary] = []) -> Dictionary:
+	return Persons.sanitation_work(e, f, owner_names_scope) if Population.is_cohort(f) else Persons.work(e, f, owner_names_scope)
+
+static func _prospective_places(e: Dictionary, f: Dictionary, b: Dictionary, n: int, owner_names_scope: Array[Dictionary] = []) -> Dictionary:
+	var candidate: Dictionary = f.duplicate()
+	var jobs: Dictionary = (f["jobs"] as Dictionary).duplicate()
+	candidate["jobs"] = jobs
+	var key: String = str(int(b["id"]))
+	if n > 0: jobs[key] = n
+	else: jobs.erase(key)
+	return _research_work(e, candidate, owner_names_scope)
+
+static func _staff(e: Dictionary, b: Dictionary, working_only: bool = false, work_scope: Array[Dictionary] = [], owner_names_scope: Array[Dictionary] = []) -> Array:
 	var out := []
-	var bid := int(b["id"])
+	var bid: int = int(b["id"])
+	var names_scope: Array[Dictionary] = owner_names_scope
+	if names_scope.is_empty(): names_scope = [{}]
 	for f in e["fams"]:
 		if f.get("gone", false) or f.get("estate", false) or int(f["jobs"].get(str(bid), 0)) <= 0:
 			continue
-		var work := Persons.work(e, f)
+		var work: Dictionary
+		if not work_scope.is_empty() and work_scope[0].has(int(f["id"])):
+			work = work_scope[0][int(f["id"])]
+		else:
+			work = _research_work(e, f, names_scope)
+		Persons._begin_pid_lookup(f)
 		for pid in work:
 			if int(work[pid].get("biz", -1)) != bid or bool(work[pid].get("keeper", false)):
 				continue
@@ -342,46 +387,49 @@ static func _staff(e: Dictionary, b: Dictionary, working_only: bool = false) -> 
 				if not sc.is_empty() and int(sc[Sickness.C_BED]) == 1 and day >= float(sc[Sickness.C_ON]) and day < Sickness._stop(sc):
 					continue
 			out.append([f, p])
+		Persons._end_pid_lookup(f)
 	return out
 
 ## Read the native job mapping with a proposed Academy count. Cohorts map
 ## anonymous adults before named people; an idle name alone proves no place.
-static func _prospective_work(e: Dictionary, f: Dictionary, b: Dictionary, n: int) -> Dictionary:
-	var candidate := f.duplicate(true)
-	var jobs: Dictionary = candidate["jobs"]
+static func _prospective_work(e: Dictionary, f: Dictionary, b: Dictionary, n: int, owner_names_scope: Array[Dictionary] = []) -> Dictionary:
+	# work() only initializes a missing top-level kp; nested register/history
+	# rows are read-only. Only the proposed jobs need private mutable storage.
+	var candidate: Dictionary = f.duplicate()
+	var jobs: Dictionary = (f["jobs"] as Dictionary).duplicate()
+	candidate["jobs"] = jobs
 	var key := str(int(b["id"]))
 	if n > 0: jobs[key] = n
 	else: jobs.erase(key)
-	return Persons.work(e, candidate)
+	return Persons.work(e, candidate, owner_names_scope)
 
 static func _named_places(work: Dictionary, bid: int) -> int:
 	var count := 0
-	for job in work.values():
+	for pid: Variant in work:
+		var job: Dictionary = work[pid]
 		if int(job.get("biz", -1)) == bid and not bool(job.get("keeper", false)):
 			count += 1
 	return count
 
 ## The normal matcher may offer only places occupied by registered adults.
-static func hiring_places(e: Dictionary, f: Dictionary, b: Dictionary) -> int:
+static func hiring_places(e: Dictionary, f: Dictionary, b: Dictionary, owner_names_scope: Array[Dictionary] = []) -> int:
 	if String(b["type"]) != "academy":
 		return maxi(0, int(b["cap"]) - int(b["workers"]))
 	if bool(b.get("research_idle", false)) or f.get("gone", false) or f.get("estate", false):
 		return 0
 	var named := 0
-	for p in Persons.pp_read(f):
-		if int(p[6]) == 0 and String(p[4]) in ["", "hire", "reserve"]:
-			named += 1
+	named = Population.home_worker_count(f)
 	var held := int(f["jobs"].get(str(int(b["id"])), 0))
 	if Population.is_cohort(f):
-		var open := mini(named, maxi(0, int(b["cap"]) - int(b["workers"])))
+		var open: int = mini(maxi(0, named - Population._staff_targets(e, f).size() - held), maxi(0, int(b["cap"]) - int(b["workers"])))
 		if open <= 0: return 0
 		var bid := int(b["id"])
 		# Never buy anonymous places to bridge the offset to a real person.
-		if _named_places(_prospective_work(e, f, b, held + 1), bid) != held + 1:
+		if _named_places(_prospective_places(e, f, b, held + 1, owner_names_scope), bid) != held + 1:
 			return 0
 		# The first place proves the left edge; the full offer bounds the
 		# right edge of the contiguous named range, without changing jobs.
-		return maxi(0, _named_places(_prospective_work(e, f, b, held + open), bid) - held)
+		return maxi(0, _named_places(_prospective_places(e, f, b, held + open, owner_names_scope), bid) - held)
 	# Noncohort leads can swap into a paid place through mark_lead.
 	var assigned := int(f.get("hands", 0)) + (f.get("keeps", []) as Array).size() + held
 	return maxi(0, named - assigned)
@@ -399,7 +447,7 @@ static func _release_unregistered(e: Dictionary, b: Dictionary) -> void:
 		# A mixed anonymous/named block cannot retain its named tail by
 		# merely shortening the block: the anonymous prefix would remain.
 		if held > keep and keep > 0 and Population.is_cohort(f):
-			if _named_places(_prospective_work(e, f, b, keep), int(b["id"])) != keep:
+			if _named_places(_prospective_places(e, f, b, keep), int(b["id"])) != keep:
 				keep = 0
 		if held > keep:
 			Families.set_job(e, f, int(b["id"]), keep)
@@ -418,7 +466,9 @@ static func appoint(w: Dictionary, fid: String, e: Dictionary, b: Dictionary, da
 	var best: Array = []   # [family, person]
 	var best_skill := -1.0
 	var idle := bool(b.get("research_idle", false))
-	for pair in _staff(e, b):
+	# All candidate queries precede set_job/lead changes and leave names intact.
+	var owner_names_scope: Array[Dictionary] = [{}]
+	for pair: Array in _staff(e, b, false, [], owner_names_scope):
 		var p: Array = pair[1]
 		if not String(p[4]) in ["", "hire"]:
 			continue
@@ -433,11 +483,12 @@ static func appoint(w: Dictionary, fid: String, e: Dictionary, b: Dictionary, da
 				continue
 			var offered := {}
 			if not idle:
-				if int(b["workers"]) >= int(b["cap"]) or hiring_places(e, f, b) <= 0:
+				if int(b["workers"]) >= int(b["cap"]) or hiring_places(e, f, b, owner_names_scope) <= 0:
 					continue
 				if Population.is_cohort(f):
-					offered = _prospective_work(e, f, b, int(f["jobs"].get(str(bid), 0)) + 1)
-			var wk2 := Persons.work(e, f)
+					offered = _prospective_places(e, f, b, int(f["jobs"].get(str(bid), 0)) + 1, owner_names_scope)
+			var wk2: Dictionary = _research_work(e, f, owner_names_scope)
+			Persons._begin_pid_lookup(f)
 			for pid in wk2:
 				var p := Persons.by_pid(f, int(pid))
 				if p.is_empty() or int(p[6]) != 0 or not String(p[4]) in ["", "hire"]:
@@ -452,6 +503,7 @@ static func appoint(w: Dictionary, fid: String, e: Dictionary, b: Dictionary, da
 				if _better(p, skill, best, best_skill):
 					best = [f, p]
 					best_skill = skill
+			Persons._end_pid_lookup(f)
 		if best.is_empty():
 			return false
 		var f2: Dictionary = best[0]
@@ -595,7 +647,8 @@ static func day(game, town: Dictionary, e: Dictionary, b: Dictionary, w: float, 
 		b["why"] = "no line it can take"
 		return 0.0
 	b["research_idle"] = false
-	var why := lead_gone(e, b)
+	var work_scope: Array[Dictionary] = [{}]
+	var why: String = lead_gone(e, b, work_scope)
 	if why != "":
 		if why != "none":
 			vacate(world, fid, e, b, why, d)
@@ -609,7 +662,7 @@ static func day(game, town: Dictionary, e: Dictionary, b: Dictionary, w: float, 
 	# Resolve real working people, including the head's own sickness rather than a count-only substitute.
 	var L: Array = b["lead"]
 	var lf: Dictionary = e["fams"][int(L[0])]
-	var crew := _staff(e, b, true)
+	var crew: Array = _staff(e, b, true, work_scope)
 	var head: Array = []
 	for pair in crew:
 		if int(pair[0]["id"]) == int(L[0]) and int(pair[1][0]) == int(L[1]):
@@ -685,7 +738,7 @@ static func day(game, town: Dictionary, e: Dictionary, b: Dictionary, w: float, 
 # ================================================================== the faction turn (weekly)
 ## TownEcon.faction_turn: the state's interest and budget, the coin to the house's till, places and lay-offs, a
 ## successor for an empty post, the week's study piece, the towns' know-how mirrors.
-static func faction_turn(game, day: float) -> void:
+static func faction_turn(game, day: float, army_bills: Dictionary = {}) -> void:
 	var w: Dictionary = game.world
 	var RR := R()
 	var I: Dictionary = RR["interest"]
@@ -705,7 +758,8 @@ static func faction_turn(game, day: float) -> void:
 		var act := active_lines(w, fid)
 		b["research_idle"] = act.is_empty()
 		# interest from real conditions: the treasury against the army's keep, war, steel met, the ruler's temper
-		var keep := maxf(1.0, Army.bill(game, fid) * float(I["keep_days"]))
+		var army_bill: float = float(army_bills[fid]) if army_bills.has(fid) else Army.bill(game, fid)
+		var keep: float = maxf(1.0, army_bill * float(I["keep_days"]))
 		var tre := float(fac.get("treasury", 0.0))
 		var it := float(I["base"]) + float(I["treasury"]) * clampf(tre / keep - 1.0, -1.0, 1.0)
 		for pr in w.get("wars", []):
@@ -809,7 +863,9 @@ static func _lay_off(e: Dictionary, b: Dictionary, n: int, affected: Dictionary 
 	var bid := int(b["id"])
 	var L: Array = b.get("lead", [])
 	var laid := 0
-	for f in e["fams"]:
+	var holders: Array = (Families._field_workers(e).get(str(bid), []) as Array).duplicate()
+	for family_at: Variant in holders:
+		var f: Dictionary = e["fams"][int(family_at)]
 		if laid >= n:
 			break
 		var k := int((f["jobs"] as Dictionary).get(str(bid), 0))
@@ -831,6 +887,35 @@ static func _lay_off(e: Dictionary, b: Dictionary, n: int, affected: Dictionary 
 	return laid
 
 ## Steel pieces in the faction's towns' stalls and armories (met in trade, in loot, from its own smiths).
+# Bounded runtime snapshots retain inventory membership, not a second item state.
+# Same membership and material revision reuse the exact integer count. Otherwise
+# retain a known unchanged prefix and count the changed suffix in native order.
+static var _steel_inventories: Dictionary = {}
+
+static func _steel_inventory(cache_key: String, items: Array) -> int:
+	var cached: Array = _steel_inventories.get(cache_key, [])
+	var prefix: PackedInt32Array = PackedInt32Array()
+	var first: int = 0
+	if cached.size() == 3 and int(cached[0]) == Item.material_revision:
+		var previous: Array = cached[1]
+		prefix = cached[2]
+		if items == previous: return int(prefix[items.size()])
+		var shared: int = mini(items.size(), previous.size())
+		while first < shared and items[first] == previous[first]: first += 1
+	else:
+		prefix.append(0)
+	prefix.resize(items.size() + 1)
+	var total: int = int(prefix[first])
+	for at: int in range(first, items.size()):
+		var item: Variant = items[at]
+		if item is Item:
+			item._material_observed = true
+			if item.material == "steel": total += 1
+		prefix[at + 1] = total
+	if not _steel_inventories.has(cache_key) and _steel_inventories.size() >= 128: _steel_inventories.clear()
+	_steel_inventories[cache_key] = [Item.material_revision, items.duplicate(), prefix]
+	return total
+
 static func _steel_met(w: Dictionary, fid: String) -> int:
 	var n := 0
 	for tid in w["factions"].get(fid, {}).get("towns", []):
@@ -838,16 +923,16 @@ static func _steel_met(w: Dictionary, fid: String) -> int:
 		if String(t.get("faction", "")) != fid:
 			continue
 		for key in ["shop", "armory_items"]:
-			for it in t.get(key, []):
-				if it is Item and it.material == "steel":
-					n += 1
+			n += _steel_inventory("%s:%s" % [String(tid), String(key)], t.get(key, []))
 	return n
 
 static func _study(town: Dictionary, e: Dictionary, b: Dictionary, S: Dictionary, fid: String, day: float) -> void:
-	if b.get("closed", false) or bool(b.get("research_idle", false)) or lead_gone(e, b) != "":
+	# No job/lead mutation separates validation from this read-only staff scan.
+	var work_scope: Array[Dictionary] = [{}]
+	if b.get("closed", false) or bool(b.get("research_idle", false)) or lead_gone(e, b, work_scope) != "":
 		return
 	var lead: Array = b["lead"]
-	if not _staff(e, b, true).any(func(pair): return int(pair[0]["id"]) == int(lead[0]) and int(pair[1][0]) == int(lead[1])):
+	if not _staff(e, b, true, work_scope).any(func(pair: Array) -> bool: return int(pair[0]["id"]) == int(lead[0]) and int(pair[1][0]) == int(lead[1])):
 		return
 	var shop: Array = town.get("shop", [])
 	var pick := -1

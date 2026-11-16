@@ -14,7 +14,17 @@ func run(_tree: SceneTree) -> int:
 	WorldGen.gen_size = "normal"
 	WorldGen.gen_stretch = WorldGen.STRETCH
 	Game.new_game(20261010)
-	check(Game.company.size() == 100, "native starting company has 100 actual people")
+	# v0.100: v0.017 (e460f8b) deliberately starts unraised; explicitly muster two real residents for identity checks.
+	check(Game.company.is_empty() and Game.gold == 0 and Food.stock(Game, "meal") == 0,
+		"native campaign starts without a free company, army purse or provisions")
+	var town_id := DevTools.choose_house(Game)
+	check(town_id != "", "an actual ruling household can fund the population fixture")
+	check(Game.company.is_empty() and Game.gold == 0, "house selection leaves the army unraised and unfunded")
+	var raised := DevTools.raise_army(Game, town_id, 2) if town_id != "" else 0
+	check(raised == 2 and Game.company.size() == 2, "explicit funded muster supplies two actual residents")
+	if fails > 0:
+		WorldGen.gen_size = old_size; WorldGen.gen_stretch = old_stretch
+		return fails
 	var company_ids := {}
 	for u in Game.company:
 		var home: Dictionary = Game.world["towns"].get(u.home_town, {})
@@ -23,7 +33,7 @@ func run(_tree: SceneTree) -> int:
 		check(not family.is_empty() and not person.is_empty(), "starting Unit has actual home household and registered person")
 		if person.is_empty(): continue
 		var uid := str(Persons.g(person, Persons.PERSON_UID, ""))
-		check(uid != "" and not company_ids.has(uid) and String(person[4]) == "company", "starting company consumes 100 distinct away resident identities")
+		check(uid != "" and not company_ids.has(uid) and String(person[4]) == "company", "funded company consumes distinct away resident identities")
 		check(u.race == String(family.get("race", Persons.race_of(home["econ"]))), "starting company body matches actual source resident race")
 		company_ids[uid] = true
 	var picked := {}
@@ -45,7 +55,12 @@ func run(_tree: SceneTree) -> int:
 			if owner.is_empty() and Population.eligible_slots(e, f, float(e.get("day", 0)), true) >= 2: picked = town; owner = f
 		for b in e["biz"]:
 			if b.get("closed", false) or b.get("for_sale", false): continue
-			check(int(b["owner"]) >= 0 and not Population.is_cohort(e["fams"][int(b["owner"])]) and not e["fams"][int(b["owner"])].get("estate", false), "every generated active native business belongs to tracked family")
+			# v0.100: Academies stay state-owned; other active businesses retain tracked private owners.
+			if String(b["type"]) == "academy":
+				check(int(b["owner"]) == -1 and String(b.get("public_funding", "")) == "realm", "every generated active Academy is state-owned and realm-funded")
+				check(int(b["kw"]) == 0, "every generated active Academy has no private keeper")
+				continue
+			check(int(b["owner"]) >= 0 and not Population.is_cohort(e["fams"][int(b["owner"])]) and not e["fams"][int(b["owner"])].get("estate", false), "every other generated active native business belongs to tracked family")
 	check(not picked.is_empty(), "real anonymous draft-age residents exist")
 	check(away == Game.company.size() and company_ids.size() == Game.company.size(), "company is counted exactly once away from resident town census")
 	if picked.is_empty():

@@ -2,6 +2,14 @@ class_name DomesticAnimals
 extends RefCounted
 ## Domestic work extends the counted Herds records; it never creates combat units.
 
+# Scoped to one synchronous buy_dogs call; never stored in an economy/save.
+static var _dog_target_scope: Dictionary = {}
+
+static func _dog_target_herds(e: Dictionary, fid: int) -> Array:
+	if is_same(_dog_target_scope.get("economy"), e):
+		return _dog_target_scope["members"].get(fid, [])
+	return Herds.herds(e).values()
+
 ## Family dogs eat real scraps, then food bought from the market above its human
 ## reserve. Whole purchased meals retain their uneaten kg on the owning record.
 static func feed_dogs(e: Dictionary, day: float) -> void:
@@ -65,7 +73,7 @@ static func raid_share(e: Dictionary, herd: Dictionary, day: float) -> float:
 
 static func dog_target(e: Dictionary, fid: int) -> int:
 	var stock := 0
-	for h in Herds.herds(e).values():
+	for h: Variant in _dog_target_herds(e, fid):
 		if Herds.GRAZE.has(String(h["k"])) and Herds.grazer(e, h) == fid:
 			stock += Herds.head(h)
 	return clampi(int(ceil(float(stock) / float(Herds.kind("dogs")["guard_head"]))), 0, 4)
@@ -73,6 +81,15 @@ static func dog_target(e: Dictionary, fid: int) -> int:
 ## Existing live-market offers and actual purses supply guard dogs. Culture
 ## selects opening stock only; any owner can subsequently buy them.
 static func buy_dogs(e: Dictionary, day: float) -> void:
+	var previous_scope: Dictionary = _dog_target_scope
+	var members: Dictionary = {}
+	for record: Dictionary in Herds.herds(e).values():
+		if Herds.GRAZE.has(String(record["k"])):
+			var owner: int = Herds.grazer(e, record)
+			if not members.has(owner):
+				members[owner] = []
+			(members[owner] as Array).append(record)
+	_dog_target_scope = {"economy": e, "members": members}
 	var hd := Herds.H(e)
 	for f in e["fams"]:
 		if f.get("gone", false) or f.get("estate", false): continue
@@ -95,6 +112,8 @@ static func buy_dogs(e: Dictionary, day: float) -> void:
 			Herds._add_coin(e, seller, paid)
 			hd["sok"]["dogs"] = int(hd["sok"].get("dogs", 0)) + 1
 			short -= 1
+
+	_dog_target_scope = previous_scope
 
 ## Donkeys/mules use the existing farm draught calculation, with half an ox's
 ## coverage per healthy adult. Pack animals away with a caravan are unavailable.

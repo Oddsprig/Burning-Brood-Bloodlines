@@ -444,12 +444,14 @@ static func on_battle_result(game, wid: String, wb: Dictionary, result: Dictiona
 		return true
 	if kind == "camp":
 		var loot := Bandits.clear_camp(game, String(wb.get("lair", "")), result)
+		Army.band_beaten(game, wb, null, 1.0)
 		CampaignWorld.remove_warband(game, wid)
 		CampaignWorld.log_event(game, "The company stormed the bandit camp near %s%s." % [CampaignWorld.nearest_town_name(w, wb["pos"]),
 			(" and sold its hoard for %d coins" % loot) if loot > 0 else ""])
 		_complete_if_target(game, wid, wb)
 		return true
 	if kind == "bandit" or kind == "deserter":
+		Army.band_beaten(game, wb, null, 1.0)
 		CampaignWorld.remove_warband(game, wid)
 		if kind == "deserter":
 			CampaignWorld.change_rep(game, wb["faction"], 3)   # their old lords are glad of it

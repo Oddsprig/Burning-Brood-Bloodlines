@@ -196,6 +196,8 @@ func flash(pos: Vector2, col: Color) -> void:
 		flashes.pop_front()
 
 func _draw() -> void:
+	if Game._day_job_wait_observer(queue_redraw):
+		return
 	if w.is_empty():
 		return
 	var wpx := Vector2(gw, gh) * cell

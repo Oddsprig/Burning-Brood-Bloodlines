@@ -1,4 +1,5 @@
 extends RefCounted
+const Parts201 = preload("res://tests/fixtures/older_201_parts_v100.gd")
 ## Screen switch times on the default (Large) world, through the real root scene (main.tscn) and Game.goto, so a slow
 ## switch cannot quietly come back (Douglas v0.014 playtest: "pretty long loading screen between menus. and map
 ## screen to town screen"; it matters more on the phone). A short stretch of the years before (PRESIM_DAYS) keeps
@@ -34,6 +35,11 @@ func _switch(tree: SceneTree, fn: Callable) -> float:
 	return _ms(t0)
 
 func run(tree: SceneTree) -> int:
+	var cases: Array = ["setup", "finish", "codec", "ui", "ui-company", "verify"]
+	for day_number: int in range(1, PRESIM_DAYS + 1): cases.append("day%d" % day_number)
+	var part: String = Parts201.select(cases)
+	if part.is_empty(): return 1
+	if part != "all": return await _split_ui(tree, part)
 	await tree.process_frame
 	WorldGen.gen_size = WorldGen.WORLD_SIZE
 	var t0 := Time.get_ticks_usec()
@@ -43,6 +49,21 @@ func run(tree: SceneTree) -> int:
 	CampaignWorld.presim_finish(Game, 0)
 	print("world %s (%d towns) and %d days before: %.1f s" % [WorldGen.WORLD_SIZE, Game.world["towns"].size(), PRESIM_DAYS, _ms(t0) / 1000.0])
 	_check_walks()
+	var empty_result: int = await _ui_routes(tree, false)
+	if empty_result != 0: return empty_result
+	return await _ui_routes(tree, true)
+
+func _ui_routes(tree: SceneTree, with_company: bool) -> int:
+	if with_company:
+		var seat: String = DevTools.choose_house(Game)
+		check(not seat.is_empty(), "nonempty-company route selects an actual owned house")
+		if seat.is_empty(): return fails
+		var raised: int = DevTools.raise_army(Game, seat, 4)
+		check(raised == 4 and not Game.company.is_empty(), "four real residents join through privately funded native muster")
+		if fails > 0: return fails
+	var roster_uids: Array = []
+	for resident: Unit in Game.company: roster_uids.append(resident.uid)
+	check(not Game.company.is_empty() if with_company else Game.company.is_empty(), "both original unraised and funded nonempty routes have the intended native roster")
 	var tid := ""
 	for id in Game.world["towns"]:
 		var t: Dictionary = Game.world["towns"][id]
@@ -85,6 +106,9 @@ func run(tree: SceneTree) -> int:
 		if k == "title -> map":
 			continue   # the one-off map layer build for a new world (DEV_NOTES)
 		check(ms[k] < gate, "%s took %.0f ms (gate %.0f)" % [k, ms[k], gate])
+	var after_roster: Array = []
+	for resident: Unit in Game.company: after_roster.append(resident.uid)
+	check(after_roster == roster_uids, "all five real company tabs retain the entire native roster")
 	# the background autosave: written whole, and it loads
 	var day: float = Game.day
 	var gold: int = Game.gold
@@ -140,3 +164,45 @@ func _old_deserialize(v):
 	if v is Array:
 		return v.map(func(x): return _old_deserialize(x))
 	return v
+
+func _split_ui(tree: SceneTree, part: String) -> int:
+	var io: RefCounted = Parts201.new("ui_load20")
+	if io.fails > 0: return 1
+	if part == "setup":
+		WorldGen.gen_size = WorldGen.WORLD_SIZE
+		Game.new_game(2026)
+		Game.world["presim"] = {"total": PRESIM_DAYS, "done": 0, "from": Game.day}
+		io.context = {"seed": 2026, "size": WorldGen.WORLD_SIZE, "days": PRESIM_DAYS, "from": Game.day}
+		return 0 if io.save_step(0) else 1
+	if part.begins_with("day"):
+		var step: int = int(part.trim_prefix("day"))
+		if not io.load_step(step - 1): return 1
+		check(int(Game.world["presim"]["total"]) == PRESIM_DAYS and int(Game.world["presim"]["done"]) == step - 1, "UI history resumes its exact real predecessor")
+		if fails > 0: return fails
+		CampaignWorld.presim_step(Game, 1)
+		check(Game.day == float(io.context["from"]) + step and int(Game.world["presim"]["done"]) == step, "UI setup executes every original history day exactly once")
+		if fails > 0: return fails
+		return 0 if io.save_step(step) else 1
+	if part == "finish":
+		if not io.load_step(PRESIM_DAYS): return 1
+		check(CampaignWorld.presim_left(Game) == 0 and int(Game.world["presim"]["done"]) == PRESIM_DAYS, "all twenty original UI history days completed")
+		if fails > 0: return fails
+		CampaignWorld.presim_finish(Game, 0)
+		check(Game.world["presim"].get("finished", false), "native twenty-day history finish completed")
+		return 0 if fails == 0 and io.save_step(PRESIM_DAYS + 1) else maxi(1, fails)
+	if part == "verify":
+		if not io.verify_chain(PRESIM_DAYS + 1): return 1
+		var final_proof: Dictionary = io.read_record("proof%d" % (PRESIM_DAYS + 1))
+		if final_proof.is_empty(): return 1
+		var preceding: String = str(final_proof["record"])
+		var chain: String = str(final_proof["chain"])
+		for section: String in ["codec", "ui", "ui-company"]:
+			var receipt: Dictionary = io.read_record(section)
+			if receipt.is_empty(): return 1
+			check(receipt.get("chain") == chain and receipt.get("input") == preceding and receipt.get("failures") == 0, "complete UI/codec receipt: " + section)
+		return fails
+	if not io.load_step(PRESIM_DAYS + 1): return 1
+	if part == "codec": _check_walks()
+	else: await _ui_routes(tree, part == "ui-company")
+	if fails > 0: return fails
+	return 0 if io.write_record(part, {"chain": io.context["chain"], "input": FileAccess.get_sha256(io.path(str(PRESIM_DAYS + 1))), "failures": fails}) else 1

@@ -2,7 +2,7 @@ extends RefCounted
 ## v0.014, Douglas's Fenmere findings (two "Blackmere Bowyer" rows, every shop at 0 coins and 0/1 staff beside 46
 ## idle adults and 57 open places, "kept by: not tracked", farms without health or profit; "we got 50-60 businesses
 ## and nobody to work in them"; "just one business doing actual production stuff - farming is a different matter";
-## "youd think people would be interested in higher paying jobs first"). Checked at world gen and after a year:
+## "youd think people would be interested in higher paying jobs first"). Checked at world gen and after the configured startup history:
 ##   - one business per production trade per town (mines: one per ore); farms may be several; no two rows of a town
 ##     share a name;
 ##   - every family shop is kept by a grown-up of its family who works it (unless the family has nobody free), and
@@ -20,16 +20,38 @@ func check(ok: bool, msg: String) -> void:
 
 func run(_tree: SceneTree) -> int:
 	Game.new_game(2026)
+	_test_initial_capitals()
 	_check_world("world gen")
 	_test_records_rows("world gen")
-	var days := int(OS.get_environment("BIZ_DAYS")) if OS.get_environment("BIZ_DAYS") != "" else 365
-	CampaignWorld.presim_step(Game, days)
+	var days := int(OS.get_environment("BIZ_DAYS")) if OS.get_environment("BIZ_DAYS") != "" else CampaignWorld.presim_total(Game)
+	var before_day: float = Game.day
+	_advance_history(days)
+	var after_label: String = "after %s days (requested %d)" % [str(Game.day - before_day), days]
 	_capture_state()
-	_check_world("after %d days" % days)
-	_test_records_rows("after %d days" % days)
+	_check_world(after_label)
+	_test_records_rows(after_label)
 	_trace_captured_towns()
 	_test_matching()
 	return fails
+
+## Explicit BIZ_DAYS requests and capture steps must not silently stop at the
+## default one-day startup limit. Keep the normal run at the configured history.
+func _advance_history(days: int) -> void:
+	var valid: bool = days >= 0 and days <= CampaignWorld.PRESIM_DAYS_MAX
+	check(valid, "history request must be between 0 and %d days" % CampaignWorld.PRESIM_DAYS_MAX)
+	if not valid: return
+	var p: Dictionary = Game.world.get("presim", {})
+	check(not bool(p.get("finished", false)), "history advance cannot resume a finished startup")
+	if bool(p.get("finished", false)): return
+	if p.is_empty():
+		p = {"total": days, "done": 0, "from": Game.day}
+		Game.world["presim"] = p
+	else:
+		p["total"] = int(p.get("done", 0)) + days
+	var before: float = Game.day
+	var left: int = CampaignWorld.presim_step(Game, days)
+	check(Game.day - before == float(days) and left == 0,
+		"history advanced %s days, requested %d; %d remain" % [str(Game.day - before), days, left])
 
 func _towns() -> Array:
 	var out := []
@@ -39,6 +61,19 @@ func _towns() -> Array:
 		if TownEcon.has_econ(Game.world["towns"][tid]):
 			out.append(Game.world["towns"][tid])
 	return out
+
+## Each realm has one research house at its actual seat. Regional placement
+## flags must not create an ungoverned duplicate before Feudal normalizes them.
+func _test_initial_capitals() -> void:
+	for t in _towns():
+		var fid: String = String(t["faction"])
+		var seat: String = String(Game.world["factions"].get(fid, {}).get("capital", ""))
+		var is_seat: bool = String(t["id"]) == seat
+		check(bool(t.get("capital", false)) == is_seat,
+			"world gen: %s capital flag must match its faction seat" % t["name"])
+		var has_academy: bool = not Academy.biz_of(t["econ"]).is_empty()
+		check(has_academy == is_seat,
+			"world gen: %s must have a research house exactly when it is the faction seat" % t["name"])
 
 func _check_world(label: String) -> void:
 	var worst_pair := [0, ""]; var worst_empty := [0, ""]
@@ -79,7 +114,7 @@ func _check_world(label: String) -> void:
 			if (int(b["workers"]) > 0 or int(b.get("kw", 0)) > 0) and RecData.keeper(e, b).is_empty():
 				nokeeper += 1
 				if nokeeper <= 5:
-					check(false, "%s: %s's %s is at work but names no keeper" % [label, t["name"], Businesses.title(e, b)])
+					check(false, "%s: %s's %s is at work but names no keeper; %s" % [label, t["name"], Businesses.title(e, b), JSON.stringify(_keeper_state(e, b))])
 			if ty != "farm" and not ty in Businesses.NOT_TRADES and int(b["workers"]) == 0 and int(b.get("kw", 0)) == 0:
 				empty += 1
 		var idle := 0
@@ -120,6 +155,35 @@ func _check_world(label: String) -> void:
 	# a family's turn comes weekly: idle hands and a place opened since may meet for up to a week [ours: 10]
 	check(int(worst_pair[0]) <= 10, "%s: idle grown-ups beside open places they could take: %s" % [label, worst_pair[1]])
 	check(int(worst_empty[0]) <= 5, "%s: %s has %d shops with nobody at work" % [label, worst_empty[1], int(worst_empty[0])])
+
+# v0.100: retain the failure and capture its actual assignments before proposing a rule change.
+func _keeper_state(e: Dictionary, b: Dictionary) -> Dictionary:
+	var bid: int = int(b["id"])
+	var owner: int = int(b.get("owner", -1))
+	var families: Array = []
+	for f: Dictionary in e.get("fams", []):
+		var jobs: Dictionary = f.get("jobs", {})
+		if int(f.get("id", -1)) != owner and int(jobs.get(str(bid), 0)) <= 0 and int(jobs.get(bid, 0)) <= 0:
+			continue
+		var people: Array = []
+		for p: Array in f.get("pp", []):
+			people.append([p[0], p[2], p[3], p[4], p[5], p[6]])
+		var places: Dictionary = RecData._family_work(e, f, {})
+		var holders: Array = []
+		for pid: Variant in places:
+			var place: Dictionary = places[pid]
+			if int(place.get("biz", -1)) == bid:
+				holders.append({"pid": pid, "keeper": place.get("keeper", false)})
+		families.append({"fid": f["id"], "gone": f.get("gone", false), "estate": f.get("estate", false),
+			"cohort": f.get("cohort", false), "adults": Families.adults(f), "serve": f.get("serve", {}),
+			"hands": f.get("hands", 0), "jobs": jobs, "keeps": f.get("keeps", []), "people": people,
+			"population_year": f.get("population_year", -1), "age_bins": f.get("age_bins", {}), "holders": holders})
+	return {"day": e.get("day", 0), "bid": bid, "type": b["type"], "owner": owner,
+		"workers": b.get("workers", 0), "kw": b.get("kw", 0), "state": b.get("state", ""), "why": b.get("why", ""),
+		"public_funding": b.get("public_funding", ""), "lead": b.get("lead", []), "lead_uid": b.get("lead_uid", ""),
+		"research_idle": b.get("research_idle", false), "research_day": b.get("research_day", -1),
+		"research_out_day": b.get("research_out_day", 0.0),
+		"lead_gone": Academy.lead_gone(e, b) if String(b["type"]) == "academy" else "", "families": families}
 
 ## The Businesses tab's row reads the business itself: cash = its till, staff = hands + keeper, the keeper by name.
 func _test_records_rows(label: String) -> void:
@@ -235,7 +299,7 @@ func _trace_captured_towns() -> void:
 	var path := OS.get_environment("BIZ_CAPTURE")
 	if path == "": return
 	for offset in 10:
-		CampaignWorld.presim_step(Game, 1)
+		_advance_history(1)
 		capture_trace.append(_capture_observation())
 	var file := FileAccess.open(path.path_join("ordinary-turn-trace.json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify({"selected": capture_towns, "trace": capture_trace}))

@@ -33,7 +33,14 @@ func _make(tree: SceneTree, enemies: int, s: int, extra: Dictionary = {}) -> Nod
 	var raised := DevTools.raise_army(Game, town, 2)
 	assert(raised == 2, "two native residents muster for every battle case")
 	var rng := RandomNumberGenerator.new(); rng.seed = s
-	Game.pending_battle = {"enemy": Factory.make_warband(rng, "orc_horde", enemies), "allies": [], "seed": s,
+	# Prisoner custody needs the opposing campaign band, not an unowned fighter array.
+	var opponents: Array = Factory.make_warband(rng, "orc_horde", enemies)
+	var wid: String = CampaignWorld.spawn_warband(Game, "orc_horde", Game.world["party"]["pos"],
+		enemies, "patrol", rng, {"units": opponents})
+	assert(wid != "", "native enemy field band spawns")
+	var enemy_band: Dictionary = Game.world["warbands"][wid]
+	assert((enemy_band["units"] as Array).size() == enemies, "native enemy band supplies every requested fighter")
+	Game.pending_battle = {"warband_id": wid, "enemy": enemy_band["units"], "allies": [], "seed": s,
 		"terrain": "forest"}
 	Game.pending_battle.merge(extra, true)
 	var b: Node = (load("res://battle/battle.tscn") as PackedScene).instantiate()
@@ -117,8 +124,13 @@ func _small_battle(tree: SceneTree) -> int:
 	fails += _check(b.result_shown, "result shown")
 	var deaths: int = b.sim.events.filter(func(e): return e["type"] == "death").size()
 	print("small battle: %d ticks, winner %d, %d deaths, %d severs, %d events" % [b.sim.tick, b.sim.winner, deaths, severs, b.sim.events.size()])
-	var company_before := Game.company.size()
-	var dead_players := 0
+	var enemy_id: String = str(Game.pending_battle["warband_id"])
+	var enemy_band: Dictionary = Game.world["warbands"][enemy_id]
+	var enemy_faction: String = str(enemy_band["faction"])
+	var enemy_home: String = str(enemy_band["home"])
+	var company_units: Array = Game.company.duplicate()
+	var company_before: int = company_units.size()
+	var dead_players: int = 0
 	for u in Game.company:
 		if u.dead: dead_players += 1
 	var main_before = Game.main
@@ -126,11 +138,50 @@ func _small_battle(tree: SceneTree) -> int:
 	b.finish()
 	Game.main = main_before
 	var r: Dictionary = Game.last_result
+	var lost: bool = int(r.get("winner", -1)) == 1
 	for k in ["winner", "player_units", "enemy_units", "enemy_fallen", "events", "loot_gold", "growth"]:
 		fails += _check(r.has(k), "result has " + k)
-	# v0.099: men downed on a field the enemy holds are now taken prisoner (BattleRounds), so they leave the company too.
-	var captured := int((r.get("captured", [0, 0]) as Array)[0])
-	fails += _check(Game.company.size() == company_before - dead_players - captured, "dead and captured removed from company (%d before, %d dead, %d taken, %d left)" % [company_before, dead_players, captured, Game.company.size()])
+	# v0.099 loser-side downed survivors enter custody (older_tests_unfixed_diagnosis.md, entry 8;
+	# campaign/battle_rounds.gd:_take_prisoners). Verify identities, not only a subtraction of reported counts.
+	var captured: int = int((r.get("captured", [0, 0]) as Array)[0])
+	fails += _check(lost and captured > 0, "small native battle exercises actual loser-side capture")
+	var fighter_units: Array = r.get("fighter_units", [])
+	var fighter_states: Array = r.get("fighter_states", [])
+	fails += _check(fighter_units.size() == fighter_states.size() and not fighter_units.is_empty(), "result supplies each actual fighter and final state")
+	var expected_live: Dictionary = {}
+	var expected_dead: Dictionary = {}
+	var expected_captured: Dictionary = {}
+	for original: Unit in company_units:
+		var index: int = fighter_units.find(original)
+		fails += _check(index >= 0 and index < fighter_states.size(), "original resident has a final fighter state")
+		if original.dead:
+			expected_dead[original.uid] = true
+			fails += _check(not Game.company.has(original) and Prisoners.captive_unit(Game, original.uid) == null, "dead resident is neither still serving nor a live captive")
+		elif index >= 0 and index < fighter_states.size() and lost and str(fighter_states[index]) in ["unconscious", "prone"]:
+			expected_captured[original.uid] = true
+			var custody: Dictionary = Prisoners._find(Prisoners.captives(Game), original.uid)
+			fails += _check(not Game.company.has(original) and custody.get("unit") == original
+				and str(custody.get("held_by", "")) == enemy_faction
+				and str(custody.get("hold_band", "")) == enemy_id
+				and str(custody.get("hold_town", "")) == enemy_home,
+				"losing downed resident enters actual enemy custody with the same Unit")
+		else:
+			expected_live[original.uid] = true
+			# Native settlement sends uncaptured losers home to remuster.
+			var retained: bool = Game.company.count(original) == 1
+			if lost:
+				retained = not Game.company.has(original) and Mobilization.reserves(Game).count(original) == 1
+			fails += _check(retained and Prisoners.captive_unit(Game, original.uid) == null,
+				"living uncaptured resident retains the same Unit at its native company/reserve destination")
+	fails += _check(expected_dead.size() == dead_players and expected_captured.size() == captured, "reported dead/captured counts equal the disjoint original-person sets")
+	var returned_home: int = expected_live.size() if lost else 0
+	fails += _check(Game.company.size() == expected_live.size() - returned_home, "company contains exactly the survivors still in the field")
+	var survivor_ids: Dictionary = {}
+	for survivor: Unit in Game.company:
+		fails += _check(expected_live.has(survivor.uid) and not survivor_ids.has(survivor.uid), "survivor identity is original and unique")
+		survivor_ids[survivor.uid] = true
+	fails += _check(Game.company.size() == company_before - dead_players - captured - returned_home,
+		"settled company (%d before, %d dead, %d taken, %d home, %d left)" % [company_before, dead_players, captured, returned_home, Game.company.size()])
 	fails += _check(Game.pending_battle.is_empty(), "pending battle cleared")
 	b.queue_free()
 	await tree.process_frame

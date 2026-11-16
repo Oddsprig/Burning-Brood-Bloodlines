@@ -327,19 +327,39 @@ func run(tree: SceneTree) -> int:
 	live(progress_dragon)["alive"] = true
 	if str(approach_of(other_dragon).get("person_uid", "")) != "":
 		DragonBond.stop_approach(Game, other_dragon)
-	# Two dragons approaching one person: load keeps the higher familiarity, and the lower id on a tie.
+	# v0.100: construct a schema-1 migration fixture, not a historical-save receipt.
+	# Leave both approaches active on disk: only the legacy load may deduplicate them.
 	var low_id := progress_dragon if progress_dragon < other_dragon else other_dragon
 	var high_id := other_dragon if low_id == progress_dragon else progress_dragon
 	plant_approach(low_id, progress_person, 10.0)
 	plant_approach(high_id, progress_person, 40.0)
-	roundtrip()
+	check(str(approach_of(low_id).get("person_uid", "")) == progress_person
+		and str(approach_of(high_id).get("person_uid", "")) == progress_person, "legacy fixture starts with two active approaches for one person")
+	Game.wait_save()
+	var legacy: Dictionary = Game._save_tree()
+	legacy["version"] = 1
+	# Removing the runtime sidecars also selects the float-only legacy JSON codec.
+	for key in ["__types", "raid_state", "gold_gone", "goods_lost", "war_runtime"]:
+		legacy.erase(key)
+	var legacy_receipt: Dictionary = Game._write_save(Game.SAVE_PATH, legacy)
+	check(bool(legacy_receipt.get("ok", false)), "constructed legacy duplicate fixture writes successfully")
+	if not bool(legacy_receipt.get("ok", false)): return fails
+	check(Game.load_game(), "legacy save reloads")
 	check(str(approach_of(high_id).get("person_uid", "")) == progress_person, "load keeps the approach with higher familiarity")
 	check(str(approach_of(low_id).get("person_uid", "")) == "", "load cancels the duplicate approach")
+	check(str(approach_of(high_id).get("person_uid", "")) == progress_person and near(familiarity(high_id), 40.0), "legacy load keeps the higher familiarity unchanged")
+	check(str(approach_of(low_id).get("person_uid", "")) == "" and near(familiarity(low_id), 10.0), "legacy load cancels the duplicate and keeps its familiarity")
 	var dup_reason := false
 	for event in live(low_id).get("history", []):
 		if event is Dictionary and str(event.get("kind", "")) == "approach_cancelled" and str(event.get("reason", "")) == "duplicate":
 			dup_reason = true
 	check(dup_reason, "the dropped approach records a duplicate cancel")
+	# A subsequent normal save/load must preserve the result without more repairs.
+	var reconciled_approaches := [approach_of(low_id).duplicate(true), approach_of(high_id).duplicate(true)]
+	var duplicate_history: Array = live(low_id).get("history", []).duplicate(true)
+	roundtrip()
+	check(approach_of(low_id) == reconciled_approaches[0] and approach_of(high_id) == reconciled_approaches[1]
+		and live(low_id).get("history", []) == duplicate_history, "save/load preserves both reconciled approaches and the exact cancellation history")
 	plant_approach(low_id, progress_person, 25.0)
 	plant_approach(high_id, progress_person, 25.0)
 	DragonBond.reconcile(Game)

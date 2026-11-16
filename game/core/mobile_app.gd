@@ -16,6 +16,8 @@ var _layer: CanvasLayer = null
 var _layer_root: Control = null
 var _pause_modal: Control = null
 var _quit_modal: Control = null
+var _save_failure_modal: Control = null # v0.100: one persistent notice, including while paused.
+var _save_failure_paused_tree := false # v0.100: release only the failure notice's own tree hold.
 var _paused_before_menu := false
 var _battle_paused_before_menu := false
 var _paused_by_lifecycle := false
@@ -28,6 +30,9 @@ func _ready() -> void:
 	add_child(touch_scroll)
 	if Game != null and not Game.screen_changed.is_connected(_on_screen_changed):
 		Game.screen_changed.connect(_on_screen_changed)
+	# v0.100: use the global overlay so failed saves remain visible across screen changes.
+	if Game != null and not Game.save_finished.is_connected(_on_save_finished):
+		Game.save_finished.connect(_on_save_finished)
 	_update_keep_screen_on(String(Game._active_screen) if Game != null else "title")
 
 func is_mobile() -> bool:
@@ -60,14 +65,16 @@ func can_autosave() -> bool:
 		return false
 	return not Game.world.is_empty() or not Game.company.is_empty()
 
+## v0.100: true means written; can_autosave() distinguishes an ineligible screen from a failed write.
 func autosave() -> bool:
 	if not can_autosave():
 		return false
-	Game.save_game()
-	return true
+	return Game.save_game() # v0.100: admission alone does not mean the save succeeded.
 
 ## stop_party = false (a brief focus loss: shade, dialog) keeps the map's travel order; the tree hold alone stops time.
 func pause_gameplay(pause_tree: bool = true, stop_party: bool = true) -> void:
+	if Game != null and CampaignWorld.defer_day_job_action(Game, pause_gameplay.bind(pause_tree, stop_party)):
+		return
 	if Game == null:
 		return
 	var screen := String(Game._active_screen)
@@ -87,10 +94,13 @@ func pause_gameplay(pause_tree: bool = true, stop_party: bool = true) -> void:
 	_update_keep_screen_on(screen)
 
 func _notification(what: int) -> void:
+	if Game != null and what in [NOTIFICATION_WM_GO_BACK_REQUEST, NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_APPLICATION_RESUMED, NOTIFICATION_APPLICATION_FOCUS_IN] and CampaignWorld.defer_day_job_action(Game, _notification.bind(what)):
+		return
 	match what:
 		NOTIFICATION_WM_GO_BACK_REQUEST:
 			handle_back_request()
 		NOTIFICATION_APPLICATION_PAUSED:
+			# v0.100: lifecycle must pause even on failure; save_finished supplies the visible result.
 			autosave()
 			pause_gameplay(true)
 		NOTIFICATION_APPLICATION_FOCUS_OUT:
@@ -98,16 +108,19 @@ func _notification(what: int) -> void:
 			if is_mobile():
 				pause_gameplay(true, false)
 		NOTIFICATION_APPLICATION_RESUMED, NOTIFICATION_APPLICATION_FOCUS_IN:
-			if _paused_by_lifecycle and not is_pause_menu_open() and (Game == null or Game._save_capture == null):
+			if _paused_by_lifecycle and not is_pause_menu_open():
 				_paused_by_lifecycle = false
-				if is_inside_tree():
+				if is_save_failure_open():
+					_save_failure_paused_tree = true # v0.100: transfer the ended lifecycle hold to the notice.
+				elif Game != null and Game._save_capture != null:
+					Game._save_was_paused = false # v0.100: let the active capture release the ended lifecycle hold.
+				elif is_inside_tree():
 					get_tree().paused = false
-		NOTIFICATION_WM_CLOSE_REQUEST:
-			if is_mobile():
-				autosave()
+		# v0.100: Game owns the close-save and quit decision on every platform.
 
 ## Test/runner reset: no menus open and no lifecycle pause held.
 func reset() -> void:
+	_close_save_failure() # v0.100: failure overlays must not survive a runner reset.
 	close_quit_confirm()
 	close_pause_menu(false)
 	_paused_by_lifecycle = false
@@ -122,7 +135,16 @@ func is_pause_menu_open() -> bool:
 func is_quit_confirm_open() -> bool:
 	return is_instance_valid(_quit_modal) and not _quit_modal.is_queued_for_deletion()
 
+# v0.100: back navigation and pause restoration must respect this blocking notice.
+func is_save_failure_open() -> bool:
+	return is_instance_valid(_save_failure_modal) and not _save_failure_modal.is_queued_for_deletion()
+
 func handle_back_request() -> String:
+	if Game != null and CampaignWorld.defer_day_job_action(Game, handle_back_request):
+		return "queued_day_job"
+	if is_save_failure_open():
+		_close_save_failure()
+		return "closed_save_failure"
 	if is_quit_confirm_open():
 		close_quit_confirm()
 		return "closed_quit_confirm"
@@ -139,7 +161,7 @@ func _close_topmost_popup_or_panel() -> bool:
 	if _layer_root != null and is_instance_valid(_layer_root):
 		for i in range(_layer_root.get_child_count() - 1, -1, -1):
 			var c := _layer_root.get_child(i)
-			if c != _pause_modal and c != _quit_modal and not c.is_queued_for_deletion():
+			if c != _pause_modal and c != _quit_modal and c != _save_failure_modal and not c.is_queued_for_deletion():
 				c.queue_free()
 				return true
 	if is_inside_tree() and get_tree().root != null:
@@ -213,7 +235,7 @@ func _close_topmost_popup_or_panel() -> bool:
 	return false
 
 func _collect_modals(node: Node, out: Array[Node]) -> void:
-	if node == _pause_modal or node == _quit_modal or node.is_queued_for_deletion():
+	if node == _pause_modal or node == _quit_modal or node == _save_failure_modal or node.is_queued_for_deletion():
 		return
 	if node is CanvasItem and not (node as CanvasItem).visible:
 		return
@@ -260,6 +282,8 @@ func _menu_button(text: String, cb: Callable, variation: String = "", min_w: int
 	return b
 
 func open_pause_menu() -> Control:
+	if Game != null and CampaignWorld.defer_day_job_action(Game, open_pause_menu):
+		return null
 	if is_pause_menu_open():
 		return _pause_modal
 	var host := _ensure_layer()
@@ -269,7 +293,8 @@ func open_pause_menu() -> Control:
 		Game._save_capture.step(0)
 		Game._finish_capture()
 	# A lifecycle hold (focus lost) is not a pause to restore on Resume.
-	_paused_before_menu = (get_tree().paused and not _paused_by_lifecycle) if is_inside_tree() else false
+	# v0.100: a notice's temporary hold is not a player pause to restore after Resume.
+	_paused_before_menu = (get_tree().paused and not _paused_by_lifecycle and not _save_failure_paused_tree) if is_inside_tree() else false
 	var cur: Node = Game.main.current if (Game != null and Game.main != null) else null
 	_battle_paused_before_menu = bool(cur.get("paused")) if (Game != null and String(Game._active_screen) == "battle" and is_instance_valid(cur)) else false
 	if Game != null and String(Game._active_screen) == "battle" and is_instance_valid(cur):
@@ -290,7 +315,7 @@ func open_pause_menu() -> Control:
 	box.add_child(resume_btn)
 	if can_autosave() and (Game == null or String(Game._active_screen) != "battle"):
 		var save_btn := _menu_button("Save Game", func():
-			autosave()
+			if not autosave(): return # v0.100: keep the menu on failure.
 			close_pause_menu(true), "Row")
 		save_btn.name = "PauseSave"
 		box.add_child(save_btn)
@@ -302,7 +327,8 @@ func open_pause_menu() -> Control:
 	# sent to the background) would write it. Quit leaves a fight without saving it.
 	if Game != null and String(Game._active_screen) not in ["title", "battle"]:
 		var title_btn := _menu_button("Title Screen", func():
-			autosave()
+			# v0.100: nothing to save may leave normally; a real failed write keeps this menu open.
+			if can_autosave() and not autosave(): return
 			close_pause_menu(false)
 			if is_inside_tree():
 				get_tree().paused = false
@@ -316,6 +342,8 @@ func open_pause_menu() -> Control:
 	return _pause_modal
 
 func close_pause_menu(restore_pause: bool = true) -> void:
+	if Game != null and CampaignWorld.defer_day_job_action(Game, close_pause_menu.bind(restore_pause)):
+		return
 	if is_quit_confirm_open():
 		close_quit_confirm()
 	if is_pause_menu_open():
@@ -329,13 +357,23 @@ func close_pause_menu(restore_pause: bool = true) -> void:
 			cur.set("paused", _battle_paused_before_menu)
 			if cur.has_method("_refresh_speed_buttons"):
 				cur._refresh_speed_buttons()
-		if is_inside_tree() and (Game == null or Game._save_capture == null):
-			get_tree().paused = _paused_before_menu
+		if is_inside_tree() and Game != null and Game._save_capture != null:
+			# v0.100: the capture restores the tree when it finishes; give it the post-menu state.
+			if is_save_failure_open():
+				_save_failure_paused_tree = _save_failure_paused_tree or not _paused_before_menu
+			Game._save_was_paused = _paused_before_menu or is_save_failure_open()
+		elif is_inside_tree():
+			if is_save_failure_open():
+				_save_failure_paused_tree = _save_failure_paused_tree or not _paused_before_menu
+			else:
+				get_tree().paused = _paused_before_menu
 		_paused_by_lifecycle = false
 	_cleanup_layer_if_empty()
 	_update_keep_screen_on()
 
 func ask_quit_confirm() -> Control:
+	if Game != null and CampaignWorld.defer_day_job_action(Game, ask_quit_confirm):
+		return null
 	if is_quit_confirm_open():
 		return _quit_modal
 	var host := _ensure_layer()
@@ -370,11 +408,58 @@ func close_quit_confirm() -> void:
 	_update_keep_screen_on()
 
 func confirm_quit() -> void:
-	autosave()
-	if Game != null:
-		Game.wait_save(String(Game._active_screen) != "battle")   # quitting a fight never writes the half-fought state
+	# v0.100: the receipt opens a failure notice; keep playing unless an unsaved exit is chosen.
+	if Game != null and not Game.save_on_quit():
+		return
+	_quit_without_saving()
+
+func _quit_without_saving() -> void:
+	if Game != null and CampaignWorld.defer_day_job_action(Game, _quit_without_saving):
+		return
+	_close_save_failure()
 	close_quit_confirm()
 	close_pause_menu(false)
 	if is_inside_tree():
 		get_tree().paused = false
 		get_tree().quit()
+
+# v0.100: a refused save must be readable in-game, including after a failed quit.
+func _on_save_finished(ok: bool) -> void:
+	if Game != null and CampaignWorld.defer_day_job_action(Game, _on_save_finished.bind(ok)):
+		return
+	if ok:
+		_close_save_failure()
+		return
+	if not is_inside_tree(): return
+	if is_save_failure_open(): return
+	# v0.100: freeze campaign and battle processing while the blocking notice is read.
+	if not get_tree().paused:
+		get_tree().paused = true
+		_save_failure_paused_tree = true
+	var box := UiKit.modal(_ensure_layer(), "Save failed", 560)
+	_save_failure_modal = box.get_parent().get_parent().get_parent() as Control
+	_save_failure_modal.name = "SaveFailureModal"
+	box.add_child(UiKit.label("Your latest progress was not saved. Any previous save is unchanged.", "", true))
+	box.add_child(UiKit.label("Keep playing to try Save Game again, or quit without saving this progress.", "Muted", true))
+	var row := UiKit.flow()
+	row.add_child(_menu_button("Keep playing", _close_save_failure, "Row", 150))
+	row.add_child(_menu_button("Quit without saving", _quit_without_saving, "Danger", 240))
+	box.add_child(row)
+
+func _close_save_failure() -> void:
+	if Game != null and CampaignWorld.defer_day_job_action(Game, _close_save_failure):
+		return
+	if is_instance_valid(_save_failure_modal):
+		if _save_failure_modal.get_parent() != null:
+			_save_failure_modal.get_parent().remove_child(_save_failure_modal)
+		_save_failure_modal.queue_free()
+	_save_failure_modal = null
+	if _save_failure_paused_tree:
+		_save_failure_paused_tree = false
+		if is_inside_tree() and not is_pause_menu_open() and not _paused_by_lifecycle:
+			if Game != null and Game._save_capture != null:
+				# v0.100: the capture still owns the tree; release the notice's hold when it finishes.
+				Game._save_was_paused = false
+			else:
+				get_tree().paused = false
+	_cleanup_layer_if_empty()

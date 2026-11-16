@@ -1,4 +1,7 @@
 extends RefCounted
+const RunplanArgs: GDScript = preload("res://tests/fixtures/older_runplan_args_v100.gd")
+const SpeedCheckpoint = preload("res://tests/fixtures/older_speed_checkpoint_v100.gd")
+const SpeedParts = preload("res://tests/fixtures/older_speed_parts_v100.gd")
 ## The Barge economy model and the coinage (docs/specs/barge/01-05): the TESTS sections that are checkable headless.
 ##   part 1: coin conserved every day (cast - melted - drained = all holdings); a mint with no bars casts nothing;
 ##           melting only above 90% metal value and minting stops when bars cost more than the coin; PL rises past the
@@ -18,14 +21,18 @@ func check(ok: bool, msg: String) -> void:
 		fails += 1
 
 func run(_tree: SceneTree) -> int:
-	_test_coin_conserved()
-	_test_mint_and_melt()
-	_test_price_level()
-	_test_prices_spoilage()
-	_test_households()
-	_test_labour_and_pay()
-	_test_people_and_movers()
-	_test_world_gen()
+	var speed_part: String = SpeedParts.select(["coin-setup","coin1","coin2","coin3","coin4","coin5","coin6","coin7","coin8","coin9","coin10","coin11","coin12","coin13","coin14","coin15","coin16","coin17","coin18","coin19","coin20","mint","prices","spoilage","households","labour","generation","people-setup","people1","people2","people3","people4","people5","people6","people7","people8","people9","people10","people11","people12","people13","people14","people15","people16","people17","people18","people19","people20","people21","people22","people23","people24","people25","people26","people27","people28","people29","people30","people31","people32","people33","people34","people35","people36","people37","people38","people39","people40","people41","people42","people43","people44","people45","people46","people47","people48","people49","people50","people51","people52","people53","people54","people55","people56","people57","people58","people59","people60","people-checks"])
+	if speed_part == "": return 1
+	if speed_part.begins_with("coin"):
+		return _speed_coin(0 if speed_part == "coin-setup" else int(speed_part.trim_prefix("coin")))
+	if speed_part == "all": _test_coin_conserved()
+	if SpeedParts.includes(speed_part, "mint"): _test_mint_and_melt()
+	if SpeedParts.includes(speed_part, "prices"): _test_price_level()
+	if SpeedParts.includes(speed_part, "spoilage"): _test_prices_spoilage()
+	if SpeedParts.includes(speed_part, "households"): _test_households()
+	if SpeedParts.includes(speed_part, "labour"): _test_labour_and_pay()
+	if speed_part == "all" or speed_part.begins_with("people"): _test_people_and_movers()
+	if SpeedParts.includes(speed_part, "generation"): _test_world_gen()
 	return fails
 
 func _ids(w: Dictionary) -> Array:
@@ -326,16 +333,36 @@ func _quiet(w: Dictionary) -> void:
 	w["work"] = []
 
 func _test_people_and_movers() -> void:
-	Game.new_game(901)
+	var selected: String = "all"
+	for argument: String in RunplanArgs.arguments():
+		if argument.begins_with("--speed-part="): selected = argument.trim_prefix("--speed-part=")
+	var handoff: RefCounted = SpeedCheckpoint.new("barge_people60")
+	var setup: bool = selected == "all" or selected == "people-setup"
+	if setup:
+		Game.new_game(901)
+	else:
+		var previous: int = 60 if selected == "people-checks" else int(selected.trim_prefix("people")) - 1
+		if not handoff.load_step(previous):
+			check(false, "town-only history loads its exact native predecessor")
+			return
 	var w: Dictionary = Game.world
-	var live_before := Persons.live_uids(Game)
-	_quiet(w)
-	check(Persons.live_uids(Game) == live_before, "town-only isolation removed real registered units")
+	if setup:
+		var live_before := Persons.live_uids(Game)
+		_quiet(w)
+		check(Persons.live_uids(Game) == live_before, "town-only isolation removed real registered units")
 	var pop0 := 0; var b0 := 0; var d0 := 0
 	for tid in w["towns"]:
 		var e: Dictionary = w["towns"][tid]["econ"]
 		pop0 += int(e["pop"]); b0 += int(e["stats"].get("births", 0)); d0 += int(e["stats"].get("deaths", 0))
-	for i in 60:
+	if not setup:
+		pop0 = int(handoff.context["pop0"])
+		b0 = int(handoff.context["b0"])
+		d0 = int(handoff.context["d0"])
+	if selected == "people-setup":
+		handoff.context = {"pop0": pop0, "b0": b0, "d0": d0, "start_day": Game.day}
+		if fails == 0: check(handoff.save_step(0), "town-only setup native checkpoint")
+		return
+	for i in (60 if selected == "all" else 0 if selected == "people-checks" else 1):
 		var d := int(w.get("last_day", 0)) + 1
 		w["last_day"] = d
 		Game.day = float(d)
@@ -344,6 +371,11 @@ func _test_people_and_movers() -> void:
 		while not (w["work"] as Array).is_empty():
 			var job: Array = w["work"].pop_front()
 			TownEcon.do_job(Game, job)
+	if selected != "all" and selected != "people-checks":
+		var step: int = int(selected.trim_prefix("people"))
+		check(Game.day == float(handoff.context["start_day"]) + step, "all sixty original town-only days are consecutive")
+		if fails == 0: check(handoff.save_step(step), "town-only day native checkpoint")
+		return
 	var pop1 := 0; var b1 := 0; var d1 := 0; var rows := 0
 	var battle_deaths := 0
 	for tid in w["towns"]:
@@ -454,3 +486,25 @@ func _land_capture(w: Dictionary) -> void:
 		data["towns"].append(town)
 	var file := FileAccess.open(OS.get_environment("LAND_CAPTURE"), FileAccess.WRITE)
 	file.store_string(JSON.stringify(data)); file.close()
+
+func _speed_coin(step: int) -> int:
+	var handoff: RefCounted = SpeedCheckpoint.new("barge_coin20")
+	if step == 0:
+		Game.new_game(2026)
+		CampaignWorld.presim_span_days = 20
+		handoff.context = {"worst": 0.0, "worst_day": 0}
+	else:
+		if not handoff.load_step(step - 1): return 1
+		CampaignWorld.presim_span_days = 20
+		CampaignWorld.presim_step(Game, 1)
+		var gap: float = absf(_ledger_gap())
+		if gap > float(handoff.context["worst"]):
+			handoff.context["worst"] = gap
+			handoff.context["worst_day"] = step
+		if step == 20:
+			var worst: float = float(handoff.context["worst"])
+			var worst_day: int = int(handoff.context["worst_day"])
+			print("coin over all 20 native days: worst gap ", worst, " day ", worst_day)
+			check(worst < 1.0, "coin not conserved: cast - melted - drained differs from the holdings by %.2f on day %d" % [worst, worst_day])
+	if fails > 0: return fails
+	return 0 if handoff.save_step(step) else 1

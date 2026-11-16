@@ -8,19 +8,21 @@ static func eligible(town: Dictionary) -> int:
 static func militia_target(town: Dictionary) -> int:
 	if not TownEcon.has_econ(town): return 0
 	var e: Dictionary = town["econ"]
-	# The reserve is a town's available civilians, with drill pay backed by the actual treasury.
-	var existing := 0
-	for f in e["fams"]:
-		for p in Persons.pp(f):
-			# Private stood-down troops keep their actual Unit/body at home, but
-			# belong to the player's reserve rather than the public militia.
+	# Both terms are nonnegative; only their capped sum is needed. Keep pp()
+	# for EVERY family: its lazy empty register is part of the saved state.
+	var budget: int = int(maxf(0, float(e["treasury"])) / maxf(1, Army.wage("militia", 0)) / 7)
+	var limit: int = mini(budget, militia_cap(town))
+	var available: int = 0
+	for f: Dictionary in e["fams"]:
+		var rows: Array = Persons.pp(f)
+		if available >= limit: continue
+		available += Population.spare(f)
+		for p: Array in rows:
+			if available >= limit: break
+			# Private stood-down troops belong to the player's reserve.
 			if int(p[5]) >= 0 and (f.get("player_reserve_uids", {}) as Dictionary).has(str(int(p[5]))): continue
-			if String(p[4]) in ["reserve", "militia"]: existing += 1
-	var budget := int(maxf(0, float(e["treasury"])) / maxf(1, Army.wage("militia", 0)) / 7)
-	# Claude Edition: a town keeps a standing reserve of 6 + 5 per size step (6..26), not every able adult.
-	# Each reservist is a full physical Unit; uncapped, a large world held 18,000 of them (135 MB saves,
-	# multi-second autosaves, 1.9 GB of memory) for no gameplay benefit.
-	return mini(mini(eligible(town) + existing, budget), militia_cap(town))
+			if String(p[4]) in ["reserve", "militia"]: available += 1
+	return mini(available, limit)
 
 static func militia_cap(town: Dictionary) -> int:
 	return 6 + 5 * clampi(int(town.get("size", 1)), 0, 4)
@@ -104,28 +106,51 @@ static func _muster_rows(f: Dictionary, wanted: String) -> Dictionary:
 		by_uid[int(row[5])] = row
 	return by_uid
 
+## Runtime-only value snapshots: catch in-place edits as well as replacement,
+## growth, capture and save/load without adding keys to the saved plot state.
+## Native packed-array equality replaces daily GDScript scans of every plot.
+static var _pay_plot_layouts: Dictionary = {}
+
+static func _pay_plot_layout(tid: String, P: Dictionary) -> Dictionary:
+	var count: int = Plots.count(P)
+	var uses: Variant = P["use"]
+	var subs: Variant = P["sub"]
+	var cached: Dictionary = _pay_plot_layouts.get(tid, {})
+	if int(cached.get("count", -1)) == count and cached.get("use") == uses and cached.get("sub") == subs:
+		return cached
+	var gates: int = 0
+	var pastures: Array = []
+	for i: int in count:
+		var use: int = int(uses[i])
+		if use == Plots.ROAD and int(subs[i]) == 1: gates += 1
+		if use == Plots.PASTURE: pastures.append(i)
+	cached = {"count": count, "use": uses.duplicate(), "sub": subs.duplicate(), "gates": gates, "pastures": pastures}
+	if _pay_plot_layouts.size() >= 128: _pay_plot_layouts.clear()
+	_pay_plot_layouts[tid] = cached
+	return cached
+
 static func daily(game, town: Dictionary) -> void:
 	var e: Dictionary = town["econ"]
 	var tid := String(town["id"])
 	var w: Dictionary = game.world
 	if not w.has("town_guards"): w["town_guards"] = {}
 	var P: Dictionary = e.get("plots", {})
-	var posts := 0
-	for i in Plots.count(P):
-		if int(P["use"][i]) == Plots.ROAD and int(P["sub"][i]) == 1: posts += 1
+	var posts: int = int(_pay_plot_layout(tid, P)["gates"])
 	var affordable := int(maxf(0, float(e["treasury"])) / maxf(1, Army.wage("guard", 0)) / 14)
 	var target := mini(posts * 3, affordable) # three eight-hour watches at each actual gate
 	var gb := guard_band(game, tid)
 	if gb.is_empty() and target > 0:
 		var rng := RandomNumberGenerator.new(); rng.seed = hash([w.get("seed", 0), tid, "guards"])
-		var units := []
-		for i in mini(target, eligible(town)):
+		var units: Array = []
+		# Only gear withdrawals/returns interleave here; share one ephemeral stock index.
+		var guard_stock: Dictionary = {}
+		for i: int in mini(target, eligible(town)):
 			var fid := People.draw(town, rng, "guard")
 			if fid < 0: break
 			var u := CampaignWorld.make_resident_troop(rng, String(town["faction"]), town, int(town["wealth"]))
 			People.bind(town, fid, u, "guard")
 			u.home_town = tid; u.title = "town guard"
-			TownEcon.outfit_units(town, [u], 1)
+			ArmsTrade.outfit_guard(town, u, guard_stock)
 			units.append(u)
 			Army.state(w)["roll"][str(u.uid)] = [tid, fid, "guard", u.name]
 		if not units.is_empty():
@@ -146,9 +171,8 @@ static func daily(game, town: Dictionary) -> void:
 		gb["units"] = gb["units"].filter(func(u): return not u.dead)
 		# A patrol visits the real pasture plots, returning to the gate between rounds.
 		if not gb.get("marching", false) and not gb["units"].is_empty():
-			var pastures := []
-			for i in Plots.count(P):
-				if int(P["use"][i]) == Plots.PASTURE: pastures.append(i)
+			# Revalidate after native recruitment/pay/release, before reading indices.
+			var pastures: Array = _pay_plot_layout(tid, P)["pastures"]
 			if not pastures.is_empty():
 				var index := posmod(int(game.day), pastures.size())
 				gb["patrol_goal"] = HerdRaids.plot_pos(town, P, int(pastures[index]))

@@ -413,6 +413,7 @@ static func do_job(game, job: Array) -> bool:
 			sweep(game)
 		"army_misc":
 			camps_day(game)
+			Bandits.deserters_day(game, int(job[1]))
 			company_desertion(game)
 		"army_fight":
 			fight_step(game, String(job[1]))
@@ -443,12 +444,36 @@ static func sweep(game) -> void:
 	for u in Prisoners.units(game):   # v0.033: a soldier held prisoner stays on his realm's roll until freed
 		here[str(u.uid)] = true
 	var roll: Dictionary = state(w)["roll"]
-	for k in roll.keys():
-		if here.has(k):
+	var sweep_ids: Array = roll.keys()
+	sweep_roll_chunk(game, roll, sweep_ids, here, 0)
+
+## Keep every native casualty/reassignment in roll insertion order. Indexes are
+## installed only within this synchronous chunk and never survive a frame yield.
+## Zero budget drains the same rows for the original atomic caller.
+static func sweep_roll_chunk(game: Variant, roll: Dictionary, ids: Array, here: Dictionary, start: int, budget_usec: int = 0) -> int:
+	var at: int = start
+	var started_usec: int = Time.get_ticks_usec()
+	var sweep_previous: Dictionary = {}
+	var sweep_econ: Dictionary = {}
+	var sweep_open: bool = false
+	while at < ids.size():
+		if budget_usec > 0 and at > start and Time.get_ticks_usec() - started_usec >= budget_usec:
+			break
+		var key: Variant = ids[at]
+		at += 1
+		if here.has(key):
 			continue
-		var r: Array = roll[k]
-		roll.erase(k)
-		People.casualty_rec(game, String(r[0]), int(r[1]), String(r[3]), "dead", String(r[2]), [], int(k))
+		var rec: Array = roll[key]
+		roll.erase(key)
+		var econ: Dictionary = game.world.get("towns", {}).get(String(rec[0]), {}).get("econ", {})
+		if not sweep_open or not is_same(sweep_econ, econ):
+			if sweep_open: TownSweep.finish(sweep_previous)
+			sweep_previous = TownSweep.begin(econ)
+			sweep_econ = econ
+			sweep_open = true
+		People.casualty_rec(game, String(rec[0]), int(rec[1]), String(rec[3]), "dead", String(rec[2]), [], int(key))
+	if sweep_open: TownSweep.finish(sweep_previous)
+	return at
 
 static func faction_day(game, fid: String, day: int, split: bool = false) -> void:
 	var w: Dictionary = game.world

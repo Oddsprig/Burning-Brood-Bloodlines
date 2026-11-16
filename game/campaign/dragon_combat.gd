@@ -536,6 +536,8 @@ static func _rider_result(game, result: Dictionary, entry: Dictionary, dragon: U
 	# went down was not thrown by it; his own live wounds and death come first, then the existing fall rules.
 	var seat: Dictionary = result.get("dragon_seats", {}).get(dragon.dragon_uid, {})
 	var live_dead := not seat.is_empty() and bool(seat.get("dead", false))
+	# Round accounting accepts either seat death representation; service settlement must agree.
+	live_dead = live_dead or str(seat.get("state", "")) == "dead"
 	var live_hurt := not seat.is_empty() and float(seat.get("damage", 0.0)) > 0.0
 	var joined := not seat.is_empty() and (bool(seat.get("joined", false)) or bool(seat.get("detached", false)))
 	if not seat.is_empty() and str(seat.get("unseated", "")) == "the rider fell": downed = false
@@ -551,7 +553,10 @@ static func _rider_result(game, result: Dictionary, entry: Dictionary, dragon: U
 		if bb is Unit: carrier = bb
 	# An existing combat death is never rolled/handled again. A deployed rider's death is the battle's own
 	# casualty; a rider who joined only on his dragon has no roster row, so his live death is settled here.
-	if rider != null and rider.dead and not (live_dead and joined and is_same(seat.get("unit"), rider)): return {}
+	# v0.101: only company riders in the final roster use its company-role settlement.
+	# Allied/enemy joined riders keep their own service casualty here before roster/sweep deduplication.
+	var in_roster: bool = (result.get("player_units", []) as Array).has(rider) or (result.get("enemy_units", []) as Array).has(rider)
+	if rider != null and rider.dead and ((in_roster and game.company.has(rider)) or not (live_dead and joined and is_same(seat.get("unit"), rider))): return {}
 	var flying := bool(downs.get(dragon.dragon_uid, entry.get("flying", false)))
 	var outcome := rider_roll(battle_seed, dragon.dragon_uid, person_uid, downed, flying, damage, rider_protection(carrier))
 	if not downed and damage <= 0.0:

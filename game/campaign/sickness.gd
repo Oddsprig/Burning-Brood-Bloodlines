@@ -824,6 +824,39 @@ static func queue_day(w: Dictionary, d: int) -> void:
 			work.append(["sick", tid, d, 3])
 	work.append(["sick_w", d])
 
+
+## Called only at frame boundaries. Never put runtime continuations in a tail
+## that the save codec could copy before its head has acquired the shared hold.
+static func prepare_frame_head(w: Dictionary) -> void:
+	var work: Array = w.get("work", [])
+	if work.is_empty() or not (work[0] is Array):
+		return
+	var head: Array = work[0]
+	if head.is_empty() or String(head[0]) not in ["sick", "sick_w"] or head[-1] is Object:
+		return
+	var script: GDScript = load("res://campaign/sickness_day_job.gd")
+	if String(head[0]) == "sick":
+		head.append(script.new(String(head[1]), int(head[2]), int(head[3]) if head.size() > 3 else 0))
+	else:
+		head.append(script.new("", int(head[1]), -1))
+
+## Cold head reached after a native prefix: reserve the next frame before any
+## disease work. The ordinary dispatcher resumes this CampaignDayJob next time.
+static func reserve_frame_job(game: Variant, job: Array, budgeted: bool) -> bool:
+	if not budgeted or String(job[0]) not in ["sick", "sick_w"]:
+		return false
+	assert(game.has_method("_day_job_claim"), "Sickness split requires the shared daily-job transaction protocol.")
+	var work: Array = game.world["work"]
+	work.push_front(job)
+	prepare_frame_head(game.world)
+	var run: CampaignDayJob = job[-1]
+	game._day_job_begin_dispatch()
+	game._day_job_claim(run)
+	run.hold(game)
+	game._note_day_job_slice()
+	game._day_job_cancel_dispatch()
+	return true
+
 ## Runs one queued sickness job; false when the job is not one.
 static func do_job(game, job: Array) -> bool:
 	match String(job[0]):

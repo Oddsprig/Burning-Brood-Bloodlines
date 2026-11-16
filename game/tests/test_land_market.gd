@@ -36,7 +36,7 @@ func run(_tree: SceneTree) -> int:
 			continue
 		if seller.is_empty() and int(f["land"].get("grain", 0)) >= 8 and not Businesses.farm_of(e, f).is_empty():
 			seller = f
-		elif buyer.is_empty() and Families.adults(f) - (f.get("keeps", []) as Array).size() >= 2:
+		elif buyer.is_empty() and Families.adults(f) - Families.serving(f) >= 2:
 			buyer = f
 		elif rich_no_need.is_empty() and Families.adults(f) >= 1 and f != seller and f != buyer:
 			rich_no_need = f
@@ -44,7 +44,7 @@ func run(_tree: SceneTree) -> int:
 		for f in e["fams"]:
 			if f.get("gone", false) or f.get("estate", false) or Population.is_cohort(f) or f == seller:
 				continue
-			if Families.adults(f) >= 2:
+			if Families.adults(f) - Families.serving(f) >= 2:
 				buyer = f
 				break
 	if rich_no_need.is_empty():
@@ -71,12 +71,18 @@ func run(_tree: SceneTree) -> int:
 	buyer["ox"] = 0
 	buyer["serve"] = {}
 	buyer["debt"] = 0.0
+	# v0.100: v0.002's tracked households own the shops; two adults may both be keepers.
+	# v0.100: close their fixture shops before reassignment, preserving cash and property.
+	for bid in buyer["owns"]:
+		var owned: Dictionary = e["biz"][int(bid)]
+		if String(owned["type"]) != "farm": owned["closed"] = true
 	Families.reassign(e, buyer)
 	for k in buyer["jobs"].keys():
 		Families.set_job(e, buyer, int(k), 0)
 	Shelter.release_casual(e, buyer)
 	buyer["hands"] = 0
 	buyer["idle"] = Families.adults(buyer) - (buyer.get("keeps", []) as Array).size()
+	check(TownEcon._property_hands(e, buyer) >= 2.0 and Families.need_hands(buyer, e) == 0.0, "v0.100: selected buyer really has two free adults and no existing holding work")
 
 	# Prepare rich_no_need: 500+ coins, but all adults away/occupied so _property_hands == 0 (no land need).
 	for crop in rich_no_need["land"].keys():

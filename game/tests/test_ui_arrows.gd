@@ -1,8 +1,14 @@
 extends RefCounted
 ## Arrows on the Provisions tab (Douglas): buying fills archers' quivers (50 max each), the rest goes to stores.
+const Fixture = preload("res://tests/fixtures/group_g_v100.gd")
+
 func run(tree: SceneTree) -> int:
 	var fails := 0
-	Game.new_game(41)
+	Fixture.new_world(41)
+	# v0.100: new campaigns have no free company; give this check exactly three archers.
+	var leaders := Fixture.company(41, [2])
+	if leaders.size() != 1 or Game.company.size() != 3:
+		printerr("FAIL: arrow fixture has one officer and two troops"); return 1
 	Game.gold = 100000
 	var tid := ""
 	var ak := ""
@@ -14,7 +20,9 @@ func run(tree: SceneTree) -> int:
 	if tid == "":
 		print("no town with 200 arrows of one kind"); return 1
 	var t: Dictionary = Game.world["towns"][tid]
-	# give two company men bows with empty quivers
+	# v0.100: all three fixture men get bows, leaving stores as well as full quivers.
+	if DB.bows.is_empty():
+		printerr("FAIL: bow definitions exist"); return 1
 	var bow_id: String = DB.bows.keys()[0]
 	for i in 3:
 		var bu: Unit = Game.company[i]
@@ -23,6 +31,8 @@ func run(tree: SceneTree) -> int:
 	for u in Game.company:
 		if u.has_method("bow") and u.bow() != null:
 			u.quiver.clear(); archers.append(u)
+	if archers.size() != 3:
+		printerr("FAIL: all three fixture men have bows"); return 1
 	print("archers in the company: ", archers.size())
 	var got := BowsEcon.buy_for_company(Game, t, ak, 200)
 	BowsEcon.fill_company_quivers(Game)

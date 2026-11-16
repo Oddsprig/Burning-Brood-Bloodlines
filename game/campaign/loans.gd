@@ -215,8 +215,8 @@ static func default(e: Dictionary, f: Dictionary, day: float) -> void:
 		f["lost"] = {"what": what, "to": head_title, "season": Calendar.season(day), "year": Calendar.year(day)}
 		Families.event(f, "sold_land", [what, head_title], day)
 		Families.add_hist(f, "Had to sell %s for the debt." % what, day)
-	# 6. the house
-	if float(f["debt"]) > 0.01 and int(f["homes"]) > 0:
+	# v0.100: sell each remaining roof before writing off debt; some households own several.
+	while float(f["debt"]) > 0.01 and int(f["homes"]) > 0:
 		_sell_house(e, f, ln, day, head_title)
 	# what was sold, in one line for the town
 	var sold: Array = ln["sold"]
@@ -591,6 +591,174 @@ static func settle_land_buys(e: Dictionary) -> int:
 	if total_bought > 0:
 		_sync_estate_work(e, est, day)
 	return total_bought
+
+## Optional BUY continuation for CampaignTurnJob; native coin remains atomic.
+## Keep these ordered operations aligned with settle_land_buys above.
+static func begin_land_buys(e: Dictionary) -> LandBuy:
+	return LandBuy.new(e)
+
+static func land_buys_step(run: LandBuy) -> bool:
+	return run.part()
+
+class LandBuy extends RefCounted:
+	var _e: Dictionary = {}
+	var _mkt: Dictionary = {}
+	var _fams: Array = []
+	var _est: Dictionary = {}
+	var _data: Dictionary = {}
+	var _crops: Array = []
+	var _offers: Array = []
+	var _buyers: Array = []
+	var _min_unit: float = INF
+	var _keep: float = 0.0
+	var _day: float = 0.0
+	var _shared: Dictionary = {}
+	var _reassigned: Dictionary = {}
+	var _reassign_ids: Array = []
+	var _total_bought: int = 0
+	var _crop: String = ""
+	var _unit: float = 0.0
+	var _seller: Dictionary = {}
+	var _phase: String = "open"
+	var _i: int = 0
+	var _offer_i: int = 0
+	var _buyer_i: int = 0
+
+	func _init(e: Dictionary) -> void:
+		_e = e
+
+	## One native iteration/transaction; never replay an eligibility check,
+	## sort, transfer, refresh, history write or reassignment after a yield.
+	func part() -> bool:
+		match _phase:
+			"open":
+				Loans.last_buyers_checked = []
+				_e.erase("land_market_dirty")
+				_mkt = _e.get("land_market", {})
+				if _mkt.is_empty():
+					return true
+				_fams = _e.get("fams", [])
+				if _fams.is_empty():
+					return true
+				_est = _fams[0]
+				_data = TownEcon.data()
+				_crops = _mkt.keys()
+				_phase = "offers"
+			"offers":
+				if _i < _crops.size():
+					var crop: Variant = _crops[_i]
+					_i += 1
+					var crop_s: String = String(crop)
+					var avail: int = mini(int(_mkt.get(crop_s, 0)), int(_est["land"].get(crop_s, 0)))
+					if avail <= 0:
+						_mkt.erase(crop)
+					else:
+						var unit: float = Loans.crop_acre_price(_e, crop_s, _data)
+						_offers.append([crop_s, unit])
+						_min_unit = minf(_min_unit, unit)
+				else:
+					if _offers.is_empty():
+						return true
+					_keep = 40.0 * TownEcon.COIN
+					_i = 0
+					_phase = "scan"
+			"scan":
+				if _i < _fams.size():
+					var buyer: Dictionary = _fams[_i]
+					_i += 1
+					if Loans.is_interested_buyer(_e, buyer, _min_unit):
+						_buyers.append(buyer)
+				else:
+					if _buyers.is_empty():
+						return true
+					_phase = "sort"
+			"sort":
+				_buyers.sort_custom(func(a: Variant, b: Variant) -> bool: return float(a["purse"]) > float(b["purse"]))
+				_i = 0
+				_phase = "checked"
+			"checked":
+				if _i < _buyers.size():
+					Loans.last_buyers_checked.append(int(_buyers[_i]["id"]))
+					_i += 1
+				else:
+					_day = float(_e.get("day", 0))
+					_shared = {"buyers": {}}
+					_phase = "offer"
+			"offer":
+				if _offer_i >= _offers.size():
+					_reassign_ids = _reassigned.keys()
+					_i = 0
+					_phase = "reassign"
+				else:
+					var offer: Array = _offers[_offer_i]
+					_crop = offer[0]
+					_unit = float(offer[1])
+					var avail: int = mini(int(_mkt.get(_crop, 0)), int(_est["land"].get(_crop, 0)))
+					if avail <= 0:
+						_mkt.erase(_crop)
+						_offer_i += 1
+					else:
+						_seller = TownEcon._purchase_seller(_e, _est, _crop, _shared)
+						if not bool(_seller["src_ok"]):
+							_offer_i += 1
+						else:
+							_buyer_i = 0
+							_phase = "buy"
+			"buy":
+				if _buyer_i >= _buyers.size():
+					_next_offer()
+				else:
+					_buy()
+			"reassign":
+				if _i < _reassign_ids.size():
+					Families.reassign(_e, _reassigned[_reassign_ids[_i]])
+					_i += 1
+				else:
+					if _total_bought <= 0:
+						return true
+					_phase = "sync"
+			"sync":
+				Loans._sync_estate_work(_e, _est, _day)
+				return true
+		return false
+
+	func _next_offer() -> void:
+		_offer_i += 1
+		_phase = "offer"
+
+	func _buy() -> void:
+		var buyer: Dictionary = _buyers[_buyer_i]
+		_buyer_i += 1
+		var avail: int = mini(int(_mkt.get(_crop, 0)), int(_est["land"].get(_crop, 0)))
+		if avail <= 0:
+			_next_offer()
+			return
+		var afford: int = maxi(0, int(floor((float(buyer["purse"]) - _keep) / _unit)))
+		if afford <= 0:
+			return
+		var n: int = TownEcon._purchase_acres(_e, _est, buyer, _crop, mini(avail, afford), _seller)
+		if n <= 0:
+			return
+		var cost: float = float(n) * _unit
+		Families.move_land(_e, _est, buyer, _crop, n)
+		buyer["purse"] = float(buyer["purse"]) - cost
+		_e["land_fund"] = float(_e.get("land_fund", 0.0)) + cost
+		var left: int = int(_mkt.get(_crop, 0)) - n
+		if left > 0:
+			_mkt[_crop] = left
+		else:
+			_mkt.erase(_crop)
+		Families.add_hist(buyer, "Bought %d acres from %s for %d coins." % [n, _est["name"], int(cost)], _day)
+		_reassigned[int(buyer["id"])] = buyer
+		_total_bought += n
+		_shared.erase("src_rows")
+		_shared.erase("ox")
+		_shared.erase("a_ac")
+		(_shared["buyers"] as Dictionary).erase(int(buyer["id"]))
+		if _mkt.has(_crop):
+			_seller = TownEcon._purchase_seller(_e, _est, _crop, _shared)
+			if not bool(_seller["src_ok"]):
+				_next_offer()
 
 ## The house: into the market as a home for sale (the market pays its buying price), else the head takes it at
 ## the estate's price. The family is homeless after.

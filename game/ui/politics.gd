@@ -64,6 +64,8 @@ func _context() -> Dictionary:
 	return {"town_id": town_id, "back": back, "return_location": return_location, "back_params": back_params}
 
 func _refresh() -> void:
+	if Game._day_job_wait_observer(_refresh):
+		return
 	_refresh_pending = false
 	UiKit.clear(body)
 	var town: Dictionary = Game.world.get("towns", {}).get(town_id, {})

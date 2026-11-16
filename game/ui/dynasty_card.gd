@@ -31,6 +31,8 @@ func _on_game_changed() -> void:
 	set_process(true)
 
 func _process(delta: float) -> void:
+	if Game._day_job_hold_active():
+		return
 	if not _refresh_dirty:
 		set_process(false)
 		return
@@ -89,6 +91,22 @@ func _ready() -> void:
 	words.add_child(city_name)
 	refresh()
 
+## v0.101: cap the card's minimum height and portrait size to fit between top bar and nav on short screens (844x390).
+func set_height_cap(max_h: float) -> void:
+	var want_h: float = 136.0 if not UiTheme.is_mobile() else 186.0
+	var h: float = clampf(max_h, 88.0, want_h)
+	custom_minimum_size.y = h
+	if portrait != null:
+		var p: float = clampf(h - 24.0, 56.0, 112.0)
+		portrait.custom_minimum_size = Vector2(p, p)
+	if banner != null:
+		var bh: float = clampf(h - 48.0, 36.0, 56.0)
+		banner.custom_minimum_size = Vector2(roundf(bh * 46.0 / 56.0), bh)
+	if city_name != null:
+		city_name.visible = h >= 130.0
+	if office_state != null:
+		office_state.visible = h >= 115.0
+
 func _word(value: String, style: String, wrap: bool = false) -> Label:
 	var label := UiKit.label(value, style, wrap)
 	label.mouse_filter = MOUSE_FILTER_IGNORE
@@ -96,6 +114,8 @@ func _word(value: String, style: String, wrap: bool = false) -> Label:
 	return label
 
 func refresh(force: bool = false) -> void:
+	if Game._day_job_wait_observer(refresh.bind(force)):
+		return
 	if portrait == null:
 		return
 	var state: Dictionary = Game.world.get("player_house", {})

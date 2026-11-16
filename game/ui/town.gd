@@ -121,6 +121,8 @@ func show_tab(t: String) -> void:
 	refresh()
 
 func refresh() -> void:
+	if Game._day_job_wait_observer(refresh):
+		return
 	purse.text = UiKit.purse_text(Game)
 	UiKit.clear(tabs_box)
 	var t := town()

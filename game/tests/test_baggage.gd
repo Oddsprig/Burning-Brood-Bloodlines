@@ -15,16 +15,24 @@ func run(tree: SceneTree) -> int:
 	await tree.process_frame
 	Game.new_game(21)
 	Game.location = ""
-	# v0.099: a new game now starts with no company, rations or coin until a house is chosen and raises men;
-	# give this test the two men, meals, beer, wine and purse it was written for.
-	var rng := RandomNumberGenerator.new(); rng.seed = 21
-	while Game.company.size() < 2:
-		var man := Factory.make_troop(rng, "middle_kingdom", DB.factions["middle_kingdom"]["troops"][0], 2)
+	# v0.017 unraised start (sol_fix_group_K_worldgen.md:14,25); this isolated UI fixture
+	# then supplies exactly the two equipped test troops and inventory used by the independent sums below.
+	check(Game.company.is_empty() and Game.gold == 0 and Game.stash.is_empty(), "native opening company, purse and stash are empty")
+	for kind: String in Food.KINDS:
+		check(Food.stock(Game, kind) == 0, "native opening has no free " + kind)
+	if fails > 0: return fails
+	var rng: RandomNumberGenerator = RandomNumberGenerator.new(); rng.seed = 21
+	for troop_index: int in 2:
+		var man: Unit = Factory.make_troop(rng, "middle_kingdom", DB.factions["middle_kingdom"]["troops"][0], 2)
 		man.faction = "player"
 		Game.company.append(man)
-	for k in Food.KINDS:
-		if Food.stock(Game, k) == 0: Food.add_stock(Game, k, 6)
-	if Game.gold <= 0: Game.gold = 40
+		check(not man.dead and not man.equip.is_empty(), "baggage test troop %d is living and equipped" % troop_index)
+	for kind: String in Food.KINDS:
+		Food.add_stock(Game, kind, 6)
+		check(Food.stock(Game, kind) == 6, "fixture contains exactly six " + kind)
+	Game.gold = 40
+	check(Game.company.size() == 2 and Game.gold == 40, "exactly two test troops and forty fixture coins")
+	if fails > 0: return fails
 	Game.stash.append(Item.make("bearded_axe", "iron", 2))
 	Game.stash.append(Item.make("mail_shirt", "bronze", 0))
 	Goods.add_to_company(Game, "hides", 3.0)

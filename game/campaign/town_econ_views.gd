@@ -103,6 +103,8 @@ static func household_use(e: Dictionary, si: int, goods: Array = []) -> Dictiona
 	return out
 
 static func _producers(e: Dictionary, g: String) -> Array:
+	var indexed: Array = _batch_producers(e, g)
+	if not indexed.is_empty(): return indexed[0]
 	var D := TownEcon.data()
 	var out := []
 	for b in e["biz"]:
@@ -201,3 +203,36 @@ static func town_gold(e: Dictionary) -> float:
 	for f in e["fams"]:
 		g += float(f["purse"])
 	return g
+
+# Price explanations only read businesses. Build the exact ordered membership
+# once for that synchronous read pass; later production/ownership changes see
+# the ordinary reader again. A business appears once per good, as before.
+static var _producer_scope: Dictionary = {}
+
+static func begin_producer_batch(e: Dictionary) -> Dictionary:
+	var previous: Dictionary = _producer_scope
+	_producer_scope = {"econ": e}
+	return previous
+
+static func finish_producer_batch(previous: Dictionary) -> void:
+	_producer_scope = previous
+
+static func _batch_producers(e: Dictionary, good: String) -> Array:
+	if _producer_scope.is_empty() or not is_same(_producer_scope["econ"], e): return []
+	if not _producer_scope.has("index"):
+		var index: Dictionary = {}
+		var definitions: Dictionary = TownEcon.data()["businesses"]
+		for business: Dictionary in e["biz"]:
+			if business.get("closed", false): continue
+			var definition: Dictionary = definitions[business["type"]]
+			var goods: Dictionary = {}
+			if business["type"] == "butcher":
+				for output: String in ["fresh_meat", "hides", "tallow", "bones", "horn", "sinew"]: goods[output] = true
+			if business["type"] == "mine": goods[business.get("ore", "")] = true
+			for recipe: Dictionary in definition["recipes"]:
+				for output: Variant in recipe["out"]: goods[output] = true
+			for output: Variant in goods:
+				if not index.has(output): index[output] = []
+				(index[output] as Array).append(business)
+		_producer_scope["index"] = index
+	return [(_producer_scope["index"].get(good, []) as Array).duplicate()]

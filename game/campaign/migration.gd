@@ -178,8 +178,17 @@ static func move_households(game, from: Dictionary, f: Dictionary, to: Dictionar
 	var destination_counts := [0, 0, 0, 0]
 	# Family year turns are staggered. Debit/credit each row's stored age epoch;
 	# its ordinary turn will then age the remaining/arriving bins exactly once.
-	var source_epoch := float(f.get("population_year", floor(day / People.year_days()))) * People.year_days()
-	var destination_epoch := float(d.get("population_year", floor(day / People.year_days()))) * People.year_days()
+	var year_days: float = People.year_days()
+	var source_epoch: float = float(f.get("population_year", floor(day / year_days))) * year_days
+	var destination_epoch: float = float(d.get("population_year", floor(day / year_days))) * year_days
+	var source_year: int = int(floor(source_epoch / year_days))
+	var destination_year: int = int(floor(destination_epoch / year_days))
+	var source_ages: Dictionary = People.ages(String(f.get("race", Persons.race_of(e))))
+	var destination_ages: Dictionary = People.ages(String(d.get("race", Persons.race_of(e2))))
+	var source_adult: int = int(source_ages["adult"])
+	var source_elder: int = int(source_ages["elder"])
+	var destination_adult: int = int(destination_ages["adult"])
+	var destination_elder: int = int(destination_ages["elder"])
 	var carry := 0.0
 	for key in bins.keys():
 		var have := int(bins[key])
@@ -187,8 +196,15 @@ static func move_households(game, from: Dictionary, f: Dictionary, to: Dictionar
 		var k := mini(have, int(floor(x)))
 		carry = x - float(k)
 		if k <= 0: continue
-		counts[Population.bin_category(e, f, String(key), source_epoch)] += k
-		destination_counts[Population.bin_category(e2, d, String(key), destination_epoch)] += k
+		var parts: PackedStringArray = String(key).split(":")
+		var sex: int = int(parts[0])
+		var born: int = int(parts[1])
+		var source_age: int = source_year - born
+		var destination_age: int = destination_year - born
+		var source_cat: int = 3 if source_age < source_adult else (2 if source_age >= source_elder else sex)
+		var destination_cat: int = 3 if destination_age < destination_adult else (2 if destination_age >= destination_elder else sex)
+		counts[source_cat] += k
+		destination_counts[destination_cat] += k
 		bins[key] = have - k
 		if int(bins[key]) <= 0: bins.erase(key)
 		moved[key] = k

@@ -15,26 +15,28 @@ var begin_us := 0
 
 func begin(game) -> void:
 	var started := Time.get_ticks_usec()
-	data = {"version":1,"militia_cap":1,"seed":game.seed_value,"day":game.day,"gold":game.gold,"next_unit_uid":Unit._next_uid,
+	# v0.100: schema 2 carries exact native types and runtime state; schema 1 still migrates.
+	data = {"version":game.SAVE_VERSION,"militia_cap":1,"seed":game.seed_value,"day":game.day,"gold":game.gold,"next_unit_uid":Unit._next_uid,
 		"company":[],"stash":[],"squads":game._keys_to_str(game.squads).duplicate(true),
 		"rep":game.rep.duplicate(true),"location":game.location,"provisions":Food.stock_to_save(game),
 		"rations":game.rations.duplicate(true),"food_clock":game.food_clock.duplicate(true),
 		"rng_state":str(game.rng.state),   # v0.074: a reload continues the same musters and battle seeds
 		"next_item_uid":Item._next_uid}   # v0.074: new pieces after a reload get the uids they would have had
 	# Preserve top-level field and native iteration order, including untagged roster records.
+	# v0.100: crop indices and their validity bit are simulation state. Clearing can
+	# leave stale indices with unchanged crop_count; keep them until the usual rebuild.
 	data["world"] = _container(game.world)
 	data["contract"] = _container(game.contract)
+	# v0.100: live off-screen battles and conservation totals belong to this same capture.
+	data["raid_state"] = HerdRaids.save_state()
+	data["gold_gone"] = TownEcon.gold_gone
+	data["goods_lost"] = _container(TownEcon.goods_lost)
+	data["war_runtime"] = WarAI.save_runtime(game.world) # v0.100: preserve the aged hunt grid too.
 	_jobs.append({"input":game.stash,"output":data["stash"],"index":0,"roster":true,"n":-1})
 	_jobs.append({"input":game.company,"output":data["company"],"index":0,"roster":true,"n":-1})
 	begin_us = Time.get_ticks_usec()-started
 	total_us = begin_us
 	worst_us = begin_us
-
-## Rebuilt on load by CropRotation.ensure. Dropping them shortens the walk and the JSON.
-const DERIVED_SAVE_KEYS := {
-	"crop_work_acres": true, "crop_work_plots": true, "crop_yields": true,
-	"crop_names": true, "_crop_work_plots_valid": true,
-}
 
 func _record(object: Object) -> Dictionary:
 	var id := object.get_instance_id()
@@ -78,39 +80,69 @@ func step(budget_us: int) -> bool:
 	var started := Time.get_ticks_usec()
 	var iterations := 0
 	while not _jobs.is_empty():
-		var job: Dictionary = _jobs[-1]
+		# v0.100: batch each container in local variables to avoid per-element job dictionary and is_typed lookups.
+		var job: Dictionary = _jobs.pop_back()
 		var source = job["input"]
 		var index: int = job["index"]
 		# v0.100: a container walks the size it had when its copy began (n), never past it. Rosters (n -1) are live.
 		var size: int = job["n"]
 		if size < 0: size = source.size()
-		if index >= size:
-			_finish_job(job, size)
-			_jobs.pop_back()
-			continue
-		job["index"] = index + 1
-		if job.get("roster",false):
-			job["output"].append(_record(source[index]))
+		var paused := false
+		if job.get("roster", false):
+			var roster_out: Array = job["output"]
+			while index < size:
+				roster_out.append(_record(source[index]))
+				index += 1
+				iterations += 1
+				if index < size and budget_us > 0 and iterations % 32 == 0 and Time.get_ticks_usec() - started >= budget_us:
+					job["index"] = index
+					_jobs.append(job)
+					paused = true
+					break
 		elif source is Dictionary:
-			var key = job["keys"][index]
-			if DERIVED_SAVE_KEYS.has(str(key)):
-				(job["output"] as Dictionary).erase(key)
-				continue
-			var value = source.get(key, null)   # one lookup; a missing key reads as null
-			if value == null and not source.has(key):   # removed after the copy began
-				(job["output"] as Dictionary).erase(key)
-				_note_changed(job)
-				continue
-			# Shallow-copy scalar values natively; replace only complex values.
-			if source.is_typed() or typeof(value) > TYPE_STRING: job["output"][key] = _value(value)
+			var dict_src: Dictionary = source
+			var dict_out: Dictionary = job["output"]
+			var keys: Array = job["keys"]
+			var is_typed: bool = dict_src.is_typed()
+			while index < size:
+				var key = keys[index]
+				index += 1
+				var value = dict_src.get(key, null)   # one lookup; a missing key reads as null
+				# v0.100: inspect the type before treating a foreign/native value as missing.
+				if typeof(value) == TYPE_NIL and not dict_src.has(key):   # removed after the copy began
+					dict_out.erase(key)
+					_note_changed(job)
+					continue
+				# Shallow-copy scalar values natively; replace only complex values.
+				if typeof(value) > TYPE_STRING or is_typed: dict_out[key] = _value(value)
+				iterations += 1
+				if index < size and budget_us > 0 and iterations % 32 == 0 and Time.get_ticks_usec() - started >= budget_us:
+					job["index"] = index
+					job["sliced"] = true
+					_jobs.append(job)
+					paused = true
+					break
 		else:
-			if index >= source.size():   # the list shrank after its copy began: stop here, _finish_job trims it
-				job["index"] = size
-				continue
-			var value = source[index]
-			if source.is_typed() or typeof(value) > TYPE_STRING: job["output"][index] = _value(value)
-		iterations += 1
-		if budget_us > 0 and iterations % 32 == 0 and Time.get_ticks_usec()-started >= budget_us: break
+			var arr_src: Array = source
+			var arr_out: Array = job["output"]
+			var is_typed: bool = arr_src.is_typed()
+			while index < size:
+				if index >= arr_src.size():   # the list shrank after its copy began: stop here, _finish_job trims it
+					index = size
+					break
+				var value = arr_src[index]
+				if typeof(value) > TYPE_STRING or is_typed: arr_out[index] = _value(value)
+				index += 1
+				iterations += 1
+				if index < size and budget_us > 0 and iterations % 32 == 0 and Time.get_ticks_usec() - started >= budget_us:
+					job["index"] = index
+					job["sliced"] = true
+					_jobs.append(job)
+					paused = true
+					break
+		if paused: break
+		_finish_job(job, size)
+		if budget_us > 0 and iterations >= 32 and Time.get_ticks_usec() - started >= budget_us: break
 	var elapsed := Time.get_ticks_usec()-started
 	slices += 1; total_us += elapsed; worst_us = maxi(worst_us,elapsed)
 	if _jobs.is_empty():
@@ -133,10 +165,11 @@ func _finish_job(job: Dictionary, size: int) -> void:
 		if source.size() != size: _note_changed(job)
 		return
 	var changed: bool = source.size() != size
-	for key in job["keys"]:
-		if not source.has(key) and (job["output"] as Dictionary).has(key):
-			(job["output"] as Dictionary).erase(key)
-			changed = true
+	if changed or job.get("sliced", false):   # v0.100: unsliced containers cannot lose keys after their own pass
+		for key in job["keys"]:
+			if not source.has(key) and (job["output"] as Dictionary).has(key):
+				(job["output"] as Dictionary).erase(key)
+				changed = true
 	if changed: _note_changed(job)
 
 func _note_changed(job: Dictionary) -> void:

@@ -17,6 +17,12 @@ func hungry() -> int:
 func run(tree: SceneTree) -> int:
 	await tree.process_frame
 	Game.new_game(5)
+	# v0.017 starts unraised: exercise hunger on explicitly funded real residents.
+	var home_id: String = DevTools.choose_house(Game)
+	var raised: int = DevTools.raise_army(Game, home_id, 4) if home_id != "" else 0
+	check(raised == 4 and Food.eaters(Game).size() == 4, "four real residents supply the hunger fixture")
+	if raised != 4 or Food.eaters(Game).size() != 4:
+		return fails
 	Game.location = ""
 	var town: Dictionary = {}
 	for id in Game.world["towns"]:

@@ -56,6 +56,8 @@ var terrain: String = "plains"
 var max_ticks: int = 24000
 var log_moves: bool = true
 var verbose: bool = true
+## Optional presentation capture; only non-presented batch duels disable it.
+var capture_history: bool = true
 var gear_wear: bool = true   # v0.014 gear damage on (opts "gear_wear")
 var over: bool = false
 var growth: Dictionary = {}          # fighter idx -> {attr: points} after apply_battle_growth
@@ -71,6 +73,7 @@ var _growth_done := false
 var _terrain_mult: float = 1.0
 var _bleeders: Dictionary = {}       # fighter idx -> Array of [layer dict, clot rate, part id]
 var _bleed_total: Dictionary = {}    # fighter idx -> float
+const _EMPTY_CTX: Dictionary = {}    # shared empty journal context (events with an entry; never written)
 var _force_part := ""
 var _force_land := false
 var _ldef_cache: Dictionary = {}     # part id -> {layer name -> layer def}
@@ -182,6 +185,7 @@ func setup(side0: Array, side1: Array, seed: int, opts: Dictionary = {}) -> void
 	max_ticks = int(opts.get("max_ticks", 24000))
 	log_moves = bool(opts.get("log_moves", true))
 	verbose = bool(opts.get("verbose", true))
+	capture_history = bool(opts.get("capture_history", true))
 	gear_wear = bool(opts.get("gear_wear", true))   # v0.014: false = gear takes no damage (fresh-gear physics probes)
 	stream = bool(opts.get("stream", false))
 	stream_gap = maxi(1, int(opts.get("stream_gap", 6)))
@@ -243,7 +247,7 @@ func setup(side0: Array, side1: Array, seed: int, opts: Dictionary = {}) -> void
 		side_total[f.side] += 1
 		if f.state == "dead" or f.state == "unconscious":
 			side_down[f.side] += 1
-	if bool(opts.get("combat_journal", true)):
+	if bool(opts.get("combat_journal", log_moves or verbose)):   # v0.100: silent batch runs (log_moves=false and verbose=false) skip disk journal I/O unless requested
 		combat_journal = CombatJournal.new()
 		var people: Array = []
 		for f: Fighter in fighters:
@@ -255,6 +259,7 @@ func setup(side0: Array, side1: Array, seed: int, opts: Dictionary = {}) -> void
 			people.append(person)
 		combat_journal.setup(people)
 	_init_morale()
+	_warm_lookups()
 	for f in fighters:
 		_food_start_line(f)
 	_check_end()
@@ -458,6 +463,32 @@ func _init_fighter(f: Fighter) -> void:
 		f.prone = true
 		f.state = "prone"
 	_compute_tempo(f)
+	BattleDamage._cache_parts(f)
+	# Warm pure plan/race lookups during setup; no rolls, wounds or body writes.
+	for p: Dictionary in b.plan()["parts"]:
+		BattleDamage._inner_of(self, b, String(p["id"]), p)
+		BattleDamage._ldef_map(self, String(p["id"]), p)
+	if f.creature and not f.dragon:
+		NaturalAttacks._table(u.race, r)
+
+## Pure, battle-fixed lookups only: never warm tempo/shot solutions or roll dice here.
+func _warm_lookups() -> void:
+	if capture_history or combat_journal != null:
+		CombatText.templates()
+	for f: Fighter in fighters:
+		for check: String in Formulas.CHECK_ATTRS:
+			_alv(f, check)   # the existing food-state invalidation still clears these
+		for it: Item in f.unit.equip.values():
+			var t := _tmpl(it)
+			_item_name(it)
+			var weapon := it.is_weapon()
+			_isw[it] = weapon
+			if weapon and not _wgeo.has(it):
+				# Same expression/order as the lazy _swing_for fallback (also needed for retrieved items).
+				var dens := float(it.mat().get("density", 8930))
+				var head := float(t.get("head_cm3", 0)) * dens / 1.0e6
+				var haft := float(t.get("haft_kg", 0.0))
+				_wgeo[it] = [t, head, haft, Formulas.weapon_geometry(t, head, haft)]
 
 func _reach_of(f: Fighter) -> int:
 	if f.dragon: return clampi(ceili(float(f.dragon_profile.get("reach_m", 1.0))), 1, 3)
@@ -502,10 +533,17 @@ func step() -> void:
 	if over:
 		return
 	tick += 1
-	MountedCombat.sync(self)
-	DragonRiders.sync(self)
+	# Tick-local role lists: rebuilt from live fighters even after a raid restore.
+	# Roles are created only by setup; keep live guards in both sync passes.
+	var mounted_carriers: Array = []
+	var rider_carriers: Array = []
+	for f: Fighter in fighters:
+		if f.mount_rider_idx >= 0: mounted_carriers.append(f)
+		if f.seated_rider >= 0: rider_carriers.append(f)
+	MountedCombat.sync(self, mounted_carriers)
+	DragonRiders.sync(self, rider_carriers)
 	if not _downs.is_empty():
-		_process_downs()
+		BattleMorale._process_downs(self)   # perf: direct (was the _process_downs wrapper)
 	if stream and tick % stream_gap == 0:
 		_stream_enter()
 	var ready := []
@@ -513,7 +551,7 @@ func step() -> void:
 	var tg1 := []
 	_targets = [tg0, tg1]
 	# perf (same results): state checks inlined (Fighter.active() = not dead, fled or unconscious)
-	for f in fighters:
+	for f: Fighter in fighters:
 		var st: String = f.state
 		if not (f.waiting or st == "dead" or st == "fled"):
 			if f.side == 0:
@@ -523,7 +561,7 @@ func step() -> void:
 	_tcells_ok = false
 	if not projectiles.is_empty():   # bows: arrows in flight move before anyone acts
 		Archery.step_projectiles(self)
-	for f in fighters:
+	for f: Fighter in fighters:
 		var st: String = f.state
 		if f.waiting or st == "dead" or st == "fled":
 			continue
@@ -537,15 +575,17 @@ func step() -> void:
 			ready.append(f)
 	if ready.size() > 1:
 		ready.sort_custom(_initiative_first)
-	for f in ready:
-		if not f.active() or f.action_ticks > 0:
+	for f: Fighter in ready:
+		var rst: String = f.state   # perf: Fighter.active() inlined (same checks, re-read after the action)
+		if rst == "dead" or rst == "fled" or rst == "unconscious" or f.action_ticks > 0:
 			continue
 		_complete_action(f)
-		if not f.active() or f.action_ticks > 0:
+		rst = f.state
+		if rst == "dead" or rst == "fled" or rst == "unconscious" or f.action_ticks > 0:
 			continue
 		_decide(f)
-	MountedCombat.sync(self)
-	DragonRiders.sync(self)
+	MountedCombat.sync(self, mounted_carriers)
+	DragonRiders.sync(self, rider_carriers)
 	_check_end()
 	_trim_history()
 
@@ -654,24 +694,26 @@ func _physiology(f: Fighter) -> void:
 	var u := f.unit   # perf: locals for the unit, body and index (same reads and writes)
 	var b := u.body
 	var idx := f.idx
+	var ti := tick + idx   # perf: one sum/mod for the staggered 10/20-tick checks below
+	var m10 := ti % 10 == 0
 	var bt: float = _bleed_total.get(idx, 0.0)
 	if bt > 0.0:
 		b.blood = maxf(0.0, b.blood - bt)
-		if (tick + idx) % 10 == 0:
+		if m10:
 			_clot(f, 10)
 		var frac := b.blood / b.blood_max
 		if frac < Formulas.BLOOD_DEATH:
-			_kill(f, f.last_attacker, "bled to death")
+			BattleMorale._kill(self, f, f.last_attacker, "bled to death")
 			return
 		if frac < Formulas.BLOOD_FAINT and f.state != "unconscious":
-			_knock_out(f, "blood")
+			BattleMorale._knock_out(self, f, "blood")
 	if f.suffocating:
 		f.air -= 1.0
 		if f.air <= 0.0:
-			_kill(f, f.last_attacker, "suffocated")
+			BattleMorale._kill(self, f, f.last_attacker, "suffocated")
 			return
 		if f.air < Formulas.AIR_MAX * Formulas.AIR_KO and f.state != "unconscious":
-			_knock_out(f, "air")
+			BattleMorale._knock_out(self, f, "air")
 	var floor_p := f.pain_floor_src * Formulas.PAIN_PERSIST
 	var pn := b.pain
 	if pn > floor_p:
@@ -690,9 +732,9 @@ func _physiology(f: Fighter) -> void:
 			f.alv.clear()
 			_food_refresh(f)
 			f.tempo_tick = -1000
-	if (tick + idx) % Formulas.MORALE_TICK == 0:
-		_morale_tick(f)
-	if f.state == "unconscious" and (tick + idx) % 10 == 0:
+	if ti % Formulas.MORALE_TICK == 0:
+		BattleMorale._morale_tick(self, f)   # perf: direct (was the _morale_tick wrapper)
+	if f.state == "unconscious" and m10:
 		var fr := b.blood / b.blood_max
 		if b.pain < Formulas.PAIN_KO * Formulas.PAIN_WAKE and fr > Formulas.BLOOD_FAINT + 0.03 \
 				and f.think_dmg < Formulas.THINK_KO and (not f.suffocating or f.air > Formulas.AIR_MAX * Formulas.AIR_KO):
@@ -764,7 +806,7 @@ func _complete_action(f: Fighter) -> void:
 		if not f.pending_action.is_empty():
 			_finish_special(f)
 		else:
-			_deliver(f)
+			BattleDamage._deliver(self, f)   # perf: direct (was the _deliver wrapper)
 	else:
 		f.state = _idle_state(f)
 
@@ -812,10 +854,10 @@ func _decide(f: Fighter) -> void:
 		return
 	var t: Fighter = fighters[f.target] if f.target >= 0 else null
 	f.retarget_count += 1
-	var need := t == null or not t.alive() or t.state == "fled" or t.waiting
+	var need := t == null or t.state == "dead" or t.state == "fled" or t.waiting   # perf: alive() inlined
 	if not need and t.state == "unconscious" and f.retarget_count % 3 == 0:
 		need = true
-	if not need and f.retarget_count % 6 == 0 and _dist(f.cell, t.cell) > f.reach_tiles:
+	if not need and f.retarget_count % 6 == 0 and maxi(absi(t.cell.x - f.cell.x), absi(t.cell.y - f.cell.y)) > f.reach_tiles:   # perf: _dist inlined
 		need = true
 	if need:
 		_pick_target(f)
@@ -831,7 +873,16 @@ func _decide(f: Fighter) -> void:
 			f.target = near.idx
 	if t.cell.x != f.cell.x:
 		f.facing = 1 if t.cell.x > f.cell.x else -1
-	if _in_reach(f, t):
+	# perf: _in_reach inlined for the common 1-tile case (same tests; _in_reach otherwise)
+	var tdx := t.cell.x - f.cell.x
+	var tdy := t.cell.y - f.cell.y
+	var tdd := maxi(absi(tdx), absi(tdy))
+	var reach := false
+	if tdd == 1 and tdd <= f.reach_tiles:
+		reach = tdx == 0 or tdy == 0 or (tiles[f.cell.y * grid_w + t.cell.x] != T_BLOCKED and tiles[t.cell.y * grid_w + f.cell.x] != T_BLOCKED)
+	elif tdd >= 2 and tdd <= f.reach_tiles:
+		reach = _in_reach(f, t)
+	if reach:
 		_start_attack(f, t)
 	elif f.hold and f.grabbed_by < 0 and not _held_in_place(f) and _enemy_reaching_me(f) != null:
 		# a longer weapon is poking from beyond my reach: step in to engage it (holding never means standing idle)
@@ -843,14 +894,21 @@ func _decide(f: Fighter) -> void:
 
 func _enemy_in_reach(f: Fighter) -> Fighter:
 	var best: Fighter = null
-	for e in _targets[1 - f.side]:
+	for e: Fighter in _targets[1 - f.side]:
+		if _dist(f.cell, e.cell) > f.reach_tiles:
+			continue
 		if e.alive() and e.state != "fled" and not e.routed and _in_reach(f, e):
-			if best == null or (best.helpless() and not e.helpless()):
+			# The first non-helpless candidate cannot be replaced by a later one.
+			if not e.helpless():
+				return e
+			if best == null:
 				best = e
 	return best
 
 func _enemy_reaching_me(f: Fighter) -> Fighter:
-	for e in _targets[1 - f.side]:
+	for e: Fighter in _targets[1 - f.side]:
+		if _dist(e.cell, f.cell) > e.reach_tiles:
+			continue
 		if e.standing() and not e.routed and _in_reach(e, f):
 			return e
 	return null
@@ -876,10 +934,9 @@ func _reach_clear(a: Vector2i, b: Vector2i) -> bool:
 	var dv := b - a
 	var c1 := a + Vector2i(signi(dv.x), signi(dv.y))
 	var c2 := a + Vector2i(dv.x / 2, dv.y / 2)
-	for c in [c1, c2]:
-		if _passable(c) and _diag_ok(a, c) and _diag_ok(c, b):
-			return true
-	return false
+	if _passable(c1) and _diag_ok(a, c1) and _diag_ok(c1, b):
+		return true
+	return _passable(c2) and _diag_ok(a, c2) and _diag_ok(c2, b)
 
 func _held_in_place(f: Fighter) -> bool:
 	for s in f.stuck_in_me:
@@ -893,8 +950,6 @@ func _pick_target(f: Fighter) -> void:
 	var best_score := INF
 	# first pass (no dice): the nearest plain distance; only candidates within reach of the noise get a roll
 	var cands: Array = _targets[1 - f.side]
-	var dists := PackedInt32Array()
-	dists.resize(cands.size())
 	var dmin := 1 << 30
 	var fx := f.cell.x
 	var fy := f.cell.y
@@ -903,21 +958,23 @@ func _pick_target(f: Fighter) -> void:
 	var xs: PackedInt32Array = _tx1 if f.side == 0 else _tx0   # the candidates' cells (packed copy)
 	var ys: PackedInt32Array = _ty1 if f.side == 0 else _ty0
 	for i in cands.size():
+		# perf (same picks/rolls): the plain distance is recomputed in the second pass instead of stored
 		var dd := maxi(absi(xs[i] - fx), absi(ys[i] - fy))
-		dists[i] = dd
 		dmin = mini(dmin, dd)
 	var cutoff := float(dmin) + Formulas.TARGET_NOISE
 	for i in cands.size():
-		var dd := float(dists[i])
+		var dd := float(maxi(absi(xs[i] - fx), absi(ys[i] - fy)))
 		if dd > cutoff:
 			continue
 		var e: Fighter = cands[i]
-		if not e.alive() or e.state == "fled":
+		var st: String = e.state
+		if st == "dead" or st == "fled":
 			continue
-		var s := dd + Formulas.roll_target_noise(rng)
+		# roll_target_noise is exactly this one draw/product; keep candidate order.
+		var s := dd + rng.randf() * Formulas.TARGET_NOISE
 		if e.routed:
 			s += Formulas.TARGET_ROUTED_PENALTY
-		if e.state == "unconscious":
+		if st == "unconscious":
 			s += Formulas.TARGET_HELPLESS_PENALTY
 		if s < best_score:
 			best_score = s
@@ -942,7 +999,10 @@ func _move_toward(f: Fighter, goal: Vector2i) -> void:
 		if p.x < 0 or p.y < 0 or p.x >= grid_w or p.y >= grid_h:
 			continue
 		var ci := p.y * grid_w + p.x
-		if tiles[ci] == T_BLOCKED or occ[ci] != -1 or not _diag_ok(fc, p):
+		if tiles[ci] == T_BLOCKED or occ[ci] != -1:
+			continue
+		# perf: _diag_ok inlined (unit step; both corner cells are in bounds when fc and p are)
+		if n.x != 0 and n.y != 0 and (tiles[fc.y * grid_w + p.x] == T_BLOCKED or tiles[p.y * grid_w + fc.x] == T_BLOCKED):
 			continue
 		var sc := dd * 1000.0 + de + (500.0 if tiles[ci] == T_ROUGH else 0.0)
 		if sc < best_score:
@@ -998,7 +1058,8 @@ func _do_move(f: Fighter, p: Vector2i) -> void:
 	_compute_tempo(f)
 	var tm := _terrain_mult * (Formulas.ROUGH_MOVE_MULT if tiles[pci] == T_ROUGH else 1.0)
 	var mover := MountedCombat.mover(self, f)
-	_compute_tempo(mover)
+	if not is_same(mover, f):   # perf: _compute_tempo(f) above already ran this tick (a second call always hits its cache)
+		_compute_tempo(mover)
 	var mt := Formulas.move_ticks(mover.speed, tm, f.prone) * mover.walk_mult
 	var ticks := _ticks(f, mt)
 	_set_action(f, "moving", ticks)
@@ -1081,7 +1142,7 @@ func _food_line(f: Fighter, key: String, extra: Dictionary = {}) -> void:
 
 ## Hungry or starving men run out of wind: said once, when exertion first passes a third of END.
 func _food_gasp(f: Fighter) -> void:
-	if f.food_said & 1 == 0 and _ex_ratio(f) >= 0.35:
+	if f.food_said & 1 == 0 and _ex_ratio(f) >= 0.05:   # v0.100: lower threshold so thrust-weighted sword bouts still trigger gasp before morale rout
 		f.food_said |= 1
 		_food_line(f, "food_gasp_" + f.belly_state)
 
@@ -1180,7 +1241,10 @@ func _attacks_of(f: Fighter, dist: int) -> Array:
 		return [Formulas.NATURAL["punch"]]
 	# O5: inside its minimum reach a long polearm hits with the haft.
 	if dist <= 1 and float(t.get("reach", 80)) >= Formulas.POLEARM_MIN_REACH:
-		var haft := all.filter(func(a): return a.get("type", "") == "blunt")
+		var haft := []   # perf: filter() without a Callable (same entries, same order)
+		for a in all:
+			if a.get("type", "") == "blunt":
+				haft.append(a)
 		if not haft.is_empty():
 			return haft
 	return all
@@ -1330,7 +1394,20 @@ func _learn(f: Fighter, skill: String, xp: float) -> void:
 	if m == null:
 		m = Learning.learn_mult(f.unit, skill)
 		f.lmult[skill] = m
-	var lvl := Learning.add_skill_xp_mult(f.unit, skill, xp, m)
+	# perf: Learning.add_skill_xp_mult inlined (same arithmetic, writes and level-up result)
+	var u := f.unit
+	var skills := u.skills
+	var lvl := -1
+	var slvl := int(skills.get(skill, 0))
+	if slvl < Learning.MAX_LEVEL:
+		var sxp := u.skill_xp
+		var cur: float = float(sxp.get(skill, 0.0)) + xp * m
+		while slvl < Learning.MAX_LEVEL and cur >= Learning.XP_BASE + Learning.XP_PER_LEVEL * (slvl + 1):
+			cur -= Learning.XP_BASE + Learning.XP_PER_LEVEL * (slvl + 1)
+			slvl += 1
+			lvl = slvl
+		skills[skill] = slvl
+		sxp[skill] = cur if slvl < Learning.MAX_LEVEL else 0.0
 	if lvl >= 0:
 		_ev_simple("learn", f.idx, -1, "learn", {"n": f.unit.name, "skill": skill.replace("_", " "), "lvl": lvl})
 
@@ -1380,7 +1457,9 @@ func _retrieve(f: Fighter, pa: Dictionary) -> void: BattleDamage._retrieve(self,
 
 # ---------------------------------------------------------------- events and lazy logs
 func _trim_history() -> void:
-	flush_combat_journal()
+	# v0.100: avoid mid-step disk chunk spills when history tails are unbounded; flush in-memory prefix or when tails trim.
+	if history_event_limit > 0 or history_log_limit > 0 or (combat_journal != null and combat_journal.count() + _journal_pending.size() < CombatJournal.CHUNK_SIZE):
+		flush_combat_journal()
 	if history_event_limit > 0 and events.size() > history_event_limit:
 		var cut := maxi(events.size() - history_event_limit, maxi(1, history_event_limit / 8))
 		events = events.slice(cut)
@@ -1399,8 +1478,8 @@ func result_events() -> Array:
 	out.sort_custom(func(a, b): return int(a["tick"]) < int(b["tick"]))
 	return out
 
-func _event(type: String, actor: int, target: int, text: String, decisive: bool, part: String = "") -> Dictionary:
-	if type in ["fall", "unconscious", "death"]:
+func _event(type: String, actor: int, target: int, text: String, decisive: bool, part: String = "", entry: Variant = null) -> Dictionary:
+	if type == "fall" or type == "unconscious" or type == "death":   # perf: no array built per event
 		var down_idx := target if type == "death" else actor
 		if down_idx >= 0 and down_idx < fighters.size():
 			var down: Fighter = fighters[down_idx]
@@ -1410,18 +1489,22 @@ func _event(type: String, actor: int, target: int, text: String, decisive: bool,
 		var horse: Fighter = fighters[target]
 		if horse.mount_rider_idx >= 0:
 			Horses.casualty(fighters[horse.mount_rider_idx].unit, horse.unit)
-	if _journal_pending.size() >= 256: flush_combat_journal()
+	if not capture_history and combat_journal == null: return {"tick": tick, "type": type, "actor": actor, "target": target, "text": text, "decisive": decisive, "part": part}
+	if (history_event_limit > 0 or history_log_limit > 0) and _journal_pending.size() >= 256: flush_combat_journal()
 	var e := {"tick": tick, "type": type, "actor": actor, "target": target, "text": text, "decisive": decisive, "part": part}
+	if entry != null: e["entry"] = entry
 	events.append(e)
 	new_events.append(e)
-	if combat_journal != null and not (type == "move" and log_moves):
-		var context: Dictionary = {}
-		if actor >= 0 and actor < fighters.size():
+	if combat_journal != null and not (type == "move" and log_moves):   # v0.100: move entries use _log when log_moves is true; log_moves=false with journal still records move events
+		var context: Dictionary = _EMPTY_CTX if entry != null else {}   # perf: with an entry the context stays empty (both fills below need entry == null)
+		# Native entry emitters already captured the labels/numbers. The flush uses
+		# that entry, so fallback presentation context would be built and discarded.
+		if entry == null and actor >= 0 and actor < fighters.size():
 			var a: Fighter = fighters[actor]
 			context = {"al": a.label, "cell": a.cell, "verb": a.current_attack}
-			if type in ["prepare", "attack", "snap"]:
+			if type == "prepare" or type == "attack" or type == "snap":
 				context["weapon"] = _item_name(a.wielded) if a.wielded != null else "bare hands"
-		if target >= 0 and target < fighters.size():
+		if entry == null and target >= 0 and target < fighters.size():
 			var d: Fighter = fighters[target]
 			context["dl"] = d.label
 			if part != "": context["pname"] = _pdef(d.unit.body, part).get("name", part)
@@ -1429,7 +1512,8 @@ func _event(type: String, actor: int, target: int, text: String, decisive: bool,
 	return e
 
 func _log(f: Fighter, k: String, d: Dictionary) -> Dictionary:
-	if _journal_pending.size() >= 256: flush_combat_journal()
+	if not capture_history and combat_journal == null: return {"tick": tick, "k": k, "d": d}
+	if (history_event_limit > 0 or history_log_limit > 0) and _journal_pending.size() >= 256: flush_combat_journal()
 	var entry := {"tick": tick, "k": k, "d": d}
 	f.log.append(entry)
 	if combat_journal != null:
@@ -1446,7 +1530,7 @@ func flush_combat_journal() -> void:
 			var entry: Dictionary = event.get("entry", {})
 			if entry.is_empty():
 				entry = {"tick": int(event["tick"]), "k": "event", "d": {
-					"event": event.duplicate(true), "context": record["context"]}}
+					"event": event, "context": record["context"]}}
 			combat_journal.append(entry, int(event["actor"]), int(event["target"]), String(event["type"]))
 		else:
 			combat_journal.append(record["entry"], int(record["actor"]), int(record["target"]), String(record["type"]))
@@ -1472,13 +1556,14 @@ func _ev_simple(type: String, actor: int, target: int, key: String, params: Dict
 		params["dl"] = ft.label
 		if ft.pron != "his":
 			params["dpr"] = ft.pron   # monsters wave 1: "its" for animals
+	if not capture_history and combat_journal == null:
+		return _event(type, actor if actor >= 0 else target, target, "", decisive, part)
 	var entry := {"tick": tick, "k": "ev", "d": params}
 	if fa != null:
 		fa.log.append(entry)
 	if ft != null and target != actor:
 		ft.log.append(entry)
-	var e := _event(type, actor if actor >= 0 else target, target, "", decisive, part)
-	e["entry"] = entry
+	var e := _event(type, actor if actor >= 0 else target, target, "", decisive, part, entry)
 	if type == "learn" and history_event_limit > 0:
 		learning_summary[str(actor) + ":" + String(params.get("skill", ""))] = e
 	if decisive:

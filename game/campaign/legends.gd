@@ -205,7 +205,8 @@ static func take_gem(e: Dictionary, b: Dictionary, input_cost: float = 0.0) -> S
 static func makers(e: Dictionary, b: Dictionary) -> Array:
 	var out := []
 	var bid := int(b["id"])
-	var race := Persons.race_of(e)
+	var race: String = Persons.race_of(e)
+	var owner_names_scope: Array[Dictionary] = [{}]
 	for f in e["fams"]:
 		if f.get("gone", false) or f.get("estate", false):
 			continue
@@ -213,7 +214,7 @@ static func makers(e: Dictionary, b: Dictionary) -> Array:
 		var keeps: bool = (f.get("keeps", []) as Array).any(func(k): return int(k) == bid)
 		if int(jobs.get(bid, jobs.get(str(bid), 0))) <= 0 and not keeps:
 			continue
-		var wk := Persons.work(e, f)
+		var wk: Dictionary = Persons.work(e, f, owner_names_scope)
 		for pid in wk:
 			if int(wk[pid].get("biz", -1)) != bid:
 				continue
@@ -228,10 +229,18 @@ static func made_by(p: Array) -> int:
 ## A legendary roll at forge b turned out `it` (quality DB.LEGEND). Makes it a legendary piece (maker, gem, name,
 ## history), or turns it back to masterwork when the forge has no maker under the cap or no stone. Returns whether
 ## it stayed legendary.
-static func forge(game, town: Dictionary, e: Dictionary, b: Dictionary, it: Item, rng: RandomNumberGenerator, day: float, input_cost: float = 0.0) -> bool:
+# A supplied roster belongs to one forge/bowyer loop. Its live person references
+# retain every LEG/HIST update; CAP is tested anew for each legendary roll.
+static func forge(game, town: Dictionary, e: Dictionary, b: Dictionary, it: Item, rng: RandomNumberGenerator, day: float, input_cost: float = 0.0, maker_scope: Array[Dictionary] = []) -> bool:
 	if not it.is_legend():
 		return false
-	var cands := makers(e, b).filter(func(m): return made_by(m["p"]) < CAP)
+	var roster: Array
+	if not maker_scope.is_empty() and maker_scope[0].has("roster"):
+		roster = maker_scope[0]["roster"]
+	else:
+		roster = makers(e, b)
+		if not maker_scope.is_empty(): maker_scope[0]["roster"] = roster
+	var cands: Array = roster.filter(func(m): return made_by(m["p"]) < CAP)
 	if cands.is_empty():
 		it.quality = 5
 		_count(game, "no_maker")

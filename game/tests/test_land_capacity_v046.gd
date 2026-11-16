@@ -102,17 +102,19 @@ func books(e: Dictionary, label: String) -> void:
 
 func buyer(e: Dictionary, mode: String) -> Dictionary:
 	for f in e["fams"]:
-		if f.get("gone", false) or f.get("estate", false) or Families.adults(f) <= 0: continue
+		# v0.100: v0.002 (47efcc7) makes cohorts workforce pools, not property buyers.
+		if f.get("gone", false) or f.get("estate", false) or Population.is_cohort(f) or Families.adults(f) <= 0: continue
 		if mode == "service" and Families.serving(f) > 0: return f
 		if mode == "keeper" and keepers(e, f) > 0: return f
 		if mode == "stale_keeper" and keepers(e, f) > 0 and Families.serving(f) == 0:
-			var later_capacity := float(maxi(0, Families.adults(f) - keepers(e, f))) + Barge.helper_hands(e, f, float(e["day"]))
+			# v0.100: keep one actual shop open below; other fixture shops can close.
+			var later_capacity := float(maxi(0, Families.adults(f) - 1)) + Barge.helper_hands(e, f, float(e["day"]))
 			if later_capacity >= 0.5:
 				for bid in f["keeps"]:
 					var shop: Dictionary = e["biz"][int(bid)]
 					if not shop.get("closed", false) and int(shop["owner"]) == int(f["id"]) and int(shop.get("kw", 0)) > 0 and String(shop["type"]) != "herder": return f
-		if mode == "occupied" and Families.job_total(f) > 0 and Families.serving(f) == 0 and keepers(e, f) == 0: return f
-		if not mode in ["service", "keeper", "stale_keeper", "occupied"] and Families.serving(f) == 0 and keepers(e, f) == 0:
+		if mode == "occupied" and Families.serving(f) == 0: return f
+		if not mode in ["service", "keeper", "stale_keeper", "occupied"] and Families.serving(f) == 0:
 			if mode == "loan":
 				# Select real credit after the intended native holding clearance.
 				# A one-adult/one-home buyer has only 1,100 coin credit, below
@@ -154,9 +156,34 @@ func configure(town: Dictionary, original: Dictionary, mode: String, draft: Stri
 	for kind in remaining_animals:
 		var n := int(remaining_animals[kind])
 		if n > 0: check(transfer_animals(e, f, estate, String(kind), n) == n, "controlled empty holding transfers every actual direct-owner animal")
-	if mode != "occupied":
-		for k in f["jobs"].keys(): Families.set_job(e, f, int(k), 0)
-		Shelter.release_casual(e, f)
+	# v0.100: tracked owners need genuinely free workers, not the pool's hundreds of adults.
+	# v0.100: close only their fixture shops; keep all tills, claims, plots and people intact.
+	if not mode in ["service", "keeper"]:
+		var retained := -1
+		if mode == "stale_keeper":
+			for bid in f.get("keeps", []):
+				var shop: Dictionary = e["biz"][int(bid)]
+				if not shop.get("closed", false) and int(shop["owner"]) == int(f["id"]) and int(shop.get("kw", 0)) > 0 and String(shop["type"]) != "herder": retained = int(bid); break
+		for bid in f["owns"]:
+			var shop: Dictionary = e["biz"][int(bid)]
+			if String(shop["type"]) != "farm" and int(bid) != retained: shop["closed"] = true
+	for k in f["jobs"].keys(): Families.set_job(e, f, int(k), 0)
+	Shelter.release_casual(e, f)
+	if mode == "occupied":
+		# v0.100: put these same actual adults in an existing, funded paid employer.
+		var employer: Dictionary = {}
+		for b in e["biz"]:
+			if not b.get("closed", false) and int(b["owner"]) != int(f["id"]) and String(b["type"]) not in ["farm", "estate", "academy"]:
+				employer = b; break
+		check(not employer.is_empty(), "v0.100: occupied control has an existing employer")
+		if employer.is_empty(): return []
+		var count := Families.adults(f)
+		var funding := maxf(0.0, float(employer["wage"]) * float(int(employer["workers"]) + count) * 14.0 - float(employer["till"]))
+		check(float(e["treasury"]) >= funding, "v0.100: occupied fixture has real funding")
+		if float(e["treasury"]) < funding: return []
+		e["treasury"] = float(e["treasury"]) - funding
+		employer["till"] = float(employer["till"]) + funding
+		Families.set_job(e, f, int(employer["id"]), count)
 	# Freeze other offers, retaining incumbent jobs and actual keepers.
 	for b in e["biz"]: b["cap"] = int(b["workers"])
 	for job in e.get("cjcap", {}): e["cjcap"][job] = float(e.get("cjused", {}).get(job, 0))
@@ -185,6 +212,7 @@ func configure(town: Dictionary, original: Dictionary, mode: String, draft: Stri
 			if left <= 0: break
 		check(int(estate.get("ox", 0)) > 0, "draft control uses existing actual oxen")
 	Families.reassign(e, f)
+	check(not Population.is_cohort(f), "v0.100: estate sale control uses an independent household")
 	# Isolate affordability using only transfers of existing coins.
 	for other in e["fams"]:
 		if other.get("estate", false): continue
@@ -524,8 +552,28 @@ func stale_keeper_sale(town: Dictionary, original: Dictionary) -> void:
 
 func run(_tree: SceneTree) -> int:
 	Game.new_game(901)
+	# v0.100: 82fd335 adds the high-/dark-elf cultures.
+	# v0.100: a sparse Normal world need not place every culture.
+	# v0.100: generate only missing native town economies, retaining the full culture gate.
+	var towns: Array = Game.world["towns"].values()
+	var generated := {}
+	for town in towns: generated[String(town["econ"]["culture"])] = true
+	for culture in TownEcon.data()["cultures"]:
+		if generated.has(culture): continue
+		var town: Dictionary = towns[0].duplicate(true)
+		town["culture"] = culture
+		town["race"] = TownEcon.data()["cultures"][culture]["race"]
+		town["capital"] = false
+		for fid in DB.factions:
+			if String(DB.factions[fid].get("culture", "")) == String(culture): town["faction"] = fid; break
+		var rng := RandomNumberGenerator.new()
+		rng.seed = hash([901, culture, "v0.100-property-culture"])
+		EconGen.generate(Game.world, town, rng)
+		Plots.layout(Game.world, town)
+		WageClaims.after_load(town["econ"])
+		towns.append(town)
 	var seen := {}
-	for town in Game.world["towns"].values():
+	for town in towns:
 		var original: Dictionary = town["econ"].duplicate(true)
 		masks(original)
 		var culture := String(original["culture"])

@@ -2,9 +2,28 @@ extends RefCounted
 ## The land map (ui/land_map.gd): mounts into any Control; every overlay composes; the town's own buildings keep
 ## their slate-and-gold sprite in every overlay; the strip follows the overlay and a family tap shows only its
 ## plots; the Town tab opens it; perf: a 1,500-plot town composes once per overlay change and pans at frame rate
-## (one texture), tap -> card under 16 ms (headless).
+## (one texture), complete frame interval under 16.7 ms; tap -> card under 16 ms (headless).
 
 var fails := 0
+
+## Restores the temporary setting when the coroutine releases its locals, including script-error exits.
+class HeadlessIdleSleepScope extends RefCounted:
+	var saved_usec: int = OS.low_processor_usage_mode_sleep_usec
+	var _active: bool = false
+
+	func disable() -> void:
+		_active = true
+		OS.low_processor_usage_mode_sleep_usec = 0
+
+	func restore() -> void:
+		if _active:
+			_active = false
+			OS.low_processor_usage_mode_sleep_usec = saved_usec
+
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_PREDELETE and _active:
+			_active = false
+			OS.low_processor_usage_mode_sleep_usec = saved_usec
 
 func check(ok: bool, msg: String) -> void:
 	if not ok:
@@ -141,9 +160,24 @@ func run(tree: SceneTree) -> int:
 		cworst = maxf(cworst, v2.compose_ms)
 	print("1,500-plot compose (overlay change): worst %.1f ms" % cworst)
 	check(cworst < 120.0, "overlay change on 1,500 plots composes in %.1f ms (< 120)" % cworst)
-	# panning and zooming: frames only move one texture
+	# Keep the complete interval: process timers precede queued deletion and the
+	# final deferred flush. Disable only headless idle sleep while sampling,
+	# then restore it. The earlier UI-phase timer remains a diagnostic gate.
+	# See test-results/v0.100/review_fix_ui_land_map_perf_r2.md for the boundary.
+	var idle_sleep_usec: int = OS.low_processor_usage_mode_sleep_usec
+	var headless_samples: bool = DisplayServer.get_name() == "headless"
+	var idle_sleep_scope: HeadlessIdleSleepScope = HeadlessIdleSleepScope.new()
+	if headless_samples:
+		check(Engine.max_fps == 0, "headless full-frame samples require max_fps=0")
+		idle_sleep_scope.disable()
+	var sampling_sleep_usec: int = OS.low_processor_usage_mode_sleep_usec
+	check(not headless_samples or sampling_sleep_usec == 0, "headless samples disable only idle sleep")
 	var fworst := 0.0
+	var interval_worst: float = 0.0
+	var measured_frames: int = 0
 	for k in 30:
+		var work_end: SceneTreeTimer = tree.create_timer(0.0, true, false, true)
+		var engine_frame: int = Engine.get_process_frames()
 		var t1 := Time.get_ticks_usec()
 		var mm := InputEventMouseMotion.new()
 		v2._down = true
@@ -151,11 +185,23 @@ func run(tree: SceneTree) -> int:
 		v2._gui_input(mm)
 		if k % 5 == 0:
 			v2.zoom_at(Vector2(400, 300), 1.05)
+		await work_end.timeout
+		var work_ms: float = float(Time.get_ticks_usec() - t1) / 1000.0
+		check(Engine.get_process_frames() == engine_frame, "pan/zoom CPU work closes in the same engine frame")
+		fworst = maxf(fworst, work_ms)
 		await tree.process_frame
-		fworst = maxf(fworst, float(Time.get_ticks_usec() - t1) / 1000.0)
+		interval_worst = maxf(interval_worst, float(Time.get_ticks_usec() - t1) / 1000.0)
+		measured_frames += 1
+		check(Engine.get_process_frames() == engine_frame + 1, "pan/zoom intervals cover consecutive engine frames")
 	v2._down = false
-	print("pan/zoom frame worst %.2f ms" % fworst)
-	check(fworst < 16.7, "pan/zoom frame under 16.7 ms on 1,500 plots (%.2f)" % fworst)
+	idle_sleep_scope.restore()
+	check(OS.low_processor_usage_mode_sleep_usec == idle_sleep_usec, "pan/zoom sampling restores idle sleep")
+	print("pan/zoom pacing: headless=%s sample_idle_sleep_usec=%d restored_idle_sleep_usec=%d" %
+		[str(headless_samples), sampling_sleep_usec, OS.low_processor_usage_mode_sleep_usec])
+	print("pan/zoom CPU phase work worst %.2f ms; next-frame interval worst %.2f ms; frames %d" % [fworst, interval_worst, measured_frames])
+	check(measured_frames == 30, "all 30 pan/zoom frames are measured, including frame zero")
+	check(fworst < 16.7, "pan/zoom CPU phase work under 16.7 ms on 1,500 plots (%.2f)" % fworst)
+	check(interval_worst < 16.7, "complete pan/zoom frame interval under 16.7 ms on 1,500 plots (%.2f)" % interval_worst)
 	var bworst := 0.0
 	for i in range(0, Plots.count(bp), 97):
 		var pos2: Vector2 = v2.off + (Vector2(int(bp["x"][i]), int(bp["y"][i])) + Vector2(0.5, 0.5)) * LandMap.TILE * v2.zoom

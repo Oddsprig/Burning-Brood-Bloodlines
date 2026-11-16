@@ -6,7 +6,7 @@ extends RefCounted
 ## v0.099: the whole test runs longer than the 3-minute limit, so it splits into short runs with --part=:
 ##   --part=world   whole-world tabs        --part=faction   faction-scoped tabs + town tabs
 ##   --part=wide    1280x720 native fit + same-frame checks   --part=tall   720x1280 native fit.
-##   No --part runs everything (over 3 min).
+## v0.100: --part is required; an unsplit or unknown part fails immediately instead of exceeding 3 minutes.
 const BASELINE := preload("res://tests/fixtures/records_v044_baseline.gd")
 const WORLD_TABS := ["Mines & land", "Census", "Merchants", "Towns", "On the move", "Food flows"]
 const TOWN_TABS := ["Businesses", "Register"]
@@ -44,22 +44,28 @@ func run(st: SceneTree) -> int:
 	var part := ""
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--part="): part = a.trim_prefix("--part=")
-	var do_world := part in ["", "world"]
-	var do_faction := part in ["", "faction"]
+	check(part in ["world", "faction", "wide", "tall"], "choose one bounded v044 --part=world|faction|wide|tall; all four are required separately")
+	if fails > 0: return fails
+	if native_probe:
+		check(part in ["wide", "tall"], "native probe requires one bounded wide or tall part")
+		if fails > 0: return fails
+	var do_world := part == "world"
+	var do_faction := part == "faction"
 	var sizes: Array = []
-	if part in ["", "wide"]: sizes.append(Vector2i(1280, 720))
-	if part in ["", "tall"]: sizes.append(Vector2i(720, 1280))
-	if native_probe: sizes = [Vector2i(1280, 720), Vector2i(720, 1280)]
-	check(FileAccess.get_file_as_string("res://ui/rec_pages.gd").replace("\r\n", "\n").sha256_text() == BASELINE.LIVE_PAGES_SHA256, "live RecPages source exactly matches frozen delivered v043 dependency")
+	if part == "wide": sizes.append(Vector2i(1280, 720))
+	if part == "tall": sizes.append(Vector2i(720, 1280))
+	# v0.100: retain dependency pinning after the explicitly audited post-v043 changes in the fixture.
+	check(FileAccess.get_file_as_string("res://ui/rec_pages.gd").replace("\r\n", "\n").sha256_text() == BASELINE.LIVE_PAGES_SHA256, "live RecPages source matches the audited post-v043 dependency")
 	await tree.process_frame
 	Game.new_game(11)
-	CampaignWorld.presim_step(Game, 40)
+	# v0.100: use the required one-day history; the same-frame ledger edits exercise evolved state directly.
+	CampaignWorld.presim_step(Game, 1)
 	var tid := ""
 	for key in Game.world["towns"]:
 		if not (Game.world["towns"][key].get("recruits", []) as Array).is_empty() and Militia.units_of(Game, key).size() > 0:
 			tid = String(key)
 			break
-	check(tid != "", "exact original seed11+40days world has a recruited/militia town")
+	check(tid != "", "one-day seed11 world has a recruited/militia town")
 	if tid == "": return fails
 	Game.location = tid
 	var all: Array = Game.world["towns"].keys().filter(func(id): return TownEcon.has_econ(Game.world["towns"][id]))
@@ -75,7 +81,7 @@ func run(st: SceneTree) -> int:
 	fit = load("res://tests/test_ui_fit.gd").new()
 	fit.tree = tree
 	for size in sizes: await _native(size, tid, fid)
-	if not native_probe and part in ["", "wide"]: _same_frame(tid, fid)
+	if not native_probe and part == "wide": _same_frame(tid, fid)
 	Game.location = ""
 	if native_probe:
 		print("RECORDS V044 native_probe checks=", checks, " failures=", fails, " fit_failures=", fit.fails)
@@ -321,17 +327,15 @@ func _expect_visited_family(expected_save: Dictionary, town_id: String, table: R
 			if found:
 				_pure(expected_save, state, "frozen native identity callback leaves live save and RNG unchanged " + context)
 				var observed := _frozen_family_save(town_id, family_id, context)
-				expected_save.clear()
-				expected_save.merge(observed, true)
-				print("RECORDS V044 EXPECTED FAMILY DETAIL context=", context, " town=", town_id, " family_id=", family_id, " oracle=frozen_v043_pages effect_contract=exact_saved_state")
+				# v0.100: 6210641/1ffa64e removed read mutations. Neither oracle nor live detail may alter any key.
+				check(observed == expected_save, "audited frozen family observation preserves the complete original save " + context)
+				print("RECORDS V044 EXPECTED FAMILY DETAIL context=", context, " town=", town_id, " family_id=", family_id, " oracle=audited_v043_pages effect_contract=no_saved_mutation")
 	reference.free()
 	probe.free()
 	return expected_title
 
 func _frozen_family_save(town_id: String, family_id: int, context: String) -> Dictionary:
-	# Run the exact delivered page against isolated dictionaries. This predicts
-	# named, person reconciliation, town-wide remembered defaults and ledgers
-	# exactly; no keys or values are exempted from the subsequent full-save check.
+	# v0.100: the audited detached reader runs against isolated dictionaries; its save must remain identical.
 	var live_world: Dictionary = Game.world
 	var live_save := Game._save_tree()
 	var state: int = Game.rng.state

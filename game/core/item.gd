@@ -4,7 +4,8 @@ extends RefCounted
 
 var uid: int = 0
 var tid: String = ""
-var material: String = "copper"
+var material: String = "copper": set = _set_material
+var _material_observed: bool = false
 var quality: int = 0
 var wear: int = 0  # 0 fine, 1 worn, 2 threadbare/battered, 3 tattered (repairable in town)
 var vr: float = 1.0  # bows: item variance (+-5%, rolled once at making by the bowyer's skill; efficiency x vr)
@@ -24,6 +25,13 @@ var mark: Dictionary = {}
 var legend: Dictionary = {}
 
 static var _next_uid: int = 1
+# Runtime invalidation only; material's value and serialized format are unchanged.
+static var material_revision: int = 0
+
+func _set_material(value: String) -> void:
+	if material == value: return
+	material = value
+	if _material_observed: material_revision += 1
 
 static func make(template_id: String, mat: String = "", q: int = 0) -> Item:
 	var it := Item.new()

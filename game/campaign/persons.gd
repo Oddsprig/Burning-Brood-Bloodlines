@@ -46,6 +46,8 @@ const FATHER_UID := 19
 ## v0.089: research training belongs to this living person, including after a move.
 ## Optional dictionary {skill, aptitude}; Academy alone writes it on paid work days.
 const RESEARCH := 20
+## v0.101: own race when a person marries into a household of another race ("" = family_race).
+const RACE: int = 21
 
 static func _identity_pad(p: Array) -> void:
 	while p.size() <= FATHER_UID:
@@ -162,6 +164,8 @@ static func first_of(e: Dictionary, p: Array) -> String:
 	if own != "":
 		return own.split(" ")[0]
 	var fl := names_for(race_of(e), int(p[2]))
+	var own_race: String = String(g(p, RACE, ""))
+	if own_race != "": fl = names_for(own_race, int(p[2]))
 	return String(fl[int(p[1]) % fl.size()])
 
 static func name_of(f: Dictionary, p: Array, race: String) -> String:
@@ -169,6 +173,8 @@ static func name_of(f: Dictionary, p: Array, race: String) -> String:
 	if own != "":
 		return own
 	var use := String(f.get("race", ""))
+	var own_race: String = String(g(p, RACE, ""))
+	if own_race != "": use = own_race
 	if use == "":
 		use = race
 	var fl := names_for(use, int(p[2]))
@@ -187,9 +193,33 @@ static func family_race(e: Dictionary, f: Dictionary) -> String:
 		return race_of(e)
 	return r
 
+static func _begin_pid_lookup(f: Dictionary) -> void:
+	var index: Dictionary = {}
+	for roster: Array in [pp_read(f), kp_read(f)]:
+		for person: Array in roster:
+			var pid: int = int(person[0])
+			if pid >= 0 and not index.has(pid): index[pid] = person
+	f["_research_pid_lookup"] = index
+
+static func _end_pid_lookup(f: Dictionary) -> void:
+	f.erase("_research_pid_lookup")
+
+## v0.101: preserve biology when a spouse joins a household of another race.
+static func person_race(e: Dictionary, f: Dictionary, p: Array) -> String:
+	var own_race: String = String(g(p, RACE, ""))
+	return own_race if own_race != "" else family_race(e, f)
+
+static func set_person_race(p: Array, race: String) -> void:
+	_identity_pad(p)
+	while p.size() <= RACE:
+		# Leave optional research uninitialized so Academy rolls its seeded aptitude.
+		p.append(null if p.size() == RESEARCH else "")
+	p[RACE] = race
+
 static func by_pid(f: Dictionary, pid: int) -> Array:
 	if pid < 0:
 		return []
+	if f.has("_research_pid_lookup"): return f["_research_pid_lookup"].get(pid, [])
 	for p in pp_read(f):
 		if int(p[0]) == pid:
 			return p
@@ -401,6 +431,8 @@ static func _cat(p: Array) -> int:
 
 ## Records at home (state "") in a category: 0 men, 1 women, 2 elders.
 static func home_n(f: Dictionary, cat: int) -> int:
+	var sweep_row: Dictionary = TownSweep.row(f)
+	if not sweep_row.is_empty(): return Population.anonymous(f, cat) + int(sweep_row["home_cats"][cat])
 	var n := Population.anonymous(f, cat)
 	for p in pp(f):
 		if String(p[4]) == "" and _cat(p) == cat:
@@ -422,7 +454,8 @@ static func _new(e: Dictionary, f: Dictionary, race: String, sex: int, born: flo
 	var use := family_race(e, f)
 	var fl := names_for(use, sex)
 	var taken := {}
-	for gf in e["fams"]:   # no two people of one surname in a town share a given name (two houses may share a surname)
+	taken = TownSweep.taken_names(e, f, sex)
+	for gf in ([] if TownSweep.active(e) else e["fams"]):   # no two people of one surname in a town share a given name (two houses may share a surname)
 		if String(gf.get("name", "")) == String(f["name"]):
 			for p in gf.get("pp", []):
 				if int(p[2]) == sex:
@@ -463,6 +496,8 @@ static func mother_for(e: Dictionary, f: Dictionary, day: float) -> Array:
 	for p in pp(f):
 		if int(p[2]) != 1 or int(p[6]) != 0 or not (String(p[4]) in ["", "hire", "militia"]):
 			continue
+		ab = People.ages(person_race(e, f, p))
+		lo = float(ab["adult"]); hi = float(ab.get("mother_max", float(ab["elder"]) - 10.0))
 		var age := (day - float(p[3])) / yd
 		if age < lo or age >= hi:
 			continue
@@ -565,7 +600,7 @@ static func childbearing(e: Dictionary, f: Dictionary, day: float, days: float, 
 				if not mo.is_empty():
 					var lr := RandomNumberGenerator.new()
 					lr.seed = hash([int(f.get("seed", 0)), int(day), int(mo[0]), "litter"])
-					for k in litter(family_race(e, f), lr):   # twins, triplets: the race's litter
+					for k: int in litter(person_race(e, f, mo), lr):   # twins, triplets: the race's litter
 						born.append(birth(e, f, mo, day, int(x[2]), k))
 			i -= 1
 		if pr.is_empty():
@@ -579,6 +614,10 @@ static func childbearing(e: Dictionary, f: Dictionary, day: float, days: float, 
 	var chance := 1.0 - exp(-days / maxf(0.01, float(bear[2]) * yd))
 	var rng: RandomNumberGenerator = null
 	for p in pp(f):
+		# Use the mother's biology without changing the random stream or legacy rows.
+		race = person_race(e, f, p)
+		ab = People.ages(race); bear = bearing(race)
+		chance = 1.0 - exp(-days / maxf(0.01, float(bear[2]) * yd))
 		if not can_conceive(f, p, day, ab, bear, yd):
 			continue
 		var sc := Sickness.case_of(f, int(p[0]))
@@ -656,7 +695,9 @@ static func age_up(e: Dictionary, f: Dictionary, day: float) -> bool:
 	var i := 0
 	while i < k.size():
 		var kid: Array = k[i]
-		if day - float(kid[3]) >= A:
+		var kA: float = A
+		if String(g(kid, RACE, "")) != "": kA = float(People.ages(person_race(e, f, kid))["adult"]) * yd
+		if day - float(kid[3]) >= kA:
 			k.remove_at(i)
 			kid[6] = 0
 			pp(f).append(kid)
@@ -666,17 +707,23 @@ static func age_up(e: Dictionary, f: Dictionary, day: float) -> bool:
 			e["adults"] = int(e["adults"]) + 1
 			changed = true
 			continue
-		nxt = minf(nxt, float(kid[3]) + A)
+		nxt = minf(nxt, float(kid[3]) + kA)
 		i += 1
 	var a := pp(f)
 	i = a.size() - 1
 	while i >= 0:
 		var p: Array = a[i]
 		i -= 1
+		# v0.101: a married-in spouse ages and dies by her own race's thresholds, not the household's.
+		var pE: float = E
+		var pL: float = L
+		if String(g(p, RACE, "")) != "":
+			var personal_ages: Dictionary = People.ages(person_race(e, f, p))
+			pE = float(personal_ages["elder"]) * yd; pL = float(personal_ages["lifespan"]) * yd
 		var age := day - float(p[3])
 		var home: bool = String(p[4]) == "" or _private_home_reserve(e, f, p) != null
 		if int(p[6]) == 0:
-			if home and age >= E:
+			if home and age >= pE:
 				var s2: String = ["m", "f"][int(p[2])]
 				if int(f[s2]) > 0:
 					f[s2] = int(f[s2]) - 1
@@ -684,13 +731,13 @@ static func age_up(e: Dictionary, f: Dictionary, day: float) -> bool:
 					e["adults"] = int(e["adults"]) - 1
 					p[6] = 1
 					changed = true
-			nxt = minf(nxt, float(p[3]) + (E if int(p[6]) == 0 else L))
+			nxt = minf(nxt, float(p[3]) + (pE if int(p[6]) == 0 else pL))
 		elif int(p[6]) == 1:
-			if home and age >= L and int(f["old"]) > 0:
+			if home and age >= pL and int(f["old"]) > 0:
 				die_elder(e, f, p, day)
 				changed = true
 			else:
-				nxt = minf(nxt, float(p[3]) + L)
+				nxt = minf(nxt, float(p[3]) + pL)
 	# someone away past a threshold is looked at again next week
 	f["nxa"] = maxf(nxt, day + 1.0) if nxt < INF else day + 365.0
 	return changed
@@ -759,6 +806,9 @@ static func marriages(e: Dictionary, day: float, most: int = -1) -> int:
 			if home_groom:
 				var spouse_uid: String = str(g(p, SPOUSE_UID, ""))
 				if spouse_uid != "" and not Dynasty._person(Game, spouse_uid).is_empty(): continue
+			var personal_race: String = person_race(e, f, p)
+			fab = People.ages(personal_race)
+			fa = float(fab["adult"]); fm = float(fab.get("mother_max", float(fab["elder"]) - 10.0))
 			var age := (day - float(p[3])) / yd
 			if int(p[2]) == 0 and age >= fa + 2.0:
 				men.append([f, p, age, is_house])
@@ -814,7 +864,7 @@ static func marriages(e: Dictionary, day: float, most: int = -1) -> int:
 				continue
 			if used.has(int(wp[0])) or touched.has(int(wf["id"])) or int(wf["id"]) == int(hf["id"]) or absf(float(mm[2]) - float(ww[2]) - 3.0) > 8.0:
 				continue
-			if family_race(e, hf) != family_race(e, wf):
+			if person_race(e, hf, hp) != person_race(e, wf, wp):
 				continue
 			var sur := String(hf["name"])
 			if String(wf["name"]) == sur:
@@ -838,6 +888,8 @@ static func marriages(e: Dictionary, day: float, most: int = -1) -> int:
 				continue
 			taken[sur][int(wp[1])] = true
 			touched[int(wf["id"])] = true   # her family has one woman fewer now: its other daughters wait
+			var bride_race: String = person_race(e, wf, wp)
+			if bride_race != family_race(e, hf) or String(g(wp, RACE, "")) != "": set_person_race(wp, bride_race)
 			var bride_was := name_of(wf, wp, race)
 			forget(e, wf, wp)
 			pp(wf).erase(wp)
@@ -912,7 +964,7 @@ static func by_name_any(e: Dictionary, f: Dictionary, uname: String) -> Array:
 
 ## The Unit takes the person's identity: his name, his birth day (and age).
 static func bind(e: Dictionary, f: Dictionary, p: Array, u: Unit, state: String, day: float) -> void:
-	Factory.adopt_family_race(u, family_race(e, f))
+	Factory.adopt_family_race(u, person_race(e, f, p))
 	if String(p[4]) != state and state != "hire":
 		log_life(p, day, "serve", state)   # his own life history: when he joined which service
 	p[4] = state
@@ -997,6 +1049,7 @@ static func remove(f: Dictionary, p: Array, e: Dictionary = {}) -> void:
 	if not e.is_empty():
 		forget(e, f, p)
 	drop_im(f, int(p[0]))
+	TownSweep.removing(f, p)
 	pp(f).erase(p)
 
 ## Long histories (Douglas 12:55: up to 100 years before): a family row that is gone stays in e.fams (rows are
@@ -1038,6 +1091,7 @@ static func pack_gone(e: Dictionary, f: Dictionary, day: float) -> void:
 	f["wear"] = {}
 	f["cum"] = {}
 	f["packed"] = true
+	TownSweep.family_changed(f)
 
 ## Every unit uid that exists anywhere (company, forces, recruit pools).
 static func live_uids(game) -> Dictionary:
@@ -1072,6 +1126,7 @@ static func sweep_town(game, t: Dictionary, live: Dictionary) -> void:
 	if not TownEcon.has_econ(t):
 		return
 	var e: Dictionary = t["econ"]
+	var sweep_previous: Dictionary = TownSweep.begin(e)
 	for f in e["fams"]:
 		if not f.has("pp"):
 			continue
@@ -1088,8 +1143,10 @@ static func sweep_town(game, t: Dictionary, live: Dictionary) -> void:
 			var st := String(p[4])
 			if st == "hire" or st == "":
 				set_home(p)
+				TownSweep.returned(f, p, st)
 			else:
 				People.casualty_rec(game, String(t["id"]), int(f["id"]), name_of(f, p, race_of(e)), "dead", st, p)
+	TownSweep.finish(sweep_previous)
 
 # ================================================================== work and wages
 ## Who holds which of the family's real places: {pid: {kind, title, where, wage}} for the grown-ups at home (and
@@ -1097,24 +1154,29 @@ static func sweep_town(game, t: Dictionary, live: Dictionary) -> void:
 ## and herds = f.hands, jobs f.jobs, casual work f.cj, the rest idle); the eldest take the first places. wage =
 ## gold a day the place pays that person (a business's wage, the casual rate; 0 for the family's own land, whose
 ## earnings go to the family purse and are not split).
-static func work(e: Dictionary, f: Dictionary) -> Dictionary:
+static func work(e: Dictionary, f: Dictionary, owner_names_scope: Array[Dictionary] = []) -> Dictionary:
 	var out := {}
 	if not f.has("pp"):
 		return out
-	var home := []
-	for p in pp(f):
-		if int(p[6]) == 0 and String(p[4]) in ["", "hire", "reserve"]:
-			home.append(p)
-	home.sort_custom(func(x, y): return float(x[3]) < float(y[3]) if float(x[3]) != float(y[3]) else int(x[0]) < int(y[0]))
-	if Population.is_cohort(f): return Population.named_work(e, f, home)
-	var places := []
+	var home: Array = Population.home_workers(f)
+	var compact: bool = Population.is_cohort(f)
+	if compact and home.is_empty(): return out
+	# Describe each contiguous block once; named workers still get independent
+	# dictionaries below, in the same PID/slot order as the expanded places.
+	var places: Array = []
+	var counts: Array[int] = []
 	# v0.014: the keepers of the family's shops first (Families._keep: the eldest at home keep them)
 	var biz0: Array = e.get("biz", [])
+	# This read cannot change head-selection inputs. A caller may share the
+	# same lazy name snapshot across a synchronous, read-only family scan.
+	var names_scope: Array[Dictionary] = owner_names_scope
+	if names_scope.is_empty(): names_scope = [{}]
 	for kb in f.get("keeps", []):
 		if int(kb) < biz0.size():
 			var b0: Dictionary = biz0[int(kb)]
 			places.append({"kind": "job", "keeper": true, "title": "keeper of the %s" % String(TownEcon.data()["businesses"][b0["type"]]["name"]),
-				"where": Businesses.title(e, b0), "wage": 0.0, "biz": int(kb)})
+				"where": Businesses.title(e, b0, names_scope), "wage": 0.0, "biz": int(kb)})
+			counts.append(1)
 	# own land and herds
 	var hands := int(f.get("hands", 0))
 	if hands > 0:
@@ -1134,37 +1196,63 @@ static func work(e: Dictionary, f: Dictionary) -> Dictionary:
 		if hn > 0.0:
 			herd_h = hands if ac == 0 else clampi(int(round(float(hands) * hn / maxf(0.001, ln + hn))), 1, maxi(1, hands - 1))
 		var crop := _biggest(f["land"])
-		for i in hands:
-			if i < herd_h:
+		# Both register forms use the same ordered herd/land blocks.
+		var batches: Array[int] = [herd_h, hands - herd_h]
+		for i: int in batches.size():
+			var count: int = batches[i]
+			if count <= 0: continue
+			counts.append(count)
+			var is_herd: bool = i == 0
+			if is_herd:
 				places.append({"kind": "herd", "title": "%s on the family herd" % Recruits.HERD_TITLES.get(animal, "%s herder" % animal),
 					"where": TownEcon.n_of(animal_n, animal), "wage": 0.0})
 			else:
-				var v := TownEcon.variety_word(e, crop)
+				var v: String = TownEcon.variety_word(e, crop)
 				places.append({"kind": "land", "title": "farmhand on the family %s" % v,
 					"where": "%s of %s" % [TownEcon.n_of(int(f["land"].get(crop, 0)), "acres"), v], "wage": 0.0})
 	# jobs: the family's own business first, then the best wage
 	var keys: Array = (f["jobs"] as Dictionary).keys()
 	var biz: Array = e["biz"]
-	keys.sort_custom(func(x, y):
-		var bx: Dictionary = biz[int(x)]; var by: Dictionary = biz[int(y)]
-		var ox := int(bx["owner"]) == int(f["id"]); var oy := int(by["owner"]) == int(f["id"])
-		if ox != oy:
-			return ox
-		if float(bx["wage"]) != float(by["wage"]):
-			return float(bx["wage"]) > float(by["wage"])
-		return int(x) < int(y))
+	if not compact:
+		keys.sort_custom(func(x, y):
+			var bx: Dictionary = biz[int(x)]; var by: Dictionary = biz[int(y)]
+			var ox: bool = int(bx["owner"]) == int(f["id"]); var oy: bool = int(by["owner"]) == int(f["id"])
+			if ox != oy:
+				return ox
+			if float(bx["wage"]) != float(by["wage"]):
+				return float(bx["wage"]) > float(by["wage"])
+			return int(x) < int(y))
 	for kk in keys:
 		var b: Dictionary = biz[int(kk)]
-		for i in int(f["jobs"][kk]):
-			places.append({"kind": "job", "title": Recruits.job_title(e, b), "where": Businesses.title(e, b), "wage": float(b["wage"]), "biz": int(kk)})
+		var job_count: int = int(f["jobs"][kk])
+		if job_count <= 0: continue
+		counts.append(job_count)
+		# No simulation mutation interleaves with one employer's repeated slots.
+		# Keep the first title lookup at its native position, including farm ensure.
+		var job_title: String = Recruits.job_title(e, b)
+		var workplace: String = Businesses.title(e, b, names_scope)
+		var job_wage: float = float(b["wage"])
+		places.append({"kind": "job", "title": job_title, "where": workplace, "wage": job_wage, "biz": int(kk)})
 	var CJ: Dictionary = TownEcon.data()["casual_jobs"]
 	for j in f.get("cj", {}):
-		for i in int(f["cj"][j]):
-			places.append({"kind": "casual", "title": String(CJ[j]["name"]), "where": "casual work", "wage": Barge.casual_wage(e, String(j)), "cj": String(j)})
-	for i in home.size():
+		var casual_count: int = int(f["cj"][j])
+		if casual_count <= 0: continue
+		counts.append(casual_count)
+		var casual_title: String = String(CJ[j]["name"])
+		var casual_wage: float = Barge.casual_wage(e, String(j))
+		places.append({"kind": "casual", "title": casual_title, "where": "casual work", "wage": casual_wage, "cj": String(j)})
+	if compact: return Population.named_work(e, f, home, places, counts)
+	var block: int = 0
+	var first: int = 0
+	for i: int in home.size():
 		var p: Array = home[i]
-		if i < places.size():
-			out[int(p[0])] = places[i]
+		while block < counts.size() and i >= first + counts[block]:
+			first += counts[block]
+			block += 1
+		if block < places.size():
+			# The first slot owns its template; later slots copy before any
+			# Academy title/swap processing can mutate a person's dictionary.
+			out[int(p[0])] = places[block] if i == first else (places[block] as Dictionary).duplicate()
 		else:
 			var st := "poorhouse" if f.get("shel", false) else ("homeless" if int(f.get("homes", 1)) <= 0 else "idle")
 			out[int(p[0])] = {"kind": "none", "title": {"poorhouse": "in the poorhouse, no work", "homeless": "sleeping rough, no work",
@@ -1182,9 +1270,78 @@ static func work(e: Dictionary, f: Dictionary) -> Dictionary:
 			out[int(p[0])]["title"] = title
 	for p in kp(f):
 		var job := String(f.get("child_cj", {}).get(str(int(p[0])), ""))
-		if job == "" or not Shelter.cleanup_child_eligible(e, p, float(Game.day)): continue
+		if job == "" or not Shelter.cleanup_child_eligible(e, p, float(Game.day), f): continue
 		var share := float(Barge.B()["labour"]["kid_share"])
 		out[int(p[0])] = {"kind": "casual", "title": String(CJ[job]["name"]), "where": "short child shift", "wage": Barge.casual_wage(e, job) * share, "cj": job, "share": share}
+	return out
+
+# Attendance consumes only cj/share. Preserve native title/cache preparation,
+# but describe each non-casual block once instead of building individual jobs,
+# crop/herd descriptions and wage quotes that attendance immediately discards.
+static func sanitation_work(e: Dictionary, f: Dictionary, owner_names_scope: Array[Dictionary] = []) -> Dictionary:
+	if not f.has("pp"): return {}
+	var compact: bool = Population.is_cohort(f)
+	# The non-cohort research lead can exchange a casual slot with a paid one.
+	# Keep its complete native path, including legacy register initialization.
+	if not compact and e.has("academy") and (f["jobs"] as Dictionary).has(str(int(e["academy"]))):
+		return work(e, f, owner_names_scope)
+	var home: Array = Population.home_workers(f)
+	if compact and home.is_empty(): return {}
+	var places: Array = []
+	var counts: Array[int] = []
+	var names_scope: Array[Dictionary] = owner_names_scope
+	if names_scope.is_empty(): names_scope = [{}]
+	var biz: Array = e.get("biz", [])
+	for kb: Variant in f.get("keeps", []):
+		if int(kb) >= biz.size(): continue
+		Businesses.title(e, biz[int(kb)], names_scope)
+		places.append({"biz": int(kb), "keeper": true})
+		counts.append(1)
+	var hands: int = int(f.get("hands", 0))
+	if hands > 0:
+		# These are the only saved preparation effects of crop_hands/herd_hands.
+		# Draught, herd ranking and descriptive formatting are read-only.
+		CropRotation.work_acres(e, f)
+		if e.has("hd"): Herds.labour_hands(e, int(f["id"]))
+		places.append({})
+		counts.append(hands)
+	var keys: Array = (f["jobs"] as Dictionary).keys()
+	if not compact:
+		keys.sort_custom(func(x: Variant, y: Variant) -> bool:
+			var bx: Dictionary = biz[int(x)]
+			var by: Dictionary = biz[int(y)]
+			var ox: bool = int(bx["owner"]) == int(f["id"])
+			var oy: bool = int(by["owner"]) == int(f["id"])
+			if ox != oy: return ox
+			if float(bx["wage"]) != float(by["wage"]): return float(bx["wage"]) > float(by["wage"])
+			return int(x) < int(y))
+	for key: Variant in keys:
+		var count: int = int(f["jobs"][key])
+		if count <= 0: continue
+		Businesses.title(e, biz[int(key)], names_scope)
+		places.append({"biz": int(key)})
+		counts.append(count)
+	for key: Variant in f.get("cj", {}):
+		var count: int = int(f["cj"][key])
+		if count <= 0: continue
+		places.append({"cj": String(key)})
+		counts.append(count)
+	# Keep the original cohort prefix rotation, anonymous offset, academy
+	# reservations and responsibility swaps; only unused descriptions differ.
+	if compact: return Population.named_work(e, f, home, places, counts)
+	var out: Dictionary = {}
+	var block: int = 0
+	var first: int = 0
+	for i: int in home.size():
+		while block < places.size() and i >= first + counts[block]:
+			first += counts[block]
+			block += 1
+		# Keep empty writes and native PID order, including duplicate overrides.
+		out[int(home[i][0])] = places[block] if block < places.size() else {}
+	for p: Array in kp(f):
+		var job: String = String(f.get("child_cj", {}).get(str(int(p[0])), ""))
+		if job == "" or not Shelter.cleanup_child_eligible(e, p, float(Game.day), f): continue
+		out[int(p[0])] = {"cj": job, "share": float(Barge.B()["labour"]["kid_share"])}
 	return out
 
 static func _biggest(d: Dictionary) -> String:
@@ -1195,15 +1352,63 @@ static func _biggest(d: Dictionary) -> String:
 	return best
 
 ## The head of the household: the eldest married man (or woman) at home, else the eldest adult, else the eldest elder.
+# Runtime-only, keyed by stable household identity. Compare only selection
+# inputs; names, jobs, histories and research are read from the current row.
+# Scalar snapshots never retain person references from an earlier world/load.
+static var _head_selections: Dictionary = {}
+
+static func _head_matches(cached: Array, adults: Array, children: Array) -> bool:
+	if cached.size() != 3: return false
+	var prior_adults: Array = cached[0]
+	var prior_children: Array = cached[1]
+	if prior_adults.size() != adults.size() or prior_children.size() != children.size(): return false
+	for i: int in adults.size():
+		var p: Array = adults[i]
+		var old: Array = prior_adults[i]
+		# These scalar fields include every selection input. Native prefix
+		# comparison avoids six interpreted conversions and g() on every hit.
+		if p.slice(0, SP + 1) != old:
+			return false
+	for i: int in children.size():
+		if int(children[i][0]) != int(prior_children[i]): return false
+	return true
+
 static func head_of(f: Dictionary) -> Array:
+	var sweep_row: Dictionary = TownSweep.head_row(f)
+	if not sweep_row.is_empty(): return TownSweep.head(sweep_row)
+	var key: String = str(f.get("household_uid", ""))
+	if key == "": return _select_head(f)
+	var adults: Array = pp_read(f)
+	var children: Array = kp_read(f)
+	var cached: Array = _head_selections.get(key, [])
+	if _head_matches(cached, adults, children):
+		var at: int = int(cached[2])
+		return adults[at] if at >= 0 else []
+	var head: Array = _select_head(f)
+	var adult_inputs: Array = []
+	for p: Array in adults:
+		adult_inputs.append(p.slice(0, SP + 1))
+	var child_pids: Array = []
+	for p: Array in children: child_pids.append(int(p[0]))
+	if _head_selections.size() >= 1024: _head_selections.clear()
+	_head_selections[key] = [adult_inputs, child_pids, adults.find(head) if not head.is_empty() else -1]
+	return head
+
+static func _select_head(f: Dictionary) -> Array:
+	# by_pid is only used for spouse existence here, not for choosing a row.
+	var present: Dictionary = {}
+	for register: Array in [pp_read(f), kp_read(f)]:
+		for p: Array in register:
+			var pid: int = int(p[0])
+			if pid >= 0: present[pid] = true
 	var best: Array = []
 	for pass_i in 3:
 		for p in pp_read(f):
 			if AWAY.has(String(p[4])) and pass_i < 2:
 				continue
-			var ok := false
+			var ok: bool = false
 			match pass_i:
-				0: ok = int(p[6]) == 0 and not by_pid(f, int(g(p, SP, -1))).is_empty()
+				0: ok = int(p[6]) == 0 and present.has(int(g(p, SP, -1)))
 				1: ok = int(p[6]) == 0
 				2: ok = true
 			if ok and (best.is_empty() or int(p[2]) < int(best[2]) or (int(p[2]) == int(best[2]) and float(p[3]) < float(best[3]))):
@@ -1227,6 +1432,8 @@ static func forget(e: Dictionary, f: Dictionary, p: Array) -> void:
 	if p.size() > FATHER_UID:
 		_identity_pad(remembered_row)
 		for field in [PERSON_UID, HOUSE_UID, SPOUSE_UID, MOTHER_UID, FATHER_UID]: remembered_row[field] = p[field]
+	if String(g(p, RACE, "")) != "":
+		set_person_race(remembered_row, String(p[RACE]))
 	d.append(remembered_row)
 	while d.size() > DP_MAX:
 		d.pop_front()
@@ -1421,6 +1628,10 @@ static func track_jobs(e: Dictionary, f: Dictionary, day: float) -> void:
 	var sig := hash([int(f.get("hands", 0)), f["jobs"], f.get("keeps", []), f.get("cj", {}), int(f.get("idle", 0)), pp(f).size(), f.get("shel", false), int(f["homes"]) > 0])
 	if sig == int(f.get("wsig", 0)):
 		return
+	Population.staff(e, f)
+	# Naming changed pp, so the signature just compared is stale; recompute it or
+	# every later call re-enters and re-staffs (staff itself stays idempotent).
+	sig = hash([int(f.get("hands", 0)), f["jobs"], f.get("keeps", []), f.get("cj", {}), int(f.get("idle", 0)), pp(f).size(), f.get("shel", false), int(f["homes"]) > 0])
 	f["wsig"] = sig
 	var jobs := work(e, f)
 	for p in pp(f):

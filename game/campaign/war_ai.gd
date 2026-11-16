@@ -80,7 +80,7 @@ static var _unit_avg := {}   # faction -> last counted power per man (the guess 
 static var think_usec := 0   # of which decisions
 static var astar_usec := 0   # of which grid paths
 static var astar_n := 0
-static var _grid := {}       # Vector2i cell -> [band dicts] (see _nearby); a cache, never saved
+static var _grid := {}       # v0.100: cell -> [band dicts]; save membership/age without duplicating bands.
 static var _grid_t := INF
 static var _grid_n := -1
 static var prof := {}        # finer profile: section -> usec (tests print it)
@@ -886,9 +886,9 @@ static func band_words(wb: Dictionary, _subject: bool) -> String:
 
 ## Saved strategic intent derived from existing orders, including bands not eligible for interception.
 static func sync_objective(wb: Dictionary, t: float = 0.0) -> void:
-	var war: Dictionary = wb.get("war", {})
 	var mode := String(wb.get("mode", "wander"))
-	if not mode in ["chase", "flee"]:
+	if mode != "chase" and mode != "flee" and wb.has("war"):
+		var war: Dictionary = wb["war"]
 		mode = String(war.get("m", mode))
 	var objective := "defend"
 	match mode:
@@ -899,9 +899,9 @@ static func sync_objective(wb: Dictionary, t: float = 0.0) -> void:
 			var kind := String(wb.get("kind", ""))
 			if kind == "assault":
 				objective = "hold_capital" if t < float(wb.get("march_day", 0.0)) else "march"
-			elif kind in ["raider", "bandit", "camp"]:
+			elif kind == "raider" or kind == "bandit" or kind == "camp":
 				objective = "raid"
-			elif not kind in ["patrol", "militia"] and not (wb.get("path", []) as Array).is_empty():
+			elif kind != "patrol" and kind != "militia" and wb.has("path") and not (wb["path"] as Array).is_empty():
 				objective = "march"
 	wb["objective"] = objective
 
@@ -920,6 +920,33 @@ static func new_world() -> void:
 	_grid_t = INF
 	_grid_n = -1
 	_budget = MIN_THINKS
+
+# v0.100: resetting this aged grid on load can change the next hunt. Save IDs in
+# native cell order; gone bands were ignored by _think already and need no record.
+static func save_runtime(w: Dictionary) -> Dictionary:
+	var cells := []
+	var bands: Dictionary = w.get("warbands", {})
+	for cell in _grid:
+		var ids := []
+		for band in _grid[cell]:
+			if bands.has(String(band["id"])): ids.append(String(band["id"]))
+		cells.append([cell.x, cell.y, ids])
+	return {"cells": cells, "time": _grid_t, "next_id": _grid_n, "budget": _budget, "counts": _counts}
+
+static func load_runtime(w: Dictionary, saved: Dictionary) -> void:
+	new_world()
+	_counts = int(saved.get("counts", 1000))
+	_unit_avg = {}
+	var bands: Dictionary = w.get("warbands", {})
+	for row in saved.get("cells", []):
+		var cell := Vector2i(int(row[0]), int(row[1]))
+		var list := []
+		for id in row[2]:
+			if bands.has(String(id)): list.append(bands[String(id)])
+		_grid[cell] = list
+	_grid_t = float(saved.get("time", INF))
+	_grid_n = int(saved.get("next_id", -1))
+	_budget = int(saved.get("budget", MIN_THINKS))
 
 static func after_load(game) -> void:
 	var w: Dictionary = game.world

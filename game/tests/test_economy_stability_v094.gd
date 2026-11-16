@@ -47,6 +47,7 @@ func _parse() -> bool:
 	_opts = {"mode": "contract", "phase": "v094_p1", "checkpoint": 0, "batch-days": 15, "years": 2, "input-save": "", "input-sha": ""}
 	var seen: Dictionary = {}
 	for arg in OS.get_cmdline_user_args():
+		if arg == "--economy-protocol=v094": continue # Explicit historical routing; all historical gates remain.
 		if not arg.begins_with("--economy-"): continue
 		var parts: PackedStringArray = arg.substr(10).split("=", true, 1)
 		if parts.size() != 2 or not _opts.has(parts[0]) or seen.has(parts[0]): return _bad("cli", "unknown, duplicate, or malformed economy option: " + arg)
@@ -1147,6 +1148,18 @@ func _census_diagnostic(tree: SceneTree) -> int:
 
 
 func run(tree: SceneTree) -> int:
+	var selected_protocol: String = OS.get_environment("ECONOMY_PROTOCOL")
+	var protocol_seen: bool = not selected_protocol.is_empty()
+	for argument: String in OS.get_cmdline_user_args():
+		if argument.begins_with("--economy-protocol="):
+			if protocol_seen: return 1
+			protocol_seen = true
+			selected_protocol = argument.substr(19)
+			if selected_protocol.is_empty(): return 1
+	if selected_protocol == "v099_r1":
+		var current_protocol: Variant = load("res://tests/economy_current_v099_r1.gd").new()
+		return await current_protocol.run_current(tree, "stability")
+	if not selected_protocol.is_empty() and selected_protocol != "v094": return 1
 	_started = Time.get_ticks_msec()
 	if not _parse():
 		print("ECONOMY_V094 " + M.text({"ok": false, "overallComplete": false, "error": _error}))

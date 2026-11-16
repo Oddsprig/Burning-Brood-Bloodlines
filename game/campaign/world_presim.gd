@@ -142,6 +142,7 @@ static func _generate_part(game, run: Dictionary) -> bool:
 					Population.generated_business_owners(town["econ"])
 					for f in town["econ"]["fams"]:
 						if not Population.is_cohort(f) and not f.get("estate", false) and not f.get("gone", false): Families.reassign(town["econ"], f)
+			Academy.finish_world(game)
 			Dynasty.prepare_world(game)
 			Feudal.prepare_world(game)
 			Settlement.after_load(game)
@@ -214,6 +215,11 @@ static func _generate_realms(game) -> void:
 				towns.append(tid)
 				if w["towns"][tid]["capital"]:
 					capital = tid
+		# With the steppe realm off, two regions belong to the Warrens and
+		# each region supplied a capital flag. Keep the selected faction seat;
+		# economies must see the same single capital as Academy and Feudal.
+		for tid in towns:
+			w["towns"][tid]["capital"] = String(tid) == capital
 		w["factions"][fid] = {"strength": 1.0, "towns": towns, "capital": capital}
 	Diplomacy.init_world(game)   # diplomacy: relations at baseline +-10, company standings; sets w["wars"]
 	CampaignWorld.compute_road_links(w)

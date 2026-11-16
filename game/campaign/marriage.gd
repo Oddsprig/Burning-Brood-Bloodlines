@@ -74,10 +74,20 @@ static func age_gap_scale(race_a: String, race_b: String) -> float:
 	var span := maxf(float(int(a["elder"]) - int(a["adult"])), float(int(b["elder"]) - int(b["adult"])))
 	return maxf(1.0, span / base)
 
+## v0.101: one race-scaled betrothal window [min_age, max_candidate_age) shared by family() and candidates().
+static func betrothal_window(race: String) -> Vector2i:
+	var ab: Dictionary = _ages(race)
+	var adult: int = int(ab["adult"])
+	var s: float = age_gap_scale(race, race)
+	# Never younger than the share of adulthood a human child has at 10 of 16 (an elf of 25, a dwarf of 16), so a
+	# long-lived race's scale cannot reach infants.
+	var lo: int = maxi(adult - int(round(6.0 * s)), int(round(float(adult) * 10.0 / 16.0)))
+	return Vector2i(maxi(1, lo), adult + int(round(4.0 * s)))
+
 ## True when this located person has reached the adult age of their own household's race (not the town's:
 ## an elf household in a human town comes of age as elves do).
 static func _of_age(game, loc: Dictionary) -> bool:
-	return Persons.age_of(loc["person"], float(game.day)) >= int(_ages(Persons.family_race(loc["econ"], loc["family"]))["adult"])
+	return Persons.age_of(loc["person"], float(game.day)) >= int(_ages(Persons.person_race(loc["econ"], loc["family"], loc["person"]))["adult"])
 
 static func _married(loc: Dictionary) -> bool:
 	var p: Array = loc["person"]
@@ -108,10 +118,11 @@ static func family(game) -> Array:
 		var loc := Dynasty._person(game, str(row["person_uid"]))
 		if loc.is_empty(): continue
 		var ab := _ages(str(row["race"]))
+		var win: Vector2i = betrothal_window(str(row["race"]))   # v0.101: advertised window matches candidates()
 		row["married"] = _married(loc)
 		row["betrothed"] = _betrothed(game, str(row["person_uid"]))
 		row["adult"] = int(row["age"]) >= int(ab["adult"])
-		row["can_betroth"] = not row["married"] and not row["betrothed"] and int(row["age"]) >= maxi(1, int(ab["adult"]) - 8) and int(row["age"]) < int(ab["elder"])
+		row["can_betroth"] = not row["married"] and not row["betrothed"] and int(row["age"]) >= win.x and int(row["age"]) < int(ab["elder"])
 		row["spouse"] = Dynasty.person(game, str(row.get("spouse_uid", ""))) if str(row.get("spouse_uid", "")) != "" else {}
 		out.append(row)
 	out.sort_custom(func(a, b): return int(a["age"]) > int(b["age"]))
@@ -142,9 +153,11 @@ static func candidates(game, member_uid: String) -> Array:
 	var my_sex := int(me["person"][2])
 	var my_age := Persons.age_of(me["person"], float(game.day))
 	var my_race := Persons.family_race(me["econ"], me["family"])
+	my_race = Persons.person_race(me["econ"], me["family"], me["person"])
 	var my_ab := _ages(my_race)   # v0.097: the household's own race
+	var my_win: Vector2i = betrothal_window(my_race)   # v0.101: race-scaled betrothal window
 	var child_match := my_age < int(my_ab["adult"])
-	if child_match and my_age < int(my_ab["adult"]) - 6: return []
+	if child_match and my_age < my_win.x: return []
 	var out: Array = []
 	var house := _house(game)
 	for town in game.world.get("towns", {}).values():
@@ -163,11 +176,14 @@ static func candidates(game, member_uid: String) -> Array:
 				if uid == "" or uid == str(head.get("person_uid", "")) or uid == heir_uid: continue
 				if int(p[2]) == my_sex or String(p[4]) != "" or int(p[5]) >= 0: continue
 				if str(Persons.g(p, Persons.HOUSE_UID, "")) == house: continue
+				var cand_race: String = Persons.person_race(e, f, p)
+				ab = _ages(cand_race)
+				var win: Vector2i = betrothal_window(cand_race)   # v0.101
 				var age := Persons.age_of(p, float(game.day))
 				if child_match:
-					if age >= int(ab["adult"]) + 4 or age < int(ab["adult"]) - 6: continue
+					if age >= win.y or age < win.x: continue
 				elif age < int(ab["adult"]) or age >= int(ab["elder"]) or int(p[6]) != 0: continue
-				if float(absi(age - my_age)) > 16.0 * age_gap_scale(my_race, Persons.family_race(e, f)): continue
+				if float(absi(age - my_age)) > 16.0 * age_gap_scale(my_race, cand_race): continue
 				var loc := {"town": town, "econ": e, "family": f, "person": p, "alive": true}
 				if not Dynasty._living(game, tid, f, p) or _married(loc) or _betrothed(game, uid): continue
 				out.append(_offer(game, member_uid, loc, tid, 0, ruling))
@@ -202,7 +218,9 @@ static func _offer(game, member_uid: String, loc: Dictionary, tid: String, gift_
 	var me := Dynasty._person(game, member_uid)
 	var my_age := Persons.age_of(me["person"], float(game.day)) if not me.is_empty() else 30
 	var my_race := Persons.family_race(me["econ"], me["family"]) if not me.is_empty() else "human"
+	my_race = Persons.person_race(me["econ"], me["family"], me["person"]) if not me.is_empty() else "human"
 	var gap := absf(float(my_age - int(row["age"]))) / age_gap_scale(my_race, Persons.family_race(loc["econ"], f))   # v0.099
+	gap = absf(float(my_age - int(row["age"]))) / age_gap_scale(my_race, str(row["race"]))
 	if gap > 8.0:
 		var gp := -(gap - 8.0) * 1.5
 		score += gp; reasons.append(["Age difference", gp])
@@ -276,6 +294,7 @@ static func wed(game, member_uid: String, spouse_uid: String) -> Dictionary:
 	var their_house_uid := str(Persons.g(p, Persons.HOUSE_UID, ""))
 	var their_household := str(from_f.get("household_uid", ""))
 	var their_house_name := str(from_f.get("name", ""))
+	var spouse_race: String = Persons.person_race(from_e, from_f, p)
 	var spouse_name := Persons.name_of(from_f, p, Persons.race_of(from_e))
 	var day := float(game.day)
 	# Dowry: real coin from the spouse's household to yours.
@@ -304,13 +323,16 @@ static func wed(game, member_uid: String, spouse_uid: String) -> Dictionary:
 	elif was_child:
 		to_e["adults"] = int(to_e.get("adults", 0)) + 1   # counted with this town's adults from now on
 	p[4] = ""
+	# v0.101: keep the spouse's own race when joining a household of another race, so she ages and dies by her own rules.
+	if spouse_race != Persons.family_race(to_e, to_f) or String(Persons.g(p, Persons.RACE, "")) != "":
+		Persons.set_person_race(p, spouse_race)
 	to_f[cat_key] = int(to_f.get(cat_key, 0)) + 1
 	Persons.pp(to_f).append(p)
 	p[Persons.SP] = int(mp[0]); mp[Persons.SP] = int(p[0])
 	Persons._identity_pad(p); Persons._identity_pad(mp)
 	p[Persons.SPOUSE_UID] = member_uid; mp[Persons.SPOUSE_UID] = spouse_uid
 	to_f.erase("nxa")
-	Families.event(to_f, "married", [Persons.name_of(to_f, mp, Persons.race_of(to_e)), spouse_name], day)
+	Families.event(to_f, "married", [Persons.name_of(to_f, mp, Persons.person_race(to_e, to_f, mp)), spouse_name], day)
 	Families.event(from_f, "wed_away", [spouse_name, str(to_f.get("name", ""))], day)
 	Families.reassign(from_e, from_f); Families.reassign(to_e, to_f)
 	Dynasty.record_person(to_e, to_f, p, true)
@@ -459,6 +481,7 @@ static func _ai_blocked(game, town: Dictionary, f: Dictionary, p: Array, heir_ui
 	if String(p[4]) != "" or int(p[5]) >= 0: return "is away from home"
 	if int(p[6]) != 0: return "is not a free adult"
 	var race := Persons.family_race(e, f)
+	race = Persons.person_race(e, f, p)
 	var ab := _ages(race)
 	var age := Persons.age_of(p, float(game.day))
 	if age < int(ab["adult"]) or age >= int(ab["elder"]): return "is outside marrying age"
@@ -493,7 +516,11 @@ static func _ai_score(game, groom_loc: Dictionary, bride_loc: Dictionary) -> Dic
 			score += 12.0
 	if groom_ruling or bride_ruling:
 		score += 8.0
+	# v0.101: weigh the AI age-gap penalty by the race's adult span, as _offer does.
+	var gr_race: String = Persons.person_race(groom_loc["econ"], gf, groom_loc["person"])
+	var br_race: String = Persons.person_race(bride_loc["econ"], bf, bride_loc["person"])
 	var gap := absf(float(Persons.age_of(groom_loc["person"], float(game.day)) - Persons.age_of(bride_loc["person"], float(game.day))))
+	gap /= age_gap_scale(gr_race, br_race)
 	if gap > 8.0:
 		score -= (gap - 8.0) * 1.5
 	return {"score": score, "accepts": score >= ACCEPT, "ruling": groom_ruling or bride_ruling,
@@ -526,8 +553,11 @@ static func arrange_ai(game) -> Dictionary:
 		for woman: Dictionary in women:
 			if str(man["town"].get("id", "")) == str(woman["town"].get("id", "")): continue
 			if str(man["family"].get("household_uid", "")) == str(woman["family"].get("household_uid", "")): continue
-			if Persons.family_race(man["econ"], man["family"]) != Persons.family_race(woman["econ"], woman["family"]): continue
-			if absi(Persons.age_of(man["person"], float(game.day)) - Persons.age_of(woman["person"], float(game.day))) > 16: continue
+			var mr: String = Persons.person_race(man["econ"], man["family"], man["person"])
+			var wr: String = Persons.person_race(woman["econ"], woman["family"], woman["person"])
+			if mr != wr: continue
+			# v0.101: scale the AI age-gap gate by the race's adult span.
+			if float(absi(Persons.age_of(man["person"], float(game.day)) - Persons.age_of(woman["person"], float(game.day)))) > 16.0 * age_gap_scale(mr, wr): continue
 			var offer := _ai_score(game, man, woman)
 			if not bool(offer["accepts"]): continue
 			var wed_row := _ai_wed(game, man, woman, offer)
@@ -550,9 +580,12 @@ static func try_ai_match(game, groom_uid: String, bride_uid: String) -> Dictiona
 		return {"ok": false, "reason": "They already share a town."}
 	if str(groom["family"].get("household_uid", "")) == str(bride["family"].get("household_uid", "")):
 		return {"ok": false, "reason": "They already share a house."}
-	if Persons.family_race(groom["econ"], groom["family"]) != Persons.family_race(bride["econ"], bride["family"]):
+	var gr: String = Persons.person_race(groom["econ"], groom["family"], groom["person"])
+	var br: String = Persons.person_race(bride["econ"], bride["family"], bride["person"])
+	if gr != br:
 		return {"ok": false, "reason": "The houses are not the same race."}
-	if absi(Persons.age_of(groom["person"], float(game.day)) - Persons.age_of(bride["person"], float(game.day))) > 16:
+	# v0.101: scale the AI age-gap gate by the race's adult span.
+	if float(absi(Persons.age_of(groom["person"], float(game.day)) - Persons.age_of(bride["person"], float(game.day)))) > 16.0 * age_gap_scale(gr, br):
 		return {"ok": false, "reason": "The age gap is too wide."}
 	var offer := _ai_score(game, groom, bride)
 	if not bool(offer["accepts"]):
@@ -585,6 +618,9 @@ static func _ai_wed(game, groom: Dictionary, bride: Dictionary, offer: Dictionar
 	if dowry > 0.0:
 		from_f["purse"] = float(from_f.get("purse", 0.0)) - dowry
 		to_f["purse"] = float(to_f.get("purse", 0.0)) + dowry
+	var bride_race: String = Persons.person_race(from_e, from_f, p)
+	if bride_race != Persons.family_race(to_e, to_f) or String(Persons.g(p, Persons.RACE, "")) != "":
+		Persons.set_person_race(p, bride_race)
 	var bride_person_name := Persons.name_of(from_f, p, Persons.family_race(from_e, from_f))
 	Persons.forget(from_e, from_f, p)
 	Persons.pp(from_f).erase(p)

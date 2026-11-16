@@ -522,7 +522,7 @@
 		],
 		"shield_boss": [
 			"{A}'s {W} strikes the boss of {d}'s {SH} and bounces away.",
-			"{D} takes {a}'s {W} on the boss of {his} {SH}; it shatters.",
+			"{D} takes {a}'s {W} on the boss of {his} {SH}; the arrow bounces away.",
 			"The {W} rings off the boss of {d}'s {SH}."
 		],
 		"glance": [

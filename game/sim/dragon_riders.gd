@@ -67,8 +67,10 @@ static func follow(sim, dragon: Fighter) -> void:
 	sim._tcells_ok = false
 
 ## Once a tick (with MountedCombat.sync): follow, or take the rider out of the fight.
-static func sync(sim) -> void:
-	for dragon: Fighter in sim.fighters:
+static func sync(sim, carriers: Variant = null) -> void:
+	# An explicit empty list means no carriers; one-argument callers still scan.
+	var roster: Array = sim.fighters if typeof(carriers) == TYPE_NIL else carriers
+	for dragon: Fighter in roster:
 		if dragon.seated_rider < 0: continue
 		var rider: Fighter = sim.fighters[dragon.seated_rider]
 		var rider_down: bool = rider.unit.dead or rider.prone or not rider.active() or rider.routed or rider.grabbed_by >= 0

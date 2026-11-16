@@ -32,6 +32,8 @@ static func household_stats(e: Dictionary) -> Dictionary:
 
 static func anonymous(f: Dictionary, cat: int) -> int:
 	if not is_cohort(f): return 0
+	var sweep_row: Dictionary = TownSweep.row(f)
+	if not sweep_row.is_empty(): return maxi(0, int(f[["m", "f", "old", "kids"][cat]]) - int(sweep_row["resident"][cat]))
 	var n := int(f[["m", "f", "old", "kids"][cat]])
 	for p in f.get("pp", []) + f.get("kp", []):
 		if not Persons.AWAY.has(String(p[4])) and category(p) == cat: n -= 1
@@ -74,46 +76,70 @@ static func bin_category(e: Dictionary, f: Dictionary, key: String, day: float) 
 
 static func eligible_slots(e: Dictionary, f: Dictionary, day: float, draft_only: bool = false) -> int:
 	if not is_cohort(f): return 0
-	var n := 0
-	var ar := People.draft_ages(String(f.get("race", Persons.race_of(e))))
-	for key in f.get("age_bins", {}):
-		if bin_category(e, f, String(key), day) >= 2: continue
-		var age := int(floor(day / People.year_days())) - int(String(key).split(":")[1])
+	var n: int = 0
+	var race: String = String(f.get("race", Persons.race_of(e)))
+	var ar: Vector2i = People.draft_ages(race)
+	# Every bin in this read uses the same day and racial age limits. Keep the
+	# native bin order and arithmetic; only the repeated lookup/split is gone.
+	var ab: Dictionary = People.ages(race)
+	var adult: int = int(ab["adult"])
+	var elder: int = int(ab["elder"])
+	var year: int = int(floor(day / People.year_days()))
+	for key: Variant in f.get("age_bins", {}):
+		var parts: PackedStringArray = String(key).split(":")
+		var age: int = year - int(parts[1])
+		var cat: int = 3 if age < adult else (2 if age >= elder else int(parts[0]))
+		if cat >= 2: continue
 		if not draft_only or (age >= ar.x and age <= ar.y): n += int(f["age_bins"][key])
 	return mini(n, spare(f))
 
 static func recruitable(e: Dictionary, f: Dictionary, day: float) -> int:
 	if f.get("gone", false) or f.get("estate", false): return 0
+	# The result is capped by spare: a full or empty cap needs no named job records.
+	var cap: int = spare(f)
+	if cap <= 0: return 0
 	var n := eligible_slots(e, f, day, true)
 	var ar := People.draft_ages(String(f.get("race", Persons.race_of(e))))
-	var kinds := People._work_kinds(f)
+	if n >= cap: return cap
+	var kinds: Dictionary = {}
+	var kinds_ready: bool = false
 	for p in f.get("pp", []):
 		if int(p[6]) != 0 or String(p[4]) != "" or int(p[5]) >= 0: continue
 		var age := Persons.age_of(p, day)
-		if age >= ar.x and age <= ar.y and People.DRAFT_TIER.has(String(kinds.get(int(p[0]), ""))): n += 1
+		if age < ar.x or age > ar.y: continue
+		if not kinds_ready:
+			kinds = People._work_kinds(e, f)
+			kinds_ready = true
+		if People.DRAFT_TIER.has(String(kinds.get(int(p[0]), ""))): n += 1
 	return mini(n, spare(f))
 
 static func promote(e: Dictionary, f: Dictionary, day: float, rng: RandomNumberGenerator, draft_only: bool = false) -> Array:
 	if eligible_slots(e, f, day, draft_only) <= 0: return []
-	var race := Persons.family_race(e, f)
-	var ar := People.draft_ages(race)
+	return _from_bins(e, f, day, rng, draft_only)
+
+## Staffing names an adult already occupying a place; it never uses recruitment spare.
+static func _from_bins(e: Dictionary, f: Dictionary, day: float, rng: RandomNumberGenerator, draft_only: bool = false, assigned: bool = false) -> Array:
+	var race: String = Persons.family_race(e, f)
+	var ar: Vector2i = People.draft_ages(race)
 	var keys: Array = f["age_bins"].keys(); keys.sort()
-	var start := rng.randi() % maxi(1, keys.size())
+	var start: int = rng.randi() % maxi(1, keys.size())
 	for i in keys.size():
-		var key := String(keys[(start + i) % keys.size()])
-		var cat := bin_category(e, f, key, day)
-		var parts := key.split(":")
-		var age := int(floor(day / People.year_days())) - int(parts[1])
+		var key: String = String(keys[(start + i) % keys.size()])
+		var cat: int = bin_category(e, f, key, day)
+		var parts: PackedStringArray = key.split(":")
+		var age: int = int(floor(day / People.year_days())) - int(parts[1])
 		if cat >= 2 or int(f["age_bins"][key]) <= 0 or (draft_only and (age < ar.x or age > ar.y)): continue
 		# A resident named before this row's staggered year turn already has
 		# today's detailed age. Move just that slot out of its stored category.
-		var counted_epoch := float(f.get("population_year", floor(day / People.year_days()))) * People.year_days()
-		var counted_cat := bin_category(e, f, key, counted_epoch)
+		var counted_epoch: float = float(f.get("population_year", floor(day / People.year_days()))) * People.year_days()
+		var counted_cat: int = bin_category(e, f, key, counted_epoch)
+		# A staffing identity cannot advance the row's pending age/category turn.
+		if assigned and counted_cat != cat: continue
 		if counted_cat != cat:
 			f[["m", "f", "old", "kids"][counted_cat]] -= 1
 			f[["m", "f", "old", "kids"][cat]] += 1
 			if counted_cat >= 2: e["adults"] += 1
-		var p := Persons._new(e, f, race, int(parts[0]), float(parts[1].to_int()) * People.year_days(), 0, rng)
+		var p: Array = Persons._new(e, f, race, int(parts[0]), float(parts[1].to_int()) * People.year_days(), 0, rng)
 		# Collective workforce labels are economic owners, never a person's
 		# surname. Materialize his native cultural surname with his identity.
 		var culture: Dictionary = TownEcon.data()["cultures"].get(String(f.get("cul", e.get("culture", "middle"))), TownEcon.culture_of(e))
@@ -123,28 +149,42 @@ static func promote(e: Dictionary, f: Dictionary, day: float, rng: RandomNumberG
 		f["age_bins"][key] = int(f["age_bins"][key]) - 1
 		if int(f["age_bins"][key]) == 0: f["age_bins"].erase(key)
 		Persons.pp(f).append(p)
+		TownSweep.appended(e, f, p)
 		# Naming a resident never refills the body condition already lost to
 		# hunger. This is the existing person-local native condition account.
-		var group := "workers" if cat < 2 else ("elders" if cat == 2 else "children")
-		var condition := clampf(float(f.get("pool_condition", {}).get(group, 1.0)), 0.0, 1.0)
+		var group: String = "workers" if cat < 2 else ("elders" if cat == 2 else "children")
+		var condition: float = clampf(float(f.get("pool_condition", {}).get(group, 1.0)), 0.0, 1.0)
 		if condition < 1.0:
 			if not f.has("bc"): f["bc"] = {}
 			f["bc"][str(int(p[0]))] = condition
 		return p
 	return []
 
+# Runtime-only: never add derived counts to a household or its save. A value
+# snapshot detects in-place bin edits as well as replacements, without a hash.
+static var _child_counts: Dictionary = {}
+
 static func child_older(f: Dictionary, e: Dictionary, day: float) -> int:
-	var n := 0
-	var ab := People.ages(String(f.get("race", Persons.race_of(e))))
-	var from_age := float(Barge.B()["labour"]["kid_from"]) * float(ab["adult"]) / 16.0
-	for key in f.get("age_bins", {}):
-		var age := int(floor(day / People.year_days())) - int(String(key).split(":")[1])
-		if age >= from_age and age < int(ab["adult"]): n += int(f["age_bins"][key])
+	var ab: Dictionary = People.ages(String(f.get("race", Persons.race_of(e))))
+	var adult: int = int(ab["adult"])
+	var from_age: float = float(Barge.B()["labour"]["kid_from"]) * float(ab["adult"]) / 16.0
+	var year: int = int(floor(day / People.year_days()))
+	var bins: Dictionary = f.get("age_bins", {})
+	var key: String = "%s:%d" % [e.get("identity_scope", ""), int(f.get("id", -1))]
+	var cached: Array = _child_counts.get(key, [])
+	if cached.size() == 5 and int(cached[0]) == year and float(cached[1]) == from_age and int(cached[2]) == adult and cached[3] == bins:
+		return int(cached[4])
+	var n: int = 0
+	for bin_key: Variant in bins:
+		var age: int = year - int(String(bin_key).split(":")[1])
+		if age >= from_age and age < adult: n += int(bins[bin_key])
+	if _child_counts.size() >= 1024: _child_counts.clear()
+	_child_counts[key] = [year, from_age, adult, bins.duplicate(), n]
 	return n
 
-static func summary(e: Dictionary) -> Dictionary:
+static func summary(e: Dictionary, rows: Array = []) -> Dictionary:
 	var out := {"population": 0, "households": 0, "tracked_families": 0, "cohorts": 0, "anonymous": 0, "detailed": 0, "children": 0, "adults": 0, "elders": 0, "female": 0, "male": 0, "away": 0, "common_wealth": 0.0, "common_jobs": 0, "private_wealth": 0.0, "jobs": 0, "recruitable": 0}
-	for f in e.get("fams", []):
+	for f in (rows if not rows.is_empty() else e.get("fams", [])):
 		if f.get("gone", false) or f.get("estate", false): continue
 		out["population"] += Families.people(f)
 		out["private_wealth"] += float(f["purse"])
@@ -175,28 +215,148 @@ static func summary(e: Dictionary) -> Dictionary:
 		out["female"] += kf + of; out["male"] += int(f["kids"]) - kf + int(f["old"]) - of
 	return out
 
-static func named_work(e: Dictionary, f: Dictionary, home: Array) -> Dictionary:
-	var out := {}
-	var offset := anonymous(f, 0) + anonymous(f, 1)
+## The same civilian roster is used by staffing, Records and recruitment.
+static func home_worker_count(f: Dictionary) -> int:
+	var count: int = 0
+	var sweep_row: Dictionary = TownSweep.row(f)
+	if not sweep_row.is_empty(): return int(sweep_row["home_n"])
+	for p: Array in Persons.pp_read(f):
+		if int(p[6]) == 0 and String(p[4]) in ["", "hire", "reserve"]: count += 1
+	return count
+
+static func home_workers(f: Dictionary) -> Array:
+	var sweep_row: Dictionary = TownSweep.row(f)
+	if not sweep_row.is_empty(): return TownSweep.home_workers(sweep_row)
+	var home: Array = []
+	for p: Array in Persons.pp_read(f):
+		if int(p[6]) == 0 and String(p[4]) in ["", "hire", "reserve"]: home.append(p)
+	home.sort_custom(func(x, y): return float(x[3]) < float(y[3]) if float(x[3]) != float(y[3]) else int(x[0]) < int(y[0]))
+	return home
+
+## One responsible person per kept shop or held paid-business block. Academy
+## places retain their anonymous-first eligibility and are never materialized here.
+static func _staff_targets(e: Dictionary, f: Dictionary) -> Dictionary:
+	var targets: Dictionary = {}
+	for bid in f.get("keeps", []): targets[int(bid)] = true
+	for key in f.get("jobs", {}):
+		var bid: int = int(key)
+		if int(f["jobs"][key]) > 0 and not targets.has(bid) and String(e["biz"][bid]["type"]) != "academy":
+			targets[bid] = false
+	return targets
+
+static func named_work(e: Dictionary, f: Dictionary, home: Array, places: Array, counts: Array[int]) -> Dictionary:
+	# Counted blocks retain the exact hired/casual/keeper/land slot order without
+	# allocating titles, wages and dictionaries for every anonymous resident.
+	var remaining: int = (f.get("keeps", []) as Array).size() + int(f.get("hands", 0))
+	var prefix: int = 0
+	while prefix < counts.size() and remaining > 0:
+		remaining -= counts[prefix]
+		prefix += 1
+	var slots: Array = places.slice(prefix) + places.slice(0, prefix)
+	var sizes: Array = counts.slice(prefix) + counts.slice(0, prefix)
+	var offset: int = anonymous(f, 0) + anonymous(f, 1)
+	var assigned: Array[int] = []
+	var reserved: Dictionary = {}
+	var covered: Dictionary = {}
+	var targets: Dictionary = _staff_targets(e, f)
+	var first: Dictionary = {}
+	for at in slots.size():
+		var job: Dictionary = slots[at]
+		var bid: int = int(job.get("biz", -1))
+		if targets.has(bid) and bool(job.get("keeper", false)) == bool(targets[bid]) and not first.has(bid): first[bid] = at
+	var block: int = 0
+	var start: int = 0
 	for i in home.size():
-		var place := offset + i
-		var job := {"kind": "none", "title": "out of work", "where": "", "wage": 0.0}
-		for key in f.get("jobs", {}):
-			var n := int(f["jobs"][key])
-			if place < n:
-				var b: Dictionary = e["biz"][int(key)]
-				job = {"kind": "job", "title": Recruits.job_title(e, b), "where": Businesses.title(e, b), "wage": float(b["wage"]), "biz": int(key)}
-				break
-			place -= n
-		if String(job["kind"]) == "none":
-			for key in f.get("cj", {}):
-				var n := int(f["cj"][key])
-				if place < n:
-					job = {"kind": "casual", "title": String(TownEcon.data()["casual_jobs"][key]["name"]), "where": "casual work", "wage": Barge.casual_wage(e, String(key)), "cj": key}
-					break
-				place -= n
-		out[int(home[i][0])] = job
+		var place: int = offset + i
+		while block < slots.size() and place >= start + int(sizes[block]):
+			start += int(sizes[block])
+			block += 1
+		assigned.append(block if block < slots.size() else -1)
+		if block >= slots.size(): continue
+		var job: Dictionary = slots[block]
+		var bid: int = int(job.get("biz", -1))
+		if bid >= 0 and String(e["biz"][bid]["type"]) == "academy": reserved[i] = true
+		if first.has(bid) and bool(job.get("keeper", false)) == bool(targets[bid]) and not covered.has(bid):
+			reserved[i] = true
+			covered[bid] = true
+	for bid in first:
+		if covered.has(bid): continue
+		for i in home.size():
+			if reserved.has(i): continue
+			assigned[i] = int(first[bid])
+			reserved[i] = true
+			break
+	# v0.100: a cohort Academy place is positional. A home reserve may hold it
+	# as staff but can never be its lead (Academy.lead_gone), so a house whose
+	# only named Academy holder is a reserve could never appoint a head while
+	# that place filled its cap. Swap the first such place with a lead-eligible
+	# home adult of the same household, as the responsibility swaps above do.
+	var academy_holders: Dictionary = {}
+	for i in home.size():
+		if assigned[i] < 0: continue
+		var holder_job: Dictionary = slots[assigned[i]]
+		var holder_bid: int = int(holder_job.get("biz", -1))
+		if holder_bid >= 0 and not bool(holder_job.get("keeper", false)) and String(e["biz"][holder_bid]["type"]) == "academy":
+			if not academy_holders.has(holder_bid): academy_holders[holder_bid] = []
+			academy_holders[holder_bid].append(i)
+	for bid in academy_holders:
+		var holders: Array = academy_holders[bid]
+		if holders.any(func(i): return String(home[int(i)][4]) in ["", "hire"]): continue
+		for j in home.size():
+			if not String(home[j][4]) in ["", "hire"]: continue
+			# Exchanging two named places preserves a shop responsibility too.
+			# Only another Academy place must retain its eligible holder.
+			if assigned[j] >= 0:
+				var other_bid: int = int(slots[assigned[j]].get("biz", -1))
+				if other_bid >= 0 and String(e["biz"][other_bid]["type"]) == "academy": continue
+			var first_holder: int = int(holders[0])
+			var swap_slot: int = assigned[first_holder]
+			assigned[first_holder] = assigned[j]
+			assigned[j] = swap_slot
+			reserved[j] = true
+			break
+	var out: Dictionary = {}
+	for i in home.size():
+		out[int(home[i][0])] = (slots[assigned[i]] as Dictionary).duplicate() if assigned[i] >= 0 else {"kind": "none", "title": "out of work", "where": "", "wage": 0.0}
+	# A retained paid place belongs to its appointed head even when another
+	# job count shifts the positional baseline. Share this swap with all readers.
+	if e.has("academy") and (f["jobs"] as Dictionary).has(str(int(e["academy"]))):
+		Academy.mark_lead(e, f, out)
 	return out
+
+## Simulation-only: one exact bin debit per new identity, with no population,
+## service, job, wage or purse adjustment. Bounded by the existing adult bins.
+static func staff(e: Dictionary, f: Dictionary) -> void:
+	if not is_cohort(f) or f.get("gone", false) or f.get("estate", false): return
+	var targets: Dictionary = _staff_targets(e, f)
+	if targets.is_empty(): return
+	var home: int = home_worker_count(f)
+	var left: int = anonymous(f, 0) + anonymous(f, 1)
+	var free_n: int = home
+	var academy: Array[Vector2i] = []
+	var at: int = 0
+	# Academy slots stay reserved in the anonymous-first baseline. Every other
+	# home adult can cover one responsibility through named_work's swaps.
+	for key in f.get("jobs", {}):
+		var count: int = maxi(0, int(f["jobs"][key]))
+		if count > 0 and String(e["biz"][int(key)]["type"]) == "academy":
+			academy.append(Vector2i(at, at + count))
+			free_n -= maxi(0, mini(at + count, left + home) - maxi(at, left))
+		at += count
+	if free_n >= targets.size(): return
+	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	rng.seed = hash([e.get("identity_scope", ""), f.get("seed", 0), e.get("next_pid", 1), "staff"])
+	# Each exact bin debit extends the named tail by one slot. Reuse these
+	# integer ranges instead of rebuilding Persons.work after every identity.
+	while left > 0 and free_n < targets.size():
+		if _from_bins(e, f, float(e.get("day", 0)), rng, false, true).is_empty(): return
+		left -= 1
+		var academy_place: bool = false
+		for span: Vector2i in academy:
+			if left >= span.x and left < span.y:
+				academy_place = true
+				break
+		if not academy_place: free_n += 1
 
 static func race_rows(e: Dictionary) -> Array:
 	var by_race := {}
@@ -207,7 +367,7 @@ static func race_rows(e: Dictionary) -> Array:
 		by_race[race].append(f)
 	var out := []
 	for race in by_race:
-		var row := summary({"fams": by_race[race], "culture": e.get("culture", "middle"), "day": e.get("day", 0)})
+		var row: Dictionary = summary(e, by_race[race])
 		row["race"] = race; out.append(row)
 	return out
 
@@ -216,6 +376,9 @@ static func generated_business_owners(e: Dictionary) -> void:
 	if tracked.is_empty(): return
 	for b in e.get("biz", []):
 		if b.get("closed", false) or b.get("for_sale", false): continue
+		# v0.100: the final generation pass must not undo Academy._state_owner.
+		# v0.100: a private keeper makes load repair reassign jobs and settle wages.
+		if String(b.get("type", "")) == "academy": continue
 		var old := int(b["owner"])
 		if old >= 0 and not is_cohort(e["fams"][old]) and not e["fams"][old].get("estate", false): continue
 		tracked.sort_custom(func(a, c): return a["owns"].size() < c["owns"].size())
@@ -295,20 +458,29 @@ static func turn(e: Dictionary, f: Dictionary, day: float, days: float) -> void:
 	if not is_cohort(f): return
 	var population_before := Families.people(f)
 	var adults_before := Families.adults(f)
-	var year := int(floor(day / People.year_days()))
-	var prior := int(f.get("population_year", year))
+	var year_days: float = People.year_days()
+	var year: int = int(floor(day / year_days))
+	var prior: int = int(f.get("population_year", year))
 	if year > prior:
-		var ab := People.ages(String(f["race"]))
+		var ab: Dictionary = People.ages(String(f["race"]))
+		var adult: int = int(ab["adult"])
+		var elder: int = int(ab["elder"])
+		# Retain the original multiply/divide/floor for the stored epoch.
+		var prior_year: int = int(floor(float(prior) * year_days / year_days))
 		for key in f["age_bins"].keys():
-			var parts := String(key).split(":")
-			var before := bin_category(e, f, String(key), float(prior) * People.year_days())
-			var after := bin_category(e, f, String(key), day)
+			var parts: PackedStringArray = String(key).split(":")
+			var sex: int = int(parts[0])
+			var born: int = int(parts[1])
+			var before_age: int = prior_year - born
+			var after_age: int = year - born
+			var before: int = 3 if before_age < adult else (2 if before_age >= elder else sex)
+			var after: int = 3 if after_age < adult else (2 if after_age >= elder else sex)
 			var n := int(f["age_bins"][key])
 			if before != after:
 				f[["m", "f", "old", "kids"][before]] -= n
 				f[["m", "f", "old", "kids"][after]] += n
 				e["adults"] += n if before == 3 else -n
-			if year - int(parts[1]) >= int(ab["lifespan"]): kill_slots(e, f, String(key), n, day, "old age")
+			if after_age >= int(ab["lifespan"]): kill_slots(e, f, String(key), n, day, "old age")
 		f["population_year"] = year
 	var room := float(f["homes"]) * float(TownEcon.culture_of(e)["home"]["room"]) * (0.6 + 0.4 * float(f["cond"]))
 	if int(f["hungry"]) == 0 and Families.people(f) < room:
@@ -343,8 +515,13 @@ static func turn(e: Dictionary, f: Dictionary, day: float, days: float) -> void:
 			value -= float(body["fall"]) * (1.0 if group == "workers" else float(body["weak"])) * (1.0 - fed) * days
 		bc[group] = clampf(value, 0, 1)
 		if value <= 0:
+			var bands: Dictionary = People.ages(String(f.get("race", Persons.race_of(e))))
+			var adult: int = int(bands["adult"])
+			var elder: int = int(bands["elder"])
 			for key in f["age_bins"].keys():
-				var cat := bin_category(e, f, String(key), day)
+				var parts: PackedStringArray = String(key).split(":")
+				var age: int = year - int(parts[1])
+				var cat: int = 3 if age < adult else (2 if age >= elder else int(parts[0]))
 				if (group == "workers" and cat < 2) or (group == "children" and cat == 3) or (group == "elders" and cat == 2): kill_slots(e, f, String(key), int(f["age_bins"][key]), day, "starved")
 	f["pool_condition"] = bc
 	if Families.people(f) <= 0: Families.extinct(e, f, day)

@@ -1,16 +1,52 @@
 class_name HerdRaids
 extends RefCounted
+const RaidSave = preload("res://core/raid_save.gd") # v0.100: detached live-combat snapshot.
 ## Travel, confrontation and actual taking replace proximity-based weekly losses.
 static var fights := {}
 static var fight_seed := -1
 ## Diagnostics may request a fixed tick quota to compare identical simulation work.
-## Ordinary play retains the existing 4 ms budget; new/load always switches this off.
+## v0.100: ordinary play retains the 4 ms budget; saves preserve a diagnostic quota.
 static var benchmark_fixed_steps := false
 
 static func reset() -> void:
 	fights.clear()
 	fight_seed = -1
 	benchmark_fixed_steps = false
+
+# v0.100: capture the entire native fight graph, including aliases into wounded bodies.
+static func save_state() -> String:
+	return RaidSave.new().capture({"fights": fights, "fight_seed": fight_seed, "fixed_steps": benchmark_fixed_steps})
+
+static func load_state(game, text: String) -> bool:
+	var prepared := prepare_state(text)
+	if prepared.is_empty(): return false
+	apply_state(game, prepared)
+	return true
+
+# v0.100: parse detached state once, before Game replaces any live campaign fields.
+static func prepare_state(text: Variant) -> Dictionary:
+	if not (text is String): return {}
+	var codec = RaidSave.new()
+	var state = {"fights": {}} if text == "" else codec.restore(text)
+	if not (state is Dictionary) or not (state.get("fights") is Dictionary): return {}
+	# v0.100: native graph fields must already have their declared scalar types.
+	if not (state.get("fight_seed", -1) is int) or not (state.get("fixed_steps", false) is bool): return {}
+	for key in state["fights"]:
+		if not (key is String): return {}
+		var fight = state["fights"][key]
+		if not (fight is Dictionary) or not (fight.get("sim") is BattleSim) or not (fight.get("defenders") is Array): return {}
+		for unit in fight["defenders"]:
+			if not (unit is Unit): return {}
+	return {"codec": codec, "state": state}
+
+# v0.100: only already validated state may reach the commit/relink stage.
+static func apply_state(game, prepared: Dictionary) -> void:
+	var state: Dictionary = prepared["state"]
+	reset()
+	fights = state["fights"]
+	fight_seed = state.get("fight_seed", -1)
+	benchmark_fixed_steps = state.get("fixed_steps", false)
+	prepared["codec"].link_campaign(game)
 
 static func plot_pos(town: Dictionary, P: Dictionary, i: int) -> Vector2:
 	return (town["pos"] as Vector2) + Vector2(float(P["x"][i]) - float(P["gw"]) / 2, float(P["y"][i]) - float(P["gh"]) / 2) * 5
@@ -91,7 +127,8 @@ static func step(game, wb: Dictionary, dt: float, _t: float, rng: RandomNumberGe
 			raid["herders"] = CampaignWorld.spawn_warband(game, String(town["faction"]), wb["pos"], herders.size(), "militia", rng, {"units": herders, "home": town["id"], "anchor": wb["pos"], "pasture_defence": true})
 		if defenders.is_empty(): take(game, wb, town, herd); wb.erase("raid"); return true
 		var sim := BattleSim.new()
-		sim.setup(defenders, wb["units"], hash([game.world.get("seed", 0), wb["id"], int(raid["day"])]), {"w": 24, "h": 12, "verbose": false, "log_moves": false})
+		# v0.100: raids keep their in-memory history; no external journal handles enter a save.
+		sim.setup(defenders, wb["units"], hash([game.world.get("seed", 0), wb["id"], int(raid["day"])]), {"w": 24, "h": 12, "verbose": false, "log_moves": false, "combat_journal": false})
 		fights[String(wb["id"])] = {"sim": sim, "defenders": defenders}
 		raid["phase"] = "fighting"
 	if not fights.has(String(wb["id"])):

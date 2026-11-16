@@ -98,6 +98,7 @@ var strength_bar: Control   # both sides' fighters still standing, as one tug-of
 var _strength := [0, 0]
 var _strength0 := [0, 0]
 var feed_box: VBoxContainer
+var _toast_layout_queued: bool = false
 var inspector: PanelContainer
 var result_panel: Control
 var _dirty_actors: Dictionary = {}  # coalesced presentation only; never a sim cache
@@ -368,6 +369,7 @@ func _build_ui() -> void:
 	feed_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	feed_box.add_theme_constant_override("separation", 4)
 	ui.add_child(feed_box)
+	feed_box.minimum_size_changed.connect(_queue_toast_layout)
 	# inspector
 	inspector = Inspector.new()
 	inspector.anchor_left = 1.0; inspector.anchor_right = 1.0
@@ -383,6 +385,61 @@ func _build_ui() -> void:
 	get_viewport().size_changed.connect(_layout_diagnostics)
 	_layout_diagnostics()
 	_refresh_speed_buttons()
+
+func _safe_area_size() -> Vector2:
+	var vp: Vector2 = get_viewport_rect().size
+	var safe: Dictionary = UiKit.safe_area_margins(get_viewport())
+	var lane: float = UiKit.diagnostics_lane(vp.x)
+	return Vector2(maxf(0.0, vp.x - lane - float(safe["left"] + safe["right"])),
+		maxf(0.0, vp.y - float(safe["top"] + safe["bottom"])))
+
+func _toast_width() -> float:
+	var want: float = 660.0 if UiTheme.is_mobile() else 440.0
+	var area: Vector2 = _safe_area_size()
+	return maxf(0.0, minf(want, minf(area.x * 0.65, area.x - 20.0)))
+
+## Keep the newest suffix that fits, using wrapped controls rather than a fixed line height.
+func _toast_max() -> int:
+	var cap: int = FEED_MAX_MOBILE if UiTheme.is_mobile() else FEED_MAX
+	var min_h: float = float(UiKit.MOBILE_TAP) if UiTheme.is_mobile() else 36.0
+	var avail_h: float = maxf(0.0, _safe_area_size().y - feed_box.position.y - 8.0)
+	var tw: float = _toast_width()
+	var children: Array[Node] = feed_box.get_children()
+	var used_h: float = 0.0
+	var kept: int = 0
+	for i: int in range(children.size() - 1, -1, -1):
+		var ctrl: Control = children[i] as Control
+		if ctrl == null: continue
+		ctrl.custom_minimum_size = Vector2(tw, min_h)
+		ctrl.size.x = tw
+		var child_h: float = maxf(min_h, maxf(ctrl.size.y, ctrl.get_combined_minimum_size().y))
+		var next_h: float = used_h + child_h + (4.0 if kept > 0 else 0.0)
+		if next_h > avail_h or kept >= cap or tw <= 0.0: break
+		used_h = next_h
+		kept += 1
+	return kept
+
+func _trim_toasts() -> void:
+	if feed_box == null: return
+	var avail_h: float = maxf(0.0, _safe_area_size().y - feed_box.position.y - 8.0)
+	var tw: float = _toast_width()
+	feed_box.custom_minimum_size = Vector2(tw, 0.0)
+	feed_box.size.x = tw
+	var max_toasts: int = _toast_max()
+	while feed_box.get_child_count() > max_toasts or (feed_box.get_child_count() > 0 and feed_box.get_combined_minimum_size().y > avail_h):
+		var old: Node = feed_box.get_child(0)
+		feed_box.remove_child(old)
+		old.queue_free()
+	feed_box.size = feed_box.get_combined_minimum_size()
+
+func _queue_toast_layout() -> void:
+	if _toast_layout_queued: return
+	_toast_layout_queued = true
+	call_deferred("_settle_toast_layout")
+
+func _settle_toast_layout() -> void:
+	_toast_layout_queued = false
+	_trim_toasts()
 
 func _layout_diagnostics() -> void:
 	if ui == null: return
@@ -403,6 +460,9 @@ func _layout_diagnostics() -> void:
 				feed_box.position.y = (sc as Control).position.y + bar_h + 8.0
 		else:
 			_playback_bar.size.x = span
+	if feed_box != null:
+		_trim_toasts()
+		_queue_toast_layout()
 
 func _big_button(text: String, min_size: Vector2) -> Button:
 	var b := Button.new()
@@ -866,12 +926,13 @@ func _add_feed(e: Dictionary) -> void:
 	b.tooltip_text = BattleSim.event_text(e)
 	b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	b.custom_minimum_size = Vector2(440, 36)
+	var toast_width: float = _toast_width()
+	b.custom_minimum_size = Vector2(toast_width, 36)
 	b.focus_mode = Control.FOCUS_NONE
 	b.add_theme_font_size_override("font_size", UiTheme.px(15))
 	if mobile:
 		# v0.098: two wrapped lines of a short, whole sentence instead of one line cut after 30 letters
-		b.custom_minimum_size = Vector2(660, float(UiKit.MOBILE_TAP))
+		b.custom_minimum_size = Vector2(toast_width, float(UiKit.MOBILE_TAP))
 		b.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE - 4)
 	var a: int = int(e.get("actor", -1))
 	var col := TOAST_NEUTRAL
@@ -894,6 +955,8 @@ func _add_feed(e: Dictionary) -> void:
 		var old := feed_box.get_child(0)
 		feed_box.remove_child(old)
 		old.queue_free()
+	_trim_toasts()
+	_queue_toast_layout()
 
 func _update_feed(delta: float) -> void:
 	for c in feed_box.get_children():

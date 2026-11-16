@@ -312,9 +312,10 @@ func _draw_v0066_portrait_half(img: Image, race: String, y_off: int, header_pref
 
 func _save_v0066_portrait_before_after(out_dir: String, race: String) -> void:
 	var path: String = out_dir.path_join("v0066_portrait_before_after_%s.png" % race)
+	var baseline_path: String = ProjectSettings.globalize_path("res://").path_join("../test-results").path_join("v0066_portrait_before_after_%s.png" % race).simplify_path()
 	var sheet: Image
-	if FileAccess.file_exists(path):
-		sheet = Image.load_from_file(path)
+	if FileAccess.file_exists(baseline_path):
+		sheet = Image.load_from_file(baseline_path)
 		if sheet == null or sheet.get_width() != 920 or sheet.get_height() != 480:
 			sheet = Image.create(920, 480, false, Image.FORMAT_RGBA8)
 			_draw_v0066_portrait_half(sheet, race, 0, "BEFORE (B78F919)")
@@ -362,9 +363,10 @@ func _draw_v0066_troll_half(img: Image, y_off: int, header_prefix: String) -> vo
 
 func _save_v0066_troll_before_after(out_dir: String) -> void:
 	var path: String = out_dir.path_join("v0066_troll_before_after.png")
+	var baseline_path: String = ProjectSettings.globalize_path("res://").path_join("../test-results").path_join("v0066_troll_before_after.png").simplify_path()
 	var sheet: Image
-	if FileAccess.file_exists(path):
-		sheet = Image.load_from_file(path)
+	if FileAccess.file_exists(baseline_path):
+		sheet = Image.load_from_file(baseline_path)
 		if sheet == null or sheet.get_width() != 860 or sheet.get_height() != 540:
 			sheet = Image.create(860, 540, false, Image.FORMAT_RGBA8)
 			_draw_v0066_troll_half(sheet, 0, "BEFORE (B78F919)")
@@ -848,8 +850,13 @@ func _build_100v100_battle(tree: SceneTree, out_path: String) -> float:
 	return mean_ms
 
 func run(tree: SceneTree) -> int:
-	var out_dir: String = ProjectSettings.globalize_path("res://").path_join("../test-results").simplify_path()
+	var runs_dir: String = ProjectSettings.globalize_path("res://").path_join("../test-results/runs").simplify_path()
+	var run_id: String = "%d_%d_%d" % [int(Time.get_unix_time_from_system()), OS.get_process_id(), Time.get_ticks_usec()]
+	var out_dir: String = runs_dir.path_join("test_races_v065_" + run_id)
+	while DirAccess.dir_exists_absolute(out_dir):
+		out_dir += "_"
 	DirAccess.make_dir_recursive_absolute(out_dir)
+	print("Evidence output: ", out_dir)
 
 	for race in ALL_RACES:
 		_save_v0066_portrait_before_after(out_dir, race)

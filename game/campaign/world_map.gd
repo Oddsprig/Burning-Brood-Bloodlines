@@ -141,26 +141,31 @@ func _ready() -> void:
 # ================================================================== loop
 func _process(delta: float) -> void:
 	var started := Time.get_ticks_usec()
+	Game._day_job_begin_frame(started)
 	_process_map(delta)
 	Perf.record_us("Map frame", Time.get_ticks_usec() - started, true)
+	if Game._day_job_hold_active():
+		return
 	Perf.set_stage("Settling campaign jobs" if not Game.world.get("work", []).is_empty() else "Map · travelling" if CampaignWorld.is_travelling(Game) or Game.world.get("party", {}).get("waiting", false) else "Map · paused")
 
 func _process_map(delta: float) -> void:
 	var frame_started := Time.get_ticks_usec()
-	var w: Dictionary = Game.world
-	var party: Dictionary = w["party"]
 	# camera keys
 	var pan := Input.get_vector("cam_left", "cam_right", "cam_up", "cam_down")
 	if pan != Vector2.ZERO:
 		cam.position += pan * 900.0 * delta / cam.zoom.x
 		follow = false
 	if get_tree().paused: return   # pan/zoom only; no campaign work or mutable HUD reads
+	if Game._day_job_hold_active(): return   # unfinished ownership and ordered callbacks hold the map
+	var w: Dictionary = Game.world
+	var party: Dictionary = w["party"]
 	# time
 	var enc: String = w.get("encounter", "")
 	if enc != "" and (not w["warbands"].has(enc) or Monsters.suspended_band(w["warbands"].get(enc, {}))):
 		w["encounter"] = ""; enc = ""
 	if enc == "":
 		var worked := CampaignWorld.work_slice(Game, WORK_BUDGET_USEC)
+		if Game._day_job_hold_active(): return   # hold HUD, input side effects and notifications
 		if worked > 0:
 			Game.changed.emit()
 		if pursue_wid != "":
@@ -170,6 +175,7 @@ func _process_map(delta: float) -> void:
 			# Real time cannot make another midnight outrun unfinished jobs.
 			# A stalled frame never requests a huge synchronous catch-up.
 			Game.advance_time(minf(delta, 0.1) / SEC_PER_DAY * speed_mult, false, 0, WORK_BUDGET_USEC)
+			if Game._day_job_hold_active(): return
 		var arrived: String = party.get("arrived", "")
 		if arrived != "" and w.get("work", []).is_empty():
 			party["arrived"] = ""
@@ -197,6 +203,8 @@ func _process_map(delta: float) -> void:
 ## map tokens: one cached-texture MapToken per visible force (type / faction / pips / stance re-checked a few
 ## times a second), drawn in map-y order with the company on top, sized by zoom, night darkening capped at 30%.
 func _sync_icons() -> void:
+	if Game._day_job_hold_active():
+		return
 	var started := Time.get_ticks_usec()
 	var vis := CampaignWorld.visible_warbands(Game)
 	# visible_warbands already rejects suspended rosters synchronously. No
@@ -225,8 +233,11 @@ func _update_pursuit() -> void:
 ## route, zoom, selection, the visible force set, trade view), every frame while a pulsing contract marker shows,
 ## and at least every 12th frame. A paused map no longer rebuilds every line and dot each frame.
 var _overlay_sig: Array = []
+var _overlay_commands: Array = []
 
 func _queue_overlay() -> void:
+	if Game._day_job_hold_active():
+		return
 	var w: Dictionary = Game.world
 	var party: Dictionary = w["party"]
 	var kind := str(Game.contract.get("kind", ""))
@@ -237,6 +248,11 @@ func _queue_overlay() -> void:
 		overlay.queue_redraw()
 
 func _draw_overlay() -> void:
+	if Game._day_job_hold_active():
+		for command: Array in _overlay_commands:
+			overlay.callv(String(command[0]), command[1])
+		return
+	_overlay_commands.clear()
 	var w: Dictionary = Game.world
 	var party: Dictionary = w["party"]
 	# Reuse the visible token set: one line per moving force, never inspect individual men here.
@@ -249,24 +265,24 @@ func _draw_overlay() -> void:
 		if trade_good != "off" and not trade_overlay._caravan(String(wid)).is_empty():
 			continue
 		var route: Array = wb["path"]
-		overlay.draw_line(wb["pos"], route[-1], Color(token.badge_color, 0.65), 1.25 / cam.zoom.x, true)
+		_overlay_draw("draw_line", [wb["pos"], route[-1], Color(token.badge_color, 0.65), 1.25 / cam.zoom.x, true])
 	var path: Array = party["path"]
 	if not path.is_empty():
-		overlay.draw_line(party["pos"], path[-1], Color(party_icon.badge_color, 0.8), 1.25 / cam.zoom.x, true)
+		_overlay_draw("draw_line", [party["pos"], path[-1], Color(party_icon.badge_color, 0.8), 1.25 / cam.zoom.x, true])
 		var prev: Vector2 = party["pos"]
 		var acc := 0.0
 		for q in path:
 			var seg: Vector2 = q - prev
 			var L := seg.length()
 			while acc < L:
-				overlay.draw_circle(prev + seg * (acc / L), 2.6, Color(1, 0.95, 0.75, 0.9))
+				_overlay_draw("draw_circle", [prev + seg * (acc / L), 2.6, Color(1, 0.95, 0.75, 0.9)])
 				acc += 14.0
 			acc -= L
 			prev = q
 		var dst: Vector2 = path[-1]
-		overlay.draw_arc(dst, 9.0, 0, TAU, 20, Color("#ffe08a"), 2.5)
-		overlay.draw_line(dst + Vector2(-5, -5), dst + Vector2(5, 5), Color("#ffe08a"), 2.5)
-		overlay.draw_line(dst + Vector2(-5, 5), dst + Vector2(5, -5), Color("#ffe08a"), 2.5)
+		_overlay_draw("draw_arc", [dst, 9.0, 0, TAU, 20, Color("#ffe08a"), 2.5])
+		_overlay_draw("draw_line", [dst + Vector2(-5, -5), dst + Vector2(5, 5), Color("#ffe08a"), 2.5])
+		_overlay_draw("draw_line", [dst + Vector2(-5, 5), dst + Vector2(5, -5), Color("#ffe08a"), 2.5])
 	var pulse := 0.5 + 0.5 * sin(Time.get_ticks_msec() / 250.0)
 	var tgt: String = Game.contract.get("target_id", "")
 	if Game.contract.get("kind", "") == "escort" and w["warbands"].has(tgt):
@@ -274,19 +290,19 @@ func _draw_overlay() -> void:
 		var cp: Vector2 = w["warbands"][tgt]["pos"]
 		var inside: bool = (w["party"]["pos"] as Vector2).distance_to(cp) <= Caravans.ESCORT_RADIUS
 		var rc := Color(0.55, 1.0, 0.6, 0.55) if inside else Color(1.0, 0.4, 0.3, 0.75)
-		overlay.draw_arc(cp, Caravans.ESCORT_RADIUS, 0, TAU, 64, rc, 2.5)
+		_overlay_draw("draw_arc", [cp, Caravans.ESCORT_RADIUS, 0, TAU, 64, rc, 2.5])
 	if tgt != "" and icons.has(tgt):   # tracks: a hunted target out of sight is not marked (its last-seen circle is)
 		var tp: Vector2 = w["warbands"][tgt]["pos"]
-		overlay.draw_arc(MapTokens.center(tp, cam.zoom.x), (MapTokens.HIT_R + 2.0 + pulse * 4.0) / cam.zoom.x, 0, TAU, 32, Color(1, 0.8, 0.2, 0.9), 3.0)   # map tokens
+		_overlay_draw("draw_arc", [MapTokens.center(tp, cam.zoom.x), (MapTokens.HIT_R + 2.0 + pulse * 4.0) / cam.zoom.x, 0, TAU, 32, Color(1, 0.8, 0.2, 0.9), 3.0])   # map tokens
 	var ctown: String = Game.contract.get("town_id", "")
 	if Game.contract.get("kind", "") == "defend" and w["towns"].has(ctown):
-		overlay.draw_arc(w["towns"][ctown]["pos"], 46.0 + pulse * 4.0, 0, TAU, 40, Color(1, 0.8, 0.2, 0.8), 3.0)
+		_overlay_draw("draw_arc", [w["towns"][ctown]["pos"], 46.0 + pulse * 4.0, 0, TAU, 40, Color(1, 0.8, 0.2, 0.8), 3.0])
 	if selected.get("kind", "") == "warband" and w["warbands"].has(selected["id"]):
-		overlay.draw_arc(MapTokens.center(w["warbands"][selected["id"]]["pos"], cam.zoom.x), MapTokens.HIT_R / cam.zoom.x, 0, TAU, 28, Color.WHITE, 2.0)   # map tokens
+		_overlay_draw("draw_arc", [MapTokens.center(w["warbands"][selected["id"]]["pos"], cam.zoom.x), MapTokens.HIT_R / cam.zoom.x, 0, TAU, 28, Color.WHITE, 2.0])   # map tokens
 	elif selected.get("kind", "") == "party":
-		overlay.draw_arc(MapTokens.center(party["pos"], cam.zoom.x), MapTokens.HIT_R / cam.zoom.x, 0, TAU, 28, Color.WHITE, 2.0)
+		_overlay_draw("draw_arc", [MapTokens.center(party["pos"], cam.zoom.x), MapTokens.HIT_R / cam.zoom.x, 0, TAU, 28, Color.WHITE, 2.0])
 	elif selected.get("kind", "") == "town" and w["towns"].has(selected["id"]):
-		overlay.draw_arc(w["towns"][selected["id"]]["pos"], 40.0, 0, TAU, 36, Color.WHITE, 2.0)
+		_overlay_draw("draw_arc", [w["towns"][selected["id"]]["pos"], 40.0, 0, TAU, 36, Color.WHITE, 2.0])
 
 # ================================================================== input
 ## v0.072: mouse, touch (tap, one-finger pan, pinch) and long-press / right-click info all go through TouchInput.
@@ -300,9 +316,13 @@ func screen_to_world(screen_pos: Vector2) -> Vector2:
 	return get_viewport().get_canvas_transform().affine_inverse() * screen_pos
 
 func _on_tap_screen(screen_pos: Vector2) -> void:
+	if CampaignWorld.defer_day_job_action(Game, _on_tap_screen.bind(screen_pos)):
+		return
 	_tap(screen_to_world(screen_pos))
 
 func _on_inspect_screen(screen_pos: Vector2) -> void:
+	if CampaignWorld.defer_day_job_action(Game, _on_inspect_screen.bind(screen_pos)):
+		return
 	_inspect(screen_to_world(screen_pos))
 
 func _on_pan_screen(screen_delta: Vector2) -> void:
@@ -323,6 +343,8 @@ func _zoom_at(f: float, screen_pos: Vector2) -> void:
 	cam.position += before - after
 
 func _tap(p: Vector2) -> void:
+	if CampaignWorld.defer_day_job_action(Game, _tap.bind(p)):
+		return
 	if get_tree().paused: return
 	var w: Dictionary = Game.world
 	if w.get("encounter", "") != "":
@@ -366,6 +388,8 @@ func _tap(p: Vector2) -> void:
 
 ## Long-press (~0.5s) or right-click inspects without issuing a travel order or entering a town.
 func _inspect(p: Vector2) -> void:
+	if CampaignWorld.defer_day_job_action(Game, _inspect.bind(p)):
+		return
 	if get_tree().paused: return
 	var w: Dictionary = Game.world
 	if w.get("encounter", "") != "":
@@ -393,6 +417,8 @@ func _inspect(p: Vector2) -> void:
 	_select({"kind": "terrain", "id": "%d,%d" % [int(round(p.x)), int(round(p.y))], "pos": p})
 
 func _trade_tap(p: Vector2) -> bool:
+	if Game._day_job_hold_active():
+		return false
 	if trade_good == "off": return false
 	# A newly selected good waits for settled books; it must not issue travel orders.
 	if trade_overlay.day < 0:
@@ -413,6 +439,8 @@ func _trade_tap(p: Vector2) -> bool:
 	return true
 
 func _try_enter(tid: String) -> void:
+	if CampaignWorld.defer_day_job_action(Game, _try_enter.bind(tid)):
+		return
 	var t: Dictionary = Game.world["towns"].get(tid, {})
 	if t.is_empty():
 		return
@@ -489,6 +517,7 @@ func _build_hud() -> void:
 	lbl_wages.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	column.add_child(lbl_wages)
 	lbl_contract = _label(15, UiTheme.BLUE)
+	lbl_contract.visible = false
 	lbl_contract.custom_minimum_size.y = 48
 	lbl_contract.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	column.add_child(lbl_contract)
@@ -587,6 +616,17 @@ func _build_hud() -> void:
 	top_panel.minimum_size_changed.connect(_queue_hud_layout)
 	bottom_nav.resized.connect(_queue_hud_layout)
 	bottom_nav.minimum_size_changed.connect(_queue_hud_layout)
+	if UiTheme.is_mobile():
+		# Keep phone navigation on one row while preserving the desktop flow.
+		var nav_scroll: ScrollContainer = ScrollContainer.new()
+		nav_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+		nav_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		bottom_nav.remove_child(navigation)
+		bottom_nav.add_child(nav_scroll)
+		var nav_row: HBoxContainer = UiKit.hbox(6)
+		nav_scroll.add_child(nav_row)
+		for nav_button: Node in navigation.get_children(): nav_button.reparent(nav_row)
+		navigation.free()
 	_layout_hud()
 
 func _queue_hud_layout() -> void:
@@ -623,9 +663,14 @@ func _layout_hud() -> void:
 	top_panel.size.y = top_panel.get_combined_minimum_size().y
 	bottom_nav.position = Vector2(8, height - nav_height - 8)
 	bottom_nav.size = Vector2(width - 16, nav_height)
+	# Cap the whole card to the actual gap; its natural minimum can exceed the cap.
+	var card_band: float = maxf(0.0, bottom_nav.position.y - (top_panel.position.y + top_panel.size.y) - 16.0)
+	ruler_card.set_height_cap(card_band)
 	var card_size := ruler_card.custom_minimum_size   # v0.098: the card's own size (taller on a phone)
 	var card_width := minf(maxf(340.0, card_size.x), width - 16)
 	var card_h := maxf(138.0, card_size.y)
+	card_h = maxf(card_size.y, ruler_card.get_combined_minimum_size().y)
+	ruler_card.visible = not Dynasty.selected(Game).is_empty() and card_h <= card_band
 	ruler_card.position = Vector2(8, bottom_nav.position.y - card_h - 8)
 	ruler_card.size = Vector2(card_width, card_h)
 	if narrow:
@@ -657,11 +702,13 @@ func _layout_accounts(_compact: bool) -> void:
 	var gold_text := "House purse %s     Army %s · %s" % [house, army, army_status]
 	if lbl_gold.text != gold_text:
 		lbl_gold.text = gold_text
-		lbl_gold.mouse_filter = Control.MOUSE_FILTER_PASS
-		lbl_gold.tooltip_text = "House purse %s coins (yours to spend)\nCity treasury %s coins\nFaction treasury %s coins\nArmy wallet %s coins · %d troops\nPay %d/day · %d unpaid" % [UiKit.thousands(int(accounts.get("house_purse", 0))), UiKit.thousands(int(accounts.get("city_treasury", 0))), UiKit.thousands(int(accounts.get("faction_treasury", 0))), UiKit.thousands(int(accounts.get("company_wallet", Game.gold))), _hud_troops, _hud_wages, _hud_unpaid]
+	lbl_gold.mouse_filter = Control.MOUSE_FILTER_PASS
+	lbl_gold.tooltip_text = "House purse %s coins (yours to spend)\nCity treasury %s coins\nFaction treasury %s coins\nArmy wallet %s coins · %d troops\nPay %d/day · %d unpaid" % [UiKit.thousands(int(accounts.get("house_purse", 0))), UiKit.thousands(int(accounts.get("city_treasury", 0))), UiKit.thousands(int(accounts.get("faction_treasury", 0))), UiKit.thousands(int(accounts.get("company_wallet", Game.gold))), _hud_troops, _hud_wages, _hud_unpaid]
 	lbl_wages.visible = false
 
 func _refresh_hud() -> void:
+	if Game._day_job_hold_active():
+		return
 	var started := Time.get_ticks_usec()
 	var d: float = Game.day
 	lbl_day.text = Calendar.text(d)
@@ -676,7 +723,6 @@ func _refresh_hud() -> void:
 	_hud_wages = Game.daily_wages()
 	_hud_unpaid = Game.unpaid_count()
 	lbl_wages.tooltip_text = "Army wages %d/day; %d unpaid. Each purse has a separate owner." % [_hud_wages, _hud_unpaid]
-	lbl_gold.tooltip_text = lbl_wages.tooltip_text
 	if ruler_card != null:
 		ruler_card.refresh()
 	lbl_contract.text = Contracts.status_text(Game)
@@ -699,20 +745,28 @@ func toast(text: String) -> void:
 	_toast_t = 2.5
 
 func _on_wait() -> void:
+	if CampaignWorld.defer_day_job_action(Game, _on_wait):
+		return
 	var party: Dictionary = Game.world["party"]
 	party["waiting"] = not party.get("waiting", false)
 	_refresh_hud()
 
 func _on_speed() -> void:
+	if CampaignWorld.defer_day_job_action(Game, _on_speed):
+		return
 	speed_mult = {1: 2, 2: 4, 4: 1}[speed_mult]
 	btn_speed.text = "x%d" % speed_mult
 
 func _cycle_trade() -> void:
+	if CampaignWorld.defer_day_job_action(Game, _cycle_trade):
+		return
 	trade_good = TRADE_OVERLAY.MODES[(TRADE_OVERLAY.MODES.find(trade_good) + 1) % TRADE_OVERLAY.MODES.size()]
 	btn_trade.text = "Trade: " + trade_good.capitalize()
 	_refresh_trade_overlay()
 
 func _refresh_trade_overlay() -> void:
+	if Game._day_job_hold_active():
+		return
 	if not trade_overlay.sync(Game.world, Game.day, trade_good, cam.zoom.x): return
 	lbl_trade.visible = trade_good != "off"
 	lbl_trade.text = "Trade: %s | + surplus  - shortage  = balanced  ? unrecorded | Prices x base | Snapshot day %d" % [
@@ -722,12 +776,16 @@ func _on_center() -> void:
 	follow = true
 
 func _on_save() -> void:
+	if CampaignWorld.defer_day_job_action(Game, _on_save):
+		return
 	Game.save_game_async()   # manual Save: always writes, ignoring the autosave interval
 	toast("Game saved.")
 
 ## Ambition toasts and the one-time victory screen; the first-visit guide.
 var _amb_t := 0.0
 func _ambition_tick() -> void:
+	if Game._day_job_hold_active():
+		return
 	_amb_t -= 0.2
 	if _amb_t > 0.0: return
 	_amb_t = 2.0
@@ -747,6 +805,8 @@ func _ambition_tick() -> void:
 
 # ---------------------------------------------------------------- info panel
 func _band_commander(wb: Dictionary) -> String:
+	if Game._day_job_hold_active():
+		return ""
 	var top: Unit = null
 	for u in wb["units"]:
 		if not u.dead and u.is_officer() and (top == null or u.rank > top.rank):
@@ -759,6 +819,8 @@ func _band_commander(wb: Dictionary) -> String:
 	return "Unappointed"
 
 func _set_party_objective(objective: String) -> void:
+	if CampaignWorld.defer_day_job_action(Game, _set_party_objective.bind(objective)):
+		return
 	if not WarAI.OBJECTIVES.has(objective):
 		return
 	var party: Dictionary = Game.world["party"]
@@ -773,6 +835,8 @@ func _set_party_objective(objective: String) -> void:
 	_fill_info()
 
 func _select(sel: Dictionary) -> void:
+	if CampaignWorld.defer_day_job_action(Game, _select.bind(sel.duplicate(true))):
+		return
 	selected = sel
 	if sel.get("kind", "") != "track":
 		tracks_layer.clear_selection()   # tracks
@@ -780,6 +844,8 @@ func _select(sel: Dictionary) -> void:
 	_fill_info()
 
 func _close_info() -> void:
+	if CampaignWorld.defer_day_job_action(Game, _close_info):
+		return
 	selected = {}
 	_info_key = ""
 	info_panel.visible = false
@@ -788,6 +854,8 @@ func _close_info() -> void:
 var _info_key := ""
 
 func _fill_info() -> void:
+	if CampaignWorld.defer_day_job_action(Game, _fill_info):
+		return
 	var w: Dictionary = Game.world
 	if selected.get("kind", "") == "warband" and Monsters.suspended_band(w.get("warbands", {}).get(selected.get("id", ""), {})):
 		_close_info()
@@ -902,6 +970,8 @@ func _fill_info() -> void:
 			info_buttons.add_child(_button("Close", _close_info))
 
 func _assault(tid: String, kind: String) -> void:
+	if CampaignWorld.defer_day_job_action(Game, _assault.bind(tid, kind)):
+		return
 	var p := Warfare.preview(Game, tid, kind)
 	if not p.get("ok", false): toast(str(p.get("reason", ""))); return
 	var town: Dictionary = Game.world["towns"][tid]
@@ -925,6 +995,8 @@ func _assault(tid: String, kind: String) -> void:
 
 # ---------------------------------------------------------------- encounter
 func _show_encounter(wid: String) -> void:
+	if CampaignWorld.defer_day_job_action(Game, _show_encounter.bind(wid)):
+		return
 	if wid != "" and Monsters.suspended_band(Game.world.get("warbands", {}).get(wid, {})):
 		if Game.world.get("encounter", "") == wid: Game.world["encounter"] = ""
 		enc_panel.visible = false
@@ -954,6 +1026,8 @@ func _show_encounter(wid: String) -> void:
 	enc_panel.visible = true
 
 func _on_fight() -> void:
+	if CampaignWorld.defer_day_job_action(Game, _on_fight):
+		return
 	if Game.deployed_units().is_empty():
 		return
 	var wid: String = Game.world.get("encounter", "")
@@ -962,6 +1036,8 @@ func _on_fight() -> void:
 		CampaignWorld.engage(Game, wid)
 
 func _on_retreat() -> void:
+	if CampaignWorld.defer_day_job_action(Game, _on_retreat):
+		return
 	var wid: String = Game.world.get("encounter", "")
 	enc_panel.visible = false
 	CampaignWorld.retreat(Game, wid)
@@ -971,3 +1047,8 @@ func _on_retreat() -> void:
 
 
 
+
+## Value-only draw commands retain the last completed overlay through a hold.
+func _overlay_draw(method: String, args: Array) -> void:
+	_overlay_commands.append([method, args])
+	overlay.callv(method, args)

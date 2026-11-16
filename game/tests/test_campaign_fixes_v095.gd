@@ -54,7 +54,9 @@ func lifecycle_save(origin: String, label: String, pause: bool) -> void:
 		check(MobileApp.autosave(), label + ": pause autosave is admitted")
 		Game._notification(Node.NOTIFICATION_APPLICATION_PAUSED)
 	else:
-		Game._notification(Node.NOTIFICATION_WM_CLOSE_REQUEST)
+		# v0.100: the real WM-close handler quits the process on a successful
+		# close-save; probe its gate directly so this test can never end the runner.
+		check(Game.save_on_quit(), label + ": close-save succeeds")
 	var saved = JSON.parse_string(FileAccess.get_file_as_string(Game.SAVE_PATH))
 	check(bool(Game._save_status["last_ok"]) and saved is Dictionary and saved.get("location") == origin,
 		label + ": native lifecycle writer stores the origin")

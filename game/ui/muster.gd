@@ -112,6 +112,8 @@ func _queue_refresh() -> void:
 	call_deferred("_refresh")
 
 func _refresh() -> void:
+	if Game._day_job_wait_observer(_refresh):
+		return
 	_refresh_pending = false
 	if not is_node_ready(): return
 	var started: int = Time.get_ticks_usec()

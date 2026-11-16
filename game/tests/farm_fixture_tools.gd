@@ -2,10 +2,11 @@ extends RefCounted
 
 ## Controlled fixtures move existing productive cereal plots and actual animals.
 ## They never replace mirrors while leaving the physical books unchanged.
-func grain(e: Dictionary, owner: Dictionary, n: int) -> bool:
+func grain(e: Dictionary, owner: Dictionary, n: int, source_id: int = -1) -> bool:
 	var P: Dictionary = e["plots"]
 	CropRotation.ensure(e, P, float(e.get("day", 0)))
 	for source in e["fams"]:
+		if source_id >= 0 and int(source["id"]) != source_id: continue
 		if source == owner or int(source["land"].get("grain", 0)) < n: continue
 		var plots := []
 		for i in Plots.count(P):

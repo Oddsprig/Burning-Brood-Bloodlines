@@ -1,4 +1,5 @@
 extends RefCounted
+const SpeedParts = preload("res://tests/fixtures/older_speed_parts_v100.gd")
 var checks := 0
 var fails := 0
 func check(ok: bool, text: String) -> void:
@@ -72,6 +73,12 @@ func daily_and_buyer() -> void:
 	check(seen.size() >= 5, "ordinary production and purchase covered multiple generated cultures")
 
 func run(_tree: SceneTree) -> int:
+	var speed_part: String = SpeedParts.select(["controls","daily"])
+	if speed_part == "": return 1
+	if speed_part == "daily":
+		daily_and_buyer()
+		print("BUILDER PAYMENTS daily checks=", checks, " failures=", fails)
+		return fails
 	for culture in TownEcon.data()["cultures"]:
 		var rows := fixture(culture)
 		var e: Dictionary = rows[0]; var b: Dictionary = rows[1]; var m: Dictionary = rows[2]
@@ -103,6 +110,6 @@ func run(_tree: SceneTree) -> int:
 		stock_before = e["stock"].duplicate(); bp = float(b["till"]); mp = float(m["till"])
 		make(e, b, m)
 		check(int(e["stock"]["home"]) == 0 and e["stock"] == stock_before and float(b["till"]) == bp and float(m["till"]) == mp, culture + ": a market unable to pay the whole quote cannot take a discounted completed home")
-	daily_and_buyer()
+	if speed_part == "all": daily_and_buyer()
 	print("BUILDER PAYMENTS checks=", checks, " failures=", fails)
 	return fails

@@ -72,7 +72,7 @@ func _authentic_recipients() -> void:
 		else:
 			ordinary_count += 1
 			check(not f.get("gone", false) and String(target[1]) == "purse" and is_same(target[0], f), "ordinary recipient resolves to its own actual family purse")
-	check(not extinct_rows.is_empty(), "authentic checkpoint contains property-selected extinct wage recipients")
+	_living_household_invariant(recipients)
 	check(ordinary_count > 0, "authentic checkpoint contains ordinary live household recipients")
 	check(recipients.size() == Game.company.filter(func(u): return not u.dead and u.wage > 0).size(), "every living authentic wage recipient is accounted for")
 	check(Game.gold >= expected_paid, "authentic company can fund this complete native payroll")
@@ -107,8 +107,15 @@ func _unresolved_roster_order() -> void:
 	WorldGen.gen_size = "normal"
 	Game.new_game(4646046)
 	WorldGen.gen_size = previous_size
+	# The documented native start is unraised; obtain actual funded residents.
+	var home_id: String = DevTools.choose_house(Game)
+	var raised: int = DevTools.raise_army(Game, home_id, 12) if not home_id.is_empty() else 0
+	check(raised >= 2, "native funded muster supplies at least two real company residents")
+	if raised < 2:
+		return
 	var first: Unit = null
 	var second: Unit = null
+	var eligible: Array[Unit] = []
 	for candidate in Game.company:
 		var u: Unit = candidate as Unit
 		if u == null or u.dead or u.is_officer() or u.wage <= 0:
@@ -117,13 +124,51 @@ func _unresolved_roster_order() -> void:
 		var f: Dictionary = People.fam_of(town, u.family)
 		if not TownEcon.has_econ(town) or f.is_empty() or f.get("gone", false):
 			continue
-		if first == null:
-			first = u
-		elif u.wage == first.wage:
-			second = u
+		# Native muster mixes individually priced hires and equal-rate drafts.
+		# The first hire need not share a wage with any other resident.
+		for peer: Unit in eligible:
+			if peer.uid != u.uid and peer.rank == u.rank and peer.role == u.role and peer.wage == u.wage:
+				first = peer
+				second = u
+				break
+		if second != null:
 			break
+		eligible.append(u)
 	check(first != null and second != null, "fresh native company supplies two real nonofficers with identical positive wages")
 	if first == null or second == null:
+		var roster: Array[Dictionary] = []
+		for member: Unit in Game.company:
+			if member != null:
+				roster.append({"uid": member.uid, "dead": member.dead, "role": member.role, "rank": member.rank,
+					"wage": member.wage, "home_town": member.home_town, "family": member.family})
+		print("COMPANY_WAGES_PAIR_MISSING ", JSON.stringify({"raised": raised, "eligible": eligible.size(), "roster": roster}))
+		return
+	print("COMPANY_WAGES_PAIR ", JSON.stringify({"raised": raised, "first_uid": first.uid, "second_uid": second.uid,
+		"role": first.role, "rank": first.rank, "wage": first.wage}))
+	# Different soldiers can share a common-folk cohort purse. Give the accepted
+	# soldier his own household through the native transfer before snapshots;
+	# the unresolved soldier's former purse must still receive exactly nothing.
+	var pair_town: Dictionary = Game.world["towns"][second.home_town]
+	var first_household: Dictionary = People.fam_of(Game.world["towns"][first.home_town], first.family)
+	var second_household: Dictionary = People.fam_of(pair_town, second.family)
+	var shared_household: bool = is_same(first_household, second_household)
+	var pair_person: Array = Persons.by_uid(second_household, second.uid)
+	var pair_contract: Array = [second.uid, second.home_town, second.wage, second.rank, second.role]
+	var pair_holdings: float = Barge.holdings(Game)
+	var pair_coin: String = _coin_snapshot()
+	if shared_household:
+		second_household = Population.promote_ruler(Game, second)
+	var households_separate: bool = not first_household.is_empty() and not second_household.is_empty() and not is_same(first_household, second_household)
+	check(households_separate, "native household transfer separates accepted and unresolved wage purses")
+	var person_preserved: bool = not pair_person.is_empty() and is_same(Persons.by_uid(second_household, second.uid), pair_person) and ServiceIdentity.unit_person(pair_town["econ"], second_household, pair_person, second) and [second.uid, second.home_town, second.wage, second.rank, second.role] == pair_contract
+	check(person_preserved, "native household transfer preserves the actual soldier and his wage contract")
+	check(_close(Barge.holdings(Game), pair_holdings), "native household transfer conserves all coin holdings")
+	check(_coin_snapshot() == pair_coin, "native household transfer leaves the global coin ledger unchanged")
+	print("COMPANY_WAGES_HOUSEHOLDS ", JSON.stringify({"split_shared_household": shared_household,
+		"first_uid": first.uid, "first_home": first.home_town, "first_family": first.family,
+		"second_uid": second.uid, "second_home": second.home_town, "second_family": second.family,
+		"separate": households_separate, "person_preserved": person_preserved, "holdings_delta": Barge.holdings(Game) - pair_holdings}))
+	if not households_separate or not person_preserved:
 		return
 	var treasury: Dictionary = {}
 	for candidate in Game.world.get("towns", {}).values():
@@ -186,3 +231,18 @@ func run(_tree: SceneTree) -> int:
 	print("COMPANY_WAGES checks=", checks, " failures=", fails)
 	print("COMPANY_WAGES_AGGREGATE ", JSON.stringify({"checks": checks, "failures": fails, "authentic": authentic_stats, "unresolved": unresolved_stats, "native_payroll": true, "wage_tuning": false, "compensation_coins": false}))
 	return fails
+
+func _living_household_invariant(recipients: Array[Unit]) -> void:
+	# Families.extinct refuses a house's exact living company member (native rule).
+	# The unchanged payroll checks in _authentic_recipients then prove his wage is paid.
+	check(not recipients.is_empty(), "authentic checkpoint supplies a living soldier for the native extinction invariant")
+	for u: Unit in recipients:
+		var town: Dictionary = Game.world["towns"][u.home_town]
+		var family: Dictionary = People.fam_of(town, u.family)
+		var person: Array = Persons.by_uid(family, u.uid)
+		var linked: bool = not person.is_empty() and String(person[4]) == "company" and ServiceIdentity.unit_person(town["econ"], family, person, u) and Families.living_company_member(town["econ"], family)
+		check(linked, "protected recipient is this exact living native company soldier")
+		if not linked:
+			continue
+		Families.extinct(town["econ"], family, float(Game.day))
+		check(not bool(family.get("gone", false)) and not bool(family.get("extinct", false)), "native extinction keeps a living soldier's household active and not extinct")

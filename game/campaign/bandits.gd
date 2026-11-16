@@ -213,29 +213,140 @@ static func count_deserters(game) -> int:
 static func wants_deserters(game, rng: RandomNumberGenerator) -> bool:
 	return count_deserters(game) < int(Creatures.tun("max_deserters", 2)) and rng.randf() < float(Creatures.tun("deserter_chance", 0.12))
 
-## A few soldiers of a human faction walk off: same town, same faction, same gear, flagged deserter.
+## Hungry or unpaid serving soldiers break away; timed-out soldiers still go home through Army.desertion().
 static func spawn_deserters(game, rng: RandomNumberGenerator) -> String:
 	var w: Dictionary = game.world
 	var towns := []
-	for tid in w["towns"]:
-		var t: Dictionary = w["towns"][tid]
-		if DB.factions[t["faction"]]["race"] == "human" and not DB.factions[t["faction"]].get("player_hostile", false):
-			towns.append(tid)
+	var ids: Array = w["warbands"].keys()
+	ids.sort()
+	var roll: Dictionary = Army.state(w)["roll"]
+	var timeout: int = int(Army.A()["desert_days"])
+	for source_id: String in ids:
+		var source: Dictionary = w["warbands"][source_id]
+		var faction: String = str(source["faction"])
+		if not Army.is_field(source) or DB.factions[faction]["race"] != "human" or DB.factions[faction].get("player_hostile", false) or CampaignWorld.is_hostile(game, faction):
+			continue
+		var by_town: Dictionary = {}
+		for soldier: Unit in source["units"]:
+			if soldier.dead or soldier.unpaid_days >= timeout or (soldier.unpaid_days <= 0 and int(source.get("hungry", 0)) <= 0):
+				continue
+			var town: Dictionary = w["towns"].get(soldier.home_town, {})
+			var family: Dictionary = People.fam_of(town, soldier.family)
+			var person: Array = Persons.by_uid(family, soldier.uid)
+			var entry: Array = roll.get(str(soldier.uid), [])
+			if town.get("faction", "") != faction or soldier.faction != faction or family.is_empty() or family.get("gone", false):
+				continue
+			if person.is_empty() or str(person[4]) != "army" or entry.size() < 4 or str(entry[2]) != "army" or int(family.get("serve", {}).get("army", 0)) <= 0:
+				continue
+			if str(entry[0]) != soldier.home_town or int(entry[1]) != soldier.family:
+				continue
+			if not by_town.has(soldier.home_town):
+				by_town[soldier.home_town] = []
+			(by_town[soldier.home_town] as Array).append(soldier)
+		for town_id: String in by_town:
+			towns.append({"source": source, "home": town_id, "units": by_town[town_id]})
 	if towns.is_empty():
 		return ""
-	towns.sort()
-	var tid: String = towns[rng.randi() % towns.size()]
-	var t: Dictionary = w["towns"][tid]
+	var choice: Dictionary = towns[rng.randi() % towns.size()]
+	var source: Dictionary = choice["source"]
+	var t: Dictionary = w["towns"][choice["home"]]
+	var eligible: Array = choice["units"]
+	var leaving: Array = eligible.slice(0, mini(eligible.size(), rng.randi_range(3, 5)))
+	var original_men: int = Supplies.men(source)
+	var original_shares: float = Supplies.meal_shares(source)
+	if leaving.size() == original_men and Supplies.weight(Supplies.stores(source)) > Supplies.capacity(leaving.size()):
+		return ""   # a complete breakaway must be able to carry its actual load
 	var dir := Vector2.RIGHT.rotated(rng.randf() * TAU)
-	var pos: Vector2 = t["pos"] + dir * rng.randf_range(200.0, 340.0)
+	var pos: Vector2 = source["pos"]
 	var wid := CampaignWorld.spawn_warband(game, t["faction"], pos, rng.randi_range(3, 5), "deserter", rng,
-		{"home": tid, "deserter": true, "anchor": pos})
+		{"units": leaving, "home": choice["home"], "deserter": true, "anchor": pos + dir * rng.randf_range(200.0, 340.0), "deserted_from": source["id"], "hungry": int(source.get("hungry", 0))})
 	if wid == "":
-		return "" # nobody accepted: there is no band to name or announce
-	for u in w["warbands"][wid]["units"]:
-		u.title = "deserter " + u.title
+		return ""
+	var band: Dictionary = w["warbands"][wid]
+	var old_stores: Dictionary = Supplies.stores(source)
+	var new_stores: Dictionary = Supplies.stores(band)
+	if leaving.size() == original_men:
+		new_stores.merge(old_stores)
+		source["stores"] = {}
+	else:
+		var room: float = Supplies.capacity(leaving.size())
+		var goods: Dictionary = Goods.table()
+		for good: String in old_stores.keys():
+			var share: float = Supplies.meal_shares(band) / maxf(0.01, original_shares) if good in Supplies.FOOD else float(leaving.size()) / original_men
+			var kg: float = float(goods.get(good, {}).get("weight", 0.5))
+			var quantity: int = mini(int(floor(float(old_stores[good]) * share)), int(room / maxf(0.01, kg)))
+			if quantity <= 0:
+				continue
+			new_stores[good] = quantity
+			old_stores[good] = float(old_stores[good]) - quantity
+			if float(old_stores[good]) <= 0.0: old_stores.erase(good)
+			room -= quantity * kg
+	var moved: Dictionary = {}
+	for soldier: Unit in leaving:
+		moved[soldier.uid] = true
+		(source["units"] as Array).erase(soldier)
+		var family: Dictionary = People.fam_of(w["towns"][soldier.home_town], soldier.family)
+		var person: Array = Persons.by_uid(family, soldier.uid)
+		if soldier.unpaid_days > 0:
+			Persons.remember_unpaid(person, "army", soldier.unpaid_days, float(game.day), float(game.day) - Persons.served_since(person, "army"))
+		var service: Dictionary = family["serve"]
+		service["army"] = int(service["army"]) - 1
+		if int(service["army"]) <= 0: service.erase("army")
+		service["deserter"] = int(service.get("deserter", 0)) + 1
+		person[4] = "deserter"
+		Persons.log_life(person, float(game.day), "serve", "deserter")
+		(roll[str(soldier.uid)] as Array)[2] = "deserter"
+		soldier.title = "deserter " + soldier.title
+		Families.add_hist(family, "%s broke away from the army with a deserter band." % soldier.name, float(game.day))
+	for soldier: Unit in leaving:
+		if not moved.has(soldier.squad): soldier.squad = -1
+	if leaving.size() == original_men:
+		var faction: Dictionary = w["factions"][source["faction"]]
+		faction["treasury"] = float(faction["treasury"]) + float(source.get("gold", 0.0))
+		source["gold"] = 0.0
+	if (source["units"] as Array).is_empty():
+		CampaignWorld.remove_warband(game, str(source["id"]))
+	_detach_deserter_commands(game, str(band["faction"]), moved)
+	Army._band_unpaid(w, str(band["faction"]))
 	CampaignWorld.log_event(game, "Soldiers have deserted from %s." % t["name"])
 	return wid
+
+## Vacate old posts and shrink the existing command tree without raising or promoting replacement soldiers.
+static func _detach_deserter_commands(game: Variant, faction: String, moved: Dictionary) -> void:
+	var record: Dictionary = Army.rec(game.world, faction)
+	var remaining: Array = Army.members(game, faction)
+	var culture: Dictionary = Army.cul_of_faction(faction)
+	var span: int = maxi(2, int(culture.get("span", 5)))
+	var levels: int = mini(int(record["levels"]), Army.levels_for(remaining.size(), span, maxi(0, Army.ranks(culture, "army").size() - Army.first_officer("army"))))
+	var posts: Array = record["posts"]
+	var count: int = Army.offset(levels, span)
+	while posts.size() > count:
+		var old_uid: int = int(posts.pop_back())
+		for soldier: Unit in remaining:
+			if soldier.uid == old_uid: Army._demote(soldier)
+	for index: int in posts.size():
+		if moved.has(int(posts[index])): posts[index] = -1
+	record["levels"] = levels
+	var faction_record: Dictionary = game.world["factions"][faction]
+	if posts.is_empty() or moved.has(int(faction_record.get("war_leader", {}).get("uid", -1))): faction_record.erase("war_leader")
+	var fights: Array = []
+	for fight: Dictionary in record["fights"]:
+		if int(fight["p"]) >= posts.size(): continue
+		var candidates: Array = []
+		for uid: Variant in fight["c"]:
+			if not moved.has(int(uid)): candidates.append(uid)
+		fight["c"] = candidates
+		fights.append(fight)
+	record["fights"] = fights
+	Army._link_field_commands(game, faction)
+
+## Independent deserters have no sponsor; their meals still come out of their actual carried stores.
+static func deserters_day(game: Variant, day: int) -> void:
+	for band: Dictionary in game.world["warbands"].values():
+		if not band.get("deserter", false): continue
+		Supplies.eat(band)
+		# Only the band's actual purse can pay; its former faction is not a sponsor.
+		Horses.band_day(game, band, {"kind": "camp", "l": band}, day)
 
 static func deserter_target(game, wb: Dictionary, rng: RandomNumberGenerator) -> Vector2:
 	# keep away from home: wander the roads around where they fled to

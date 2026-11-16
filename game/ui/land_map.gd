@@ -121,10 +121,13 @@ static func compose(town: Dictionary, overlay: String, focus: int = -99) -> Dict
 	img.fill(BG)
 	var owners := owner_colours(e, P)
 	var vmax := 1
+	var values: PackedInt64Array = PackedInt64Array()
 	var worked := PackedByteArray()
 	if overlay == "VALUE":
+		values.resize(n)
 		for i in n:
-			vmax = maxi(vmax, Plots.value(e, P, i))
+			values[i] = Plots.value(e, P, i)
+			vmax = maxi(vmax, values[i])
 	elif overlay == "WORKED":
 		worked = Plots.worked_mask(e, P)
 	var use: PackedInt32Array = P["use"]
@@ -147,7 +150,7 @@ static func compose(town: Dictionary, overlay: String, focus: int = -99) -> Dict
 			"STATE":
 				img.blend_rect(_solid(Color(0.05, 0.05, 0.08, 0.62)), full, at)
 			"VALUE":
-				var v := Plots.value(e, P, i)
+				var v: int = values[i]
 				if v < 0:
 					img.blend_rect(_solid(Color(0.45, 0.45, 0.45, 0.7)), full, at)
 				else:
@@ -631,6 +634,8 @@ class MapView extends Control:
 	var zoom := 1.5
 	var off := Vector2.ZERO
 	var tex: ImageTexture
+	var _map_sprite: Sprite2D
+	var _annotations: Node2D
 	var chips := {}
 	var card_box: VBoxContainer
 	var strip: HFlowContainer
@@ -641,13 +646,47 @@ class MapView extends Control:
 	var _pinch := 0.0
 	var _centred := false
 
+	# Keep the texture's canvas command resident; dragging changes only its transform.
+	# Annotations stay in view coordinates: 15 px type and a 3 px selection edge.
+	func _ensure_canvas() -> void:
+		if _map_sprite != null:
+			return
+		_map_sprite = Sprite2D.new()
+		_map_sprite.name = "LandMapTexture"
+		_map_sprite.centered = false
+		add_child(_map_sprite)
+		_annotations = Node2D.new()
+		_annotations.name = "LandMapAnnotations"
+		_annotations.draw.connect(_draw_annotations)
+		add_child(_annotations)
+
+	func _move_canvas() -> void:
+		if Game._day_job_wait_observer(_move_canvas):
+			return
+		if _map_sprite == null or tex == null:
+			return
+		_map_sprite.position = off
+		_map_sprite.scale = map_px() * zoom / Vector2(tex.get_size())
+		_annotations.visible = overlay == "STATE" or sel >= 0
+		if _annotations.visible:
+			_annotations.queue_redraw()
+
 	func rebuild() -> void:
+		if Game._day_job_wait_observer(rebuild):
+			return
 		var t0 := Time.get_ticks_usec()
 		var r := LandMap.compose(town, overlay, focus)
+		var image: Image = r["img"]
 		if tex == null:
 			tex = ImageTexture.create_from_image(r["img"])
+		elif tex.get_size() == Vector2(image.get_size()):
+			# compose always produces RGBA8 without mipmaps; keep same-size storage.
+			tex.update(image)
 		else:
 			tex.set_image(r["img"])
+		_ensure_canvas()
+		_map_sprite.texture = tex
+		_move_canvas()
 		compose_ms = float(Time.get_ticks_usec() - t0) / 1000.0
 		_fill_strip()
 		queue_redraw()
@@ -668,6 +707,8 @@ class MapView extends Control:
 		return Vector2(int(P["gw"]) * LandMap.TILE, int(P["gh"]) * LandMap.TILE)
 
 	func centre() -> void:
+		if Game._day_job_wait_observer(centre):
+			return
 		var m := map_px()
 		if size.x <= 1.0 or size.y <= 1.0:
 			return
@@ -675,15 +716,22 @@ class MapView extends Control:
 		zoom = maxf(zoom, minf(1.5, 48.0 / LandMap.TILE))   # phone: 32 px art at 48 px, the map then pans
 		off = (size - m * zoom) * 0.5
 		_centred = true
+		_move_canvas()
 		queue_redraw()
 
 	func _draw() -> void:
+		if Game._day_job_wait_observer(queue_redraw):
+			return
 		draw_rect(Rect2(Vector2.ZERO, size), LandMap.BG)
 		if tex == null:
 			return
 		if not _centred:
 			centre()
-		draw_texture_rect(tex, Rect2(off, map_px() * zoom), false)
+		_move_canvas()
+
+	func _draw_annotations() -> void:
+		if Game._day_job_wait_observer(_annotations.queue_redraw):
+			return
 		var P := Plots.of(town)
 		var ts := LandMap.TILE * zoom
 		if overlay == "STATE":
@@ -693,10 +741,10 @@ class MapView extends Control:
 				if p < 0:
 					continue
 				var at := off + Vector2(int(P["x"][p]), int(P["y"][p])) * ts
-				draw_string(f, at + Vector2(0, ts + 16), LandMap._cap(String(b["n"])), HORIZONTAL_ALIGNMENT_LEFT, -1, 15, LandMap.GOLD)
+				_annotations.draw_string(f, at + Vector2(0, ts + 16), LandMap._cap(String(b["n"])), HORIZONTAL_ALIGNMENT_LEFT, -1, 15, LandMap.GOLD)
 		if sel >= 0 and sel < Plots.count(P):
 			var at2 := off + Vector2(int(P["x"][sel]), int(P["y"][sel])) * ts
-			draw_rect(Rect2(at2, Vector2(ts, ts)), Color(1, 1, 1), false, 3.0)
+			_annotations.draw_rect(Rect2(at2, Vector2(ts, ts)), Color(1, 1, 1), false, 3.0)
 
 	func plot_at(pos: Vector2) -> int:
 		var P := Plots.of(town)
@@ -709,12 +757,12 @@ class MapView extends Control:
 		var nz := clampf(zoom * factor, 0.3, 5.0)
 		off = pos - (pos - off) * (nz / zoom)
 		zoom = nz
-		queue_redraw()
+		_move_canvas()
 
 	func tap(pos: Vector2) -> void:
 		sel = plot_at(pos)
 		show_card(sel)
-		queue_redraw()
+		_move_canvas()
 
 	func _gui_input(ev: InputEvent) -> void:
 		if ev is InputEventMouseButton:
@@ -738,7 +786,7 @@ class MapView extends Control:
 			var mm := ev as InputEventMouseMotion
 			off += mm.relative
 			_moved += mm.relative.length()
-			queue_redraw()
+			_move_canvas()
 			accept_event()
 		elif ev is InputEventScreenTouch:
 			var st := ev as InputEventScreenTouch
@@ -760,7 +808,7 @@ class MapView extends Control:
 			elif not _down:
 				off += sd.relative
 				_moved += sd.relative.length()
-				queue_redraw()
+				_move_canvas()
 				accept_event()
 		elif ev is InputEventMagnifyGesture:
 			var mg := ev as InputEventMagnifyGesture
@@ -768,7 +816,7 @@ class MapView extends Control:
 			accept_event()
 		elif ev is InputEventPanGesture:
 			off -= (ev as InputEventPanGesture).delta * 8.0
-			queue_redraw()
+			_move_canvas()
 			accept_event()
 
 	func _pinch_dist() -> float:
@@ -801,10 +849,12 @@ class MapView extends Control:
 	func select(p: int) -> void:
 		sel = p
 		show_card(p)
-		queue_redraw()
+		_move_canvas()
 
 	## The plot card (or, with nothing picked, the "Town buildings" card).
 	func show_card(i: int) -> void:
+		if Game._day_job_wait_observer(show_card.bind(i)):
+			return
 		if card_box == null:
 			return
 		UiKit.clear(card_box)

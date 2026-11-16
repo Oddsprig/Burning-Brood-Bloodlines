@@ -141,6 +141,8 @@ func show_tab(t: String) -> void:
 	_build_sheet()
 
 func refresh() -> void:
+	if Game._day_job_wait_observer(refresh):
+		return
 	purse.text = UiKit.purse_text(Game)
 	purse.tooltip_text = "Day, coins on hand (%s in short; the full sum is shown) and daily wages." % UiKit.compact_coins(Game.gold)
 	_build_provisions()

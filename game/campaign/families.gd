@@ -77,6 +77,8 @@ static func adults(f: Dictionary) -> int:
 
 ## Members away in service (People.draw: militia, caravan crews, later armies).
 static func serving(f: Dictionary) -> int:
+	var sweep_row: Dictionary = TownSweep.row(f)
+	if not sweep_row.is_empty(): return int(sweep_row["serving"])
 	var n := 0
 	var sv: Dictionary = f.get("serve", {})
 	for k in sv:
@@ -471,6 +473,41 @@ static func _refresh_worked_with(e: Dictionary, f: Dictionary, need: float, help
 	var own_output: float = 1.0 if estate else Barge.output_mult(int(f.get("hungry", 0)))
 	set_worked(e, f, clampf(((float(own) + helpers) * own_output + hired) / need, 0.0, 1.0))
 
+# Ordered reverse membership, maintained by set_job. Counts, hunger and dated
+# sickness are read live; only families with a positive assignment are indexed.
+# Appended households invalidate the index before it can be used.
+static func _field_workers(e: Dictionary) -> Dictionary:
+	var fams: Array = e.get("fams", [])
+	if int(e.get("_field_worker_count", -1)) == fams.size() and e.get("_field_worker_index") is Dictionary:
+		return e["_field_worker_index"]
+	var prior_count: int = int(e.get("_field_worker_count", -1))
+	var append_only: bool = prior_count >= 0 and prior_count <= fams.size() and e.get("_field_worker_index") is Dictionary
+	var index: Dictionary = e["_field_worker_index"] if append_only else {}
+	for at: int in range(prior_count if append_only else 0, fams.size()):
+		var worker: Dictionary = fams[at]
+		var jobs: Dictionary = worker.get("jobs", {})
+		for key: Variant in jobs:
+			if int(jobs[key]) <= 0: continue
+			if not index.has(key): index[key] = []
+			(index[key] as Array).append(at)
+	e["_field_worker_index"] = index
+	e["_field_worker_count"] = fams.size()
+	return index
+
+static func _field_job_changed(e: Dictionary, f: Dictionary, key: String, old: int, now: int) -> void:
+	if (old > 0) == (now > 0): return
+	if not e.get("_field_worker_index") is Dictionary: return
+	var index: Dictionary = _field_workers(e)
+	var fid: int = int(f["id"])
+	var holders: Array = index.get(key, [])
+	var at: int = holders.bsearch(fid)
+	if now > 0:
+		if at >= holders.size() or int(holders[at]) != fid: holders.insert(at, fid)
+		index[key] = holders
+	elif at < holders.size() and int(holders[at]) == fid:
+		holders.remove_at(at)
+		if holders.is_empty(): index.erase(key)
+
 ## The employer's hunger cannot disable another household's workers. Bedridden
 ## named employees remain assigned and retain their dated wage accounting.
 static func field_hands(e: Dictionary, b: Dictionary) -> float:
@@ -478,7 +515,10 @@ static func field_hands(e: Dictionary, b: Dictionary) -> float:
 	if hands <= 0.0: return 0.0
 	var day: float = float(e.get("day", 0))
 	var key: String = str(int(b["id"]))
-	for worker in e.get("fams", []):
+	var fams: Array = e.get("fams", [])
+	var index: Dictionary = _field_workers(e)
+	for family_at: Variant in index.get(key, []):
+		var worker: Dictionary = fams[int(family_at)]
 		var n: int = int(worker.get("jobs", {}).get(key, 0))
 		if n <= 0: continue
 		var bed: int = 0
@@ -505,11 +545,13 @@ static func set_job(e: Dictionary, f: Dictionary, bid: int, n: int) -> void:
 		b["staff_left_day"] = int(e.get("day", 0))
 		WageClaims.pay_business(e, f, b)
 	b["workers"] = maxi(0, int(b["workers"]) + n - cur)
+	TownSweep.hiring_changed(e)
 	e["open_n"] = maxi(0, int(e.get("open_n", 0)) - (n - cur))
 	if n <= 0:
 		f["jobs"].erase(k)
 	else:
 		f["jobs"][k] = n
+	_field_job_changed(e, f, k, cur, n)
 	# A hired hand's turn is independent of the landowner's. Waiting for the
 	# owner's next reassignment left newly staffed or vacated fields stale.
 	var owner := int(b.get("owner", -1))
@@ -613,6 +655,7 @@ static func _reassign_with(e: Dictionary, f: Dictionary, work_in: Dictionary, he
 		var fb: Dictionary = biz[int(f["farm"])]
 		var old_cap := int(fb["cap"])
 		fb["cap"] = maxi(0, int(ceil(hneed - float(own) - helpers - 0.3)))
+		if int(fb["cap"]) != old_cap: TownSweep.hiring_changed(e)
 		if int(fb["cap"]) > old_cap:
 			var funded: float = Businesses.fund_farm(f, fb, e)
 			if funded > 0.0:
@@ -621,6 +664,7 @@ static func _reassign_with(e: Dictionary, f: Dictionary, work_in: Dictionary, he
 	f["assigned_need"] = need
 	f["assigned_crop_year"] = Calendar.year(float(e.get("day", 0)))
 	_refresh_worked_with(e, f, need, helpers)
+	Population.staff(e, f)
 
 ## v0.014 (town spec 08: "every business is held by a real family member and family"; barge part 3 section 4: "a
 ## family shop counts its keeper"): one grown-up of the family keeps and works each of its open shops (not its farm),
@@ -631,6 +675,8 @@ static func _reassign_with(e: Dictionary, f: Dictionary, work_in: Dictionary, he
 ## their upkeep, and then nobody would sign on at an empty till: Fenmere's 0-coin, 0/1 shops beside 46 idle.)
 static func _keep(e: Dictionary, f: Dictionary, ad: int) -> int:
 	var biz: Array = e["biz"]
+	if not f.has("pp") and not Population.is_cohort(f): Persons.sync(e, f, float(e.get("day", 0)))
+	ad = mini(ad, Population.home_worker_count(f) + Population.anonymous(f, 0) + Population.anonymous(f, 1))
 	if adults(f) <= 0:
 		_heirless(e, f)
 	var keeps := []
@@ -642,7 +688,7 @@ static func _keep(e: Dictionary, f: Dictionary, ad: int) -> int:
 		if keeps.size() < ad:
 			keeps.append(int(bid))
 	for bid in f.get("keeps", []):
-		if int(bid) < biz.size() and not keeps.has(int(bid)):
+		if int(bid) < biz.size() and int(biz[int(bid)]["owner"]) == int(f["id"]) and not keeps.has(int(bid)):
 			if String(biz[int(bid)]["type"]) == "herder" and int(biz[int(bid)].get("kw", 0)) != 0: herder_changed = true
 			biz[int(bid)]["kw"] = 0
 	for bid in keeps:
@@ -651,6 +697,7 @@ static func _keep(e: Dictionary, f: Dictionary, ad: int) -> int:
 	f["keeps"] = keeps
 	if herder_changed:
 		Herds._herder_caps(e)
+		TownSweep.hiring_changed(e)
 		Businesses.refresh_hiring(e)
 	return keeps.size()
 
@@ -681,8 +728,9 @@ static func keeps_stale(e: Dictionary, f: Dictionary) -> bool:
 		var kb: Dictionary = e["biz"][int(bid)]
 		if kb.get("closed", false) or int(kb["owner"]) != int(f["id"]) or int(kb.get("kw", 0)) <= 0:
 			return true   # closed, sold or a claimed keeper no longer at work
-	if keeps.size() >= adults(f) - serving(f):
-		return keeps.size() > adults(f) - serving(f)   # fewer grown-ups at home than keepers
+	var available: int = mini(maxi(0, adults(f) - serving(f)), Population.home_worker_count(f) + Population.anonymous(f, 0) + Population.anonymous(f, 1))
+	if keeps.size() >= available:
+		return keeps.size() > available   # fewer grown-ups at home than keepers
 	for bid in f["owns"]:
 		var b: Dictionary = e["biz"][int(bid)]
 		if not b.get("closed", false) and String(b["type"]) != "farm" and int(b["owner"]) == int(f["id"]) and not keeps.has(int(bid)):
@@ -721,6 +769,8 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 	var held_scored: bool = held_total == 0
 	var changed: bool = held_total > slots
 	var open_ids: Array = e.get("open", [])
+	var open_quotes: Dictionary = {}
+	var customer_quotes: Dictionary = {}
 	if not changed:
 		var open_max: PackedFloat64Array = Businesses.open_suffix_max(e)
 		var has_suf: bool = open_max.size() == open_ids.size()
@@ -756,6 +806,7 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 					continue
 			var open: int = Businesses.takeable(b, e)
 			if String(b["type"]) == "academy": open = mini(open, Academy.hiring_places(e, f, b))
+			open_quotes[bid] = open
 			if open > 0:
 				changed = true
 				break
@@ -803,7 +854,8 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 				elif payer == "customers":
 					var need_funds: float = (float(places) + used) * week_w
 					if cust_funds < need_funds and not cust_exact:
-						cust_funds = _customer_funds_up_to(e, need_funds)
+						cust_funds = float(customer_quotes[need_funds]) if customer_quotes.has(need_funds) else _customer_funds_up_to(e, need_funds)
+						customer_quotes[need_funds] = cust_funds
 						if cust_funds < need_funds:
 							cust_exact = true
 					funds = cust_funds
@@ -819,7 +871,7 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 		if Population.is_cohort(f) and not Academy.biz_of(e).is_empty() and f["jobs"].has(str(int(e["academy"]))):
 			var academy_bid := int(e["academy"])
 			var research_key := str(academy_bid)
-			if Academy._named_places(Persons.work(e, f), academy_bid) != int(f["jobs"][research_key]):
+			if Academy._named_places(Academy._research_work(e, f), academy_bid) != int(f["jobs"][research_key]):
 				set_job(e, f, academy_bid, 0)
 				return job_total(f)
 		return held_total
@@ -829,19 +881,30 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 	for k in f["jobs"]:
 		var b: Dictionary = biz[int(k)]
 		var held_score: float = _pay_score(e, b, known)
-		for _i in int(f["jobs"][k]):
-			cand.append([held_score, int(k), 1])
+		if int(f["jobs"][k]) <= 0: continue
+		# v0.100: entries are read-only; share one per offer instead of allocating per worker.
+		# Keep every slot and its order so the native sort's equal-score choices stay exact.
+		var held_place := [held_score, int(k), 1]
+		held_place.make_read_only()   # v0.100: shared offer entries must reject mutation.
+		var repeated_slots: Array = []
+		repeated_slots.resize(int(f["jobs"][k]))
+		repeated_slots.fill(held_place)
+		cand.append_array(repeated_slots)
 	for bid in open_ids:
 		var b: Dictionary = biz[int(bid)]
 		if b.get("closed", false):
 			continue
-		var open: int = Businesses.takeable(b, e)
-		if String(b["type"]) == "academy": open = mini(open, Academy.hiring_places(e, f, b))
+		var open: int = int(open_quotes[int(bid)]) if open_quotes.has(int(bid)) else Businesses.takeable(b, e)
+		if not open_quotes.has(int(bid)) and String(b["type"]) == "academy": open = mini(open, Academy.hiring_places(e, f, b))
 		if open <= 0:
 			continue   # nobody signs on where the till is empty
 		var sc: float = _pay_score(e, b, known)
-		for _i in mini(open, slots):
-			cand.append([sc, int(bid), 0])
+		var open_place := [sc, int(bid), 0]
+		open_place.make_read_only()   # v0.100: the same entry is shared by every offered slot.
+		var repeated_slots: Array = []
+		repeated_slots.resize(mini(open, slots))
+		repeated_slots.fill(open_place)
+		cand.append_array(repeated_slots)
 	if has_casual:
 		var cj_defs: Dictionary = TownEcon.data()["casual_jobs"]
 		var cjused: Dictionary = e.get("cjused", {})
@@ -865,16 +928,28 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 			elif payer == "customers":
 				var need_funds: float = (float(places) + used) * week_w
 				if cust_funds < need_funds and not cust_exact:
-					cust_funds = _customer_funds_up_to(e, need_funds)
+					cust_funds = float(customer_quotes[need_funds]) if customer_quotes.has(need_funds) else _customer_funds_up_to(e, need_funds)
+					customer_quotes[need_funds] = cust_funds
 					if cust_funds < need_funds:
 						cust_exact = true
 				funds = cust_funds
 			else:
 				funds = float((biz[int(e["mkt"])] as Dictionary)["till"])
 			var available: int = mini(places, maxi(0, int(floor(funds / week_w - used + 0.00001))))
-			for _i in mini(available, slots):
-				cand.append([cw, -ci - 1, 0])
-	cand.sort_custom(func(a, b2): return float(a[0]) > float(b2[0]) if float(a[0]) != float(b2[0]) else int(a[2]) > int(b2[2]))
+			if available <= 0: continue
+			var casual_place := [cw, -ci - 1, 0]
+			casual_place.make_read_only()   # v0.100: consumers only sort/read the shared entry.
+			var repeated_slots: Array = []
+			repeated_slots.resize(mini(available, slots))
+			repeated_slots.fill(casual_place)
+			cand.append_array(repeated_slots)
+	var sort_memo: Array = e.get("_place_sort_memo", [])
+	if sort_memo.size() == 2 and cand == sort_memo[0]:
+		cand = sort_memo[1]
+	else:
+		var sort_input: Array = cand.duplicate()
+		cand.sort_custom(func(a, b2): return float(a[0]) > float(b2[0]) if float(a[0]) != float(b2[0]) else int(a[2]) > int(b2[2]))
+		e["_place_sort_memo"] = [sort_input, cand]
 	var want := {}
 	var casual := {}
 	var casual_total := 0
@@ -890,13 +965,16 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 	if Population.is_cohort(f) and not Academy.biz_of(e).is_empty() and want.has(str(int(e["academy"]))):
 		var academy_bid := int(e["academy"])
 		var research_key := str(academy_bid)
-		var prospective_family := f.duplicate(true)
-		var prospective_jobs: Dictionary = prospective_family["jobs"]
+		# Persons.work reads nested register/history rows; only this proposed
+		# jobs dictionary is mutated. Keep all live assignment state private.
+		var prospective_family: Dictionary = f.duplicate()
+		var prospective_jobs: Dictionary = (f["jobs"] as Dictionary).duplicate()
+		prospective_family["jobs"] = prospective_jobs
 		for held_key in prospective_jobs.keys():
 			if not want.has(held_key): prospective_jobs.erase(held_key)
 		for wanted_key in want:
 			prospective_jobs[wanted_key] = int(want[wanted_key])
-		if Academy._named_places(Persons.work(e, prospective_family), academy_bid) != int(want[research_key]):
+		if Academy._named_places(Academy._research_work(e, prospective_family), academy_bid) != int(want[research_key]):
 			want.erase(research_key)
 	for k in f["jobs"].keys():
 		if not want.has(k):
@@ -909,6 +987,8 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 	return job_total(f) + casual_total
 
 static func _customer_funds_up_to(e: Dictionary, cap_funds: float) -> float:
+	var sweep_funds: Array = TownSweep.customer_funds(e, cap_funds)
+	if not sweep_funds.is_empty(): return float(sweep_funds[0])
 	var funds: float = 0.0
 	for b in e["biz"]:
 		if not b.get("closed", false):
@@ -950,6 +1030,8 @@ static func _pay_score(e: Dictionary, b: Dictionary, known: Dictionary) -> float
 
 ## The work titles the family's grown-ups have held (their current place and their life histories).
 static func _known_trades(_e: Dictionary, f: Dictionary) -> Dictionary:
+	var sweep_row: Dictionary = TownSweep.row(f)
+	if not sweep_row.is_empty(): return TownSweep.known(sweep_row)
 	var out := {}
 	for p in f.get("pp", []):
 		if p.size() > Persons.JOB and String(p[Persons.JOB]) != "":
@@ -1009,7 +1091,8 @@ static func _to_trades(e: Dictionary, f: Dictionary, own: int, ad: int, need: fl
 			var wage := float(b["wage"])
 			pay[wage] = int(pay.get(wage, 0)) + n
 			places += n
-	for bid in e.get("open", []):
+	var sweep_offers: Array = TownSweep.trade_offers(e)
+	for bid: Variant in (e.get("open", []) if sweep_offers.is_empty() else []):
 		var b: Dictionary = biz[int(bid)]
 		if String(b["type"]) in field_types or b.get("closed", false):
 			continue
@@ -1020,6 +1103,11 @@ static func _to_trades(e: Dictionary, f: Dictionary, own: int, ad: int, need: fl
 		var wage := float(b["wage"])
 		pay[wage] = int(pay.get(wage, 0)) + count
 		places += count
+	for offer: Array in ([] if sweep_offers.is_empty() else sweep_offers[0]):
+		var sweep_count: int = mini(int(offer[1]), own)
+		var sweep_wage: float = float(offer[0])
+		pay[sweep_wage] = int(pay.get(sweep_wage, 0)) + sweep_count
+		places += sweep_count
 	var k0 := ad - own
 	if places <= k0:
 		return 0
@@ -1045,8 +1133,27 @@ static func match_idle(e: Dictionary) -> void:
 				funded = true; break
 	if not funded: return
 	for f in e["fams"]:
-		if not f.get("gone", false) and not f.get("estate", false) and int(f.get("idle", 0)) > 0:
-			reassign(e, f)
+		if match_idle_household(e, f):
+			return
+
+## Shared by native matching and the frame-budgeted CampaignTurnJob driver.
+## True means this household filled the last funded offer: stop before the next.
+static func match_idle_household(e: Dictionary, f: Dictionary) -> bool:
+	if not f.get("gone", false) and not f.get("estate", false) and int(f.get("idle", 0)) > 0:
+		reassign(e, f)
+		# The last offer may have just filled. A later household's full
+		# reassignment would release its existing casual places even though
+		# no funded vacancy remains for any of its idle adults.
+		var funded: bool = false
+		for business: Dictionary in e["biz"]:
+			if Businesses.takeable(business, e) > 0:
+				funded = true; break
+		if not funded:
+			for casual_job: String in e.get("cjcap", {}):
+				if _available_casual(e, casual_job) > 0:
+					funded = true; break
+		return not funded
+	return false
 
 ## Generation: everyone finds work in family order.
 static func assign_all(e: Dictionary) -> void:
@@ -1274,6 +1381,8 @@ static func _ruler_to_seat(game, town: Dictionary, e: Dictionary, f: Dictionary)
 		return
 	var scale := TownEcon.COIN * float(int(town.get("size", 0)) + 1)
 	var spare: float = minf(float(f["purse"]) - RULER_KEEP * scale, HouseUpkeep.spend_room(e, f))
+	# The public payroll quote is pure; a house with no surplus cannot fund it.
+	if spare <= 0.0: return
 	var room: float = Barge.treasury_target(game, town, e) - float(e["treasury"])
 	if spare <= 0.0 or room <= 0.0:
 		return
@@ -1439,6 +1548,25 @@ static func _people(town: Dictionary, e: Dictionary, f: Dictionary, cul: Diction
 	# lifespan, died "of old age" as fast as a human of 60; orcs and goblins, with 15 and 10, too slowly)
 	var ab := People.ages(Persons.race_of(e))
 	var po := float(old) * 7.0 / (ELDER_MEAN * maxf(1.0, float(ab["lifespan"]) - float(ab["elder"])) * yd)
+	# Mixed households assign each eligible home elder's rate to that same person.
+	# Intervals follow pp order; all homogeneous elders keep the original oldest-victim policy.
+	var elder_intervals: Array = []
+	if rec:
+		var elder_rate: float = 0.0
+		var own_biology: bool = false
+		var first_elder_race: String = ""
+		var mixed_elders: bool = false
+		for elder: Array in Persons.pp(f):
+			if int(elder[6]) != 1 or (str(elder[4]) != "" and Persons._private_home_reserve(e, f, elder) == null): continue
+			var elder_race: String = Persons.person_race(e, f, elder)
+			if first_elder_race == "": first_elder_race = elder_race
+			elif elder_race != first_elder_race: mixed_elders = true
+			var elder_ages: Dictionary = People.ages(elder_race)
+			own_biology = own_biology or elder_race != Persons.race_of(e)
+			elder_rate += 7.0 / (ELDER_MEAN * maxf(1.0, float(elder_ages["lifespan"]) - float(elder_ages["elder"])) * yd)
+			elder_intervals.append([elder, elder_rate])
+		if own_biology: po = elder_rate
+		if not mixed_elders: elder_intervals.clear()
 	var r := rng.randf() / ev_mult if ev_mult > 0.0 else 99.0   # pre-rolled in the turn: events x ev_mult likely here
 	if r < pb + pk + pa + po:
 		if r < pb:
@@ -1457,6 +1585,10 @@ static func _people(town: Dictionary, e: Dictionary, f: Dictionary, cul: Diction
 				reassign(e, f)
 		elif Persons.can_lose(f, 2):
 			var el: Array = Persons.oldest_elder(f) if rec else []
+			for interval: Array in elder_intervals:
+				if r < pb + pk + pa + float(interval[1]):
+					el = interval[0]
+					break
 			if not el.is_empty():
 				Persons.die_elder(e, f, el, day)
 			else:
@@ -1581,6 +1713,7 @@ static func extinct(e: Dictionary, f: Dictionary, day: float) -> void:
 		e["treasury"] = float(e["treasury"]) + cash
 	f["gone"] = true
 	f["extinct"] = true
+	TownSweep.hiring_changed(e)
 	Dynasty.note_households_changed()
 	add_hist(f, "The house died out; its property passed to the %s." % e.get("head", {}).get("title", "head"), day)
 	TownEcon.town_hist(e, "The %s house died out; the %s took its property." % [f["name"], e.get("head", {}).get("title", "head")], day)
@@ -1983,16 +2116,17 @@ static func herd_line(f: Dictionary) -> String:
 	return "Herds: " + (", ".join(PackedStringArray(hl)) if not hl.is_empty() else "none") + "."
 
 ## "Work: Doran: cattle herder on the family herd; Ivo: tax collector's man at the tax office (21 gold a week);
-## Edda: out of work." Every grown-up by name with the place he really holds (Persons.work) or his service.
+## Edda: out of work." Every grown-up and working child by name with the place held (Persons.work) or service.
 static func work_line(e: Dictionary, f: Dictionary) -> String:
 	if not f.has("pp"):
 		return "Work: %d on the family land, %d at work, %d without work." % [int(f["hands"]), job_total(f), int(f["idle"])]
 	var parts := []
 	for m in Persons.household(e, f, float(e.get("day", 0))):
-		if m["kind"] in ["boy", "girl", "elder"]:
+		if m["kind"] == "elder" or (m["kind"] in ["boy", "girl"] and int(m["wage"]) < 0):
 			continue
-		var wage := int(m["wage"])
-		parts.append("%s: %s%s" % [m["first"], m["work"], (" (%d coins a week)" % wage) if wage >= 0 else ""])
+		var wage: int = int(m["wage"])
+		var work: String = String(m["work"]).trim_prefix("child; ")
+		parts.append("%s: %s%s" % [m["first"], work, (" (%d coins a week)" % wage) if wage >= 0 else ""])
 	return "Work: " + ("; ".join(PackedStringArray(parts)) if not parts.is_empty() else "nobody of working age at home") + "."
 
 ## One household for the register list (filters and sorting on the Town screen): {fid, household, class, people,

@@ -1,11 +1,14 @@
 extends RefCounted
+const SpeedParts = preload("res://tests/fixtures/older_speed_parts_v100.gd")
 ## Independent data-contract and native integration checks for every Records view.
 ## Frozen handlers preserve the prior row oracle while live shared readers stay pure.
 const V040 := preload("res://tests/fixtures/records_v040_world.gd")
+const UI := preload("res://tests/fixtures/ui_contract_v100.gd")
 const TOWN := ["Overview", "Market", "Businesses", "Register", "Land & Homes", "Census", "Treasury", "Hardship", "Garrison", "Roads", "Sickness", "Books"]
 const WORLD := ["Towns", "Factions", "Rulers", "On the move", "Goods", "Food flows", "Fights", "Mines & land", "Merchants", "Census"]
 const FACTION := ["Towns", "Army", "Factions", "Rulers", "On the move", "Goods", "Food flows", "Fights", "Mines & land", "Merchants", "Census"]
 var tree: SceneTree
+var _speed_scope: String = "all"
 var checks := 0
 var fails := 0
 var fit
@@ -36,6 +39,9 @@ func check(ok: bool, why: String) -> void:
 		printerr("FAIL: ", why)
 
 func run(st: SceneTree) -> int:
+	var speed_part: String = SpeedParts.select(["town-wide","world-wide","faction-wide","town-tall","world-tall","faction-tall","sparse"])
+	if speed_part == "": return 1
+	_speed_scope = speed_part.get_slice("-", 0)
 	tree = st
 	await tree.process_frame
 	Game.new_game(40041)
@@ -50,9 +56,12 @@ func run(st: SceneTree) -> int:
 	fit.tree = tree
 	diagnostic = load("res://tests/test_ui_records_v040.gd").new()
 	for size in [Vector2i(1280, 720), Vector2i(720, 1280)]:
+		var orientation: String = "wide" if size.x > size.y else "tall"
+		if speed_part != "all" and not speed_part.ends_with(orientation): continue
 		await _all_views(size, tid, fid)
-	_sparse_world(tid, fid)
-	_sparse_people(tid)
+	if SpeedParts.includes(speed_part, "sparse"):
+		_sparse_world(tid, fid)
+		_sparse_people(tid)
 	_pure("all integration checks")
 	Game.location = ""
 	print("RECORDS v041 checks=", checks, " failures=", fails, " fit_failures=", fit.fails)
@@ -60,6 +69,7 @@ func run(st: SceneTree) -> int:
 
 ## Focused entry point for the exact same sparse readers used by the full matrix.
 func run_sparse(st: SceneTree) -> int:
+	_speed_scope = "all"
 	tree = st
 	await tree.process_frame
 	var previous_location := Game.location
@@ -86,6 +96,7 @@ func _all_views(size: Vector2i, tid: String, fid: String) -> void:
 	tree.root.add_child(viewport)
 	# Each view uses an actual saved deep link, including its non-default tab.
 	for scope in [["town", tid, "Books", TOWN], ["world", "", "Merchants", WORLD], ["faction", fid, "Army", FACTION]]:
+		if _speed_scope != "all" and _speed_scope != str(scope[0]): continue
 		Game.screen_params = {"view": scope[0], "id": scope[1], "tab": scope[2], "back": "map"}
 		var screen: Control = load("res://ui/records.tscn").instantiate()
 		viewport.add_child(screen)
@@ -93,10 +104,10 @@ func _all_views(size: Vector2i, tid: String, fid: String) -> void:
 		check(screen.view == scope[0] and screen.sel == scope[1] and screen.tab == scope[2], "saved deep link restores exact " + String(scope[0]) + " view/id/tab")
 		check(screen.tabs() == scope[3], "every original " + String(scope[0]) + " tab key remains reachable")
 		for section in scope[3]:
-			var action := _button(screen.tabs_box, String(section))
-			check(action != null, "native wrapped navigation exposes " + String(scope[0]) + "/" + String(section))
-			if action == null: continue
-			action.pressed.emit()
+			# v0.100: every section remains reachable through the categories in 6210641.
+			var navigated := UI.navigate(screen, String(section))
+			check(navigated, "native category navigation exposes " + String(scope[0]) + "/" + String(section))
+			if not navigated: continue
 			await _settle()
 			var context := String(scope[0]) + "/" + String(section) + " " + str(size)
 			check(screen.tab == section, "native navigation selects " + context)
@@ -393,7 +404,10 @@ func _row_title(node: Node, title: String) -> Button:
 
 func _navigation_fits(screen: Control) -> bool:
 	var bounds: Rect2 = screen.tabs_sc.get_global_rect()
-	for action: Control in screen.tabs_box.get_children():
+	# v0.100: singleton categories hide their redundant subtab; check both visible strips.
+	var actions: Array = screen.groups_box.get_children()
+	if screen.tabs_box.visible: actions.append_array(screen.tabs_box.get_children())
+	for action: Control in actions:
 		var rect := action.get_global_rect()
 		if rect.position.x < bounds.position.x - 1 or rect.end.x > bounds.end.x + 1 or rect.position.y < bounds.position.y - 1 or rect.end.y > bounds.end.y + 1:
 			return false
@@ -402,7 +416,8 @@ func _navigation_fits(screen: Control) -> bool:
 func _native_targets(node: Node, context: String) -> void:
 	if node is CanvasItem and not node.visible: return
 	if node is ScrollContainer:
-		check(node.horizontal_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED, "no sideways scrolling " + context)
+		# v0.100: validate actual content width under the deliberate AUTO policy (6210641).
+		check(UI.horizontal_fits(node), "no sideways scrolling " + context)
 	if node is Button:
 		check(node.size.y >= 46.5, "native action keeps 48 px target " + context)
 	for child in node.get_children(): _native_targets(child, context)

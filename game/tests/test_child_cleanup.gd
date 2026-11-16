@@ -1,13 +1,17 @@
 extends RefCounted
+const SpeedParts = preload("res://tests/fixtures/older_speed_parts_v100.gd")
 var fails := 0
 var checks := 0
 func check(ok: bool, msg: String) -> void:
 	checks += 1
 	if not ok: fails += 1; printerr("FAIL ", msg)
 func run(_tree: SceneTree) -> int:
+	var speed_part: String = SpeedParts.select(["713","2026","8801"])
+	if speed_part == "": return 1
 	var worked := 0
 	WorldGen.gen_size = "normal"
 	for seed_v in [713, 2026, 8801]:
+		if not SpeedParts.includes(speed_part, str(seed_v)): continue
 		Game.new_game(seed_v)
 		for t in Game.world["towns"].values():
 			if not TownEcon.has_econ(t): continue

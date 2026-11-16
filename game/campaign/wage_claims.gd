@@ -13,7 +13,8 @@ static func prepare(b: Dictionary) -> void:
 
 static func _refresh(b: Dictionary) -> void:
 	var total := float(b.get("owed_unattributed", 0.0))
-	for due in b.get("wage_claims", {}).values(): total += float(due)
+	var claims: Dictionary = b.get("wage_claims", {})
+	for key: Variant in claims: total += float(claims[key])
 	b["owed"] = total
 
 static func after_load(e: Dictionary) -> void:
@@ -91,6 +92,11 @@ static func _recipient(e: Dictionary, f: Dictionary) -> Array:
 
 static func pay_business(e: Dictionary, f: Dictionary, b: Dictionary) -> Array:
 	prepare(b)
+	return _pay_prepared(e, f, b)
+
+# A synchronous former-worker sweep keeps the book prepared after every payment.
+# Retain each native ordered sum; omit only the identical pre-payment re-sum.
+static func _pay_prepared(e: Dictionary, f: Dictionary, b: Dictionary) -> Array:
 	var key := str(int(f["id"]))
 	var due := float(b["wage_claims"].get(key, 0.0))
 	if due <= 0.0: return [0.0, 0.0]
@@ -139,9 +145,13 @@ static func pay_family(e: Dictionary, f: Dictionary) -> Array:
 ## preserved claims after ordinary production, from money actually in its till.
 static func pay_former(e: Dictionary) -> void:
 	for b in e["biz"]:
+		var prepared: bool = false
 		for key in b.get("wage_claims", {}).keys():
 			var id := int(key)
 			if id < 0 or id >= (e["fams"] as Array).size(): continue
 			var f: Dictionary = e["fams"][id]
 			if f.get("gone", false) or int(f["jobs"].get(str(int(b["id"])), 0)) <= 0:
-				pay_business(e, f, b)
+				if not prepared:
+					prepare(b)
+					prepared = true
+				_pay_prepared(e, f, b)

@@ -68,9 +68,13 @@ func run(tree: SceneTree) -> int:
 		printerr("FAIL copper and tin render identically")
 		fails += 1
 	# wounds + severed parts change the picture and never crash
-	# v0.099: take the first body with hands (a beast has none), and wound parts through BodyState.wound_part:
-	# body.parts holds only wounded parts now, so writing body.parts["hand_r"] directly found no entry.
-	var w: Unit = units.filter(func(x): return ["hand_r", "arm_lower_l", "leg_lower_r", "head", "torso_upper"].all(func(pid): return x.body.has_part(pid)))[0]
+	# BodyState v0.013 sparse wounds require wound_part(), not healthy parts entries
+	# (older_tests_unfixed_diagnosis.md, entry 18; core/body_state.gd:5,15-16,81-86).
+	var wound_units: Array = units.filter(func(x: Unit): return ["hand_r", "arm_lower_l", "leg_lower_r", "head", "torso_upper"].all(func(pid: String): return x.body.has_part(pid)))
+	if wound_units.is_empty():
+		printerr("FAIL no actual humanoid fixture has all five wound-test anatomy parts")
+		return fails + 1
+	var w: Unit = wound_units[0]
 	var before := FigurePainter.render(FigurePainter.spec_for_unit(w), "idle", 0.0)
 	for pid in ["hand_r", "arm_lower_l", "leg_lower_r", "head"]:
 		w.body.wound_part(pid)["severed"] = true

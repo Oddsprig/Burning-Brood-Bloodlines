@@ -5,6 +5,9 @@ extends RefCounted
 ## the quiver cap and consumption, sidearm switching. Rates are printed as TRACKED.
 
 const U = preload("res://tests/sim_util.gd")
+const Observations = preload("res://tests/class_d_observations.gd")
+var _deadline_msec: int = 0
+var _budget_failed: bool = false
 
 var fails := 0
 
@@ -37,14 +40,26 @@ static func sim_of(a: Array, b: Array, seed: int, opts: Dictionary = {}) -> Batt
 	return sim
 
 func run(_tree: SceneTree) -> int:
+	fails = 0
+	_deadline_msec = Time.get_ticks_msec() + 150000
+	_budget_failed = false
+	if not _within_budget(): return fails
 	_test_energy()
+	if not _within_budget(): return fails
 	_test_skill_spread()
+	if not _within_budget(): return fails
 	_test_quiver()
+	if not _within_budget(): return fails
 	_test_no_friendly_fire()
+	if not _within_budget(): return fails
 	_test_shield()
+	if not _within_budget(): return fails
 	_test_wood_vs_mail()
+	if not _within_budget(): return fails
 	_test_pass_through()
+	if not _within_budget(): return fails
 	_test_sidearm_switch()
+	if not _within_budget(): return fails
 	_test_log_lines()
 	return fails
 
@@ -132,6 +147,7 @@ func _test_quiver() -> void:
 		foes.append(U.soldier("copper", "arming_sword", "", "", ""))
 	var sim := sim_of([u], foes, 9, {"w": 30, "h": 9})
 	while not sim.is_over():
+		if not _within_budget(): return
 		sim.step()
 	var shots: int = sim.fighters[0].shots
 	check(u.arrows() == before - shots, "spent shots must leave the quiver (%d - %d != %d)" % [before, shots, u.arrows()])
@@ -160,6 +176,7 @@ func _test_no_friendly_fire() -> void:
 		cells1.append(Vector2i(14, 1 + i))
 	var sim := sim_of(own, foes, 21, {"w": 24, "h": 9, "cells0": cells0, "cells1": cells1, "hold0": true, "shot_log": true})
 	while not sim.is_over():
+		if not _within_budget(): return
 		sim.step()
 	var ff := 0
 	var arrows := 0
@@ -277,17 +294,81 @@ func _test_pass_through() -> void:
 	print("-- pass-through: masterwork longbow, STR 2600 master, heavy bodkins at two unarmoured men in a file: %d/%d shots exit, %d/%d strike the man behind" % [exits, n, twice, n])
 	check(twice > 0, "a heavy bodkin from a strong master with a high-quality bow should sometimes pass through and hit the next enemy")
 
+## Observe the original fight without asking Archery.decide() to consume RNG.
+## Keep raw occupancy/terrain facts: whether a candidate is a legal escape is
+## a production movement rule, not an oracle guessed by this diagnostic.
+func _within_budget() -> bool:
+	if Time.get_ticks_msec() < _deadline_msec: return true
+	if not _budget_failed:
+		_budget_failed = true
+		check(false, "bows simulation exceeded 150 seconds; incomplete coverage is a failure")
+	return false
+
+## Read-only movement prerequisites, with the same terrain/occupancy gates as native kiting.
+func _escape_cells(sim: BattleSim, actor: Fighter, threat: Fighter) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	var distance: int = maxi(absi(actor.cell.x - threat.cell.x), absi(actor.cell.y - threat.cell.y))
+	for offset: Vector2i in BattleSim.NEIGHBORS:
+		var cell: Vector2i = actor.cell + offset
+		if cell.x < 0 or cell.y < 0 or cell.x >= sim.grid_w or cell.y >= sim.grid_h: continue
+		var index: int = cell.y * sim.grid_w + cell.x
+		if sim.tiles[index] == BattleSim.T_BLOCKED or sim.occ[index] != -1 or not sim._diag_ok(actor.cell, cell): continue
+		if maxi(absi(cell.x - threat.cell.x), absi(cell.y - threat.cell.y)) > distance:
+			result.append(cell)
+	return result
+
+func _archer_frame(sim: BattleSim) -> Dictionary:
+	var actors: Array[Dictionary] = []
+	for fighter: Variant in sim.fighters:
+		var pending: Dictionary = fighter.pending_action.duplicate(true) if fighter.pending_action is Dictionary else {"raw": str(fighter.pending_action)}
+		actors.append({"uid": fighter.unit.uid, "side": fighter.side, "cell": fighter.cell,
+			"alive": fighter.alive(), "state": fighter.state, "routed": fighter.routed,
+			"action_ticks": fighter.action_ticks, "pending_action": pending,
+			"bow_state": fighter.bow_state, "bow_hand": fighter.bow_hand, "hold": fighter.hold,
+			"morale": fighter.morale, "arrows": fighter.unit.arrows(), "shots": fighter.shots})
+	var actor: Variant = sim.fighters[0]
+	var candidates: Array[Dictionary] = []
+	for dy: int in range(-1, 2):
+		for dx: int in range(-1, 2):
+			if dx == 0 and dy == 0: continue
+			var cell: Vector2i = actor.cell + Vector2i(dx, dy)
+			var inside: bool = cell.x >= 0 and cell.y >= 0 and cell.x < sim.grid_w and cell.y < sim.grid_h
+			var occupants: Array[Dictionary] = []
+			for other: Variant in sim.fighters:
+				if other.cell == cell:
+					occupants.append({"uid": other.unit.uid, "side": other.side,
+						"alive": other.alive(), "state": other.state, "routed": other.routed})
+			candidates.append({"cell": cell, "orthogonal": dx == 0 or dy == 0,
+				"in_bounds": inside, "tile": sim.tile_at(cell) if inside else "outside", "occupants": occupants})
+	return {"tick": sim.tick, "winner": sim.winner, "actors": actors,
+		"escape_candidates": candidates, "events": sim.new_events.duplicate(true)}
+
+func _check_archer(ok: bool, label: String, sim: BattleSim, trace: Array[Dictionary]) -> void:
+	check(ok, label)
+	if ok: return
+	var payload: Dictionary = {"failed_assertion": label, "grid": [sim.grid_w, sim.grid_h],
+		"end": _archer_frame(sim), "trace": trace, "legal_escape_rule": "evaluate native movement against recorded terrain, occupancy and actor state"}
+	if not Observations.write("bows_sim", payload):
+		check(false, "failed archer observations could not be preserved")
+
 # ---------------------------------------------------------------- 8. kiting: to the sidearm when cornered or out of arrows
 func _test_sidearm_switch() -> void:
-	# cornered at the map edge with a swordsman coming
-	var a := archer("self_bow", 0, 4, {"arrow_copper_bodkin": 50})
-	var foe := U.soldier("copper", "arming_sword", "", "", "")
-	var sim := sim_of([a], [foe], 5, {"w": 16, "h": 5, "cells0": [Vector2i(0, 2)], "cells1": [Vector2i(9, 2)]})
-	var switched := ""
-	var sidearm_strikes := 0
-	var kites := 0
+	# A blocked one-tile lane with an adjacent live foe is a real corner.
+	# A man nine tiles away in an open field can be killed before any switch is necessary.
+	var a: Unit = archer("self_bow", 0, 4, {"arrow_copper_bodkin": 50})
+	var foe: Unit = U.soldier("copper", "arming_sword", "", "", "")
+	var rows: Array = ["################", "################", "................", "################", "################"]
+	var sim: BattleSim = sim_of([a], [foe], 5, {"tiles": rows, "cells0": [Vector2i(0, 2)], "cells1": [Vector2i(1, 2)]})
+	check(sim.fighters[0].active() and sim.fighters[1].active() and sim.fighters[0].bow_hand
+		and _escape_cells(sim, sim.fighters[0], sim.fighters[1]).is_empty(), "corner fixture has a live adjacent threat and no legal retreat")
+	if fails > 0: return
+	var corner_trace: Array[Dictionary] = [_archer_frame(sim)]
+	var switched: String = ""
+	var sidearm_strikes: int = 0
 	while not sim.is_over() and sim.tick < 3000:
+		if not _within_budget(): return
 		sim.step()
+		corner_trace.append(_archer_frame(sim))
 		for e in sim.new_events:
 			var en: Dictionary = e.get("entry", {})
 			if en.is_empty():
@@ -298,15 +379,26 @@ func _test_sidearm_switch() -> void:
 			if en["k"] == "strike" and int(en["d"]["a"]) == 0 and not en["d"].has("shot"):
 				sidearm_strikes += 1
 	print("-- cornered archer: switched by %s, %d sidearm strikes, %d arrows shot, winner %d at tick %d" % [switched if switched != "" else "-", sidearm_strikes, sim.fighters[0].shots, sim.winner, sim.tick])
-	check(switched != "", "a cornered archer must switch to the sidearm")
-	# out of arrows in open ground: slings the bow and fights with the sidearm
-	var b := archer("self_bow", 0, 4, {"arrow_copper_bodkin": 3})
-	var foe2 := U.soldier("copper", "arming_sword", "", "", "")
-	var sim2 := sim_of([b], [foe2], 6, {"w": 30, "h": 9, "cells0": [Vector2i(10, 4)], "cells1": [Vector2i(26, 4)]})
-	var out_seen := false
-	var sw := ""
+	_check_archer(switched != "", "a cornered archer must switch to the sidearm", sim, corner_trace)
+	# Out of arrows in open ground, with consumption performed by the game's own shot path.
+	var b: Unit = archer("self_bow", 0, 4, {"arrow_copper_bodkin": 3})
+	var foe2: Unit = U.soldier("copper", "arming_sword", "", "", "")
+	var sim2: BattleSim = sim_of([b], [foe2], 6, {"w": 30, "h": 9, "cells0": [Vector2i(10, 4)], "cells1": [Vector2i(26, 4)]})
+	# Native shot resolution spends the three real arrows before decision-making resumes.
+	# Their projectiles remain in the same simulation and resolve normally.
+	for shot: int in 3:
+		Archery.loose(sim2, sim2.fighters[0], {"t": 1, "kind": "arrow_copper_bodkin"})
+	var empty_trace: Array[Dictionary] = [_archer_frame(sim2)]
+	check(b.arrows() == 0 and sim2.fighters[0].shots == 3 and sim2.projectiles.size() == 3, "empty-quiver fixture consumed exactly three native shots")
+	if fails > 0: return
+	var out_seen: bool = false
+	for entry: Dictionary in sim2.fighters[0].log:
+		if entry["k"] == "ev" and entry["d"].get("key", "") == "out_of_arrows": out_seen = true
+	var sw: String = ""
 	while not sim2.is_over() and sim2.tick < 3000:
+		if not _within_budget(): return
 		sim2.step()
+		empty_trace.append(_archer_frame(sim2))
 		for e in sim2.new_events:
 			var en2: Dictionary = e.get("entry", {})
 			if en2.is_empty():
@@ -317,18 +409,37 @@ func _test_sidearm_switch() -> void:
 			if k2 in ["drop_bow", "sling_bow"] and sw == "":
 				sw = k2
 	print("   archer with 3 arrows: shot %d, out of arrows %s, then %s" % [sim2.fighters[0].shots, out_seen, sw])
-	check(out_seen and sw != "" and b.arrows() == 0, "out of arrows: the archer must go to the sidearm")
-	# kiting: an archer in open ground backs off as a slow man approaches
-	var c := archer("self_bow", 0, 6, {"arrow_copper_bodkin": 50})
-	var slow := U.soldier("copper", "arming_sword", "mail_shirt", "nasal_helm", "kite_shield")
-	var sim3 := sim_of([c], [slow], 8, {"w": 40, "h": 9, "cells0": [Vector2i(20, 4)], "cells1": [Vector2i(30, 4)]})
+	_check_archer(out_seen and sw != "" and b.arrows() == 0, "out of arrows: the archer must go to the sidearm", sim2, empty_trace)
+	# Start inside the native kite range but beyond the bow's minimum range.
+	var c: Unit = archer("self_bow", 0, 6, {"arrow_copper_bodkin": 50})
+	var slow: Unit = U.soldier("copper", "arming_sword", "mail_shirt", "nasal_helm", "kite_shield")
+	var gap: int = Formulas.BOW_KITE_TILES
+	var sim3: BattleSim = sim_of([c], [slow], 8, {"w": 40, "h": 9, "cells0": [Vector2i(20, 4)], "cells1": [Vector2i(20 + gap, 4)]})
+	check(gap > int(DB.bows["self_bow"].get("min_range", Formulas.BOW_MIN_RANGE))
+		and sim3.fighters[1].active() and not sim3.fighters[0].hold
+		and Vector2i(19, 4) in _escape_cells(sim3, sim3.fighters[0], sim3.fighters[1]), "open kite fixture begins threatened with an actual free retreat")
+	if fails > 0: return
+	var kite_trace: Array[Dictionary] = [_archer_frame(sim3)]
 	var x0: int = sim3.fighters[0].cell.x
-	var minx := x0
+	var minx: int = x0
 	while not sim3.is_over() and sim3.tick < 1500:
+		if not _within_budget(): return
 		sim3.step()
+		kite_trace.append(_archer_frame(sim3))
 		minx = mini(minx, sim3.fighters[0].cell.x)
 	print("   kiting in open ground: the archer backed from x=%d to x=%d while shooting %d arrows" % [x0, minx, sim3.fighters[0].shots])
-	check(minx < x0, "an archer should back off (kite) as the enemy closes")
+	_check_archer(minx < x0, "an archer should back off (kite) as the enemy closes", sim3, kite_trace)
+
+	# Retain the original natural approach/prone-foe battle as a progress regression.
+	var natural_archer: Unit = archer("self_bow", 0, 6, {"arrow_copper_bodkin": 50})
+	var natural_foe: Unit = U.soldier("copper", "arming_sword", "mail_shirt", "nasal_helm", "kite_shield")
+	var natural: BattleSim = sim_of([natural_archer], [natural_foe], 8, {"w": 40, "h": 9, "cells0": [Vector2i(20, 4)], "cells1": [Vector2i(30, 4)]})
+	var natural_trace: Array[Dictionary] = [_archer_frame(natural)]
+	while not natural.is_over() and natural.tick < 3000:
+		if not _within_budget(): return
+		natural.step()
+		natural_trace.append(_archer_frame(natural))
+	_check_archer(natural.is_over() and natural.winner >= 0, "the original natural approach battle resolves without a fallen-foe stalemate", natural, natural_trace)
 
 # ---------------------------------------------------------------- 9. DF-form log lines
 func _test_log_lines() -> void:
@@ -339,6 +450,7 @@ func _test_log_lines() -> void:
 		foes.append(U.make("goblin", [["tunic", "linen"], ["short_spear", "tin"]], {"spear": 1}, "Snik %d" % i))
 	var sim := sim_of([a], foes, 13, {"w": 30, "h": 9, "cells0": [Vector2i(3, 4)]})
 	while not sim.is_over() and sim.tick < 3000:
+		if not _within_budget(): return
 		sim.step()
 	var shown := 0
 	var shoot_lines := 0

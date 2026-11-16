@@ -441,7 +441,7 @@ static func helper_hands(e: Dictionary, f: Dictionary, day: float) -> float:
 		old_home = Persons.home_n(f, 2)
 	var cleanup := 0
 	for p in Persons.kp(f):
-		if f.get("child_cj", {}).has(str(int(p[0]))) and Shelter.cleanup_child_eligible(e, p, day): cleanup += 1
+		if f.get("child_cj", {}).has(str(int(p[0]))) and Shelter.cleanup_child_eligible(e, p, day, f): cleanup += 1
 	return float(maxi(0, int(ea[1]) - cleanup)) * float(L["kid_share"]) + float(old_home) * float(L["elder_share"])
 
 # =====================================================================================================

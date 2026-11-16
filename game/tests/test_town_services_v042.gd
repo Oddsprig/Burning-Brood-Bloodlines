@@ -1,6 +1,8 @@
 extends RefCounted
+const SpeedParts = preload("res://tests/fixtures/older_speed_parts_v100.gd")
 ## Real service quotes, native callbacks, browsing purity and four native canvas sizes.
 const H = preload("res://tests/health_util.gd")
+const UI := preload("res://tests/fixtures/ui_contract_v100.gd")
 const SIZES := [Vector2i(960, 640), Vector2i(1280, 720), Vector2i(1920, 1080), Vector2i(720, 1280)]
 var fails := 0
 var checks := 0
@@ -49,6 +51,9 @@ static func fixture(seed: int = 40042, presim: bool = false) -> Dictionary:
 	Game.screen_params = {"tab": "Healer"}
 	town["healer"] = {"skill": 8, "name": "Town physician"}
 	Game.company = patients()
+	# v0.100: 6210641 only debits wages accepted by registered households; use real residents.
+	for u: Unit in Game.company: u.home_town = String(town["id"])
+	People.adopt_company(Game)
 	Game.gold = 100000
 	# Real generated offers, including several kinds, with their original IDs and terms.
 	var rng := RandomNumberGenerator.new()
@@ -68,18 +73,32 @@ static func fixture(seed: int = 40042, presim: bool = false) -> Dictionary:
 	return town
 
 func run(t: SceneTree) -> int:
+	var speed_part: String = SpeedParts.select(["960x640","1280x720","1920x1080","720x1280","actions"])
+	if speed_part == "": return 1
 	tree = t
 	await tree.process_frame # runner invokes run while its parent is entering the tree
 	fit = load("res://tests/test_ui_fit.gd").new()
 	fit.tree = tree
 	var town := fixture()
 	check(TownEcon.has_econ(town), "actual registered capital economy")
+	check(Game.company.all(func(u): return not People.fam_of(Game.world["towns"].get(u.home_town, {}), u.family).is_empty()), "every patient has a real household wage recipient")
 	check(Contracts.offers_for(Game, town).size() >= 3, "real generated eligible contracts")
 	for size in SIZES:
+		if not SpeedParts.includes(speed_part, "%dx%d" % [size.x, size.y]): continue
 		if not await _browse(size, town):
 			printerr("Town services setup failed; stopping before dependent actions")
 			return maxi(1, fails)
+	if speed_part != "all" and speed_part != "actions": return fails + int(fit.fails)
 	await _actions(town)
+	# v0.100: regress the rc=139 shutdown path with a guaranteed active capture, before autoload teardown.
+	Game.wait_save()
+	Game.save_game_async(true)
+	check(int(Game.save_stats()["active_snapshots"]) == 1, "shutdown regression owns an active native save")
+	Game._exit_tree()
+	check(int(Game.save_stats()["active_snapshots"]) == 0 and Game._save_task == -1 and Game._save_capture == null,
+		"tree exit retires the save before Perf and other autoloads are freed")
+	check(bool(Game.save_stats()["last_ok"]), "tree exit completes the native save successfully")
+	Game.wait_save(false)
 	fails += int(fit.fails)
 	print("Town services v042: ", checks, " checks, ", fails, " failures; fit failures=", fit.fails)
 	return fails
@@ -126,7 +145,8 @@ func _layout(viewport: SubViewport, size: Vector2i, label: String) -> void:
 	if service != null:
 		for node in _nodes(service):
 			if node is ScrollContainer:
-				check(node.horizontal_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED, label + " never hides service content in horizontal scrolling")
+				# v0.100: 6210641 permits AUTO; fail actual overflow, not the configured policy.
+				check(UI.horizontal_fits(node), label + " never hides service content in horizontal scrolling")
 
 func _browse(size: Vector2i, town: Dictionary) -> bool:
 	var before := Game._save_tree()

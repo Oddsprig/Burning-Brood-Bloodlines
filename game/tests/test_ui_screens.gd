@@ -2,6 +2,8 @@ extends RefCounted
 ## Every menu screen and tab instances headless without script errors
 ## (tools/test.sh fails the run on any SCRIPT ERROR line). Uses a real generated town when there is one.
 
+const Fixture = preload("res://tests/fixtures/group_g_v100.gd")
+
 var errors := 0
 
 ## A real generated town that hires mercenaries and has recruits and contracts ("" if none).
@@ -14,15 +16,26 @@ func _friendly_town() -> String:
 	return ""
 
 func run(tree: SceneTree) -> int:
-	Game.new_game(11)
+	Fixture.new_world(11)
+	# v0.100: supply the two officers, subordinate and purse that menu interactions require.
+	var leaders := Fixture.company(11, [0, 1])
+	if leaders.size() != 2:
+		printerr("FAIL: screen fixture has two officers"); return 1
+	var officer: Unit = leaders[1]
+	var troops := Roster.troops_of(Game, officer.uid)
+	if troops.size() != 1:
+		printerr("FAIL: screen fixture has an officer's subordinate"); return 1
+	Game.gold = 100000
 	Game.location = _friendly_town()
 	if Game.location == "":
 		Game.location = "dev_town"
 		DevTown.ensure(Game, "dev_town")
 	var town: Dictionary = Game.world["towns"][Game.location]
+	if town.get("recruits", []).is_empty() or town.get("contracts", []).is_empty():
+		printerr("FAIL: screen fixture supplies recruits and contracts"); return 1
 	print("town: ", town["name"])
 	# a wounded officer so the Health tab and the healer have something to show
-	var p: Dictionary = Game.company[1].body.wound_part("arm_upper_l")   # sparse bodies (v0.013): the writable part
+	var p: Dictionary = officer.body.wound_part("arm_upper_l")
 	for l in p["layers"]:
 		if l["tissue"] in ["skin", "muscle", "bone"]:
 			l["dmg"] = 0.7; l["kind"] = "fractured" if l["tissue"] == "bone" else "cut"
@@ -33,12 +46,12 @@ func run(tree: SceneTree) -> int:
 		root.add_child(s)
 		await tree.process_frame
 		if path.ends_with("company.tscn"):
-			for u in [Game.lead_officer(), Roster.leaders(Game)[1], Roster.troops_of(Game, Roster.leaders(Game)[1].uid)[0]]:
+			for u in [Game.lead_officer(), officer, troops[0]]:
 				s.select(u.uid)
 				for t in ["Overview", "Mind", "Skills", "Gear", "Health", "Squad"]:
 					s.show_tab(t)
 					await tree.process_frame
-			s._pick_squad(Roster.troops_of(Game, Roster.leaders(Game)[1].uid)[0])
+			s._pick_squad(troops[0])
 			await tree.process_frame
 			while s.has_node("Modal"):
 				s.get_node("Modal").free()

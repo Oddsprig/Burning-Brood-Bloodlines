@@ -13,8 +13,9 @@ static func _blocked_write(gate: Semaphore, path: String, snapshot: Dictionary) 
 	gate.wait()
 	return Game._write_save(path, snapshot)
 
-static func _json(value: Variant) -> String:
-	return JSON.stringify(value)
+static func _json(value: Dictionary) -> String:
+	# v0.100: v0.074 saves use live key order and the exact-float codec, not default JSON.
+	return Game.save_text(value)
 
 func _read(path: String) -> Dictionary:
 	check(FileAccess.file_exists(path), "private save exists")
@@ -86,8 +87,12 @@ func _isolation(f: Dictionary) -> void:
 	check(float(snapshot["company"][0]["body"]["parts"]["head"]["layers"][0]["dmg"]) == 0.25, "native wound layer remains captured")
 	check(snapshot["squads"]["401"]["uniform"]["main_hand"] == "arming_sword", "nested squad rule remains captured")
 	gate.post(); Game.wait_save()
-	_read(Game.SAVE_PATH)
+	var saved := _read(Game.SAVE_PATH)
 	check(FileAccess.get_file_as_string(Game.SAVE_PATH) == before, "blocked worker writes exactly its isolated pre-mutation tree")
+	# v0.100: metadata added since the v0.012 frozen layout must reach disk too.
+	check(int(saved.get("militia_cap", 0)) == 1 and String(saved.get("rng_state", "")) == str(rng_before)
+		and int(saved.get("next_unit_uid", -1)) == unit_before and int(saved.get("next_item_uid", -1)) == item_before,
+		"save retains the militia migration fence, RNG state and both identity counters")
 	check(Game._save_task == -1 and not Game._save_pending, "blocked writer drains without retaining a queued snapshot")
 	check(Game.rng.state == rng_before and Unit._next_uid == unit_before and Item._next_uid == item_before, "snapshot and writer preserve native RNG and UID counters")
 	print("Save ownership checkpoint: native/packed isolation complete")
@@ -142,14 +147,19 @@ func _readiness() -> void:
 	print("Save ownership checkpoint: generation readiness barrier complete")
 
 static func _linear_tree() -> Dictionary:
-	# Frozen pre-slicing field layout; independent linear walker is still public.
-	var data: Dictionary = {"version": 1, "seed": Game.seed_value, "day": Game.day, "gold": Game.gold,
+	# v0.100: current field layout with an independent linear native walker.
+	var data: Dictionary = {"version": Game.SAVE_VERSION, "militia_cap": 1, "seed": Game.seed_value, "day": Game.day, "gold": Game.gold,
 		"next_unit_uid": Unit._next_uid, "company": Game.company.map(func(u): return u.to_dict()),
 		"stash": Game.stash.map(func(it): return it.to_dict()), "squads": Game._keys_to_str(Game.squads),
 		"rep": Game.rep, "location": Game.location, "provisions": Food.stock_to_save(Game),
-		"rations": Game.rations, "food_clock": Game.food_clock}.duplicate(true)
+		"rations": Game.rations, "food_clock": Game.food_clock,
+		"rng_state": str(Game.rng.state), "next_item_uid": Item._next_uid}.duplicate(true)
 	data["world"] = Game._serialize(Game.world)
 	data["contract"] = Game._serialize(Game.contract)
+	data["raid_state"] = HerdRaids.save_state()
+	data["gold_gone"] = TownEcon.gold_gone
+	data["goods_lost"] = Game._serialize(TownEcon.goods_lost)
+	data["war_runtime"] = WarAI.save_runtime(Game.world)
 	return data
 
 func _sliced(tree: SceneTree) -> void:

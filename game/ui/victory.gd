@@ -35,4 +35,9 @@ func _ready() -> void:
 	var row := UiKit.hbox(12)
 	root.add_child(row)
 	row.add_child(UiKit.button("Keep playing", func(): Game.goto("map"), "", 220))
-	row.add_child(UiKit.button("Title", func(): Game.save_game(); Game.goto("title"), "", 200))
+	row.add_child(UiKit.button("Title", _title, "", 200))
+
+# v0.100: the caller audit found this second save-before-title path; keep the victory on failure.
+func _title() -> void:
+	if not Game.save_game(): return
+	Game.goto("title")

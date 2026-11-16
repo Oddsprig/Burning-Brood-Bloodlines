@@ -3,6 +3,8 @@ extends RefCounted
 ## camp"): the name has its own line and the tags shrink under it. Checked at 720 px wide (a phone held
 ## upright, laid out unscaled) and at the game's 1280 base.
 
+const Fixture = preload("res://tests/fixtures/group_g_v100.gd")
+
 var fails := 0
 
 func check(ok: bool, what: String) -> void:
@@ -12,9 +14,16 @@ func check(ok: bool, what: String) -> void:
 
 func run(tree: SceneTree) -> int:
 	await tree.process_frame
-	Game.new_game(11)
+	# v0.100: the unraised start has no victim; build a single named subordinate with a native body.
+	Fixture.bare(11)
+	var leaders := Fixture.company(11, [1])
+	check(leaders.size() == 1, "roster-tag fixture has one officer")
+	if leaders.size() != 1: return fails
+	var troops := Roster.troops_of(Game, leaders[0].uid)
+	check(troops.size() == 1, "roster-tag fixture has one troop")
+	if troops.size() != 1: return fails
 	Game.location = ""
-	var victim: Unit = Roster.troops_of(Game, Roster.leaders(Game)[0].uid)[0]
+	var victim: Unit = troops[0]
 	victim.name = "Petra Coldwater"
 	for p in ["arm_upper_l", "leg_upper_r", "arm_lower_r", "leg_lower_l"]:
 		for l in victim.body.wound_part(p).get("layers", []):

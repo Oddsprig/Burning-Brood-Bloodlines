@@ -187,11 +187,11 @@ static func garrison(scr, t: Dictionary, e: Dictionary, v: VBoxContainer) -> voi
 		var it2: Variant = uu.equip.get("main_hand", uu.equip.get("ranged", null))
 		var sk := String(DB.weapons.get(it2.tid, {}).get("skill", "")) if it2 != null else ""
 		var lvl := int(uu.skills.get(sk, 0)) if sk != "" else 0
-		rows.append({"name": uu.name, "rank": rt, "rk": uu.rank, "age": func(): return int(roster.call()["age"]), "skill": lvl,
+		rows.append({"name": uu.name, "rank": rt, "rk": uu.rank, "age": func(): return _roster_age(view, uu), "skill": lvl,
 			"years": func(): return float(roster.call()["years_served"]), "pay": snappedf(uu.last_pay, 0.01), "renown": float(uu.renown),
 			"_l": "%s %s" % [rt.capitalize(), uu.name], "_r": "%s a day" % _m(snappedf(uu.last_pay, 0.01)),
 			"_d": func():
-				var rr: Dictionary = roster.call()
+				var rr: Dictionary = _roster_details(view, uu)
 				return "the %s; age %d; %s, %s (%d)%s; %s years served; renown %d; XP to next level: %s" % [String(rr["household"]) if String(rr["household"]) != "" else "?",
 					int(rr["age"]), String(rr["weapon"]), UiWords.skill_level(lvl) if sk != "" else "-", lvl, "", RecKit.num(float(rr["years_served"])),
 					int(round(uu.renown)), RecKit.NT],
@@ -199,8 +199,8 @@ static func garrison(scr, t: Dictionary, e: Dictionary, v: VBoxContainer) -> voi
 	var tc := RecKit.card(v, "Roster")
 	var table := RecTable.make([{"k": "rk", "t": "Rank", "num": true}, {"k": "name", "t": "Name"}, {"k": "age", "t": "Age", "num": true},
 		{"k": "skill", "t": "Skill", "num": true}, {"k": "years", "t": "Years", "num": true}, {"k": "pay", "t": "Pay", "num": true},
-		{"k": "renown", "t": "Renown", "num": true}], rows, "rk", false, [], true)
-	table.display_cells([{"k": "name", "t": "Name", "w": 2.3}, {"k": "rank", "t": "Rank", "w": 1.3},
+		{"k": "renown", "t": "Renown", "num": true}], rows, "rk", false, [], true, RecTable.LIMIT,
+		[{"k": "name", "t": "Name", "w": 2.3}, {"k": "rank", "t": "Rank", "w": 1.3},
 		{"k": "skill", "t": "Skill"}, {"k": "age", "t": "Age"}, {"k": "pay", "t": "Pay/day", "format": func(x): return _m(float(x))}])
 	tc.add_child(table)
 	for band in [wb, TownDefence.guard_band(Game, tid)]:
@@ -210,6 +210,25 @@ static func garrison(scr, t: Dictionary, e: Dictionary, v: VBoxContainer) -> voi
 	RecKit.disclosure(v, "Pay, ranks and defence records", func(b): _defence_records(t, e, units, wb, st, tier, b))
 	_issued_weapons(units, v)
 	_armory(scr, t, e, v)
+
+## These projections use the same live person/fallback rules as Persons.roster_row.
+## An age cell needs no rank, weapon, sickness text or service-history formatting.
+static func _roster_age(view: Variant, u: Unit) -> int:
+	var town: Dictionary = view.world.get("towns", {}).get(u.home_town, {})
+	var family: Dictionary = People.fam_of(town, u.family)
+	var person: Array = Persons.by_uid(family, u.uid) if not family.is_empty() else []
+	return Persons.age_of(person, view.day) if not person.is_empty() else u.age
+
+static func _roster_details(view: Variant, u: Unit) -> Dictionary:
+	var town: Dictionary = view.world.get("towns", {}).get(u.home_town, {})
+	var family: Dictionary = People.fam_of(town, u.family)
+	var person: Array = Persons.by_uid(family, u.uid) if not family.is_empty() else []
+	var since: float = Persons.served_since(person, "militia") if not person.is_empty() else -1.0
+	var weapon: Variant = u.equip.get("main_hand", u.equip.get("ranged", null))
+	return {"household": String(family.get("name", "")),
+		"age": Persons.age_of(person, view.day) if not person.is_empty() else u.age,
+		"weapon": weapon.display_name() if weapon != null else "unarmed",
+		"years_served": snappedf((view.day - since) / People.year_days(), 0.1) if since >= 0.0 else 0.0}
 
 static func _defence_records(t: Dictionary, e: Dictionary, units: Array, wb: Dictionary, st: Dictionary, tier: String, v: VBoxContainer) -> void:
 	var war := Diplomacy.enemies_at_war(Game.world, String(t.get("faction", "")))

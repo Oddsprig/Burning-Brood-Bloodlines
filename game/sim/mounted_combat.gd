@@ -39,8 +39,10 @@ static func follow(sim, rider: Fighter) -> void:
 	horse.action_ticks = rider.action_ticks
 	sim._tcells_ok = false
 
-static func sync(sim) -> void:
-	for horse: Fighter in sim.fighters:
+static func sync(sim, carriers: Variant = null) -> void:
+	# An explicit empty list means no carriers; one-argument callers still scan.
+	var roster: Array = sim.fighters if typeof(carriers) == TYPE_NIL else carriers
+	for horse: Fighter in roster:
 		if horse.mount_rider_idx < 0 or not horse.mount_attached: continue
 		var rider: Fighter = sim.fighters[horse.mount_rider_idx]
 		if rider.state == "fled" and horse.active() and not horse.prone:

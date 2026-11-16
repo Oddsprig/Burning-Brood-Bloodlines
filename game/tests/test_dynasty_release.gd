@@ -33,7 +33,7 @@ func run(_tree: SceneTree) -> int:
 	WorldGen.gen_stretch = WorldGen.STRETCH
 	CampaignWorld.presim_span_days = 1
 	Game.new_game(10461)
-	check(Game.company.size() == 100 and not Game.world.get("towns", {}).is_empty(), "native world contains the actual 100-person starting army and towns")
+	check(Game.company.is_empty() and Game.gold == 0 and not Game.world.get("towns", {}).is_empty(), "native world starts with towns, an unraised company and no free army coin")
 	check(CampaignWorld.presim_step(Game, 1) == 0, "native world completes exactly one history day")
 	CampaignWorld.presim_finish(Game)
 	Dynasty.prepare_world(Game)
@@ -52,6 +52,10 @@ func run(_tree: SceneTree) -> int:
 	var funds := minf(25.0, floor(float(Feudal._payer(Game).get("purse", 0.0))))
 	check(funds > 0.0 and Feudal.governance(Game, tid_selected, "fund_garrison", funds)["ok"], "actual generated house funds its existing public treasury")
 	check(absf(Barge.holdings(Game) - wealth) < 0.001 and Unit._next_uid == unit_next, "generated governance orders preserve coin and do not create soldiers")
+	check(Game.company.is_empty() and Game.gold == 0, "house selection and civic orders keep the field army unraised")
+	# v0.017: nonempty army persistence needs explicit owned funding and real residents.
+	var raised: int = DevTools.raise_army(Game, tid_selected, 4)
+	check(raised == 4 and Game.company.size() == 4, "four explicitly funded native residents supply nonempty army persistence")
 	var governance: Dictionary = Feudal.budget(Game, tid_selected).duplicate(true)
 	var state := Dynasty.selected(Game)
 	var ruler := Dynasty.ruler(Game)
@@ -85,7 +89,7 @@ func run(_tree: SceneTree) -> int:
 	check(same(feudal, Game.world["feudal"]), "every settlement's hierarchy, allegiance, loyalty and tribute state survives persistence")
 	check(same(governance, Feudal.budget(Game, tid_selected)) and is_equal_approx(float(Game.world["towns"][tid_selected]["econ"].get("lord_tax_rate", 0.0)), rate), "actual fiscal budgets, future tax policy and militia orders survive native current-build save/load")
 	check(absf(Barge.holdings(Game) - wealth) < 0.001 and not Game.is_game_over(), "loaded living dynasty remains playable with conserved coin")
-	check(ProjectSettings.get_setting("application/config/custom_user_dir_name") == "Burning Brood Bloodlines", "new game uses its own user-data namespace")
+	check(ProjectSettings.get_setting("application/config/custom_user_dir_name") == "Burning Brood Bloodlines Claude Edition", "v0.099 preserves the exact existing user-data namespace")
 	# Optional isolated render fixture; never emitted into the shipped game folder.
 	if OS.get_cmdline_user_args().has("--capture-world"):
 		var file := FileAccess.open("res://../smoke_world.json", FileAccess.WRITE)

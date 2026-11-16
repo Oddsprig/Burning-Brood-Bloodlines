@@ -410,10 +410,19 @@ static func biz(e: Dictionary) -> Array:
 	return e.get("biz", [])
 
 static func biz_title(e: Dictionary, b: Dictionary) -> String:
+	# A synchronous records sweep can reuse its validated owner names. Outside
+	# that sweep retain the isolated, fresh read, including sparse person slots.
+	var names_scope: Array[Dictionary] = [{}]
+	var shared_names: Array = TownSweep.owner_names(e)
+	if not shared_names.is_empty() and not (shared_names[0] as Dictionary).is_empty():
+		names_scope[0] = shared_names[0]
+		return Businesses.title(e, b, names_scope)
 	# The title helper refreshes its per-day name cache; keep that UI read local.
 	var read := e.duplicate()
 	read["fams"] = (e.get("fams", []) as Array).map(func(f: Dictionary): return f if f.has("pp") and f.has("kp") else f.duplicate())
-	return Businesses.title(read, b)
+	var title: String = Businesses.title(read, b, names_scope)
+	TownSweep.remember_owner_names(e, names_scope[0])
+	return title
 
 static func biz_trade(b: Dictionary) -> String:
 	return String(D()["businesses"].get(String(b["type"]), {}).get("name", String(b["type"])))
@@ -507,7 +516,11 @@ static func _family_work(e: Dictionary, f: Dictionary, context: Dictionary) -> D
 		# reuse while keeping Persons.work's herd-labour cache outside saved state.
 		if not context.has("herd_read"):
 			context["herd_read"] = _herd_read(e)
-		context["work"][fid] = Persons.work(context["herd_read"], f)
+		var names_scope: Array[Dictionary] = [{}]
+		var shared_names: Array = TownSweep.owner_names(e)
+		if not shared_names.is_empty(): names_scope[0] = shared_names[0]
+		context["work"][fid] = Persons.work(context["herd_read"], f, names_scope)
+		TownSweep.remember_owner_names(e, names_scope[0])
 	return context["work"][fid]
 
 # ------------------------------------------------------------------ the research house (campaign/academy.gd, v0.012)

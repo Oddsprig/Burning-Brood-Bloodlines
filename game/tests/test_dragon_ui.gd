@@ -1,4 +1,9 @@
 extends RefCounted
+const Observations = preload("res://tests/class_d_observations.gd")
+var failed_assertions: Array[String] = []
+var failed_fits: Array[Dictionary] = []
+var _deadline_msec: int = 0
+var _budget_failed: bool = false
 ## Native tiny economies, additive portraits and real orders. Desktop only.
 var tree: SceneTree
 var checks := 0
@@ -7,6 +12,22 @@ var fit_cases := 0
 const DESKTOP := Vector2i(1280, 720)
 
 func run(scene_tree: SceneTree) -> int:
+	_deadline_msec = Time.get_ticks_msec() + 150000
+	_budget_failed = false
+	var result: int = await _run(scene_tree)
+	if not _within_budget(): result = maxi(1, result)
+	return result
+
+func _within_budget() -> bool:
+	if Time.get_ticks_msec() < _deadline_msec: return true
+	if not _budget_failed:
+		_budget_failed = true
+		_assert(false, "dragon UI exceeded 150 seconds; incomplete coverage is a failure")
+	return false
+
+func _run(scene_tree: SceneTree) -> int:
+	checks = 0; fails = 0; fit_cases = 0
+	failed_assertions.clear(); failed_fits.clear()
 	tree = scene_tree
 	await tree.process_frame
 	var section: String = "all"
@@ -15,14 +36,18 @@ func run(scene_tree: SceneTree) -> int:
 	if not section in ["all", "pictures", "controls"]:
 		push_error("Unknown dragon UI test section"); tree = null; return 1
 	print("Dragon UI section: " + section)
-	var fixture = load("res://tests/test_dynasty_foundation.gd").new()
-	fixture.fixture(); Feudal.prepare_world(Game); Dragons.init_world(Game)
+	if not await _native_campaign(): tree = null; return maxi(1, fails)
 	var book: Dictionary = Game.world["dragons"].duplicate(true)
-	_assert(Dynasty.select_city(Game, "city_a"), "actual registered house selected")
+	var seat: String = DevTools.choose_house(Game, _house_ready)
+	_assert(seat != "", "native generated house needs its actual three holdings, existing adult heir and different recipient")
+	if seat == "": tree = null; return maxi(1, fails)
+	var recipient: Dictionary = _recipient(seat)
+	_assert(not recipient.is_empty(), "native different-town recipient remains available after onboarding")
+	if recipient.is_empty(): tree = null; return maxi(1, fails)
 	_assert(Game.world["dragons"] == book, "selection does not regenerate holdings")
 	var orphan_baseline := int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT))
 	var fit = load("res://tests/test_ui_fit.gd").new(); fit.tree = tree
-	Game.location = "city_b"
+	Game.location = str(recipient["town_id"])
 	Game.screen_params = {"back": "house", "back_params": {"origin": "dragon_check"}}
 	var origin := Game.location
 	var position: Vector2 = Game.world["party"]["pos"]
@@ -36,7 +61,7 @@ func run(scene_tree: SceneTree) -> int:
 	_fit(fit, viewport, "dragon house roster")
 	var own: Array = Dragons.records(Game, String(Dynasty.selected(Game)["house_uid"]))
 	_assert(page.roster == own and own.size() == 3, "default roster is actual house's three holdings")
-	_assert(Dragons.type_label(own[0]) in _labels(page), "roster names each holding's gem type and body form")
+	_assert(not own.is_empty() and Dragons.type_label(own[0]) in _labels(page), "roster names each holding's gem type and body form")
 	_assert(_snapshot() == before, "roster reads and images preserve world, RNG and identities")
 	_assert(Game.location == origin and Game.world["party"]["pos"] == position, "entry does not move campaign context or party")
 	var heading: Label = page.find_child("Title", true, false)
@@ -48,9 +73,10 @@ func run(scene_tree: SceneTree) -> int:
 		viewport.queue_free(); page = null; viewport = null
 		await _settle()
 		_assert(int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT)) <= orphan_baseline, "catalog controls leave no orphan nodes")
+		_report_failures(fit, section)
 		var picture_result: int = fails + int(fit.fails)
 		print("Dragon UI: %d assertions, %d failures; %d desktop fit cases, %d fit failures." % [checks, fails, fit_cases, int(fit.fails)])
-		fit.tree = null; fit = null; fixture = null; tree = null
+		fit.tree = null; fit = null; tree = null
 		return picture_result
 	var egg := {}
 	var adult := {}
@@ -77,11 +103,10 @@ func run(scene_tree: SceneTree) -> int:
 		_fit(fit, viewport, "actual mother details")
 		_assert(page.detail_uid == String(egg["mother_uid"]) and String(Dragons.get_record(Game, String(egg["mother_uid"]))["name"]) in _labels(page), "parent navigation resolves exact registered dragon")
 		_profiles(page, Dragons.get_record(Game, String(egg["mother_uid"])))
-		var recipient: Dictionary = Dynasty.person(Game, String(Dynasty.town_office(Game, "city_b")["person_uid"]))
 		await _orders(page, viewport, fit, egg, recipient)
 	if not adult.is_empty():
 		await _sprite_controls(page, viewport, fit, adult)
-		await _stale_ruler(page, viewport, fit, adult)
+		await _stale_ruler(page, viewport, fit, adult, recipient)
 	page._back()
 	_assert(Game.location == origin and Game.world["party"]["pos"] == position, "Back does not teleport or change location")
 	_assert(Game.screen_params == {"origin": "dragon_check"}, "Back restores caller parameters")
@@ -89,13 +114,63 @@ func run(scene_tree: SceneTree) -> int:
 	await _settle()
 	_assert(int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT)) <= orphan_baseline, "dragon controls and cancelled sheets leave no orphan nodes")
 	Game.wait_save()
+	_report_failures(fit, section)
 	var result: int = fails + int(fit.fails)
 	print("Dragon UI: %d assertions, %d failures; %d desktop fit cases, %d fit failures." % [checks, fails, fit_cases, int(fit.fails)])
-	fit.tree = null; fit = null; fixture = null
+	fit.tree = null; fit = null
 	book.clear(); own.clear(); egg.clear(); adult.clear()
 	await _settle()
 	tree = null
 	return result
+
+func _native_campaign() -> bool:
+	var old_size: String = WorldGen.gen_size
+	var old_history: int = CampaignWorld.presim_span_days
+	var old_creatures: bool = Monsters.new_world_creatures
+	WorldGen.gen_size = "normal"; CampaignWorld.presim_span_days = 1
+	Monsters.new_world_creatures = false
+	var ok: bool = await _generate_native()
+	WorldGen.gen_size = old_size; CampaignWorld.presim_span_days = old_history
+	Monsters.new_world_creatures = old_creatures
+	return ok
+
+func _generate_native() -> bool:
+	var generation: Dictionary = Game.new_game_begin(DevTools.WORLD_SEED)
+	while not Game.new_game_slice(generation, 8000):
+		if not _within_budget(): return false
+		await tree.process_frame
+	var history: Dictionary = {}
+	while CampaignWorld.presim_left(Game) > 0:
+		if not _within_budget(): return false
+		CampaignWorld.presim_slice(Game, history, 8000)
+		await tree.process_frame
+	CampaignWorld.presim_finish(Game, 0)
+	Dynasty.prepare_world(Game); Feudal.prepare_world(Game); Dragons.init_world(Game)
+	Game.new_game_finalize()
+	return _within_budget()
+
+func _recipient(seat: String) -> Dictionary:
+	var office: Dictionary = Dynasty.town_office(Game, seat)
+	var town: Dictionary = Game.world["towns"][seat]
+	var ids: Array = Game.world["towns"].keys(); ids.sort()
+	for id: String in ids:
+		if id == seat or str(Game.world["towns"][id]["faction"]) != str(town["faction"]): continue
+		var other: Dictionary = Dynasty.town_office(Game, id)
+		var person: Dictionary = Dynasty.person(Game, str(other.get("person_uid", "")))
+		if not person.is_empty() and str(person["person_uid"]) != str(office.get("person_uid", "")): return person
+	return {}
+
+func _house_ready(choice: Dictionary) -> bool:
+	var seat: String = str(choice["town_id"])
+	var heir: Dictionary = Dynasty.heir(Game, seat)
+	var loc: Dictionary = Dynasty._person(Game, str(heir.get("person_uid", "")))
+	if loc.is_empty() or int(loc["person"][6]) == 2 or _recipient(seat).is_empty(): return false
+	var holdings: Array = Dragons.records(Game, str(choice["house_uid"]))
+	var eggs: int = 0; var adults: int = 0
+	for row: Dictionary in holdings:
+		if str(row["stage"]) == "egg": eggs += 1
+		else: adults += 1
+	return holdings.size() == 3 and eggs == 1 and adults == 2
 
 func _pictures(page: DragonsView, viewport: SubViewport, fit) -> void:
 	var before := _snapshot()
@@ -112,6 +187,7 @@ func _pictures(page: DragonsView, viewport: SubViewport, fit) -> void:
 	print("Dragon UI picture forms: " + ",".join(selected_names))
 	var images := {}
 	for gem: Dictionary in gems:
+		if not _within_budget(): return
 		var record := {"stage": "egg", "gem_id": gem["id"], "appearance_seed": 15}
 		var image := DragonCard.image_for(record)
 		var bytes := image.get_data()
@@ -120,6 +196,7 @@ func _pictures(page: DragonsView, viewport: SubViewport, fit) -> void:
 	_assert(images.size() == gems.size(), "every gem egg has a distinct actual palette/pattern image")
 	images.clear()
 	for morph: Dictionary in morphs:
+		if not _within_budget(): return
 		var record := {"stage": "adult", "gem_id": "emerald", "morph_id": morph["id"], "size_class": "large", "appearance_seed": 20}
 		var anatomy := DragonCard.silhouette(record)
 		_assert(anatomy["hind_legs"] == 2 and anatomy["wing_forelimbs"] == 2 and anatomy["front_legs"] == 0, "wyvern geometry: " + String(morph["name"]))
@@ -130,6 +207,7 @@ func _pictures(page: DragonsView, viewport: SubViewport, fit) -> void:
 	images.clear()
 	var previous_bounds: float = 0.0
 	for size: Dictionary in sizes:
+		if not _within_budget(): return
 		var model: Dictionary = DragonArt.model({"stage": "adult", "gem_id": "ruby", "morph_id": "broadmantle", "size_class": size["id"], "appearance_seed": 9}, "rest")
 		var model_bounds: Rect2 = model["bounds"]
 		_assert(model_bounds.size.length() > previous_bounds and float(model["rider_height"]) == 24.0, "size class enlarges the actual animal while the person stays native-sized")
@@ -144,8 +222,25 @@ func _pictures(page: DragonsView, viewport: SubViewport, fit) -> void:
 	_assert("Body forms" in labels and "Gem types & eggs" in labels, "catalog keeps gem types separate from body forms")
 	_assert(_snapshot() == before, "expanded type/form catalog remains a pure view")
 	for size: Dictionary in sizes: _assert(String(size["name"]) in labels, "actual size label reachable: " + String(size["name"]))
+	# The generated campaign has several realms; the old two-town fixture
+	# put every estate in the selected faction.
+	var selected: Dictionary = Dynasty.selected(Game)
+	var towns: Dictionary = Game.world["towns"]
+	var faction: String = str(towns[str(selected["town_id"])]["faction"])
+	var realm: Array = []
+	var foreign: int = 0
+	var other_house: bool = false
+	for row: Dictionary in Dragons.records(Game):
+		if str(towns[str(row["estate_town_id"])]["faction"]) != faction:
+			foreign += 1
+			continue
+		realm.append(row)
+		if str(row["owner_house_uid"]) != str(selected["house_uid"]): other_house = true
+	_assert(faction != "" and not realm.is_empty() and foreign > 0,
+		"native realm fixture contains same-faction and foreign estates")
+	_assert(other_house, "native realm fixture includes another house's actual holding")
 	page._choose_holdings("realm")
-	_assert(page.roster.size() == Dragons.records(Game).size(), "same-faction estate filter includes actual realm holdings")
+	_assert(page.roster == realm, "same-faction estate filter includes exactly the actual sorted realm holdings")
 	page._choose_holdings("all")
 	_assert(page.roster == Dragons.records(Game), "all-holdings view preserves actual sorted records")
 	page.catalog_open = false; page._choose_holdings("house")
@@ -165,6 +260,7 @@ func _sprite_controls(page: DragonsView, viewport: SubViewport, fit, row: Dictio
 	if picker == null: return
 	var healthy_frame: Rect2 = page.model_card._bounds
 	for index: int in 6:
+		if not _within_budget(): return
 		picker.select(index); picker.item_selected.emit(index)
 		await _settle()
 		var model: Dictionary = DragonArt.model(row, page.model_pose, 0, page.model_state)
@@ -230,11 +326,40 @@ func _orders(page: DragonsView, viewport: SubViewport, fit, egg: Dictionary, rec
 		if cancel != null: cancel.pressed.emit()
 		await _settle()
 		var keeper_uid := String(keeper["person_uid"])
+		Game.wait_save()
+		var custody_day: float = Game.day
+		var custody_before: Dictionary = Game.save_stats()
+		_assert(Game.autosave_due(), "native first custody order is naturally due for an autosave")
+		if fails > 0: return
 		var custody: Dictionary = Dragons.set_custodian_preview(Game, uid, keeper_uid)
 		var result: Dictionary = page._apply_action(uid, "set_custodian", keeper_uid, custody)
 		var kept: Dictionary = Dragons.get_record(Game, uid)
 		_assert(bool(result.get("ok", false)) and kept["custodian_person_uid"] == keeper_uid and kept["owner_person_uid"] == egg["owner_person_uid"] and kept["location_town_id"] == egg["location_town_id"], "custody order changes only actual keeper and history")
 		_assert(page.notice == "Custodian appointed.", "native successful order is visible")
+		Game.wait_save()
+		var custody_after: Dictionary = Game.save_stats()
+		_assert(Game.day == custody_day and int(custody_after.get("started", -1)) == int(custody_before.get("started", -1)) + 1
+			and int(custody_after.get("completed", -1)) == int(custody_before.get("completed", -1)) + 1
+			and int(custody_after.get("failed", -1)) == int(custody_before.get("failed", -1))
+			and bool(custody_after.get("last_ok", false)), "naturally due custody order completes exactly one successful autosave")
+		if fails > 0: return
+		var custody_saved: Variant = JSON.parse_string(FileAccess.get_file_as_string(Game.SAVE_PATH))
+		_assert(custody_saved is Dictionary, "due custody autosave contains a real serialized campaign")
+		if fails > 0: return
+		var saved_custody: Dictionary = custody_saved.get("world", {}).get("dragons", {}).get("records", {}).get(uid, {})
+		for field: String in ["id", "owner_person_uid", "owner_house_uid", "owner_household_uid", "custodian_person_uid", "location_town_id", "estate_town_id", "rider_person_uid", "mother_uid", "father_uid", "appearance_seed"]:
+			_assert(saved_custody.has(field) and saved_custody[field] == kept[field],
+				"due custody autosave preserves the actual new keeper and independent " + field)
+		if fails > 0: return
+	# Capture the policy verdict immediately before the gift. A same-day custody
+	# autosave can already own this interval; the gift must then coalesce.
+	Game.wait_save()
+	var gift_before: Dictionary = Game.save_stats()
+	var gift_due: bool = Game.autosave_due()
+	_assert(not gift_due, "native second order on the same day exercises autosave coalescing")
+	_assert(gift_before.has("started") and gift_before.has("completed") and gift_before.has("failed") and gift_before.has("last_ok"),
+		"gift requires native save receipt keys before the order")
+	if fails > 0: return
 	var state: Dictionary = Dragons.get_record(Game, uid)
 	review = Dragons.transfer_preview(Game, uid, recipient_uid)
 	var result: Dictionary = page._apply_action(uid, "transfer", recipient_uid, review)
@@ -249,27 +374,59 @@ func _orders(page: DragonsView, viewport: SubViewport, fit, egg: Dictionary, rec
 	var care := _button(page, "Choose custodian")
 	_assert(gift != null and gift.disabled and care != null and care.disabled, "non-owner orders are disabled after real gift")
 	Game.wait_save()
+	var gift_after: Dictionary = Game.save_stats()
+	_assert(gift_after.has("started") and gift_after.has("completed") and gift_after.has("failed") and gift_after.has("last_ok"),
+		"gift requires native save receipt keys after the order")
+	if fails > 0: return
+	_assert(int(gift_after.get("started", -1)) == int(gift_before.get("started", -1)) + (1 if gift_due else 0),
+		"gift requests exactly one due autosave or coalesces inside the native interval")
+	_assert(int(gift_after.get("completed", -1)) == int(gift_before.get("completed", -1)) + (1 if gift_due else 0)
+		and int(gift_after.get("failed", -1)) == int(gift_before.get("failed", -1)),
+		"gift autosave has the exact native completed/failed receipt")
+	if gift_due:
+		_assert(bool(gift_after.get("last_ok", false)), "due gift autosave completed successfully")
+		var autosaved: Variant = JSON.parse_string(FileAccess.get_file_as_string(Game.SAVE_PATH))
+		_assert(autosaved is Dictionary and autosaved.get("world", {}).get("dragons", {}).get("records", {}).get(uid, {}).get("owner_person_uid", "") == recipient_uid,
+			"an eligible gift reaches the native isolated autosave")
+	# Coalescing deliberately leaves the last snapshot intact; an explicit save
+	# must still persist the exact new owner, household and independent references.
+	_assert(Game.save_game(), "explicit native save accepts the actual gifted holding")
+	Game.wait_save()
 	var saved: Variant = JSON.parse_string(FileAccess.get_file_as_string(Game.SAVE_PATH))
-	_assert(saved is Dictionary and saved.get("world", {}).get("dragons", {}).get("records", {}).get(uid, {}).get("owner_person_uid", "") == recipient_uid, "successful user command reaches native isolated autosave")
+	_assert(bool(Game.save_stats().get("last_ok", false)) and saved is Dictionary
+		and saved.get("world", {}).get("dragons", {}).get("records", {}).get(uid, {}).get("owner_person_uid", "") == recipient_uid,
+		"successful user command reaches native isolated save")
+	if saved is Dictionary:
+		var saved_dragon: Dictionary = saved.get("world", {}).get("dragons", {}).get("records", {}).get(uid, {})
+		for field: String in ["id", "owner_person_uid", "owner_house_uid", "owner_household_uid", "custodian_person_uid", "location_town_id", "estate_town_id", "rider_person_uid", "mother_uid", "father_uid"]:
+			_assert(saved_dragon.get(field, null) == gifted.get(field, null), "native gift save preserves exact " + field)
 
-func _stale_ruler(page: DragonsView, viewport: SubViewport, fit, adult: Dictionary) -> void:
+func _stale_ruler(page: DragonsView, viewport: SubViewport, fit, adult: Dictionary, recipient: Dictionary) -> void:
 	var uid := String(adult["id"])
-	var recipient_uid := String(Dynasty.town_office(Game, "city_b")["person_uid"])
+	var recipient_uid: String = str(recipient["person_uid"])
 	page._open_dragon(uid)
 	page._request_action(uid, "transfer", recipient_uid)
 	await _settle()
 	var review_button := _button(page.find_child("Modal", true, false), "Confirm")
 	_assert(review_button != null, "living owner reviewed adult gift")
-	# Native registered heir, native death and explicit succession; no mock ruler.
+	# The heir existed before this scenario; never create/age/reparent a person.
 	var owner: Dictionary = Dynasty.ruler(Game)
-	var loc: Dictionary = Dynasty._person(Game, String(owner["person_uid"]))
-	var fixture = load("res://tests/test_feudal_succession.gd").new()
-	var child: Array = fixture.child(loc["econ"], loc["family"], int(loc["econ"]["next_pid"]), 0, 25, loc["person"], "Registered dragon heir")
-	if int(loc["person"][2]) == 1:
-		child[Persons.MOTHER_UID] = loc["person"][Persons.PERSON_UID]; child[Persons.FATHER_UID] = ""
-	Persons.remove(loc["family"], loc["person"], loc["econ"])
+	var heir: Dictionary = Dynasty.selected_heir(Game)
+	var loc: Dictionary = Dynasty._person(Game, str(owner.get("person_uid", "")))
+	var heir_loc: Dictionary = Dynasty._person(Game, str(heir.get("person_uid", "")))
+	_assert(not loc.is_empty() and not heir_loc.is_empty() and int(heir_loc["person"][6]) != 2,
+		"native dragon UI succession needs the existing registered adult heir")
+	if fails > 0: return
+	var heir_before: Array = (heir_loc["person"] as Array).duplicate(true)
+	Sickness.kill(Game, loc["town"], loc["family"], loc["person"], Game.day, "battle", "dragon UI succession scenario")
 	Dynasty.succession_day(Game)
-	_assert(String(Dynasty.ruler(Game)["person_uid"]) != String(owner["person_uid"]), "actual selected ruler changed through native succession")
+	_assert(str(Dynasty.ruler(Game).get("person_uid", "")) == str(heir["person_uid"])
+		and str(heir["person_uid"]) != str(owner["person_uid"]), "actual registered heir succeeds the actual ruler")
+	var heir_after: Dictionary = Dynasty._person(Game, str(heir["person_uid"]))
+	_assert(not heir_after.is_empty() and float(heir_after["person"][3]) == float(heir_before[3])
+		and heir_after["person"][Persons.MOTHER_UID] == heir_before[Persons.MOTHER_UID]
+		and heir_after["person"][Persons.FATHER_UID] == heir_before[Persons.FATHER_UID], "succession preserves real heir birthdate and parents")
+	if fails > 0: return
 	var record: Dictionary = Dragons.get_record(Game, uid)
 	var before := _snapshot()
 	if review_button != null: review_button.pressed.emit()
@@ -277,7 +434,6 @@ func _stale_ruler(page: DragonsView, viewport: SubViewport, fit, adult: Dictiona
 	_fit(fit, viewport, "changed ruler stale order")
 	_assert(_snapshot() == before and Dragons.get_record(Game, uid) == record, "stale current-ruler confirmation cannot change the original asset")
 	_assert(page.notice != "" and "owner" in page.notice, "stale authority rejection explains ownership")
-	fixture = null
 
 func _snapshot() -> String:
 	return JSON.stringify({"world": Game._serialize(Game.world), "gold": Game.gold, "unit_uid": Unit._next_uid, "item_uid": Item._next_uid, "rng": str(Game.rng.state)})
@@ -296,12 +452,34 @@ func _labels(node: Node) -> String:
 	return text
 
 func _settle() -> void:
-	for _i in 5: await tree.process_frame
+	for _i: int in 5:
+		if not _within_budget(): return
+		await tree.process_frame
 
 func _fit(fit, viewport: SubViewport, label: String) -> void:
+	if not _within_budget(): return
 	fit_cases += 1
+	var previous: int = int(fit.fails)
 	fit._check(viewport, Vector2(DESKTOP), label)
+	if int(fit.fails) > previous:
+		var offenders: Array = []
+		for child: Node in viewport.get_children():
+			fit._walk(child, [0.0, 0.0, float(DESKTOP.x), float(DESKTOP.y)], offenders)
+		failed_fits.append({"label": label, "width": DESKTOP.x, "height": DESKTOP.y,
+			"failures": int(fit.fails) - previous, "offenders": offenders})
 
 func _assert(ok: bool, label: String) -> void:
 	checks += 1
-	if not ok: fails += 1; printerr("dragon UI: ", label)
+	if not ok:
+		fails += 1
+		failed_assertions.append(label)
+		printerr("FAIL: dragon UI: ", label)
+
+func _report_failures(fit: Variant, section: String) -> void:
+	if fails == 0 and int(fit.fails) == 0: return
+	var payload: Dictionary = {"section": section, "width": DESKTOP.x, "height": DESKTOP.y,
+		"assertions": checks, "failures": failed_assertions.duplicate(), "fit_cases": fit_cases,
+		"fit_failures": int(fit.fails), "fit_details": failed_fits.duplicate(true)}
+	print("DRAGON_UI_FAILURES ", JSON.stringify(payload))
+	_assert(Observations.write("dragon_ui", payload), "failed assertion and fit observations persisted")
+

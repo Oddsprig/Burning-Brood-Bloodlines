@@ -458,6 +458,13 @@ func _cohort_pair(a: Dictionary, b: Dictionary) -> Dictionary:
 		for f in t["econ"]["fams"]:
 			if not Population.is_cohort(f) or f.get("gone", false): continue
 			for key in f["age_bins"]: totals["bins"][key] = int(totals["bins"].get(key, 0)) + int(f["age_bins"][key])
+			# v0.100 keeper staffing names existing residents during reassignment.
+			# Count their original sex/birth bins as well as anonymous residents.
+			for person: Array in f.get("pp", []) + f.get("kp", []):
+				if Persons.AWAY.has(str(person[4])): continue
+				var birth_year: int = int(floor(float(person[3]) / People.year_days()))
+				var birth_key: String = "%d:%d" % [int(person[2]), birth_year]
+				totals["bins"][birth_key] = int(totals["bins"].get(birth_key, 0)) + 1
 		for g in t["econ"]["hh"]: totals["goods"][g] = int(totals["goods"].get(g, 0)) + int(t["econ"]["hh"][g])
 	return totals
 

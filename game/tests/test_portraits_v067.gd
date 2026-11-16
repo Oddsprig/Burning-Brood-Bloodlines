@@ -27,8 +27,13 @@ func run(tree: SceneTree) -> int:
 	FigurePainter.set_legacy_v064(false)
 	FigurePainter.snapshot_v066_bust = false
 	helper = load("res://tests/test_races_v065.gd").new()
-	var out_dir := ProjectSettings.globalize_path("res://").path_join("../test-results")
+	var runs_dir: String = ProjectSettings.globalize_path("res://").path_join("../test-results/runs").simplify_path()
+	var run_id: String = "%d_%d_%d" % [int(Time.get_unix_time_from_system()), OS.get_process_id(), Time.get_ticks_usec()]
+	var out_dir: String = runs_dir.path_join("test_portraits_v067_" + run_id)
+	while DirAccess.dir_exists_absolute(out_dir):
+		out_dir += "_"
 	DirAccess.make_dir_recursive_absolute(out_dir)
+	print("Evidence output: ", out_dir)
 	var afters := {}
 	for race in RACES:
 		var befores: Array[Image] = []

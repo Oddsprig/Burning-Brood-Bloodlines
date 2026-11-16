@@ -1,8 +1,10 @@
 extends RefCounted
+const SpeedParts = preload("res://tests/fixtures/older_speed_parts_v100.gd")
 ## Compact Records retain actual saved totals, complete lists and native links.
 ## A generated one-day capital supplies real goods, arms, people and defenders.
 
 const SECTIONS := ["Overview", "Market", "Businesses", "Register", "Land & Homes", "Census", "Treasury", "Hardship", "Garrison", "Roads", "Sickness", "Books"]
+const UI := preload("res://tests/fixtures/ui_contract_v100.gd")
 var fails := 0
 var checks := 0
 var tree: SceneTree
@@ -24,6 +26,8 @@ func check(ok: bool, why: String) -> void:
 		printerr("FAIL: ", why)
 
 func run(st: SceneTree) -> int:
+	var speed_part: String = SpeedParts.select(["wide","tall","controls"])
+	if speed_part == "": return 1
 	tree = st
 	await tree.process_frame
 	Game.new_game(40040)
@@ -36,13 +40,44 @@ func run(st: SceneTree) -> int:
 	Game.location = tid
 	fit = load("res://tests/test_ui_fit.gd").new()
 	fit.tree = tree
+	if SpeedParts.includes(speed_part, "controls"): await _scroll_contract()
 	for size in [Vector2i(1280, 720), Vector2i(720, 1280)]:
+		var orientation: String = "wide" if size.x > size.y else "tall"
+		if speed_part != "all" and not speed_part.ends_with(orientation): continue
 		await _screen(size, town)
-	_legacy_market(town)
-	_issued_quality_fixture(town)
+	if SpeedParts.includes(speed_part, "controls"): _legacy_market(town)
+	if SpeedParts.includes(speed_part, "controls"): _issued_quality_fixture(town)
 	Game.location = ""
 	print("RECORDS v040 checks=", checks, " failures=", fails, " fit_failures=", fit.fails)
 	return fails + int(fit.fails)
+
+func _scroll_contract() -> void:
+	# v0.100: prove AUTO with fitting content passes and real overflow fails, including when clipped.
+	var viewport := SubViewport.new()
+	viewport.size = Vector2i(360, 200)
+	viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	tree.root.add_child(viewport)
+	var sc := UiKit.scroll()
+	sc.size = Vector2(360, 200)
+	sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	viewport.add_child(sc)
+	var content := Control.new()
+	content.custom_minimum_size = Vector2(200, 40)
+	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sc.add_child(content)
+	await _settle()
+	check(UI.horizontal_fits(sc), "AUTO alone is not horizontal overflow")
+	content.custom_minimum_size.x = 500
+	await _settle()
+	check(not UI.horizontal_fits(sc), "actual AUTO overflow is detected")
+	sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	await _settle()
+	check(not UI.horizontal_fits(sc), "disabling the bar cannot hide clipped oversized content")
+	content.custom_minimum_size.x = 200
+	await _settle()
+	check(UI.horizontal_fits(sc), "fitting content recovers after overflow")
+	viewport.queue_free()
+	await tree.process_frame
 
 func _screen(size: Vector2i, town: Dictionary) -> void:
 	Game.screen_params = {"view": "town", "id": town["id"], "tab": "Overview", "back": "town"}
@@ -58,12 +93,10 @@ func _screen(size: Vector2i, town: Dictionary) -> void:
 	check(screen.TOWN_TABS == SECTIONS, "every existing town section and deep-link key remains available")
 	check(Game._save_tree() == before and Game.rng.state == random_state, "initial Records view leaves serialized campaign and random stream unchanged")
 	for section in SECTIONS:
-		var navigation := _button(screen.tabs_box, section)
-		check(navigation != null, "wrapped navigation retains its native " + section + " action")
-		if navigation != null:
-			navigation.pressed.emit()
-		else:
-			screen.show_tab(section)
+		# v0.100: grouped navigation from 6210641; require the real category and tab signals.
+		var navigated := UI.navigate(screen, section)
+		check(navigated, "category navigation retains its native " + section + " action")
+		if not navigated: continue
 		await _settle()
 		check(String(screen.tab) == section, "native section action selects " + section)
 		fit._check(viewport, Vector2(size), "Records " + section)
@@ -489,11 +522,12 @@ func _check_native(node: Node, size: Vector2i, section: String) -> void:
 	if node is CanvasItem and not node.visible:
 		return
 	if node is ScrollContainer:
-		check(node.horizontal_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED, "Records " + section + " requires no sideways scrolling")
+		# v0.100: AUTO is deliberate (6210641); any actual overflow still fails.
+		check(UI.horizontal_fits(node), "Records " + section + " requires no sideways scrolling")
 	if node is Button:
 		check(node.size.y >= 46.5, "Records action keeps a 48 px target")
 	if node.has_meta("rec_row"):
-		check(node.size.y >= 62.5, "Records detail row keeps a 64 px target")
+		check(node.size.y >= UI.row_height() - 1.5, "Records detail row keeps its %d px target" % int(UI.row_height()))
 	for child in node.get_children():
 		_check_native(child, size, section)
 

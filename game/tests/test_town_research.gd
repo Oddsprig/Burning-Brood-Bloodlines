@@ -73,6 +73,8 @@ func _fixture(source: Dictionary, faction: Dictionary, research: Dictionary) -> 
 	chosen["keeps"] = []
 	chosen["cj"] = {}
 	b["lead"] = [int(chosen["id"]), int(people[1][0])]
+	b["lead_uid"] = String(Persons.g(people[1], Persons.PERSON_UID, ""))
+	b["research_idle"] = false
 	b["workers"] = 2
 	b["cap"] = 3
 	b["till"] = 54321.75

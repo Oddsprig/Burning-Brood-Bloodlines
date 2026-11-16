@@ -1,17 +1,17 @@
 extends RefCounted
 
-## Frozen delivered v0.043 baseline: exact class bodies with only lexical class-name substitution and nesting.
+## v0.100: v043 oracle with only audited later contracts updated below; all other rows/actions stay frozen.
 
 ## Live RecData/simulation/civic helpers are unchanged dependencies. The six measured builders,
 
 ## deferred native callbacks, table rendering and kit construction use the frozen classes below.
 ## FrozenPages preserves the complete existing family-detail observation contract independently.
-## The original six bodies retain live RecPages references; its exact delivered source is manifest-verified.
+## v0.100: live RecPages is pinned after 6210641, 1349f13, 1ffa64e and 26c2200 (verified with git show).
 
 const COMMIT := "33265175d0274084aff69a47020059e9310ac63f"
 
 const SOURCE_BLOBS := {"game/ui/rec_world.gd": "8ab0d1f479b08770174d7fc114e36bb4868f6ff7", "game/ui/rec_regions.gd": "cd125884826a346a9930b694e7da814f5772b1e8", "game/ui/rec_flows.gd": "95f3e8bf05a9ab70534a581ffb49d92f8b897254", "game/ui/rec_town.gd": "462a4ba2a0cb6c36369b492c91548595004c5d2d", "game/ui/rec_table.gd": "46b89f79507df9b1db6f666dccee9afb66f2b92c", "game/ui/rec_kit.gd": "ccb8f08444bf0ef0e514858fae3338b8ae240b4f", "game/ui/rec_pages.gd": "86a2f0f5cd7b87e0d69ed3e3932ac2e6cc29da95"}
-const LIVE_PAGES_SHA256 := "3072cd201e4709b610229503e9a146569e76278811aaa5f13e1ae2027a9c3567"
+const LIVE_PAGES_SHA256 := "e26fa21cc09952aedecd3d7d6916cf813277ae4b0a116b0e8e880506640b98d7"
 
 
 static func build(scr, tids: Array, fid: String, tab: String) -> Control:
@@ -287,17 +287,22 @@ class FrozenWorld:
 		ac.add_child(rulers_table(scr, tids))
 	static func on_the_move(scr, tids: Array, fid: String, v: VBoxContainer) -> void:
 		var w: Dictionary = Game.world
-		var gold := 0.0; var ncar := 0; var nfield := 0
+		# v0.100: 26c2200/f841ee2 deliberately report live pack donkeys; count from native herd data.
+		var gold := 0.0; var ncar := 0; var nfield := 0; var npack := 0
 		for wb in _forces(fid):
 			if String(wb.get("kind", "")) == "caravan":
 				ncar += 1; gold += float(wb.get("gold", 0.0))
+				var home: Dictionary = w.get("towns", {}).get(String(wb.get("origin", "")), {})
+				if TownEcon.has_econ(home):
+					var herd := DomesticAnimals.pack_herd(home["econ"], wb)
+					if not herd.is_empty() and Herds.head(herd) > 0: npack += 1
 			if Army.is_field(wb): nfield += 1
 		var c := FrozenKit.card(v, "On the move")
 		FrozenKit.kv(c, "Caravans on the road", "%d, carrying %s in coin" % [ncar, _m(gold)])
 		FrozenKit.kv(c, "Armies in the field", "%d" % nfield)
 		var ws: Dictionary = w.get("war", {}).get("stats", {})
 		FrozenKit.kv(c, "Interceptions (since the world began)", "%d" % int(ws.get("intercepts", 0)))
-		FrozenKit.kv(c, "Carriers", "wagons (caravans) only: no pack animals, porters or boats in the sim")
+		FrozenKit.kv(c, "Carriers", "wagons (caravans) with drivers and porters; pack donkeys carry return loads (%d caravan%s on the road with them now); no boats in the sim" % [npack, "" if npack == 1 else "s"])
 		for k in ["Robbed this season", "Worth of consignments", "Carriers going home empty", "Relief grain on the way", "Fetched by the buyer vs sent by the seller", "Arriving soonest (ETA)"]:
 			FrozenKit.nt(c, k)
 		v.add_child(move_table(scr, fid))
@@ -1145,6 +1150,16 @@ class FrozenFlows:
 		table.display_cells([{"k": "town", "t": "Town", "w": 2.0}, {"k": "cars", "t": "Caravans", "w": 0.9},
 			{"k": "gold", "t": "Coin out", "format": _m, "w": 1.3}, {"k": "out", "t": "Traded out", "format": _m, "w": 1.4}])
 		FrozenKit.card(v, "Trade by town", "Select a town for its records. Incoming trade remains in the full row details.").add_child(table)
+		# v0.100: 1349f13 deliberately adds trip receipts; preserve their full rows and native force actions.
+		var trips := FrozenKit.card(v, "Caravan trip receipts", "Expected and realized costs, including unsold cargo. Closed trips are kept in each town's Roads record.")
+		for tid in tids:
+			for wb in FrozenTown._caravans_of(String(tid)):
+				var wid := String(wb["id"])
+				var receipt: Dictionary = wb.get("receipt", {})
+				if receipt.is_empty(): continue
+				trips.add_child(FrozenKit.row(RecPages.force_name(wb), _m(float(receipt.get("realized", {}).get("net", 0.0))),
+					"Expected net %s; %s" % [_m(float(receipt.get("expected", {}).get("net", 0.0))), String(wb.get("state", ""))],
+					func(): scr.open_force(wid)))
 		var supply := FrozenWorld.supply_table(scr, tids)
 		supply.display_cells([{"k": "town", "t": "Town", "w": 2}, {"k": "received", "t": "Received"}, {"k": "sent", "t": "Sent"}])
 		FrozenKit.card(v, "Garrison equipment transfers", "All-time real pieces moved between own-faction armories. Issued kit is separate from reserve stock.").add_child(supply)
@@ -2868,6 +2883,12 @@ class FrozenPages:
 	
 	static func _m(v: float) -> String:
 		return RecData.money(v)
+
+	# v0.100: 6210641 renders details from a detached economy; observing a family cannot edit the save.
+	static func _detail_town(t: Dictionary) -> Dictionary:
+		var view := t.duplicate()
+		view["econ"] = RecData.econ(t).duplicate(true)
+		return view
 	
 	## "12 (3 bed-ridden)": the town's people at home in their sick phase (campaign/sickness.gd town_summary).
 	static func sick_count(t: Dictionary) -> String:
@@ -2893,12 +2914,13 @@ class FrozenPages:
 	
 	# ================================================================== family
 	static func family(scr, t: Dictionary, fid: int, box: VBoxContainer) -> void:
+		t = _detail_town(t)
 		var e := RecData.econ(t)
 		var f := RecData.fam(e, fid)
 		if f.is_empty():
 			FrozenKit.line(box, "No such family.", "Muted")
 			return
-		f["named"] = true   # an opened family keeps its life events from now on (economy spec 6)
+		# v0.100: 6210641 removed naming and person reconciliation from record browsing.
 		if f.get("estate", false):
 			var ec := FrozenKit.card(box, "The town's own land")
 			for l in Families.describe(t, e, f):
@@ -2917,7 +2939,6 @@ class FrozenPages:
 		var s: Dictionary = f.get("store", {})
 		FrozenKit.kv(c, "Stores", "food %d days, drink %d days, firewood %d days" % [int(s.get("food", 0)), int(s.get("drink", 0)), int(s.get("wood", 0))])
 		var day := float(Game.day)
-		Persons.sync(e, f, day)
 		var members := Persons.household(e, f, day)
 		var sick := members.filter(func(m): return String(m.get("sick", "")) != "")
 		FrozenKit.kv(c, "Sick today", "%d of %d at home and away" % [sick.size(), members.size()] if not sick.is_empty() else "nobody")
@@ -2940,7 +2961,8 @@ class FrozenPages:
 				(_m(wage / 7.0) + " a day") if wage >= 0 and String(m["work"]) != "child" else "",
 				"%s%s; %s%s" % [(sk + "; ") if sk != "" else "", String(m["kin"]), String(m["work"]), ("; " + Persons.SERVICE_WORDS.get(String(m["state"]), String(m["state"]))) if String(m["state"]) != "" else ""],
 				func(): scr.open_person(t, fid, pid), UiTheme.BAD if sk != "" else null))
-		if not Persons.pp(f).is_empty() or f.has("dp"):
+		# v0.100: non-creating getters retain 1ffa64e's record-read purity fix.
+		if not Persons.pp_read(f).is_empty() or f.has("dp"):
 			var gone := remembered(e, f)
 			if not gone.is_empty():
 				var gc := FrozenKit.card(box, "Remembered (dead and departed)")
@@ -3250,7 +3272,7 @@ class FrozenPages:
 		var living := {}
 		for family in e.get("fams", []):
 			if family.get("gone", false): continue
-			for p in Persons.pp(family) + Persons.kp(family): living[int(p[0])] = true
+			for p in Persons.pp_read(family) + Persons.kp_read(family): living[int(p[0])] = true
 		for p in f.get("dp", []):
 			if not living.has(int(p[0])): out.append(p)
 		return out

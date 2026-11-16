@@ -1,19 +1,45 @@
 extends RefCounted
 ## Exact source/purity checks cannot certify animation or artwork quality.
+## run only one Godot game test at a time on the user's PC (several at once crashed it), headless. Before starting any game test, check for other running Godot or Unity processes (from any project or helper); if any are running, queue the test and wait until they have finished before starting it. Every test must finish in under 3 minutes. These rules must be pasted word for word into every helper task and test brief.
+const RunplanArgs: GDScript = preload("res://tests/fixtures/older_runplan_args_v100.gd")
+const SpeedParts: GDScript = preload("res://tests/fixtures/older_speed_parts_v100.gd")
+const MORPH_PARTS: Array[String] = ["spirewing", "broadmantle", "reedrunner", "ironcrest", "stormkeel", "duskfin"]
+const PART_BUDGET_MSEC: int = 150000
 var checks: int = 0
 var fails: int = 0
 
 func run(_tree: SceneTree) -> int:
+	var started: int = Time.get_ticks_msec()
 	var before: String = _snapshot()
 	var catalogs: Dictionary = Dragons.catalogs()
 	var selected: Array = _selected_forms(catalogs["morphs"])
 	if selected.is_empty():
 		print("Dragon source models: %d assertions, %d failures; invalid form selection." % [checks, fails])
 		return fails
+	# A receipt carries observations only. No cache, Image or Texture crosses processes.
+	if not _part_check(selected.size() == 1, "select exactly one --forms=<morph>; all six serial rows are required"): return maxi(1, fails)
+	var catalog_ids: Array[String] = []
+	for form: Dictionary in catalogs["morphs"]: catalog_ids.append(String(form["id"]))
+	if not _part_check(catalog_ids == MORPH_PARTS, "catalog order matches the six required forms"): return maxi(1, fails)
+	var step: int = MORPH_PARTS.find(String(selected[0]["id"]))
+	var chain: String = _chain_argument()
+	if fails > 0: return fails
+	var receipt_path: String = _receipt_path(chain, step)
+	# Invalidate a previous attempt BEFORE any prerequisite or original check can fail.
+	if not _part_check(_write_json(receipt_path, {"complete": false, "passed": false, "run": chain, "step": step}), "initialize incomplete receipt"): return maxi(1, fails)
+	var errors: Object = _tree.current_scene.get("script_errors") as Object
+	if not _part_check(errors != null and errors.has_method("total"), "use the native runner with its script-error counter"): return maxi(1, fails)
+	var errors_before: int = int(errors.call("total"))
+	var identity: String = _source_identity()
+	if not _part_check(not identity.is_empty(), "source, art, imports, engine and profile identity captured"): return maxi(1, fails)
+	var prefix: Dictionary = _predecessors(chain, step, identity)
+	if prefix.is_empty(): return maxi(1, fails)
+	if not _part_check(_art_is_cold(), "start each form in a fresh process with cold native art caches"): return maxi(1, fails)
 	var form_ids: Array[String] = []
 	for form: Dictionary in selected: form_ids.append(String(form["id"]))
 	print("Dragon source model forms: " + ",".join(form_ids))
-	var sources: Dictionary = {}
+	var sources: Dictionary = (prefix["sources"] as Dictionary).duplicate()
+	var observed_source: String = ""
 	for form: Dictionary in selected:
 		var code_row: Dictionary = {"stage": "adult", "alive": true, "gem_id": "sapphire", "morph_id": form["id"], "size_class": "medium", "appearance_seed": 27}
 		var code_img: Image = DragonArt.source_image(code_row)
@@ -39,7 +65,13 @@ func run(_tree: SceneTree) -> int:
 			raw.convert(Image.FORMAT_RGBA8)
 			_assert(raw.get_data() == reconstructed.get_data(), "imported source preserves untouched PNG RGBA, without border-RGB or compression changes")
 		sources[original.get_data().hex_encode().sha256_text()] = true
+		observed_source = original.get_data().hex_encode().sha256_text()
 		_source_layers(row, original)
+		# The original sequence below warms and reuses this form's caches natively.
+		var native_source: Dictionary = DragonRigArt._source(row)
+		var gem: Dictionary = DragonArt._entry("gems", "sapphire")
+		var tint_job: Dictionary = DragonArt._tint_job(native_source, row, Color(String(gem["base"])), Color(String(gem["accent"])))
+		_part_check(not FileAccess.file_exists(DragonArt._tint_path(String(tint_job["key"]))), "selected form's persistent tint is cold; use a fresh isolated test profile")
 		var rest: Dictionary = DragonArt.model(row, "rest", 0.77)
 		_assert(bool(rest.get("valid", false)), "rest model is valid")
 		if not bool(rest.get("valid", false)): continue
@@ -65,18 +97,38 @@ func run(_tree: SceneTree) -> int:
 		_damage(row)
 		_sizes(row, catalogs["sizes"])
 		_assert(row == copied and original.get_data() == reconstructed.get_data(), "palette/motion/damage reads preserve source identity")
+	# Prefix hashes are actual source observations from fully checked earlier forms.
+	selected = (catalogs["morphs"] as Array).slice(0, step + 1)
 	_assert(sources.size() == selected.size(), "every selected body form has a distinct coherent source")
 	_assert(_snapshot() == before, "art reads preserve world, catalogs, native identity counters and RNG")
 	_assert(DragonRigArt._textures.size() <= DragonRigArt.TEXTURE_CACHE_LIMIT and DragonRigArt._images.size() <= DragonRigArt.IMAGE_CACHE_LIMIT, "native texture/image caches remain bounded")
 	DragonRigArt.clear_texture_cache()
 	_assert(DragonRigArt._textures.is_empty() and DragonRigArt._texture_order.is_empty(), "explicit GPU cleanup releases texture references")
-	print("Dragon source models: %d assertions, %d failures; artwork requires fresh visual review." % [checks, fails])
-	return fails
+	_part_check(checks == _expected_checks(MORPH_PARTS[step]), "all original normal-path assertions were reached for this form")
+	if fails > 0: return fails
+	var candidate: Dictionary = {
+		"format": "dragon-models-r6", "complete": true, "passed": true, "fails": 0,
+		"run": chain, "nonce": prefix["nonce"], "step": step, "morph_id": MORPH_PARTS[step],
+		"source": identity, "source_rgba_sha256": observed_source, "checks": checks,
+		"checks_ms": Time.get_ticks_msec() - started, "budget_ms": PART_BUDGET_MSEC,
+		"complete_set": step == MORPH_PARTS.size() - 1,
+	}
+	# Consumers never read .pending. Verify it before publishing the final receipt.
+	var pending: String = receipt_path + ".pending"
+	if not _part_check(_write_json(pending, candidate) and FileAccess.get_file_as_string(pending) == JSON.stringify(candidate), "candidate receipt roundtrips exactly"): return maxi(1, fails)
+	if not _part_check(_source_identity() == identity, "source and native inputs stayed fixed"): return maxi(1, fails)
+	if not _part_check(int(errors.call("total")) == errors_before, "no runtime script error skipped an original check"): return maxi(1, fails)
+	if not _part_check(Time.get_ticks_msec() - started < PART_BUDGET_MSEC, "all checks and receipt verification finish below 150 s"): return maxi(1, fails)
+	# This is the commit point. No original, verification or budget check follows it.
+	var published: Error = DirAccess.rename_absolute(ProjectSettings.globalize_path(pending), ProjectSettings.globalize_path(receipt_path))
+	if not _part_check(published == OK, "publish the verified receipt"): return maxi(1, fails)
+	print("Dragon source models %s: %d assertions, 0 failures; complete six-form chain required; artwork requires fresh visual review." % [MORPH_PARTS[step], checks])
+	return 0
 
 func _selected_forms(forms: Array) -> Array:
 	var argument: String = ""
 	var provided: bool = false
-	for value: String in OS.get_cmdline_user_args():
+	for value: String in RunplanArgs.arguments():
 		if not value.begins_with("--forms="): continue
 		if provided:
 			_assert(false, "supply --forms only once")
@@ -216,3 +268,93 @@ func _assert(ok: bool, label: String) -> void:
 	if not ok:
 		fails += 1
 		printerr("dragon source model: ", label)
+
+func _part_check(ok: bool, label: String) -> bool:
+	if not ok:
+		fails += 1
+		printerr("dragon model part: ", label)
+	return ok
+
+func _chain_argument() -> String:
+	var chain: String = ""
+	var provided: bool = false
+	for arg: String in RunplanArgs.arguments():
+		if not arg.begins_with("--chain="): continue
+		if not _part_check(not provided, "supply --chain exactly once"): return ""
+		provided = true
+		chain = arg.trim_prefix("--chain=")
+	if not _part_check(not chain.is_empty() and chain.length() <= 48, "supply a fresh --chain=<id>, at most 48 characters"): return ""
+	for ch: String in chain:
+		if not _part_check(ch in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-", "safe chain characters required"): return ""
+	return chain
+
+func _receipt_path(chain: String, step: int) -> String:
+	return "user://dragon_models_r6_%s_%s_%d.json" % [ProjectSettings.globalize_path("res://").sha256_text().substr(0, 12), chain, step]
+
+func _write_json(path: String, data: Dictionary) -> bool:
+	var file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
+	if file == null: return false
+	file.store_string(JSON.stringify(data))
+	file.flush()
+	var ok: bool = file.get_error() == OK
+	file.close()
+	return ok
+
+func _read_json(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path): return {}
+	var decoded: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	return decoded if decoded is Dictionary else {}
+
+func _digest_ok(value: String) -> bool:
+	if value.length() != 64: return false
+	for ch: String in value:
+		if not ch in "0123456789abcdef": return false
+	return true
+
+func _predecessors(chain: String, step: int, identity: String) -> Dictionary:
+	var sources: Dictionary = {}
+	var nonce: String = "%s-%d-%d" % [str(Time.get_unix_time_from_system()), OS.get_process_id(), Time.get_ticks_usec()]
+	for i: int in range(step):
+		var prior: Dictionary = _read_json(_receipt_path(chain, i))
+		if not _part_check(prior.get("format") == "dragon-models-r6" and prior.get("complete") == true and prior.get("passed") == true and prior.get("fails") == 0, "predecessor %s must have completed without failures" % MORPH_PARTS[i]): return {}
+		if not _part_check(prior.get("run") == chain and prior.get("step") == i and prior.get("morph_id") == MORPH_PARTS[i] and prior.get("source") == identity and prior.get("budget_ms") == PART_BUDGET_MSEC and prior.get("checks") == _expected_checks(MORPH_PARTS[i]), "predecessor order, source, profile, engine and coverage match"): return {}
+		var prior_nonce: String = str(prior.get("nonce", ""))
+		if i == 0: nonce = prior_nonce
+		if not _part_check(not nonce.is_empty() and prior_nonce == nonce, "every predecessor belongs to the current spirewing attempt"): return {}
+		var digest: String = str(prior.get("source_rgba_sha256", ""))
+		if not _part_check(_digest_ok(digest), "predecessor records an observed RGBA source hash"): return {}
+		sources[digest] = true
+	return {"sources": sources, "nonce": nonce}
+
+func _expected_checks(morph_id: String) -> int:
+	# Exact original normal path: repeated gem, edge, pose, layer and size checks.
+	var catalogs: Dictionary = Dragons.catalogs()
+	var entry: Dictionary = DragonSpriteCatalog.entry(morph_id)
+	return 58 + entry["horn_edge_probes_px"].size() + catalogs["gems"].size() + 2 * FigurePainter.POSES.size() + 5 * catalogs["sizes"].size()
+
+func _art_is_cold() -> bool:
+	return DragonSpriteCatalog._material_masks.is_empty() and DragonArt._assets.is_empty() and DragonArt._tints.is_empty() and DragonArt._tint_order.is_empty() and DragonArt._warm_tasks.is_empty() and DragonRigArt._sources.is_empty() and DragonRigArt._images.is_empty() and DragonRigArt._image_order.is_empty() and DragonRigArt._textures.is_empty() and DragonRigArt._texture_order.is_empty() and DragonDamageArt._decals.is_empty() and DragonDamageArt._decal_order.is_empty() and SapphireSpirewingArt._frames.is_empty() and SapphireSpirewingArt._variant_frames.is_empty() and SapphireSpirewingArt._variant_order.is_empty()
+
+func _source_identity() -> String:
+	var stamps: PackedStringArray = PackedStringArray([
+		SpeedParts.source_stamp(), JSON.stringify(Engine.get_version_info()),
+		OS.get_executable_path(), ProjectSettings.globalize_path("res://"), ProjectSettings.globalize_path("user://"),
+	])
+	var paths: Array[String] = [DragonSpriteCatalog.PATH]
+	for morph_id: String in MORPH_PARTS:
+		var entry: Dictionary = DragonSpriteCatalog.entry(morph_id)
+		var path: String = str(entry.get("source_path", ""))
+		if path.is_empty(): return ""
+		paths.append(path)
+		if FileAccess.file_exists(path + ".import"):
+			paths.append(path + ".import")
+			var import_config: ConfigFile = ConfigFile.new()
+			if import_config.load(path + ".import") != OK: return ""
+			for imported: String in import_config.get_value("deps", "dest_files", PackedStringArray()):
+				paths.append(imported)
+	for path: String in paths:
+		if not FileAccess.file_exists(path): return ""
+		var digest: String = FileAccess.get_sha256(path)
+		if not _digest_ok(digest): return ""
+		stamps.append(path + ":" + digest)
+	return "\n".join(stamps).sha256_text()

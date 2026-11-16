@@ -16,6 +16,7 @@ const COL_CIRCLE := Color(1.0, 0.75, 0.3)
 static var usec := 0       # profiling: microseconds in _process + _draw (tests read it)
 static var draws := 0
 
+var _committed_draw: Array = []
 var map: Node = null
 var _ver := -1
 var _cid := ""
@@ -31,6 +32,8 @@ func setup(m: Node) -> void:
 	queue_redraw()
 
 func _process(_delta: float) -> void:
+	if Game._day_job_hold_active():
+		return
 	var t0 := Time.get_ticks_usec()
 	var v := Tracks.version(Game.world)
 	var cid: String = Game.contract.get("id", "")
@@ -43,6 +46,11 @@ func _process(_delta: float) -> void:
 	usec += Time.get_ticks_usec() - t0
 
 func _draw() -> void:
+	if Game._day_job_hold_active():
+		for command: Array in _committed_draw:
+			callv(String(command[0]), command[1])
+		return
+	_committed_draw.clear()
 	var t0 := Time.get_ticks_usec()
 	draws += 1
 	var w: Dictionary = Game.world
@@ -55,21 +63,21 @@ func _draw() -> void:
 	if not ls.is_empty() and Tracks.hides_target(Game, tgt):
 		var c: Vector2 = ls["pos"]
 		var r: float = ls["radius"]
-		draw_circle(c, r, Color(COL_CIRCLE, 0.08))
-		draw_arc(c, r, 0, TAU, 72, Color(COL_CIRCLE, 0.7), 2.5)
-		draw_line(c + Vector2(-7, 0), c + Vector2(7, 0), Color(COL_CIRCLE, 0.9), 2.0)
-		draw_line(c + Vector2(0, -7), c + Vector2(0, 7), Color(COL_CIRCLE, 0.9), 2.0)
+		_track_draw("draw_circle", [c, r, Color(COL_CIRCLE, 0.08)])
+		_track_draw("draw_arc", [c, r, 0, TAU, 72, Color(COL_CIRCLE, 0.7), 2.5])
+		_track_draw("draw_line", [c + Vector2(-7, 0), c + Vector2(7, 0), Color(COL_CIRCLE, 0.9), 2.0])
+		_track_draw("draw_line", [c + Vector2(0, -7), c + Vector2(0, 7), Color(COL_CIRCLE, 0.9), 2.0])
 	var buffers := geometry(st, day, tgt)
 	var pts: PackedVector2Array = buffers[0]; var cols: PackedColorArray = buffers[1]
 	var mpts: PackedVector2Array = buffers[2]; var mcols: PackedColorArray = buffers[3]
 	if not pts.is_empty():
-		draw_multiline_colors(pts, cols, 1.5)
+		_track_draw("draw_multiline_colors", [pts, cols, 1.5])
 	if not mpts.is_empty():
-		draw_multiline_colors(mpts, mcols, 2.5)
+		_track_draw("draw_multiline_colors", [mpts, mcols, 2.5])
 	if not track_sel.is_empty():
 		var info := _sel_info()
 		if not info.is_empty():
-			draw_arc(info["pos"], 11.0, 0, TAU, 20, Color(1, 1, 1, 0.9), 1.5)
+			_track_draw("draw_arc", [info["pos"], 11.0, 0, TAU, 20, Color(1, 1, 1, 0.9), 1.5])
 	usec += Time.get_ticks_usec() - t0
 
 func geometry(st: Dictionary, day: float, tgt: String) -> Array:
@@ -116,12 +124,16 @@ func geometry(st: Dictionary, day: float, tgt: String) -> Array:
 
 # ---------------------------------------------------------------- HUD hooks
 func _on_contract_input(ev: InputEvent) -> void:
+	if CampaignWorld.defer_day_job_action(Game, _on_contract_input.bind(ev)):
+		return
 	if ev is InputEventMouseButton and (ev as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT \
 			and not (ev as InputEventMouseButton).pressed:
 		center_on_contract()
 
 ## Centres the map camera on the hunted target (when seen) or its last-seen spot; returns the point (INF if none).
 func center_on_contract() -> Vector2:
+	if CampaignWorld.defer_day_job_action(Game, center_on_contract):
+		return Vector2.INF
 	var p := Tracks.focus_point(Game)
 	if p == Vector2.INF or map == null:
 		return p
@@ -134,6 +146,8 @@ func center_on_contract() -> Vector2:
 
 ## Map tap: selects a noticed track under p (radius r). Returns true when one was hit.
 func tap(p: Vector2, r: float) -> bool:
+	if CampaignWorld.defer_day_job_action(Game, tap.bind(p, r)):
+		return false
 	var hit := Tracks.track_at(Game, p, r)
 	if hit.is_empty():
 		return false
@@ -142,6 +156,8 @@ func tap(p: Vector2, r: float) -> bool:
 	return true
 
 func _sel_info() -> Dictionary:
+	if Game._day_job_hold_active():
+		return {}
 	if track_sel.is_empty():
 		return {}
 	var idx := Tracks.index_of(Game, track_sel[0], float(track_sel[1]))
@@ -154,6 +170,8 @@ func clear_selection() -> void:
 
 ## Fills the map's info panel for the selected track (called from world_map._fill_info).
 func fill_info(m: Node, rebuild: bool) -> void:
+	if CampaignWorld.defer_day_job_action(Game, fill_info.bind(m, rebuild)):
+		return
 	var info := _sel_info()
 	if info.is_empty():
 		m._close_info()
@@ -170,3 +188,8 @@ func fill_info(m: Node, rebuild: bool) -> void:
 		else:
 			m.toast("The trail is lost here.")))
 	m.info_buttons.add_child(m._button("Close", m._close_info))
+
+## Packed drawing buffers and scalar values belong to the committed picture.
+func _track_draw(method: String, args: Array) -> void:
+	_committed_draw.append([method, args])
+	callv(method, args)

@@ -6,6 +6,8 @@ extends Node
 signal changed
 signal screen_changed(screen: String)
 signal setting_changed(key: String, value: Variant)
+# v0.100: receipt-time UI feedback for manual, worker and lifecycle saves.
+signal save_finished(ok: bool)
 
 ## Tests redirect saves/settings (tests/runner.gd) so they never touch the player's real save.
 var SAVE_PATH := "user://save.json"
@@ -59,9 +61,13 @@ var main: Node = null            # set by main.gd; holds the active screen
 var _active_screen := "title"    # runtime only; pending jobs also settle in paused campaign views
 
 func _exit_tree() -> void:
+	# v0.100: retire saves while the autoloads (including Perf) still exist, before PREDELETE.
+	wait_save(false)
 	DragonArt.finish_warm()   # worker threads painting dragon pigment must finish before the engine exits
 
 func _ready() -> void:
+	# v0.100: a failed close-save must leave time to read the failure and choose an unsaved exit.
+	get_tree().auto_accept_quit = false
 	process_mode = Node.PROCESS_MODE_ALWAYS   # capture slices keep running while the campaign is held
 	rng.randomize()
 	load_settings()
@@ -73,6 +79,8 @@ func _ready() -> void:
 
 # ---------------------------------------------------------------- screens
 func goto(screen: String, params: Dictionary = {}) -> void:
+	if CampaignWorld.defer_day_job_action(self, goto.bind(screen, params)):
+		return
 	if _active_screen in ["aftermath", "gameover"] and screen not in ["aftermath", "gameover"]:
 		_release_result_history()
 		last_result = {}   # results have been consumed; release their combatants and event payload
@@ -195,6 +203,8 @@ func unpaid_count() -> int:
 
 # ---------------------------------------------------------------- new game
 func new_game(game_seed: int = 0) -> void:
+	if CampaignWorld.defer_day_job_action(self, new_game.bind(game_seed)):
+		return
 	var generation := new_game_begin(game_seed)
 	while not new_game_slice(generation, 0):
 		pass
@@ -216,6 +226,9 @@ func new_game_begin(game_seed: int = 0) -> Dictionary:
 	company.clear(); stash.clear(); squads.clear(); rep.clear(); world.clear()
 	Dynasty.note_households_changed()   # in-place clear keeps the dictionary; drop the household index
 	Unit._next_uid = 1   # a new world numbers its people and things from 1 (same seed = same world, same ids)
+	# v0.100: conservation totals belong to this campaign, not the previous process run.
+	TownEcon.gold_gone = 0.0
+	TownEcon.goods_lost = {}
 	_release_result_history()
 	contract = {}; location = ""; pending_battle = {}; last_result = {}
 	invalidate_deploy()
@@ -403,7 +416,10 @@ const HEAL_STEP := 4.0 / 24.0   # heal in 4-hour batches on the map (each batch 
 var _heal_acc := 0.0
 
 func advance_time(days: float, in_town: bool = false, healer_skill: int = 0, work_budget_usec: int = 0) -> void:
+	if CampaignWorld.defer_day_job_action(self, advance_time.bind(days, in_town, healer_skill, work_budget_usec)):
+		return
 	if _save_capture != null: return   # a multi-frame capture owns one complete campaign instant
+	_day_job_begin_frame(Time.get_ticks_usec())
 	var started := Time.get_ticks_usec()
 	# A loaded or just-entered town can retain a previous midnight. Finish that
 	# exact ordered queue before wages/calendar or a later census are advanced.
@@ -411,11 +427,14 @@ func advance_time(days: float, in_town: bool = false, healer_skill: int = 0, wor
 		var pending_started := Time.get_ticks_usec()
 		if work_budget_usec > 0:
 			CampaignWorld.work_slice(self, work_budget_usec)
-			changed.emit()
+			if not _day_job_hold_active():
+				changed.emit()
 			Perf.record_us("Pending campaign jobs", Time.get_ticks_usec() - pending_started)
 			return
+		var pending_rng: RandomNumberGenerator = CampaignWorld._rng(world)
 		while not world.get("work", []).is_empty():
-			CampaignWorld.work_slice(self, 4000)
+			CampaignWorld._run_job(self, pending_rng, false)
+		world["rng_state"] = str(pending_rng.state)
 		Perf.record_us("Pending campaign jobs", Time.get_ticks_usec() - pending_started)
 	var part := Time.get_ticks_usec()
 	var before := int(floor(day))
@@ -456,7 +475,8 @@ func advance_time(days: float, in_town: bool = false, healer_skill: int = 0, wor
 		Wt.on_time(self, days, in_town, work_budget_usec)
 	Perf.record_us("Campaign update", Time.get_ticks_usec() - part)
 	part = Time.get_ticks_usec()
-	changed.emit()
+	if not _day_job_hold_active():
+		changed.emit()
 	Perf.record_us("State notifications", Time.get_ticks_usec() - part)
 	Perf.record_us("Time advance", Time.get_ticks_usec() - started)
 	if work_budget_usec <= 0:
@@ -503,23 +523,43 @@ func request_autosave() -> void:
 
 ## Quit writes even when the interval has not elapsed. A battle only finishes a write
 ## already under way. An empty world (the title screen) is left unsaved.
-func save_on_quit() -> void:
+func save_on_quit() -> bool:
+	if _day_job_hold_active():
+		_save_pending = true
+		if _day_job_quit_generation < 0:
+			_day_job_quit_generation = _save_generation + 1
+		return false   # close after the requested completed-day save receipt
+	# v0.100: a successful flush resolves failures; battle exits cannot retry a new snapshot.
+	var failures_before := int(_save_status["failed"])
 	if _active_screen == "battle":
 		wait_save(false)
-		return
-	if _save_ready and not world.is_empty():
-		_save_pending = true
-	wait_save()
+		# v0.100: dismissing an earlier failure did not save the pre-battle progress.
+		if not bool(_save_status["last_ok"]):
+			if int(_save_status["failed"]) == failures_before: save_finished.emit(false)
+			return false
+		return true
+	else:
+		if _save_ready and not world.is_empty():
+			_save_pending = true
+		wait_save()
+	return bool(_save_status["last_ok"]) or int(_save_status["failed"]) == failures_before
 
-func save_game() -> void:
+func save_game() -> bool:
+	if _day_job_hold_active():
+		_save_pending = true
+		return false   # deferred admission is not a successful write
 	wait_save()
 	if not _save_ready:
 		_save_pending = true
-		return
+		return false # v0.100: queued is not written.
+	var capture_generation: int = _next_save_generation()
 	var started := Time.get_ticks_usec()
 	var tree := _save_tree()
 	_save_status["last_snapshot_us"] = Time.get_ticks_usec() - started
-	_accept_save_receipt(_write_save(SAVE_PATH, tree))
+	var receipt: Dictionary = _write_save(SAVE_PATH, tree)
+	receipt["generation"] = capture_generation
+	_accept_save_receipt(receipt)
+	return bool(_save_status["last_ok"]) # v0.100: callers must not assume success.
 
 ## A real-world snapshot uses bounded main-thread slices under a simulation hold.
 ## Only detached plain data reaches the JSON/file worker. One snapshot + dirty flag;
@@ -528,6 +568,8 @@ var _save_task := -1
 var _save_pending := false
 var _save_ready := true
 var _save_epoch := 0
+## Unsaved main-thread autosave service time (poll/request/capture/retirement); worker timings are in save_stats().
+var autosave_process_usec: int = 0
 var _save_receipt: Dictionary = {}
 var _save_capture: SaveSnapshot
 var _save_was_paused := false
@@ -538,11 +580,163 @@ var _save_status := {"started":0,"completed":0,"failed":0,"last_snapshot_us":0,
 	"capture_slices":0,"capture_begin_us":0,"capture_worst_us":0,"capture_wall_us":0,"unit_records":0,"item_records":0,"reused_records":0}
 const SAVE_SLICE_US := 6000
 
+# Last continuation slice is diagnostic; actual budgets govern further admission.
+var _day_job_slice_frame: int = -1
+var _day_job_changed_pending: bool = false
+var _day_job_quit_generation: int = -1
+var _save_generation: int = 0
+var _save_capture_generation: int = 0
+var _save_last_receipt_generation: int = 0
+var _day_job_owner: CampaignDayJob = null
+var _day_job_dispatching: bool = false
+var _day_job_actions: Array = []
+var _day_job_replaying: bool = false
+var _day_job_observers: Dictionary = {}
+var _day_job_budget_frame: int = -1
+var _day_job_frame_started_usec: int = 0
+var _day_job_frame_jobs: int = 0
+
+func _day_job_begin_frame(started_usec: int) -> void:
+	var frame: int = Engine.get_process_frames()
+	if frame != _day_job_budget_frame:
+		_day_job_budget_frame = frame
+		_day_job_frame_started_usec = started_usec
+		_day_job_frame_jobs = 0
+
+func _day_job_note_work() -> void:
+	_day_job_begin_frame(Time.get_ticks_usec())
+	_day_job_frame_jobs += 1
+
+func _day_job_frame_has_work() -> bool:
+	_day_job_begin_frame(Time.get_ticks_usec())
+	return _day_job_frame_jobs > 0
+
+func _day_job_frame_remaining_usec() -> int:
+	_day_job_begin_frame(Time.get_ticks_usec())
+	return CampaignWorld.WORK_FRAME_LIMIT_USEC - (Time.get_ticks_usec() - _day_job_frame_started_usec)
+
+func _day_job_capture_busy() -> bool:
+	return _save_capture != null
+
+func _day_job_hold_active() -> bool:
+	return _day_job_transaction_active() or (not _day_job_replaying and (CampaignWorld.day_job_pending(self) or not _day_job_actions.is_empty()))
+
+## Deferred requests and saves observe the committed owner before later FIFO work.
+func _day_job_fence_pending() -> bool:
+	return not _day_job_transaction_active() and (not _day_job_actions.is_empty() or (_save_pending and not CampaignWorld.day_job_pending(self)))
+
+func _day_job_flush_actions() -> bool:
+	while not _day_job_actions.is_empty():
+		if _day_job_transaction_active() or _save_capture != null or _day_job_frame_remaining_usec() < CampaignDayJob.NATIVE_RESERVE_USEC:
+			return false
+		var action: Callable = _day_job_actions.pop_front()
+		_day_job_replaying = true
+		if action.is_valid():
+			action.call()
+		_day_job_replaying = false
+	return not _day_job_transaction_active() and _save_capture == null
+
+func _day_job_dispatch_busy() -> bool:
+	return _day_job_dispatching
+
+func _day_job_transaction_active() -> bool:
+	return _day_job_dispatching or _day_job_owner != null
+
+func _day_job_begin_dispatch() -> void:
+	_day_job_dispatching = true
+
+func _day_job_cancel_dispatch() -> void:
+	_day_job_dispatching = false
+
+func _day_job_claim(owner: CampaignDayJob) -> void:
+	assert(_day_job_owner == null or _day_job_owner == owner, "Interleaved campaign continuation.")
+	_day_job_owner = owner
+
+func _day_job_defer(action: Callable) -> bool:
+	if not _day_job_hold_active():
+		return false
+	if _day_job_owner != null:
+		_day_job_owner.after.append(action)
+	else:
+		_day_job_actions.append(action)
+	return true
+
+## Prepared later heads still expose the committed world to ordered observers.
+## Only an unfinished owner or dispatch can expose partial state to a redraw.
+func _day_job_observation_blocked() -> bool:
+	return _day_job_transaction_active()
+
+## Observer refreshes coalesce while input/lifecycle actions keep arrival order.
+func _day_job_wait_observer(action: Callable) -> bool:
+	if not _day_job_observation_blocked():
+		return false
+	if not _day_job_observers.has(action):
+		_day_job_observers[action] = true
+		_day_job_defer(_day_job_run_observer.bind(action))
+	return true
+
+func _day_job_run_observer(action: Callable) -> void:
+	_day_job_observers.erase(action)
+	if action.is_valid():
+		action.call()
+
+func _day_job_invoke(action: Callable) -> void:
+	if not _day_job_defer(action) and action.is_valid():
+		action.call()
+
+func _day_job_queue_actions(actions: Array) -> void:
+	_day_job_actions.append_array(actions)
+
+func _day_job_commit() -> void:
+	_day_job_dispatching = false
+	if _day_job_owner != null and _day_job_owner.done:
+		_day_job_owner.release(self)
+		_day_job_owner = null
+
+func _next_save_generation() -> int:
+	_save_generation += 1
+	_save_status["started"] += 1
+	return _save_generation
+
+## All capture paths stamp receipts. An older writer cannot close a newer request.
+## Failed receipts keep the request eligible for a successful explicit retry.
+func _day_job_take_quit_receipt(receipt: Dictionary) -> bool:
+	if _day_job_quit_generation < 0 or int(receipt.get("generation", 0)) < _day_job_quit_generation or not bool(receipt.get("ok", false)):
+		return false
+	_day_job_quit_generation = -1
+	return true
+
+func _note_day_job_slice() -> void:
+	_day_job_slice_frame = Engine.get_process_frames()
+	_day_job_changed_pending = true
+
+func _day_job_slice_used() -> bool:
+	return _day_job_slice_frame == Engine.get_process_frames()
+
 func _process(_delta: float) -> void:
+	_day_job_begin_frame(Time.get_ticks_usec())
+	if _day_job_dispatching or _day_job_replaying:
+		return   # a reentrant callback must not step the owner again
+	# Complete ordered callbacks before a prepared later head can be dispatched.
+	if not _day_job_actions.is_empty() and not _day_job_flush_actions():
+		return
+	if CampaignWorld.day_job_pending(self):
+		CampaignWorld.work_slice(self, 4000)
+		if _day_job_transaction_active():
+			return   # the always-processing autoload owns the unfinished continuation
+		if not _day_job_flush_actions():
+			return
+		if _save_pending:
+			return   # the committed save boundary is serviced before later FIFO work
+	if _day_job_changed_pending:
+		_day_job_changed_pending = false
+		changed.emit()   # only complete daily jobs become observable
+	var autosave_started := Time.get_ticks_usec()
 	if _save_capture != null:
 		var slice_start := Time.get_ticks_usec()
 		if _save_capture.step(SAVE_SLICE_US): _finish_capture()
 		Perf.record_us("Autosave capture slice", Time.get_ticks_usec()-slice_start, true)
+		autosave_process_usec += Time.get_ticks_usec() - autosave_started
 		return
 	if _save_task != -1 and WorkerThreadPool.is_task_completed(_save_task):
 		_retire_save()
@@ -551,15 +745,22 @@ func _process(_delta: float) -> void:
 		request_autosave()
 	if _save_pending and _save_task == -1 and _save_ready and _active_screen not in ["battle", "presim", "newgame"]:
 		save_game_async(true)
+		autosave_process_usec += Time.get_ticks_usec() - autosave_started
 		return
+	autosave_process_usec += Time.get_ticks_usec() - autosave_started
 	if not get_tree().paused and _active_screen in ["town", "company", "muster", "house", "laws", "dragons", "treasure", "politics", "population", "settings", "house_select"] and not world.get("work", []).is_empty():
 		var started := Time.get_ticks_usec()
 		if CampaignWorld.work_slice(self, 4000) > 0:
+			if _day_job_hold_active():
+				return
 			changed.emit()
 		Perf.record_us("Paused campaign jobs", Time.get_ticks_usec() - started, true)
 		Perf.set_stage("Settling campaign jobs")
 
 func save_game_async(from_process: bool = false) -> void:
+	if _day_job_hold_active():
+		_save_pending = true
+		return   # finish through bounded frames; never capture a continuation
 	# Retain one in-flight snapshot. Repeated requests are a single dirty flag;
 	# the newest state is copied only after the current write has completed.
 	if not _save_ready or _save_capture != null or _active_screen == "battle":
@@ -575,7 +776,7 @@ func save_game_async(from_process: bool = false) -> void:
 		_retire_save()
 	_save_pending = false
 	_save_started_us = Time.get_ticks_usec()
-	_save_status["started"] += 1
+	_save_capture_generation = _next_save_generation()
 	# Real worlds are copied in small slices while simulation/input mutations are held.
 	# Small standalone fixtures remain atomic without paying a frame scheduling delay.
 	if world.get("towns", []).size() > 8:
@@ -605,7 +806,7 @@ func _finish_capture() -> void:
 	_start_writer(d)
 
 func _start_writer(d: Dictionary) -> void:
-	_save_receipt = {}
+	_save_receipt = {"generation": _save_capture_generation}
 	_save_task = WorkerThreadPool.add_task(_save_worker.bind(SAVE_PATH, d, _save_receipt), false, "autosave")
 
 static func _save_worker(path: String, d: Dictionary, receipt: Dictionary) -> void:
@@ -621,6 +822,7 @@ func _retire_save() -> void:
 	_save_receipt = {}
 
 func _accept_save_receipt(receipt: Dictionary) -> void:
+	_save_last_receipt_generation = int(receipt.get("generation", 0))
 	_save_status["last_ok"] = receipt["ok"]
 	_save_status["last_stage"] = receipt["stage"]
 	_save_status["last_error"] = receipt["error"]
@@ -633,6 +835,12 @@ func _accept_save_receipt(receipt: Dictionary) -> void:
 	_autosave_stamp_day = day if receipt["ok"] else -1.0e9
 	Perf.record_us("Autosave worker encode",receipt["encode_us"])
 	Perf.record_us("Autosave worker write",receipt["write_us"])
+	# v0.100: notify only after the main thread accepts the receipt, never inside encoding.
+	if not receipt["ok"]:
+		push_warning("v0.100: save failed at %s (error %d); any previous save is unchanged." % [String(receipt["stage"]), int(receipt["error"])])
+	save_finished.emit(bool(receipt["ok"]))
+	if _day_job_take_quit_receipt(receipt) and is_inside_tree():
+		get_tree().quit()
 
 func save_stats() -> Dictionary:
 	var stats := _save_status.duplicate()
@@ -643,6 +851,9 @@ func save_stats() -> Dictionary:
 
 ## flush_pending = false only completes the snapshot/write already under way (a deferred request stays pending).
 func wait_save(flush_pending: bool = true) -> void:
+	if _day_job_hold_active():
+		_save_pending = _save_pending or flush_pending
+		return   # neither snapshot nor synchronous job drain is allowed here
 	if _save_capture != null:
 		_save_capture.step(0)
 		_finish_capture()
@@ -650,11 +861,17 @@ func wait_save(flush_pending: bool = true) -> void:
 		_retire_save()
 	if flush_pending and _save_pending and _save_ready:
 		_save_pending = false
-		_accept_save_receipt(_write_save(SAVE_PATH, _save_tree()))
+		var capture_generation: int = _next_save_generation()
+		var receipt: Dictionary = _write_save(SAVE_PATH, _save_tree())
+		receipt["generation"] = capture_generation
+		_accept_save_receipt(receipt)
 
 func _notification(what: int) -> void:
+	if what == NOTIFICATION_APPLICATION_PAUSED and CampaignWorld.defer_day_job_action(self, _notification.bind(what)):
+		return
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		save_on_quit()   # write even if the autosave interval has not elapsed; never mid-battle
+		# v0.100: a refused save stays in-game with the failure notice; no automatic close.
+		if save_on_quit(): get_tree().quit()
 	elif what == NOTIFICATION_PREDELETE:
 		wait_save(false)   # finish only the existing write; a pending request must not capture a battle
 	elif what == NOTIFICATION_APPLICATION_PAUSED:
@@ -689,11 +906,123 @@ func _notification(what: int) -> void:
 ## tree. Floats below 0.1 that cannot take a marker (in a typed or read-only container) are listed there too.
 const _FMARK := "~#f~"
 const _FX_KEY := "__fx"
+# v0.100: root version is the save schema (formerly always 1), not config/version.
+const SAVE_VERSION := 2
+const _TYPES_KEY := "__types"
 const _FMARK_PASSES := 64
 const _P10 := [1.0, 1.0e1, 1.0e2, 1.0e3, 1.0e4, 1.0e5, 1.0e6, 1.0e7, 1.0e8, 1.0e9, 1.0e10, 1.0e11, 1.0e12, 1.0e13,
 	1.0e14, 1.0e15, 1.0e16, 1.0e17, 1.0e18, 1.0e19, 1.0e20, 1.0e21, 1.0e22]
 
-static func save_text(d: Dictionary) -> String:
+static func save_text(d: Dictionary, native_types: bool = false) -> String:
+	# v0.100: JSON erases integer/key/packed-column types. Keep compact optional type
+	# information so a current save needs no migrations to reconstruct its native data.
+	# v0.100: refuse malformed/failed captures before comparisons or temporary edits.
+	# An empty result is the writer's existing ERR_INVALID_DATA/encode refusal.
+	if d.has("raid_state"):
+		var raid: Variant = d["raid_state"]
+		if typeof(raid) != TYPE_STRING: return ""
+		if raid.is_empty(): return ""
+	# v0.100: preserve the float-only public codec's output for existing callers;
+	# complete game saves carry raid_state, while native codec probes opt in.
+	# v0.100: collect exact float values with the types, then stringify the bulk natively.
+	# Only non-finite seats and opaque native subtrees need the old marker walk.
+	var native_seats: Array = []
+	var info := _save_types(d, native_seats) if native_types or d.has("raid_state") else {}
+	var had_types := d.has(_TYPES_KEY)
+	var old_types: Variant = d.get(_TYPES_KEY)
+	if not info.is_empty():
+		# v0.100: repeated field descriptors compress natively before JSON/base64 work.
+		var raw := var_to_bytes(info)
+		d[_TYPES_KEY] = "lz:%d:" % raw.size() + Marshalls.raw_to_base64(raw.compress(FileAccess.COMPRESSION_FASTLZ))
+	var text := _save_float_text(d, not info.is_empty(), native_seats)
+	if not info.is_empty():
+		if had_types: d[_TYPES_KEY] = old_types
+		else: d.erase(_TYPES_KEY)
+	return text
+
+# v0.100: dictionary descriptors use field names. Legacy fixtures may remove fields
+# while retaining metadata; array descriptors alone use compact numeric positions.
+static func _save_types(value: Variant, native_seats: Array) -> Dictionary:
+	if value is Dictionary:
+		# Numeric keys must keep their type AND insertion order (including colliding text).
+		if value.is_typed(): return {"native": var_to_bytes(value)}
+		for key in value:
+			if not (key is String): return {"native": var_to_bytes(value)}
+	elif value is Array:
+		if value.is_typed(): return {"native": var_to_bytes(value)}
+	elif typeof(value) > TYPE_STRING:
+		return {"native": var_to_bytes(value)}
+	elif value is float and not is_finite(value):
+		return {"native": var_to_bytes(value)} # v0.100: JSON cannot represent an unbuilt cache's INF stamp.
+	else:
+		return {}
+	# v0.100: iterate the existing dictionary/an integer, avoiding a keys/range allocation per container.
+	var keys: Variant = value if value is Dictionary else value.size()
+	var ints: Variant = [] if value is Dictionary else PackedInt32Array()
+	var large := {}
+	var floats := {} # v0.100: native sidecar bits replace per-float decimal-reader analysis.
+	var children := {}
+	for key in keys:
+		var child = value[key]
+		if child is int:
+			ints.append(key)
+			if child > 9007199254740991 or child < -9007199254740991: large[key] = str(child)
+		elif child is float:
+			if is_finite(child):
+				floats[key] = child
+			else:
+				children[key] = {"native": var_to_bytes(child)}
+				native_seats.append([value, key])
+		elif child is Dictionary or child is Array or typeof(child) > TYPE_STRING:
+			var child_info := _save_types(child, native_seats)
+			if not child_info.is_empty(): children[key] = child_info
+			if child_info.has("native") and (child is Dictionary or child is Array or child is PackedFloat32Array or child is PackedFloat64Array):
+				native_seats.append([value, key])
+	var info := {}
+	if not ints.is_empty(): info["ints"] = ints
+	if not large.is_empty(): info["large"] = large
+	if not floats.is_empty(): info["floats"] = floats
+	if not children.is_empty(): info["children"] = children
+	if not info.is_empty() and value is Dictionary: info["dictionary"] = true
+	return info
+
+static func _load_types(value: Variant, info: Dictionary) -> Variant:
+	if info.has("native"): return bytes_to_var(info["native"])
+	if not (value is Dictionary or value is Array): return value
+	# v0.100: do not apply stale positional dictionary metadata from an in-progress
+	# save to different fields after an old-save fixture has erased/reordered keys.
+	if value is Dictionary and not bool(info.get("dictionary", false)): return value
+	var large: Dictionary = info.get("large", {})
+	for index in info.get("ints", []):
+		var key: Variant = _type_seat(value, index)
+		if key == null: continue
+		var number: Variant = value[key]
+		if not _type_number(number): continue
+		var exact: Variant = large.get(index, number)
+		if _type_number(exact): value[key] = int(exact)
+	# v0.100: restore exact native float bits only while the JSON seat still matches.
+	# Erased/replaced fields in legacy fixtures keep their edited values.
+	var floats: Dictionary = info.get("floats", {})
+	for index in floats:
+		var key: Variant = _type_seat(value, index)
+		if key != null and floats[index] is float and _fx_near(value[key], floats[index]):
+			value[key] = floats[index]
+	var children: Dictionary = info.get("children", {})
+	for index in children:
+		var key: Variant = _type_seat(value, index)
+		if key != null and children[index] is Dictionary: value[key] = _load_types(value[key], children[index])
+	return value
+
+static func _type_seat(value: Variant, key: Variant) -> Variant:
+	if value is Dictionary: return key if value.has(key) else null
+	if _fx_index(key) and int(key) < value.size(): return int(key)
+	return null
+
+static func _type_number(value: Variant) -> bool:
+	if value is String: return value.is_valid_int()
+	return (value is int or value is float) and is_finite(float(value)) and float(value) == floorf(float(value))
+
+static func _save_float_text(d: Dictionary, native_types: bool = false, native_seats: Array = []) -> String:
 	var prefix := _FMARK
 	var k := 0
 	for _pass in _FMARK_PASSES:
@@ -702,7 +1031,16 @@ static func save_text(d: Dictionary) -> String:
 		var seat: Array = []    # by marker number: [container, key] that holds its marker text
 		var times: Array = []   # by marker number: how many times the writer writes it
 		var fx: Array = []      # r9: [place in the tree, low 32 bits, high 32 bits] of each float the reader may miss
-		_mark_small(d, marks, undo, prefix, seat, times, fx, [])
+		if native_types:
+			# v0.100: metadata was collected before any edits, including aliased seats.
+			# Skip the second full-save walk; native subtrees already carry exact bits.
+			for at in native_seats:
+				var c = at[0]
+				var key = at[1]
+				_mark_one(c, key, c[key], marks, undo, prefix, seat, times, fx, [], c.is_read_only(), true)
+			fx.clear() # v0.100: native subtree corrections are redundant with __types.
+		else:
+			_mark_small(d, marks, undo, prefix, seat, times, fx, [])
 		var had_fx := d.has(_FX_KEY)
 		var old_fx: Variant = d.get(_FX_KEY)
 		if not fx.is_empty():
@@ -716,7 +1054,7 @@ static func save_text(d: Dictionary) -> String:
 			u[0][u[1]] = u[2]
 		if marks.is_empty():
 			return text
-		var out := _unmark(text, prefix, marks, times)
+		var out := _unmark(text, prefix, marks, times, native_types)
 		if out != "":
 			return out
 		# A game text holds this prefix: take the first prefix that the written text does not contain at all.
@@ -729,7 +1067,7 @@ static func save_text(d: Dictionary) -> String:
 
 ## The text with each marker replaced by its float's digits, or "" when the markers in it are not exactly the planted
 ## ones (each marker number as many times as the walk met its seat, nothing else beginning with the prefix).
-static func _unmark(text: String, prefix: String, marks: Array, times: Array) -> String:
+static func _unmark(text: String, prefix: String, marks: Array, times: Array, native_types: bool = false) -> String:
 	var parts := text.split("\"" + prefix)
 	var expected := 0
 	for t in times:
@@ -751,11 +1089,15 @@ static func _unmark(text: String, prefix: String, marks: Array, times: Array) ->
 		if j < 0 or j >= marks.size() or seen[j] >= int(times[j]) or str(j) != n:
 			return ""
 		seen[j] += 1
-		out[i] = float_text(float(marks[j])) + p.substr(q + 1)
+		# v0.100: native metadata carries INF/NaN exactly; JSON gets a quiet placeholder
+		# instead of the overflow exponent that warns in built_in_strtod on parse.
+		var number := float(marks[j])
+		out[i] = ("null" if native_types and not is_finite(number) else float_text(number)) + p.substr(q + 1)
 	return "".join(out)
 
 static func _small_float(v: float) -> bool:
-	return v != 0.0 and absf(v) < 0.1 and absf(v) > 1e-300
+	# v0.100: nonfinite sentinels also need markers when the native sidecar is used.
+	return not is_finite(v) or (v != 0.0 and absf(v) < 0.1 and absf(v) > 1e-300)
 
 ## r9: may Godot's JSON reader turn the writer's digits of v (|v| >= 0.1) into another float? Whole numbers and any 15
 ## digits or fewer read back exactly (digits under 2^53 and one correctly rounded division by an exact power of ten).
@@ -821,6 +1163,34 @@ static func _fx_add(fx: Array, path: Array, key, v: float) -> void:
 ## r9: a freshly parsed save tree gets back the exact floats its "__fx" list holds (and loses the list). A place that
 ## is not there, or not a number within the writer's last digits of the listed float, is left as the reader made it.
 static func restore_exact(d: Dictionary) -> int:
+	# v0.100: restore float bits while JSON paths still have their written key types,
+	# then restore native types. Older saves without either sidecar keep the old path.
+	var done := _restore_floats(d)
+	var encoded: Variant = d.get(_TYPES_KEY)
+	if encoded is String:
+		d.erase(_TYPES_KEY)
+		# v0.100: retain support for the earlier uncompressed native sidecar.
+		var raw: PackedByteArray
+		if encoded.begins_with("lz:"):
+			var parts: PackedStringArray = encoded.split(":", true, 2)
+			if parts.size() != 3 or not parts[1].is_valid_int(): return done
+			var size := parts[1].to_int()
+			var packed := Marshalls.base64_to_raw(parts[2])
+			if size <= 0 or packed.is_empty(): return done
+			raw = packed.decompress(size, FileAccess.COMPRESSION_FASTLZ)
+			if raw.size() != size: return done
+		else:
+			raw = Marshalls.base64_to_raw(encoded)
+		if raw.is_empty(): return done
+		var info = bytes_to_var(raw)
+		if info is Dictionary:
+			var restored = _load_types(d, info)
+			if not is_same(d, restored) and restored is Dictionary:
+				d.clear()
+				d.merge(restored)
+	return done
+
+static func _restore_floats(d: Dictionary) -> int:
 	var fx: Variant = d.get(_FX_KEY)
 	if not (fx is Array):
 		return 0
@@ -886,23 +1256,24 @@ static func _fx_near(x: Variant, v: float) -> bool:
 
 ## path: the keys from the save's root down to c, as the live tree has them (restore_exact reads a number under a
 ## dictionary as the writer's text of it).
-static func _mark_small(c, marks: Array, undo: Array, prefix: String, seat: Array, times: Array, fx: Array, path: Array) -> void:
+static func _mark_small(c, marks: Array, undo: Array, prefix: String, seat: Array, times: Array, fx: Array, path: Array, nonfinite_only: bool = false) -> void:
 	# (a read-only container takes no marker: its floats go to the "__fx" list only)
 	if c is Dictionary:
 		var dc: Dictionary = c
 		var ro := dc.is_read_only()
 		for k in dc:
-			_mark_one(dc, k, dc[k], marks, undo, prefix, seat, times, fx, path, ro)
+			_mark_one(dc, k, dc[k], marks, undo, prefix, seat, times, fx, path, ro, nonfinite_only)
 	elif c is Array:
 		var ac: Array = c
 		var ro := ac.is_read_only()
 		for i in ac.size():
-			_mark_one(ac, i, ac[i], marks, undo, prefix, seat, times, fx, path, ro)
+			_mark_one(ac, i, ac[i], marks, undo, prefix, seat, times, fx, path, ro, nonfinite_only)
 
-static func _mark_one(c, k, v, marks: Array, undo: Array, prefix: String, seat: Array, times: Array, fx: Array, path: Array, frozen: bool) -> void:
+static func _mark_one(c, k, v, marks: Array, undo: Array, prefix: String, seat: Array, times: Array, fx: Array, path: Array, frozen: bool, nonfinite_only: bool = false) -> void:
 	match typeof(v):
 		TYPE_FLOAT:
-			if _small_float(v):
+			# v0.100: native metadata already holds finite float bits; only INF/NaN need JSON placeholders.
+			if not is_finite(v) or (not nonfinite_only and _small_float(v)):
 				if frozen or (c is Dictionary and (c as Dictionary).is_typed()):
 					_fx_add(fx, path, k if c is Array else str(k), v)   # (a typed dictionary keeps the writer's digits)
 					return
@@ -913,7 +1284,7 @@ static func _mark_one(c, k, v, marks: Array, undo: Array, prefix: String, seat: 
 				seat.append([c, k])
 				times.append(1)
 				marks.append(v)
-			elif _misread(v):
+			elif not nonfinite_only and _misread(v):
 				_fx_add(fx, path, k if c is Array else str(k), v)
 		TYPE_STRING:
 			# A container under a second reference: the marker this walk planted in this very slot is written again.
@@ -927,34 +1298,34 @@ static func _mark_one(c, k, v, marks: Array, undo: Array, prefix: String, seat: 
 						times[j] = int(times[j]) + 1
 		TYPE_DICTIONARY:
 			path.push_back(k)
-			_mark_small(v, marks, undo, prefix, seat, times, fx, path)
+			_mark_small(v, marks, undo, prefix, seat, times, fx, path, nonfinite_only)
 			path.pop_back()
 		TYPE_ARRAY:
 			var a: Array = v
 			if a.is_typed() and a.get_typed_builtin() == TYPE_FLOAT:
-				_swap_list(c, k, a, marks, undo, prefix, seat, times, fx, path, frozen)
+				_swap_list(c, k, a, marks, undo, prefix, seat, times, fx, path, frozen, nonfinite_only)
 			elif not a.is_typed() or a.get_typed_builtin() == TYPE_DICTIONARY or a.get_typed_builtin() == TYPE_ARRAY:
 				path.push_back(k)
-				_mark_small(a, marks, undo, prefix, seat, times, fx, path)
+				_mark_small(a, marks, undo, prefix, seat, times, fx, path, nonfinite_only)
 				path.pop_back()
 		TYPE_PACKED_FLOAT64_ARRAY, TYPE_PACKED_FLOAT32_ARRAY:
-			_swap_list(c, k, v, marks, undo, prefix, seat, times, fx, path, frozen)
+			_swap_list(c, k, v, marks, undo, prefix, seat, times, fx, path, frozen, nonfinite_only)
 
 ## A float list that cannot hold a marker: written through a plain copy (it reads back as a plain list either way).
 ## r9: its floats the reader may miss go to the "__fx" list (all of its small ones too when no copy can replace it).
-static func _swap_list(c, k, v, marks: Array, undo: Array, prefix: String, seat: Array, times: Array, fx: Array, path: Array, frozen: bool) -> void:
+static func _swap_list(c, k, v, marks: Array, undo: Array, prefix: String, seat: Array, times: Array, fx: Array, path: Array, frozen: bool, nonfinite_only: bool = false) -> void:
 	var any := false
 	var fixed := not (frozen or (c is Dictionary and (c as Dictionary).is_read_only()) or (c is Array and (c as Array).is_typed()))
 	var i := 0
 	for x in v:
 		var f := float(x)
-		if _small_float(f):
+		if not is_finite(f) or (not nonfinite_only and _small_float(f)):
 			any = true
 			if not fixed:
 				path.push_back(k)
 				_fx_add(fx, path, i, f)
 				path.pop_back()
-		elif _misread(f):
+		elif not nonfinite_only and _misread(f):
 			path.push_back(k)
 			_fx_add(fx, path, i, f)
 			path.pop_back()
@@ -963,7 +1334,7 @@ static func _swap_list(c, k, v, marks: Array, undo: Array, prefix: String, seat:
 		return
 	var copy: Array = []
 	for x in v:
-		if _small_float(float(x)):
+		if not is_finite(float(x)) or (not nonfinite_only and _small_float(float(x))):
 			seat.append([copy, copy.size()])
 			times.append(1)
 			copy.append(prefix + str(marks.size()))
@@ -1115,6 +1486,7 @@ static func _write_save(path: String, d: Dictionary) -> Dictionary:
 ## The save as plain data. Everything outside world and contract is deep-copied (small). The walk copies
 ## every container, and to_dict returns a detached tree, so nothing in the save is shared with the live game.
 func _save_tree() -> Dictionary:
+	assert(not _day_job_transaction_active() and not CampaignWorld.day_job_pending(self), "Campaign continuation must finish before capture.")
 	var snapshot := SaveSnapshot.new()
 	snapshot.begin(self)
 	snapshot.step(0)
@@ -1124,14 +1496,23 @@ func has_save() -> bool:
 	return FileAccess.file_exists(SAVE_PATH)
 
 func load_game() -> bool:
+	if _day_job_hold_active():
+		return false
 	wait_save()
 	if not has_save():
 		return false
 	var d = JSON.parse_string(FileAccess.get_file_as_string(SAVE_PATH))
-	if d == null:
+	if not (d is Dictionary):
 		return false
-	if d is Dictionary:
-		restore_exact(d)   # r9: the floats the JSON reader would have read a unit off
+	restore_exact(d)   # r9: the floats the JSON reader would have read a unit off
+	# v0.100: missing versions still migrate; corrupt explicit versions fail cleanly.
+	var version: Variant = d.get("version", 0)
+	if not _type_number(version): return false
+	# v0.100: a bad raid record must not replace the running campaign or its save flags.
+	var raid := HerdRaids.prepare_state(d.get("raid_state", ""))
+	if raid.is_empty(): return false
+	# v0.100: all previously written saves are schema 1; current loads are exact resumes.
+	var migrate := int(version) < SAVE_VERSION
 	_save_epoch += 1
 	_save_ready = true
 	_save_pending = false
@@ -1147,16 +1528,17 @@ func load_game() -> bool:
 	if rng_state.is_valid_int(): rng.state = rng_state.to_int()
 	day = d.get("day", 0.0); gold = int(d.get("gold", 0))
 	company = d.get("company", []).map(func(x): return Unit.from_dict(x))
-	if gold < 0:
+	if migrate and gold < 0:
 		# older saves let wages run the purse negative: clamp, and the owed days become unpaid days
 		var dw := maxi(1, daily_wages())
 		var owed_days := int(ceil(float(-gold) / float(dw)))
 		for u in company:
 			u.unpaid_days += owed_days
 		gold = 0
-	for u in company:
-		if u.role == "captain":
-			u.role = "officer"   # pre-v0.003 saves had a captain unit; the player is the captain now
+	if migrate:
+		for u in company:
+			if u.role == "captain":
+				u.role = "officer"   # pre-v0.003 saves had a captain unit; the player is the captain now
 	invalidate_deploy()
 	stash = d.get("stash", []).map(func(x): return Item.from_dict(x))
 	squads = {}
@@ -1164,8 +1546,9 @@ func load_game() -> bool:
 		squads[int(k)] = d["squads"][k]
 	rep = d.get("rep", {}); world = _deserialize(d.get("world", {})); location = d.get("location", "")
 	contract = _deserialize(d.get("contract", {}))
-	Unit._next_uid = maxi(Unit._next_uid, ServiceIdentity.uid_floor(self))
-	Unit._next_uid = maxi(Unit._next_uid, DragonCombat.uid_floor(self))
+	if migrate:
+		Unit._next_uid = maxi(Unit._next_uid, ServiceIdentity.uid_floor(self))
+		Unit._next_uid = maxi(Unit._next_uid, DragonCombat.uid_floor(self))
 	if d.has("provisions"):
 		provisions = Food.stock_from_save(d["provisions"])
 		var r: Dictionary = d.get("rations", {})
@@ -1178,13 +1561,22 @@ func load_game() -> bool:
 			food_clock = {"next": Food.next_tick_after(day), "last": day, "march": 0.0}
 	else:
 		Food.init_company(self)   # saves from before food and drink: starting stock, default rations
-	var legacy_militia := world.has("militia") and int(d.get("militia_cap", 0)) < 1
+	var legacy_militia := migrate and world.has("militia") and int(d.get("militia_cap", 0)) < 1
 	var Wl = load("res://campaign/world.gd") if ResourceLoader.exists("res://campaign/world.gd") else null
-	if Wl != null and Wl.has_method("after_load"):
+	if migrate and Wl != null and Wl.has_method("after_load"):
 		Wl.after_load(self)   # JSON floats -> ints for world fields
+	# v0.100: bind process settings without repairing or advancing the loaded campaign.
+	WorldGen.use_world(world)
+	Sickness.use_world_deadliness(world)
+	Monsters.use_world(world)
 	if legacy_militia:
 		var released := Militia.trim_all(self)   # older saves: oversized town reserves return to civilian life
 		if released > 0: print("load: %d surplus reservists returned to their households" % released)
+	# v0.100: restore after legacy repairs, which used to discard all in-progress fights.
+	TownEcon.gold_gone = float(d.get("gold_gone", 0.0))
+	TownEcon.goods_lost = d.get("goods_lost", {})
+	HerdRaids.apply_state(self, raid)
+	WarAI.load_runtime(world, d.get("war_runtime", {})) # v0.100: references now use the restored rosters.
 	if world.has("dragons"): DragonArt.warm(Dragons.records(self))
 	changed.emit()
 	_autosave_stamp_day = day   # the loaded day already counts; the next autosave waits out the interval

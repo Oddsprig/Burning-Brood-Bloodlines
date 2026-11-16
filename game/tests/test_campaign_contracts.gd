@@ -1,4 +1,5 @@
 extends RefCounted
+const SpeedParts = preload("res://tests/fixtures/older_speed_parts_v100.gd")
 ## Contracts: accept -> battle result -> pay and reputation; defend contract fails when the town is
 ## sacked; a hunt fails (or goes void) after its deadline.
 
@@ -33,6 +34,16 @@ func _accept_available(kind: String) -> Dictionary:
 	return {}
 
 func run(_tree: SceneTree) -> int:
+	var speed_part: String = SpeedParts.select(["battle","defend","expiry","empty"])
+	if speed_part == "": return 1
+	var failures: int = 0
+	if SpeedParts.includes(speed_part, "battle"): failures += _speed_battle()
+	if SpeedParts.includes(speed_part, "defend"): failures += _speed_defend()
+	if SpeedParts.includes(speed_part, "expiry"): failures += _speed_expiry()
+	if SpeedParts.includes(speed_part, "empty"): failures += _speed_empty()
+	return failures
+
+func _speed_battle() -> int:
 	var fails := 0
 	Game.new_game(77)
 	var w: Dictionary = Game.world
@@ -71,6 +82,11 @@ func run(_tree: SceneTree) -> int:
 		print("FAIL: losing faction not weakened"); fails += 1
 	print("after win: gold %d, rep %s %d, %s strength %.2f, desired bands %d" % [Game.gold, c["employer"], Game.rep[c["employer"]],
 		c["target_faction"], w["factions"][c["target_faction"]]["strength"], CampaignWorld.desired_bands(w, c["target_faction"])])
+	return fails
+
+func _speed_defend() -> int:
+	var fails: int = 0
+	var w: Dictionary = {}
 	# ---------------------------------------------------------------- defend contract, party far away -> sacked
 	Game.new_game(78)
 	w = Game.world
@@ -95,6 +111,11 @@ func run(_tree: SceneTree) -> int:
 		print("FAIL: town not sacked"); fails += 1
 	if int(Game.rep[d["employer"]]) >= rep1:
 		print("FAIL: no reputation loss for failed defence"); fails += 1
+	return fails
+
+func _speed_expiry() -> int:
+	var fails: int = 0
+	var w: Dictionary = {}
 	# ---------------------------------------------------------------- hunt left to expire
 	Game.new_game(79)
 	w = Game.world
@@ -113,6 +134,11 @@ func run(_tree: SceneTree) -> int:
 	var paid := Contracts._draw_pay(Game, {"town_id": payer["id"], "pay": 1000})
 	if paid != 125 or float(payer["econ"]["treasury"]) != 0 or float(w["factions"][payer["faction"]]["treasury"]) != 0 or absf(float(payer["econ"]["debt_to_company"]) - debt0 - 875) > 0.001:
 		print("FAIL: contract short payment/debt conservation"); fails += 1
+	return fails
+
+func _speed_empty() -> int:
+	var fails: int = 0
+	var w: Dictionary = {}
 	# An actual empty draft pool withdraws the offer without cost or reputation loss.
 	Game.new_game(77); w = Game.world
 	var empty := _find_offer("battle")

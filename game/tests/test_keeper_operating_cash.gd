@@ -30,6 +30,9 @@ func coins(rows: Array) -> float:
 	return float(rows[2]["purse"]) + float(rows[1]["till"]) + float(rows[3]["till"])
 
 func owner(rows: Array) -> void:
+	# Families.turn stamps the household day before its owned-business loop.
+	# Keep the same clock here; only native funding consumes or renews the allowance.
+	rows[2]["last"] = float(rows[0]["day"])
 	Businesses.owner_turn(rows[0], rows[2], rows[1])
 
 func produce(rows: Array, day: int) -> void:
@@ -48,8 +51,8 @@ func positive(culture: String, typ: String, replace_tool: bool = false, worn_too
 	check(not Businesses.hiring(e, b), culture + " " + typ + ": operating fixture requires no speculative hire")
 	owner(rows)
 	check(float(b["till"]) > 0.0, culture + " " + typ + ": real owner funds a viable working keeper's materials")
-	check(absf(coins(rows) - start) < 0.001 and purse - float(f["purse"]) <= purse * 0.5 + 0.001,
-		culture + " " + typ + ": funding conserves coins and obeys the existing purse share")
+	check(absf(coins(rows) - start) < 0.001 and purse - float(f["purse"]) <= maxf(0.0, purse - 5.0 * TownEcon.COIN) * 0.1 + 0.001,
+		culture + " " + typ + ": funding conserves coins and obeys ten percent above the protected five-coin floor")
 	var made := false
 	for day in range(1, 71):
 		produce(rows, day)
@@ -126,8 +129,14 @@ func quote_and_partial() -> void:
 	b["till"] = 0.0
 	var total := coins(rows)
 	owner(rows)
-	check(absf(float(b["till"]) - 400.0) < 0.001 and absf(float(f["purse"]) - 400.0) < 0.001 and absf(coins(rows) - total) < 0.001,
-		"partial eligible owner transfers only the allowed real half purse")
+	check(absf(float(b["till"]) - 70.0) < 0.001 and absf(float(f["purse"]) - 730.0) < 0.001 and absf(coins(rows) - total) < 0.001,
+		"partial eligible owner transfers ten percent of 800 minus the protected 100-unit floor")
+	check(absf(float(b["t_paid"]) + 70.0) < 0.001 and float(f["fund_left"]) == 0.0,
+		"the actual injection is excluded from profit and consumes the household allowance")
+	owner(rows)
+	check(absf(float(b["till"]) - 70.0) < 0.001 and absf(float(f["purse"]) - 730.0) < 0.001
+		and absf(float(b["t_paid"]) + 70.0) < 0.001 and absf(coins(rows) - total) < 0.001,
+		"a repeated business turn in the same household week cannot reuse that allowance")
 	check(float(b["till"]) - float(b["owed"]) < target and Businesses.takeable(b) == 0 and float(b["owed"]) == 321.0,
 		"partial capital is not an affordable complete batch, a debt reset or a speculative job")
 	produce(rows, 1)
@@ -146,16 +155,25 @@ func expensive_slow_batch() -> void:
 	Businesses.prep_day(e)
 	var total := coins(rows); var old_purse := float(f["purse"])
 	owner(rows)
-	check(float(b["till"]) >= cost and float(f["purse"]) < old_purse, "expensive slow batch capital is funded before any old-reserve withdrawal")
+	var first_allowance: float = (old_purse - 5.0 * TownEcon.COIN) * 0.1
+	check(first_allowance > 0.0 and absf(float(b["till"]) - 5000.0 - first_allowance) < 0.001
+		and absf(float(f["purse"]) - old_purse + first_allowance) < 0.001
+		and float(b["till"]) < cost and absf(coins(rows) - total) < 0.001,
+		"the expensive batch starts with only its real capped household injection")
 	var made := false
 	var protected := true
+	var replenished: bool = false
 	for day in range(1, 36):
 		produce(rows, day)
+		if not replenished:
+			check((e["led"]["made"] as Dictionary).is_empty() and float(b["owed"]) == 0.0 and int(b["workers"]) == 0,
+				"partial expensive-batch capital cannot produce unpaid output, debt or staff")
 		if int(e["led"]["made"].get("home", 0)) > 0: made = true; break
 		if day % 7 == 0:
 			old_purse = float(f["purse"]); owner(rows)
+			replenished = replenished or (float(b["till"]) >= cost and float(f["purse"]) < old_purse)
 			protected = protected and float(f["purse"]) <= old_purse + 0.001 and float(b["till"]) >= cost
-	check(protected and made and absf(coins(rows) - total) < 0.01, "repeated normal weekly turns protect one expensive batch until real paid completion")
+	check(replenished and protected and made and absf(coins(rows) - total) < 0.01, "repeated normal weekly turns replenish and protect one expensive batch until real paid completion")
 
 func sick_incumbent_payroll() -> void:
 	var rows := fixture("middle", "builder")

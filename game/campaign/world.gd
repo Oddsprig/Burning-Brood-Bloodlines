@@ -7,6 +7,12 @@ extends RefCounted
 ## on_time(game, days, in_town) (from advance_time), after_load(game) (from load_game).
 ## The map screen drives time with Game.advance_time(days, false) while the party travels.
 
+const ARMY_DAY_JOB: GDScript = preload("res://campaign/army_day_job.gd")
+const HERD_WEEK_JOB: GDScript = preload("res://campaign/herd_week_job.gd")
+# Admission observations are runtime diagnostics, never economic/save state.
+const WORK_FRAME_LIMIT_USEC: int = 16000
+static var frame_job_worst: Dictionary = {}
+
 const MAP_PACE := 0.65         # v0.031: all forces travel 35% slower
 const PARTY_SPEED := 200.0 * MAP_PACE   # world px per day on grassland, before army size
 const WARBAND_SPEED := 175.0 * MAP_PACE
@@ -37,6 +43,8 @@ static var daily_parts := {}   # diagnostics: part of _daily -> worst microsecon
 static var path_worst := 0   # diagnostics: worst find_path (microseconds)
 static var job_total := {}   # diagnostics: work job kind -> [total microseconds, runs] (never saved)
 static var steps_total := 0   # diagnostics: total movement + clashes + war AI (microseconds)
+static var monster_warband_total_usec := 0   # unsaved: non-budgeted monster/warband calls, including immediate midnight updates
+static var background_fights_total_usec := 0   # unsaved: budgeted officer-fight slices, separate from movement
 static var step_parts := {}   # diagnostics: war_ai / move / clashes / tracks -> total microseconds
 static var daily_total := {}   # diagnostics: part of _daily -> total microseconds
 static var _astar: AStarGrid2D = null
@@ -470,12 +478,62 @@ static func on_time(game, days: float, in_town: bool = false, work_budget_usec: 
 	run["work_budget_usec"] = maxi(0, work_budget_usec)
 	while not _time_part(game, run):
 		pass
-	performance_queue(game)
+	if not (game.has_method("_day_job_fence_pending") and game._day_job_fence_pending()):
+		performance_queue(game)
+
+## A continuation is always the queue head, before every later midnight job.
+static func day_job_pending(game: Variant) -> bool:
+	if game.has_method("_day_job_transaction_active") and game._day_job_transaction_active():
+		return true
+	var work: Array = game.world.get("work", [])
+	if work.is_empty() or not (work[0] is Array):
+		return false
+	var head: Array = work[0]
+	return head.size() > 2 and head[-1] is CampaignDayJob
+
+static func defer_day_job_action(game: Variant, action: Callable) -> bool:
+	if game.has_method("_day_job_defer"):
+		return game._day_job_defer(action)
+	if not day_job_pending(game):
+		return false
+	var run: CampaignDayJob = game.world["work"][0][-1]
+	run.after.append(action)
+	return true
+
+## One registry for all exact continuations; sick/sick_w can join here.
+## No continuation kind owns separate frame/save/lifecycle machinery.
+static func frame_job(job: Array) -> bool:
+	return job[-1] is CampaignDayJob or job[0] in ["herds", "army_misc", "arms_supply", "army", "army_pay", "army_tree", "army_sweep"]
+
+## A fresh atomic head always progresses, even above the frame limit.
+## Later native heads share the available budget using observed costs.
+## Continued heads reserve a full step, regardless of earlier completed jobs.
+static func job_admitted(job: Array, remaining_usec: int, allowance_usec: int, has_prefix: bool) -> bool:
+	if frame_job(job):
+		return mini(allowance_usec, CampaignDayJob.ADMISSION_USEC) <= remaining_usec
+	if not has_prefix:
+		return true
+	var reserve_usec: int = maxi(1, int(job_worst.get(String(job[0]), allowance_usec)))
+	return reserve_usec <= remaining_usec
+
+static func _new_day_job(game: Variant, job: Array) -> CampaignDayJob:
+	match String(job[0]):
+		"herds":
+			if not game.world["towns"].has(job[1]):
+				return null
+			return HERD_WEEK_JOB.new(game, game.world["towns"][job[1]], float(job[2]))
+	return ARMY_DAY_JOB.new(game, job)
 
 ## Map work remains resumable even while the player has stopped travelling.
 ## The map holds its clock until this midnight has settled, so another day
 ## cannot prepend work ahead of unfinished food, succession or dragon care.
 static func work_slice(game, budget_usec: int = 4000) -> int:
+	if game.has_method("_day_job_dispatch_busy") and game._day_job_dispatch_busy():
+		return 0
+	if game.has_method("_day_job_fence_pending") and game._day_job_fence_pending():
+		return 0
+	if game.has_method("_day_job_capture_busy") and game._day_job_capture_busy():
+		return 0
 	var w: Dictionary = game.world
 	if (w.get("work", []) as Array).is_empty():
 		_background_fights(game, mini(2000, budget_usec))
@@ -484,11 +542,25 @@ static func work_slice(game, budget_usec: int = 4000) -> int:
 	var rng := _rng(w)
 	var started := Time.get_ticks_usec()
 	var count := 0
-	while not (w.get("work", []) as Array).is_empty() and (count == 0 or Time.get_ticks_usec() - started < maxi(1, budget_usec)):
-		_run_job(game, rng, true)
+	while not (w.get("work", []) as Array).is_empty() and (budget_usec <= 0 or count == 0 or Time.get_ticks_usec() - started < maxi(1, budget_usec)):
+		var head: Array = w["work"][0]
+		if budget_usec > 0:
+			var allowance: int = maxi(1, budget_usec)
+			var remaining: int = game._day_job_frame_remaining_usec() if game.has_method("_day_job_frame_remaining_usec") else WORK_FRAME_LIMIT_USEC - (Time.get_ticks_usec() - started)
+			var has_prefix: bool = count > 0 or (game.has_method("_day_job_frame_has_work") and game._day_job_frame_has_work())
+			if count > 0:
+				remaining = mini(remaining, maxi(0, budget_usec - (Time.get_ticks_usec() - started)))
+			if not job_admitted(head, remaining, allowance, has_prefix):
+				break   # keep the same FIFO head for a fresh frame
+		var continued: bool = frame_job(head)
+		_run_job(game, rng, budget_usec > 0)
 		count += 1
+		var retained: bool = game._day_job_transaction_active() if game.has_method("_day_job_transaction_active") else day_job_pending(game)
+		if continued and (retained or (game.has_method("_day_job_fence_pending") and game._day_job_fence_pending())):
+			break   # only unfinished ownership or ordered post-commit work blocks FIFO
 	w["rng_state"] = str(rng.state)
-	performance_queue(game)
+	if not (game.has_method("_day_job_fence_pending") and game._day_job_fence_pending()):
+		performance_queue(game)
 	return count
 
 ## Officer succession duels, a little each frame, never holding the clock (Army._queue_fight).
@@ -498,9 +570,12 @@ static func _background_fights(game, budget_usec: int) -> void:
 	var started := Time.get_ticks_usec()
 	var fid := str(q.pop_front())
 	Army.fight_step(game, fid, budget_usec)
-	Perf.record_us("Army battles", Time.get_ticks_usec() - started)
+	var elapsed := Time.get_ticks_usec() - started
+	background_fights_total_usec += elapsed
+	Perf.record_us("Army battles", elapsed)
 
 static func performance_queue(game) -> void:
+	Sickness.prepare_frame_head(game.world)
 	var work: Array = game.world.get("work", [])
 	var oldest: float = float(game.day)
 	for job: Array in work:
@@ -508,6 +583,8 @@ static func performance_queue(game) -> void:
 			oldest = minf(oldest, float(job[2]))
 		elif job.size() > 1 and job[0] in ["feudal", "dragon_care", "dragon_care_pay", "fturn", "coin"] and (job[1] is int or job[1] is float):
 			oldest = minf(oldest, float(job[1]))
+	CampaignTurnJob.prepare_frame_head(game.world)
+	CampaignRestJob.prepare_rest_head(game.world)
 	Perf.record_queue(work.size(), maxf(0.0, float(game.day) - oldest))
 
 const WORK_LABELS := {
@@ -523,13 +600,29 @@ const WORK_LABELS := {
 	"war_assault": "War assault orders", "militia": "Town militia", "herds": "Herd care"
 }
 
+## Optional read-only acceptance observer; ordinary play installs no callback.
+static var economy_protocol_observer: Callable = Callable()
+
 static func _run_job(game, rng: RandomNumberGenerator, budgeted: bool = false) -> void:
+	if economy_protocol_observer.is_valid():
+		economy_protocol_observer.call(true, game, game.world["work"][0])
 	var kind := String(game.world["work"][0][0])
 	var label := String(WORK_LABELS.get(kind, kind.replace("_", " ").capitalize()))
+	var continued: bool = frame_job(game.world["work"][0])
+	if budgeted and game.has_method("_day_job_note_work"):
+		game._day_job_note_work()
 	Perf.set_stage(label)
 	var started := Time.get_ticks_usec()
 	_do_work(game, rng, budgeted)
+	# Commit the campaign stream before making the completed job observable.
+	if continued and game.has_method("_day_job_commit"):
+		game.world["rng_state"] = str(rng.state)
+		game._day_job_commit()
 	var elapsed := Time.get_ticks_usec() - started
+	if economy_protocol_observer.is_valid():
+		economy_protocol_observer.call(false, game, null)
+	if budgeted and continued:
+		frame_job_worst[kind] = maxi(int(frame_job_worst.get(kind, 0)), elapsed)
 	job_worst[kind] = maxi(int(job_worst.get(kind, 0)), elapsed)
 	var totals: Array = job_total.get(kind, [0, 0])
 	job_total[kind] = [int(totals[0]) + elapsed, int(totals[1]) + 1]
@@ -550,7 +643,8 @@ static func _time_begin(game, days: float, in_town: bool) -> Dictionary:
 	var steps := maxi(1, ceili(days / STEP))
 	return {"rng": _rng(w), "days": days, "in_town": in_town, "steps": steps,
 		"dt": days / steps, "t0": float(game.day) - days, "phase": "move", "i": 0,
-		"movement_usec": 0, "whole": int(floor(game.day)), "jobs": 0, "jobs_done": 0}
+		"movement_usec": 0, "whole": int(floor(game.day)), "jobs": 0, "jobs_done": 0,
+		"frame_started_usec": Time.get_ticks_usec()}
 
 ## One existing movement substep, monster check, midnight pass or queued job.
 ## True means the entire time advance completed. The queue is fetched anew:
@@ -575,6 +669,7 @@ static func _time_part(game, run: Dictionary) -> bool:
 			var u3 := Time.get_ticks_usec()
 			Tracks.step(game, t)
 			var u4 := Time.get_ticks_usec()
+			monster_warband_total_usec += u4 - u0
 			Perf.record_us("War decisions", u1 - u0)
 			Perf.record_us("Force movement", u2 - u1)
 			Perf.record_us("Offscreen clashes", u3 - u2)
@@ -586,7 +681,9 @@ static func _time_part(game, run: Dictionary) -> bool:
 			if not bool(run["in_town"]) and game.location == "":
 				var contact_started := Time.get_ticks_usec()
 				_check_contact(game, t)
-				Perf.record_us("Contact checks", Time.get_ticks_usec() - contact_started)
+				var contact_elapsed := Time.get_ticks_usec() - contact_started
+				monster_warband_total_usec += contact_elapsed
+				Perf.record_us("Contact checks", contact_elapsed)
 			run["movement_usec"] = int(run["movement_usec"]) + Time.get_ticks_usec() - begin
 			run["i"] = i + 1
 			if int(run["i"]) >= int(run["steps"]):
@@ -594,7 +691,9 @@ static func _time_part(game, run: Dictionary) -> bool:
 		"monsters":
 			var begin := Time.get_ticks_usec()
 			Monsters.on_time(game, float(run["days"]))
-			Perf.record_us("Campaign creature checks", Time.get_ticks_usec() - begin)
+			var monster_elapsed := Time.get_ticks_usec() - begin
+			monster_warband_total_usec += monster_elapsed
+			Perf.record_us("Campaign creature checks", monster_elapsed)
 			var elapsed := int(run["movement_usec"]) + Time.get_ticks_usec() - begin
 			steps_worst = maxi(steps_worst, elapsed)
 			steps_total += elapsed
@@ -615,10 +714,23 @@ static func _time_part(game, run: Dictionary) -> bool:
 				run["work_started"] = Time.get_ticks_usec()
 				run["phase"] = "work"
 		"work":
+			if int(run.get("work_budget_usec", 0)) > 0 and not w.get("work", []).is_empty():
+				var allowance: int = int(run["work_budget_usec"])
+				var remaining: int = game._day_job_frame_remaining_usec() if game.has_method("_day_job_frame_remaining_usec") else WORK_FRAME_LIMIT_USEC - (Time.get_ticks_usec() - int(run["frame_started_usec"]))
+				var has_prefix: bool = int(run["jobs_done"]) > 0 or (game.has_method("_day_job_frame_has_work") and game._day_job_frame_has_work())
+				if int(run["jobs_done"]) > 0:
+					remaining = mini(remaining, maxi(0, allowance - (Time.get_ticks_usec() - int(run["work_started"]))))
+				if (game.has_method("_day_job_fence_pending") and game._day_job_fence_pending()) or not job_admitted(w["work"][0], remaining, allowance, has_prefix):
+					w["rng_state"] = str(rng.state)
+					return true   # preserve the head/day until its reservation or fence clears
 			if int(run["jobs_done"]) < int(run["jobs"]) and not (w.get("work", []) as Array).is_empty():
 				run["finished_ownership"] = w["work"][0][0] == "ownership_finish"
 				_run_job(game, rng, int(run.get("work_budget_usec", 0)) > 0)
 				run["jobs_done"] = int(run["jobs_done"]) + 1
+				var retained: bool = game._day_job_transaction_active() if game.has_method("_day_job_transaction_active") else day_job_pending(game)
+				if int(run.get("work_budget_usec", 0)) > 0 and (retained or (game.has_method("_day_job_fence_pending") and game._day_job_fence_pending())):
+					w["rng_state"] = str(rng.state)
+					return true
 			var budget := int(run.get("work_budget_usec", 0))
 			var budget_spent := budget > 0 and int(run["jobs_done"]) > 0 and Time.get_ticks_usec() - int(run["work_started"]) >= budget
 			if budget_spent or int(run["jobs_done"]) >= int(run["jobs"]) or (w.get("work", []) as Array).is_empty():
@@ -684,9 +796,13 @@ static func _daily(game, d: int, rng: RandomNumberGenerator) -> void:
 	Census.fates_day(w, d)
 	p0 = _dprof("census", p0)
 	Caravans.daily(game, rng)
+	var monster_started := Time.get_ticks_usec()
 	Monsters.daily(game, d, rng)   # monsters wave 1: queues lair/camp/militia/bandit jobs, bounty growth
+	monster_warband_total_usec += Time.get_ticks_usec() - monster_started
 	p0 = _dprof("monsters", p0)
+	var contract_started := Time.get_ticks_usec()
 	Contracts.daily_check(game)
+	monster_warband_total_usec += Time.get_ticks_usec() - contract_started
 	Diplomacy.daily(game, d)   # diplomacy: one step per day, after the economy/day tick (weekly rolls inside)
 	Settlement.daily(game, d)
 	p0 = _dprof("diplomacy", p0)
@@ -742,8 +858,21 @@ static func _battle_result(game, result: Dictionary) -> void:
 	var w: Dictionary = game.world
 	var wid: String = str(game.pending_battle.get("warband_id", w.get("encounter", "")))
 	w["encounter"] = ""
+	# player_units also contains non-company allies (defend militia, escorted caravan guards,
+	# friendly patrols). Each settles counted deaths on its own native path below, not "company".
+	var non_company_allies: Array = (game.pending_battle.get("allies", []) as Array).duplicate()
+	for m_unit: Variant in Militia.band_of(game, str(game.pending_battle.get("militia_town", ""))).get("units", []):
+		if not non_company_allies.has(m_unit):
+			non_company_allies.append(m_unit)
+	for c_unit: Variant in w["warbands"].get(str(game.pending_battle.get("caravan_id", "")), {}).get("units", []):
+		if not non_company_allies.has(c_unit):
+			non_company_allies.append(c_unit)
+	for bid: Variant in game.pending_battle.get("ally_bands", []):
+		for a_unit: Variant in w["warbands"].get(str(bid), {}).get("units", []):
+			if not non_company_allies.has(a_unit):
+				non_company_allies.append(a_unit)
 	for u in result.get("player_units", []):   # economy: the company's dead are their families' loss
-		if u is Unit and u.dead and not DragonCombat.is_dragon_unit(game, u):
+		if u is Unit and u.dead and not DragonCombat.is_dragon_unit(game, u) and not non_company_allies.has(u):
 			People.casualty(game, u, "dead", "company")
 	# Game.finish_battle settled each actual piece once through Salvage. Its receipts
 	# own stock/till/wallet changes; campaign reconciliation must not sell them again.
@@ -772,6 +901,34 @@ static func _battle_result(game, result: Dictionary) -> void:
 			ab["units"] = (ab["units"] as Array).filter(func(u): return not u.dead)
 			if (ab["units"] as Array).is_empty():
 				remove_warband(game, bid)
+	# Enemy militia are excluded from Army.state(w)["roll"]: book their fallen before retreat/filter/removal.
+	if String(wb.get("kind", "")) == "militia" and not bool(wb.get("professional", false)):
+		for u: Variant in wb["units"]:
+			if u is Unit and u.dead:
+				People.casualty(game, u, "dead", "militia")
+	# Town assaults also field town_guards alongside militia: filter dead guards before Warfare.after_battle
+	# transfers town forces (Army.sweep books their roll deaths).
+	var assault_tid: String = str(game.pending_battle.get("assault", {}).get("town_id", ""))
+	if assault_tid != "":
+		var gid: String = str(w.get("town_guards", {}).get(assault_tid, ""))
+		if gid != "" and gid != wid:
+			var gb: Dictionary = w["warbands"].get(gid, {})
+			if not gb.is_empty():
+				gb["units"] = (gb["units"] as Array).filter(func(u: Variant) -> bool: return u is Unit and not u.dead)
+				if (gb["units"] as Array).is_empty():
+					remove_warband(game, gid)
+					(w.get("town_guards", {}) as Dictionary).erase(assault_tid)
+		var mid: String = str(w.get("militia", {}).get(assault_tid, ""))
+		if mid != "" and mid != wid:
+			var mb: Dictionary = w["warbands"].get(mid, {})
+			if not mb.is_empty():
+				for u: Variant in mb["units"]:
+					if u is Unit and u.dead:
+						People.casualty(game, u, "dead", "militia")
+				mb["units"] = (mb["units"] as Array).filter(func(u: Variant) -> bool: return u is Unit and not u.dead)
+				if (mb["units"] as Array).is_empty():
+					remove_warband(game, mid)
+					(w.get("militia", {}) as Dictionary).erase(assault_tid)
 	Diplomacy.roster_changed(game)
 	# economy spec 2: the company holds the field -> it takes the beaten force's food and drink (up to what its men
 	# can carry) and the living enemies run home to their families; beaten off -> the band's survivors count a
@@ -906,9 +1063,42 @@ static func _do_work(game, rng: RandomNumberGenerator, budgeted: bool = false) -
 	var work: Array = w.get("work", [])
 	if work.is_empty():
 		return
+	# Construction and reentrant callbacks also belong to the transaction.
+	if game.has_method("_day_job_begin_dispatch") and frame_job(work[0]) and (budgeted or work[0][-1] is CampaignDayJob):
+		game._day_job_begin_dispatch()
 	var job: Array = work.pop_front()
+	if frame_job(job) and (budgeted or job[-1] is CampaignDayJob):
+		var run: CampaignDayJob = job[-1] if job[-1] is CampaignDayJob else _new_day_job(game, job)
+		if run == null:
+			if game.has_method("_day_job_cancel_dispatch"):
+				game._day_job_cancel_dispatch()
+			return   # same native missing-town no-op
+		if game.has_method("_day_job_claim"):
+			game._day_job_claim(run)
+		run.budgeted = budgeted
+		if not job[-1] is CampaignDayJob:
+			job.append(run)
+			run.hold(game)
+		if budgeted and game.has_method("_note_day_job_slice"):
+			game._note_day_job_slice()
+		var finished: bool = run.step(game)
+		if not budgeted:
+			while not finished:
+				finished = run.step(game)
+		if finished:
+			if not game.has_method("_day_job_commit"):
+				run.release(game)
+		else:
+			work.push_front(job)
+			if game.has_method("_day_job_cancel_dispatch"):
+				game._day_job_cancel_dispatch()
+		return
 	if job[0] == "ownership_finish":
 		Feudal.finish(game)
+		return
+	if CampaignTurnJob.reserve_frame_job(game, job, budgeted):
+		return
+	if CampaignRestJob.reserve_rest_job(game, job, budgeted):
 		return
 	if job[0] == "dragon_care_pay":
 		DragonCare.daily(game, int(job[1]))
@@ -937,6 +1127,8 @@ static func _do_work(game, rng: RandomNumberGenerator, budgeted: bool = false) -
 		var pt: Dictionary = w["towns"].get(String(job[1]), {})
 		if TownEcon.has_econ(pt) and not Plots.of(pt).is_empty():
 			Plots.week(game, pt, float(job[2]), 7)
+		return
+	if Sickness.reserve_frame_job(game, job, budgeted):
 		return
 	if TownEcon.do_job(game, job) or Army.do_job(game, job) or ArmsTrade.do_job(game, job) or Sickness.do_job(game, job) or Herds.do_job(game, job):   # economy jobs (econ, fam, tturn, fturn; army, army_sweep, army_misc, army_fight; sickness: sick, sick_w; herds, droves)
 		return

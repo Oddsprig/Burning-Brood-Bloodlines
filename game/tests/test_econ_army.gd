@@ -1,4 +1,5 @@
 extends RefCounted
+const SpeedParts = preload("res://tests/fixtures/older_speed_parts_v100.gd")
 ## Economy spec 2 (docs/specs/economy-2-army.md section 7 + Douglas's rules): every non-monster unit on the map has
 ## a family; no force has unpaid soldiers without the desertion timer running (and the timer ends in desertion
 ## home); rank counts never exceed caps and caps follow army size; the orc cascade (kill a warboss -> one big
@@ -16,6 +17,8 @@ func check(ok: bool, msg: String) -> void:
 		fails += 1
 
 func run(_tree: SceneTree) -> int:
+	var speed_part: String = SpeedParts.select(["families","caps","pay","unpaid","cascade","fights","rules","renown","supplies","bandits","days","save","draft"])
+	if speed_part == "": return 1
 	Game.SAVE_PATH = "user://test_save_army_%d.json" % OS.get_process_id()
 	# One generated world, reloaded between sections. A fresh new_game per check was most of the 93 s.
 	_base = "user://test_econ_army_base_%d.json" % OS.get_process_id()
@@ -24,19 +27,19 @@ func run(_tree: SceneTree) -> int:
 	Game.new_game(5150)
 	Game.save_game()
 	Game.SAVE_PATH = keep
-	_test_families_on_map()
-	_test_caps()
-	_test_pay_conserved()
-	_test_unpaid_and_desertion()
-	_test_orc_cascade()
-	_test_fight_speed()
-	_test_rules()
-	_test_renown()
-	_test_supplies()
-	_test_bandits_and_company()
-	_test_days_run()
-	_test_save_and_migration()
-	_test_draft()
+	if SpeedParts.includes(speed_part, "families"): _test_families_on_map()
+	if SpeedParts.includes(speed_part, "caps"): _test_caps()
+	if SpeedParts.includes(speed_part, "pay"): _test_pay_conserved()
+	if SpeedParts.includes(speed_part, "unpaid"): _test_unpaid_and_desertion()
+	if SpeedParts.includes(speed_part, "cascade"): _test_orc_cascade()
+	if SpeedParts.includes(speed_part, "fights"): _test_fight_speed()
+	if SpeedParts.includes(speed_part, "rules"): _test_rules()
+	if SpeedParts.includes(speed_part, "renown"): _test_renown()
+	if SpeedParts.includes(speed_part, "supplies"): _test_supplies()
+	if SpeedParts.includes(speed_part, "bandits"): _test_bandits_and_company()
+	if SpeedParts.includes(speed_part, "days"): _test_days_run()
+	if SpeedParts.includes(speed_part, "save"): _test_save_and_migration()
+	if SpeedParts.includes(speed_part, "draft"): _test_draft()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(Game.SAVE_PATH))
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(_base))
 	return fails
@@ -283,9 +286,32 @@ func _test_families_on_map() -> void:
 	check(wid2 != "", "a funded faction could not raise a new band")
 	check(wid2 != "" and not Supplies.stores(w["warbands"][wid2]).is_empty() and float(w["factions"]["orc_horde"]["treasury"]) < tr0,
 		"a new band set out without stores bought by its realm")
-	var dw := Bandits.spawn_deserters(Game, rng)
-	if dw != "":
-		check(_units_without_family(w).is_empty(), "deserters without families")
+	var deserter_source: Dictionary = {}
+	var band_ids: Array = w["warbands"].keys()
+	band_ids.sort()
+	for bid: String in band_ids:
+		var candidate: Dictionary = w["warbands"][bid]
+		var cfid: String = str(candidate["faction"])
+		if not Army.is_field(candidate) or DB.factions[cfid]["race"] != "human" or CampaignWorld.is_hostile(Game, cfid):
+			continue
+		for soldier: Unit in candidate["units"]:
+			var stown: Dictionary = w["towns"].get(soldier.home_town, {})
+			var sfamily: Dictionary = People.fam_of(stown, soldier.family)
+			var sperson: Array = Persons.by_uid(sfamily, soldier.uid)
+			if not soldier.dead and not sperson.is_empty() and str(sperson[4]) == "army" and stown.get("faction", "") == cfid and soldier.unpaid_days + 1 < int(Army.A()["desert_days"]):
+				deserter_source = candidate
+				break
+		if not deserter_source.is_empty():
+			break
+	check(not deserter_source.is_empty(), "deserter family check needs a non-hostile human field band")
+	if not deserter_source.is_empty():
+		var holdings_before: float = Barge.holdings(Game)
+		var sfid: String = str(deserter_source["faction"])
+		_empty_faction(sfid)
+		var payroll: Dictionary = Army.pay_units(Game, deserter_source["units"], {"kind": "faction", "fac": w["factions"][sfid]}, "army", Army.cul_of_faction(sfid))
+		check(int(payroll["unpaid"]) > 0 and absf(Barge.holdings(Game) - holdings_before) < 0.01, "unfunded payroll must record missed wages without creating or losing coin")
+	var dw: String = Bandits.spawn_deserters(Game, rng)
+	check(dw != "" and _units_without_family(w).is_empty(), "deserters without families")
 	print("  every non-monster unit on the map has a family (%d outlaws checked)" % outl)
 
 # ---------------------------------------------------------------- caps
@@ -525,9 +551,21 @@ func _orc_cascade_scenario(cul: Dictionary) -> void:
 	if units.size() != 40:
 		return
 	# Commoners cannot hold posts. Call the realm's own nobles into the field, then fill.
+	var called := []
 	for _call in 8:
-		if Army.call_up_nobles(Game, "orc_horde", 10).is_empty():
+		var batch: Array = Army.call_up_nobles(Game, "orc_horde", 10)
+		if batch.is_empty():
 			break
+		called.append_array(batch)
+	# v0.100: a called-up keeper's household is reassigned at once (as in
+	# People.draw/draft), so its shops never claim a keeper who is with the army.
+	var stale := 0
+	for u in called:
+		var town: Dictionary = w["towns"].get(u.home_town, {})
+		if town.is_empty() or not TownEcon.has_econ(town): continue
+		var f: Dictionary = People.fam_of(town, u.family)
+		if not f.is_empty() and Families.keeps_stale(town["econ"], f): stale += 1
+	check(stale == 0, "called-up nobles leave no stale keeper claims (%d stale)" % stale)
 	var nobles := 0
 	for u in Army.members(Game, "orc_horde"):
 		if Army.house_born(u):
@@ -867,7 +905,7 @@ func _snapshot_draft_town(e: Dictionary, day: float) -> Dictionary:
 		var fid := int(f["id"])
 		Persons.sync(e, f, day)
 		spare_left[fid] = Population.spare(f)
-		var wk := People._work_kinds(f)
+		var wk: Dictionary = People._work_kinds(e, f)
 		var pw := Persons.work(e, f)
 		var fam_kinds := {}
 		var fam_tiers := {}
@@ -1227,7 +1265,7 @@ func _test_draft_fixture(town: Dictionary) -> void:
 		check(bool(dres.get("ok", false)) and int(dres.get("tier", -1)) == int(exp_entry[0]) and String(dres.get("kind", "")) == want_kinds[step], "fixture step %d resolved %s, want tier %d kind %s" % [step, str(dres), int(exp_entry[0]), want_kinds[step]])
 		if dfid == 2:
 			check(not bool(dres.get("promoted", true)) and int(dp[0]) == int(exp_entry[2]), "fixture named draft step %d wrong pid %d" % [step, int(dp[0])])
-			check(String(People._work_kinds(nf).get(int(dp[0]), "")) == "", "drafted named soldier still appears in post-draft _work_kinds")
+			check(String(People._work_kinds(e, nf).get(int(dp[0]), "")) == "", "drafted named soldier still appears in post-draft _work_kinds")
 		else:
 			check(bool(dres.get("promoted", false)) and int(dp[0]) >= int(snap["next_pid0"]), "fixture cohort draft step %d did not promote a new pid" % step)
 			if dfid == 1:
@@ -1283,9 +1321,13 @@ func _test_save_and_migration() -> void:
 			for u in wb["units"]:
 				u.family = -1
 				u.rank = 0
-	Game.save_game()
+	# This intentionally incomplete pre-spec-2 scenario is unversioned, not schema 2.
+	var legacy: Dictionary = Game._save_tree()
+	legacy.erase("version")
+	var legacy_write: Dictionary = Game._write_save(Game.SAVE_PATH, legacy)
+	check(not legacy.has("version") and bool(legacy_write.get("ok", false)), "unversioned pre-spec-2 scenario writes through the native codec")
 	Game.world = {}
-	Game.load_game()
+	check(Game.load_game(), "unversioned pre-spec-2 scenario loads through native migration")
 	w = Game.world
 	check(w.has("army") and _units_without_family(w).is_empty(), "old save not migrated: soldiers without families")
 	var any_tree := false

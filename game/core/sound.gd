@@ -52,6 +52,8 @@ func play_music(key: String) -> void:
 
 ## Plays res://audio/<name>.wav. volume 0..1 (x the SFX setting), pitch jitter, rate limited per name.
 func sfx(name: String, volume: float = 1.0, pitch_jitter: float = 0.06, min_gap_ms: int = 40) -> void:
+	if CampaignWorld.defer_day_job_action(Game, sfx.bind(name, volume, pitch_jitter, min_gap_ms)):
+		return
 	var now := Time.get_ticks_msec()
 	if now - int(_recent.get(name, -100000)) < min_gap_ms: return
 	_recent[name] = now
@@ -70,7 +72,13 @@ func _on_node_added(node: Node) -> void:
 	# Readability guard for the dark theme: older screens tint text with colours chosen for a light
 	# parchment theme (dark red, dark green). Any label tinted below 4.5:1 contrast is lifted once.
 	if node is Label or node is RichTextLabel:
-		_fix_contrast.call_deferred(node)
+		_fix_contrast_id.call_deferred(node.get_instance_id())
+
+# A label can be freed before the deferred call binds its typed argument.
+func _fix_contrast_id(instance_id: int) -> void:
+	var node: Object = instance_from_id(instance_id)
+	if node is Control:
+		_fix_contrast(node as Control)
 
 func _fix_contrast(node: Control) -> void:
 	if not is_instance_valid(node) or node.has_meta("keep_color"): return

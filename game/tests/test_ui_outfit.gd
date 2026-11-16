@@ -2,6 +2,8 @@ extends RefCounted
 ## Outfit logic: apply uniform from stash (best quality first), material rule, overrides,
 ## two-handed rule, missing-piece report, unequip back to stash.
 
+const Fixture = preload("res://tests/fixtures/group_g_v100.gd")
+
 var fails := 0
 
 func check(cond: bool, what: String) -> void:
@@ -12,10 +14,15 @@ func check(cond: bool, what: String) -> void:
 		print("ok: ", what)
 
 func run(_tree: SceneTree) -> int:
-	Game.new_game(42)
-	var off: Unit = Roster.leaders(Game)[1]
+	# v0.100: outfit operations need no generated world; explicitly provide the original three-man squad.
+	Fixture.bare(42)
+	var leaders := Fixture.company(42, [0, 3])
+	check(leaders.size() == 2, "outfit fixture has two officers")
+	if leaders.size() != 2: return fails
+	var off: Unit = leaders[1]
 	var troops := Roster.troops_of(Game, off.uid)
 	check(troops.size() == 3, "officer has 3 troops")
+	if troops.size() != 3: return fails
 	for t in troops:
 		Outfit.strip(t, Game.stash)
 	Game.stash.clear()
@@ -27,14 +34,14 @@ func run(_tree: SceneTree) -> int:
 	check(troops[0].equip.get("body") == q3, "best quality goes first")
 	check(troops[1].equip.get("body") == q0, "second troop gets the lesser shirt")
 	check(not troops[2].equip.has("body"), "third troop has none")
-	check(r["missing"].size() == 1 and r["lines"][0] == "1 x mail shirt missing", "missing report: %s" % [r["lines"]])
+	check(r["missing"].size() == 1 and not r["lines"].is_empty() and r["lines"][0] == "1 x mail shirt missing", "missing report: %s" % [r["lines"]])
 	check(Game.stash.is_empty(), "stash emptied")
 	# material rule
 	Game.squads[off.uid]["material"] = "copper"
 	Game.stash.append(Item.make("mail_shirt", "tin", 5))
 	r = Outfit.apply_uniform(Game.squads, Game.company, off.uid, Game.stash)
 	check(not troops[2].equip.has("body"), "tin shirt refused under copper rule")
-	check(r["lines"][0] == "1 x copper mail shirt missing", "material in report: %s" % [r["lines"]])
+	check(not r["lines"].is_empty() and r["lines"][0] == "1 x copper mail shirt missing", "material in report: %s" % [r["lines"]])
 	# linen tunic satisfies a copper rule
 	Game.squads[off.uid]["uniform"]["clothing"] = "tunic"
 	for i in 3:

@@ -20,11 +20,26 @@ func run(tree: SceneTree) -> int:
 	var previous_span := CampaignWorld.presim_span_days
 	var previous_size := WorldGen.gen_size
 	var previous_params := Game.screen_params
-	check(previous_span == CampaignWorld.PRESIM_YEARS * CampaignWorld.PRESIM_YEAR_DAYS,
-		"fresh default retains the existing five-year history")
+	# v0.100: user-directed 2026-10-17 defaults are Normal and exactly one day, independent of legacy year conversion.
+	check(CampaignWorld.PRESIM_DEFAULT_DAYS == 1 and previous_span == 1
+		and WorldGen.WORLD_SIZE == "normal" and previous_size == "normal",
+		"fresh default is the smallest world with exactly one history day")
 	_test_span_config()
 	await tree.process_frame
 	_test_options(tree)
+	# Drain callbacks for the freed options labels before synchronous world/history work.
+	await tree.process_frame
+	await tree.process_frame
+	var which: String = "all"
+	for arg: String in OS.get_cmdline_user_args():
+		if arg.begins_with("--history-case="): which = arg.get_slice("=", 1)
+	check(which in ["all", "options"], "known short-history case selector")
+	if which != "all":
+		CampaignWorld.presim_span_days = previous_span
+		WorldGen.gen_size = previous_size
+		Game.screen_params = previous_params
+		print("HISTORY selected=", which, " (options is config/options coverage only)")
+		return fails
 	_test_one_day()
 	_test_saved_history()
 	CampaignWorld.presim_span_days = previous_span
@@ -151,6 +166,7 @@ func _test_one_day() -> void:
 	check(Game.day == 1.0, "loading a finished short history never reruns it")
 
 func _test_saved_history() -> void:
+	var native_day := Game.day
 	# Preserve the existing day-based record from an older whole-year selection.
 	Game.world["presim"] = {"total": 600, "done": 120, "from": 0.0}
 	Game.day = 120.0
@@ -164,7 +180,9 @@ func _test_saved_history() -> void:
 	check(Game.load_game() and not Game.world.has("presim") and Game.day == 120.0,
 		"loading a pre-history save does not create a new one-day history")
 	# The atomic compatibility path initializes the selected span itself too.
+	# Only the save checks need day 120; resume the native fixture's unchanged clocks.
+	Game.day = native_day
 	CampaignWorld.presim_span_days = 1
-	check(CampaignWorld.presim_step(Game, 50) == 0 and Game.day == 121.0
+	check(CampaignWorld.presim_step(Game, 50) == 0 and Game.day == native_day + 1.0
 		and CampaignWorld.presim_total(Game) == 1 and int(Game.world["presim"]["done"]) == 1,
 		"atomic compatibility path clamps its work to the selected one day")

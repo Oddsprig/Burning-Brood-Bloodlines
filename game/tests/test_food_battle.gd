@@ -1,4 +1,6 @@
 extends RefCounted
+const SpeedParts = preload("res://tests/fixtures/older_speed_parts_v100.gd")
+var _perf_seed: int = 0
 ## Food and drink in battle (core/food.gd + sim hooks; spec docs/specs/food-drink.md section 10):
 ##  - enemy spawn sets belly/buzz in range per supply level and race (beasts: belly only)
 ##  - recruit vs recruit stays about 50% when both sides are Fed and sober
@@ -19,9 +21,23 @@ func check(cond: bool, what: String) -> void:
 		print("ok: ", what)
 
 func run(_tree: SceneTree) -> int:
+	_perf_seed = 0
 	if OS.get_environment("FOOD_DIAG") == "1":
 		_diag()
 		return 0
+	# Both seeds and every non-performance case remain required, each in its own process.
+	var selected: String = SpeedParts.select(["spawn", "effects", "logs", "rvr", "perf60", "perf61"])
+	if selected == "": return 1
+	if selected != "all":
+		match selected:
+			"spawn": _test_spawn()
+			"effects": _test_effects()
+			"logs": _test_logs()
+			"rvr": _test_rvr()
+			"perf60", "perf61":
+				_perf_seed = int(selected.trim_prefix("perf"))
+				_test_perf()
+		return fails
 	_test_spawn()
 	_test_effects()
 	_test_logs()
@@ -120,10 +136,30 @@ func _test_effects() -> void:
 	# Game.finish_battle: belly -10
 	Game.new_game(9)
 	Game.main = null
-	for u in Game.company:
+	var seat: String = DevTools.choose_house(Game)
+	check(seat != "", "native house chosen for battle food check")
+	if seat == "": return
+	var raised: int = DevTools.raise_army(Game, seat, 2)
+	check(raised == 2 and Game.company.size() == 2, "two native residents muster for battle food check")
+	if Game.company.size() != 2: return
+	var player_realm: String = Diplomacy.player_realm(Game.world)
+	var wid: String = ""
+	for key: Variant in Game.world["warbands"]:
+		var band: Dictionary = Game.world["warbands"][key]
+		if str(band.get("faction", "")) != player_realm and Army.is_field(band) and not (band.get("units", []) as Array).is_empty():
+			wid = str(key)
+			break
+	check(wid != "", "native opposing field band exists for battle food check")
+	if wid == "": return
+	var enemy_units: Array = (Game.world["warbands"][wid]["units"] as Array).duplicate()
+	Game.pending_battle = {"warband_id": wid, "enemy": enemy_units, "allies": [], "seed": 9}
+	for u: Unit in Game.company:
 		u.belly = 50.0
-	Game.finish_battle({"winner": 0, "player_units": Game.company, "enemy_units": [], "enemy_fallen": [], "events": []})
-	check(Game.company.all(func(u): return u.dead or absf(u.belly - 40.0) < 0.001), "belly -10 at battle end")
+	for e: Unit in enemy_units:
+		e.belly = 50.0
+	Game.finish_battle({"winner": 0, "player_units": Game.company.duplicate(), "enemy_units": enemy_units,
+		"enemy_fallen": [], "enemy_fled": enemy_units, "events": []})
+	check(Game.company.size() == 2 and Game.company.all(func(u: Unit) -> bool: return not u.dead and absf(u.belly - 40.0) < 0.001), "belly -10 at battle end")
 
 func _test_logs() -> void:
 	# hammered men stumble (named roll, logged with the real numbers); drunk swings and pain lines; start lines
@@ -233,6 +269,7 @@ func _min_times(seed: int, food: bool) -> Dictionary:
 func _test_perf() -> void:
 	var worst := 0.0
 	for seed in [60, 61]:
+		if _perf_seed != 0 and seed != _perf_seed: continue
 		var r := _min_times(seed, true)
 		var plain := _min_times(seed, false)
 		print("  50v50 seed %d with food/drink states: %d ticks, %d stumbles, mean %.3f ms, worst %.3f ms | without: mean %.3f, worst %.3f" % [

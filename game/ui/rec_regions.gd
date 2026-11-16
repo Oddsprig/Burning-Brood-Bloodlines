@@ -58,15 +58,18 @@ static func towns(scr, tids: Array, fid: String, v: VBoxContainer, table: RecTab
 	if fid != "": research(scr, fid, v)
 	_details(v, "Town accounts, harvests and price comparisons", legacy)
 
+static func faction_columns() -> Array:
+	return [
+		{"k": "name", "t": "Faction", "w": 2.0}, {"k": "towns", "t": "Towns", "w": 0.65},
+		{"k": "people", "t": "People", "w": 0.9}, {"k": "tre", "t": "War chest", "w": 1.15, "format": _money},
+		{"k": "days", "t": "Pay days", "w": 0.85, "format": _number}]
+
 static func factions(scr, _tids: Array, _fid: String, v: VBoxContainer, table: RecTable, legacy: Callable) -> void:
 	RecKit.metrics(v, [
 		{"title": "Factions", "value": str(table.rows.size()), "note": "All recorded factions", "color": UiTheme.BLUE},
 		{"title": "People in their towns", "value": str(int(_sum(table.rows, "people"))), "note": "%d towns with an economy" % int(_sum(table.rows, "towns")), "color": UiTheme.COPPER},
 		{"title": "Field soldiers", "value": str(int(_sum(table.rows, "men"))), "note": "%s total daily army bill" % _money(_sum(table.rows, "bill")), "color": UiTheme.BLUE}])
-	_table(v, "Faction accounts", table, [
-		{"k": "name", "t": "Faction", "w": 2.0}, {"k": "towns", "t": "Towns", "w": 0.65},
-		{"k": "people", "t": "People", "w": 0.9}, {"k": "tre", "t": "War chest", "w": 1.15, "format": _money},
-		{"k": "days", "t": "Pay days", "w": 0.85, "format": _number}])
+	_table(v, "Faction accounts", table, faction_columns())
 	_details(v, "Diplomacy, pay and retained knowledge accounts", legacy)
 
 static func rulers(_scr, _tids: Array, v: VBoxContainer, table: RecTable, legacy: Callable) -> void:

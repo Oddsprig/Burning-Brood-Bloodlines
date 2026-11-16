@@ -59,7 +59,8 @@ static func _adjust(e: Dictionary, key: String, good: String, qty: float, reserv
 	var fid := _family_id(key)
 	if fid >= 0 and fid < e.get("fams", []).size():
 		var kept := 0.0
-		for g in FOOD: kept += float(balances[key].get(g, [0.0, 0.0])[1])
+		var balance_goods: Dictionary = balances[key]
+		for g: String in FOOD: kept += float(balance_goods.get(g, ZERO_PAIR)[1])
 		e["fams"][fid]["hv"] = kept
 
 static func _lot(e: Dictionary, good: String, shares: Dictionary, day: int, source: String, reserve: Dictionary = {}) -> void:
@@ -172,7 +173,7 @@ static func harvest(e: Dictionary, good: String, channel: String, weights: Dicti
 
 static func owned(e: Dictionary, key: String, good: String, reserved_only: bool = false) -> float:
 	ensure(e)
-	return float(_book(e).get("balances", {}).get(key, {}).get(good, [0.0, 0.0])[1 if reserved_only else 0])
+	return float(_book(e).get("balances", {}).get(key, {}).get(good, ZERO_PAIR)[1 if reserved_only else 0])
 
 ## Read both balance entries [total, reserved] in one lookup without fallback allocations.
 static func owned_pair(e: Dictionary, key: String, good: String) -> Array:
@@ -190,6 +191,9 @@ static func owned_pair(e: Dictionary, key: String, good: String) -> Array:
 	return [float(pair[0]), float(pair[1])]
 
 static func available(e: Dictionary, good: String) -> int:
+	if e.has("_barn_available"):
+		ensure(e)
+		return _available_ordered(e, good, e["_barn_available"])
 	ensure(e)
 	var barn_have := maxi(0, int(e["barn"].get(good, 0)))
 	if barn_have <= 0: return 0
@@ -202,7 +206,7 @@ static func available(e: Dictionary, good: String) -> int:
 			total += maxf(0.0, float(row[0]) - float(row[1]))
 	return mini(barn_have, maxi(0, int(floor(total + EPS))))
 
-static func _remove(e: Dictionary, good: String, amount: float, respect_reserves: bool, owner_filter: String, reserved_only: bool = false) -> Dictionary:
+static func _remove(e: Dictionary, good: String, amount: float, respect_reserves: bool, owner_filter: String, reserved_only: bool = false, prune_scope: Array[Dictionary] = []) -> Dictionary:
 	var out := {}
 	var left := amount
 	var rows: Array = _book(e)["lots"].get(good, [])
@@ -235,16 +239,143 @@ static func _remove(e: Dictionary, good: String, amount: float, respect_reserves
 			_adjust(e, String(key), good, -took, -used_r)
 			out[key] = float(out.get(key, 0.0)) + took
 		left -= q
-	_book(e)["lots"][good] = rows.filter(func(row): return _sum(row["shares"]) > EPS)
+	_book(e)["lots"][good] = _prune_lots(rows, good, prune_scope)
 	return out
 
-static func take(e: Dictionary, good: String, n: int, respect_reserves: bool = true, owner_filter: String = "") -> Dictionary:
+# Local to one clear_batch. Compare scalar shares in native code; only changed
+# lots need another GDScript sum. Keep key order too: floating sums are ordered.
+# Neither snapshots nor totals are stored in the simulation/save.
+static func _prune_lots(rows: Array, good: String, prune_scope: Array[Dictionary]) -> Array:
+	if prune_scope.is_empty(): return rows.filter(func(row): return _sum(row["shares"]) > EPS)
+	var previous: Array = prune_scope[0].get(good, [])
+	var kept: Array = []
+	var next: Array = []
+	for i: int in rows.size():
+		var row: Dictionary = rows[i]
+		var shares: Dictionary = row["shares"]
+		var keys: Array = shares.keys()
+		var cached: Array = previous[i] if i < previous.size() else []
+		if cached.size() != 3 or cached[0] != shares or cached[1] != keys:
+			cached = [shares.duplicate(), keys, _sum(shares)]
+		if float(cached[2]) > EPS:
+			kept.append(row)
+			next.append(cached)
+	prune_scope[0][good] = next
+	return kept
+
+static func take(e: Dictionary, good: String, n: int, respect_reserves: bool = true, owner_filter: String = "", prune_scope: Array[Dictionary] = []) -> Dictionary:
 	ensure(e)
 	var have := float(available(e, good)) if respect_reserves else float(e["barn"].get(good, 0))
 	if owner_filter != "":
 		have = owned(e, owner_filter, good) - (owned(e, owner_filter, good, true) if respect_reserves else 0.0)
 	var q := mini(maxi(0, n), mini(maxi(0, int(e["barn"].get(good, 0))), maxi(0, int(floor(have + EPS)))))
-	var shares := _remove(e, good, float(q), respect_reserves, owner_filter)
+	var shares: Dictionary = _remove(e, good, float(q), respect_reserves, owner_filter, false, prune_scope)
+	e["barn"][good] = int(e["barn"].get(good, 0)) - q
+	return {"n": q, "shares": shares}
+
+# Prefix totals preserve each original balance addition. A withdrawal marks the
+# earliest changed owner; the next read repeats that suffix, never total-minus-n.
+# The caller discards this scope before returning from clear_batch.
+static func _available_ordered(e: Dictionary, good: String, scope: Dictionary) -> int:
+	var barn_have: int = maxi(0, int(e["barn"].get(good, 0)))
+	if barn_have <= 0: return 0
+	var balances: Dictionary = _book(e).get("balances", {})
+	var entry: Array = scope.get(good, [])
+	if entry.size() != 5 or int(entry[4]) != balances.size():
+		var build_keys: Array = []
+		var build_positions: Dictionary = {}
+		for key: Variant in balances:
+			if (balances[key] as Dictionary).has(good):
+				build_positions[key] = build_keys.size()
+				build_keys.append(key)
+		var build_prefix: PackedFloat64Array = PackedFloat64Array()
+		build_prefix.resize(build_keys.size() + 1)
+		entry = [build_keys, build_positions, build_prefix, 0, balances.size()]
+		scope[good] = entry
+	var keys: Array = entry[0]
+	var prefix: PackedFloat64Array = entry[2]
+	var first: int = int(entry[3])
+	var total: float = prefix[first]
+	for at: int in range(first, keys.size()):
+		var row: Array = balances[keys[at]][good]
+		total += maxf(0.0, float(row[0]) - float(row[1]))
+		prefix[at + 1] = total
+	entry[2] = prefix
+	entry[3] = keys.size()
+	return mini(barn_have, maxi(0, int(floor(total + EPS))))
+
+static func _available_changed(e: Dictionary, good: String, shares: Dictionary) -> void:
+	if not e.has("_barn_available"): return
+	var scope: Dictionary = e["_barn_available"]
+	if not scope.has(good): return
+	var entry: Array = scope[good]
+	var positions: Dictionary = entry[1]
+	for key: Variant in shares:
+		if not positions.has(key):
+			scope.erase(good)
+			return
+		entry[3] = mini(int(entry[3]), int(positions[key]))
+
+static func _scaled_total(weights: Dictionary, amount: float, total: float) -> Dictionary:
+	var out: Dictionary = {}
+	if amount <= EPS: return out
+	if total <= EPS: return {UNKNOWN: amount}
+	var keys: Array = weights.keys()
+	keys.sort()
+	var left: float = amount
+	var remaining: float = total
+	for key: Variant in keys:
+		var weight: float = maxf(0.0, float(weights[key]))
+		if weight <= 0.0: continue
+		var q: float = left if remaining <= weight + EPS else amount * weight / total
+		out[String(key)] = q
+		left -= q; remaining -= weight
+	return out
+
+static func _remove_available(e: Dictionary, good: String, amount: float, respect_reserves: bool, owner_filter: String, reserved_only: bool = false, prune_scope: Array[Dictionary] = []) -> Dictionary:
+	var out: Dictionary = {}
+	var left: float = amount
+	var rows: Array = _book(e)["lots"].get(good, [])
+	for row: Dictionary in rows:
+		if left <= EPS: break
+		var weights: Dictionary = {}
+		# An owner-filtered withdrawal has one eligible creditor; selecting that
+		# key directly avoids visiting every other producer in joint dated lots.
+		if owner_filter != "":
+			if row["shares"].has(owner_filter):
+				var qty: float = float(row["shares"][owner_filter])
+				var held: float = float(row["reserve"].get(owner_filter, 0.0))
+				var takeable: float = held if reserved_only else (maxf(0.0, qty - held) if respect_reserves else qty)
+				if takeable > EPS: weights[owner_filter] = takeable
+		else:
+			for key: Variant in row["shares"]:
+				var qty: float = float(row["shares"][key])
+				var held: float = float(row["reserve"].get(key, 0.0))
+				var takeable: float = held if reserved_only else (maxf(0.0, qty - held) if respect_reserves else qty)
+				if takeable > EPS: weights[key] = takeable
+		var weight_total: float = _sum(weights)
+		var q: float = minf(left, weight_total)
+		var parts: Dictionary = _scaled_total(weights, q, weight_total)
+		for key: Variant in parts:
+			var old: float = float(row["shares"][key])
+			var old_r: float = float(row["reserve"].get(key, 0.0))
+			var took: float = float(parts[key])
+			var used_r: float = took if reserved_only else (0.0 if respect_reserves else minf(old_r, took * old_r / maxf(EPS, old)))
+			row["shares"][key] = maxf(0.0, old - took)
+			row["reserve"][key] = maxf(0.0, old_r - used_r)
+			_adjust(e, String(key), good, -took, -used_r)
+			out[key] = float(out.get(key, 0.0)) + took
+		left -= q
+	_book(e)["lots"][good] = _prune_lots(rows, good, prune_scope)
+	return out
+
+# Local to one clear_batch. Compare scalar shares in native code; only changed
+# lots need another GDScript sum. Keep key order too: floating sums are ordered.
+# Neither snapshots nor totals are stored in the simulation/save.
+static func _take_available(e: Dictionary, good: String, n: int, have: float, respect_reserves: bool = true, owner_filter: String = "", prune_scope: Array[Dictionary] = []) -> Dictionary:
+	var q: int = mini(maxi(0, n), mini(maxi(0, int(e["barn"].get(good, 0))), maxi(0, int(floor(have + EPS)))))
+	var shares: Dictionary = _remove_available(e, good, float(q), respect_reserves, owner_filter, false, prune_scope)
+	_available_changed(e, good, shares)
 	e["barn"][good] = int(e["barn"].get(good, 0)) - q
 	return {"n": q, "shares": shares}
 
@@ -282,7 +413,11 @@ static func food_reserve_days(e: Dictionary, f: Dictionary) -> float:
 static func reserve_food(e: Dictionary, f: Dictionary) -> void:
 	ensure(e)
 	if not e.has("harvest_book"): return
-	var b: Dictionary = e["harvest_book"]
+	_reserve_food_known_book(e, f, e["harvest_book"])
+
+# A bulk reservation keeps the same book and lazily indexes each good once.
+# The scope ends before any delivery, withdrawal or other simulation operation.
+static func _reserve_food_known_book(e: Dictionary, f: Dictionary, b: Dictionary, lot_scope: Array[Dictionary] = [], budget_scope: Array[Dictionary] = []) -> void:
 	var balances: Dictionary = b["balances"]
 	if balances.is_empty(): return
 	var key := "f:%d" % int(f["id"])
@@ -297,8 +432,13 @@ static func reserve_food(e: Dictionary, f: Dictionary) -> void:
 	if g_own <= EPS and g_res <= EPS and fr_own <= EPS and fr_res <= EPS: return
 	var budget: float = 0.0
 	if not f.get("gone", false) and not f.get("estate", false) and (g_own > EPS or fr_own > EPS):
-		var rate := float(Barge.eaters(e, f, float(e.get("day", 0)))[0]) * float(TownEcon.data()["needs"]["food"])
-		budget = maxf(0.0, (food_reserve_days(e, f) - maxf(0.0, float(f["store"]["food"]))) * rate)
+		var prior: Array = budget_scope[0].get(key, []) if not budget_scope.is_empty() else []
+		if prior.size() == 2 and is_same(prior[0], f):
+			budget = float(prior[1])
+		else:
+			var rate: float = float(Barge.eaters(e, f, float(e.get("day", 0)))[0]) * float(TownEcon.data()["needs"]["food"])
+			budget = maxf(0.0, (food_reserve_days(e, f) - maxf(0.0, float(f["store"]["food"]))) * rate)
+			if not budget_scope.is_empty(): budget_scope[0][key] = [f, budget]
 	var lots: Dictionary = b["lots"]
 	for i in 2:
 		var good: String = FOOD[i]
@@ -308,7 +448,13 @@ static func reserve_food(e: Dictionary, f: Dictionary) -> void:
 		var delta := target - res_v
 		budget -= target
 		if absf(delta) <= EPS: continue
-		var rows: Array = lots.get(good, [])
+		var rows: Array
+		if lot_scope.is_empty():
+			rows = lots.get(good, [])
+		else:
+			var by_good: Dictionary = lot_scope[0]
+			if not by_good.has(good): by_good[good] = _food_lots_by_owner(lots.get(good, []))
+			rows = by_good[good].get(key, [])
 		for row in rows:
 			var r_res: Dictionary = row["reserve"]
 			var r_sh: Dictionary = row["shares"]
@@ -321,11 +467,32 @@ static func reserve_food(e: Dictionary, f: Dictionary) -> void:
 				delta -= change
 			if absf(delta) <= EPS: break
 
-static func reserve_all(e: Dictionary) -> void:
+# Preserve lot order for each owner, including reserve-only entries. Rows
+# absent from both dictionaries cannot change that owner's reservation.
+static func _food_lots_by_owner(rows: Array) -> Dictionary:
+	var out: Dictionary = {}
+	for row: Dictionary in rows:
+		var shares: Dictionary = row["shares"]
+		var reserve: Dictionary = row["reserve"]
+		for key: Variant in shares:
+			if not out.has(key): out[key] = []
+			(out[key] as Array).append(row)
+		for key: Variant in reserve:
+			if shares.has(key): continue
+			if not out.has(key): out[key] = []
+			(out[key] as Array).append(row)
+	return out
+
+# Optional budgets belong only to the adjacent _farms/_barn_sales calls.
+# No family, calendar, store or plot inputs change between those reservations;
+# only Herds.day adds market stock. Lots/balances are NEVER cached or skipped.
+static func reserve_all(e: Dictionary, budget_scope: Array[Dictionary] = []) -> void:
 	ensure(e)
 	if not e.has("harvest_book"): return
-	if (e["harvest_book"]["balances"] as Dictionary).is_empty(): return
-	for f in e.get("fams", []): reserve_food(e, f)
+	var b: Dictionary = e["harvest_book"]
+	if (b["balances"] as Dictionary).is_empty(): return
+	var lot_scope: Array[Dictionary] = [{}]
+	for f in e.get("fams", []): _reserve_food_known_book(e, f, b, lot_scope, budget_scope)
 
 static func keep_food(e: Dictionary, f: Dictionary, meals: int, rate: float) -> int:
 	if meals <= 0 or rate <= 0.0: return 0

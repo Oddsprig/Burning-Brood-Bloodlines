@@ -22,7 +22,7 @@ static func build(scr, tids: Array, fid: String, tab: String) -> Control:
 	match tab:
 		"Towns": RecRegions.towns(scr, tids, fid, v, towns_table(scr, tids, RecRegions.town_columns()), func(b): towns(scr, tids, fid, b))
 		"Army": RecRegions.army(scr, fid, v, func(b): army(scr, fid, b))
-		"Factions": RecRegions.factions(scr, tids, fid, v, factions_table(scr), func(b): factions(scr, tids, fid, b))
+		"Factions": RecRegions.factions(scr, tids, fid, v, _factions_table(scr, RecRegions.faction_columns()), func(b): factions(scr, tids, fid, b))
 		"Rulers": RecRegions.rulers(scr, tids, v, rulers_table(scr, tids), func(b): rulers(scr, tids, b))
 		"On the move": RecRegions.on_the_move(scr, tids, fid, v, move_table(scr, fid, RecRegions.move_columns()), func(b): on_the_move(scr, tids, fid, b))
 		"Goods": RecFlows.goods(scr, tids, v, func(b): goods(scr, tids, b))
@@ -523,6 +523,10 @@ static func towns_table(scr, tids: Array, display_columns: Array = []) -> RecTab
 		{"k": "di", "t": "Drink x", "num": true}, {"k": "mi", "t": "Metal x", "num": true}], rows, "name", true, [], true, RecTable.LIMIT, display_columns)
 
 static func factions_table(scr) -> RecTable:
+	return _factions_table(scr, [])
+
+## The main tab supplies its final cells up front; the disclosure keeps its original detail rows.
+static func _factions_table(scr: Variant, display_columns: Array) -> RecTable:
 	var w: Dictionary = Game.world
 	var fids: Array = w.get("factions", {}).keys()
 	fids.sort()
@@ -545,8 +549,14 @@ static func factions_table(scr) -> RecTable:
 				war.append(UiWords.faction_name(String(o)))
 			elif ds == Diplomacy.ALLIANCE:
 				ally.append(UiWords.faction_name(String(o)))
+		# Academy.report also copies the capital economy and resolves its entire staff.
+		# This column needs only the same normalized know-how, in an owned small snapshot.
+		var research: Dictionary = w.get("research", {}).get(ff, {})
+		var knowledge: Dictionary = (research.get("kh", {}) as Dictionary).duplicate()
+		var snapshot: Dictionary = {"research": {ff: {"kh": knowledge, "pts": {}}}}
+		var steel: float = float(Academy.state(snapshot, ff)["kh"].get("steel", 0.0))
 		rows.append({"name": UiWords.faction_name(ff), "towns": ft.size(), "people": _people(ft), "tre": float(fac.get("treasury", 0.0)),
-			"bill": bill, "days": dl if dl < 1.0e9 else null, "men": men, "kh": snappedf(float(RecData.research(ff)["kh"].get("steel", 0.0)), 0.1),
+			"bill": bill, "days": dl if dl < 1.0e9 else null, "men": men, "kh": snappedf(steel, 0.1),
 			"_l": UiWords.faction_name(ff), "_r": _m(float(fac.get("treasury", 0.0))),
 			"_d": "%d towns, %d people; army %d men, pay %s a day, %s days of pay; at war with %s; allied with %s; price level x%.2f, money index %s; head, tax in a day: %s" % [ft.size(), _people(ft), men,
 				_m(bill), RecKit.num(dl) if dl < 1.0e9 else "-", ", ".join(PackedStringArray(war)) if not war.is_empty() else "nobody",
@@ -556,7 +566,7 @@ static func factions_table(scr) -> RecTable:
 			"_tap": func(): scr.page(UiWords.faction_name(ff), func(b): _faction_page(scr, ff, b))})
 	return RecTable.make([{"k": "name", "t": "Faction"}, {"k": "towns", "t": "Towns", "num": true}, {"k": "people", "t": "People", "num": true},
 		{"k": "tre", "t": "Treasury", "num": true}, {"k": "bill", "t": "Army pay", "num": true}, {"k": "days", "t": "Days of pay", "num": true},
-		{"k": "men", "t": "Soldiers", "num": true}, {"k": "kh", "t": "Steel %", "num": true}], rows, "name", true)
+		{"k": "men", "t": "Soldiers", "num": true}, {"k": "kh", "t": "Steel %", "num": true}], rows, "name", true, [], false, RecTable.LIMIT, display_columns)
 
 static func rulers_table(scr, tids: Array) -> RecTable:
 	var tr := RecData.tax_rules()
@@ -645,6 +655,8 @@ static func mines_table(scr, tids: Array, display_columns: Array = []) -> RecTab
 		var t := _t(tid)
 		var deposits: Dictionary = e.get("deposits", {})
 		if deposits.is_empty(): continue
+		# Reuse names without rebuilding the mutation sweep's head heaps for every town.
+		var previous: Dictionary = TownSweep.begin_read(e)
 		# Preserve the last active mine for each ore, with one business scan per town.
 		var mines := {}
 		for b in RecData.biz(e):
@@ -658,6 +670,7 @@ static func mines_table(scr, tids: Array, display_columns: Array = []) -> RecTab
 				"_l": "%s: %s" % [String(t["name"]), Goods.good_name(String(ore))], "_r": "richness %.2f" % float(e["deposits"][ore]),
 				"_d": ("%s, %d of %d at work; output a day: %s" % [RecData.biz_title(e, mine), int(mine["workers"]), int(mine["cap"]), RecKit.NT]) if not mine.is_empty() else "no mine working it",
 				"_tap": (func(): scr.page(RecData.biz_title(RecData.econ(tt), RecData.biz(RecData.econ(tt))[bid]).capitalize(), func(b): RecPages.business(scr, tt, bid, b))) if bid >= 0 else Callable()})
+		TownSweep.finish(previous)
 	return RecTable.make([{"k": "town", "t": "Town"}, {"k": "ore", "t": "Ore"}, {"k": "rich", "t": "Richness", "num": true},
 		{"k": "workers", "t": "Miners", "num": true}], rows, "town", true, [], false, RecTable.LIMIT, display_columns)
 

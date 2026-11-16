@@ -58,23 +58,113 @@ static func head(h: Dictionary) -> int:
 static func ge(h: Dictionary) -> float:
 	return float(h["g"]) + float(h["o"]) + 0.5 * float(h["y"])
 
+# Index actual herd keys in Dictionary order. Head-only changes advance the
+# membership stamp in place; unrecognized version changes rebuild it normally.
+static func _owner_herds(hd: Dictionary) -> Dictionary:
+	var version: int = int(hd.get("ver", 0))
+	if int(hd.get("_owner_herds_ver", -1)) == version and hd.get("_owner_herds") is Dictionary:
+		return hd["_owner_herds"]
+	var owners: Dictionary = {}
+	var labour: Dictionary = {}
+	var herds_v: Dictionary = hd["h"]
+	for hid: Variant in herds_v:
+		var h: Dictionary = herds_v[hid]
+		var owner: String = "%s:%d" % [String(h["ow"]), int(h["oi"])]
+		if not owners.has(owner): owners[owner] = []
+		(owners[owner] as Array).append(hid)
+		if String(h["ow"]) in ["f", "s"]:
+			var family: String = str(int(h["oi"]))
+			if not labour.has(family): labour[family] = []
+			(labour[family] as Array).append(hid)
+	hd["_owner_herds"] = owners
+	hd["_labour_herds"] = labour
+	hd["_owner_herds_ver"] = version
+	hd["_labour_prefix"] = {}
+	hd["_labour_from"] = {}
+	return owners
+
+# Re-sum only the affected owner's ordered row, rather than subtracting floating
+# contributions from a running total. This retains the native addition order.
+static func _head_index_changed(hd: Dictionary, h: Dictionary, added: bool = false) -> void:
+	var version: int = int(hd.get("ver", 0))
+	if int(hd.get("_owner_herds_ver", -1)) == version - 1:
+		if added:
+			var owners: Dictionary = hd["_owner_herds"]
+			var owner: String = "%s:%d" % [String(h["ow"]), int(h["oi"])]
+			var hid: String = str(int(h["id"]))
+			if not owners.has(owner): owners[owner] = []
+			(owners[owner] as Array).append(hid)
+			if String(h["ow"]) in ["f", "s"]:
+				var labour: Dictionary = hd["_labour_herds"]
+				var family: String = str(int(h["oi"]))
+				if not labour.has(family): labour[family] = []
+				(labour[family] as Array).append(hid)
+		hd["_owner_herds_ver"] = version
+	if int(hd.get("_labour_ver", -1)) == version - 1 and hd.has("_labour"):
+		var dirty: Dictionary = hd.get("_labour_dirty", {})
+		if String(h["ow"]) in ["f", "s"]:
+			dirty[str(int(h["oi"]))] = true
+			_dirty_labour_from(hd, str(int(h["id"])), str(int(h["oi"])))
+		hd["_labour_dirty"] = dirty
+		hd["_labour_ver"] = version
+
 ## Care comes from actual age/species records, once for their direct owner.
-## Business and drover herds use their existing paid jobs instead. This derived
-## owner index rebuilds on herd changes and is discarded when loading a save.
+## Business and drover herds use their existing paid jobs instead.
+static func _dirty_labour_from(hd: Dictionary, hid: String, family: String) -> void:
+	var starts: Dictionary = hd.get("_labour_from", {})
+	var at: int = (hd.get("_labour_herds", {}).get(family, []) as Array).find(hid)
+	if at < 0 or int(hd.get("_owner_herds_ver", -1)) != int(hd.get("ver", 0)): at = 0
+	starts[family] = mini(int(starts.get(family, at)), at)
+	hd["_labour_from"] = starts
+
+static func _labour_owner_sum(hd: Dictionary, family: String) -> float:
+	var members: Array = hd["_labour_herds"].get(family, [])
+	var prefixes: Dictionary = hd.get("_labour_prefix", {})
+	var prefix: PackedFloat64Array = prefixes.get(family, PackedFloat64Array())
+	var starts: Dictionary = hd.get("_labour_from", {})
+	var first: int = int(starts.get(family, 0))
+	if first < 0 or first >= prefix.size(): first = 0
+	if prefix.is_empty(): prefix.append(0.0)
+	first = mini(first, members.size())
+	prefix.resize(members.size() + 1)
+	var total: float = prefix[first]
+	var records: Dictionary = hd["h"]
+	for at: int in range(first, members.size()):
+		var h: Dictionary = records[members[at]]
+		if not h.has("work_band"):
+			var per_hand: float = float(kind(String(h["k"])).get("per_hand", 0))
+			if per_hand > 0.0: total += ge(h) / per_hand
+		prefix[at + 1] = total
+	prefixes[family] = prefix
+	hd["_labour_prefix"] = prefixes
+	starts.erase(family)
+	return total
+
 static func labour_hands(e: Dictionary, fid: int) -> float:
 	var hd := H(e)
 	var version := int(hd.get("ver", 0))
+	_owner_herds(hd)
 	if int(hd.get("_labour_ver", -1)) != version:
 		var hands := {}
-		for h in (hd["h"] as Dictionary).values():
+		var records: Dictionary = hd["h"]
+		for hid: Variant in records:
+			var h: Dictionary = records[hid]
 			if not String(h["ow"]) in ["f", "s"] or h.has("work_band"): continue
 			var per_hand := float(kind(String(h["k"])).get("per_hand", 0))
 			if per_hand <= 0.0: continue
 			var owner := str(int(h["oi"]))
 			hands[owner] = float(hands.get(owner, 0.0)) + ge(h) / per_hand
 		hd["_labour"] = hands
+		hd["_labour_dirty"] = {}
+		hd["_labour_prefix"] = {}
+		hd["_labour_from"] = {}
 		hd["_labour_ver"] = version
-	return float(hd["_labour"].get(str(fid), 0.0))
+	var family: String = str(fid)
+	var dirty: Dictionary = hd.get("_labour_dirty", {})
+	if dirty.has(family):
+		hd["_labour"][family] = _labour_owner_sum(hd, family)
+		dirty.erase(family)
+	return float(hd["_labour"].get(family, 0.0))
 
 ## The kind's word in this town ("boars" for an orc town's pigs, "cave goats" for goblins).
 static func word(e: Dictionary, k: String) -> String:
@@ -113,15 +203,18 @@ static func new_herd(e: Dictionary, k: String, ow: String, oi: int, day_v: float
 		h["ot"] = ot
 	hd["h"][str(id)] = h
 	hd["ver"] = int(hd.get("ver", 0)) + 1
+	_head_index_changed(hd, h, true)
 	return h
 
 ## Herds of an owner (optionally of one kind).
 static func of_owner(e: Dictionary, ow: String, oi: int, k: String = "") -> Array:
 	var out := []
-	for hid in herds(e):
-		var h: Dictionary = herds(e)[hid]
-		if String(h["ow"]) == ow and int(h["oi"]) == oi and (k == "" or String(h["k"]) == k):
-			out.append(h)
+	var hd: Dictionary = H(e)
+	var owners: Dictionary = _owner_herds(hd)
+	var records: Dictionary = hd["h"]
+	for hid: Variant in owners.get("%s:%d" % [ow, oi], []):
+		var h: Dictionary = records[hid]
+		if k == "" or String(h["k"]) == k: out.append(h)
 	return out
 
 static func of_family(e: Dictionary, fid: int) -> Array:
@@ -157,6 +250,7 @@ static func change(e: Dictionary, h: Dictionary, age: String, dn: int, what: Str
 	if String(h["k"]) == "horses" and age == "g" and dn < 0:
 		LivestockCare.trim_mount_bodies(h)
 	e["hd"]["ver"] = int(e["hd"].get("ver", 0)) + 1   # (the screens' cached head counts)
+	_head_index_changed(e["hd"], h)
 	var L: Dictionary = h["led"]
 	match what:
 		"born": L["b"] = int(L["b"]) + dn
@@ -261,7 +355,9 @@ static func herd_for(e: Dictionary, fid: int, k: String, day_v: float) -> Dictio
 	return new_herd(e, k, "s" if fid == 0 else "f", fid, day_v)
 
 ## Who owns it, in words.
-static func owner_text(e: Dictionary, h: Dictionary) -> String:
+# The optional scope belongs to the herd owner's economy (h.ot for a drover),
+# and must end before household/name mutations in that economy.
+static func owner_text(e: Dictionary, h: Dictionary, owner_names_scope: Array[Dictionary] = []) -> String:
 	match String(h["ow"]):
 		"f":
 			return Plots.owner_text(e, int(h["oi"]))
@@ -269,13 +365,13 @@ static func owner_text(e: Dictionary, h: Dictionary) -> String:
 			return "the town"
 		"b":
 			var biz: Array = e.get("biz", [])
-			return Businesses.title(e, biz[int(h["oi"])]) if int(h["oi"]) < biz.size() else "a business"
+			return Businesses.title(e, biz[int(h["oi"])], owner_names_scope) if int(h["oi"]) < biz.size() else "a business"
 		"d":
 			var ot: Dictionary = Game.world.get("towns", {}).get(String(h.get("ot", "")), {})
 			if TownEcon.has_econ(ot):
 				var ob: Array = ot["econ"]["biz"]
 				if int(h["oi"]) < ob.size():
-					return "%s of %s" % [Businesses.title(ot["econ"], ob[int(h["oi"])]), String(ot["name"])]
+					return "%s of %s" % [Businesses.title(ot["econ"], ob[int(h["oi"])], owner_names_scope), String(ot["name"])]
 			return "a drover"
 	return "nobody"
 
@@ -523,6 +619,7 @@ static func _remove_legacy_dogs(hd: Dictionary) -> void:
 	if not removed.is_empty():   # the memos were taken with the dogs counted
 		hd.erase("_th"); hd.erase("_thk"); hd.erase("_pg"); hd.erase("_pa")
 		hd.erase("_labour"); hd.erase("_labour_ver")
+		hd.erase("_owner_herds_ver")
 	for key in ["pr", "ofk", "wak", "sok", "_male"]:
 		(hd.get(key, {}) as Dictionary).erase("dogs")
 	(hd.get("plague", {}) as Dictionary).erase("distemper")
@@ -540,6 +637,10 @@ static func _remove_legacy_dogs(hd: Dictionary) -> void:
 			pens.erase(p)
 
 static func _fix(hd: Dictionary) -> void:
+	# Rebuild membership from actual loaded keys; JSON can normalize key types.
+	if not (hd.get("_labour_dirty", {}) as Dictionary).is_empty(): hd.erase("_labour_ver")
+	for cache_key: String in ["_owner_herds", "_owner_herds_ver", "_labour_herds", "_labour_dirty", "_labour_prefix", "_labour_from"]:
+		hd.erase(cache_key)
 	hd["n"] = int(hd["n"]); hd["y"] = int(hd.get("y", 0)); hd["ver"] = int(hd.get("ver", 0))
 	# v0.074: the memos are kept as saved (JSON types back). They are saved with the town and dropped by the same
 	# rules as in play; dropping them at every load made a reloaded town price grazing and care from fresh sums
@@ -705,7 +806,26 @@ static func _retire(e: Dictionary, h: Dictionary) -> void:
 		G[k] = int(G[k]) + int(L[k])
 	for c in L["d"]:
 		G["d"] = int(G["d"]) + int(L["d"][c])
-	hd["h"].erase(str(int(h["id"])))
+	var hid: String = str(int(h["id"]))
+	if int(hd.get("_labour_ver", -1)) == int(hd.get("ver", 0)) and String(h["ow"]) in ["f", "s"]:
+		_dirty_labour_from(hd, hid, str(int(h["oi"])))
+	hd["h"].erase(hid)
+	if int(hd.get("_owner_herds_ver", -1)) == int(hd.get("ver", 0)):
+		var owner: String = "%s:%d" % [String(h["ow"]), int(h["oi"])]
+		var owners: Dictionary = hd["_owner_herds"]
+		if owners.has(owner):
+			(owners[owner] as Array).erase(hid)
+			if (owners[owner] as Array).is_empty(): owners.erase(owner)
+		var family: String = str(int(h["oi"]))
+		var labour: Dictionary = hd["_labour_herds"]
+		if String(h["ow"]) in ["f", "s"] and labour.has(family):
+			(labour[family] as Array).erase(hid)
+			if (labour[family] as Array).is_empty(): labour.erase(family)
+	# Retirement does not bump the native head-count version.
+	if int(hd.get("_labour_ver", -1)) == int(hd.get("ver", 0)) and String(h["ow"]) in ["f", "s"]:
+		var dirty: Dictionary = hd.get("_labour_dirty", {})
+		dirty[str(int(h["oi"]))] = true
+		hd["_labour_dirty"] = dirty
 
 ## Stochastic whole head from an expected number (seeded).
 static func _whole(x: float, rng: RandomNumberGenerator) -> int:
@@ -864,7 +984,9 @@ static func _life(e: Dictionary, h: Dictionary, si: int, day_v: float, rng: Rand
 	if not horse and float(K.get("grow", 0.0)) > 0.0 and int(h["y"]) > 0:
 		var up := mini(int(h["y"]), _whole(float(h["y"]) * wk / float(K["grow"]), rng))
 		h["y"] = int(h["y"]) - up; h["g"] = int(h["g"]) + up
-		if up > 0: H(e)["ver"] = int(H(e).get("ver", 0)) + 1
+		if up > 0:
+			H(e)["ver"] = int(H(e).get("ver", 0)) + 1
+			_head_index_changed(H(e), h)
 	if int(h["g"]) > 0:
 		var ol := mini(int(h["g"]), _whole(float(h["g"]) * wk / float(K["prime"]), rng))
 		h["g"] = int(h["g"]) - ol; h["o"] = int(h["o"]) + ol

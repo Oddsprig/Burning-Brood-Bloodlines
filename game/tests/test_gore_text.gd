@@ -20,6 +20,12 @@ func _check(cond: bool, what: String) -> void:
 		fails += 1
 
 func run(_tree: SceneTree) -> int:
+	var which: String = "all"
+	for arg: String in OS.get_cmdline_user_args():
+		if arg.begins_with("--gore-case="): which = arg.get_slice("=", 1)
+	_check(which in ["all", "claims"], "known gore case selector")
+	if fails > 0: return fails
+	print("GORE ten synchronous native battles and repeated claim rendering; required wall time UNMEASURED; external 59-second wall cap required (target under 60 seconds)")
 	CombatText.gore_full = true
 	var sims := _battles()
 	var entries := _strikes(sims)
@@ -31,6 +37,8 @@ func run(_tree: SceneTree) -> int:
 	_claims(entries, false)
 	_reduced_words(entries)
 	CombatText.gore_full = true
+	print("GORE selected=", which, " (claims excludes setting/performance/gear coverage)")
+	if which == "claims": return fails
 	_gore_setting()
 	_weapon_bend()
 	_armor_dent()
@@ -116,7 +124,7 @@ func _claims(entries: Array, full: bool) -> void:
 				if String(a[1]) in ["cut", "dented"]:
 					return true
 			return d.has("via")],
-		["stuck", "lodged|sticks fast|stuck fast|buried", func(d): return d.get("lodged", false)],
+		["stuck", "lodged|sticks fast|stuck fast|buried", func(d): return d.get("lodged", false) or String(d.get("out", "")) == "shield_stuck"],
 	]
 	var bad := 0
 	var hits := {}

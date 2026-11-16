@@ -1,4 +1,6 @@
 extends RefCounted
+const SpeedCheckpoint = preload("res://tests/fixtures/older_speed_checkpoint_v100.gd")
+const SpeedParts = preload("res://tests/fixtures/older_speed_parts_v100.gd")
 var checks := 0
 var fails := 0
 var children := 0
@@ -40,6 +42,9 @@ func occupancy(eligible: bool = true) -> Dictionary:
 	return result
 
 func run(_tree: SceneTree) -> int:
+	var speed_part: String = SpeedParts.select(["setup","day1","day2","day3","day4","day5","day6","day7"])
+	if speed_part == "": return 1
+	if speed_part.begins_with("day"): return _speed_week(int(speed_part.trim_prefix("day")))
 	WorldGen.gen_size = "normal"
 	Game.new_game(2026)
 	# Real generated adults retain their places. Limit the cleanup budget to an
@@ -78,8 +83,25 @@ func run(_tree: SceneTree) -> int:
 			check(int(a[1]) == int(b[1]) and int(a[2]) == int(b[2]), "integer caps and actually funded available slots survive load")
 			check(absf(float(a[3]) - float(b[3])) < 0.00001, "unreserved fractional shift capacity survives load")
 	check(absf(Barge.holdings(Game) - coins) < 0.01, "occupancy migration does not move or create money")
+	if speed_part == "setup":
+		var handoff: RefCounted = SpeedCheckpoint.new("casual_week")
+		handoff.context = {"start_day": Game.day, "children": children, "fractional_towns": fractional_towns}
+		return 0 if fails == 0 and handoff.save_step(0) else maxi(1, fails)
 	# Continue ordinary hiring and the next weekly reassessment after loading.
 	for d in 7: Game.advance_time(1.0, true)
 	occupancy(false)
 	print("CASUAL OCCUPANCY SAVE checks=%d eligible_child_observations=%d fractional_job_observations=%d failures=%d" % [checks, children, fractional_towns, fails])
 	return fails
+
+func _speed_week(step: int) -> int:
+	var handoff: RefCounted = SpeedCheckpoint.new("casual_week")
+	if not handoff.load_step(step - 1): return 1
+	children = int(handoff.context["children"])
+	fractional_towns = int(handoff.context["fractional_towns"])
+	Game.advance_time(1.0, true)
+	check(Game.day == float(handoff.context["start_day"]) + step, "all seven native hiring/reassessment days are consecutive")
+	if step == 7:
+		occupancy(false)
+		print("CASUAL OCCUPANCY SAVE checks=", checks, " eligible_child_observations=", children, " fractional_job_observations=", fractional_towns, " failures=", fails)
+	if fails > 0: return fails
+	return 0 if handoff.save_step(step) else 1

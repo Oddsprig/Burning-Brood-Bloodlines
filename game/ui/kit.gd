@@ -80,7 +80,7 @@ static func button(text: String, cb: Callable, variation: String = "", min_w: in
 	if variation != "":
 		b.theme_type_variation = variation
 	b.focus_mode = Control.FOCUS_NONE
-	b.pressed.connect(cb)
+	b.pressed.connect(func(): Game._day_job_invoke(cb))
 	return b
 
 static func hbox(sep: int = 8) -> HBoxContainer:

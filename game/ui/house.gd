@@ -44,6 +44,8 @@ func _queue_refresh() -> void:
 	call_deferred("_refresh")
 
 func _refresh() -> void:
+	if Game._day_job_wait_observer(_refresh):
+		return
 	_refresh_pending = false
 	UiKit.clear(body)
 	accounts_grid = null

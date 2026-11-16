@@ -2,6 +2,9 @@ extends RefCounted
 ## v0.050: one daily dragon feeding, packed meat on campaign, household priority.
 ## Uses the cached DevTools world. Does not write user://save.json.
 
+const RunplanArgs: GDScript = preload("res://tests/fixtures/older_runplan_args_v100.gd")
+const SpeedCheckpoint: GDScript = preload("res://tests/fixtures/older_speed_checkpoint_v100.gd")
+const PARTS: Array[String] = ["setup", "home_and_march", "priority_and_spoilage"]
 var fails := 0
 var checks := 0
 
@@ -77,8 +80,59 @@ func keeper_for(tid: String, household: String) -> String:
 			if fallback == "": fallback = uid
 	return fallback
 
+func _select_part() -> String:
+	var selected: String = OS.get_environment("PROVISIONS_PART")
+	var seen: bool = not selected.is_empty()
+	for arg: String in RunplanArgs.arguments():
+		var val: String = ""
+		if arg.begins_with("--part="):
+			val = arg.trim_prefix("--part=")
+		elif arg.begins_with("--speed-part="):
+			val = arg.trim_prefix("--speed-part=")
+		elif arg == "--part" or arg == "--speed-part":
+			check(false, "choose one --part=setup|home_and_march|priority_and_spoilage")
+			return ""
+		else:
+			continue
+		if seen and val != selected:
+			check(false, "conflicting provisions --part selectors")
+			return ""
+		seen = true
+		selected = val
+	if selected == "" or (selected != "all" and not selected in PARTS):
+		check(false, "choose --part=setup, --part=home_and_march, --part=priority_and_spoilage in order")
+		return ""
+	return selected
+
 func run(tree: SceneTree) -> int:
-	if not await DevTools.start_world(tree, "user://test_dragon_provisions_v050.json"):
+	var part: String = _select_part()
+	if part == "":
+		return fails
+	var keep_save: String = Game.SAVE_PATH
+	var checkpoint: RefCounted = SpeedCheckpoint.new("dragon_provisions_v050")
+	var result: int = await _run_provisions(tree, part, checkpoint)
+	Game.SAVE_PATH = keep_save
+	return result
+
+func _run_provisions(tree: SceneTree, part: String, checkpoint: RefCounted) -> int:
+	if part == "home_and_march":
+		if not bool(checkpoint.call("load_step", 0)):
+			check(false, "provisions setup checkpoint loaded")
+			return fails
+		var ctx0: Dictionary = checkpoint.get("context")
+		checks = int(ctx0.get("checks", 0))
+		fails += int(ctx0.get("fails", 1))
+		return _run_home_and_march(str(ctx0["uid_a"]), str(ctx0["uid_b"]), str(ctx0["tid"]), false, checkpoint)
+	if part == "priority_and_spoilage":
+		if not bool(checkpoint.call("load_step", 1)):
+			check(false, "provisions home_and_march checkpoint loaded")
+			return fails
+		var ctx1: Dictionary = checkpoint.get("context")
+		checks = int(ctx1.get("checks", 0))
+		fails += int(ctx1.get("fails", 1))
+		return _run_priority_and_spoilage(str(ctx1["uid_a"]), str(ctx1["uid_b"]), str(ctx1["tid"]), int(ctx1["day"]))
+	var scratch: String = "user://test_dragon_provisions_v050_%d.json" % OS.get_process_id()
+	if not await DevTools.start_world(tree, scratch):
 		check(false, "start world")
 		return fails
 	Game.world["work"] = []
@@ -110,6 +164,22 @@ func run(tree: SceneTree) -> int:
 	var raised := DevTools.raise_army(Game, tid, 8)
 	check(raised > 0 and not Game.company.is_empty(), "field army is raised before the meat snapshot")
 	if Game.company.is_empty(): return fails
+	if part == "setup":
+		var setup_ctx: Dictionary = checkpoint.get("context")
+		setup_ctx["uid_a"] = uid_a
+		setup_ctx["uid_b"] = uid_b
+		setup_ctx["tid"] = tid
+		setup_ctx["checks"] = checks
+		setup_ctx["fails"] = fails
+		checkpoint.set("context", setup_ctx)
+		var saved0: bool = bool(checkpoint.call("save_step", 0))
+		check(saved0, "provisions setup checkpoint saved")
+		print("Dragon provisions v0.050 (setup): %d checks, %d fails" % [checks, fails])
+		return fails
+	return _run_home_and_march(uid_a, uid_b, tid, true, checkpoint)
+
+func _run_home_and_march(uid_a: String, uid_b: String, tid: String, continue_all: bool, checkpoint: RefCounted) -> int:
+	var row_a: Dictionary = live(uid_a)
 	var day := int(floor(Game.day))
 	for uid in [uid_a, uid_b]:
 		live(uid)["care"]["last_day"] = day - 1
@@ -232,6 +302,27 @@ func run(tree: SceneTree) -> int:
 	check(near(float(live(uid_b)["care"]["health"]), 1.0 - 0.018), "missed packed meat lowers health by the care rule")
 	check(not near(float(live(uid_b)["care"]["health"]), 1.0 - 0.08), "missed meat is not the old purse penalty")
 	check(near(float(live(uid_b).get("growth_points", 0.0)), growth), "a missed feed does not grow the dragon")
+	if not continue_all:
+		var march_ctx: Dictionary = (checkpoint.get("context") as Dictionary).duplicate(true)
+		march_ctx["uid_a"] = uid_a
+		march_ctx["uid_b"] = uid_b
+		march_ctx["tid"] = tid
+		march_ctx["day"] = day
+		march_ctx["checks"] = checks
+		march_ctx["fails"] = fails
+		checkpoint.set("context", march_ctx)
+		var saved1: bool = bool(checkpoint.call("save_step", 1))
+		check(saved1, "provisions home_and_march checkpoint saved")
+		print("Dragon provisions v0.050 (home_and_march): %d checks, %d fails" % [checks, fails])
+		return fails
+	return _run_priority_and_spoilage(uid_a, uid_b, tid, day)
+
+func _run_priority_and_spoilage(uid_a: String, uid_b: String, tid: String, day: int) -> int:
+	var row_a: Dictionary = live(uid_a)
+	var town: Dictionary = Game.world["towns"][tid]
+	var e: Dictionary = town["econ"]
+	var owner: Dictionary = Dynasty._person(Game, str(row_a.get("owner_person_uid", "")))
+	var fam: Dictionary = owner["family"]
 	fam["store"]["food"] = 0.0
 	fam["last"] = float(day)
 	check(bool(DragonCare.set_priority(Game, live(uid_a), "last").get("ok", false)), "priority can be set to last")

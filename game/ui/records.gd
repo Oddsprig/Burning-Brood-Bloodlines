@@ -42,6 +42,7 @@ var title_l: Label
 var day_l: Label
 var crest: Control
 var bar: HBoxContainer
+var header_details: HFlowContainer
 var tabs_box: HFlowContainer
 var groups_box: HFlowContainer
 var tabs_sc: ScrollContainer
@@ -74,6 +75,12 @@ func _ready() -> void:
 	bar.add_child(day_l)
 	bar.add_child(UiKit.button("View", open_selector, "Row", 96))
 	bar.add_child(UiKit.button("Close", close, "Danger", 96))
+	header_details = UiKit.flow(10)
+	header_details.name = "RecordsHeaderDetails"
+	header_details.visible = false
+	root.add_child(header_details)
+	(bar.get_parent() as Control).resized.connect(_fit_header)
+	title_l.theme_changed.connect(_fit_header)
 	tabs_sc = ScrollContainer.new()
 	tabs_sc.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	# every tab reachable (Douglas 10-06: "the menu cuts off u cant scroll to right"): a scrollbar shows when the row
@@ -159,6 +166,8 @@ func tids() -> Array:
 
 # ================================================================== drawing
 func refresh() -> void:
+	if Game._day_job_wait_observer(refresh):
+		return
 	var w: Dictionary = Game.world
 	var nm := "The whole world"
 	if view == "town":
@@ -169,6 +178,7 @@ func refresh() -> void:
 	UiKit.fit_title(title_l)
 	day_l.text = "Day %d, %s, year %d" % [Calendar.day_of_season(Game.day), Calendar.season(Game.day), Calendar.year(Game.day)]
 	if crest != null:
+		crest.get_parent().remove_child(crest)
 		crest.queue_free()
 		crest = null
 	var fid := sel if view == "faction" else (String(w.get("towns", {}).get(sel, {}).get("faction", "")) if view == "town" else "")
@@ -182,6 +192,7 @@ func refresh() -> void:
 		crest.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		bar.add_child(crest)
 		bar.move_child(crest, 2)
+	_fit_header()
 	UiKit.clear(groups_box); UiKit.clear(tabs_box)
 	var selected_group: Dictionary = {}
 	for group: Dictionary in categories():
@@ -201,6 +212,43 @@ func refresh() -> void:
 		tabs_box.add_child(b)
 	_fit_navigation()
 	_draw_body()
+
+## Keep actions on screen; move the full day/realm text below only when the single row cannot fit.
+func _fit_header() -> void:
+	if header_details == null or title_l == null or day_l == null: return
+	var header_scroll: Control = bar.get_parent() as Control
+	if header_scroll.size.x <= 0.0: return
+	UiKit.fit_title(title_l)
+	var required: float = title_l.custom_minimum_size.x + day_l.custom_minimum_size.x
+	var items: int = 2
+	for child: Control in bar.get_children():
+		if child == title_l or child == day_l or child == crest: continue
+		required += child.get_combined_minimum_size().x
+		items += 1
+	if crest != null:
+		required += crest.get_combined_minimum_size().x
+		items += 1
+	required += float(items - 1) * float(bar.get_theme_constant("separation"))
+	var narrow: bool = required > header_scroll.size.x
+	var metadata_parent: Container = header_details if narrow else bar
+	if day_l.get_parent() != metadata_parent:
+		day_l.reparent(metadata_parent)
+	if not narrow:
+		bar.move_child(day_l, 1)
+	title_l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if narrow else TextServer.AUTOWRAP_OFF
+	if narrow:
+		title_l.custom_minimum_size.x = 60.0
+	day_l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if narrow else TextServer.AUTOWRAP_OFF
+	day_l.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING if narrow else TextServer.OVERRUN_TRIM_ELLIPSIS
+	if crest != null:
+		if crest.get_parent() != metadata_parent:
+			crest.reparent(metadata_parent)
+		if not narrow:
+			bar.move_child(crest, 2)
+		var crest_name: Label = crest.get_child(0) as Label
+		crest_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if narrow else TextServer.AUTOWRAP_OFF
+		crest_name.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING if narrow else TextServer.OVERRUN_TRIM_ELLIPSIS
+	header_details.visible = narrow
 
 func _fit_navigation() -> void:
 	if tabs_box == null or tabs_sc == null: return
@@ -297,7 +345,10 @@ func _draw_body() -> void:
 		_restore_disclosures(state.get("open", []))
 		var tables := _tables(list_box)
 		var remembered: Array = state.get("tables", [])
-		for i in mini(tables.size(), remembered.size()): tables[i].restore_ui(remembered[i])
+		for i: int in mini(tables.size(), remembered.size()):
+			# These tables were just rebuilt from live data; restore only a different UI state.
+			if tables[i].ui_state() != remembered[i]:
+				tables[i].restore_ui(remembered[i])
 		list_sc.set_deferred("scroll_vertical", int(state.get("scroll", 0)))
 	if have_page:
 		var top: Dictionary = stack[-1]
@@ -433,6 +484,8 @@ func open_faction(fid: String) -> void:
 	set_view("faction", fid)
 
 func open_family(t: Dictionary, fid: int) -> void:
+	if Game._day_job_wait_observer(open_family.bind(t, fid)):
+		return
 	var e := RecData.econ(t)
 	var f := RecData.fam(e, fid)
 	if f.is_empty():
@@ -440,12 +493,16 @@ func open_family(t: Dictionary, fid: int) -> void:
 	page("The %s family" % String(f.get("name", "?")) if not f.get("estate", false) else "Town land", func(box): RecPages.family(self, t, fid, box))
 
 func open_person(t: Dictionary, fid: int, pid: int) -> void:
+	if Game._day_job_wait_observer(open_person.bind(t, fid, pid)):
+		return
 	var e := RecData.econ(t)
 	var f := RecData.fam(e, fid)
 	var p := Persons.any(f, pid) if not f.is_empty() else []
 	page(Persons.name_of(f, p, Persons.race_of(e)) if not p.is_empty() else "A person", func(box): RecPages.person(self, t, fid, pid, box))
 
 func open_business(t: Dictionary, bid: int) -> void:
+	if Game._day_job_wait_observer(open_business.bind(t, bid)):
+		return
 	var e := RecData.econ(t)
 	if bid < 0 or bid >= RecData.biz(e).size():
 		return

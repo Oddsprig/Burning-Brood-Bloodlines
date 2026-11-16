@@ -72,6 +72,46 @@ func _looks(t: Dictionary, n: int) -> void:
 	for i in n:
 		ArmsTrade.econ_daily(Game, t, e, int(e.get("day", 0)), false)
 
+# v0.100: an incompatible foreign maul must not spend a one-handed gap's allowance.
+func _foreign_priority(source: Dictionary) -> void:
+	var town := source.duplicate(true)
+	var e: Dictionary = town["econ"]
+	var man := Unit.new()
+	man.faction = "middle_kingdom"
+	man.title = "man-at-arms"
+	var world := {"towns": {}, "militia": {}, "warbands": {"kit_foreign_priority": {"units": [man]}}}
+	world["towns"][String(town["id"])] = town
+	world["militia"][String(town["id"])] = "kit_foreign_priority"
+	var game := {"world": world}
+	var maul := Item.make("war_maul", "copper", 2)
+	var sword := Item.make("arming_sword", "copper", 2)
+	var tids: Array = ArmsTrade.loadout_of(man)["main_hand"]["tids"]
+	check(ArmsTrade._take_fit({"armory_items": [maul]}, tids, "main_hand", false, {}) == null,
+		"v0.100: native issue rejects the foreign two-handed maul for this one-handed loadout")
+	town["armory_items"] = []
+	town["shop"] = [maul, sword]
+	var maul_price := Economy.base_value(town, maul)
+	var sword_price := Economy.base_value(town, sword)
+	var allowance := maxf(maul_price, sword_price) + minf(maul_price, sword_price) * 0.25
+	var reserve := ArmsTrade.arms_reserve(game, town, e)
+	e["treasury"] = reserve + allowance * 10.0
+	var treasury_before := float(e["treasury"])
+	var limit := (treasury_before - reserve) * 0.10
+	check(maul_price > 0.0 and sword_price > 0.0 and maul_price <= limit and sword_price <= limit and maul_price + sword_price > limit,
+		"v0.100: one bounded look can afford either weapon but cannot afford both")
+	var market: Dictionary = e["biz"][int(e["mkt"])]
+	var till_before := float(market["till"])
+	var gold_before := TownEcon.town_gold(e)
+	ArmsTrade.econ_daily(game, town, e, int(e.get("day", 0)), false)
+	var spent := treasury_before - float(e["treasury"])
+	check(man.equip.get("main_hand") == sword, "v0.100: compatible sword is bought and issued despite the earlier foreign maul")
+	check((town["shop"] as Array).has(maul) and not (town["shop"] as Array).has(sword) and ArmsTrade.armory(town).is_empty(),
+		"v0.100: incompatible maul stays on the stall and the purchased sword leaves the armory")
+	check(absf(spent - sword_price) < 0.001, "v0.100: the priority look pays exactly for the usable sword")
+	check(spent <= limit + 0.001 and float(e["treasury"]) >= reserve, "v0.100: both purchase passes share the tenth-of-excess ceiling and protect the reserve")
+	check(absf((float(market["till"]) - till_before) - spent) < 0.001, "v0.100: the market receives the treasury's exact payment")
+	check(absf(TownEcon.town_gold(e) - gold_before) < 0.001, "v0.100: foreign-priority purchases conserve existing town coins")
+
 func run(_tree: SceneTree) -> int:
 	Game.new_game(2026)
 	var w: Dictionary = Game.world
@@ -90,12 +130,19 @@ func run(_tree: SceneTree) -> int:
 	var need := ArmsTrade.role_counts(ArmsTrade.requirements(Game, t))
 	for role in need:
 		check(int(tgt.get(role, 0)) == int(ceil(float(need[role]) * 2.5)), "actual supported troops define rounded reserve")
+	# v0.100: isolate the foreign-weapon counterexample without altering this town's later controls.
+	_foreign_priority(t)
 	# 2. with money and stall stock the head buys and kits the militia out
 	(t["shop"] as Array).clear()
 	_stock_stalls(t)
 	var reserve := ArmsTrade.arms_reserve(Game, t, e)
 	e["treasury"] = reserve + 500000.0 * TownEcon.COIN
-	_looks(t, 2)
+	# v0.100: the first bounded look must issue missing weapons ahead of spare armour.
+	var gold_before := TownEcon.town_gold(e)
+	_looks(t, 1)
+	check(_cover(mil)[1] >= 1.0, "v0.100: missing militia weapons take priority over bulk stored reserves")
+	check(absf(TownEcon.town_gold(e) - gold_before) < 0.001, "v0.100: priority purchases conserve the town's existing coins")
+	_looks(t, 1)
 	var mc := _cover(mil)
 	print("-- militia after the head's looks: %.0f%% of loadout slots, %.0f%% with a weapon; armory %d pieces, treasury %d (reserve %d)" % [
 		100.0 * mc[0], 100.0 * mc[1], arm.size(), int(e["treasury"]), int(reserve)])

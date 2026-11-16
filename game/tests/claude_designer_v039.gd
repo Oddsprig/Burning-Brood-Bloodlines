@@ -1,4 +1,5 @@
 extends RefCounted
+const SpeedParts = preload("res://tests/fixtures/older_speed_parts_v100.gd")
 ## Roadmap v0.039 character designer logic tests.
 const NativeFixture = preload("res://tests/test_feudal_succession.gd")
 var checks: int = 0
@@ -161,8 +162,10 @@ func test_begin_portrait_bind_and_save() -> void:
 	check(str(after_look.get("skin", "")) == skin_val and typeof(after_look.get("seed")) == TYPE_INT and int(after_look["seed"]) == 4 and typeof(after_look.get("beard_style")) == TYPE_INT and int(after_look["beard_style"]) == 5, "save/load and CharacterDesign.after_load preserve design and cast int look fields")
 
 func run(_tree: SceneTree) -> int:
-	test_options_and_validation()
-	test_apply_before_selection()
-	test_begin_portrait_bind_and_save()
+	var speed_part: String = SpeedParts.select(["options","apply","begin"])
+	if speed_part == "": return 1
+	if SpeedParts.includes(speed_part, "options"): test_options_and_validation()
+	if SpeedParts.includes(speed_part, "apply"): test_apply_before_selection()
+	if SpeedParts.includes(speed_part, "begin"): test_begin_portrait_bind_and_save()
 	print("designer039: %d checks, %d failures" % [checks, fails])
 	return fails

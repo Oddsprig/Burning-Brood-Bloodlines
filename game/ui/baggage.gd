@@ -71,6 +71,8 @@ func shown() -> Array:
 	return Baggage.view(Baggage.rows(Game), cat, where if cat in ["weapons", "armour"] else "all", sort_key)
 
 func refresh() -> void:
+	if Game._day_job_wait_observer(refresh):
+		return
 	purse.text = UiKit.purse_text(Game)
 	UiKit.clear(tabs_box)
 	var names := []

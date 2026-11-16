@@ -1,6 +1,13 @@
 extends "res://tests/test_keeper_operating_cash.gd"
 var baseline_script: GDScript
 
+# v0.100: v0.002 (47efcc7) recycles copper/tin gear and stops forging it after bronze.
+# v0.100: these copper-only fractional-work controls require the pre-bronze state.
+func fixture(culture: String, typ: String) -> Array:
+	var rows := super.fixture(culture, typ)
+	rows[0]["knowhow"]["bronze"] = 0.0
+	return rows
+
 func producer_daily(town: Dictionary, e: Dictionary, rng: RandomNumberGenerator) -> void:
 	if baseline_script != null: baseline_script.daily(Game, town, e, TownEcon.data(), 0, rng)
 	else: Businesses.daily(Game, town, e, TownEcon.data(), 0, rng)

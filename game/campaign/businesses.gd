@@ -275,6 +275,7 @@ static func open_suffix_max(e: Dictionary) -> PackedFloat64Array:
 ## Current vacancies and funded offers. Family matching refreshes this small index;
 ## production indexes and market state still follow the existing daily/weekly passes.
 static func refresh_hiring(e: Dictionary) -> void:
+	if TownSweep.hiring_ready(e): return
 	var biz: Array = e["biz"]
 	var n: int = biz.size()
 	var sig: PackedFloat64Array = PackedFloat64Array()
@@ -315,6 +316,7 @@ static func refresh_hiring(e: Dictionary) -> void:
 		if prev_sig == sig and is_same(e.get("open"), entry[2]) and (e["open"] as Array).size() == int(entry[3]):
 			e["open_n"] = open_n
 			e["open_top"] = top
+			TownSweep.hiring_refreshed(e)
 			return
 	var open := []
 	var fields := []
@@ -370,6 +372,7 @@ static func refresh_hiring(e: Dictionary) -> void:
 		_hiring_cache.push_front([e, sig, ids, m, open_max])
 		if _hiring_cache.size() > 64:
 			_hiring_cache.pop_back()
+	TownSweep.hiring_refreshed(e)
 
 static func rebuild_open(e: Dictionary) -> void:
 	refresh_hiring(e)
@@ -394,7 +397,7 @@ static func rebuild_open(e: Dictionary) -> void:
 	prep_day(e)
 	service_states(e)
 
-static func title(e: Dictionary, b: Dictionary) -> String:
+static func title(e: Dictionary, b: Dictionary, owner_names_scope: Array[Dictionary] = []) -> String:
 	var T: Dictionary = TownEcon.data()["businesses"][b["type"]]
 	var owner := int(b["owner"])
 	if b["type"] == "academy":
@@ -404,7 +407,12 @@ static func title(e: Dictionary, b: Dictionary) -> String:
 	if b.has("smith") and String(b["smith"]) != "":
 		# (v0.014: a weapon forge and an armour forge may have smiths of one name)
 		return "%s's %s" % [b["smith"], {"weaponsmith": "weapon forge", "armorsmith": "armour forge"}.get(String(b["type"]), T["name"])]
-	var who := String(_who(e).get(str(owner), "the %s family's" % String(e["fams"][owner]["name"])))
+	var names: Dictionary = owner_names_scope[0] if not owner_names_scope.is_empty() else {}
+	if names.is_empty():
+		names = _who(e)
+		if not owner_names_scope.is_empty(): owner_names_scope[0] = names
+	var owner_key: String = str(owner)
+	var who: String = String(names[owner_key]) if names.has(owner_key) else "the %s family's" % String(e["fams"][owner]["name"])
 	if b["type"] == "mine":
 		return "%s %s mine" % [who, String(b.get("ore", "copper_ore")).split("_")[0]]
 	if b["type"] == "farm":
@@ -417,6 +425,8 @@ static func title(e: Dictionary, b: Dictionary) -> String:
 ## head's birth), a third and more by number; a family with nobody at home: "the Blackmere family's". Worked out once
 ## a day per town (e._who).
 static func _who(e: Dictionary) -> Dictionary:
+	var sweep_names: Array = TownSweep.owner_names(e)
+	if not sweep_names.is_empty(): return sweep_names[0]
 	var day := int(e.get("day", 0))
 	var fams: Array = e["fams"]
 	var c: Dictionary = e.get("_who", {})
@@ -424,37 +434,65 @@ static func _who(e: Dictionary) -> Dictionary:
 	# v0.100: stamp only head-selection/name inputs, never jobs or life histories.
 	# v0.100: same-day ageing, service, marriage and renaming can change the map.
 	var naming := [String(e.get("culture", ""))]
+	# Retain the heads already validated for the signature. Nothing in this
+	# synchronous map build changes a register or head-selection input.
+	var heads: Array = []
 	for f in fams:
 		if f.has("pp"):
 			withp += 1
-		if f.get("estate", false): continue
+		if f.get("estate", false):
+			heads.append([])
+			continue
 		var head := Persons.head_of(f) if f.has("pp") else []
+		heads.append(head)
 		naming.append([int(f["id"]), String(f["name"]), String(f.get("race", "")), head.slice(0, 4), String(Persons.g(head, 7, ""))])
 	var name_sig := hash(naming)
 	if int(c.get("d", -1)) == day and int(c.get("n", -1)) == fams.size() and int(c.get("p", -1)) == withp and c.get("h") == name_sig:
+		TownSweep.remember_owner_names(e, c["m"])
 		return c["m"]
 	var race := Persons.race_of(e)
 	var groups := {}
-	for f in fams:
+	for i: int in fams.size():
+		var f: Dictionary = fams[i]
 		if f.get("estate", false):
 			continue
-		var hp := Persons.head_of(f) if f.has("pp") else []
+		var hp: Array = heads[i]
 		var base := (Persons.name_of(f, hp, race) if not hp.is_empty() else "the %s family" % String(f["name"]))
 		if not groups.has(base):
 			groups[base] = []
 		(groups[base] as Array).append([float(hp[3]) if not hp.is_empty() else 1.0e12, int(f["id"])])
-	var m := {}
-	for base in groups:
-		var g: Array = groups[base]
-		if g.size() == 1:
-			m[str(int(g[0][1]))] = String(base) + "'s"   # (string keys: the cache rides in the save)
-			continue
-		g.sort_custom(func(a, b2): return float(a[0]) < float(b2[0]) if float(a[0]) != float(b2[0]) else int(a[1]) < int(b2[1]))
-		for i in g.size():
-			var tag: String = (["the elder", "the younger"][i] if g.size() == 2 else "of household %d" % (int(g[i][1]) + 1))
-			m[str(int(g[i][1]))] = "%s %s's" % [base, tag]
+	var m: Dictionary = _owner_group_names(groups)
 	e["_who"] = {"d": day, "n": fams.size(), "p": withp, "h": name_sig, "m": m}
+	TownSweep.remember_owner_names(e, m)
 	return m
+
+# Runtime-only duplicate-name index. Validate ordered scalar members rather
+# than a day/size stamp; births, moves and renamed heads invalidate immediately.
+# Values contain no family/person references and are never part of a save.
+static var _owner_name_groups: Dictionary = {}
+
+static func _owner_group_names(groups: Dictionary) -> Dictionary:
+	var out: Dictionary = {}
+	for base: String in groups:
+		var members: Array = groups[base]
+		if members.size() == 1:
+			out[str(int(members[0][1]))] = base + "'s"
+			continue
+		var cached: Array = _owner_name_groups.get(base, [])
+		if cached.size() != 2 or cached[0] != members:
+			var inputs: Array = members.duplicate(true)
+			members.sort_custom(func(a: Array, b: Array) -> bool:
+				return float(a[0]) < float(b[0]) if float(a[0]) != float(b[0]) else int(a[1]) < int(b[1]))
+			var labels: Dictionary = {}
+			for i: int in members.size():
+				var tag: String = ["the elder", "the younger"][i] if members.size() == 2 else "of household %d" % (int(members[i][1]) + 1)
+				labels[str(int(members[i][1]))] = "%s %s's" % [base, tag]
+			cached = [inputs, labels]
+			if _owner_name_groups.size() >= 512: _owner_name_groups.clear()
+			_owner_name_groups[base] = cached
+		# Native group and sorted-member order, including overwrite semantics.
+		out.merge(cached[1], true)
+	return out
 
 ## Usable know-how in a material: the faction's (e.fkh: steel, iron, bronze, mirrored from Academy each faction turn);
 ## for a material its smiths also practise town by town (data knowhow: bronze) the town's own practice under it, so a
@@ -1268,7 +1306,9 @@ static func _arms(_game, town: Dictionary, e: Dictionary, D: Dictionary, b: Dict
 	var made_any := false
 	# Fresh for this forge only; no other trade, troop issue or roster change
 	# can interleave with its synchronous native item/coin transactions.
-	var forge_pass := {}
+	var forge_pass: Dictionary = {}
+	var maker_scope: Array[Dictionary] = [{}]
+	var input_scope: Dictionary = {}
 	for i in whole:
 		var tid := ""
 		if orders_only:
@@ -1286,7 +1326,7 @@ static func _arms(_game, town: Dictionary, e: Dictionary, D: Dictionary, b: Dict
 		elif kind == "leather":
 			mat = "leather"
 		else:
-			mat = _pick_metal(e, tid, kh, int(town.get("wealth", 2)), rng, skh, ikh)
+			mat = _pick_metal(e, tid, kh, int(town.get("wealth", 2)), rng, skh, ikh, input_scope)
 		if mat == "":
 			b["state"] = "inputs"
 			b["why"] = "bars"
@@ -1294,7 +1334,7 @@ static func _arms(_game, town: Dictionary, e: Dictionary, D: Dictionary, b: Dict
 				bdem[bg] = float(bdem.get(bg, 0.0)) + 3.0
 			b[carry_key] = 0.0
 			break
-		var ins := gear_inputs(tid, mat)
+		var ins: Dictionary = _forge_inputs(tid, mat, input_scope)
 		var cost := 0.0
 		var ok := true
 		for ig in ins:
@@ -1323,7 +1363,7 @@ static func _arms(_game, town: Dictionary, e: Dictionary, D: Dictionary, b: Dict
 		var it := Item.make(tid, mat, q)
 		ArmsTrade.mark(it, town, b)   # arms trade: the maker's mark
 		if it.is_legend():   # v0.014: a real maker of this forge and a real stone, else it stays masterwork
-			Legends.forge(_game if _game != null else Game, town, e, b, it, rng, float(e.get("day", 0)), cost)
+			Legends.forge(_game if _game != null else Game, town, e, b, it, rng, float(e.get("day", 0)), cost, maker_scope)
 		var value := Economy.base_value(town, it) * share
 		# v0.014: a piece the armory has an order for goes to the head (the treasury pays the smith), else the market
 		var to_arm := kind in ["weapon", "armor"] and ArmsTrade.order_buy(_game, town, e, it, value, forge_pass)
@@ -1364,7 +1404,16 @@ static func _arms(_game, town: Dictionary, e: Dictionary, D: Dictionary, b: Dict
 ## Metal for one piece: bronze by know-how, copper or tin by what the bins hold (richer towns like copper); iron
 ## when there are iron bars (v0.012); steel only where the faction knows it (skh = its steel know-how, 0 = none);
 ## v0.014: iron only where the faction knows it (ikh), bronze only with usable bronze know-how (kh, 0 = none).
-static func _pick_metal(e: Dictionary, tid: String, kh: float, wealth: int, rng: RandomNumberGenerator, skh: float = 0.0, ikh: float = 100.0) -> String:
+# One forge owns this holder, including both candidate and chosen bills.
+# Stocks, affordability and RNG decisions are always read at their native sites.
+static func _forge_inputs(tid: String, mat: String, input_scope: Dictionary) -> Dictionary:
+	if not input_scope.has(tid): input_scope[tid] = {}
+	var materials: Dictionary = input_scope[tid]
+	if not materials.has(mat): materials[mat] = gear_inputs(tid, mat)
+	return materials[mat]
+
+static func _pick_metal(e: Dictionary, tid: String, kh: float, wealth: int, rng: RandomNumberGenerator, skh: float = 0.0, ikh: float = 100.0, input_scope: Variant = null) -> String:
+	var bills: Dictionary = input_scope if input_scope is Dictionary else {}
 	var st: Dictionary = e["stock"]
 	var opts := []
 	var tot := 0.0
@@ -1372,7 +1421,7 @@ static func _pick_metal(e: Dictionary, tid: String, kh: float, wealth: int, rng:
 		if kh > 0.0 and m in ["copper", "tin"]: continue
 		if (m == "steel" and skh <= 0.0) or (m == "iron" and ikh <= 0.0) or (m == "bronze" and kh <= 0.0):
 			continue
-		var ins := gear_inputs(tid, m)
+		var ins: Dictionary = _forge_inputs(tid, String(m), bills)
 		var bars: String = TownEcon.data()["metal_bars"][m]
 		if int(st.get(bars, 0)) < int(ins[bars]):
 			continue
@@ -1475,9 +1524,8 @@ static func fund_farm(f: Dictionary, b: Dictionary, e: Dictionary = {}) -> float
 		var rate: float = float(Families.daily_rates(e, f)["food"])
 		var meals: float = maxf(0.0, 14.0 - float(f["store"]["food"])) * rate
 		keep = maxf(keep, EconomyRules.essential_food_cost(e, meals))
-	# Earned wages take priority even over the owner's discretionary reserve.
-	var priority: float = minf(maxf(0.0, owed - float(b["till"])), maxf(0.0, float(f["purse"])))
-	var inj: float = minf(gap, maxf(priority, maxf(0.0, float(f["purse"]) - keep)))
+	# Funding retains the household reserve; unpaid earned wages stay recorded.
+	var inj: float = minf(gap, maxf(0.0, float(f["purse"]) - keep))
 	if inj > 0.0:
 		b["till"] = float(b["till"]) + inj
 		f["purse"] = float(f["purse"]) - inj

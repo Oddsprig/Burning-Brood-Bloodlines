@@ -484,6 +484,31 @@ func _mixed_cohort_fixture(prefix: int = 0) -> Dictionary:
 		"mixed native cohort has exactly two anonymous adults and two registered adults")
 	return x
 
+## Keeper staffing reserves a distinct named market worker. Keep both original
+## researchers and both anonymous adults, with three native market places.
+func _mixed_cohort_research_fixture() -> Dictionary:
+	var x: Dictionary = _mixed_cohort_fixture(3)
+	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	rng.seed = 89100
+	var race: String = String(x["f"]["race"])
+	var adult: float = float(People.ages(race)["adult"])
+	var market_worker: Array = Persons._new(x["e"], x["f"], race, 0,
+		float(x["e"]["day"]) - (adult + 25.0) * People.year_days(), 0, rng)
+	x["f"]["pp"].append(market_worker)
+	x["f"]["m"] = int(x["f"]["m"]) + 1
+	x["f"]["idle"] = int(x["f"]["idle"]) + 1
+	x["market_worker"] = market_worker
+	TownEcon.recount(x["e"])
+	check(Families.adults(x["f"]) == 5 and Population.home_worker_count(x["f"]) == 3
+		and Population.anonymous(x["f"], 0) == 2 and Population.anonymous(x["f"], 1) == 0
+		and not Families.assignments_stale(x["f"]),
+		"expanded native cohort keeps both anonymous adults plus two researchers and a distinct market worker")
+	check(String(market_worker[Persons.PERSON_UID]) != ""
+		and String(market_worker[Persons.PERSON_UID]) != String(x["head"][Persons.PERSON_UID])
+		and String(market_worker[Persons.PERSON_UID]) != String(x["staff"][Persons.PERSON_UID]),
+		"third adult receives a separate native person UID")
+	return x
+
 func _mixed_cohort_hiring() -> void:
 	var x := _mixed_cohort_fixture()
 	var rng := RandomNumberGenerator.new()
@@ -499,13 +524,19 @@ func _mixed_cohort_hiring() -> void:
 	check(work(x) == 0.0 and float(x["b"]["owed"]) == 0.0 and points(x) == 0.0
 		and x["f"]["pp"] == before["pp"], "rejected cohort offer creates no research wage, training or points")
 
-	x = _mixed_cohort_fixture(2)
+	x = _mixed_cohort_research_fixture()
 	before = x["f"].duplicate(true)
 	check(Academy.hiring_places(x["e"], x["f"], x["b"]) == 2 and x["f"] == before,
 		"mixed cohort can offer both real named places after its existing anonymous jobs")
 	Families.reassign(x["e"], x["f"])
 	check(int(x["b"]["workers"]) == 2 and Academy._staff(x["e"], x["b"]).size() == 2,
 		"normal matcher hires actual mixed-cohort researchers without barring all cohort people")
+	var market_job: Dictionary = Persons.work(x["e"], x["f"]).get(int(x["market_worker"][0]), {})
+	check(int(market_job.get("biz", -1)) == int(x["market"]["id"]) and not bool(market_job.get("keeper", false)),
+		"third native adult remains the actual paid market worker alongside both researchers")
+	check(x["f"]["jobs"] == {str(int(x["market"]["id"])): 3, str(int(x["b"]["id"])): 2}
+		and int(x["f"]["idle"]) == 0 and not Families.assignments_stale(x["f"]) and x["f"]["pp"] == before["pp"],
+		"matching retains all three market places, both research places, exact idle balance and the native register")
 	Academy._training(x["staff"], 2.0)["skill"] = 11.0
 	check(Academy.appoint(x["w"], x["fid"], x["e"], x["b"], float(x["e"]["day"]), rng)
 		and String(x["b"]["lead_uid"]) == String(x["staff"][Persons.PERSON_UID]), "best-skilled actual cohort employee succeeds as lead with the same UID")
@@ -526,11 +557,33 @@ func _mixed_cohort_hiring() -> void:
 		"cohort load repair preserves personal training and exact named-worker accounting")
 
 	x = _mixed_cohort_fixture(2)
+	before = x["f"].duplicate(true)
+	business = x["b"].duplicate(true)
+	check(Academy.hiring_places(x["e"], x["f"], x["b"]) == 1
+		and int(Persons.work(x["e"], x["f"]).get(int(x["head"][0]), {}).get("biz", -1)) == int(x["market"]["id"])
+		and String(Persons.work(x["e"], x["f"]).get(int(x["staff"][0]), {}).get("kind", "")) == "none",
+		"two-name control has one market responsibility and only one prospective research place")
+	check(not Academy.appoint(x["w"], x["fid"], x["e"], x["b"], float(x["e"]["day"]), rng),
+		"direct appointment cannot move the responsible market worker into a prospective slot")
+	check(x["f"] == before and x["b"] == business,
+		"rejected cohort appointment changes no register, job, lead, claim or coin")
+
+	x = _mixed_cohort_research_fixture()
 	Academy._training(x["staff"], 2.0)["skill"] = 14.0
+	before = x["f"].duplicate(true)
+	check(Academy.hiring_places(x["e"], x["f"], x["b"]) == 2
+		and String(Persons.work(x["e"], x["f"]).get(int(x["head"][0]), {}).get("kind", "")) == "none"
+		and String(Persons.work(x["e"], x["f"]).get(int(x["staff"][0]), {}).get("kind", "")) == "none",
+		"direct appointment begins with both original names idle behind the named market worker")
 	check(Academy.appoint(x["w"], x["fid"], x["e"], x["b"], float(x["e"]["day"]), rng), "direct appointment can fill a genuinely named prospective cohort place")
 	job = Persons.work(x["e"], x["f"]).get(int(x["head"][0]), {})
 	check(String(x["b"]["lead_uid"]) == String(x["head"][Persons.PERSON_UID]) and int(job.get("biz", -1)) == int(x["b"]["id"])
 		and int(x["b"]["workers"]) == 1, "direct cohort head is the person mapped to the single offered slot, without adding phantom places for a stronger idle name")
+	market_job = Persons.work(x["e"], x["f"]).get(int(x["market_worker"][0]), {})
+	check(int(market_job.get("biz", -1)) == int(x["market"]["id"]) and not bool(market_job.get("keeper", false))
+		and x["f"]["jobs"] == {str(int(x["market"]["id"])): 3, str(int(x["b"]["id"])): 1}
+		and x["f"]["pp"] == before["pp"],
+		"direct appointment keeps all market places, the separate native worker and the unchanged register")
 
 	x = _mixed_cohort_fixture(1)
 	Families.set_job(x["e"], x["f"], int(x["b"]["id"]), 2)

@@ -3,6 +3,8 @@ extends RefCounted
 ## SUPPLY_SAVE is required for the authentic day-600 case; reads only into isolated user:// storage.
 ## SUPPLY_CASE=all (default), fresh, or saved; SUPPLY_BENCH=1 prints three paired whole-call timings.
 ## No timing gate is relaxed. Fixture pooling only relocates existing reserve Items and arrows.
+## run only one Godot game test at a time on the user's PC (several at once crashed it), headless. Before starting any game test, check for other running Godot or Unity processes (from any project or helper); if any are running, queue the test and wait until they have finished before starting it. Every test must finish in under 3 minutes. These rules must be pasted word for word into every helper task and test brief.
+const Fixture = preload("res://tests/make_fixture_econ_sanity_v100.gd")
 const Original = preload("res://tests/reference_supply_lookups.gd")
 var fails := 0
 var checks := 0
@@ -17,14 +19,21 @@ func run(_tree: SceneTree) -> int:
 	var mode := OS.get_environment("SUPPLY_CASE")
 	if mode.is_empty(): mode = "all"
 	check(mode in ["all", "fresh", "saved"], "recognized supply case")
+	# The same 60-chunk native fixture is shared with the economy sanity check.
 	var source := OS.get_environment("SUPPLY_SAVE")
+	if source == "":
+		source = Fixture.fixture_dir().path_join("checkpoint-save.json")
 	if mode in ["all", "saved"]:
 		check(not source.is_empty() and FileAccess.file_exists(source), "authentic day-600 checkpoint supplied")
+		check(not Fixture.verify(source).is_empty(), "source/config/seed/native-history receipt and all fixture hashes match")
 	if fails > 0: return fails
 	_pure_selectors()
+	# v0.100: fresh coverage uses the authorized Normal/one-day setup; day600 still requires its genuine fixture.
+	var previous_size: String = WorldGen.gen_size
+	var previous_span: int = CampaignWorld.presim_span_days
 	if mode in ["all", "fresh"]:
-		WorldGen.gen_size = "large"
-		CampaignWorld.presim_years = 5
+		WorldGen.gen_size = "normal"
+		CampaignWorld.presim_span_days = 1
 		Game.new_game(2026)
 		check(Game.world["warbands"].size() > 0, "fresh world contains real registered forces")
 		_compare("fresh ordinary", false)
@@ -41,6 +50,8 @@ func run(_tree: SceneTree) -> int:
 				_compare("day600 ordinary", false)
 				_pool_reserves()
 				_compare("day600 pooled existing reserves", true)
+	WorldGen.gen_size = previous_size
+	CampaignWorld.presim_span_days = previous_span
 	print("SUPPLY LOOKUPS checks=%d failures=%d" % [checks, fails])
 	return fails
 

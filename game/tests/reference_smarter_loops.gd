@@ -1,6 +1,7 @@
 extends RefCounted
 
-## Frozen algorithms from baseline 4ae8f53 for differential tests. No production code loads this file.
+## Baseline 4ae8f53 selection order with later accepted workforce/animal rules.
+## Keep the independent full sorts and scans; no production code loads this file.
 
 static func original_to_trades(e: Dictionary, f: Dictionary, own: int, ad: int, need: float, biz: Array) -> int:
 	var pay := []
@@ -13,7 +14,9 @@ static func original_to_trades(e: Dictionary, f: Dictionary, own: int, ad: int, 
 		var b: Dictionary = biz[int(bid)]
 		if String(b["type"]) in ["farm", "estate", "works"] or b.get("closed", false):
 			continue
-		var n := int(b["cap"]) - int(b["workers"]) if int(b["owner"]) == int(f["id"]) else Businesses.takeable(b)
+		# The unpaid owner-keeper is a separate kw place, outside cap/workers.
+		# Additional paid relatives need the same backed offer as every other hire.
+		var n := Businesses.takeable(b, e)
 		if n <= 0:
 			continue
 		for i in mini(n, own):
@@ -45,6 +48,8 @@ static func original_wants(_game, _town: Dictionary, e: Dictionary, _si: int, da
 		if ac <= 0:
 			continue
 		var short := int(ceil(float(ac) / aph)) - maxi(0, int(f.get("ox", 0)))
+		# v0.086: existing counted donkey draught reduces the actual ox shortfall.
+		short = int(ceil(float(ac) / aph - DomesticAnimals.draught(e, int(f["id"])))) - maxi(0, int(f.get("ox", 0)))
 		if short <= 0:
 			continue
 		short = mini(short, 2)
@@ -77,7 +82,7 @@ static func original_wants(_game, _town: Dictionary, e: Dictionary, _si: int, da
 	for hid in (hd["h"] as Dictionary).keys():
 		var h: Dictionary = hd["h"][hid]
 		var k := String(h["k"])
-		if not Herds.GRAZE.has(k) or String(h["ow"]) == "d":
+		if not Herds.GRAZE.has(k) or String(h["ow"]) == "d" or h.has("work_band"):
 			continue
 		var need := int(float(h["t"]) * 0.5) - Herds.head(h)
 		if need <= 0:
@@ -96,6 +101,40 @@ static func original_wants(_game, _town: Dictionary, e: Dictionary, _si: int, da
 				hd["sok"][k] = int(hd["sok"].get(k, 0)) + 1
 				need -= 1
 	Herds._pot_buys(e, day)
+	# v0.086 adds this native purchase after the grazing-stock/pot transactions.
+	_original_buy_dogs(e, day)
+
+## Independent dog purchases: scan grazing stock without the native target index.
+static func _original_buy_dogs(e: Dictionary, day: float) -> void:
+	var hd := Herds.H(e)
+	for f in e["fams"]:
+		if f.get("gone", false) or f.get("estate", false): continue
+		var fid := int(f["id"])
+		var own := Herds.of_family(e, fid).filter(func(h): return String(h["k"]) == "dogs")
+		var have := 0
+		for h in own: have += Herds.head(h)
+		var short := maxi(0, _original_dog_target(e, fid) - have)
+		hd["wak"]["dogs"] = int(hd["wak"].get("dogs", 0)) + short
+		var price := Herds.price(e, "dogs")
+		while short > 0 and float(f["purse"]) - price > float(Herds.A()["buy_reserve"]):
+			var offer := Herds._take_offer(e, "dogs", ["g", "y"], fid)
+			if offer.is_empty(): break
+			var seller: Dictionary = hd["h"][str(int(offer[0]))]
+			var age := String(offer[1])
+			var paid := Herds.price(e, "dogs", age)
+			var buyer := Herds.herd_for(e, fid, "dogs", day)
+			if Herds._transfer(e, seller, buyer, age, 1, "sold", "bought", "guard dog sold", "guard dog bought", day) <= 0: break
+			f["purse"] = float(f["purse"]) - paid
+			Herds._add_coin(e, seller, paid)
+			hd["sok"]["dogs"] = int(hd["sok"].get("dogs", 0)) + 1
+			short -= 1
+
+static func _original_dog_target(e: Dictionary, fid: int) -> int:
+	var stock := 0
+	for h in Herds.herds(e).values():
+		if Herds.GRAZE.has(String(h["k"])) and Herds.grazer(e, h) == fid:
+			stock += Herds.head(h)
+	return clampi(int(ceil(float(stock) / float(Herds.kind("dogs")["guard_head"]))), 0, 4)
 
 ## Families buy a beast for their own larder when one offered costs less than the meat in it at the market's price
 ## of keeping meat (x pot_value [ours]), they have the room and the coin (keeping pot_reserve): live animals traded
@@ -222,6 +261,10 @@ static func original_family_pool(town: Dictionary, rng: RandomNumberGenerator) -
 			continue
 		# equally desperate: one from each family first, then the second of each (a hard-up house does not send
 		# all its grown-ups at once while its neighbours are just as badly off)
+		# Retain the original full-sort oracle while admitting real cohort candidates.
+		if Population.is_cohort(f):
+			for i: int in mini(7 + int(town["size"]), Population.eligible_slots(e, f, day)):
+				cands.append([d, i * 1000000000 + absi(hash([f["id"], i, int(day)])) % 1000000000, [], f])
 		var mine := []
 		for p in Persons.pp(f):
 			if String(p[4]) == "" and int(p[5]) < 0:
@@ -237,6 +280,10 @@ static func original_family_pool(town: Dictionary, rng: RandomNumberGenerator) -
 	for c in cands.slice(0, n):
 		var p: Array = c[2]
 		var pick: Dictionary = c[3]
+		if p.is_empty():
+			p = Population.promote(e, pick, day, rng)
+		if p.is_empty():
+			continue
 		# his trade is what he really does: a job the family holds, its own fields or herd, casual work, or his
 		# real state (out of work, in the poorhouse); his skills and kit come from that work (kit_for)
 		var role := Recruits.person_role(e, pick, p)

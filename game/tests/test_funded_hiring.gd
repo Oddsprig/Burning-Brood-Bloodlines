@@ -2,6 +2,7 @@ extends RefCounted
 
 var checks := 0
 var fails := 0
+var matching_seed: int = 0
 
 func check(ok: bool, message: String) -> void:
 	checks += 1
@@ -39,6 +40,7 @@ func cash_contract() -> void:
 
 func ordinary_matching() -> void:
 	for seed_value in [713, 2026, 8801]:
+		if matching_seed != 0 and seed_value != matching_seed: continue
 		Game.new_game(seed_value)
 		var found := false
 		for t in Game.world["towns"].values():
@@ -95,21 +97,62 @@ func owner_reserves() -> void:
 	Businesses.owner_turn({}, f, b)
 	check(float(b["till"]) == 1600.0, "farm keeps its existing debt-free eight-day target for advertised capacity")
 	for kind in ["carpenter", "market"]:
+		# Each independent trade case starts with its own household funding week.
+		f = Families._blank(1)
 		b = {"closed": false, "type": kind, "cap": 1, "workers": 1, "wage": 100.0, "till": 21000.0, "owed": 20000.0, "t_paid": 0.0, "spend": 0.0, "state": "idle", "ld": 0}
 		f["purse"] = 1000.0
 		Businesses.owner_turn({}, f, b)
 		check(float(f["purse"]) == 1000.0 and float(b["till"]) == 21000.0, kind + ": earned wages are excluded from the owner's profit withdrawal")
 		b["owed"] = 0.0
 		Businesses.owner_turn({}, f, b)
-		check(float(f["purse"]) > 1000.0 and float(b["till"]) < 21000.0, kind + ": real surplus still pays the owner's existing profit take")
+		if kind == "carpenter":
+			# Working capital is not booked earned profit (businesses.gd owner_turn).
+			check(float(f["purse"]) == 1000.0 and float(b["till"]) == 21000.0, kind + ": unearned working capital is not withdrawn as profit")
+		else:
+			check(float(f["purse"]) > 1000.0 and float(b["till"]) < 21000.0, kind + ": real surplus still pays the owner's existing profit take")
 		b["owed"] = 700.0; b["till"] = 700.0; f["purse"] = 1000.0
 		before = float(f["purse"]) + float(b["till"])
 		Businesses.owner_turn({}, f, b)
-		check(float(b["till"]) == 1200.0 and float(f["purse"]) == 500.0, kind + ": earned wages and future weekly payroll remain separate within the half-purse funding limit")
+		check(float(b["till"]) == 790.0 and float(f["purse"]) == 910.0, kind + ": earned wages and future weekly payroll remain separate within ten percent above the protected floor")
 		check(float(b["owed"]) == 700.0 and float(f["purse"]) + float(b["till"]) == before, kind + ": constrained funding retains wages and coins")
+		var sibling: Dictionary = b.duplicate(true)
+		Businesses.owner_turn({}, f, sibling)
+		check(float(sibling["till"]) == 790.0 and float(sibling["owed"]) == 700.0 and float(f["purse"]) == 910.0,
+			kind + ": another business cannot reuse the household's exhausted weekly funding room")
 		b["till"] = 0.0; f["purse"] = 100.0
 		Businesses.owner_turn({}, f, b)
 		check(float(b["till"]) == 0.0 and float(f["purse"]) == 100.0, kind + ": poor owner cannot make payroll coins")
+
+func native_carpenter_profit() -> void:
+	# Reuse the existing complete material/market/keeper fixture. Earn the draw
+	# through its native production and books; never seed p_acc or sale receipts.
+	var fixture_script: GDScript = load("res://tests/test_keeper_operating_cash.gd")
+	var fixture_test: RefCounted = fixture_script.new()
+	var rows: Array = fixture_test.call("fixture", "middle", "carpenter")
+	var e: Dictionary = rows[0]
+	var b: Dictionary = rows[1]
+	var f: Dictionary = rows[2]
+	var market: Dictionary = rows[3]
+	var cash: float = float(f["purse"]) + float(b["till"]) + float(market["till"])
+	fixture_test.call("owner", rows)
+	# These are bounded local producer/book calls, not generated campaign days.
+	# Keep the fixture's native prices, recipes, capacity, labour and tool wear.
+	for production_day: int in range(1, 71):
+		fixture_test.call("produce", rows, production_day)
+	var profit: float = float(b.get("p_acc", 0.0))
+	check(profit > 0.0 and not (e["led"]["made"] as Dictionary).is_empty(), "carpenter earns actual booked profit from paid native output")
+	var purse: float = float(f["purse"])
+	var till: float = float(b["till"])
+	var kept: Array = [float(b["owed"]), int(b["workers"]), int(b["tools"])]
+	fixture_test.call("owner", rows)
+	check(float(f["purse"]) > purse and float(b["till"]) < till, "carpenter: real earned surplus still pays the owner's profit take")
+	var paid: float = float(f["purse"]) - purse
+	check(paid > 0.0 and paid <= profit * 0.5 + 0.001 and absf(till - float(b["till"]) - paid) < 0.001, "carpenter draw transfers only available booked profit")
+	check(absf(float(f["purse"]) + float(b["till"]) + float(market["till"]) - cash) < 0.001, "native carpenter production, upkeep, funding and draw conserve existing coins")
+	check([float(b["owed"]), int(b["workers"]), int(b["tools"])] == kept, "carpenter draw preserves wage debt, actual staff and physical tools")
+	purse = float(f["purse"]); till = float(b["till"])
+	fixture_test.call("owner", rows)
+	check(float(f["purse"]) == purse and float(b["till"]) == till and float(b.get("p_acc", -1.0)) == 0.0, "carpenter cannot draw the same earned profit twice")
 
 func public_funding() -> void:
 	Game.new_game(713)
@@ -169,9 +212,20 @@ func public_funding() -> void:
 		t["econ"] = original
 
 func run(_tree: SceneTree) -> int:
-	cash_contract()
-	owner_reserves()
-	ordinary_matching()
-	public_funding()
-	print("FUNDED HIRING checks=", checks, " failures=", fails)
+	var selected_case: String = "all"
+	var selected_seed: String = "all"
+	for arg: String in OS.get_cmdline_user_args():
+		if arg.begins_with("--funded-hiring-case="): selected_case = arg.trim_prefix("--funded-hiring-case=")
+		if arg.begins_with("--funded-hiring-seed="): selected_seed = arg.trim_prefix("--funded-hiring-seed=")
+	var valid_selection: bool = selected_case in ["all", "cash", "owners", "matching", "public"] and selected_seed in ["all", "713", "2026", "8801"] and (selected_seed == "all" or selected_case == "matching")
+	check(valid_selection, "funded-hiring selector names an existing case and matching seed")
+	if not valid_selection: return fails
+	matching_seed = 0 if selected_seed == "all" else int(selected_seed)
+	if selected_case in ["all", "cash"]: cash_contract()
+	if selected_case in ["all", "owners"]:
+		owner_reserves()
+		native_carpenter_profit()
+	if selected_case in ["all", "matching"]: ordinary_matching()
+	if selected_case in ["all", "public"]: public_funding()
+	print("FUNDED HIRING case=", selected_case, " seed=", selected_seed, " checks=", checks, " failures=", fails)
 	return fails

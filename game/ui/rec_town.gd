@@ -11,7 +11,6 @@ class RecordsRead:
 static func _records_read(t: Dictionary, e: Dictionary) -> RecordsRead:
 	var view := RecordsRead.new()
 	view.world = RecCivic._read_world(t, e)
-	view.world["research"] = Game.world.get("research", {}).duplicate(true)
 	view.day = float(Game.day)
 	return view
 ## The town tabs of the records screen (town spec parts 1-3, addendum 1). Every number is read from a real sim
@@ -305,6 +304,8 @@ static func _buildings(scr, t: Dictionary, e: Dictionary, v: VBoxContainer) -> v
 	# the town's own buildings are state plots (campaign/plots.gd); each row: what it is doing now and who runs it
 	var c := RecKit.card(v, "Town buildings", "The town's own buildings on its land; tap for who runs it.")
 	var view := _records_read(t, e)
+	# Building readers may normalize Academy state; roster readers never use it.
+	view.world["research"] = Game.world.get("research", {}).duplicate(true)
 	for b in Plots.buildings(view, view.world["towns"][String(t["id"])]):
 		var r: Dictionary = b.get("runner", {})
 		var who := String(r.get("name", "")) if not r.is_empty() else "nobody named"
@@ -496,6 +497,8 @@ static func biz_row(scr, t: Dictionary, e: Dictionary, b: Dictionary, context: D
 		"_tap": func(): scr.open_business(t, bid)}
 
 static func businesses(scr, t: Dictionary, e: Dictionary, v: VBoxContainer) -> void:
+	# No simulation mutation interleaves with this read; discard all derived names below.
+	var previous: Dictionary = TownSweep.begin(e)
 	var rows := []
 	var context := RecData.work_context(e)
 	for b in RecData.biz(e):
@@ -526,18 +529,24 @@ static func businesses(scr, t: Dictionary, e: Dictionary, v: VBoxContainer) -> v
 		var bid2 := int(b["id"])
 		cc.add_child(RecKit.row(RecData.biz_title(e, b).capitalize(), "closed", "%s; for sale: %s; when: %s" % [RecData.biz_trade(b),
 			"yes" if b.get("for_sale", false) else "no", RecKit.NT], func(): scr.open_business(t, bid2)))
+	TownSweep.finish(previous)
 
 # ================================================================== 5. REGISTER
 static func register(scr, t: Dictionary, e: Dictionary, v: VBoxContainer) -> void:
 	var read_town := RecCivic._read_town(t, e)
+	# Keep the full census and its shared lookups, using the validated read-only head cache.
+	var previous: Dictionary = TownSweep.begin_read(read_town["econ"])
 	var c := People.census(read_town["econ"])
+	TownSweep.finish(previous)
 	RecKit.metrics(v, [
 		{"title": "Households", "value": str(int(c["households"])), "note": "%d people" % int(c["population"]), "color": UiTheme.BLUE},
 		{"title": "Adults", "value": str(int(c["adults"])), "note": "%d children · %d elders" % [int(c["children"]), int(c["elders"])], "color": UiTheme.COPPER},
 		{"title": "Homeless", "value": str(int(c["homeless"])), "note": "%d empty homes" % int(c["empty_homes"]), "color": UiTheme.BAD if int(c["homeless"]) > 0 else UiTheme.GOOD}])
 	var sick_by := {}   # family id -> its people at home sick now (campaign/sickness.gd)
-	for hh in Sickness.hardest_homes(read_town, 1 << 30):
-		sick_by[int(hh["fid"])] = int(hh["sick"])
+	# Use the identical native sick-at-home selection without shaping and sorting a ranking.
+	for household: Array in SicknessGroups._sick_at_home(read_town["econ"], float(e.get("day", 0))):
+		var sick_fid: int = int(household[0]["id"])
+		sick_by[sick_fid] = int(sick_by.get(sick_fid, 0)) + 1
 	var rows := []
 	for f in RecData.fams(e):
 		var fid := int(f["id"])

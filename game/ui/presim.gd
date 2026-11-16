@@ -200,6 +200,8 @@ func _start_years() -> void:
 	gap = 0.0
 
 func _process(delta: float) -> void:
+	if Game._day_job_hold_active():
+		return
 	var started := Time.get_ticks_usec()
 	_process_startup(delta)
 	Perf.record_us("Campaign startup", Time.get_ticks_usec() - started, true)

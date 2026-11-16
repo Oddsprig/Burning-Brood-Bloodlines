@@ -51,9 +51,14 @@ func _ready() -> void:
 	_column.add_child(_button("How to play", func(): GuideView.open(self), "Row"))
 	_column.add_child(_button("Settings", func(): Game.goto("settings", {"back": "title"}), "Row"))
 	if not (OS.has_feature("mobile") or OS.has_feature("web")):
-		_column.add_child(_button("Quit", func(): get_tree().quit(), "Row"))
+		_column.add_child(_button("Quit", _quit, "Row"))
 	resized.connect(_layout)
 	_layout()
+
+# v0.100: deferred or failed title-screen saves use the same exit gate as the window close.
+func _quit() -> void:
+	if Game.save_on_quit():
+		get_tree().quit()
 
 func _button(text: String, action: Callable, style: String = "") -> Button:
 	var b := UiKit.button(text, action, style, 0)

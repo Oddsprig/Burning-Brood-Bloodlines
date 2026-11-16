@@ -1,4 +1,5 @@
 extends RefCounted
+const CohortAccounts = preload("res://tests/fixtures/cohort_accounts_v100.gd")
 ## Focused native event regression. Integrate only after the root's serial queue.
 ## Generated cultures, households, labour, businesses and herds are untouched.
 ## The fixture stages a wolf raid's route and native supporting forces' positions,
@@ -51,13 +52,16 @@ func run(_tree: SceneTree) -> int:
 	if seeds.is_empty() or seeds.size() > 4:
 		return failures
 	var keep_size: String = WorldGen.gen_size
+	var native_returns: int = 0
 	WorldGen.gen_size = size
 	for seed_value: int in seeds:
-		_scenario(seed_value, workload, minimum)
+		native_returns += _scenario(seed_value, workload, minimum)
 	WorldGen.gen_size = keep_size
+	# A native battle may kill every herder in one scenario; require return coverage across the seeds.
+	check(native_returns > 0, "seed set covers at least one actual surviving herder's return", {"returned": native_returns, "seeds": seeds})
 	print("PASTURE_ASSIGNMENT_AGGREGATE ", JSON.stringify({"checks": checks, "failures": failures,
 		"seeds": seeds, "size": size, "workload": workload, "minimum_herders": minimum,
-		"native_arrival_and_return": true, "synthetic_economy": false}))
+		"native_arrival_and_return": true, "native_returns": native_returns, "synthetic_economy": false}))
 	return failures
 
 func _herder_pids(e: Dictionary, f: Dictionary) -> Array:
@@ -146,6 +150,11 @@ func _labour(e: Dictionary, f: Dictionary, label: String) -> void:
 			actual["casual"][job] = int(actual["casual"].get(job, 0)) + 1
 		else:
 			actual["idle"] = int(actual["idle"]) + 1
+	var anonymous: Array[int] = CohortAccounts.bins(e, f)
+	var anonymous_adults: int = anonymous[0] + anonymous[1]
+	civil += anonymous_adults
+	for count: int in anonymous:
+		registered += count
 	var available: int = maxi(0, Families.adults(f) - Families.serving(f))
 	var assigned: int = int(f.get("hands", 0)) + (f.get("keeps", []) as Array).size() + Families.job_total(f) + int(f.get("idle", 0))
 	for n: Variant in f.get("cj", {}).values():
@@ -153,6 +162,34 @@ func _labour(e: Dictionary, f: Dictionary, label: String) -> void:
 	check(civil == available and assigned == civil, label + ": civilian assignments equal actual available adults",
 		{"family": f["id"], "assigned": assigned, "civilian_register": civil, "available": available, "serve": f.get("serve", {})})
 	check(registered == Families.people(f), label + ": population retains real person records", {"family": f["id"]})
+	if Population.is_cohort(f):
+		var account: Dictionary = CohortAccounts.work_accounts(e, f, anonymous_adults)
+		check(bool(account["valid"]), label + ": anonymous-first work and named responsibility swaps have a complete independent account", {"family": f["id"]})
+		var named_keeps: Dictionary = {}
+		var kept: Dictionary = {}
+		for bid: Variant in f.get("keeps", []):
+			kept[str(int(bid))] = true
+		for person: Array in f.get("pp", []):
+			if int(person[6]) != 0 or not String(person[4]) in CIVILIAN_STATES:
+				continue
+			var pid: int = int(person[0])
+			var actual_place: Dictionary = places.get(pid, {})
+			check(account["named"].has(pid) and CohortAccounts.token(actual_place) == String(account["named"].get(pid, "")),
+				label + ": each named civilian retains the independently ordered and responsibility-swapped work place", {"family": f["id"], "pid": pid, "place": actual_place})
+			if String(actual_place.get("kind", "")) == "job" and bool(actual_place.get("keeper", false)):
+				var bid: String = str(int(actual_place.get("biz", -1)))
+				named_keeps[bid] = int(named_keeps.get(bid, 0)) + 1
+		check(places.size() == (account["named"] as Dictionary).size(), label + ": cohort work contains exactly the eligible named civilians", {"family": f["id"]})
+		check(named_keeps.size() == (f.get("keeps", []) as Array).size(), label + ": named keeper business IDs cover exactly the kept businesses", {"family": f["id"], "named_keeps": named_keeps})
+		for bid: String in kept:
+			check(int(named_keeps.get(bid, 0)) == 1, label + ": every kept business has exactly one actual named keeper", {"family": f["id"], "business": bid})
+		for key: Variant in f.get("jobs", {}):
+			var bid: String = str(int(key))
+			if int(f["jobs"][key]) > 0 and not kept.has(bid) and String(e["biz"][int(key)]["type"]) != "academy":
+				check(int(actual["jobs"].get(bid, 0)) >= 1, label + ": every positive non-academy paid-business block has an actual named non-keeper", {"family": f["id"], "business": bid})
+		if bool(account["valid"]):
+			for slot: String in account["anonymous"]:
+				CohortAccounts.add(actual, slot, int(account["anonymous"][slot]))
 	check(int(actual["own"]) == int(f.get("hands", 0)) and int(actual["keepers"]) == (f.get("keeps", []) as Array).size()
 		and int(actual["idle"]) == int(f.get("idle", 0)), label + ": own work, keepers and idle each belong to real civilians",
 		{"family": f["id"], "actual": actual, "hands": f.get("hands", 0), "keeps": f.get("keeps", []), "idle": f.get("idle", 0)})
@@ -196,12 +233,12 @@ func _town_accounts(town: Dictionary, label: String) -> void:
 	var expected_coins: float = float(coins.get("cast", 0)) - float(coins.get("melted", 0)) - float(coins.get("drained", 0))
 	check(not coins.is_empty() and absf(Barge.holdings(Game) - expected_coins) < 1.0, label + ": funding and employer settlement conserve global currency")
 
-func _scenario(seed_value: int, workload: String, minimum: int) -> void:
+func _scenario(seed_value: int, workload: String, minimum: int) -> int:
 	Game.new_game(seed_value)
 	var picked: Dictionary = _select(workload, minimum)
 	check(not picked.is_empty(), "generated world has the requested real herd-worker household", {"seed": seed_value, "workload": workload, "minimum": minimum})
 	if picked.is_empty():
-		return
+		return 0
 	var town: Dictionary = picked["town"]
 	var e: Dictionary = town["econ"]
 	var family: Dictionary = picked["family"]
@@ -224,7 +261,7 @@ func _scenario(seed_value: int, workload: String, minimum: int) -> void:
 	var wid: String = CampaignWorld.spawn_warband(Game, "beasts", goal + Vector2(40, 0), wolves.size(), "beasts", rng, {"units": wolves})
 	check(not wid.is_empty(), "native creature force is on the map")
 	if wid.is_empty():
-		return
+		return 0
 	var wb: Dictionary = Game.world["warbands"][wid]
 	# spawn_warband snaps to the terrain. Stage an unambiguous travel distance;
 	# native _step_along still performs the arrival, without touching resources.
@@ -244,7 +281,7 @@ func _scenario(seed_value: int, workload: String, minimum: int) -> void:
 	check(asynchronous, "native arrival leaves an observable asynchronous battle; coverage must not be skipped", {"seed": seed_value})
 	if not asynchronous:
 		_town_accounts(town, "immediate completed raid")
-		return
+		return 0
 	var actual_pids: Array = []
 	for p: Array in family.get("pp", []):
 		if String(p[4]) == "pasture":
@@ -272,7 +309,7 @@ func _scenario(seed_value: int, workload: String, minimum: int) -> void:
 	check(observed_pending, "another native call exposes the live asynchronous service interval")
 	check(not wb.has("raid"), "bounded native pasture battle completes", {"calls": calls})
 	if wb.has("raid"):
-		return
+		return 0
 	check(not HerdRaids.fights.has(wid) and not Game.world["warbands"].has(hid), "combat releases its simulation and temporary herd force")
 	var returned: int = 0
 	var died: int = 0
@@ -288,10 +325,10 @@ func _scenario(seed_value: int, workload: String, minimum: int) -> void:
 				if int(row[1]) == pid:
 					recorded += 1
 			check(recorded == 1, "fallen defender leaves exactly one actual Census death", {"pid": pid, "rows": recorded})
-	check(returned > 0, "fixture covers at least one actual surviving herder's return", {"returned": returned, "died": died})
 	check(int(family.get("serve", {}).get("pasture", 0)) == 0, "all pasture service slots leave through real return or casualty")
 	check(initial_pop - int(e["pop"]) == int(Census._book(e).get("dt", 0)) - initial_deaths, "all real defender casualties reconcile town population")
 	_town_accounts(town, "after native pasture settlement and return")
 	print("PASTURE_SCENARIO ", JSON.stringify({"seed": seed_value, "town": town["id"], "family": family["id"],
 		"arrival_pids": actual_pids, "expected_pids": expected_pids, "returned": returned, "died": died,
 		"battle_calls": calls, "asynchronous": asynchronous, "second_pending_step": observed_pending}))
+	return returned

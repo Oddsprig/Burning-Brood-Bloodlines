@@ -382,9 +382,13 @@ static func available_casual(e: Dictionary, job: String) -> int:
 
 ## Daily attendance is counted from registered people, including bed rest and militia service.
 static func accrue_sanitation(e: Dictionary, day: float) -> void:
+	# Attendance writes only earned amounts; names, ages and service stay fixed.
+	# Keep the first native title lookup lazy, and reuse it for this scan only.
+	var owner_names_scope: Array[Dictionary] = [{}]
+	var wages: Dictionary = {}
 	for f in e["fams"]:
 		if f.get("gone", false) or (f.get("cj", {}).is_empty() and f.get("child_cj", {}).is_empty()): continue
-		var work := Persons.work(e, f)
+		var work: Dictionary = Persons.sanitation_work(e, f, owner_names_scope)
 		for pid in work:
 			var j := String(work[pid].get("cj", ""))
 			if not j in ["rat_catcher", "street_sweeper", "night_soil_man"]: continue
@@ -393,24 +397,34 @@ static func accrue_sanitation(e: Dictionary, day: float) -> void:
 			if not f.has("cjearned"): f["cjearned"] = {}
 			var earned: Array = f["cjearned"].get(j, [0.0, 0.0])
 			var share := float(work[pid].get("share", 1.0))
-			earned[0] += share; earned[1] += Barge.casual_wage(e, j) * share
+			if not wages.has(j): wages[j] = Barge.casual_wage(e, j)
+			# Keep each ordered floating addition; only the unchanged wage is shared.
+			earned[0] += share; earned[1] += float(wages[j]) * share
 			f["cjearned"][j] = earned
 
 
 ## Children of the existing helper age do short cleanup shifts, never a full adult shift.
-static func cleanup_child_eligible(e: Dictionary, p: Array, day: float) -> bool:
-	var sc := float(People.ages(Persons.race_of(e))["adult"]) / 16.0
-	var years := (day - float(p[3])) / People.year_days()
-	return int(p[6]) == 2 and String(p[4]) == "" and years >= float(Barge.B()["labour"]["kid_from"]) * sc and years < float(People.ages(Persons.race_of(e))["adult"])
+static func cleanup_child_eligible(e: Dictionary, p: Array, day: float, f: Dictionary = {}) -> bool:
+	# Legacy callers supply only a person; resolve its registered household without mutation.
+	if f.is_empty():
+		for household: Dictionary in e.get("fams", []):
+			if not Persons.by_pid(household, int(p[0])).is_empty():
+				f = household
+				break
+	var adult: float = float(People.ages(Persons.family_race(e, f))["adult"])
+	var sc: float = adult / 16.0
+	var years: float = (day - float(p[3])) / People.year_days()
+	return int(p[6]) == 2 and String(p[4]) == "" and years >= float(Barge.B()["labour"]["kid_from"]) * sc and years < adult
 
 static func assign_child_cleanup(e: Dictionary, day: float) -> void:
 	var share := float(Barge.B()["labour"]["kid_share"])
 	var jobs := ["street_sweeper", "rat_catcher", "night_soil_man"]
 	jobs.sort_custom(func(a, b): return Barge.casual_wage(e, a) > Barge.casual_wage(e, b))
+	var funds_previous: Dictionary = TownSanitation.begin_customer_batch(e)
 	for f in e["fams"]:
 		if f.get("gone", false) or f.get("estate", false): continue
 		for p in Persons.kp(f):
-			if not cleanup_child_eligible(e, p, day): continue
+			if not cleanup_child_eligible(e, p, day, f): continue
 			var c := Sickness.case_of(f, int(p[0]))
 			if not c.is_empty() and int(c[Sickness.C_BED]) == 1 and Sickness.sick_phase(c, day): continue
 			for j in jobs:
@@ -424,6 +438,7 @@ static func assign_child_cleanup(e: Dictionary, day: float) -> void:
 				f["child_work_changed"] = true
 				e["cjused"][j] = used + share
 				break
+	TownSanitation.finish_customer_batch(funds_previous)
 	# Refresh the farm's actual output fraction as well as its helper count.
 	for f in e["fams"]:
 		if f.get("child_work_changed", false):

@@ -44,6 +44,8 @@ func show_tab(t: String) -> void:
 	refresh()
 
 func refresh() -> void:
+	if Game._day_job_wait_observer(refresh):
+		return
 	UiKit.clear(tabs_box)
 	UiKit.clear(page)
 	tabs_box.add_child(UiKit.tab_strip(["Company", "World"], tab, show_tab))

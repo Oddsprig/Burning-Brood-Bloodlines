@@ -281,8 +281,11 @@ static func call_up_nobles(game, fid: String, most: int) -> Array:
 		var head_uid := str(e.get("head", {}).get("person_uid", ""))
 		for f in e.get("fams", []):
 			if f.get("cohort", false) or f.get("estate", false) or f.get("gone", false) or str(f.get("household_uid", "")) == "": continue
+			var called := false
 			for p in Persons.pp(f):
-				if out.size() >= most: return out
+				if out.size() >= most:
+					if called: Families.reassign(e, f)
+					return out
 				if str(p[4]) != "" or int(p[5]) >= 0 or int(p[6]) != 0: continue
 				if str(Persons.g(p, Persons.PERSON_UID, "")) == head_uid: continue   # the ruler governs; his kin ride
 				var age := Persons.age_of(p, float(e.get("day", game.day)))
@@ -297,7 +300,11 @@ static func call_up_nobles(game, fid: String, most: int) -> Array:
 				roll[str(u.uid)] = [str(tid), int(f["id"]), "army", u.name]
 				(band["units"] as Array).append(u)
 				Families.event(f, "joined", [u.name, "army", Army.force_word(w, band)], float(game.day))
+				called = true
 				out.append(u)
+			# v0.100: as in People.draw/draft, a man who leaves for the army is
+			# reassigned at once, so his shops stop claiming a keeper at work.
+			if called: Families.reassign(e, f)
 	return out
 
 ## Rank-and-file grouped by the post they report to (key -1: every man below officer rank), built once per roster.
@@ -527,7 +534,7 @@ static func duel(a: Unit, b: Unit, seed: int) -> Dictionary:
 	var t0 := Time.get_ticks_usec()
 	var sim := BattleSim.new()
 	sim.setup([a], [b], seed, {"w": 6, "h": 3, "terrain": "plains", "log_moves": false, "verbose": false,
-		"combat_journal":false, "max_ticks": int(Army.A()["fight_ticks"])})
+		"combat_journal":false, "capture_history":false, "max_ticks": int(Army.A()["fight_ticks"])})
 	while not sim.is_over():
 		sim.step()
 	var win: Unit = a

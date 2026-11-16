@@ -20,10 +20,12 @@ func snapshot() -> Dictionary:
 		var e: Dictionary = t["econ"]
 		var families := []
 		for f in e["fams"]:
-			families.append([f.get("cj", {}).duplicate(true), f.get("child_cj", {}).duplicate(true), f.get("cjearned", {}).duplicate(true)])
+			families.append([f.get("cj", {}).duplicate(true), f.get("child_cj", {}).duplicate(true), f.get("cjearned", {}).duplicate(true),
+				f.get("jobs", {}).duplicate(), f.get("owns", []).duplicate(), f.get("keeps", []).duplicate(), f.get("purse", 0.0)])
 		var businesses := []
 		for b in e["biz"]:
-			businesses.append([b["id"], b.get("owed", 0), b.get("net_receipts", []).duplicate(true)])
+			businesses.append([b["id"], b.get("owed", 0), b.get("net_receipts", []).duplicate(true),
+				b.get("till", 0.0), b["owner"], b.get("kw", 0), b.get("wage_claims", {}).duplicate(), b.get("owed_unattributed", 0.0)])
 		out[t["id"]] = [TownSanitation.book(e).duplicate(true), families, businesses, e.get("cjcap", {}).duplicate(), e.get("cjused", {}).duplicate()]
 	return out
 
@@ -48,12 +50,25 @@ func round_trip() -> void:
 	Game.save_game()
 	check(Game.load_game(), "midweek service campaign loads")
 	var after := snapshot()
-	check(equivalent(after, before), "assignments, earned pay, fractional paid days, completed books and producer debts/receipts survive load")
+	check(equivalent(after, before), "assignments, ownership, cash, earned pay, fractional paid days, completed books and producer debts/receipts survive load")
 	if not equivalent(after, before):
 		for tid in before:
 			if not equivalent(before[tid], after[tid]):
 				print("SERVICE SAVE DIFFERENCE ", tid, " before=", JSON.stringify(before[tid]), " after=", JSON.stringify(after[tid])); break
 	check(absf(Barge.holdings(Game) - money) < 0.01, "save/load conserves existing money")
+
+func state_owner_generation() -> void:
+	# v0.100: reproduce both generation owner passes without a world or campaign ticks.
+	var estate := Families._blank(0); estate["estate"] = true
+	var family := Families._blank(1); family["m"] = 2
+	var e := {"fams": [estate, family], "biz": []}
+	var academy := Businesses._row(e, "academy", -1, 1, TownEcon.data())
+	var till := float(academy["till"])
+	for pass_no in 2:
+		Population.generated_business_owners(e)
+		check(int(academy["owner"]) == -1 and int(academy["kw"]) == 0 and family["owns"].is_empty() and family.get("keeps", []).is_empty(),
+			"generation owner pass %d keeps the Academy public without a private keeper" % pass_no)
+		check(float(academy["till"]) == till and String(academy["public_funding"]) == "realm", "generation keeps the Academy's actual cash and realm funding")
 
 func close_job(job: Array, rng: RandomNumberGenerator) -> void:
 	var t: Dictionary = Game.world["towns"][job[1]]
@@ -108,6 +123,8 @@ func observed_day() -> void:
 	Game.world["rng_state"] = str(rng.state)
 
 func run(_tree: SceneTree) -> int:
+	state_owner_generation()
+	if fails > 0: return fails
 	var legacy := OS.get_environment("SERVICES_LEGACY_SAVE")
 	if legacy != "":
 		var original := Game.SAVE_PATH

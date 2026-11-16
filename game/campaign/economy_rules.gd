@@ -17,6 +17,8 @@ static func essential_food_cost(e: Dictionary, meals: float) -> float:
 	var cost := 0.0
 	var fallback := 0.0
 	var last_available := 0.0
+	# This pure quote keeps one ordered owner snapshot only until it returns.
+	var balance_rows: Variant = null
 	for good in food_order(e):
 		var unit := float(e.get("price", {}).get(good, 0.0)) * TownEcon.markup()
 		if unit <= 0.0: continue
@@ -24,8 +26,10 @@ static func essential_food_cost(e: Dictionary, meals: float) -> float:
 		var barn := maxf(0.0, float(e.get("barn", {}).get(good, 0.0)))
 		if e.get("harvest_book") is Dictionary:
 			var free := 0.0
-			for goods in e["harvest_book"].get("balances", {}).values():
-				var row: Array = goods.get(good, [0.0, 0.0])
+			if balance_rows == null:
+				balance_rows = e["harvest_book"].get("balances", {}).values()
+			for goods: Dictionary in balance_rows:
+				var row: Array = goods.get(good, HarvestClaims.ZERO_PAIR)
 				free += maxf(0.0, float(row[0]) - float(row[1]))
 			barn = minf(barn, floorf(free + HarvestClaims.EPS))
 		var have := maxf(0.0, float(e.get("stock", {}).get(good, 0.0))) + barn
@@ -108,9 +112,13 @@ static func wood_available(e: Dictionary) -> float:
 	var P: Dictionary = e.get("plots", {})
 	if P.is_empty(): return 0
 	var total := 0.0
+	# Bind columns for this read; keep raw Arrays/packed columns and their order.
+	var uses: Variant = P.get("use")
+	var standing: Variant = P.get("st")
+	var acreage: Variant = P.get("ac")
 	for i in Plots.count(P):
-		if int(P["use"][i]) == Plots.WOOD:
-			total += maxf(0, float(P["st"][i])) * float(P["ac"][i]) * Plots.LOADS_PER_ACRE
+		if int(uses[i]) == Plots.WOOD:
+			total += maxf(0, float(standing[i])) * float(acreage[i]) * Plots.LOADS_PER_ACRE
 	var made := int(e.get("led", {}).get("made", {}).get("wood", 0))
 	return maxf(0, total - maxi(0, made - int(P.get("wood_seen", made))))
 

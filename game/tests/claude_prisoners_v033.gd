@@ -51,19 +51,41 @@ func _clash(winner: int, units: Array, states: Array, extra: Dictionary = {}) ->
 
 var _band_id := ""
 
-## v0.099: world generation now sends many noble adults off with the realm's field army ("with the army"), and they
-## cannot ride with yours. Put first the most populous seats whose house has a free adult who is no town's ruler.
-static func free_rider_first(game, by_pop: Array) -> Array:
+## v0.099 nobles already serving cannot join the player (older_tests_unfixed_diagnosis.md, entries 10-11).
+## Find an existing, living, unbound non-ruler of the generated house; never clear a service flag.
+static func free_rider_for(game, choice: Dictionary) -> Dictionary:
 	var seats: Dictionary = Prisoners.ruling(game)["people"]
-	var saved: Dictionary = game.world.get("player_house", {})
-	var free: Array = []
-	var rest: Array = []
+	var realm: String = str(game.world["towns"][choice["town_id"]]["faction"])
+	for town: Dictionary in game.world["towns"].values():
+		if str(town.get("faction", "")) != realm or not TownEcon.has_econ(town): continue
+		var economy: Dictionary = town["econ"]
+		for family: Dictionary in economy["fams"]:
+			var adult_age: int = int(People.ages(Persons.family_race(economy, family))["adult"])
+			for person: Array in Persons.pp_read(family):
+				var uid: String = str(Persons.g(person, Persons.PERSON_UID, ""))
+				if uid == "" or seats.has(uid) or str(Persons.g(person, Persons.HOUSE_UID, "")) != str(choice["house_uid"]): continue
+				if int(person[6]) != 0 or str(person[4]) != "" or int(person[5]) >= 0 or Persons.age_of(person, game.day) < adult_age: continue
+				return {"person_uid": uid, "town_id": str(town["id"])}
+	return {}
+
+static func select_free_rider_house(game, by_pop: Array) -> Dictionary:
 	for choice: Dictionary in by_pop:
-		game.world["player_house"] = {"house_uid": str(choice["house_uid"]), "ruler_uid": str(choice["ruler_uid"])}
-		var ok := Mobilization.household_candidates(game).any(func(row): return not seats.has(str(row.get("person_uid", ""))))
-		(free if ok else rest).append(choice)
-	game.world["player_house"] = saved
-	return free + rest
+		var rider: Dictionary = free_rider_for(game, choice)
+		if rider.is_empty(): continue
+		var selected: Dictionary = HouseOnboarding.begin(game, str(choice["town_id"]), str(choice["household_uid"]))
+		if not bool(selected.get("ok", false)): continue
+		# Native fixture visit establishes location AND physical party proximity at the person's real home.
+		DevTools.stand_at(game, str(rider["town_id"]))
+		var enlisted: Dictionary = Mobilization.enlist_household(game, str(rider["person_uid"]))
+		if not bool(enlisted.get("ok", false)):
+			return {"ok": false, "reason": "eligible native rider enlistment failed: " + str(enlisted.get("reason", ""))}
+		var unit: Unit = enlisted["unit"]
+		var address: Dictionary = Dynasty._person(game, str(rider["person_uid"]))
+		if address.is_empty() or Persons.by_uid(address["family"], unit.uid) != address["person"] or unit.home_town != rider["town_id"] or not game.company.has(unit):
+			return {"ok": false, "reason": "native enlistment lost the exact existing resident/Unit link"}
+		DevTools.stand_at(game, str(choice["town_id"]))
+		return {"ok": true, "seat": str(choice["town_id"]), "unit": unit, "person_uid": rider["person_uid"]}
+	return {"ok": false, "reason": "missing generated free adult non-ruler at an authorized hometown"}
 
 func run(tree: SceneTree) -> int:
 	await tree.process_frame
@@ -72,41 +94,27 @@ func run(tree: SceneTree) -> int:
 	if not await DevTools.start_world(tree, "user://prisoners033-test.json"):
 		check(false, "the shared test world loads")
 		return _finish()
-	var seat := ""
 	var by_pop: Array = Dynasty.choices(Game)
 	by_pop.sort_custom(func(a, b): return int(Game.world["towns"][a["town_id"]]["econ"]["pop"]) > int(Game.world["towns"][b["town_id"]]["econ"]["pop"]))
-	by_pop = free_rider_first(Game, by_pop)
-	for choice: Dictionary in by_pop:   # the most populous seat has men and arms to raise
-		if bool(HouseOnboarding.begin(Game, str(choice["town_id"]), str(choice["household_uid"])).get("ok", false)):
-			seat = str(choice["town_id"]); break
+	var rider_fixture: Dictionary = select_free_rider_house(Game, by_pop)
+	check(bool(rider_fixture.get("ok", false)), "native free rider fixture: " + str(rider_fixture.get("reason", "")))
+	if not bool(rider_fixture.get("ok", false)): return _finish()
+	var seat: String = str(rider_fixture["seat"])
 	check(seat != "", "selected a native ruling house")
 	if seat == "": return _finish()
 	var mine := Diplomacy.player_realm(Game.world)
 	Game.location = seat
 	Feudal._payer(Game)["purse"] = 1000.0 * Item.COIN
 	Mobilization.fund(Game, 600 * Item.COIN)
-	# Household officers and a few registered men of the seat ride with the army.
-	# A seated ruler may ride, and is priced as a ruler. This noble is another adult of the house.
-	var noble: Unit = null
-	var seats := Prisoners.ruling(Game)
-	var taken := 0
-	print("prisoners033: household candidates ", Mobilization.household_candidates(Game).size(), " of ", Dynasty.living_members(Game).size(), " living members")
-	for row in Mobilization.household_candidates(Game):
-		if seats["people"].has(str(row.get("person_uid", ""))): continue
-		var er: Dictionary = Mobilization.enlist_household(Game, str(row["person_uid"]))
-		if not er.get("ok", false):
-			print("prisoners033: cannot enlist ", row.get("name", ""), " age ", row.get("age", 0), ": ", er.get("reason", ""))
-			continue
-		taken += 1
-		if noble == null: noble = er["unit"]
-		if taken >= 3: break
-	check(noble != null, "a member of your house rides with the army")
+	# The rider was enlisted at the actual authorized hometown, then returned to this seat.
+	var noble: Unit = rider_fixture["unit"]
+	check(noble != null and str(Persons.g(_person(noble), Persons.PERSON_UID, "")) == str(rider_fixture["person_uid"]),
+		"a member of your house rides with the army as that exact existing non-ruler person")
 	var quote := Mobilization.quote(Game, seat, 12)
 	print("prisoners033: quote ", quote.get("ok", false), " ", quote.get("reason", ""), " planned ", quote.get("planned", 0))
 	if quote.get("ok", false): print("prisoners033: muster ", Mobilization.muster(Game, seat, 12, quote["review"]).get("reason", ""))
 	print("prisoners033: company ", Game.company.size(), " registered ", Game.company.filter(func(u): return u.family >= 0 and not _person(u).is_empty()).size())
 	var men: Array = Game.company.filter(func(u): return u != noble and u.family >= 0 and not _person(u).is_empty() and not u.has_meta("house_member"))
-	men.append_array(Game.company.filter(func(u): return u != noble and u.has_meta("house_member")))
 	check(noble != null and men.size() >= 3, "registered men were raised (%d)" % men.size())
 	if noble == null or men.size() < 3: return _finish()
 	# A real enemy field band of another realm whose men have family records.

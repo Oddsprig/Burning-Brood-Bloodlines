@@ -385,3 +385,12 @@ static func physical_signature(audit: Dictionary) -> Dictionary:
 		"rations": audit["rations"], "items_held": audit["items"]["held"], "next_item_uid": audit["items"]["next"],
 		"arms_held": {"armoury": audit["arms"]["armoury"], "shop": audit["arms"]["shop"], "cargo": audit["arms"]["cargo"]},
 		"game_seed": Game.seed_value, "game_rng_state": str(Game.rng.state), "world_rng_state": str(Game.world.get("rng_state", ""))}
+
+## An accidentally scheduled helper must fail explicitly; it is never an acceptance pass.
+func run(_tree: SceneTree) -> int:
+	var failure: Dictionary = {"ok": false, "overallComplete": false,
+		"error": {"kind": "helper_invocation", "resource": "res://tests/economy_stability_v094.gd",
+			"detail": "Observation library only. Schedule res://tests/test_economy_stability_v094.gd with its versioned protocol and authenticated native inputs."}}
+	printerr("FAIL: economy_stability_v094 is an observation helper, not a standalone economy acceptance test")
+	print("ECONOMY_V094 ", JSON.stringify(failure))
+	return 1

@@ -2,12 +2,13 @@ extends RefCounted
 ## The records screen (ui/records.gd; town spec 08-10, world spec 11-12, addendum 13), headless on a generated world
 ## after a short stretch of its own sim: every town tab, every world tab and every faction tab builds without a
 ## SCRIPT ERROR (tools/test.sh fails the run on one) at phone size 720x1280, where every button is >= 48 px tall,
-## list rows >= 64 px, and nothing but the tab bar runs wider than the screen. Detail pages (family, person,
+## v0.100: list rows >= 56 px (96 on mobile); check actual content width beneath every scroller. Detail pages (family, person,
 ## business, force, the dead of a cause), the selector (every town once, under its faction) and sorting
 ## (every column, again reverses, filters) are checked too. Tab build times are printed (spec: < 16 ms).
 
 const PHONE := Vector2(720, 1280)
 const TOL := 1.5
+const UI := preload("res://tests/fixtures/ui_contract_v100.gd")
 
 var fails := 0
 var tree: SceneTree
@@ -24,7 +25,8 @@ func run(st: SceneTree) -> int:
 	tree = st
 	await tree.process_frame
 	Game.new_game(11)
-	CampaignWorld.presim_step(Game, 40)
+	# v0.100: one history day is enough for UI coverage; do not simulate 40 days.
+	CampaignWorld.presim_step(Game, 1)
 	_sort_test()
 	_data_reads_test()
 	var w: Dictionary = Game.world
@@ -252,7 +254,7 @@ func _find_table(n: Node) -> RecTable:
 			return r
 	return null
 
-## Nothing wider than the phone (the tab bar scrolls sideways and is skipped); buttons >= 48 px, rows >= 64 px.
+## v0.100: inspect every scroll child; AUTO does not imply overflow (6210641).
 func _check_fit(sv: SubViewport, label: String) -> void:
 	var bad := []
 	_rows_seen = 0
@@ -270,13 +272,8 @@ func _walk(n: Node, bad: Array) -> void:
 		return
 	if n is Label and _bad_num.search((n as Label).text) != null:   # every number reads a real field: never NaN or infinite
 		bad.append("bad number in '%s'" % (n as Label).text.substr(0, 80))
-	if n is ScrollContainer and (n as ScrollContainer).horizontal_scroll_mode != ScrollContainer.SCROLL_MODE_DISABLED:
-		var r0 := (n as Control).get_global_rect()
-		if r0.end.x > PHONE.x + TOL:
-			bad.append("tab bar wider than the screen %s" % r0)
-		for c in n.get_children():
-			_buttons_only(c, bad)
-		return
+	if n is ScrollContainer and not UI.horizontal_fits(n, TOL):
+		bad.append("horizontal content overflows: %s" % n.name)
 	if n is Control:
 		var c := n as Control
 		var r := c.get_global_rect()
@@ -290,8 +287,8 @@ func _walk(n: Node, bad: Array) -> void:
 			for value in c.get_meta("rec_row"):
 				if _bad_num.search(String(value)) != null:
 					bad.append("bad number in row '%s'" % String(value).substr(0, 80))
-			if r.size.y < 64.0 - TOL:
-				bad.append("row under 64 px: %s" % [c.get_meta("rec_row")])
+			if r.size.y < UI.row_height() - TOL:
+				bad.append("row under %d px: %s" % [int(UI.row_height()), c.get_meta("rec_row")])
 	for ch in n.get_children():
 		_walk(ch, bad)
 

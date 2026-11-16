@@ -421,16 +421,23 @@ static func plunder_cargo(game, win: Dictionary, car: Dictionary) -> void:
 ## loots the company's fallen and its own; the guards of an escorted caravan and allied bands go to whoever holds it.
 static func after_company_battle(game, result: Dictionary, wb: Dictionary, car: Dictionary, ally_ids: Array) -> void:
 	# A player victory settles gear elsewhere; recover mounts before either side
-	# filters its fallen out of the campaign band.
-	for u: Unit in wb.get("units", []):
-		if u.dead: Horses.return_mount(game, u)
+	# filters its fallen out of the campaign band. Assaults also field town_guards in enemy_units.
+	var enemy_dead: Array = []
+	for u: Variant in wb.get("units", []):
+		if u is Unit and u.dead:
+			enemy_dead.append(u)
+	for u: Variant in result.get("enemy_units", []):
+		if u is Unit and u.dead and not enemy_dead.has(u) and not game.company.has(u) and not DragonCombat.is_dragon_unit(game, u):
+			enemy_dead.append(u)
+	for u: Unit in enemy_dead:
+		Horses.return_mount(game, u)
 	var winner := int(result.get("winner", -1))
 	var won := winner == 0
 	var w: Dictionary = game.world
 	var pos: Vector2 = wb.get("pos", w["party"]["pos"])
 	if winner not in [0, 1]:
 		_recover_legends(game, (result.get("player_units", []) as Array).filter(func(u): return u is Unit and u.dead), {"company": true}, false)
-		_recover_legends(game, (wb.get("units", []) as Array).filter(func(u): return u is Unit and u.dead), {"band": wb}, false)
+		_recover_legends(game, enemy_dead, {"band": wb}, false)
 		if not car.is_empty():
 			_recover_legends(game, (car["units"] as Array).filter(func(u): return u is Unit and u.dead), {"band": car}, false)
 		for bid in ally_ids:
@@ -443,8 +450,8 @@ static func after_company_battle(game, result: Dictionary, wb: Dictionary, car: 
 		for u in result.get("player_units", []):
 			if u is Unit and u.dead:
 				dead.append(u)
-		for u in wb.get("units", []):
-			if u is Unit and u.dead:
+		for u: Unit in enemy_dead:
+			if not dead.has(u):
 				dead.append(u)
 		if Monsters.is_monster_band(wb):
 			_recover_legends(game, dead, {"band": wb}, true) # known beast winner keeps artifacts; ordinary losses stay native

@@ -1,11 +1,12 @@
 extends RefCounted
-## The years before (Douglas: "their background needs to actually be a job they held - maybe we simulate 5 years
-## on startup so there's actually backgrounds"): a new campaign runs the world's own sim five years before the
-## player arrives (CampaignWorld.presim_step / presim_finish, ui/presim.gd). Tests: life histories are recorded
-## as things happen (jobs taken and left, service, coming home); recruit titles and stories come from the
-## history and the present; the run is deterministic per seed whatever the chunking; old saves never run it.
-## Prints the wall time of the full five years and the world it leaves (no tuning: rule zero).
+## v0.100: one-day startup history (user direction 2026-10-17): native atomic/sliced determinism, recorded
+## v0.100: work/service, recruit titles/stories, protected company arrival and saves that never restart history.
+## v0.100: a detached recorded-history fixture exercises multi-event stories without simulating five years.
 
+const RunplanArgs: GDScript = preload("res://tests/fixtures/older_runplan_args_v100.gd")
+const SpeedParts: GDScript = preload("res://tests/fixtures/older_speed_parts_v100.gd")
+const SpeedCheckpoint: GDScript = preload("res://tests/fixtures/older_speed_checkpoint_v100.gd")
+const PRESIM_PARTS: Array[String] = ["atomic", "sliced", "full", "old_save"]
 var fails := 0
 
 func check(ok: bool, msg: String) -> void:
@@ -13,14 +14,86 @@ func check(ok: bool, msg: String) -> void:
 		print("FAIL: ", msg)
 		fails += 1
 
+func _det_receipt_path() -> String:
+	return "user://test_presim_det_v100_%s.var" % ProjectSettings.globalize_path("res://").sha256_text().substr(0, 12)
+
+func _write_atomic_digest(digest_val: String) -> bool:
+	var f: FileAccess = FileAccess.open(_det_receipt_path(), FileAccess.WRITE)
+	if f == null:
+		return false
+	f.store_var({"source": str(SpeedParts.call("source_stamp")), "atomic_digest": digest_val}, false)
+	f.flush()
+	var ok: bool = f.get_error() == OK
+	f.close()
+	return ok
+
+func _read_atomic_digest() -> String:
+	var f: FileAccess = FileAccess.open(_det_receipt_path(), FileAccess.READ)
+	if f == null:
+		return ""
+	var raw: Variant = f.get_var(false)
+	var ok: bool = f.get_error() == OK
+	f.close()
+	if not ok or not raw is Dictionary:
+		return ""
+	var data: Dictionary = raw
+	if str(data.get("source", "")) != str(SpeedParts.call("source_stamp")):
+		return ""
+	return str(data.get("atomic_digest", ""))
+
+func _select_part() -> String:
+	var selected: String = OS.get_environment("PRESIM_PART")
+	var seen: bool = not selected.is_empty()
+	for arg: String in RunplanArgs.arguments():
+		var val: String = ""
+		if arg.begins_with("--part="):
+			val = arg.trim_prefix("--part=")
+		elif arg.begins_with("--speed-part="):
+			val = arg.trim_prefix("--speed-part=")
+		elif arg == "--part" or arg == "--speed-part":
+			printerr("FAIL: choose one --part=atomic|sliced|full|old_save")
+			return ""
+		else:
+			continue
+		if seen and val != selected:
+			printerr("FAIL: conflicting presim part selectors")
+			return ""
+		seen = true
+		selected = val
+	if selected == "" or not selected in PRESIM_PARTS:
+		printerr("choose one --part=atomic|sliced|full|old_save; every part is required in order")
+		return ""
+	return selected
+
 func run(_tree: SceneTree) -> int:
+	var part: String = _select_part()
+	if part == "":
+		return 1
+	# v0.100: use the authorized small default and restore settings even for the deterministic-only entry.
+	var previous_size := WorldGen.gen_size
+	var previous_span := CampaignWorld.presim_span_days
+	var previous_save: String = Game.SAVE_PATH
+	check(WorldGen.WORLD_SIZE == "normal" and CampaignWorld.PRESIM_DEFAULT_DAYS == 1,
+		"startup defaults remain Normal and one history day")
+	WorldGen.gen_size = "normal"
+	CampaignWorld.presim_span_days = 1
 	Game.SAVE_PATH = "user://test_save_presim_%d.json" % OS.get_process_id()
-	_test_deterministic()
-	if OS.get_environment("PRESIM_ONLY") == "det":
-		return fails
-	_test_full()
-	_test_old_save()
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(Game.SAVE_PATH))
+	var checkpoint: RefCounted = SpeedCheckpoint.new("presim_v100")
+	if part == "atomic":
+		_test_atomic()
+	elif part == "sliced":
+		_test_sliced()
+	elif part == "full":
+		_test_full()
+		if fails == 0:
+			check(bool(checkpoint.call("save_step", 0)), "post-full presim checkpoint saved for old_save")
+	elif part == "old_save":
+		check(bool(checkpoint.call("load_step", 0)), "post-full presim checkpoint loaded; run --part=full first")
+		if fails == 0:
+			_test_old_save()
+	WorldGen.gen_size = previous_size
+	CampaignWorld.presim_span_days = previous_span
+	Game.SAVE_PATH = previous_save
 	return fails
 
 func _ids(w: Dictionary) -> Array:
@@ -80,19 +153,41 @@ func _herd_year(w: Dictionary, yr: int) -> void:
 		int(bk.get("born", 0)), int(bk.get("slaughtered", 0)), int(bk.get("sold", 0)), int(bk.get("stolen", 0)), starved, int(bk["died"].get("old age", 0)), ill,
 		int(bk["died"].get("cold", 0))])
 
-func _test_deterministic() -> void:
+func _test_atomic() -> void:
 	Game.new_game(777)
-	CampaignWorld.presim_step(Game, 120)   # one big chunk
+	# v0.100: an oversized request must clamp to the selected day; compare native atomic and resumable paths.
+	CampaignWorld.presim_step(Game, 120)
+	check(Game.day == 1.0 and CampaignWorld.presim_total(Game) == 1 and CampaignWorld.presim_left(Game) == 0,
+		"atomic history clamps oversized work to exactly one day")
 	var a := _digest(Game.world)
+	check(_write_atomic_digest(a), "atomic presim digest receipt written")
+
+func _test_sliced() -> void:
+	var a: String = _read_atomic_digest()
+	check(a != "", "atomic presim digest available on current source; run --part=atomic first")
+	if a == "":
+		return
 	Game.new_game(777)
-	for i in 120:
-		CampaignWorld.presim_step(Game, 1)   # a day a frame
+	var pending := {}
+	var start := Time.get_ticks_msec()
+	while CampaignWorld.presim_left(Game) > 0 and Time.get_ticks_msec() - start < 60000:
+		CampaignWorld.presim_slice(Game, pending, 12000)
 	var b := _digest(Game.world)
 	check(a == b, "the years before differ with the chunking (same seed)")
-	check(float(Game.day) == 120.0, "presim day count (%.1f)" % Game.day)
+	check(Game.day == 1.0 and CampaignWorld.presim_left(Game) == 0 and pending.is_empty(),
+		"resumable history completes exactly one day")
 
 func _test_full() -> void:
 	Game.new_game(2026)
+	# v0.100: v0.017 (e460f8b) removed free starters; make a small funded army so arrival checks are nonvacuous.
+	check(Game.company.is_empty() and Game.gold == 0, "history fixture starts with the native unraised army")
+	var town_id := DevTools.choose_house(Game)
+	var raised := DevTools.raise_army(Game, town_id, 2) if town_id != "" else 0
+	check(raised == 2 and Game.company.size() == 2, "arrival fixture explicitly musters two real residents")
+	if fails > 0:
+		return
+	var army_gold := Game.gold
+	var army_meals := Food.stock(Game, "meal")
 	var w: Dictionary = Game.world
 	var pop0 := {}
 	for tid in _ids(w):
@@ -103,7 +198,7 @@ func _test_full() -> void:
 	var t0 := Time.get_ticks_msec()
 	var frames := 0
 	var worst := 0
-	while CampaignWorld.presim_left(Game) > 0:
+	while CampaignWorld.presim_left(Game) > 0 and Time.get_ticks_msec() - t0 < 60000:
 		var f0 := Time.get_ticks_usec()
 		CampaignWorld.presim_step(Game, 1)
 		worst = maxi(worst, Time.get_ticks_usec() - f0)
@@ -122,6 +217,9 @@ func _test_full() -> void:
 			print("  year %d: population %d in %d households (%d hungry now); so far %d born, %d died, %d left town (%d for hunger, %d crowded out); town treasuries %d" % [
 				frames / 120, pp, fams, hung, b, dd, lf, lh, lc, int(tre)])
 			_herd_year(w, frames / 120)
+	check(CampaignWorld.presim_left(Game) == 0 and frames == 1, "full selected history completes exactly one native day")
+	if fails > 0:
+		return
 	var ms := Time.get_ticks_msec() - t0
 	CampaignWorld.presim_finish(Game, ms)
 	var days := CampaignWorld.presim_total(Game)
@@ -130,6 +228,7 @@ func _test_full() -> void:
 	for u in Game.company:
 		check(u.age == int(ages0[u.uid]), "%s aged through the years before (%d -> %d)" % [u.name, int(ages0[u.uid]), u.age])
 	check(float(Game.food_clock["last"]) == float(Game.day), "the company's food clock starts today")
+	check(Game.gold == army_gold and Food.stock(Game, "meal") == army_meals, "startup history consumes no company wages or provisions")
 	# histories were recorded as they happened
 	var with_job := 0; var job_changes := 0; var served := 0; var people := 0
 	var bad_serve := []
@@ -152,7 +251,7 @@ func _test_full() -> void:
 					bad_serve.append("%s (%s)" % [Persons.name_of(f, p, Persons.race_of(e)), st])
 				if st == "" and int(p[6]) == 0 and String(p[Persons.JOB]) != "" and (jobs.is_empty() or String(jobs[-1][2]) != String(p[Persons.JOB])):
 					bad_serve.append("%s: job %s not in his history" % [Persons.name_of(f, p, Persons.race_of(e)), p[Persons.JOB]])
-	check(job_changes > 0, "nobody changed jobs in five years")
+	check(job_changes > 0, "nobody changed jobs during the selected history day")
 	check(served > 0, "nobody's history shows service")
 	check(bad_serve.is_empty(), "service or work missing from the history: %s" % str(bad_serve.slice(0, 4)))
 	print("  histories: %d grown-ups, %d with a job on record, %d job changes after day 0, %d with service" % [people, with_job, job_changes, served])
@@ -163,16 +262,16 @@ func _test_full() -> void:
 				for p in f.get(key, []):
 					bytes += JSON.stringify(p).length() + 1
 					recs += 1
-	print("  register in the save after five years: %d records (living, children, remembered dead), %.1f bytes each, %d KB" % [recs, float(bytes) / maxf(1.0, recs), bytes / 1024])
+	print("  register after one history day: %d records (living, children, remembered dead), %.1f bytes each, %d KB" % [recs, float(bytes) / maxf(1.0, recs), bytes / 1024])
 	_report(w, pop0)
-	# sickness (docs/specs/barge/06-sickness.md section 9): five years leave no negative count and no NaN; the cases
-	# and deaths per town per year are printed for Douglas (no tuning)
+	# v0.100: retain native sickness-count validation after the selected one-day history.
 	var sk_bad := Sickness.check_counts(w)
-	check(sk_bad.is_empty(), "sickness counts after five years: %s" % str(sk_bad.slice(0, 4)))
+	check(sk_bad.is_empty(), "sickness counts after one history day: %s" % str(sk_bad.slice(0, 4)))
 	for l in Sickness.report_lines(w):
 		print("  SICKNESS ", l)
 	# recruits: title = his place now, story = his own history + why now
 	var cards := 0
+	var history_fixture := false
 	for tid in _ids(w):
 		var t: Dictionary = w["towns"][tid]
 		var pool := Recruits.generate_pool(t, RandomNumberGenerator.new())
@@ -183,16 +282,44 @@ func _test_full() -> void:
 			check(not p.is_empty(), "recruit %s is not a register person" % u.name)
 			if p.is_empty():
 				continue
+			cards += 1
 			var role := Recruits.person_role(t["econ"], f, p)
 			check(u.title == String(role["title"]), "%s: title %s, his place is %s" % [u.name, u.title, role["title"]])
 			var own := Backstory.own_lines(t, t["econ"], f, p, Persons.first_of(t["econ"], p))
 			for l in own:
 				check(u.backstory.contains(String(l)), "%s: story lacks his history line '%s': %s" % [u.name, l, u.backstory])
-			if cards < 2 and own.size() >= 2:
+			if not history_fixture:
+				_test_history_card(t, f, u)
+				history_fixture = true
+			if cards <= 2:
 				print("  CARD %s, %s, age %d (%s)\n    %s" % [u.name, u.title, u.age, t["name"], u.backstory])
 				print("    history: ", p[Persons.HIST])
-				cards += 1
-	check(cards > 0, "no recruit with a five-year history")
+	check(cards > 0 and history_fixture, "one-day recruits and the recorded multi-event story fixture are exercised")
+
+func _test_history_card(town: Dictionary, family: Dictionary, unit: Unit) -> void:
+	# v0.100: anonymous recruits need not have years of named history; supply two dated native records on a copy.
+	var fixture: Dictionary = family.duplicate(true)
+	var person := Persons.by_uid(fixture, unit.uid)
+	check(not person.is_empty(), "history fixture retains the recruit's real registered identity")
+	if person.is_empty():
+		return
+	person[Persons.HIST] = []
+	fixture["ev"] = []
+	var e: Dictionary = town["econ"].duplicate()
+	e["tev"] = []
+	var day := 28.0
+	e["day"] = day
+	Persons.log_life(person, day - 21, "job", "farmhand on the family grain fields")
+	Persons.log_life(person, day - 14, "left_job", "farmhand on the family grain fields")
+	Persons.log_life(person, day - 14, "serve", "militia")
+	Persons.log_life(person, day - 7, "home", "militia")
+	var first := Persons.first_of(e, person)
+	var role := Recruits.person_role(e, fixture, person)
+	var text := Backstory.recruit_text(town, e, fixture, first, unit.name, role, unit)
+	var own := Backstory.own_lines(town, e, fixture, person, first)
+	check(own.size() >= 2, "recorded job and militia service both produce history lines")
+	for line in own:
+		check(text.contains(String(line)), "fixture recruit story contains its recorded history: " + String(line))
 
 func _report(w: Dictionary, pop0: Dictionary) -> void:
 	var by_race := {}
@@ -234,7 +361,8 @@ func _report(w: Dictionary, pop0: Dictionary) -> void:
 	print("    wars declared %d, peaces %d; armies in the field %d (%d men)" % [int(st.get("wars", 0)), int(st.get("peaces", 0)), armies, men])
 
 func _test_old_save() -> void:
-	Game.new_game(31337)   # a world made without the years before (every save older than this)
+	# v0.100: reuse the generated world as a pre-history-save fixture instead of generating a fourth world.
+	Game.world.erase("presim")
 	Game.world["party"]["safe_until"] = 1.0e9
 	Game.advance_time(2.0, false)
 	Game.save_game()

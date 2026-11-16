@@ -30,19 +30,30 @@ func _town(w: Dictionary) -> Dictionary:
 ## A landless family of the town with one home and an old unpaid debt (the head will take the house).
 func _debtor(e: Dictionary, day: float) -> Dictionary:
 	for f in e["fams"]:
-		if f.get("estate", false) or f["gone"] or not (f["owns"] as Array).is_empty() or Families.adults(f) < 1:
+		# v0.100: 6210641's common-folk pools represent many households, not one debtor's roof.
+		if f.get("estate", false) or f["gone"] or Population.is_cohort(f) or f.has("landlord") \
+				or int(f["id"]) == int(e["head"]["fam"]) or Families.adults(f) - Families.serving(f) < 2:
 			continue
 		var estate: Dictionary = e["fams"][0]
+		# v0.100: all tracked households may own trades (6210641); transfer this fixture's shops intact.
+		for bid in f["owns"]:
+			Businesses.town_inherits(e["biz"][int(bid)])
+		(f["owns"] as Array).clear()
+		f["farm"] = -1
 		for c in f["land"].keys():
 			Families.move_land(e, f, estate, c, int(f["land"][c]))
 		for a in f["herd"].keys():
 			Families.move_herd(e, f, estate, a, int(f["herd"][a]))
+		Families.reassign(e, f)
+		estate["homes"] = int(estate["homes"]) + maxi(0, int(f["homes"]) - 1)
 		f["homes"] = 1
+		f["cond"] = 1.0
 		f["purse"] = 0.0
-		f["debt"] = 500.0 * TownEcon.COIN   # more than a week's wages can clear (coinage x20)
+		# v0.100: even selling the town's entire household pool cannot clear this fixture's debt.
+		f["debt"] = 2.0 * TownEcon.town_gold(e) + 1000.0 * TownEcon.COIN
 		f["loan_day"] = day - 60.0
 		# economy (head's loans): already behind on a steep instalment; one more miss and he must sell
-		f["ln"] = {"rate": 0.02, "pay": 250.0 * TownEcon.COIN, "miss": int(TownEcon.data()["loans"]["default_after"]) - 1, "lent": 500.0 * TownEcon.COIN, "int": 0.0, "sold": []}
+		f["ln"] = {"rate": 0.02, "pay": float(f["debt"]) / 2.0, "miss": int(TownEcon.data()["loans"]["default_after"]) - 1, "lent": f["debt"], "int": 0.0, "sold": []}
 		f["tax_season"] = int(e["tax"]["season"])
 		# barge part 2 section 6: hunger is the family's own larder now; this test is about the debt and the house, so
 		# the family has just eaten its last week's food (a family 40 days without food would starve or flee first)
@@ -61,13 +72,21 @@ func _test_homeless_and_shelter() -> void:
 	rng.seed = 1
 	var f := _debtor(e, Game.day)
 	check(not f.is_empty(), "no family to test")
-	var h0 := Families.hardship(f)
+	if f.is_empty(): return
+	check(not Population.is_cohort(f) and int(f["homes"]) == 1 and Families.acres(f) == 0 and Families.heads(f) == 0,
+		"v0.100: one genuine landless household enters the debt/roof/shelter chain")
 	var est0 := int(e["fams"][0]["homes"])
 	Families.turn(Game, town, e, f, Game.day, rng)
+	# v0.100: 98a752c's labour market can also cure unemployment during this turn.
+	# v0.100: hold those other inputs equal; the unchanged >0.5 gate measures homelessness/destitution.
+	var housed_control: Dictionary = f.duplicate(true)
+	housed_control["homes"] = 1
+	var h0 := Families.hardship(housed_control)
 	# economy (head's loans): a landless debtor past the loan term sells what he has, the house last (to the market
 	# as a home for sale, or to the head when the market cannot pay), and is out on the street
 	check(int(f["homes"]) == 0 and f.has("hl") and String(f["hl"]["how"]) in ["head", "debt"], "the debtor did not lose the house for the debt")
 	check(int(e["fams"][0]["homes"]) == est0 + 1 or int(e["stock"].get("home", 0)) > 0, "the house was not sold (market or town estate)")
+	check(float(f["debt"]) == 0.0 and f.get("destitute", false), "v0.100: unpayable remainder is written off only after the household loses its roof")
 	check(Shelter.destitute(f) and Families.hardship(f) > h0 + 0.5, "homeless + broke + landless is not destitute / hardship did not rise (%.2f -> %.2f)" % [h0, Families.hardship(f)])
 	check(f.get("shel", false) and int(e["shel_n"]) >= Families.people(f), "the homeless family found no place in the shelter")
 	var codes: Array = (f.get("ev", []) as Array).map(func(x): return str(x[1]))

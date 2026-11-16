@@ -212,6 +212,9 @@ static func tick(game, rng: RandomNumberGenerator) -> void:
 		if not cells.has(ck):
 			cells[ck] = []
 		(cells[ck] as Array).append(order)
+	# Buckets are fixed for this tick, including after fights; convert each once.
+	for ck in cells:
+		cells[ck] = PackedInt32Array(cells[ck])
 	for tid in w.get("militia", {}):
 		var mil: Dictionary = w["warbands"].get(String(w["militia"][tid]), {})
 		if mil.is_empty() or (mil["units"] as Array).is_empty():
@@ -237,7 +240,9 @@ static func tick(game, rng: RandomNumberGenerator) -> void:
 		var tc := Vector2i(floori(tpos.x / RADIUS), floori(tpos.y / RADIUS))
 		for dy in range(-1, 2):
 			for dx in range(-1, 2):
-				cand.append_array(PackedInt32Array(cells.get(tc + Vector2i(dx, dy), [])))
+				var ck := tc + Vector2i(dx, dy)
+				if cells.has(ck):
+					cand.append_array(cells[ck])
 		cand.sort()   # native ordinal sort retains the original force order without callback comparisons
 		for ce in cand:
 			var xid: String = ids[ce]
@@ -291,8 +296,13 @@ static func _tick_threat(game, mil: Dictionary, x: Dictionary, threats: Dictiona
 
 static func _raid_towns(w: Dictionary) -> Dictionary:
 	var towns := {}
-	for wb in w["warbands"].values():
-		towns[wb.get("raid", {}).get("town", "")] = true
+	var warbands: Dictionary = w["warbands"]
+	for wid in warbands:
+		var wb: Dictionary = warbands[wid]
+		if wb.has("raid"):
+			towns[wb["raid"].get("town", "")] = true
+		else:
+			towns[""] = true   # retain the native missing-raid sentinel and key order
 	return towns
 
 static func _fight(game, tid: String, mil: Dictionary, x: Dictionary, rng: RandomNumberGenerator, pa: float = -1.0, pb: float = -1.0) -> void:

@@ -40,6 +40,8 @@ func _back() -> void:
 	Game.goto(back, back_params)
 
 func _refresh() -> void:
+	if Game._day_job_wait_observer(_refresh):
+		return
 	_refresh_pending = false
 	if body == null: return
 	UiKit.clear(body)

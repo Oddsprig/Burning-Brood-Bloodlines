@@ -62,18 +62,58 @@ func lifecycle(kind: String, rows: Array) -> void:
 	Families.reassign(e, worker)
 	check(not worker["jobs"].has(str(int(b["id"]))), kind + ": existing closed-job matching releases the worker")
 
+# Use the shipped schema-1 checkpoint, not a current save with a forged version.
+# The three existing case labels select three distinct real staffed farm rows.
+func legacy_fixture(seed_value: int) -> Array:
+	var path: String = "res://tests/fixtures/legacy_v099_save.json"
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path)) if FileAccess.file_exists(path) else null
+	check(parsed is Dictionary, "shipped older-schema farm checkpoint exists and parses")
+	if not (parsed is Dictionary): return []
+	var checkpoint: Dictionary = parsed as Dictionary
+	var valid: bool = int(checkpoint.get("version", -1)) == 1 and checkpoint.has("world") and checkpoint.has("gold") and int(checkpoint.get("militia_cap", 0)) == 1
+	check(valid, "native schema-1 checkpoint retains its actual version and militia policy")
+	if not valid: return []
+	Game.restore_exact(checkpoint)
+	Game.wait_save()
+	Game.world = Game._deserialize(checkpoint["world"])
+	Game.gold = int(checkpoint["gold"])
+	var wanted: int = [713, 2026, 8801].find(seed_value)
+	var index: int = 0
+	for t: Dictionary in Game.world["towns"].values():
+		if not TownEcon.has_econ(t): continue
+		var e: Dictionary = t["econ"]
+		for b: Dictionary in e["biz"]:
+			var owner_id: int = int(b["owner"])
+			if b["type"] != "farm" or b.get("closed", false) or owner_id < 0 or owner_id >= e["fams"].size(): continue
+			if int(b["workers"]) <= 0 or float(b["owed"]) <= 0.0 or int(b["tools"]) <= 0: continue
+			var f: Dictionary = e["fams"][owner_id]
+			if f.get("gone", false) or f.get("estate", false) or Families.serving(f) > 0 or f["land"].is_empty(): continue
+			for worker: Dictionary in e["fams"]:
+				if worker == f or worker.get("gone", false) or worker.get("estate", false) or Families.serving(worker) > 0: continue
+				if int(worker["jobs"].get(str(int(b["id"])), 0)) != 1: continue
+				if index == wanted: return [t, e, f, b, worker, checkpoint]
+				index += 1
+	return []
+
 func legacy(rows: Array) -> void:
 	var t: Dictionary = rows[0]; var e: Dictionary = rows[1]; var b: Dictionary = rows[3]; var worker: Dictionary = rows[4]
 	var tid: String = t["id"]; var bid := int(b["id"]); var fid := int(worker["id"])
 	b["owner"] = -1; b["for_sale"] = true; b["closed"] = false
 	var cash := Barge.holdings(Game)
-	# Compare the existing save writer's numeric representation explicitly:
-	# cash is a float; people and tools are counts restored as integers.
-	var saved: Array = JSON.parse_string(JSON.stringify([b["till"], b["owed"], b["workers"], b["tools"]]))
+	# The native codec preserves the actual historical till and liability exactly.
+	var saved: Array = [b["till"], b["owed"], b["workers"], b["tools"]]
 	var keep := [float(saved[0]), float(saved[1]), int(saved[2]), int(saved[3])]
-	Game.save_game(); check(Game.load_game(), "prior ownerless farm save loads")
+	# Stage only the existing orphan-row flags on the authentic older snapshot.
+	# Keep its schema, people, coin, wage books, tools and incumbent job unchanged.
+	var checkpoint: Dictionary = rows[5]
+	checkpoint["world"] = Game._serialize(Game.world)
+	var receipt: Dictionary = Game._write_save(Game.SAVE_PATH, checkpoint)
+	check(bool(receipt.get("ok", false)), "older-schema orphan scenario writes through the native codec")
+	if not bool(receipt.get("ok", false)): return
+	check(Game.load_game(), "prior ownerless farm save loads")
 	e = Game.world["towns"][tid]["econ"]; b = e["biz"][bid]
 	check(b.get("closed", false) and int(b["cap"]) == 0 and Businesses.takeable(b) == 0, "load retires existing orphan farm vacancies")
+	check(int(b["owner"]) == -1 and int(b.get("kw", 0)) == 0 and not b.get("for_sale", true), "legacy retirement removes keeper and duplicate land-sale offers")
 	check([float(b["till"]), float(b["owed"]), int(b["workers"]), int(b["tools"])] == keep, "load preserves final wage books and physical tools")
 	check(int(e["fams"][fid]["jobs"].get(str(bid), 0)) == 1, "load leaves incumbent assignment for normal settlement")
 	check(absf(Barge.holdings(Game) - cash) < 0.001, "load invents no compensation and loses no cash")
@@ -82,13 +122,27 @@ func legacy(rows: Array) -> void:
 	check([float(b["till"]), float(b["owed"]), int(b["workers"]), int(b["tools"])] == keep and b.get("closed", false), "repeat migration is idempotent")
 
 func run(_tree: SceneTree) -> int:
+	var selected_seed: String = "all"
+	var selected_kind: String = "all"
+	for arg: String in OS.get_cmdline_user_args():
+		if arg.begins_with("--inheritance-seed="): selected_seed = arg.trim_prefix("--inheritance-seed=")
+		if arg.begins_with("--inheritance-kind="): selected_kind = arg.trim_prefix("--inheritance-kind=")
+	var valid_selection: bool = selected_seed in ["all", "713", "2026", "8801"] and selected_kind in ["all", "extinct", "leave", "move", "legacy"]
+	check(valid_selection, "inheritance selector names an existing seed and case")
+	if not valid_selection: return fails
 	WorldGen.gen_size = "normal"
 	for seed_v in [713, 2026, 8801]:
+		if selected_seed != "all" and str(seed_v) != selected_seed: continue
 		for kind in ["extinct", "leave", "move", "legacy"]:
+			if selected_kind != "all" and String(kind) != selected_kind: continue
+			if kind == "legacy":
+				var historical: Array = legacy_fixture(seed_v)
+				check(historical.size() == 6, "real older farm with earned debt, tools and an incumbent exists")
+				if historical.size() == 6: legacy(historical)
+				continue
 			Game.new_game(seed_v)
 			var rows := fixture(); check(rows.size() == 5, "generated farm and actual worker fixture exists")
 			if rows.size() == 5:
-				if kind == "legacy": legacy(rows)
-				else: lifecycle(kind, rows)
-	print("FARM INHERITANCE checks=", checks, " failures=", fails)
+				lifecycle(kind, rows)
+	print("FARM INHERITANCE seed=", selected_seed, " kind=", selected_kind, " checks=", checks, " failures=", fails)
 	return fails

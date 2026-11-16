@@ -1,6 +1,9 @@
 extends RefCounted
 ## v0.084: a Normal start save finishes inside a budget, and autosave waits out its interval.
 ## The director runs this. It does not start a battle and it does not raise two full armies.
+## v0.100: static-only follow-up; the director owns any future execution.
+## "run only one Godot game test at a time on the user's PC (several at once crashed it), headless. Before starting any game test, check for other running Godot or Unity processes (from any project or helper); if any are running, queue the test and wait until they have finished before starting it. Every test must finish in under 3 minutes. These rules must be pasted word for word into every helper task and test brief."
+## "A test failure stops all further tests. No other test runs until that one failing test is fixed and passes."
 
 const SAVE_BUDGET_MS := 3000
 var checks := 0
@@ -112,8 +115,13 @@ func run(tree: SceneTree) -> int:
 	Game.world = {"book": {"crop_work_acres": {"a": 1}, "crop_work_plots": {"a": [0]}, "crop_yields": {}, "crop_names": {}, "_crop_work_plots_valid": true, "crop_year": 3, "own": 7}}
 	var tree_data: Dictionary = Game._save_tree()
 	var book: Dictionary = tree_data["world"]["book"]
-	check(not book.has("crop_work_acres") and not book.has("crop_work_plots") and not book.has("crop_yields") and not book.has("crop_names") and not book.has("_crop_work_plots_valid"), "save leaves out crop indexes load rebuilds")
+	# v0.100: keep the exact indexes, including an explicitly invalid/stale cache.
+	check(var_to_bytes(book) == var_to_bytes(Game.world["book"]), "save keeps every crop index and the true validity bit exactly")
 	check(int(book["own"]) == 7 and int(book["crop_year"]) == 3, "save keeps the plot fields load does not rebuild")
+	Game.world["book"]["_crop_work_plots_valid"] = false
+	var stale: Dictionary = JSON.parse_string(Game.save_text(Game._save_tree()))
+	Game.restore_exact(stale)
+	check(var_to_bytes(stale["world"]["book"]) == var_to_bytes(Game.world["book"]), "stale crop indexes and the false validity bit round-trip exactly")
 
 	var old := {"version": 1, "seed": 9, "day": 4.0, "gold": 3, "next_unit_uid": 1, "company": [], "stash": [], "squads": {}, "rep": {}, "world": {}, "contract": {}, "location": ""}
 	var wrote: Dictionary = Game._write_save(Game.SAVE_PATH, old)
@@ -126,6 +134,9 @@ func run(tree: SceneTree) -> int:
 	var ready: bool = await DevTools.start_world(tree, Game.SAVE_PATH)
 	check(ready, "Normal start world loaded")
 	if ready:
+		# v0.100: freeze the full cache contents outside the timed save region.
+		var caches_before := _crop_caches(Game.world)
+		check(caches_before.values().any(func(c): return c.has("crop_work_plots") and c.has("_crop_work_plots_valid")), "Normal start has crop indexes and an explicit validity bit")
 		var day_before := float(Game.day)
 		var seed_before := int(Game.seed_value)
 		var gold_before := int(Game.gold)
@@ -139,18 +150,34 @@ func run(tree: SceneTree) -> int:
 		check(elapsed_ms <= float(SAVE_BUDGET_MS), "Normal start save took %.1f ms, budget is %d ms" % [elapsed_ms, SAVE_BUDGET_MS])
 		var text := FileAccess.get_file_as_string(Game.SAVE_PATH)
 		check(text.begins_with("{") and not text.begins_with("{\n"), "save JSON is compact")
-		check(not text.contains("\"crop_work_acres\"") and not text.contains("\"crop_work_plots\""), "Normal start save omits rebuilt crop indexes")
+		var saved: Dictionary = JSON.parse_string(text)
+		Game.restore_exact(saved)
+		check(var_to_bytes(_crop_caches(saved["world"])) == var_to_bytes(caches_before), "Normal start save keeps every crop index and validity bit exactly")
 		Game.day = -1.0
 		Game.gold = -1
 		Game.seed_value = -1
 		check(Game.load_game(), "the timed save loads")
 		check(is_equal_approx(float(Game.day), day_before) and Game.seed_value == seed_before and Game.gold == gold_before, "the timed save round-trips day, seed and gold")
+		check(var_to_bytes(_crop_caches(Game.world)) == var_to_bytes(caches_before), "the timed load restores every crop index and validity bit exactly")
 
 	Game.set_setting("autosave", "week")
 	Game._active_screen = "map"
 	Game.set_process(true)
 	print("v084 save speed: %d checks, %d fails" % [checks, fails])
 	return fails
+
+
+# v0.100: preserve absent fields as absent and compare all present cache values/types.
+func _crop_caches(world: Dictionary) -> Dictionary:
+	var result := {}
+	for tid in world.get("towns", {}):
+		var plots: Dictionary = world["towns"][tid].get("econ", {}).get("plots", {})
+		if plots.is_empty(): continue
+		var cache := {}
+		for key in ["crop_work_acres", "crop_work_plots", "crop_yields", "crop_names", "_crop_work_plots_valid"]:
+			if plots.has(key): cache[key] = plots[key]
+		result[tid] = cache
+	return result.duplicate(true)
 
 
 func _day_boundaries() -> void:

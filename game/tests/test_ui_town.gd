@@ -2,6 +2,8 @@ extends RefCounted
 ## Town operations: buying moves gold and items, selling, buy-to-fill, hiring into a squad,
 ## promote / move / dismiss.
 
+const Fixture = preload("res://tests/fixtures/group_g_v100.gd")
+
 var fails := 0
 
 func check(cond: bool, what: String) -> void:
@@ -12,11 +14,21 @@ func check(cond: bool, what: String) -> void:
 		print("ok: ", what)
 
 func run(_tree: SceneTree) -> int:
-	Game.new_game(7)
+	# v0.100: these pure menu operations use a dev town, not a free starting army/purse.
+	Fixture.bare(7)
+	var leaders := Fixture.company(7, [0, 3])
+	check(leaders.size() == 2, "town fixture has two officers")
+	if leaders.size() != 2: return fails
+	var off: Unit = leaders[1]
+	check(Roster.troops_of(Game, off.uid).size() == 3, "town fixture has three troops")
+	if Roster.troops_of(Game, off.uid).size() != 3: return fails
 	var town := DevTown.make("t1", 3)
+	check(town["shop"].size() >= 2 and town["recruits"].size() >= 2, "dev town supplies shop items and recruits")
+	if town["shop"].size() < 2 or town["recruits"].size() < 2: return fails
 	# buy
 	var it: Item = town["shop"][0]
 	var p := Market.price(town, it)
+	Game.gold = p + 100
 	var g0 := Game.gold
 	check(Market.buy(Game, town, it) == "", "buy succeeds")
 	check(Game.gold == g0 - p and Game.stash.has(it) and not town["shop"].has(it), "buy moves gold and item")
@@ -28,7 +40,6 @@ func run(_tree: SceneTree) -> int:
 	check(Market.sell(Game, town, it) == "" and Game.gold == 100 + sp and town["shop"].has(it), "sell returns gold")
 	# buy to fill
 	Game.gold = 5000 * Item.COIN   # coinage x20
-	var off: Unit = Roster.leaders(Game)[1]
 	for t in Roster.troops_of(Game, off.uid):
 		Outfit.strip(t, Game.stash)
 	Game.stash.clear()
@@ -49,13 +60,21 @@ func run(_tree: SceneTree) -> int:
 	check(Roster.hire(Game, town, town["recruits"][0], off.uid) != "", "cannot hire broke")
 	# full squad
 	Game.gold = 100000
-	while Roster.troops_of(Game, off.uid).size() < Roster.MAX_TROOPS and not town["recruits"].is_empty():
-		Roster.hire(Game, town, town["recruits"][0], off.uid)
+	# v0.100: five dev recruits cannot fill today's 24-man squad; replenish the fixture, bounded by the cap.
+	var rng := RandomNumberGenerator.new(); rng.seed = 73
+	for i in Roster.MAX_TROOPS:
+		if Roster.troops_of(Game, off.uid).size() >= Roster.MAX_TROOPS: break
+		if town["recruits"].is_empty():
+			town["recruits"].append(Factory.make_troop(rng, "middle_kingdom", DB.factions["middle_kingdom"]["troops"][0], 1))
+		var err := Roster.hire(Game, town, town["recruits"][0], off.uid)
+		check(err == "", "fill squad fixture: " + err)
+		if err != "": return fails
+	check(Roster.troops_of(Game, off.uid).size() == Roster.MAX_TROOPS, "fixture reaches the full squad capacity")
+	if Roster.troops_of(Game, off.uid).size() != Roster.MAX_TROOPS: return fails
 	var extra := Factory.make_troop(RandomNumberGenerator.new(), "middle_kingdom", DB.factions["middle_kingdom"]["troops"][0], 1)
 	extra.squad = -1
 	Game.company.append(extra)
-	if Roster.troops_of(Game, off.uid).size() >= Roster.MAX_TROOPS:
-		check(Roster.move_troop(Game, extra, off.uid) != "", "full squad refuses")
+	check(Roster.move_troop(Game, extra, off.uid) != "", "full squad refuses")
 	check(Roster.move_troop(Game, extra, Game.lead_officer().uid) == "" and extra.squad == Game.lead_officer().uid, "move to captain's squad")
 	# promote and dismiss
 	check(Roster.promote(Game, extra) == "" and extra.is_officer() and Game.squads.has(extra.uid), "promote")
@@ -72,6 +91,7 @@ func run(_tree: SceneTree) -> int:
 		var e := Roster.promote(Game, Roster.troops_of(Game, off.uid)[0])
 		if e != "":
 			printerr("promote failed: ", e)
+	check(Roster.officer_count(Game) == Roster.MAX_OFFICERS, "fixture reaches the officer cap")
 	check(Roster.promote(Game, Roster.troops_of(Game, off.uid)[0]) != "", "officer cap enforced")
 	# words
 	check(UiWords.skill_level(0) == "Dabbling" and UiWords.skill_level(15) == "Legendary" and UiWords.skill_level(17) == "Legendary+2", "skill level names")

@@ -833,8 +833,8 @@ func run(tree: SceneTree) -> int:
 	var pre_save_coins := _coin_sum()
 	Game.save_game(); Game.wait_save()
 	var saved_env = JSON.parse_string(FileAccess.get_file_as_string(Game.SAVE_PATH))
-	check(saved_env is Dictionary and int((saved_env as Dictionary).get("version", 0)) == 1 and int((saved_env as Dictionary).get("militia_cap", 0)) == 1,
-		"saved-envelope root metadata records version 1 and explicit militia_cap: 1")
+	check(saved_env is Dictionary and int((saved_env as Dictionary).get("version", 0)) == Game.SAVE_VERSION and int((saved_env as Dictionary).get("militia_cap", 0)) == 1,
+		"saved-envelope root metadata records current schema %d and explicit militia_cap: 1" % Game.SAVE_VERSION)
 	Game.world = {}; Game.rep = {}
 	check(Game.load_game(), "real save reloads after execute and sell")
 	seat_town = Prisoners._player_town(Game)
@@ -893,6 +893,8 @@ func run(tree: SceneTree) -> int:
 				extra_kit_uids.append((eit as Item).uid)
 	var pre_legacy_items := _accounted_items()
 	var legacy_env := Game._save_tree()
+	# Schema 2 is an exact resume; an unversioned envelope exercises native legacy migration.
+	legacy_env.erase("version")
 	legacy_env.erase("militia_cap")
 	var legacy_world: Dictionary = legacy_env.get("world", {})
 	var unrelated_tables_present := legacy_world.has("creatures_enabled") and legacy_world.has("ransom") and legacy_world.has("migration") and legacy_world.has("intrigue")
@@ -909,7 +911,7 @@ func run(tree: SceneTree) -> int:
 	for huid2 in pre_home_uids + extra_kit_uids:
 		if not _town_has_uid(post_legacy_town, int(huid2)) or int(post_legacy_items["uids"].get(int(huid2), 0)) != 1:
 			legacy_kit_kept = false
-	check(unrelated_tables_present and not legacy_env.has("militia_cap") and bool(legacy_write.get("ok", false)) and legacy_loaded
+	check(unrelated_tables_present and not legacy_env.has("version") and not legacy_env.has("militia_cap") and bool(legacy_write.get("ok", false)) and legacy_loaded
 		and extra_u != null and (post_legacy_wb.get("units", []) as Array).size() == home_cap
 		and int(post_legacy_items["count"]) == int(pre_legacy_items["count"])
 		and legacy_kit_kept and post_legacy_scrap == pre_home_scrap,

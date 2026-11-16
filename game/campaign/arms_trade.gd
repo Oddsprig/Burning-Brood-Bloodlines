@@ -118,7 +118,7 @@ static func loadout_of(u: Unit) -> Dictionary:
 		return _lo[key]
 	var out := {}
 	var f: Dictionary = DB.factions.get(u.faction, {})
-	var tn := u.title.trim_prefix("militia ")
+	var tn: String = u.title.trim_prefix("militia ").trim_prefix("deserter ")
 	for t in f.get("troops", []):
 		if String(t.get("name", "")) != tn:
 			continue
@@ -189,6 +189,29 @@ static func gaps_of(units: Array, full: bool = true) -> Dictionary:
 			var c := cls(String(lo[slot]["tids"][0]))
 			out[c] = int(out.get(c, 0)) + 1
 	return out
+
+# v0.100: retain the actual missing loadout slots for full garrison issue.
+static func _priority_gaps_of(units: Array) -> Array:
+	var out := []
+	for u in units:
+		if not _is_person(u): continue
+		var lo := loadout_of(u)
+		for slot in lo:
+			if u.equip.has(slot): continue
+			if slot == "off_hand" and u.weapon() != null and u.weapon().tmpl().get("two_handed", false): continue
+			out.append({"slot": String(slot), "tids": lo[slot]["tids"]})
+	return out
+
+# v0.100: match native full issue: exact template, else class or role in the slot.
+static func _priority_gap_index(gaps: Array, it: Item) -> int:
+	for i in gaps.size():
+		var gap: Dictionary = gaps[i]
+		var tids: Array = gap["tids"]
+		if tids.has(it.tid): return i
+		if it.slot() != String(gap["slot"]): continue
+		var first := String(tids[0])
+		if cls(it.tid) == cls(first) or role(it.tid) == role(first): return i
+	return -1
 
 static func _is_person(u) -> bool:
 	return u is Unit and not u.dead and not u.race_def().get("creature", false)
@@ -389,31 +412,42 @@ static func econ_daily(game, town: Dictionary, e: Dictionary, day: int = -1, eve
 		budget = excess * 0.10
 		var shop: Array = town.get("shop", [])
 		var mkt: Dictionary = e["biz"][int(e["mkt"])]
-		var i := 0
-		while i < shop.size() and not short.is_empty():
-			var it: Item = shop[i]
-			var c := cls(it.tid)
-			var wanted := shortage_class(short, c)
-			if wanted != "":
-				var p := Economy.base_value(town, it)
-				if p <= budget and float(e["treasury"]) >= p:
-					shop.remove_at(i)
-					arm.append(it)
-					budget -= p
-					bought += 1
-					e["treasury"] = float(e["treasury"]) - p
-					note_arms_spend(e, p)
-					mkt["till"] = float(mkt["till"]) + p
-					e["stats"]["sales"] = float(e["stats"]["sales"]) + p
-					have[c] = int(have.get(c, 0)) + 1
-					short[wanted] = int(short[wanted]) - 1
-					if int(short[wanted]) <= 0:
-						short.erase(wanted)
-					led("bought")
+		# v0.100: buy actual garrison gaps before bulk levy/reserve stock.
+		# v0.100: otherwise early armour stalls exhaust the same bounded budget
+		# v0.100: while men stay unarmed beside hundreds of stored spare pieces.
+		var gaps := _priority_gaps_of(mil)
+		for issue_only in [true, false]:
+			var i := 0
+			while i < shop.size() and not short.is_empty():
+				var it: Item = shop[i]
+				var c := cls(it.tid)
+				var gap := _priority_gap_index(gaps, it) if issue_only else -1
+				if issue_only and gap < 0:
+					i += 1
 					continue
-				cant_pay += p
-				cant_n += 1
-			i += 1
+				var wanted := shortage_class(short, c)
+				if wanted != "":
+					var p := Economy.base_value(town, it)
+					if p <= budget and float(e["treasury"]) >= p:
+						shop.remove_at(i)
+						arm.append(it)
+						budget -= p
+						bought += 1
+						e["treasury"] = float(e["treasury"]) - p
+						note_arms_spend(e, p)
+						mkt["till"] = float(mkt["till"]) + p
+						e["stats"]["sales"] = float(e["stats"]["sales"]) + p
+						have[c] = int(have.get(c, 0)) + 1
+						short[wanted] = int(short[wanted]) - 1
+						if int(short[wanted]) <= 0:
+							short.erase(wanted)
+						if gap >= 0: gaps.remove_at(gap)
+						led("bought")
+						continue
+					if not issue_only:
+						cant_pay += p
+						cant_n += 1
+				i += 1
 		purchase_usec = Time.get_ticks_usec() - phase_started
 		if bought > 0 and game != null:
 			phase_started = Time.get_ticks_usec()
@@ -839,10 +873,31 @@ static func rekit_town(game, fid: String, tid: String) -> void:
 		if wb["faction"] == fid and String(wb.get("home", "")) == tid and Army.is_field(wb):
 			rekit_units(game, town, wb["units"], true, miss, false, stock)
 
+## Guard creation retains native shop payments, rolled-kit accounting and quivers.
+## A caller may share stock across one synchronous guard build: recruitment and
+## binding do not add armory/shop gear or change the remaining Items' fit keys.
+static var _guard_outfit_scopes: Array[Dictionary] = []
+
+static func outfit_guard(town: Dictionary, u: Unit, stock: Variant = null) -> void:
+	var pass_stock: Dictionary = {} if stock == null else stock
+	_guard_outfit_scopes.append({"town": town, "stock": pass_stock})
+	TownEcon.outfit_units(town, [u], 1, true, -1, true, pass_stock)
+	_guard_outfit_scopes.pop_back()
+
 ## TownEcon.outfit_units: a piece of this template (or class, same slot) from the armory for a new man.
 static func take_for(town: Dictionary, tid: String, slot: String) -> Item:
 	if cls(tid) == "":
 		return null
+	if not _guard_outfit_scopes.is_empty():
+		var scope: Dictionary = _guard_outfit_scopes.back()
+		if is_same(scope["town"], town):
+			var stock: Dictionary = scope["stock"]
+			var arm: Array = armory(town)
+			if not stock.has("fit_index"):
+				var index: Dictionary = _fit_index(arm, stock)
+				# Old/corrupt inventories with aliased Items retain the linear path.
+				stock["unique"] = (index["live"] as Dictionary).size() == arm.size()
+			if bool(stock["unique"]): return _take_fit(town, [tid], slot, false, stock)
 	return _take_fit(town, [tid], slot, false)
 
 # ================================================================== gear of the dead (campaign/arms_salvage.gd)

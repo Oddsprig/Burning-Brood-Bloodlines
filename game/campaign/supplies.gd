@@ -126,6 +126,12 @@ static func take(winner: Dictionary, loser: Dictionary, from_cargo: bool = false
 	var src := stores(loser)
 	var dst := stores(winner)
 	var room := capacity(men(winner)) - weight(dst)
+	# Keep a complete force load exact when it moves into an empty store.
+	if not from_cargo and dst.is_empty() and weight(src) <= room:
+		var whole_load: Dictionary = src.duplicate()
+		dst.merge(whole_load)
+		loser["stores"] = {}
+		return whole_load
 	var got := _move(src, room, func(g, q): dst[g] = int(dst.get(g, 0)) + q)
 	if from_cargo:
 		for g in got: WorldAudit.ration(g, "+taken from caravan cargo", int(got[g]))

@@ -101,6 +101,8 @@ func _card(title: String, node_name: String) -> VBoxContainer:
 	return words
 
 func _refresh() -> void:
+	if Game._day_job_wait_observer(_refresh):
+		return
 	_refresh_pending = false
 	if body == null: return
 	people_row = null

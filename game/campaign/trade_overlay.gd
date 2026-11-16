@@ -136,6 +136,8 @@ func _text(at: Vector2, text: String, color: Color) -> void:
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 func _draw() -> void:
+	if Game._day_job_wait_observer(queue_redraw):
+		return
 	draws += 1
 	if good == "off": return
 	for tid in data["towns"]:

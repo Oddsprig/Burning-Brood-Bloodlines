@@ -13,10 +13,7 @@ const AGES := Herds.AGES
 ## common cap (largest remainder). At world gen the families whose herds need more than the cap own the plots
 ## their herds need (owned pasture, B2). P.ten = the family whose herd grazes it.
 static func assign_tiles(e: Dictionary, P: Dictionary) -> void:
-	var past := []
-	for i in Plots.count(P):
-		if int(P["use"][i]) == Plots.PASTURE:
-			past.append(i)
+	var past := Plots._use_plot_ids(P, Plots.PASTURE)
 	var hd := Herds.H(e)
 	var tiles := {}
 	for hid in hd["h"]:
@@ -161,9 +158,7 @@ static func _tiles_done(hd: Dictionary, tiles: Dictionary) -> void:
 static func _pens(e: Dictionary, P: Dictionary) -> void:
 	var hd := Herds.H(e)
 	var first := {}
-	for i in Plots.count(P):
-		if int(P["use"][i]) != Plots.HOME:
-			continue
+	for i: int in Plots._use_plot_ids(P, Plots.HOME):
 		var fid := int(P["ten"][i]) if int(P["ten"][i]) > 0 else int(P["own"][i])
 		if fid > 0 and not first.has(fid):
 			first[fid] = i

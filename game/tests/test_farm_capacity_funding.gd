@@ -80,7 +80,9 @@ func floor_contract() -> void:
 	var gone := Families._blank(1); gone["gone"] = true; gone["farm_funding_pending"] = 25.0
 	Families.turn(Game, {}, {}, gone, 1.0, RandomNumberGenerator.new())
 	check(float(gone.get("farm_funding_pending", 0.0)) == 25.0, "early family exit retains unreported funding")
-	if not Businesses.new().has_method("fund_farm"): return
+	var can_fund: bool = Businesses.new().has_method("fund_farm")
+	check(can_fund, "native farm funding helper exists before reserve-floor cases")
+	if not can_fund: return
 	for purse in [80.0, 100.0, 150.0, 10000.0]:
 		var f := Families._blank(1); f["purse"] = purse
 		var b := {"type": "farm", "closed": false, "cap": 2, "workers": 3, "wage": 100.0, "till": 0.0, "owed": 700.0, "t_paid": 0.0}
@@ -91,7 +93,16 @@ func floor_contract() -> void:
 		var repeat := float(Businesses.new().call("fund_farm", f, b))
 		check(repeat == 0.0 and float(b["till"]) + float(f["purse"]) == purse, "repeat helper neither fabricates coin nor overfunds")
 func run(_tree: SceneTree) -> int:
-	for seed_v in [901, 2026, 8801]: scenario(seed_v)
-	floor_contract()
+	var which: String = "all"
+	for arg: String in OS.get_cmdline_user_args():
+		if arg.begins_with("--farm-case="): which = arg.get_slice("=", 1)
+	check(which in ["all", "floor", "901", "2026", "8801"], "known farm case selector")
+	if fails > 0: return fails
+	if which != "floor":
+		print("FARM synchronous world generation and save/load; required wall time UNMEASURED; external 59-second wall cap required (target under 60 seconds)")
+	for seed_v: int in [901, 2026, 8801]:
+		if which == "all" or which == str(seed_v): scenario(seed_v)
+	if which in ["all", "floor"]: floor_contract()
+	print("FARM selected=", which, " (all is the complete file)")
 	print("FARM CAPACITY FUNDING checks=", checks, " failures=", fails)
 	return fails

@@ -1,4 +1,7 @@
 extends RefCounted
+const RunplanArgs: GDScript = preload("res://tests/fixtures/older_runplan_args_v100.gd")
+const SpeedCheckpoint = preload("res://tests/fixtures/older_speed_checkpoint_v100.gd")
+const SpeedParts = preload("res://tests/fixtures/older_speed_parts_v100.gd")
 ## Diplomacy (docs/specs/diplomacy.md): 1000 simulated days keep relations in -100..100, goblins never reach
 ## NEUTRAL, wars and peaces happen with the default data; the day step costs < 0.1 ms; no caravan route
 ## between WAR or HOSTILE pairs; band make-up offset within +-20 with officers weighing double; standing
@@ -38,8 +41,23 @@ func _human_band(seed_value: int) -> void:
 ## v0.100: --part=rules (everything but the full world) or --part=world (the full world run) keeps each run under
 ## the 3-minute test limit; no part runs both, which takes longer.
 func run(tree: SceneTree) -> int:
+	var speed_part: String = SpeedParts.select(["sim","standing","contract","save","truce","screen","world-setup","world1","world2","world3","world4","world5","world6","world7","world8","world9","world10","world11","world12","world13","world14","world15","world16","world17","world18","world19","world20","world21","world22","world23","world24","world25","world26","world27","world28","world29","world30","world31","world32","world33","world34","world35","world36","world37","world38","world39","world40","world41","world42","world43","world44","world45","world46","world47","world48","world49","world50","world51","world52","world53","world54","world55","world56","world57","world58","world59","world60","world61","world62","world63","world64","world65","world66","world67","world68","world69","world70","world-checks"])
+	if speed_part == "": return 1
+	if speed_part != "all":
+		match speed_part:
+			"sim":
+				_sim_1000()
+				_routes()
+				_composition()
+			"standing": _standing_effects()
+			"contract": _war_contract()
+			"save": _save_load()
+			"truce": _truce()
+			"screen": await _screen(tree)
+			_: _full_world()
+		return fails
 	var part := ""
-	for a in OS.get_cmdline_user_args():
+	for a in RunplanArgs.arguments():
 		if a.begins_with("--part="): part = a.trim_prefix("--part=")
 	if part != "world":
 		_sim_1000()
@@ -398,6 +416,16 @@ func _war_contract() -> void:
 	check(Contracts.refusal(Game, c2) != "", "war contract acceptable after peace")
 
 # ---------------------------------------------------------------- save / load
+func _write_legacy_save() -> bool:
+	Game.wait_save()
+	var legacy: Dictionary = Game._save_tree()
+	legacy["version"] = 1
+	# Removing the runtime sidecars also selects the float-only legacy JSON codec.
+	for key: String in ["__types", "raid_state", "gold_gone", "goods_lost", "war_runtime"]:
+		legacy.erase(key)
+	var receipt: Dictionary = Game._write_save(Game.SAVE_PATH, legacy)
+	return bool(receipt.get("ok", false))
+
 func _save_load() -> void:
 	Game.new_game(77)
 	_human_band(77)   # v0.100: a migrated old save is a human band's, as before houses
@@ -423,10 +451,12 @@ func _save_load() -> void:
 	Game.world.erase("diplo")
 	Game.world["wars"] = CampaignWorld.WARS.duplicate(true)
 	Game.rep = {"middle_kingdom": 23, "northern_clans": 0, "orc_horde": -40, "goblin_warren": -40, "moon_court": 5}
-	Game.save_game()
+	var wrote_legacy_1: bool = _write_legacy_save()
+	check(wrote_legacy_1, "constructed pre-diplomacy legacy save writes successfully")
+	if not wrote_legacy_1: return
 	Game.world = {}
 	Game.rep = {}
-	Game.load_game()
+	check(Game.load_game(), "pre-diplomacy legacy save reloads")
 	var dp: Dictionary = Game.world.get("diplo", {})
 	check(not dp.is_empty() and dp["pairs"].size() == 36, "old save not migrated")
 	if not dp.is_empty():
@@ -436,12 +466,22 @@ func _save_load() -> void:
 	# a save with no stored standing for a faction takes the default (orcs and goblins: -60); stored ones are kept
 	Game.world.erase("diplo")
 	Game.rep = {"middle_kingdom": 23, "orc_horde": -10}
-	Game.save_game()
+	var wrote_legacy_2: bool = _write_legacy_save()
+	check(wrote_legacy_2, "constructed partial-rep legacy save writes successfully")
+	if not wrote_legacy_2: return
 	Game.world = {}
 	Game.rep = {}
-	Game.load_game()
+	check(Game.load_game(), "partial-rep legacy save reloads")
 	check(Diplomacy.earned(Game, "orc_horde") == -10, "a stored orc standing was not kept (%d)" % Diplomacy.earned(Game, "orc_horde"))
 	check(Diplomacy.standing(Game, "goblin_warren") == -60, "a save without a goblin standing does not start at -60 (%d)" % Diplomacy.standing(Game, "goblin_warren"))
+	# A subsequent normal schema-2 save/load preserves the migrated diplomacy state without further repairs.
+	var migrated_fp: String = _diplo_fp(Game)
+	Game.save_game()
+	Game.wait_save()
+	Game.world = {}
+	Game.rep = {}
+	check(Game.load_game(), "migrated diplomacy reloads on current schema")
+	check(_diplo_fp(Game) == migrated_fp, "migrated diplomacy differs after current save/load")
 
 # ---------------------------------------------------------------- truce (war pick 2)
 ## Peace brings a truce of 60-120 days (seeded per treaty): the pair neither fights (clashes, militia, caravan raids)
@@ -562,19 +602,62 @@ func _screen(tree: SceneTree) -> void:
 
 # ---------------------------------------------------------------- full world
 func _full_world() -> void:
-	Game.new_game(909)
+	var invocation_started_usec: int = Time.get_ticks_usec()
+	var native_day_usec: Array = []
+	var selected: String = "all"
+	for argument: String in RunplanArgs.arguments():
+		if argument.begins_with("--speed-part="): selected = argument.trim_prefix("--speed-part=")
+	var handoff: RefCounted = SpeedCheckpoint.new("diplo70")
+	if selected == "all" or selected == "world-setup":
+		Game.new_game(909)
+		Game.world["party"]["safe_until"] = 1e9
+	else:
+		var previous: int = 70 if selected == "world-checks" else int(selected.trim_prefix("world")) - 1
+		if not handoff.load_step(previous):
+			check(false, "full-world native predecessor loads")
+			return
+		check(handoff.context.get("native_day_usec") is Array, "checkpoint retains observed native day durations")
+		if fails > 0: return
+		native_day_usec = handoff.context["native_day_usec"]
+		check(native_day_usec.size() == previous, "one observed native duration per completed diplomacy day")
+		for duration: Variant in native_day_usec:
+			check(duration is int and duration >= 0, "observed native day duration is a nonnegative microsecond count")
+		if fails > 0: return
 	var w: Dictionary = Game.world
-	w["party"]["safe_until"] = 1e9
 	var t0 := Time.get_ticks_msec()
-	for d in 70:
+	if selected == "world-setup":
+		handoff.context["start_day"] = Game.day
+		handoff.context["native_day_usec"] = native_day_usec
+		check(handoff.save_step(0), "full-world setup preserves an exact native checkpoint")
+		_speed_world_timing(selected, invocation_started_usec, 0)
+		return
+	if selected.begins_with("world") and selected != "world-checks":
+		var step: int = int(selected.trim_prefix("world"))
+		var native_started_usec: int = Time.get_ticks_usec()
 		Game.advance_time(1.0, false)
+		var native_elapsed_usec: int = Time.get_ticks_usec() - native_started_usec
 		w["encounter"] = ""
+		native_day_usec.append(native_elapsed_usec)
+		handoff.context["native_day_usec"] = native_day_usec
+		check(Game.day == float(handoff.context["start_day"]) + step, "all seventy diplomacy days are consecutive")
+		if fails == 0: check(handoff.save_step(step), "full-world day preserves an exact native checkpoint")
+		_speed_world_timing(selected, invocation_started_usec, native_elapsed_usec)
+		return
+	if selected == "all":
+		for d in 70:
+			Game.advance_time(1.0, false)
+			w["encounter"] = ""
 	var dp: Dictionary = w["diplo"]
 	var assaults := 0; var sacks := 0
 	for line in w["log"]:
 		if String(line).contains("marches on"): assaults += 1
 		if String(line).contains("sacked") or String(line).contains("beat back"): sacks += 1
-	print("70 days full world in %d ms: %s; stats %s; last log %s" % [Time.get_ticks_msec() - t0, _grid(w), str(dp["stats"]), w["log"].slice(-3)])
+	if selected == "all":
+		print("70 days full world in %d ms: %s; stats %s; last log %s" % [Time.get_ticks_msec() - t0, _grid(w), str(dp["stats"]), w["log"].slice(-3)])
+	else:
+		var cumulative_simulation_usec: int = 0
+		for duration: int in native_day_usec: cumulative_simulation_usec += duration
+		print("70 checkpointed days cumulative native simulation time %d us: %s; stats %s; last log %s" % [cumulative_simulation_usec, _grid(w), str(dp["stats"]), w["log"].slice(-3)])
 	check(int(dp["day"]) == int(Game.day), "diplomacy did not step every day (%d vs %d)" % [int(dp["day"]), int(Game.day)])
 	for k in dp["pairs"]:
 		var r := float(dp["pairs"][k]["rel"])
@@ -582,3 +665,8 @@ func _full_world() -> void:
 	var wars: Array = w["wars"]
 	for pair in wars:
 		check(Diplomacy.at_war(w, pair[0], pair[1]), "w.wars out of sync")
+	if selected == "world-checks": _speed_world_timing(selected, invocation_started_usec, 0)
+
+func _speed_world_timing(part: String, started_usec: int, simulation_usec: int) -> void:
+	var elapsed_usec: int = Time.get_ticks_usec() - started_usec
+	print("DIPLOMACY_WORLD_PART part=%s current_native_simulation_usec=%d current_load_checks_save_setup_usec=%d current_function_body_usec=%d; process startup/import/shutdown measured separately" % [part, simulation_usec, elapsed_usec - simulation_usec, elapsed_usec])

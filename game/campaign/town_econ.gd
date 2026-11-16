@@ -268,6 +268,8 @@ static func clear_batch(e: Dictionary) -> void:
 		return
 	HarvestClaims.ensure(e)
 	HarvestClaims.reserve_all(e)
+	var prune_scope: Array[Dictionary] = [{}]
+	e["_barn_available"] = {}
 	var st: Dictionary = e["stock"]
 	var barn: Dictionary = e["barn"]
 	var price: Dictionary = e["price"]
@@ -339,7 +341,7 @@ static func clear_batch(e: Dictionary) -> void:
 			continue
 		f["purse"] = purse - float(n) * p
 		if from_barn:
-			var taken := HarvestClaims.take(e, g, n)
+			var taken: Dictionary = HarvestClaims._take_available(e, g, n, float(have), true, "", prune_scope)
 			HarvestClaims.credit(e, taken["shares"], float(n) * p)
 		else:
 			src[g] = have - n
@@ -371,6 +373,7 @@ static func clear_batch(e: Dictionary) -> void:
 	e["stats"]["sales"] = float(e["stats"]["sales"]) + paid
 	for g in dm:
 		Barge.add_demand(e, g, dm[g][0], dm[g][1], dm[g][2])
+	e.erase("_barn_available")
 	batch.clear()
 
 ## Coin for barn goods sold straight to families: to the farm till, legacy per-acre/head money-only settlement. Physical sales use HarvestClaims.
@@ -405,9 +408,12 @@ static func daily_pass(game, town: Dictionary, day: int, with_barge: bool = true
 		barge_day(game, town, day)
 
 static func _market_day(game, town: Dictionary, e: Dictionary, day: int) -> void:
+	var t0: int = Time.get_ticks_usec() if prof_on else 0
 	e["day"] = day
 	WageClaims.accrue_day(e, day)
+	if prof_on: t0 = _prof("wages", t0)
 	Shelter.accrue_sanitation(e, float(day))
+	if prof_on: t0 = _prof("sanitation attendance", t0)
 	var D := data()
 	var si := Calendar.season_index(float(day))
 	var clim: Dictionary = D["climates"][e["climate"]]
@@ -416,12 +422,13 @@ static func _market_day(game, town: Dictionary, e: Dictionary, day: int) -> void
 	var nd: Dictionary = D["needs"]
 	e["wf"] = float(nd["firewood_home"]) * float(nd["firewood_season"][si]) * float(clim["firewood"])   # firewood per home today
 	e["hdecay"] = float(culture_of(e)["home"]["decay"])
-	var t0 := Time.get_ticks_usec() if prof_on else 0
+	if prof_on: t0 = _prof("day setup", t0)
 	if not e.has("cin"):
 		e["cin"] = {}
 	e["hf_now"] = Barge.harvest_factor(game.world, e, String(town["id"]), float(day))
-	_farms(e, D, si, clim)
-	_barn_sales(e, D)
+	var reservation_budgets: Array[Dictionary] = [{}]
+	_farms(e, D, si, clim, reservation_budgets)
+	_barn_sales(e, D, reservation_budgets)
 	HarvestClaims.pay_departed(e)
 	if prof_on: t0 = _prof("farms+barns", t0)
 	Businesses.daily(game, town, e, D, si, rng)
@@ -478,7 +485,7 @@ static func _prof(k: String, t0: int) -> int:
 
 ## Fields give their harvest over the harvest season (a share of the grain goes to the granary as tax in
 ## kind); herds give meat (autumn slaughter peak), wool and hides every day. Everything goes to the barns.
-static func _farms(e: Dictionary, D: Dictionary, si: int, clim: Dictionary) -> void:
+static func _farms(e: Dictionary, D: Dictionary, si: int, clim: Dictionary, reservation_budgets: Array[Dictionary] = []) -> void:
 	HarvestClaims.ensure(e)
 	# Rotation can change base work without changing nominal acreage or rounded
 	# hired capacity. Recompute future output from real existing hands before a
@@ -535,18 +542,18 @@ static func _farms(e: Dictionary, D: Dictionary, si: int, clim: Dictionary) -> v
 			var weight := float(f["land"].get(crop, 0.0)) * float(f.get("worked", 0.0)) * CropRotation.family_yield(e, f, String(crop))
 			if weight > 0.0: contributions["f:%d" % int(f["id"])] = weight
 		HarvestClaims.harvest(e, String(crop), k, contributions, produced, n, gt, previous, int(e.get("day", 0)))
-	HarvestClaims.reserve_all(e)
+	HarvestClaims.reserve_all(e, reservation_budgets)
 	Herds.day(e)   # herds (addendum 1 B): the day's milk, wool, eggs, honey and wax the market paid the owners for this week
 
 ## The market buys from the barns what it needs to stay stocked (the original producers are paid from their dated goods).
-static func _barn_sales(e: Dictionary, D: Dictionary) -> void:
+static func _barn_sales(e: Dictionary, D: Dictionary, reservation_budgets: Array[Dictionary] = []) -> void:
 	var barn: Dictionary = e["barn"]
 	var st: Dictionary = e["stock"]
 	var price: Dictionary = e["price"]
 	var need: Dictionary = e.get("need", {})
 	var mkt: Dictionary = e["biz"][int(e["mkt"])]
 	var share := float(D["market"]["broker_share"])   # barge part 4: the farms' surplus goes to a broker at 0.75 x P
-	HarvestClaims.reserve_all(e)
+	HarvestClaims.reserve_all(e, reservation_budgets)
 	for g in barn:
 		var have := HarvestClaims.available(e, String(g))
 		if have <= 0:
@@ -713,6 +720,7 @@ static func update_reasons(town: Dictionary, si: int) -> void:
 	var why: Dictionary = e["why"]
 	var pweek: Dictionary = e.get("pweek", {})
 	var price: Dictionary = e["price"]
+	var producer_previous: Dictionary = TownEconViews.begin_producer_batch(e)
 	for g in price:
 		var p := float(price[g])
 		var old := float(pweek.get(g, p))
@@ -722,6 +730,7 @@ static func update_reasons(town: Dictionary, si: int) -> void:
 			why[g] = _reason(town, e, g, false, si)
 		elif absf(p - old) < old * 0.04:
 			why.erase(g)
+	TownEconViews.finish_producer_batch(producer_previous)
 
 static func _producers(e: Dictionary, g: String) -> Array: return TownEconViews._producers(e, g)
 
@@ -773,10 +782,11 @@ static func arms_count(town: Dictionary, slot: String = "", quality_min: int = 0
 ## Takes up to n pieces out of the town's arms stock (best quality first), optionally only of one slot or
 ## template. The town treasury pays the market for them (pay = false: no gold moves, e.g. tests or loot).
 ## Returns the Items; they now belong to the caller (a militia, a force). Monsters own nothing.
-static func take_arms(town: Dictionary, n: int, quality_min: int = 0, slot: String = "", tid: String = "", pay: bool = true) -> Array:
+static func take_arms(town: Dictionary, n: int, quality_min: int = 0, slot: String = "", tid: String = "", pay: bool = true, stock: Variant = null) -> Array:
 	var shop: Array = town.get("shop", [])
-	var cands := []
-	for it in shop:
+	var source: Array = shop if stock == null else _outfit_shop_candidates(shop, slot, tid, stock)
+	var cands: Array = []
+	for it: Item in source:
 		if it.quality < quality_min:
 			continue
 		if slot != "" and it.slot() != slot:
@@ -799,10 +809,36 @@ static func take_arms(town: Dictionary, n: int, quality_min: int = 0, slot: Stri
 			mkt["till"] = float(mkt["till"]) + p
 			e["stats"]["sales"] = float(e["stats"]["sales"]) + p
 		shop.erase(it)
+		if stock != null:
+			(stock["shop_template"][it.tid] as Array).erase(it)
+			(stock["shop_slot"][it.slot()] as Array).erase(it)
 		out.append(it)
 		if has_econ(town):
 			led(e, "used", "arms", 1)
 	return out
+
+## Scoped to a synchronous outfit transaction. Buckets retain the shop's exact
+## iteration order, including duplicate Item references and returned pieces.
+## Still sort each filtered candidate list natively: sort_custom is not stable
+## for equal quality/material, so sorting once and popping would change kit.
+static func _outfit_shop_candidates(shop: Array, slot: String, tid: String, stock: Dictionary) -> Array:
+	if not stock.has("shop_template"):
+		var by_template: Dictionary = {}
+		var by_slot: Dictionary = {}
+		var template_slots: Dictionary = {}
+		for it: Item in shop:
+			if not by_template.has(it.tid):
+				by_template[it.tid] = []
+				template_slots[it.tid] = it.slot()
+			var item_slot: String = template_slots[it.tid]
+			if not by_slot.has(item_slot): by_slot[item_slot] = []
+			(by_template[it.tid] as Array).append(it)
+			(by_slot[item_slot] as Array).append(it)
+		stock["shop_template"] = by_template
+		stock["shop_slot"] = by_slot
+	if tid != "": return stock["shop_template"].get(tid, [])
+	if slot != "": return stock["shop_slot"].get(slot, [])
+	return shop
 
 ## Re-equips units from the town's arms stock: each unit keeps the template it was rolled with when the
 ## stock has one, else any piece for that slot, else goes without. Spawned gear is discarded (never existed).
@@ -811,7 +847,8 @@ static func take_arms(town: Dictionary, n: int, quality_min: int = 0, slot: Stri
 ## off the stalls only), any piece for that slot and role when the template is short (foreign makes included).
 ## World size (CampaignWorld's muster, a few men a job): budget >= 0 is what is left of the force's share (set from the
 ## stalls when its first men were outfitted); quivers false leaves the arrows to the last call (all the men at once).
-static func outfit_units(town: Dictionary, units: Array, share: float = 0.5, armory_first: bool = true, budget: int = -1, quivers: bool = true) -> int:
+static func outfit_units(town: Dictionary, units: Array, share: float = 0.5, armory_first: bool = true, budget: int = -1, quivers: bool = true, stock: Variant = null) -> int:
+	var pass_stock: Dictionary = {} if stock == null else stock
 	if budget < 0:
 		budget = int(floor(float((town.get("shop", []) as Array).size()) * share))
 	var got := 0
@@ -827,9 +864,9 @@ static func outfit_units(town: Dictionary, units: Array, share: float = 0.5, arm
 					continue
 			if got >= budget:
 				continue
-			var picked := take_arms(town, 1, 0, "", want.tid)
+			var picked: Array = take_arms(town, 1, 0, "", want.tid, true, pass_stock)
 			if picked.is_empty():
-				picked = take_arms(town, 1, 0, slot)
+				picked = take_arms(town, 1, 0, slot, "", true, pass_stock)
 			if not picked.is_empty():
 				var it: Item = picked[0]
 				if it.slot() == slot and not (slot == "off_hand" and u.weapon() != null and u.weapon().tmpl().get("two_handed", false)):
@@ -837,6 +874,8 @@ static func outfit_units(town: Dictionary, units: Array, share: float = 0.5, arm
 					got += 1
 				else:
 					(town["shop"] as Array).append(it)   # does not fit him: back on the stalls
+					(pass_stock["shop_template"][it.tid] as Array).append(it)
+					(pass_stock["shop_slot"][it.slot()] as Array).append(it)
 					if has_econ(town): led(town["econ"], "used", "arms", -1)   # v0.075: take_arms booked it used; it never left
 	if quivers:
 		BowsEcon.fill_quivers(town, units)   # bows: quivers from the town's arrows (shortfall ordered)
@@ -1071,7 +1110,7 @@ static func _purchase_seller(e: Dictionary, a: Dictionary, crop: String, shared:
 
 static func _purchase_acres(e: Dictionary, a: Dictionary, b: Dictionary, crop: String, limit: int, seller: Dictionary = {}) -> int:
 	if limit <= 0: return 0
-	if not seller.is_empty() and not bool(seller["src_ok"]):
+	if seller.has("src_ok") and not bool(seller["src_ok"]):
 		return 0
 	var L: Dictionary = data()["land"]
 	var aph: float = float(L["acres_per_hand"])
@@ -1111,8 +1150,13 @@ static func _purchase_acres(e: Dictionary, a: Dictionary, b: Dictionary, crop: S
 		if has_bcache:
 			bcache[bid] = [ok, budget, herd, active, physical, nominal, b_ox, base_ox]
 		if not ok: return 0
+	# A local preview pair starts with only a buyer cache. Preserve the first
+	# call's buyer/cache initialization before checking the seller's acreage.
+	if not seller.is_empty() and not seller.has("src_ok"):
+		seller.merge(_purchase_seller(e, a, crop, seller), true)
+		if not bool(seller["src_ok"]): return 0
 	if seller.is_empty():
-		var source_rows := CropRotation.work_acres(e, a)
+		var source_rows: Dictionary = CropRotation.work_acres(e, a)
 		var source: Dictionary = source_rows.get(crop, {})
 		if absf(float(source.get("active", 0)) + float(source.get("fallow", 0)) - float(a["land"].get(crop, 0))) > 0.000000001: return 0
 	# Optimistic all-fallow work is only a rejection bound, never the reported
@@ -1148,98 +1192,52 @@ static func _purchase_acres(e: Dictionary, a: Dictionary, b: Dictionary, crop: S
 			seller["split_var"] = split_var
 		else:
 			split_var = seller["split_var"]
-	var s_min_act: PackedFloat64Array
-	var rem_by_n: PackedInt32Array
-	if P.is_empty():
-		s_min_act = PackedFloat64Array()
-		s_min_act.resize(limit + 1)
-		rem_by_n = PackedInt32Array()
-		rem_by_n.resize(limit + 1)
-		for n_val in limit + 1:
-			s_min_act[n_val] = float(n_val)
-	elif not seller.is_empty() and seller.has("s_min_act") and (seller["s_min_act"] as PackedFloat64Array).size() > limit:
-		s_min_act = seller["s_min_act"]
-		rem_by_n = seller["rem_by_n"]
-	else:
-		var m: int = mine.size()
-		var mine_ac: PackedInt32Array
-		var mine_act: PackedFloat64Array
-		var first_ac: int = 0
-		var last_ac: int = 0
-		var tail_start: int = m
-		if not seller.is_empty() and seller.has("mine_ac"):
-			mine_ac = seller["mine_ac"]
-			mine_act = seller["mine_act"]
-			first_ac = int(seller["first_ac"])
-			last_ac = int(seller["last_ac"])
-			tail_start = int(seller["tail_start"])
+	# Build the seller's ordered prefix once; quantity bounds are evaluated only
+	# when the native descending search visits them, without a limit-sized table.
+	var prefix_ac: Array[int] = []
+	var prefix_active: Array[float] = []
+	var mine_ac: PackedInt32Array = PackedInt32Array()
+	var mine_active: PackedFloat64Array = PackedFloat64Array()
+	if not P.is_empty():
+		if not seller.is_empty() and seller.has("bound_prefix_ac"):
+			prefix_ac = seller["bound_prefix_ac"]
+			prefix_active = seller["bound_prefix_active"]
+			mine_ac = seller["bound_mine_ac"]
+			mine_active = seller["bound_mine_active"]
 		else:
-			mine_ac = PackedInt32Array()
-			mine_act = PackedFloat64Array()
-			mine_ac.resize(m)
-			mine_act.resize(m)
-			for i in m:
-				var pi: int = int(mine[i])
-				var ac_i: int = int(P["ac"][pi])
-				mine_ac[i] = ac_i
-				mine_act[i] = float(ac_i) if String(P["variety"][pi]) != "fallow" else 0.0
-			first_ac = mine_ac[0] if m > 0 else 0
-			last_ac = mine_ac[m - 1] if m > 0 else 0
-			for i in range(m - 1, -1, -1):
-				if mine_ac[i] < first_ac:
-					tail_start = i
-				else:
-					break
+			prefix_ac.append(0)
+			prefix_active.append(0.0)
+			for plot_id: Variant in mine:
+				var acres_v: int = int(P["ac"][plot_id])
+				var active_v: float = float(acres_v) if String(P["variety"][plot_id]) != "fallow" else 0.0
+				mine_ac.append(acres_v)
+				mine_active.append(active_v)
+				prefix_ac.append(prefix_ac[-1] + acres_v)
+				prefix_active.append(prefix_active[-1] + active_v)
 			if not seller.is_empty():
-				seller["mine_ac"] = mine_ac
-				seller["mine_act"] = mine_act
-				seller["first_ac"] = first_ac
-				seller["last_ac"] = last_ac
-				seller["tail_start"] = tail_start
-		s_min_act = PackedFloat64Array()
-		s_min_act.resize(limit + 1)
-		rem_by_n = PackedInt32Array()
-		rem_by_n.resize(limit + 1)
-		var cum_ac: int = 0
-		var cum_act: float = 0.0
-		for k in m:
-			if cum_ac > limit:
-				break
-			var ac: int = mine_ac[k]
-			var hi: int = mini(limit, cum_ac + ac - 1)
-			var j0: int = maxi(k + 1, tail_start)
-			for n_val in range(cum_ac, hi + 1):
-				var v: float = cum_act
-				var rem: int = n_val - cum_ac
-				if rem > 0 and j0 < m and rem >= last_ac:
-					for j in range(j0, m):
-						var acj: int = mine_ac[j]
-						if rem > 0 and acj <= rem:
-							rem -= acj
-							v += mine_act[j]
-				s_min_act[n_val] = v
-				rem_by_n[n_val] = rem
-			cum_ac += ac
-			cum_act += mine_act[k]
-		for n_val in range(cum_ac, limit + 1):
-			s_min_act[n_val] = cum_act
-			rem_by_n[n_val] = n_val - cum_ac
-		if not seller.is_empty():
-			seller["s_min_act"] = s_min_act
-			seller["rem_by_n"] = rem_by_n
+				seller["bound_prefix_ac"] = prefix_ac
+				seller["bound_prefix_active"] = prefix_active
+				seller["bound_mine_ac"] = mine_ac
+				seller["bound_mine_active"] = mine_active
 	var ctx: Dictionary = {
 		"b_active": active,
 		"b_fallow": physical - active,
-		"s_min_act": s_min_act,
-		"rem_by_n": rem_by_n,
 		"split_var": split_var,
 	}
+	var prefix_position: int = prefix_ac.bsearch(limit, false) - 1 if not P.is_empty() else 0
+	var bound: Array = [0.0, 0]
 	# Ox rounding, full plots and partial boundaries make work non-monotone in
 	# the quantity. Search descending; cheap lower bounds avoid oversized copies.
 	for n in range(limit, 0, -1):
 		var mo: int = mini(a_ox, int(round(float(a_ox) * float(n) / float(a_ac)))) if donor_ox else 0
 		var t_ox: int = (base_ox + mo) if donor_ox else b_ox
-		var minimum_active: float = active + s_min_act[n]
+		if P.is_empty():
+			bound[0] = float(n)
+			bound[1] = 0
+		else:
+			while prefix_position > 0 and prefix_ac[prefix_position] > n: prefix_position -= 1
+			_purchase_bound_at(n, prefix_position, prefix_ac, prefix_active, mine_ac, mine_active, bound)
+		var minimum_active: float = active + float(bound[0])
 		var cult_min: float = minimum_active / aph
 		if t_ox >= 0:
 			var w_ox: float = minf(minimum_active, float(t_ox) * aph)
@@ -1251,6 +1249,9 @@ static func _purchase_acres(e: Dictionary, a: Dictionary, b: Dictionary, crop: S
 		if int(ox_work["heads"]) != mo: continue
 		var ox_hands: float = float(ox_work["hands"])
 		if base_lower + ox_hands > budget + 0.000000001: continue
+		ctx["bound_n"] = n
+		ctx["bound_active"] = float(bound[0])
+		ctx["bound_rem"] = int(bound[1])
 		var work: Dictionary = Plots.purchase_work(e, a, b, crop, n, mine, ctx)
 		if absf(float(work["acres"]) - float(nominal + n)) > 0.000000001: continue
 		var w_act: float = float(work["active"])
@@ -1261,6 +1262,28 @@ static func _purchase_acres(e: Dictionary, a: Dictionary, b: Dictionary, crop: S
 		var need: float = cult_need + float(work["fallow"]) * upkeep + herd + ox_hands
 		if need <= budget + 0.000000001: return n
 	return 0
+
+# Same greedy whole-plot additions as the quantity table: consume the full
+# prefix, skip the blocking plot, then take fitting later plots in native order.
+# Descending acreages allow each skipped run to be found by integer comparison.
+static func _purchase_bound_at(n: int, whole: int, prefix_ac: Array[int], prefix_active: Array[float], mine_ac: PackedInt32Array, mine_active: PackedFloat64Array, out: Array) -> void:
+	var rem: int = n - prefix_ac[whole]
+	var active: float = prefix_active[whole]
+	var at: int = whole + 1
+	var count: int = mine_ac.size()
+	while rem > 0 and at < count and rem >= mine_ac[count - 1]:
+		var lo: int = at
+		var hi: int = count
+		while lo < hi:
+			var mid: int = (lo + hi) / 2
+			if mine_ac[mid] > rem: lo = mid + 1
+			else: hi = mid
+		if lo >= count: break
+		rem -= mine_ac[lo]
+		active += mine_active[lo]
+		at = lo + 1
+	out[0] = active
+	out[1] = rem
 
 static func _purchase_heads(e: Dictionary, a: Dictionary, b: Dictionary, animal: String, limit: int) -> int:
 	var spare := _property_hands(e, b) - Families.need_hands(b, e)
@@ -1298,13 +1321,15 @@ static func _sell_land(e: Dictionary, D: Dictionary, day: float) -> void:
 		for crop in est["land"].keys():
 			var est_avail := int(est["land"][crop]) - int(e.get("land_market", {}).get(crop, 0))
 			if est_avail <= 0: continue
-			var want_n := _purchase_acres(e, est, f, String(crop), est_avail)
+			# Lazily quote after the native buyer prelude; settlement changes coin only.
+			var seller: Dictionary = {"buyers": {}}
+			var want_n: int = _purchase_acres(e, est, f, String(crop), est_avail, seller)
 			if want_n <= 0: continue
 			Families.settle(e, f)
 			var short := float(want_n) * float(L["acre_price"]) - (float(f["purse"]) - 40.0 * COIN)
 			var credit := Loans.quote(e, f, ceilf(short)) if short > 0.0 and float(f.get("debt", 0.0)) <= 0.0 else 0.0
 			var afford := int((float(f["purse"]) + credit - 40.0 * COIN) / float(L["acre_price"]))
-			var n := want_n if afford >= want_n else _purchase_acres(e, est, f, String(crop), afford)
+			var n: int = want_n if afford >= want_n else _purchase_acres(e, est, f, String(crop), afford, seller)
 			if n <= 0:
 				continue
 			var cost := float(n) * float(L["acre_price"])
@@ -1365,6 +1390,7 @@ static func _plan_trade(game, town: Dictionary, e: Dictionary, day: int) -> void
 	for job in w.get("work", []):
 		if job[0] == "caravan" and job[1] == town["id"]:
 			return
+	var route_previous: Dictionary = Caravans.begin_route_batch(w, String(town["id"]))
 	var best := ""; var bv := 0.0
 	for l in Caravans.trade_partners(w, town):
 		var o: Dictionary = w["towns"].get(l["id"], {})
@@ -1373,6 +1399,7 @@ static func _plan_trade(game, town: Dictionary, e: Dictionary, day: int) -> void
 		var v := Caravans.trade_value(town, o, w)
 		if v > bv:
 			bv = v; best = l["id"]
+	Caravans.finish_route_batch(route_previous)
 	if best != "" and bv > 0.0:
 		(w["work"] as Array).append(["caravan", town["id"], best])
 
@@ -1385,6 +1412,9 @@ static func faction_turn(game, day: int) -> void:
 	var D := data()
 	var T: Dictionary = D["tax"]
 	var stats := {}
+	# This synchronous turn changes town cash/jobs/research, never field-unit
+	# membership, rank, kit or skills. Reuse each native ordered bill sum.
+	var army_bills: Dictionary = {}
 	for fid in w.get("factions", {}):
 		var fac: Dictionary = w["factions"][fid]
 		if not fac.has("treasury"):
@@ -1393,7 +1423,9 @@ static func faction_turn(game, day: int) -> void:
 		# economy spec 2: the army levy. The realm asks its towns for what its field army will cost over the next
 		# two weeks beyond what the war chest holds, by town size; each town pays what it can above a small
 		# reserve (100 x (size + 1)). Short towns leave the army short: unpaid men walk home.
-		var levy := maxf(0.0, Army.bill(game, fid) * 14.0 - float(fac["treasury"]))
+		var army_bill: float = Army.bill(game, fid)
+		army_bills[fid] = army_bill
+		var levy: float = maxf(0.0, army_bill * 14.0 - float(fac["treasury"]))
 		if levy > 0.0:
 			var wsum := 0.0
 			for tid in fac.get("towns", []):
@@ -1431,12 +1463,12 @@ static func faction_turn(game, day: int) -> void:
 		if n > 0:
 			stats[fid] = {"food": food / n, "metal": metal / n, "treasury": float(fac["treasury"])}
 			fac["econ"] = stats[fid]
-	Academy.faction_turn(game, float(day))   # v0.012: each realm funds its research house (budget, staff, its lead)
+	Academy.faction_turn(game, float(day), army_bills)   # v0.012: each realm funds its research house (budget, staff, its lead)
 	# the realm keeps a month of its army's pay (economy spec 2); a share of what is above that flows back to its
 	# poorest towns [ours]
 	for fid in w.get("factions", {}):
 		var fac: Dictionary = w["factions"][fid]
-		var keep := Army.bill(game, fid) * 30.0
+		var keep: float = float(army_bills[fid]) * 30.0
 		var give := maxf(0.0, float(fac.get("treasury", 0.0)) - keep) * float(T.get("faction_return", 0.25))
 		var poor := []
 		for tid in fac.get("towns", []):
@@ -1458,8 +1490,30 @@ static func _diplomacy_feed(w: Dictionary, stats: Dictionary) -> void:
 	if dp == null:
 		return
 	var fl: Array = dp.get("factions", [])
+	var eligible: Dictionary = {}
+	for fid: Variant in fl: eligible[fid] = true
+	# The first two maxima in stats order give the same best supplier after
+	# excluding the current realm. Diplomacy pushes change no supply statistic.
+	var suppliers: Dictionary = {}
+	for kind: String in ["food", "metal"]:
+		var first: String = ""
+		var second: String = ""
+		var first_value: float = 0.0
+		var second_value: float = 0.0
+		for fid: Variant in stats:
+			if not eligible.has(fid): continue
+			var value: float = float(stats[fid][kind])
+			if value > first_value:
+				second = first
+				second_value = first_value
+				first = String(fid)
+				first_value = value
+			elif value > second_value:
+				second = String(fid)
+				second_value = value
+		suppliers[kind] = [first, first_value, second, second_value]
 	for a in stats:
-		if not fl.has(a):
+		if not eligible.has(a):
 			continue
 		var s: Dictionary = stats[a]
 		var ntowns := maxf(1.0, float((w["factions"][a].get("towns", []) as Array).size()))
@@ -1472,8 +1526,12 @@ static func _diplomacy_feed(w: Dictionary, stats: Dictionary) -> void:
 			var short: bool = float(s[kind]) < (10.0 if kind == "food" else 25.0)
 			if not short:
 				continue
+			var leaders: Array = suppliers[kind]
+			var skip_first: bool = String(leaders[0]) == String(a)
+			var supplier_id: String = String(leaders[2] if skip_first else leaders[0])
+			var supplier_candidates: Array = [] if supplier_id == "" else [supplier_id]
 			var best := ""; var bv := 0.0
-			for b in stats:
+			for b: Variant in supplier_candidates:
 				if b == a or not fl.has(b):
 					continue
 				var v := float(stats[b][kind])
@@ -1498,11 +1556,14 @@ static func after_load(game) -> void:
 	var w: Dictionary = game.world
 	for tid in w.get("towns", {}):
 		var t: Dictionary = w["towns"][tid]
+		# v0.100: detect absent/empty/partial columns before _p reads or repacks them.
+		var legacy_plots := not has_econ(t) or Plots.needs_layout(t["econ"])
 		if not has_econ(t):
 			migrate(w, t)
 		else:
 			_fix_ints(t["econ"])
-			Plots._p(t["econ"])   # v0.074: the plot columns packed again at load, not at their first use
+			if not legacy_plots:
+				Plots._p(t["econ"])   # v0.074: the plot columns packed again at load, not at their first use
 			BowsEcon.after_load(w, t)   # bows: bowyers/fletchers and the armory for older saves
 		# Older saves may retain farm employers after their land joined the town
 		# estate. Close only those obsolete hiring rows, retaining their books.
@@ -1521,6 +1582,10 @@ static func after_load(game) -> void:
 			t["econ"]["territory"] = land_total(t["econ"])   # older saves: the land pool as it is now
 		if not t["econ"].has("land_fund"):
 			t["econ"]["land_fund"] = 0.0
+		# v0.100: pre-economy/pre-plot saves need land laid out before guard payroll.
+		# v0.100: reconcile jobs after rotation, at the saved day rather than day zero.
+		if legacy_plots:
+			Plots.init_town(game, String(tid), float(game.day))
 	for fid in w.get("factions", {}):
 		var fac: Dictionary = w["factions"][fid]
 		if not fac.has("treasury"):

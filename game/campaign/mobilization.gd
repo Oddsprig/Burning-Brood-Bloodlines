@@ -91,7 +91,7 @@ static func _draft_pool(town: Dictionary) -> Array:
 			for key in f.get("cj", {}): casual += int(f["cj"][key])
 			for i in Population.eligible_slots(e, f, day, true):
 				rows.append([0 if i < int(f.get("idle", 0)) else (1 if i < int(f.get("idle", 0)) + casual else 2), -Families.hardship(f), int(f["id"]), -1])
-		var work: Dictionary = People._work_kinds(f)
+		var work: Dictionary = People._work_kinds(e, f)
 		for p in f.get("pp", []):
 			if int(p[6]) != 0 or str(p[4]) != "" or int(p[5]) >= 0: continue
 			if str(Persons.g(p, Persons.PERSON_UID, "")) == str(e.get("head", {}).get("person_uid", "")): continue

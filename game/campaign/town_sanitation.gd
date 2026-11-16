@@ -24,11 +24,13 @@ static func add_waste(e: Dictionary, kg: float, kind: String) -> void:
 	s[key] = float(s[key]) + maxf(0, kg)
 
 static func customer_funds(e: Dictionary) -> float:
+	if not _customer_scope.is_empty() and is_same(_customer_scope["econ"], e) and _customer_scope.has("funds"): return float(_customer_scope["funds"])
 	var funds := 0.0
 	for f in e["fams"]:
 		if not f.get("gone", false) and not f.get("estate", false): funds += maxf(0, float(f["purse"]) - float(Families.daily_rates(e, f)["food"]) * float(e["price"].get("grain", 1)) * 7)
 	for b in e["biz"]:
 		if not b.get("closed", false): funds += maxf(0, float(b["till"]) - float(b["owed"]))
+	if not _customer_scope.is_empty() and is_same(_customer_scope["econ"], e): _customer_scope["funds"] = funds
 	return funds
 
 static func collect(e: Dictionary, due: float) -> float:
@@ -146,3 +148,16 @@ static func weekly(e: Dictionary, day: float) -> void:
 static func exposure(e: Dictionary, r: Dictionary) -> float:
 	var s := book(e)
 	return float(r.get("hyg_k", 0)) * float(s.get("hygiene", 0)) + float(r.get("rat_k", 0)) * float(s.get("rats_per_person", 0))
+
+# Cleanup assignment changes attendance/capacity use, not purses, population,
+# prices or tills. Share one unchanged ordered funding reduction during that
+# pass only; end the scope before its first native family reassignment.
+static var _customer_scope: Dictionary = {}
+
+static func begin_customer_batch(e: Dictionary) -> Dictionary:
+	var previous: Dictionary = _customer_scope
+	_customer_scope = {"econ": e}
+	return previous
+
+static func finish_customer_batch(previous: Dictionary) -> void:
+	_customer_scope = previous

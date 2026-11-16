@@ -103,6 +103,8 @@ static func _count(value: Variant) -> String:
 	return "unavailable" if value == null else str(int(value))
 
 func _refresh_owners() -> void:
+	if Game._day_job_wait_observer(_refresh_owners):
+		return
 	if tracker == null: return
 	var game: Node = get_node_or_null("/root/Game")
 	tracker.refresh_owners(game)

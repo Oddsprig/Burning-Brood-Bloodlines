@@ -1,4 +1,6 @@
 extends RefCounted
+const SpeedParts = preload("res://tests/fixtures/older_speed_parts_v100.gd")
+const SpeedCheckpoint = preload("res://tests/fixtures/older_speed_checkpoint_v100.gd")
 ## v0.014 bronze and iron (Douglas 22:19-22:27): the smelter's bronze recipe (22 copper + 3 tin bars + fuel -> 25 bronze:
 ## 88% / 12% by mass) and the iron recipe (ore + fuel); weaponsmiths' and armourers' standing want for bronze and iron
 ## bars as real market demand; the bronze and iron research lines (bronze never orcs or goblins, elves slower than
@@ -7,6 +9,7 @@ extends RefCounted
 ##   METAL_ONLY=deposits tools/test.sh tests/test_metal_tech.gd   (the deposits report alone)
 
 var fails := 0
+var _deadline_msec: int = 0
 
 func check(ok: bool, msg: String) -> void:
 	if not ok:
@@ -14,7 +17,41 @@ func check(ok: bool, msg: String) -> void:
 		fails += 1
 
 func run(_tree: SceneTree) -> int:
+	# One deadline covers selection, fixture/source I/O, native work and handoff readback.
+	# The lead must additionally enforce 55 s for the whole process, including startup.
+	_deadline_msec = Time.get_ticks_msec() + 50000
+	var result: int = await _run_selected()
+	_within_deadline()
+	return maxi(result, fails)
+
+func _within_deadline() -> bool:
+	var within: bool = _deadline_msec > 0 and Time.get_ticks_msec() < _deadline_msec
+	check(within, "complete selected metal test finishes within 50 seconds; unfinished or overdue work fails")
+	return within
+
+func _run_selected() -> int:
 	Game.SAVE_PATH = "user://test_save_metal_%d.json" % OS.get_process_id()
+	var cases: Array = ["rules", "deposits", "coin-setup"]
+	for index: int in range(1, 31): cases.append("coin%d" % index)
+	var selected: String = SpeedParts.select(cases)
+	if selected == "": return 1
+	if selected != "all":
+		check(OS.get_environment("METAL_ONLY").is_empty(), "do not combine METAL_ONLY with --speed-part")
+		if fails > 0: return fails
+		if selected.begins_with("coin"):
+			return await _speed_coin(0 if selected == "coin-setup" else int(selected.trim_prefix("coin")))
+		if selected == "deposits":
+			_test_deposits()
+			return fails
+		_test_recipe_data()
+		Game.new_game(2026)
+		_quiet(Game.world)
+		_test_smelting()
+		_test_smith_targets()
+		_test_race_rules()
+		_test_hold_and_use()
+		_test_screens()
+		return fails
 	if OS.get_environment("METAL_ONLY") == "deposits":
 		_test_deposits()
 		return fails
@@ -26,7 +63,8 @@ func run(_tree: SceneTree) -> int:
 	_test_race_rules()
 	_test_hold_and_use()
 	_test_screens()
-	_test_coin()
+	await _test_coin()
+	if fails > 0: return fails
 	_test_deposits()
 	return fails
 
@@ -84,11 +122,16 @@ func _test_recipe_data() -> void:
 				n += 1
 	check(n == 1, "%d recipes make bronze from copper (want one)" % n)
 	var iron := {}
+	var iron_charcoal := {}
 	for r3 in TownEcon.data()["businesses"]["smelter"]["recipes"]:
 		if (r3["in"] as Dictionary).has("iron_ore"):
-			iron = r3
+			# v0.100: v0.087 (e0df6223) adds charcoal alongside the retained wood heat.
+			if (r3["in"] as Dictionary).has("wood"): iron = r3
+			if (r3["in"] as Dictionary).has("charcoal"): iron_charcoal = r3
 	check(not iron.is_empty() and (iron["out"] as Dictionary).has("iron_bars") and float(iron["in"].get("wood", 0.0)) > 0.0, "no iron ore + fuel -> iron bars recipe")
 	check(String(iron.get("knowhow", "")) == "iron", "iron smelting not gated by iron know-how")
+	check(not iron_charcoal.is_empty() and (iron_charcoal["out"] as Dictionary).has("iron_bars") and float(iron_charcoal["in"].get("charcoal", 0.0)) > 0.0 and String(iron_charcoal.get("knowhow", "")) == "iron", "v0.100: charcoal iron heat has real fuel and the same knowledge gate")
+	if iron.is_empty(): return
 	print("  bronze: %d copper + %d tin bars + %d wood -> %d bronze bars; iron: %d ore + %d wood -> %d bar" % [int(cu), int(sn),
 		int(r["in"]["wood"]), int(out), int(iron["in"]["iron_ore"]), int(iron["in"]["wood"]), int(iron["out"]["iron_bars"])])
 
@@ -98,7 +141,7 @@ func _smelt(t: Dictionary, stock: Dictionary, days: int) -> Dictionary:
 	var D := TownEcon.data()
 	var st: Dictionary = e["stock"]
 	for g in ["copper_ore", "tin_ore", "iron_ore", "scrap_copper", "scrap_tin", "scrap_bronze", "scrap_iron", "scrap_steel",
-			"iron_bars", "pig_iron", "flux", "copper_bars", "tin_bars", "wood", "bronze_bars", "steel_bars"]:
+			"iron_bars", "pig_iron", "flux", "copper_bars", "tin_bars", "wood", "charcoal", "bronze_bars", "steel_bars"]:
 		st[g] = 0
 	for g in stock:
 		st[g] = int(stock[g])
@@ -144,11 +187,16 @@ func _test_smelting() -> void:
 	# iron: every race smelts it at the start; a realm without iron know-how does not
 	var di := _smelt(o, {"iron_ore": 100, "wood": 100}, 2)
 	check(int(di.get("iron_bars", 0)) > 0, "orc smelter made no iron from ore (%s)" % str(di))
+	# v0.100: also exercise v0.087's heat with no wood available, not just recipe data.
+	var dc := _smelt(o, {"iron_ore": 100, "charcoal": 100}, 2)
+	check(int(dc.get("iron_bars", 0)) > 0 and int(dc.get("charcoal", 0)) < 0 and int(dc.get("wood", 0)) == 0, "v0.100: charcoal alone fuels real iron production")
 	var fk: Dictionary = h["econ"]["fkh"]
 	var keep := float(fk.get("iron", 100.0))
 	fk["iron"] = 0.0
 	var dn := _smelt(h, {"iron_ore": 100, "wood": 100}, 2)
 	check(int(dn.get("iron_bars", 0)) == 0, "iron smelted without iron know-how (%s)" % str(dn))
+	var dn_charcoal := _smelt(h, {"iron_ore": 100, "charcoal": 100}, 2)
+	check(int(dn_charcoal.get("iron_bars", 0)) == 0, "v0.100: charcoal does not bypass iron know-how")
 	fk["iron"] = keep
 
 # ---------------------------------------------------------------- bar targets
@@ -215,11 +263,20 @@ func _test_race_rules() -> void:
 	# the elves' house really researches bronze: a day of work raises its points
 	var S := Academy.state(w, ef)
 	var cap: Dictionary = w["towns"].get(String(w["factions"][ef].get("capital", "")), {})
-	if TownEcon.has_econ(cap) and not Academy.biz_of(cap["econ"]).is_empty() and (Academy.biz_of(cap["econ"]).get("lead", []) as Array).size() >= 2:
-		var p0 := float(S["pts"].get("bronze", 0.0))
-		var mkt: Dictionary = cap["econ"]["biz"][int(cap["econ"]["mkt"])]
-		Academy.day(Game, cap, cap["econ"], Academy.biz_of(cap["econ"]), 3.0, mkt, {})
-		check(float(S["pts"].get("bronze", 0.0)) > p0, "the elves' house did no bronze research in a day")
+	# v0.100: v0.089 (5aa9bac) requires actual registered, paid staff and trial inputs.
+	# v0.100: reuse its detached native capital fixture; a numeric worker argument is not staff.
+	var research_fixture = load("res://tests/test_academy_v089.gd").new()
+	research_fixture.base = w
+	var old_day := Game.day
+	var research: Dictionary = research_fixture.fixture(ef)
+	var research_state := Academy.state(research["w"], ef)
+	var p0 := float(research_state["pts"].get("bronze", 0.0))
+	var coin0: float = research_fixture.coins(research)
+	research_fixture.work(research)
+	check(research_fixture.fails == 0 and float(research_state["pts"].get("bronze", 0.0)) > p0, "the elves' house did no bronze research in a day")
+	check(not (research["b"]["research_materials"] as Dictionary).is_empty() and absf(research_fixture.coins(research) - coin0) < 0.000001, "v0.100: real research consumes paid trial materials and conserves coins")
+	Game.world = w
+	Game.day = old_day
 	# a teaching floor: once the elves know a little bronze, their capital's smiths may start on it
 	S["pts"]["bronze"] = 1.0e6
 	S["kh"]["bronze"] = Academy.kh_after(ef, "bronze", 1.0e6)
@@ -291,9 +348,12 @@ func _test_screens() -> void:
 # ---------------------------------------------------------------- coin
 func _test_coin() -> void:
 	Game.new_game(777)
+	Game.settings["autosave"] = "off"
+	var origin: float = Game.day
 	var worst := 0.0
 	for d in 30:
-		CampaignWorld.presim_step(Game, 1)
+		await _coin_day()
+		if fails > 0: return
 		var L: Dictionary = Game.world["coin"]
 		worst = maxf(worst, absf(Barge.holdings(Game) - (float(L["cast"]) - float(L["melted"]) - float(L["drained"]))))
 	var made := 0
@@ -301,6 +361,7 @@ func _test_coin() -> void:
 		var e: Dictionary = Game.world["towns"][tid].get("econ", {})
 		if not e.is_empty():
 			made += int(e["led"]["made"].get("bronze_bars", 0))
+	check(Game.day == origin + 30.0, "all thirty metal-economy campaign days complete")
 	print("  30 days: bronze bars made %d; worst coin gap %.3f" % [made, worst])
 	check(worst < 1.0, "coin not conserved with bronze smelting (gap %.2f)" % worst)
 
@@ -363,3 +424,57 @@ func _test_deposits() -> void:
 		check(by_n[1] + by_n[2] > by_n[3] + by_n[4], "%s: more cities with three or four deposits than with one or two" % size)
 		check(by_n[1] + by_n[2] >= int(towns * 0.5), "%s: only %d of %d cities have one or two deposits" % [size, by_n[1] + by_n[2], towns])
 	WorldGen.gen_size = keep
+
+# One genuine campaign day; startup history remains the native one-day default.
+func _coin_day() -> void:
+	if not _within_deadline(): return
+	Game.wait_save()
+	if not _within_deadline(): return
+	check(Game.world.get("work", []).is_empty(), "metal coin day begins after all previous native work")
+	if fails > 0: return
+	var before: float = Game.day
+	Game.advance_time(1.0, false, 0, 1000)
+	while not Game.world.get("work", []).is_empty():
+		if not _within_deadline(): return
+		# Only a real Engine frame renews the shared 16-ms allowance.
+		await Game.get_tree().process_frame
+		if not _within_deadline(): return
+		CampaignWorld.work_slice(Game, 20000)
+		if not _within_deadline(): return
+	if not _within_deadline(): return
+	check(Game.day == before + 1.0 and Game.world.get("work", []).is_empty(), "one complete metal-economy day, never a capped history no-op")
+
+func _speed_coin(step: int) -> int:
+	if not _within_deadline(): return fails
+	Game.settings["autosave"] = "off"
+	var handoff: RefCounted = SpeedCheckpoint.new("metal_coin30")
+	if step == 0:
+		Game.new_game(777)
+		check(Game.day == 0.0, "metal coin chain starts at the original native day zero")
+		handoff.context = {"origin": Game.day, "completed": 0, "worst": 0.0}
+	else:
+		if not handoff.load_step(step - 1): return 1
+		check(handoff.context.has_all(["origin", "completed", "worst"]), "metal coin predecessor retains every cumulative observation")
+		if fails > 0: return fails
+		check(int(handoff.context["completed"]) == step - 1 and Game.day == float(handoff.context["origin"]) + step - 1, "consecutive metal coin predecessor day")
+		if fails > 0: return fails
+		await _coin_day()
+		if fails > 0: return fails
+		var ledger: Dictionary = Game.world["coin"]
+		var gap: float = absf(Barge.holdings(Game) - (float(ledger["cast"]) - float(ledger["melted"]) - float(ledger["drained"])))
+		check(is_finite(gap), "metal coin residual is finite")
+		handoff.context["worst"] = maxf(float(handoff.context["worst"]), gap)
+		handoff.context["completed"] = step
+		check(Game.day == float(handoff.context["origin"]) + step, "metal coin numbered part completes its actual day")
+		check(float(handoff.context["worst"]) < 1.0, "coin not conserved with bronze smelting (gap %.2f)" % float(handoff.context["worst"]))
+		if step == 30:
+			var made: int = 0
+			for town: Dictionary in Game.world["towns"].values():
+				var economy: Dictionary = town.get("econ", {})
+				if not economy.is_empty(): made += int(economy["led"]["made"].get("bronze_bars", 0))
+			print("  30 actual days: bronze bars made %d; worst coin gap %.3f" % [made, float(handoff.context["worst"])])
+	if fails > 0: return fails
+	if not _within_deadline(): return fails
+	var saved: bool = handoff.save_step(step)
+	if not _within_deadline(): return maxi(1, fails)
+	return 0 if saved else 1

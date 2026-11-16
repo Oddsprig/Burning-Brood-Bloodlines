@@ -202,7 +202,14 @@ func art_report() -> void:
 				var frame := HorseArt.frame(coat, animation, frame_index).get_image()
 				sheet.blit_rect(frame, Rect2i(Vector2i.ZERO, HorseArt.SIZE),
 					Vector2i((coat_index % 2) * 320 + frame_index * 80, (coat_index / 2) * 320 + row * 64))
-	var path := ProjectSettings.globalize_path("res://").path_join("../test-results/v0.056_2026-10-23_horse_frames.png").simplify_path()
+	var runs_dir: String = ProjectSettings.globalize_path("res://").path_join("../test-results/runs").simplify_path()
+	var run_id: String = "%d_%d_%d" % [int(Time.get_unix_time_from_system()), OS.get_process_id(), Time.get_ticks_usec()]
+	var out_dir: String = runs_dir.path_join("test_horse_regressions_v056_" + run_id)
+	while DirAccess.dir_exists_absolute(out_dir):
+		out_dir += "_"
+	DirAccess.make_dir_recursive_absolute(out_dir)
+	print("Evidence output: ", out_dir)
+	var path: String = out_dir.path_join("v0.056_2026-10-23_horse_frames.png")
 	check(sheet.save_png(path) == OK, "code-drawn coat and animation frames export for visual inspection")
 
 func run(tree: SceneTree) -> int:

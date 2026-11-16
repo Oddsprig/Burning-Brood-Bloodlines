@@ -1,15 +1,26 @@
 extends RefCounted
 ## "Buy best from local shops": buys only upgrades / rule items, within gold, gold goes down, gear goes on.
+const Fixture = preload("res://tests/fixtures/group_g_v100.gd")
+
 func run(_t) -> int:
 	var fails := 0
-	Game.new_game(31)
+	Fixture.new_world(31)
+	# v0.100: explicit subject and a strictly better same-material shirt, independent of starter/stock rolls.
+	var leaders := Fixture.company(31, [1])
+	if leaders.size() != 1 or Game.company.size() != 2 or Game.world.get("towns", {}).is_empty():
+		printerr("FAIL: buy-best fixture has a town, officer and troop"); return 1
 	var tid: String = Game.world["towns"].keys()[0]
 	var town: Dictionary = Game.world["towns"][tid]
 	Game.location = tid
 	var u: Unit = Game.company[1]
+	u.equip["body"] = Item.make("mail_shirt", "copper", 0)
 	var cur: Item = u.equip.get("body", null)
-	# Put a clearly better copy of his body armour (or a mail shirt) in the shop.
+	# v0.100: keep generated non-body shop items while ensuring `better` is the top body upgrade and an equal-score shirt is rejected.
 	var better := Item.make(cur.tid if cur != null else "mail_shirt", "copper", 5)
+	# v0.100: use the planner's player price, including Appraiser and standing, for the affordability cap.
+	town["shop"] = (town["shop"] as Array).filter(func(it: Item) -> bool:
+		return it.slot() != "body" and Market.price(town, it) <= 10000)
+	town["shop"].append(Item.make("mail_shirt", "copper", 0))
 	town["shop"].append(better)
 	Game.gold = 100000
 	var plan := Market.plan_best_for_unit(Game, town, u)

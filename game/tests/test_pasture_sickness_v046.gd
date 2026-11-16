@@ -30,10 +30,66 @@ func run(_tree: SceneTree) -> int:
 		"size": size, "event_boundary_reproduction": true, "full_campaign_probability_estimate": false}))
 	return failures
 
+# v0.100: v0.034 (TRACKED_HOUSEHOLDS = 15) places non-herder civilian adults of tracked herding
+# households in shopkeeping (keeps) or farm work (hands) as well as wage jobs (jobs).
+func _select(workload: String, minimum: int) -> Dictionary:
+	var selected: Dictionary = {}
+	var best_score: int = -1
+	var ids: Array = Game.world["towns"].keys()
+	ids.sort()
+	for tid: String in ids:
+		var town: Dictionary = Game.world["towns"][tid]
+		if not TownEcon.has_econ(town):
+			continue
+		var e: Dictionary = town["econ"]
+		var plots: Dictionary = e.get("plots", {})
+		var herds: Dictionary = Herds.herds(e)
+		for h: Dictionary in herds.values():
+			if not Herds.GRAZE.has(String(h["k"])) or Herds.head(h) <= 0:
+				continue
+			var fid: int = Herds.grazer(e, h)
+			if fid <= 0 or fid >= (e["fams"] as Array).size():
+				continue
+			var f: Dictionary = e["fams"][fid]
+			if bool(f.get("gone", false)) or bool(f.get("estate", false)):
+				continue
+			var expected: Array = _herder_pids(e, f)
+			if expected.size() < minimum or int(f.get("serve", {}).get("pasture", 0)) != 0:
+				continue
+			var jobs_n: int = Families.job_total(f)
+			var other_civilians: int = 0
+			for person: Array in f.get("pp", []):
+				if int(person[6]) == 0 and String(person[4]) in CIVILIAN_STATES and not expected.has(int(person[0])):
+					other_civilians += 1
+			if workload == "mixed" and other_civilians <= 0:
+				continue
+			if workload == "land" and Families.acres(f) <= 0:
+				continue
+			var score: int = 100 * mini(1, jobs_n) + 50 * mini(1, (f.get("keeps", []) as Array).size()) + 10 * mini(1, Families.acres(f)) + other_civilians * 2 + expected.size()
+			if score <= best_score:
+				continue
+			for pi: int in h.get("pl", []):
+				if pi >= 0 and pi < Plots.count(plots) and int(plots["use"][pi]) == Plots.PASTURE:
+					selected = {"town": town, "herd": h, "family": f, "pids": expected,
+						"goal": HerdRaids.plot_pos(town, plots, pi), "plot": pi}
+					best_score = score
+					break
+	return selected
+
+# population.gd:227-279: retain named business responsibility and anonymous slot swaps.
+func _labour(e: Dictionary, f: Dictionary, label: String) -> void:
+	super._labour(e, f, label)
+
 func _people_snapshot(e: Dictionary) -> Dictionary:
 	var persons: Dictionary = {}
 	var uid_to_pid: Dictionary = {}
+	var anon_by_fam: Dictionary = {}
 	for f: Dictionary in e["fams"]:
+		if Population.is_cohort(f) and not bool(f.get("gone", false)) and not bool(f.get("estate", false)):
+			var bins: int = 0
+			for count: Variant in f.get("age_bins", {}).values():
+				bins += int(count)
+			anon_by_fam[int(f["id"])] = bins
 		for slot: String in ["pp", "kp"]:
 			for p: Array in f.get(slot, []):
 				var pid: int = int(p[0])
@@ -42,7 +98,7 @@ func _people_snapshot(e: Dictionary) -> Dictionary:
 					"counted": not bool(f.get("gone", false)) and not bool(f.get("estate", false)) and not Persons.AWAY.has(String(p[4]))}
 				if int(p[5]) >= 0:
 					uid_to_pid[int(p[5])] = pid
-	return {"persons": persons, "uid_to_pid": uid_to_pid, "pop": int(e["pop"]),
+	return {"persons": persons, "uid_to_pid": uid_to_pid, "anon_by_fam": anon_by_fam, "pop": int(e["pop"]),
 		"deaths": (Census._book(e)["deaths"] as Array).duplicate(true), "dt": int(Census._book(e).get("dt", 0))}
 
 func _rows_for(rows: Array, pid: int) -> Array:
@@ -62,11 +118,24 @@ func _removed(before: Dictionary, after: Dictionary) -> Dictionary:
 func _actual_events(before: Dictionary, after: Dictionary, label: String) -> Array:
 	var rows: Array = (after["deaths"] as Array).slice((before["deaths"] as Array).size())
 	var lost: Dictionary = _removed(before, after)
+	var anon_deaths: Dictionary = {}
 	var counted: int = 0
 	for row: Array in rows:
-		counted += int(row[9])
+		var slots: int = int(row[10]) if row.size() > 10 else 1
+		counted += int(row[9]) * slots
 		print("PASTURE_SICKNESS_ACTUAL_DEATH ", JSON.stringify({"boundary": label, "row": row}))
-		check(lost.has(int(row[1])), label + ": each actual Census death corresponds to its removed register PID", {"row": row})
+		# v0.100: anonymous cohort pool deaths record pid == -1 with slot count in row[10] against the cohort fid in row[7].
+		if int(row[1]) < 0:
+			var fid: int = int(row[7])
+			anon_deaths[fid] = int(anon_deaths.get(fid, 0)) + slots
+			check(slots >= 1 and (before["anon_by_fam"] as Dictionary).has(fid),
+				label + ": anonymous cohort Census death records positive slots for a real cohort", {"row": row})
+		else:
+			check(lost.has(int(row[1])), label + ": each actual Census death corresponds to its removed register PID", {"row": row})
+	for fid: int in before["anon_by_fam"]:
+		var anon_lost: int = int(before["anon_by_fam"][fid]) - int((after["anon_by_fam"] as Dictionary).get(fid, 0))
+		check(anon_lost == int(anon_deaths.get(fid, 0)),
+			label + ": anonymous cohort slot losses reconcile with cohort Census deaths", {"fid": fid, "anon_lost": anon_lost, "recorded": int(anon_deaths.get(fid, 0))})
 	for pid: int in lost:
 		print("PASTURE_SICKNESS_ACTUAL_REMOVAL ", JSON.stringify({"boundary": label, "person": lost[pid]}))
 		check(_rows_for(rows, pid).size() == 1, label + ": each register removal has one actual Census death", {"person": lost[pid]})

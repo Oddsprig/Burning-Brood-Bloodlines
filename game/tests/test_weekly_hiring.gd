@@ -1,4 +1,6 @@
 extends RefCounted
+const SpeedParts = preload("res://tests/fixtures/older_201_parts_v100.gd")
+const NativeWeekly = preload("res://tests/fixtures/older_225_native_v100.gd")
 
 var checks := 0
 var fails := 0
@@ -78,7 +80,10 @@ func fixture(town: Dictionary, original: Dictionary, funded: bool, reverse_order
 	check(float(farm["owed"]) == 14.0, "hiring preserves committed anonymous obligations")
 	var public_bill := 0.0; var idle := 0
 	for b in e["biz"]:
-		if int(b["owner"]) < 0 and not b.get("closed", false): public_bill += int(b["workers"]) * float(b["wage"])
+		# A town appropriation can pay an actual private operator.
+		var funding: String = String(b.get("public_funding", ""))
+		if (funding == "town" or (funding.is_empty() and int(b["owner"]) < 0)) and not b.get("closed", false):
+			public_bill += int(b["workers"]) * float(b["wage"])
 	for fid in selected:
 		var f: Dictionary = e["fams"][int(fid)]
 		idle += int(f["idle"])
@@ -101,9 +106,24 @@ func fixture(town: Dictionary, original: Dictionary, funded: bool, reverse_order
 	check(float(farm["owed"]) == 14.0, "paying today's workers preserves older unattributed wages")
 
 func run(_tree: SceneTree) -> int:
+	var required_parts: Array = []
+	for culture_key: String in TownEcon.data()["cultures"]:
+		for funding_key: String in ["unfunded", "funded"]:
+			for order_key: String in ["forward", "reverse"]:
+				required_parts.append("%s:%s:%s" % [culture_key, funding_key, order_key])
+	var speed_part: String = SpeedParts.select(required_parts)
+	if speed_part.is_empty(): return 1
 	WorldGen.gen_size = "normal"; Game.new_game(2026)
 	var seen := {}
-	var ids: Array = Game.world["towns"].keys(); ids.sort()
+	var native: Dictionary = NativeWeekly.towns(Game)
+	check(bool(native.get("ok", false)), "all registered cultures have native household fixtures: " + str(native.get("reason", "")))
+	if not bool(native.get("ok", false)): return fails
+	for native_town: Dictionary in native["towns"].values():
+		if not Game.world["towns"].has(native_town["id"]): Game.world["towns"][native_town["id"]] = native_town
+	var executed: Array = []
+	var ids: Array = []
+	for chosen: Dictionary in native["towns"].values(): ids.append(str(chosen["id"]))
+	ids.sort()
 	for tid in ids:
 		var town: Dictionary = Game.world["towns"][tid]
 		if not TownEcon.has_econ(town): continue
@@ -112,7 +132,19 @@ func run(_tree: SceneTree) -> int:
 		seen[culture] = true
 		var original: Dictionary = town["econ"].duplicate(true)
 		for funded in [false, true]:
-			for reverse_order in [false, true]: fixture(town, original, funded, reverse_order)
-	check(seen.size() == TownEcon.data()["cultures"].size(), "every registered economy culture is exercised")
-	print("WEEKLY HIRING cultures=", seen.keys(), " checks=", checks, " failures=", fails)
+			for reverse_order: bool in [false, true]:
+				var case_name: String = "%s:%s:%s" % [culture, "funded" if funded else "unfunded", "reverse" if reverse_order else "forward"]
+				if speed_part != "all" and speed_part != case_name: continue
+				var work_before: Array = (Game.world.get("work", []) as Array).duplicate(true)
+				NativeWeekly.exercise(self, town, original, funded, reverse_order)
+				# Restore only queued fixture trade work; no queued work is executed here.
+				Game.world["work"] = work_before
+				executed.append(case_name)
+				print("WEEKLY_CASE ", case_name, " failures=", fails)
+		town["econ"] = original
+	required_parts.sort(); executed.sort()
+	check(executed == required_parts if speed_part == "all" else executed == [speed_part], "every selected original culture/funding/order case executes exactly once")
+	if speed_part == "all":
+		check(seen.size() == TownEcon.data()["cultures"].size(), "every registered economy culture is exercised")
+	print("WEEKLY HIRING selected=", speed_part, " cultures=", seen.keys(), " checks=", checks, " failures=", fails)
 	return fails

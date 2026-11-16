@@ -501,6 +501,8 @@ func _build_decor() -> void:
 	decor = []
 
 func _draw() -> void:
+	if Game._day_job_wait_observer(queue_redraw):
+		return
 	for r in world.get("roads", []):
 		var pts := PackedVector2Array(r["pts"])
 		draw_polyline(pts, Color("#5a3d22"), 7.0, true)

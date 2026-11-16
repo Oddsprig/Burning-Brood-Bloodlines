@@ -4,12 +4,16 @@ extends RefCounted
 func run(_tree: SceneTree) -> int:
 	var fails := 0
 	Game.new_game(77)
-	# v0.100: a new game starts with no company until a house raises men; give it the men this test was written for.
-	var rng := RandomNumberGenerator.new(); rng.seed = 77
-	while Game.company.size() < 6:
-		var man := Factory.make_troop(rng, "middle_kingdom", DB.factions["middle_kingdom"]["troops"][0], 2)
+	# v0.017 unraised start (sol_fix_group_K_worldgen.md:14,25): deployment needs explicit test actors.
+	if not Game.company.is_empty() or Game.gold != 0:
+		print("FAIL: native opening is not empty and unfunded"); return fails + 1
+	var rng: RandomNumberGenerator = RandomNumberGenerator.new(); rng.seed = 77
+	for troop_index: int in 6:
+		var man: Unit = Factory.make_troop(rng, "middle_kingdom", DB.factions["middle_kingdom"]["troops"][0], 2)
 		man.faction = "player"
 		Game.company.append(man)
+	if Game.company.size() != 6 or Game.deployed_units().size() != 6:
+		print("FAIL: fixture needs exactly six initialized, fit test troops"); return fails + 1
 	Game.invalidate_deploy()
 	var all: int = Game.deployed_units().size()
 	var lame: Unit = Game.company[1]
@@ -32,6 +36,8 @@ func run(_tree: SceneTree) -> int:
 	Game.invalidate_deploy()
 	Game.pending_battle = {}
 	var W = load("res://campaign/world.gd")
+	if Game.world["warbands"].is_empty():
+		print("FAIL: no actual enemy exists for the nobody-fit engagement"); return fails + 1
 	var wid: String = Game.world["warbands"].keys()[0]
 	W.engage(Game, wid)
 	if not Game.pending_battle.is_empty():
@@ -41,8 +47,19 @@ func run(_tree: SceneTree) -> int:
 	for u in Game.company:
 		if u.role == "captain":
 			print("captain unit present"); fails += 1
-	if Game.lead_officer() == null or Game.is_game_over():
-		fails += 1
+	if not Game.company.is_empty() or Game.lead_officer() != null or Game.is_game_over():
+		print("FAIL: unraised onboarding has an empty company, no lead officer and no game over"); fails += 1
+	var officer_town: String = DevTools.choose_house(Game)
+	if officer_town == "":
+		print("FAIL: no actual ruling household for lead-officer coverage"); return fails + 1
+	DevTools.stand_at(Game, officer_town)
+	var officer_uid: String = str(Dynasty.selected(Game)["ruler_uid"])
+	var enlisted: Dictionary = Mobilization.enlist_household(Game, officer_uid)
+	if not bool(enlisted.get("ok", false)):
+		print("FAIL: native household officer enlistment: ", enlisted.get("reason", "")); return fails + 1
+	var officer: Unit = enlisted["unit"]
+	if Game.lead_officer() != officer:
+		print("FAIL: lead_officer must return the exact enlisted resident officer"); fails += 1
 	for u in Game.company:
 		u.dead = true
 	if Game.is_game_over():

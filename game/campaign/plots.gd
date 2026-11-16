@@ -102,6 +102,21 @@ static func of(town: Dictionary) -> Dictionary:
 		layout(Game.world, town)
 	return _p(e)
 
+# v0.100: inspect saved columns before _p can index x or _fix can fill missing columns.
+static func needs_layout(e: Dictionary) -> bool:
+	var P: Variant = e.get("plots")
+	if not (P is Dictionary): return true
+	var x: Variant = P.get("x")
+	if not (x is Array or x is PackedInt32Array) or x.is_empty(): return true
+	for k in COLS:
+		var column: Variant = P.get(k)
+		if not (column is Array or column is PackedInt32Array) or column.size() != x.size(): return true
+	var stand: Variant = P.get("st")
+	if not (stand is Array or stand is PackedFloat32Array) or stand.size() != x.size(): return true
+	var grid: Variant = P.get("g")
+	return not (grid is Array or grid is PackedInt32Array) or grid.is_empty() \
+		or grid.size() != int(P.get("gw", 0)) * int(P.get("gh", 0))
+
 static func _p(e: Dictionary) -> Dictionary:
 	var P: Dictionary = e.get("plots", {})
 	if P.is_empty():
@@ -139,6 +154,21 @@ static func _fix(P: Dictionary) -> void:
 static func count(P: Dictionary) -> int:
 	return (P["x"] as PackedInt32Array).size()
 
+## Ascending IDs from the live use column; native search skips unrelated plots.
+## Keep this local to the call: clearing and weekly sync can change plot uses.
+static func _use_plot_ids(P: Dictionary, use: int) -> Array:
+	var out: Array = []
+	if P["use"] is PackedInt32Array:
+		var uses: PackedInt32Array = P["use"]
+		var at: int = uses.find(use)
+		while at >= 0:
+			out.append(at)
+			at = uses.find(use, at + 1)
+	else:
+		for at: int in count(P):
+			if int(P["use"][at]) == use: out.append(at)
+	return out
+
 ## World gen: every town's plots, read from the land, homes, businesses and herds the economy made (one call at
 ## the end of CampaignWorld.generate).
 static func init_world(game) -> void:
@@ -149,20 +179,21 @@ static func init_world(game) -> void:
 		init_town(game, String(tid))
 
 ## One original initial town pass, shared by synchronous and staged generation.
-static func init_town(game, tid: String) -> void:
+static func init_town(game, tid: String, day: float = 0.0) -> void:
 	var w: Dictionary = game.world
 	var t: Dictionary = w["towns"][tid]
 	if TownEcon.has_econ(t):
 		layout(w, t)
 		# Plot rotation is now known. Reconcile the initial jobs against those
 		# fields and the registered forces before the campaign starts.
+		# v0.100: legacy layouts share this pass, with job/yard history at the saved day.
 		var initial_businesses: int = t["econ"]["biz"].size()
 		Families.assign_all(t["econ"])
 		if t["econ"]["biz"].size() != initial_businesses:
-			_sync_yards(t["econ"], t["econ"]["plots"], 0.0)
+			_sync_yards(t["econ"], t["econ"]["plots"], day)
 			_dirty(t["econ"]["plots"])
 		for f in t["econ"]["fams"]:
-			Persons.track_jobs(t["econ"], f, 0.0)
+			Persons.track_jobs(t["econ"], f, day)
 
 # ================================================================== layout (world gen)
 ## Lays the town out in rings by its real terrain: the town's own buildings, the market square, homes and
@@ -208,7 +239,8 @@ static func layout(w: Dictionary, town: Dictionary) -> Dictionary:
 			core.append([HOME, 0, TOWN, fid, 1, 0])
 		for bid in f.get("owns", []):
 			_yard_item(biz[int(bid)], fid, core, edge_yards)
-	for i in int(fams[0].get("homes", 0)):
+	# v0.100: an empty legacy family list has no estate homes to place.
+	for i in (int(fams[0].get("homes", 0)) if not fams.is_empty() else 0):
 		core.append([HOME, 0, TOWN, -1, 1, 0])
 	for i in int(e.get("stock", {}).get("home", 0)):
 		core.append([HOME, 0, MARKET, -1, 1, 0])
@@ -541,6 +573,9 @@ static func land_moved(e: Dictionary, a: Dictionary, b: Dictionary, crop: String
 	var touched: Array = []
 	var why := _why(e, a, b)
 	var mine := move_candidates(P, fa, ci)
+	var indexed_parts: bool = fa != fb and bool(P.get("_crop_work_plots_valid", false)) and int(P.get("crop_count", -1)) == n0 and P.has("crop_work_plots")
+	if indexed_parts:
+		P["_transfer_parts"] = {"crop": ci, "owners": {str(fa): mine.duplicate(), str(fb): (P["crop_work_plots"].get(str(fb), {}).get(crop, []) as Array).duplicate()}}
 	var rem := n
 	var left := []
 	for i in mine:
@@ -587,9 +622,24 @@ static func land_moved(e: Dictionary, a: Dictionary, b: Dictionary, crop: String
 					if cache_ok:
 						CropRotation._ensure_plot(e, P, np, year, Persons.race_of(e), String(e.get("climate", "temperate")), day)
 						CropRotation._move_mix_acres(e, P, g, np, rem)
+	if indexed_parts: P.erase("_transfer_parts")
 	if not (cache_ok and CropRotation.reindex_owners(e, P, [fa, fb], touched)):
 		P["crop_count"] = -1
 	_dirty(P)
+
+## Native transfer order, also used for cheap rejection bounds on purchases.
+static func _owner_plot_ids(P: Dictionary, fid: int) -> Array:
+	var out: Array = []
+	if P["own"] is PackedInt32Array:
+		var owners: PackedInt32Array = P["own"]
+		var at: int = owners.find(fid)
+		while at >= 0:
+			out.append(at)
+			at = owners.find(fid, at + 1)
+	else:
+		for at: int in count(P):
+			if int(P["own"][at]) == fid: out.append(at)
+	return out
 
 ## Native transfer order, also used for cheap rejection bounds on purchases.
 static func move_candidates(P: Dictionary, fid: int, ci: int) -> Array:
@@ -597,8 +647,8 @@ static func move_candidates(P: Dictionary, fid: int, ci: int) -> Array:
 	if bool(P.get("_crop_work_plots_valid", false)) and int(P.get("crop_count", -1)) == count(P) and P.has("crop_work_plots") and ci >= 0 and ci < P["crops"].size():
 		for i in P["crop_work_plots"].get(str(fid), {}).get(String(P["crops"][ci]), []): mine.append(int(i))
 	else:
-		for i in count(P):
-			if int(P["own"][i]) == fid and int(P["sub"][i]) == ci and LAND_USES.has(int(P["use"][i])):
+		for i: int in _owner_plot_ids(P, fid):
+			if int(P["sub"][i]) == ci and LAND_USES.has(int(P["use"][i])):
 				mine.append(i)
 	mine.sort_custom(func(x, y): return int(P["ac"][x]) > int(P["ac"][y]) if int(P["ac"][x]) != int(P["ac"][y]) else x < y)
 	return mine
@@ -637,6 +687,10 @@ static func _purchase_indexed(e: Dictionary, a: Dictionary, b: Dictionary, crop:
 		for row in P["crop_work_acres"].get(str(int(b["id"])), {}).values():
 			active += float(row["active"])
 			fallow += float(row["fallow"])
+	if int(ctx.get("bound_n", -1)) == n and int(ctx.get("bound_rem", -1)) == 0:
+		var bound_active: float = active + float(ctx["bound_active"])
+		var bound_fallow: float = fallow + float(n) - (bound_active - active)
+		return {"acres": bound_active + bound_fallow, "active": bound_active, "fallow": bound_fallow}
 	if ctx.has("rem_by_n") and (ctx.has("s_min_act") or ctx.has("min_active")):
 		var rem_arr: PackedInt32Array = ctx["rem_by_n"]
 		if n >= 0 and n < rem_arr.size() and rem_arr[n] == 0:
@@ -727,6 +781,11 @@ static func _why(e: Dictionary, a: Dictionary, b: Dictionary) -> Array:
 	return ["sold", "sold by %s to %s" % [an, bn], "bought by %s" % bn, price]
 
 static func _give(P: Dictionary, e: Dictionary, i: int, fb: int, why: Array, day: float) -> void:
+	if P.has("_transfer_parts"):
+		var owner_lists: Dictionary = P["_transfer_parts"]["owners"]
+		var previous_owner: String = str(int(P["own"][i]))
+		if owner_lists.has(previous_owner): (owner_lists[previous_owner] as Array).erase(i)
+		if owner_lists.has(str(fb)): (owner_lists[str(fb)] as Array).append(i)
 	P["own"][i] = fb
 	var fl := int(P["fl"][i]) & ~F_SEIZED
 	if String(why[0]) == "seized":
@@ -740,10 +799,12 @@ static func _cap(s: String) -> String:
 
 ## A plot of family fid of crop ci with room for `add` more acres (<= ACRES), nearest to plot g; -1 if none.
 static func _part_plot(P: Dictionary, fid: int, ci: int, add: int, g: int) -> int:
+	if P.has("_transfer_parts") and int(P["_transfer_parts"]["crop"]) == ci and P["_transfer_parts"]["owners"].has(str(fid)):
+		return _purchase_part(P, P["_transfer_parts"]["owners"][str(fid)], add, g)
 	var best := -1; var bd := 1.0e9
 	var gp := Vector2(P["x"][g], P["y"][g])
-	for i in count(P):
-		if i != g and int(P["own"][i]) == fid and int(P["sub"][i]) == ci and LAND_USES.has(int(P["use"][i])) and int(P["ac"][i]) + add <= ACRES:
+	for i: int in _owner_plot_ids(P, fid):
+		if i != g and int(P["sub"][i]) == ci and LAND_USES.has(int(P["use"][i])) and int(P["ac"][i]) + add <= ACRES:
 			var d := gp.distance_squared_to(Vector2(P["x"][i], P["y"][i]))
 			if d < bd:
 				bd = d; best = i
@@ -783,10 +844,12 @@ static func _make_room(P: Dictionary, near: int) -> int:
 		var g: PackedInt32Array = P["g"]
 		var start := int(P["y"][near]) * S + int(P["x"][near])
 		var prev := {start: -1}
-		var q := [start]
-		var found := -1
-		while not q.is_empty() and found < 0:
-			var cur: int = q.pop_front()
+		var q: Array = [start]
+		var read_at: int = 0
+		var found: int = -1
+		while read_at < q.size() and found < 0:
+			var cur: int = int(q[read_at])
+			read_at += 1
 			var cx := cur % S; var cy := cur / S
 			for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
 				var nx: int = cx + d.x; var ny: int = cy + d.y
@@ -887,8 +950,8 @@ static func fell(e: Dictionary, P: Dictionary, day: float) -> void:
 		return
 	var cx := float(P["gw"]) * 0.5; var cy := float(P["gh"]) * 0.5
 	var woods := []
-	for i in count(P):
-		if int(P["use"][i]) == WOOD and float(P["st"][i]) >= FELLED_AT and not (int(P["fl"][i]) & F_FELLED and float(P["st"][i]) < THIN):
+	for i: int in _use_plot_ids(P, WOOD):
+		if float(P["st"][i]) >= FELLED_AT and not (int(P["fl"][i]) & F_FELLED and float(P["st"][i]) < THIN):
 			woods.append(i)
 	woods.sort_custom(func(a, b): return Vector2(P["x"][a] - cx, P["y"][a] - cy).length_squared() < Vector2(P["x"][b] - cx, P["y"][b] - cy).length_squared())
 	for i in woods:
@@ -913,8 +976,8 @@ static func fell(e: Dictionary, P: Dictionary, day: float) -> void:
 ## Woods grow back slowly: a felled plot regrows to thin wood in years, never at once.
 static func regrow(P: Dictionary, day: float, days: int) -> void:
 	var chg := false
-	for i in count(P):
-		if int(P["use"][i]) != WOOD or float(P["st"][i]) >= 1.0 or int(P["fl"][i]) & F_CLEARING:
+	for i: int in _use_plot_ids(P, WOOD):
+		if float(P["st"][i]) >= 1.0 or int(P["fl"][i]) & F_CLEARING:
 			continue
 		var was := wood_stage(P, i)
 		P["st"][i] = minf(1.0, float(P["st"][i]) + REGROW_DAY * float(days))
@@ -945,8 +1008,8 @@ static func clear_step(e: Dictionary, P: Dictionary, day: float, days: int) -> v
 ## A felled wood plot with a field beside it (-1 if none).
 static func _clearable(P: Dictionary) -> int:
 	var S := int(P["gw"]); var Hh := int(P["gh"])
-	for i in count(P):
-		if int(P["use"][i]) != WOOD or not (int(P["fl"][i]) & F_FELLED) or float(P["st"][i]) >= THIN:
+	for i: int in _use_plot_ids(P, WOOD):
+		if not (int(P["fl"][i]) & F_FELLED) or float(P["st"][i]) >= THIN:
 			continue
 		for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
 			var nx: int = int(P["x"][i]) + d.x; var ny: int = int(P["y"][i]) + d.y
@@ -1082,8 +1145,8 @@ static func _sync_homes(e: Dictionary, P: Dictionary, day: float) -> void:
 		want[Vector2i(MARKET, -1)] = int(e["stock"]["home"])
 	var have := {}
 	var pool := []
-	for i in count(P):
-		if int(P["use"][i]) != HOME or P.get("lodging_plots", []).has(i):
+	for i: int in _use_plot_ids(P, HOME):
+		if P.get("lodging_plots", []).has(i):
 			continue
 		var k := Vector2i(int(P["own"][i]), int(P["ten"][i]))
 		have[k] = int(have.get(k, 0)) + 1
@@ -1127,9 +1190,11 @@ static func _new_core_plot(P: Dictionary, use: int) -> int:
 
 static func _sync_yards(e: Dictionary, P: Dictionary, day: float) -> void:
 	var yard := {}
-	for i in count(P):
-		if int(P["use"][i]) == YARD or int(P["use"][i]) == MINE:
-			yard[int(P["sub"][i])] = i
+	var sites := _use_plot_ids(P, YARD)
+	sites.append_array(_use_plot_ids(P, MINE))
+	sites.sort()   # Preserve the original last-plot-wins order for duplicate business IDs.
+	for i: int in sites:
+		yard[int(P["sub"][i])] = i
 	for b in e.get("biz", []):
 		if NO_YARD.has(String(b["type"])):
 			continue
@@ -1164,10 +1229,7 @@ static func _sync_grazing(e: Dictionary, P: Dictionary) -> void:
 	if e.has("hd"):   # herds as records (addendum 1 B): owned pasture to its owners' herds, the common shared by need
 		Herds.assign_tiles(e, P)
 		return
-	var past := []
-	for i in count(P):
-		if int(P["use"][i]) == PASTURE:
-			past.append(i)
+	var past := _use_plot_ids(P, PASTURE)
 	if past.is_empty():
 		return
 	var heads := []
