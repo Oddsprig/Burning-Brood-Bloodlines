@@ -1,5 +1,7 @@
 # Burning Brood documentation and build rules
 
+Testing: follow HOW TO TEST at the top of AGENTS.md and CLAUDE.md. Run tests in blocks through runner.gd and blocks.json, one Godot launch per block, and only the blocks that cover a version's changes. The full suite runs only before a store launch.
+
 Owner standing process, 6 November 2026. Include this file's requirements in every helper build brief and link the shared [game testing rules](C:/Users/bligh/Documents/Codex/GAME%20TESTING%20RULES.md).
 
 A version is not done until these three active documents are updated for that version in the same version merge:

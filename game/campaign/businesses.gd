@@ -421,10 +421,17 @@ static func _who(e: Dictionary) -> Dictionary:
 	var fams: Array = e["fams"]
 	var c: Dictionary = e.get("_who", {})
 	var withp := 0   # (world gen names the register after the rows are made)
+	# v0.100: stamp only head-selection/name inputs, never jobs or life histories.
+	# v0.100: same-day ageing, service, marriage and renaming can change the map.
+	var naming := [String(e.get("culture", ""))]
 	for f in fams:
 		if f.has("pp"):
 			withp += 1
-	if int(c.get("d", -1)) == day and int(c.get("n", -1)) == fams.size() and int(c.get("p", -1)) == withp:
+		if f.get("estate", false): continue
+		var head := Persons.head_of(f) if f.has("pp") else []
+		naming.append([int(f["id"]), String(f["name"]), String(f.get("race", "")), head.slice(0, 4), String(Persons.g(head, 7, ""))])
+	var name_sig := hash(naming)
+	if int(c.get("d", -1)) == day and int(c.get("n", -1)) == fams.size() and int(c.get("p", -1)) == withp and c.get("h") == name_sig:
 		return c["m"]
 	var race := Persons.race_of(e)
 	var groups := {}
@@ -446,7 +453,7 @@ static func _who(e: Dictionary) -> Dictionary:
 		for i in g.size():
 			var tag: String = (["the elder", "the younger"][i] if g.size() == 2 else "of household %d" % (int(g[i][1]) + 1))
 			m[str(int(g[i][1]))] = "%s %s's" % [base, tag]
-	e["_who"] = {"d": day, "n": fams.size(), "p": withp, "m": m}
+	e["_who"] = {"d": day, "n": fams.size(), "p": withp, "h": name_sig, "m": m}
 	return m
 
 ## Usable know-how in a material: the faction's (e.fkh: steel, iron, bronze, mirrored from Academy each faction turn);

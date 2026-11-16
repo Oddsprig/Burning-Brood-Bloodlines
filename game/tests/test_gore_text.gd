@@ -20,6 +20,12 @@ func _check(cond: bool, what: String) -> void:
 		fails += 1
 
 func run(_tree: SceneTree) -> int:
+	var which: String = "all"
+	for arg: String in OS.get_cmdline_user_args():
+		if arg.begins_with("--gore-case="): which = arg.get_slice("=", 1)
+	_check(which in ["all", "claims"], "known gore case selector")
+	if fails > 0: return fails
+	print("GORE ten synchronous native battles and repeated claim rendering; required wall time UNMEASURED; external 59-second wall cap required (target under 60 seconds)")
 	CombatText.gore_full = true
 	var sims := _battles()
 	var entries := _strikes(sims)
@@ -31,6 +37,8 @@ func run(_tree: SceneTree) -> int:
 	_claims(entries, false)
 	_reduced_words(entries)
 	CombatText.gore_full = true
+	print("GORE selected=", which, " (claims excludes setting/performance/gear coverage)")
+	if which == "claims": return fails
 	_gore_setting()
 	_weapon_bend()
 	_armor_dent()
@@ -108,7 +116,7 @@ func _claims(entries: Array, full: bool) -> void:
 		["weapon bent", "\\bbends\\b|bent out of true", func(d): return String(d.get("wd", [""])[0]) == "bend"],
 		["edge chipped", "\\bchips\\b|notches against|sliver of edge", func(d): return String(d.get("wd", [""])[0]) == "chip"],
 		["armour dented", "\\bdents\\b|buckles inward|deep dent", func(d): return _ad(d, ["dented"])],
-		["armour broken", "\\bcracks\\b|\\bsplits\\b|split open|split apart|shatters|bursts apart|caves in|stoves in|rings burst|links snap", func(d): return _ad(d, ["split", "cracked", "shattered", "burst"])],
+		["armour broken", "\\bcracks\\b|\\bsplits\\b|split open|split apart|shatters|bursts apart|caves in|stoves in|rings burst|links snap", func(d): return _ad(d, ["split", "cracked", "shattered", "burst"]) or String(d.get("out", "")) == "shield_boss"],  # shield_boss text: the missile shatters on the boss
 		["armour holed", "is holed|punches a hole", func(d): return _ad(d, ["punctured"])],
 		["cry of pain", "cries out|howls|grunts|screams|bellows in pain|strangled yell", func(d): return String(d.get("rx", "")) == "cry" and float(d.get("pe", 0.0)) >= Formulas.PAIN_CRY],
 		["through armour", "through (his|her|its) (?!body)", func(d):
@@ -116,7 +124,7 @@ func _claims(entries: Array, full: bool) -> void:
 				if String(a[1]) in ["cut", "dented"]:
 					return true
 			return d.has("via")],
-		["stuck", "lodged|sticks fast|stuck fast|buried", func(d): return d.get("lodged", false)],
+		["stuck", "lodged|sticks fast|stuck fast|buried", func(d): return d.get("lodged", false) or String(d.get("out", "")) == "shield_stuck"],
 	]
 	var bad := 0
 	var hits := {}

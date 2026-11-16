@@ -270,19 +270,23 @@ static func _freeze(value: Variant, validation: Dictionary, depth: int = 0) -> V
 	return copy if validation["ok"] else null
 
 static func _detach_plain(value: Variant, validation: Dictionary, depth: int) -> void:
-	if depth > 128 or typeof(value) in [TYPE_OBJECT, TYPE_CALLABLE, TYPE_SIGNAL]:
+	var value_kind: int = typeof(value)
+	if depth > 128 or value_kind == TYPE_OBJECT or value_kind == TYPE_CALLABLE or value_kind == TYPE_SIGNAL:
 		validation["ok"] = false
 		return
 	if value is Dictionary:
 		for key in value:
 			# Native entries overwhelmingly use primitive keys; no copy or recursive
 			# function call is needed for their scalar fields.
-			if typeof(key) > TYPE_STRING:
+			var key_kind: int = typeof(key)
+			if key_kind > TYPE_STRING and (key_kind >= TYPE_OBJECT or depth >= 128):
 				_detach_plain(key, validation, depth + 1)
 				if not validation["ok"]: return
 			var child: Variant = value[key]
 			var kind: int = typeof(child)
-			if kind <= TYPE_STRING: continue
+			# All types below Object are immutable scalar values. Preserve the
+			# old depth-limit check for non-primitive leaves at the boundary.
+			if kind <= TYPE_STRING or (kind < TYPE_OBJECT and depth < 128): continue
 			if kind >= TYPE_PACKED_BYTE_ARRAY: value[key] = child.duplicate()
 			else:
 				_detach_plain(child, validation, depth + 1)
@@ -291,7 +295,9 @@ static func _detach_plain(value: Variant, validation: Dictionary, depth: int) ->
 		for i in value.size():
 			var child: Variant = value[i]
 			var kind: int = typeof(child)
-			if kind <= TYPE_STRING: continue
+			# All types below Object are immutable scalar values. Preserve the
+			# old depth-limit check for non-primitive leaves at the boundary.
+			if kind <= TYPE_STRING or (kind < TYPE_OBJECT and depth < 128): continue
 			if kind >= TYPE_PACKED_BYTE_ARRAY: value[i] = child.duplicate()
 			else:
 				_detach_plain(child, validation, depth + 1)

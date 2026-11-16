@@ -1,0 +1,37 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Kingscross physical capacity: 2593 plots, grid 63, per-use [1527, 0, 0, 1, 6, 776, 36, 1, 0, 87, 0, 123, 9, 0, 1, 26]
+Ashfield physical capacity: 1430 plots, grid 48, per-use [827, 0, 0, 204, 9, 247, 34, 1, 3, 42, 46, 0, 7, 0, 1, 9]
+Nibsump physical capacity: 1815 plots, grid 53, per-use [1182, 0, 0, 1, 6, 379, 37, 2, 0, 40, 54, 92, 8, 0, 1, 13]
+Ratden physical capacity: 1435 plots, grid 49, per-use [918, 0, 0, 80, 18, 267, 37, 2, 40, 55, 0, 0, 8, 0, 1, 9]
+Grolmok physical capacity: 2366 plots, grid 61, per-use [1466, 0, 0, 1, 6, 677, 39, 3, 0, 38, 0, 103, 9, 0, 1, 23]
+Gormok physical capacity: 1474 plots, grid 49, per-use [1018, 0, 0, 6, 6, 295, 36, 1, 0, 45, 49, 0, 7, 0, 1, 10]
+Durzgrat physical capacity: 2714 plots, grid 65, per-use [2049, 0, 0, 1, 6, 424, 36, 2, 0, 20, 68, 85, 7, 0, 1, 15]
+Eluvmir physical capacity: 2194 plots, grid 59, per-use [1210, 0, 0, 1, 6, 754, 38, 2, 0, 43, 0, 104, 9, 0, 1, 26]
+Aelorrin physical capacity: 2049 plots, grid 57, per-use [1340, 0, 0, 1, 6, 476, 39, 2, 0, 66, 0, 95, 7, 0, 1, 16]
+Caelorrin physical capacity: 1767 plots, grid 53, per-use [935, 0, 0, 1, 6, 622, 39, 4, 0, 32, 0, 98, 8, 0, 1, 21]
+Grubburrow physical capacity: 2779 plots, grid 66, per-use [2104, 0, 0, 1, 6, 470, 33, 0, 0, 49, 0, 90, 9, 0, 1, 16]
+Skragwarren physical capacity: 1982 plots, grid 56, per-use [1560, 0, 0, 1, 6, 243, 34, 2, 0, 49, 70, 0, 7, 0, 1, 9]
+Oakfield physical capacity: 1369 plots, grid 47, per-use [757, 0, 0, 159, 27, 271, 39, 3, 3, 48, 45, 0, 7, 0, 1, 9]
+Mirewarren physical capacity: 2070 plots, grid 57, per-use [1484, 0, 0, 1, 6, 374, 37, 3, 0, 60, 0, 83, 8, 0, 1, 13]
+Emberdeep physical capacity: 1876 plots, grid 54, per-use [857, 0, 0, 1, 6, 771, 36, 4, 0, 56, 0, 109, 9, 0, 1, 26]
+Coppervault physical capacity: 1148 plots, grid 43, per-use [424, 0, 0, 93, 6, 390, 36, 2, 60, 31, 0, 84, 8, 0, 1, 13]
+Amberbough physical capacity: 2755 plots, grid 66, per-use [1719, 0, 0, 1, 6, 763, 39, 0, 0, 20, 67, 104, 9, 0, 1, 26]
+Goldglade physical capacity: 1485 plots, grid 49, per-use [864, 0, 0, 75, 30, 349, 34, 2, 6, 30, 0, 75, 7, 0, 1, 12]
+Vessspire physical capacity: 2275 plots, grid 59, per-use [1200, 0, 0, 1, 6, 764, 39, 2, 0, 116, 0, 111, 9, 0, 1, 26]
+Gloamoth physical capacity: 999 plots, grid 40, per-use [442, 0, 0, 77, 93, 234, 35, 0, 0, 58, 44, 0, 7, 0, 1, 8]
+Oakstead physical capacity: 1122 plots, grid 44, per-use [559, 0, 0, 122, 69, 244, 38, 4, 32, 36, 0, 0, 8, 0, 1, 9]
+Grimfell physical capacity: 2717 plots, grid 65, per-use [1897, 0, 0, 1, 6, 567, 39, 3, 0, 76, 0, 99, 9, 0, 1, 19]
+Hrafnholm physical capacity: 2346 plots, grid 61, per-use [1651, 0, 0, 1, 6, 482, 40, 2, 0, 45, 0, 94, 7, 0, 1, 17]
+Thorstad physical capacity: 2127 plots, grid 58, per-use [1585, 0, 0, 1, 6, 348, 39, 3, 0, 50, 0, 75, 7, 0, 1, 12]
+Muckden physical capacity: 2142 plots, grid 58, per-use [1490, 0, 0, 1, 6, 454, 38, 0, 0, 43, 0, 84, 9, 0, 1, 16]
+Mudburrow physical capacity: 1780 plots, grid 53, per-use [1337, 0, 0, 1, 6, 257, 36, 0, 0, 68, 58, 0, 7, 0, 1, 9]
+Mucksump physical capacity: 1985 plots, grid 55, per-use [1313, 0, 0, 1, 6, 374, 39, 2, 0, 99, 58, 71, 8, 0, 1, 13]
+400 odd-acre moves: plots 1430 -> 1474, drift 0
+plots daily pass: avg 5.12 ms, worst 6.16 ms (27 towns); a whole sim day avg 42.4 ms
+== res://tests/test_land_plots.gd: PASS ==
+HERD TOTALS V043 checks=82 failures=0
+== res://tests/test_herd_totals_v043.gd: PASS ==
+== block v100_land: 2 tests, 0 failing ==
+  test_land_plots.gd PASS (13 s)
+  test_herd_totals_v043.gd PASS (1 s)

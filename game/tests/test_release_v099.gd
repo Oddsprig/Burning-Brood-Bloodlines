@@ -88,10 +88,11 @@ func inspector_words() -> void:
 
 # ------------------------------------------------------------------ 3. store build
 func store_build() -> void:
+	# v0.100: retained release checks follow the current version metadata.
 	var name_ := str(ProjectSettings.get_setting("application/config/name", ""))
 	check(name_ == "Burning Brood: Bloodlines", "store: shown name is Burning Brood: Bloodlines (got %s)" % name_)
 	check(str(ProjectSettings.get_setting("application/config/custom_user_dir_name", "")) == "Burning Brood Bloodlines Claude Edition", "store: the save folder name is unchanged, so old saves still load")
-	check(str(ProjectSettings.get_setting("application/config/version", "")) == "0.099", "store: version 0.099")
+	check(str(ProjectSettings.get_setting("application/config/version", "")) == "0.100", "store: version 0.100")
 	check(not FileAccess.get_file_as_string("res://ui/title.gd").contains("Claude Edition") and not FileAccess.get_file_as_string("res://main.gd").contains("Claude Edition"), "store: title screen and window title drop Claude Edition")
 	var splash := str(ProjectSettings.get_setting("application/boot_splash/image", ""))
 	check(splash != "" and FileAccess.file_exists(splash), "store: the boot splash image exists (%s)" % splash)
@@ -106,7 +107,7 @@ func store_build() -> void:
 	var a: String = by_name["Android"] + ".options"
 	check(cfg.get_value(w, "binary_format/embed_pck", false) == true and str(cfg.get_value(w, "binary_format/architecture", "")) == "x86_64", "store: Windows is one 64-bit .exe with the game inside")
 	check(FileAccess.file_exists(str(cfg.get_value(w, "application/icon", ""))), "store: the Windows icon file exists")
-	check(str(cfg.get_value(a, "version/name", "")) == "0.099" and int(cfg.get_value(a, "version/code", 0)) == 99, "store: Android version 0.099 (code 99)")
+	check(str(cfg.get_value(a, "version/name", "")) == "0.100" and int(cfg.get_value(a, "version/code", 0)) == 100, "store: Android version 0.100 (code 100)")
 	check(str(cfg.get_value(a, "keystore/release_password", "")) == "" and str(cfg.get_value(a, "keystore/release", "")) == "", "store: no release key or password in the committed presets")
 	for k in ["launcher_icons/main_192x192", "launcher_icons/adaptive_foreground_432x432", "launcher_icons/adaptive_background_432x432", "launcher_icons/adaptive_monochrome_432x432"]:
 		check(FileAccess.file_exists(str(cfg.get_value(a, k, ""))), "store: Android %s exists" % k.get_file())

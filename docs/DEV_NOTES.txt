@@ -1,5 +1,71 @@
 BURNING BROOD: BLOODLINES - CURRENT DEVELOPER NOTES
-Updated: 2026-11-07 | v0.099 merged 1fcb3fe758ad3a566cbb6b4466b25706fc3cd1d0 | v0.098 merged c6d525aa01d67bafacbf96f02206749b98d19bd3 | v0.097 merged 7b0429ab4aa596498624f862398c4bcd30e6b737 | v0.096 merged 6ed741a3134e8029496e83da18979052b015efb9 | packaged Windows/Android v0.099 (cloud build, not yet on sale)
+Updated: 2026-11-16 | v0.100 SALVAGE on 0f36e00, 11 blocks / 28 tests pass | last package v0.099 (Windows/Android, not on sale)
+Testing: follow HOW TO TEST at the top of AGENTS.md and CLAUDE.md. Run tests in blocks through runner.gd and blocks.json, one Godot launch per block, and only the blocks that cover a version's changes. The full suite runs only before a store launch.
+
+v0.100 SALVAGE
+Acceptance (2026-11-16, PC, Test Bridge, one headless Godot launch per block):
+11 blocks / 28 tests PASS: battle_a 5, battle_b 4, battle_c 2, v100_hiring 2,
+v100_harvest 2, v100_food 2, v100_records 2, v100_farms 2, v100_anatomy 3,
+v100_land 2, v100_world 2. Longest block v100_food ~70 s (harvest_lifecycle 68 s
+alone), so it is now split into v100_food + v100_harvest_life. Lead fixes during
+acceptance: battle_sim.gd declares capture_history (default on; sim r3 reads it;
+results unchanged); test_gore_render_v016 headless oracle and test_gore_text
+shield-arrow claim taken from the v0.100 branch; test_gore_text also accepts the
+shield-boss line ("it shatters" = the missile). Receipt:
+test-results/v0.100_salvage_receipt.txt.
+
+Base: main 0f36e00 (v0.099). No new package, installation or merge is claimed.
+
+Ships the CLEAN land-plots timing patch: native packed-use searches return the
+same ascending IDs for wood, clearing, homes, yards, pasture and pens. Uses are
+read afresh after conversions. No persistent index, plot data, ownership,
+daily scheduling or RNG change. Final CLEAN r2's test independently computes
+layout capacity before layout, enforces exact cells/uses and retains negative
+controls. Rejected r1 geometry is excluded; the 25 ms daily gate is unchanged.
+
+Ships sim perf r1/r2/r3/r5 only: pure early target rejection, weighted anatomy
+prefix tables with identical sum/draw/comparison order, setup warming, redundant
+journal-copy/context removal, intact-creature tables and equivalent local/direct
+calls. Main's mounted/dragon sync signatures and event/history policy remain.
+No r4/r6 code is needed. Absent fallen-foe helpers are not added. Saved instance
+field names and the raid_save codec are unchanged.
+
+The selected older-test commits 1d64e6b through 217011a apply exactly to main.
+Required game fixes: ac8aa8e's retained named Academy-place validation;
+2cae8a0's ordered farm departures/reference ranking and same-day business-name
+signature; ea84e46's throat report wording/severity. The paired/health tests
+require them. AI marriages (e2a26c6), unhorsed-rider knockdown (259580f),
+fallen-foe archers (e2a26c6/a19911e) and e2a26c6's save_snapshot fix stay out.
+No imported fixed test needs those optional game changes.
+
+Thirteen older tests and three GDScript oracles retain their exact comparisons.
+The lifecycle test includes the supplied real v0.030 checkpoint as data
+(14,358,896 source bytes), not a compatibility-code change. test_release_v099's
+version expectations become 0.100/code 100. Metadata: project 0.100; Android
+0.100/100 and v0100 filename; Windows 0.100.0.0. No signing key was read.
+
+Cannot port day_job_pending's guard alone: main lacks day_job_pending,
+CampaignDayJob and all turn/rest/sickness continuation preparers. They remain
+absent; the unchanged onboarding test is scheduled. Married-in spouse race is
+deferred: v0.101 adds optional person race state across persons, marriage,
+families and dynasty, exceeding approximately 40 game-code lines.
+
+Dropped: day/rest/turn/herd-week/sickness job splitting; perf probes; frame
+gates; raid_save; stack diffs; weekly-hiring r1-r4; startup chains; sim r4/r6;
+the bulk one-launch-per-test feeder. tb_driver requires an explicit single-row
+exception. Blocks use run_blocks.py. Both select --worktree (bb-v100-salvage by
+default). The absent bb-v097 shell wrapper is replaced by a direct headless
+runner command through Test Bridge (178 s job cap, 170 s watchdog). Prepare
+imports, if needed, in a separate authorized shared-lane job.
+
+HOW TO TEST is at the top of AGENTS.md/CLAUDE.md. Targeted manifest:
+test-results/v0.100/targeted_tests_v100.md. Plan:
+test-results/v0.100/runs/blocks_v100_salvage.txt (11 blocks / 28 distinct tests).
+No Godot, game/engine/GPU test, engine parser or build was run by this worker.
+Static checks/limits are in the manifest. Runtime compilation, exact results,
+determinism and timing remain pending. Battle_a/b/c's inherited 40/96/86 s are
+historical, not candidate passes; split b/c on fresh timing to target 60 s,
+always below the 180 s hard cap.
 
 CURRENT SOURCE AND DOCUMENTATION
 v0.086-v0.094 are accepted normal source merges. The last packaged release before

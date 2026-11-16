@@ -6,6 +6,60 @@ func check(ok: bool, msg: String) -> void:
 	checks += 1
 	if not ok: fails += 1; printerr("FAIL: ", msg)
 
+# v0.100: build a one-civilian household from a real resident, rather than
+# v0.100: requiring a random family to have no children, elders or other workers.
+func labour_household(e: Dictionary) -> Dictionary:
+	for source in e["fams"]:
+		if source.get("gone", false) or source.get("estate", false) or int(source["homes"]) <= 0: continue
+		# v0.100: leave the town's office-holding household and its references intact.
+		if int(source["id"]) == int(e["head"]["fam"]): continue
+		var race := Persons.family_race(e, source)
+		var elder_age := float(People.ages(race)["elder"]) * People.year_days()
+		var p: Array = []
+		for member in Persons.pp_read(source):
+			if int(member[6]) != 0 or String(member[4]) != "" or int(member[5]) >= 0: continue
+			if Persons.preg_of(source, int(member[0])) >= 0 or not Sickness.case_of(source, int(member[0])).is_empty(): continue
+			# v0.100: keep this real adult eligible through all three weekly turns.
+			if float(e["day"]) + 21.0 >= float(member[3]) + elder_age: continue
+			p = member; break
+		# v0.100: a pool's anonymous adults are real residents too; native promotion
+		# v0.100: removes one age-bin slot before giving that same resident a record.
+		if p.is_empty() and Population.is_cohort(source):
+			var rng := RandomNumberGenerator.new()
+			rng.seed = hash([int(Game.world["seed"]), String(e["identity_scope"]), "v0.100-hiring"])
+			p = Population.promote(e, source, float(e["day"]), rng)
+		if p.is_empty(): continue
+		var before := Families.people(source)
+		var homes_before := int(source["homes"])
+		var f := Families._blank(e["fams"].size())
+		Persons.identity(e, source, p)
+		var person_uid := str(p[Persons.PERSON_UID])
+		var house_uid := str(p[Persons.HOUSE_UID])
+		var full_name := Persons.name_of(source, p, race)
+		f["name"] = full_name.split(" ")[-1]
+		f["race"] = race; f["cul"] = source.get("cul", e["culture"])
+		f["seed"] = source["seed"]; f["last"] = float(e["day"])
+		f["tax_season"] = source["tax_season"]
+		var sex := "m" if int(p[2]) == 0 else "f"
+		source[sex] = int(source[sex]) - 1; f[sex] = 1
+		source["homes"] = int(source["homes"]) - 1; f["homes"] = 1
+		Persons.pp(source).erase(p); Persons.pp(f).append(p)
+		p[7] = full_name
+		source.erase("nxa")
+		e["fams"].append(f)
+		Families.identity(e, f)
+		Sickness.moved(e, source, f, int(p[0]))
+		Dynasty.record_person(e, f, p, true)
+		# v0.100: the split moves the exact person, never copies a worker or drops kin.
+		assert(Families.people(source) + Families.people(f) == before, "household split conserves real people")
+		assert(int(source["homes"]) + int(f["homes"]) == homes_before, "household split conserves real dwellings")
+		assert(Families.adults(f) - Families.serving(f) == 1 and Families.people(f) == 1, "one real civilian and no dependants")
+		assert(Persons.by_pid(source, int(p[0])).is_empty() and is_same(Persons.pp_read(f)[0], p) and str(p[Persons.PERSON_UID]) == person_uid, "resident identity moves exactly once")
+		assert(str(p[Persons.HOUSE_UID]) == house_uid, "resident keeps the same lineage")
+		assert(float(e["day"]) + 21.0 < float(p[3]) + elder_age, "resident remains an adult through the timing checks")
+		return f
+	return {}
+
 # Companion to unchanged test_hiring_timing.gd; all 54 assertions and wage timing are retained.
 # Move the selected adult's actual plots and age-specific animals to the estate.
 # Native ownership transfers preserve the holdings; no physical records are erased.
@@ -13,35 +67,34 @@ func fixture() -> Array:
 	for t in Game.world["towns"].values():
 		if not TownEcon.has_econ(t): continue
 		var e: Dictionary = t["econ"]
-		for f in e["fams"]:
-			if f.get("gone", false) or f.get("estate", false) or Families.adults(f) != 1 or Families.serving(f) != 0: continue
-			if int(f["kids"]) > 0 or int(f["old"]) > 0: continue
-			for family in e["fams"]:
-				for k in family["jobs"].keys(): Families.set_job(e, family, int(k), 0)
-				Shelter.release_casual(e, family)
-			for b in e["biz"]: b["closed"] = true
-			var estate: Dictionary = e["fams"][0]
-			for crop in f["land"].keys():
-				Families.move_land(e, f, estate, String(crop), int(f["land"][crop]))
-			for animal in f["herd"].keys():
-				Families.move_herd(e, f, estate, String(animal), int(f["herd"][animal]))
-			for source in Herds.of_family(e, int(f["id"])):
-				var destination := Herds.herd_for(e, 0, String(source["k"]), float(e["day"]))
-				for age in ["o", "y", "g"]:
-					var n := int(source[age])
-					if n > 0:
-						Herds._transfer(e, source, destination, age, n, "sold", "bought",
-							"controlled hiring fixture", "controlled hiring fixture", float(e["day"]))
-			assert(Families.need_hands(f, e) == 0.0, "native holding transfers free the selected adult")
-			f["owns"] = []; f["keeps"] = []; f["farm"] = -1
-			f["hands"] = 0; f["idle"] = 1; f["unpaid"] = 0; f["hungry"] = 0; f["debt"] = 0.0
-			f["purse"] = 100000.0; f["homes"] = 1; f["cond"] = 1.0
-			f["store"] = {"food": 100.0, "drink": 100.0, "wood": 100.0}
-			for key in ["hl", "rent", "landlord", "cjearned"]: f.erase(key)
-			e["cjcap"] = {}; e["cjused"] = {}; e["treasury"] = 1000000.0
-			var b := Businesses._row(e, "carpenter", -1, 1, TownEcon.data())
-			b["wage"] = 100.0; b["till"] = 100000.0
-			return [t, e, f, b]
+		var f := labour_household(e)
+		if f.is_empty(): continue
+		for family in e["fams"]:
+			for k in family["jobs"].keys(): Families.set_job(e, family, int(k), 0)
+			Shelter.release_casual(e, family)
+		for b in e["biz"]: b["closed"] = true
+		var estate: Dictionary = e["fams"][0]
+		for crop in f["land"].keys():
+			Families.move_land(e, f, estate, String(crop), int(f["land"][crop]))
+		for animal in f["herd"].keys():
+			Families.move_herd(e, f, estate, String(animal), int(f["herd"][animal]))
+		for source in Herds.of_family(e, int(f["id"])):
+			var destination := Herds.herd_for(e, 0, String(source["k"]), float(e["day"]))
+			for age in ["o", "y", "g"]:
+				var n := int(source[age])
+				if n > 0:
+					Herds._transfer(e, source, destination, age, n, "sold", "bought",
+						"controlled hiring fixture", "controlled hiring fixture", float(e["day"]))
+		assert(Families.need_hands(f, e) == 0.0, "native holding transfers free the selected adult")
+		f["owns"] = []; f["keeps"] = []; f["farm"] = -1
+		f["hands"] = 0; f["idle"] = 1; f["unpaid"] = 0; f["hungry"] = 0; f["debt"] = 0.0
+		f["purse"] = 100000.0; f["homes"] = 1; f["cond"] = 1.0
+		f["store"] = {"food": 100.0, "drink": 100.0, "wood": 100.0}
+		for key in ["hl", "rent", "landlord", "cjearned"]: f.erase(key)
+		e["cjcap"] = {}; e["cjused"] = {}; e["treasury"] = 1000000.0
+		var b := Businesses._row(e, "carpenter", -1, 1, TownEcon.data())
+		b["wage"] = 100.0; b["till"] = 100000.0
+		return [t, e, f, b]
 	return []
 
 func ordinary_turn(t: Dictionary, e: Dictionary, f: Dictionary) -> void:
@@ -115,6 +168,7 @@ func run(_tree: SceneTree) -> int:
 	for seed_v in [713, 2026, 8801]:
 		Game.new_game(seed_v)
 		var rows := fixture(); check(rows.size() == 4, "generated labour fixture exists")
+		if rows.is_empty(): printerr("v0.100: no eligible real civilian for seed ", seed_v)
 		if rows.size() == 4: reopened_place(rows); better_current_offer(rows); casual_only(rows)
 	print("HIRING TIMING checks=", checks, " failures=", fails)
 	return fails

@@ -139,6 +139,21 @@ static func _fix(P: Dictionary) -> void:
 static func count(P: Dictionary) -> int:
 	return (P["x"] as PackedInt32Array).size()
 
+## Ascending IDs from the live use column; native search skips unrelated plots.
+## Keep this local to the call: clearing and weekly sync can change plot uses.
+static func _use_plot_ids(P: Dictionary, use: int) -> Array:
+	var out: Array = []
+	if P["use"] is PackedInt32Array:
+		var uses: PackedInt32Array = P["use"]
+		var at: int = uses.find(use)
+		while at >= 0:
+			out.append(at)
+			at = uses.find(use, at + 1)
+	else:
+		for at: int in count(P):
+			if int(P["use"][at]) == use: out.append(at)
+	return out
+
 ## World gen: every town's plots, read from the land, homes, businesses and herds the economy made (one call at
 ## the end of CampaignWorld.generate).
 static func init_world(game) -> void:
@@ -887,8 +902,8 @@ static func fell(e: Dictionary, P: Dictionary, day: float) -> void:
 		return
 	var cx := float(P["gw"]) * 0.5; var cy := float(P["gh"]) * 0.5
 	var woods := []
-	for i in count(P):
-		if int(P["use"][i]) == WOOD and float(P["st"][i]) >= FELLED_AT and not (int(P["fl"][i]) & F_FELLED and float(P["st"][i]) < THIN):
+	for i: int in _use_plot_ids(P, WOOD):
+		if float(P["st"][i]) >= FELLED_AT and not (int(P["fl"][i]) & F_FELLED and float(P["st"][i]) < THIN):
 			woods.append(i)
 	woods.sort_custom(func(a, b): return Vector2(P["x"][a] - cx, P["y"][a] - cy).length_squared() < Vector2(P["x"][b] - cx, P["y"][b] - cy).length_squared())
 	for i in woods:
@@ -913,8 +928,8 @@ static func fell(e: Dictionary, P: Dictionary, day: float) -> void:
 ## Woods grow back slowly: a felled plot regrows to thin wood in years, never at once.
 static func regrow(P: Dictionary, day: float, days: int) -> void:
 	var chg := false
-	for i in count(P):
-		if int(P["use"][i]) != WOOD or float(P["st"][i]) >= 1.0 or int(P["fl"][i]) & F_CLEARING:
+	for i: int in _use_plot_ids(P, WOOD):
+		if float(P["st"][i]) >= 1.0 or int(P["fl"][i]) & F_CLEARING:
 			continue
 		var was := wood_stage(P, i)
 		P["st"][i] = minf(1.0, float(P["st"][i]) + REGROW_DAY * float(days))
@@ -945,8 +960,8 @@ static func clear_step(e: Dictionary, P: Dictionary, day: float, days: int) -> v
 ## A felled wood plot with a field beside it (-1 if none).
 static func _clearable(P: Dictionary) -> int:
 	var S := int(P["gw"]); var Hh := int(P["gh"])
-	for i in count(P):
-		if int(P["use"][i]) != WOOD or not (int(P["fl"][i]) & F_FELLED) or float(P["st"][i]) >= THIN:
+	for i: int in _use_plot_ids(P, WOOD):
+		if not (int(P["fl"][i]) & F_FELLED) or float(P["st"][i]) >= THIN:
 			continue
 		for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
 			var nx: int = int(P["x"][i]) + d.x; var ny: int = int(P["y"][i]) + d.y
@@ -1082,8 +1097,8 @@ static func _sync_homes(e: Dictionary, P: Dictionary, day: float) -> void:
 		want[Vector2i(MARKET, -1)] = int(e["stock"]["home"])
 	var have := {}
 	var pool := []
-	for i in count(P):
-		if int(P["use"][i]) != HOME or P.get("lodging_plots", []).has(i):
+	for i: int in _use_plot_ids(P, HOME):
+		if P.get("lodging_plots", []).has(i):
 			continue
 		var k := Vector2i(int(P["own"][i]), int(P["ten"][i]))
 		have[k] = int(have.get(k, 0)) + 1
@@ -1127,9 +1142,11 @@ static func _new_core_plot(P: Dictionary, use: int) -> int:
 
 static func _sync_yards(e: Dictionary, P: Dictionary, day: float) -> void:
 	var yard := {}
-	for i in count(P):
-		if int(P["use"][i]) == YARD or int(P["use"][i]) == MINE:
-			yard[int(P["sub"][i])] = i
+	var sites := _use_plot_ids(P, YARD)
+	sites.append_array(_use_plot_ids(P, MINE))
+	sites.sort()   # Preserve the original last-plot-wins order for duplicate business IDs.
+	for i: int in sites:
+		yard[int(P["sub"][i])] = i
 	for b in e.get("biz", []):
 		if NO_YARD.has(String(b["type"])):
 			continue
@@ -1164,10 +1181,7 @@ static func _sync_grazing(e: Dictionary, P: Dictionary) -> void:
 	if e.has("hd"):   # herds as records (addendum 1 B): owned pasture to its owners' herds, the common shared by need
 		Herds.assign_tiles(e, P)
 		return
-	var past := []
-	for i in count(P):
-		if int(P["use"][i]) == PASTURE:
-			past.append(i)
+	var past := _use_plot_ids(P, PASTURE)
 	if past.is_empty():
 		return
 	var heads := []

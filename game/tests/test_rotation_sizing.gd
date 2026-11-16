@@ -5,15 +5,20 @@ var fails := 0
 
 # Golden soil-weighted annual means, including one zero-yield fallow phase.
 # These values are fixtures, independent of the live selector and live tables.
+# v0.100: cover 8b1b703's high_elf/dark_elf keys; both use the planner's human fallback.
 const MEANS := {
 	"human": {"cold": [142.5, 125.0, 131.25], "temperate": [147.5, 125.0, 131.25], "hot": [147.5, 117.5, 116.25], "dry": [142.5, 125.0, 116.25]},
 	"moon_elf": {"cold": [137.5, 112.5, 131.25], "temperate": [147.5, 112.5, 131.25], "hot": [147.5, 112.5, 116.25], "dry": [97.5, 75.0, 76.25]},
+	"high_elf": {"cold": [142.5, 125.0, 131.25], "temperate": [147.5, 125.0, 131.25], "hot": [147.5, 117.5, 116.25], "dry": [142.5, 125.0, 116.25]},
+	"dark_elf": {"cold": [142.5, 125.0, 131.25], "temperate": [147.5, 125.0, 131.25], "hot": [147.5, 117.5, 116.25], "dry": [142.5, 125.0, 116.25]},
 	"dwarf": {"cold": [142.5, 125.0, 131.25], "temperate": [142.5, 125.0, 131.25], "hot": [97.5, 75.0, 76.25], "dry": [142.5, 125.0, 116.25]},
 	"orc": {"cold": [142.5, 125.0, 116.25], "temperate": [142.5, 125.0, 116.25], "hot": [137.5, 117.5, 106.25], "dry": [142.5, 125.0, 116.25]},
 	"goblin": {"cold": [142.5, 125.0, 118.75], "temperate": [142.5, 125.0, 118.75], "hot": [137.5, 117.5, 106.25], "dry": [142.5, 125.0, 116.25]}}
 const CEREALS := {
 	"human": {"cold": ["barley", "barley", "oats"], "temperate": ["wheat", "barley", "oats"], "hot": ["wheat", "millet", "wheat"], "dry": ["barley", "barley", "barley"]},
 	"moon_elf": {"cold": ["rye", "rye", "oats"], "temperate": ["wheat", "wheat", "oats"], "hot": ["wheat", "wheat", "wheat"], "dry": ["fallow", "fallow", "fallow"]},
+	"high_elf": {"cold": ["barley", "barley", "oats"], "temperate": ["wheat", "barley", "oats"], "hot": ["wheat", "millet", "wheat"], "dry": ["barley", "barley", "barley"]},
+	"dark_elf": {"cold": ["barley", "barley", "oats"], "temperate": ["wheat", "barley", "oats"], "hot": ["wheat", "millet", "wheat"], "dry": ["barley", "barley", "barley"]},
 	"dwarf": {"cold": ["barley", "barley", "oats"], "temperate": ["barley", "barley", "oats"], "hot": ["fallow", "fallow", "fallow"], "dry": ["barley", "barley", "barley"]},
 	"orc": {"cold": ["barley", "barley", "barley"], "temperate": ["barley", "barley", "barley"], "hot": ["millet", "millet", "millet"], "dry": ["barley", "barley", "barley"]},
 	"goblin": {"cold": ["barley", "barley", "rye"], "temperate": ["barley", "barley", "rye"], "hot": ["millet", "millet", "millet"], "dry": ["barley", "barley", "barley"]}}
@@ -41,7 +46,7 @@ func sizing_eaters(e: Dictionary) -> float:
 func expected_crop(race: String, climate: String, soil: int, phase: int) -> String:
 	if phase == 0: return CEREALS[race][climate][soil]
 	if phase == 1:
-		return "peas" if soil == 2 and race in ["human", "moon_elf", "dwarf"] and climate in ["cold", "temperate"] else "beans"
+		return "peas" if soil == 2 and race in ["human", "moon_elf", "high_elf", "dark_elf", "dwarf"] and climate in ["cold", "temperate"] else "beans"
 	return "vegetables" if phase == 2 else "fallow"
 
 func physical_cycle(culture: String, climate: String) -> void:
@@ -85,14 +90,29 @@ func policy_matrix() -> void:
 						check(policy.call("choose_crop", race, climate, soils[si], phase) == expected_crop(race, climate, si, phase), "selector matches independent permitted-crop fixture")
 			physical_cycle(culture, climate)
 
-func independent_eaters(e: Dictionary) -> float:
-	var race := String(TownEcon.data()["cultures"][e["culture"]]["race"])
-	var threshold := float(People.ages(race)["adult"]) / 16.0 * 10.0 * People.year_days()
+func independent_eaters(e: Dictionary, children_as_adults: bool = false) -> float:
 	var shares := 0.0
 	for f in e["fams"]:
 		if f.get("estate", false) or f.get("gone", false): continue
-		shares += float(Families.adults(f) + int(f["old"]))
-		for kid in f.get("kp", []): shares += 0.8 if -float(kid[3]) >= threshold else 0.6
+		# v0.100: 8b1b703 applies each household's race and food multiplier, including minorities.
+		var race := String(f.get("race", ""))
+		if race == "": race = String(TownEcon.data()["cultures"][e["culture"]]["race"])
+		var adult := float(People.ages(race)["adult"])
+		var threshold := adult / 16.0 * 10.0 * People.year_days()
+		var older := 0
+		for kid in f.get("kp", []):
+			if -float(kid[3]) >= threshold: older += 1
+		# v0.100: anonymous children have real age bins rather than kp person records.
+		if f.get("cohort", false):
+			for key in f.get("age_bins", {}):
+				var age := -int(String(key).split(":")[1])
+				if float(age) * People.year_days() >= threshold and age < adult:
+					older += int(f["age_bins"][key])
+		older = mini(int(f["kids"]), older)
+		var child_shares := float(f["kids"]) if children_as_adults else float(int(f["kids"]) - older) * 0.6 + float(older) * 0.8
+		var multiplier := float(DB.races[race].get("food_mult", 1.0))
+		if multiplier <= 0.0: multiplier = 1.0
+		shares += (float(Families.adults(f) + int(f["old"])) + child_shares) * multiplier
 	return shares
 
 func generation_signature() -> Dictionary:
@@ -122,12 +142,15 @@ func direct_sizing() -> void:
 		var source: Dictionary = Game.world["towns"].values()[0]
 		var town: Dictionary = source.duplicate(true)
 		town["culture"] = culture
+		# v0.100: 8b1b703 fixtures must keep the copied town's race consistent with its culture.
+		town["race"] = String(TownEcon.data()["cultures"][culture]["race"])
 		var rng := RandomNumberGenerator.new(); rng.seed = 4096
 		EconGen.generate(Game.world, town, rng)
 		var e: Dictionary = town["econ"]
 		var eaters := independent_eaters(e)
 		check(equal(eaters, sizing_eaters(e)), "persons exist before direct generation's food sizing")
-		check(eaters < float(e["pop"]), "children reduce meal demand while adults and elders keep full shares")
+		# v0.100: compare children with the same races' full adult meals, including heavyweight families.
+		check(eaters < independent_eaters(e, true), "children reduce meal demand while adults and elders keep full shares")
 		var soil_means: Array = MEANS[String(TownEcon.data()["cultures"][culture]["race"])][e["climate"]]
 		var mean := (float(soil_means[0]) + float(soil_means[1]) + float(soil_means[2])) / 3.0 * float(TownEcon.data()["climates"][e["climate"]]["grain_yield"])
 		var diet := Barge.diet(e)
@@ -141,10 +164,13 @@ func direct_sizing() -> void:
 		check(grain_actual * mean + tolerance * mean >= grain_need * multiplier * 0.95 * 1.45, "direct acreage covers the rotation-aware intended output at minimum generation roll")
 		check(grain_actual * mean - tolerance * mean <= grain_need * multiplier * 1.2 * 1.45, "generation retains bounded specialty/random/surplus policy")
 		var repeated: Dictionary = source.duplicate(true); repeated["culture"] = culture
+		repeated["race"] = town["race"]
 		var repeat_rng := RandomNumberGenerator.new(); repeat_rng.seed = 4096
 		EconGen.generate(Game.world, repeated, repeat_rng)
 		check(e["land"] == repeated["econ"]["land"], "equal direct generation seed preserves land sizing")
 	var fallback: Dictionary = Game.world["towns"].values()[0].duplicate(true); fallback["culture"] = "unsupported-fixture-culture"
+	# v0.100: the intentionally unsupported culture normalizes to the human middle culture.
+	fallback["race"] = "human"
 	var fallback_rng := RandomNumberGenerator.new(); fallback_rng.seed = 4096
 	EconGen.generate(Game.world, fallback, fallback_rng)
 	check(fallback["econ"]["culture"] == "middle" and sizing_eaters(fallback["econ"]) > 0.0, "generation normalizes unsupported culture before person and crop planning")

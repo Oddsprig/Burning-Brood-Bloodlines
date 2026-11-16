@@ -53,15 +53,16 @@ static func _init_morale(sim) -> void:
 
 ## Actual assigned same-side officer within the existing native command radius.
 ## Cached indices make support/rally O(1), with live incapacity/identity checks.
-static func _commander_near(sim, f: Fighter) -> Fighter:
+static func _commander_near(sim: BattleSim, f: Fighter) -> Fighter:
 	if f.commander_idx < 0 or f.commander_idx >= sim.fighters.size(): return null
 	var o: Fighter = sim.fighters[f.commander_idx]
 	if o == f or o.unit == f.unit or o.side != f.side or o.unit.uid != f.commander_uid or \
 			f.unit.squad != f.commander_uid or f.unit.uid == f.commander_uid or not o.unit.is_officer():
 		return null
-	if o.unit.dead or not o.standing() or o.state not in ["ready", "moving", "preparing", "recovering"] or o.routed or o.stance_lost:
+	# perf: the state test is `o.state not in [...]` without building the array
+	if o.unit.dead or not o.standing() or (o.state != "ready" and o.state != "moving" and o.state != "preparing" and o.state != "recovering") or o.routed or o.stance_lost:
 		return null
-	if sim._dist(o.cell, f.cell) > Formulas.LEADER_RADIUS: return null
+	if maxi(absi(o.cell.x - f.cell.x), absi(o.cell.y - f.cell.y)) > Formulas.LEADER_RADIUS: return null   # perf: _dist inlined
 	return o
 
 static func _leader_near(sim, f: Fighter) -> float:
@@ -92,7 +93,10 @@ static func _flee_step(sim, f: Fighter) -> void:
 		if p.x < 0 or p.y < 0 or p.x >= sim.grid_w or p.y >= sim.grid_h:
 			continue
 		var ci: int = p.y * sim.grid_w + p.x
-		if sim.tiles[ci] == T_BLOCKED or sim.occ[ci] != -1 or not sim._diag_ok(fc, p):
+		if sim.tiles[ci] == T_BLOCKED or sim.occ[ci] != -1:
+			continue
+		# perf: _diag_ok inlined (unit step; both corner cells are in bounds when fc and p are)
+		if n.x != 0 and n.y != 0 and (sim.tiles[fc.y * sim.grid_w + p.x] == T_BLOCKED or sim.tiles[p.y * sim.grid_w + fc.x] == T_BLOCKED):
 			continue
 		best = p
 		best_d = dd
@@ -130,14 +134,14 @@ static func _knock_out(sim, f: Fighter, why: String) -> void:
 	f.action_ticks = 0
 	f.pending_action = {}
 	f.ko_cause = why
-	sim._rip_free(f)
+	BattleDamage._rip_free(sim, f)
 	if f.grabbing >= 0:
-		sim._release_grab(f)
+		BattleDamage._release_grab(sim, f)
 	if not f.routed:
 		sim.side_down[f.side] += 1
 	sim._ev_simple("unconscious", f.idx, -1, "ko_" + why, {"pain": f.unit.body.pain, "blood": sim._blood_frac(f), "brain": f.think_dmg})
 	if not f.routed:
-		sim._ally_down(f, false)
+		_ally_down(sim, f, false)
 
 static func _kill(sim, f: Fighter, killer: int, why: String) -> void:
 	if f.state == "dead":
@@ -160,11 +164,11 @@ static func _kill(sim, f: Fighter, killer: int, why: String) -> void:
 	f.death_cause = why
 	f.unit.dead = true
 	if f.grabbing >= 0:
-		sim._release_grab(f)
+		BattleDamage._release_grab(sim, f)
 	if f.grabbed_by >= 0:
-		sim._release_grab(sim.fighters[f.grabbed_by])
+		BattleDamage._release_grab(sim, sim.fighters[f.grabbed_by])
 	if not f.lodged.is_empty():
-		sim._let_go(f, false)
+		BattleDamage._let_go(sim, f, false)
 	if not was_down:
 		sim.side_down[f.side] += 1
 	var kl := ""
@@ -185,25 +189,31 @@ static func _kill(sim, f: Fighter, killer: int, why: String) -> void:
 			if k.unit.skill("intimidator") > 0:
 				for o in sim.fighters:
 					if o.side == f.side and o != f and o.present() and sim._dist(o.cell, k.cell) <= Formulas.LEADER_RADIUS:
-						sim._shock(o, Formulas.SHOCK_INTIMIDATE_PER * k.unit.skill("intimidator"), "intimidated", false)
+						_shock(sim, o, Formulas.SHOCK_INTIMIDATE_PER * k.unit.skill("intimidator"), "intimidated", false)
 	sim._ev_simple("death", kidx, f.idx, "death", {"why": why, "killer": kl}, true)
 	if not was_down:
-		sim._ally_down(f, true)
+		_ally_down(sim, f, true)
 
 ## Allies near a fallen or routed unit take a morale shock; an officer falling shakes his squad (the captain, everyone).
 ## Panic spreads one step per tick: the shock of a fall/rout reaches nearby allies on the next tick.
 static func _ally_down(sim, f: Fighter, died: bool) -> void:
 	sim._downs.append([f, died])
 
-static func _process_downs(sim) -> void:
+static func _process_downs(sim: BattleSim) -> void:
 	# at most DOWNS_PER_TICK shocks spread per tick (panic travels; also keeps rout cascades off a single tick)
 	var n := mini(sim._downs.size(), Formulas.DOWNS_PER_TICK)
+	if n == 1:
+		# Detach this tick's source before shocks append next-tick sources.
+		# Avoid allocating/copying both queue slices in the native one-source case.
+		var source: Array = sim._downs.pop_front()
+		_ally_down_now(sim, source[0], source[1])
+		return
 	var batch: Array = sim._downs.slice(0, n)
 	sim._downs = sim._downs.slice(n)
 	for x in batch:
-		sim._ally_down_now(x[0], x[1])
+		_ally_down_now(sim, x[0], x[1])
 
-static func _ally_down_now(sim, f: Fighter, died: bool) -> void:
+static func _ally_down_now(sim: BattleSim, f: Fighter, died: bool) -> void:
 	var officer := f.unit.is_officer()
 	var fx := f.cell.x
 	var fy := f.cell.y
@@ -213,18 +223,20 @@ static func _ally_down_now(sim, f: Fighter, died: bool) -> void:
 			var oc: Vector2i = o.cell
 			if absi(oc.x - fx) > Formulas.STRESS_RADIUS or absi(oc.y - fy) > Formulas.STRESS_RADIUS:
 				continue
-		if o.side != f.side or o == f or not o.present() or o.routed:
+		var ost: String = o.state   # perf: present() inlined (same checks)
+		if o.side != f.side or o == f or ost == "dead" or ost == "fled" or ost == "unconscious" or o.waiting or o.routed:
 			continue
 		if officer and (o.unit.squad == f.unit.uid or f.unit.role == "captain"):
-			sim._shock(o, Formulas.SHOCK_OFFICER_FALLS * (0.5 + o.tr_loyalty / 100.0), "officer_falls", died)
+			_shock(sim, o, Formulas.SHOCK_OFFICER_FALLS * (0.5 + o.tr_loyalty / 100.0), "officer_falls", died)
 		elif absi(o.cell.x - f.cell.x) <= Formulas.STRESS_RADIUS and absi(o.cell.y - f.cell.y) <= Formulas.STRESS_RADIUS:   # = _dist, inlined (perf)
 			if died:
 				o.unit.hardness = mini(100, o.unit.hardness + 1)
-			sim._shock(o, Formulas.SHOCK_ALLY_DIES if died else (Formulas.SHOCK_ALLY_ROUTS if f.routed else Formulas.SHOCK_ALLY_KO), "ally_down", died)
+			_shock(sim, o, Formulas.SHOCK_ALLY_DIES if died else (Formulas.SHOCK_ALLY_ROUTS if f.routed else Formulas.SHOCK_ALLY_KO), "ally_down", died)
 
 ## Morale shock (survey item 3). Rage may trigger; below 25 the unit rolls to hold or rout.
-static func _shock(sim, f: Fighter, base: float, why: String, rage_trigger: bool) -> void:
-	if not f.present() or f.routed or base <= 0.0:
+static func _shock(sim: BattleSim, f: Fighter, base: float, why: String, rage_trigger: bool) -> void:
+	var fst: String = f.state   # perf: present() inlined (same checks)
+	if fst == "dead" or fst == "fled" or fst == "unconscious" or f.waiting or f.routed or base <= 0.0:
 		return
 	if f.nofear:
 		return
@@ -241,7 +253,7 @@ static func _shock(sim, f: Fighter, base: float, why: String, rage_trigger: bool
 		var ch2 := Formulas.rout_chance(f.morale, f.tr_courage, f.unit.skill("discipline"))
 		var mr_r := Formulas.roll_morale_draw(sim.rng)   # roll_morale; its record is built only when the unit breaks
 		if mr_r < ch2:
-			sim._rout(f, why, Formulas.roll_record("morale", mr_r, ch2), amount)
+			_rout(sim, f, why, Formulas.roll_record("morale", mr_r, ch2), amount)
 		else:
 			sim._learn(f, "discipline", Learning.XP_DISCIPLINE)
 			sim._use(f, "discipline")
@@ -252,12 +264,12 @@ static func _rout(sim, f: Fighter, why: String, roll: Dictionary, amount: float)
 	f.target = -1
 	f.pending_action = {}
 	if f.grabbing >= 0:
-		sim._release_grab(f)
+		BattleDamage._release_grab(sim, f)
 	if not f.lodged.is_empty():
-		sim._let_go(f, false)
+		BattleDamage._let_go(sim, f, false)
 	sim.side_down[f.side] += 1
 	sim._ev_simple("rout", f.idx, -1, "rout", {"why": why, "morale": f.morale, "shock": amount, "roll": roll}, true)
-	sim._ally_down(f, false)
+	_ally_down(sim, f, false)
 
 ## Packed x/y copies of the _targets cells, built on first use in a tick and kept current by _do_move
 ## (Fighter.tslot = the fighter's index in its side's _targets).
@@ -288,7 +300,7 @@ static func _build_tcells(sim) -> void:
 	sim._tcells_ok = true
 
 ## Periodic morale: cohesion gains, outnumbered shock, rally.
-static func _morale_tick(sim, f: Fighter) -> void:
+static func _morale_tick(sim: BattleSim, f: Fighter) -> void:
 	if not f.present() or f.unit.dead:
 		return
 	var commander: Fighter = sim._commander_near(f)
@@ -335,7 +347,8 @@ static func _morale_tick(sim, f: Fighter) -> void:
 		if y < y0 or y > y1:
 			continue
 		var o: Fighter = mine[i]
-		if o != f and o.present() and not o.routed:
+		var ost: String = o.state   # perf: present() inlined (same checks)
+		if o != f and ost != "dead" and ost != "fled" and ost != "unconscious" and not o.waiting and not o.routed:
 			allies += 1
 			if not check_out and float(allies) >= cap:
 				break
@@ -355,13 +368,26 @@ static func _morale_tick(sim, f: Fighter) -> void:
 			if y < y0 or y > y1:
 				continue
 			var o: Fighter = theirs[i]
-			if o.standing() and not o.routed and sim._in_reach(o, f):
+			# perf: standing() inlined; _in_reach inlined for the common 1-tile case (same tests)
+			var ost: String = o.state
+			if ost == "dead" or ost == "fled" or ost == "unconscious" or o.prone or o.waiting or o.routed:
+				continue
+			var odx := o.cell.x - fx
+			var ody := o.cell.y - fy
+			var odd := maxi(absi(odx), absi(ody))
+			if odd < 1 or odd > o.reach_tiles:
+				continue
+			if odd == 1:
+				# = _diag_ok(o.cell, f.cell): both corner cells are in bounds when o and f are
+				if odx == 0 or ody == 0 or (sim.tiles[fy * sim.grid_w + o.cell.x] != T_BLOCKED and sim.tiles[o.cell.y * sim.grid_w + fx] != T_BLOCKED):
+					enemies += 1
+			elif sim._in_reach(o, f):
 				enemies += 1
 	var gain := Formulas.MORALE_GAIN_PER_ALLY * minf(float(allies), cap)
 	f.morale = minf(f.morale_start, f.morale + gain)
 	if check_out and enemies >= 2 * (allies + 1):
 		var mult := Formulas.MORALE_OUTNUMBER_RACE if f.rdef.get("outnumber_morale", false) else 1.0
-		sim._shock(f, Formulas.SHOCK_OUTNUMBERED * mult, "outnumbered", false)
+		_shock(sim, f, Formulas.SHOCK_OUTNUMBERED * mult, "outnumbered", false)
 
 ## Scheduled command changes morale/orders only, never wounds, blood or body function.
 static func _command_rally(sim, f: Fighter, officer: Fighter, leader: float) -> void:

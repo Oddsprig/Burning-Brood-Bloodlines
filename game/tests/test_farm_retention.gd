@@ -10,6 +10,8 @@ func check(ok: bool, message: String) -> void:
 
 func fixture(culture: String, purse: float, claim: float, grain: int, fruit: int) -> Array:
 	var f := Families._blank(1)
+	# v0.100: 8b1b703 resolves meal shares by household race even without child records.
+	f["race"] = String(TownEcon.data()["cultures"][culture]["race"])
 	f["m"] = 1; f["homes"] = 1; f["land"] = {"grain": 8}; f["hv"] = claim; f["purse"] = purse
 	var estate := Families._blank(0); estate["estate"] = true
 	var e := {"culture": culture, "day": 190.0, "fams": [estate, f], "stock": {"grain": 100, "fruit": 100}, "barn": {"grain": grain, "fruit": fruit}, "hh": {}, "price": {"grain": 3.6, "fruit": 4.2}, "stats": {"sales": 0.0}, "req": {}, "biz": [{"till": 0.0}], "mkt": 0, "land": {"grain": 8}, "herd": {}, "farm_till": 0.0, "cum": {}, "treasury": 0.0}
@@ -78,7 +80,15 @@ func claim_bounds(culture: String) -> void:
 	if claims != null:
 		claims.add(e, "grain", int(ceil(cap + 10.0)), {"f:1": 1.0}, 70, "harvest")
 		claims.reserve_food(e, f)
-		check(float(f["hv"]) == cap, culture + ": annual retention ceiling protects only actual owned physical harvest")
+		# v0.100: 98a752c reserves to the next harvest window: day 190 to day 270 is 80 days.
+		var seasonal_cap := 80.0 * float(Families.daily_rates(e, f)["food"])
+		check(float(claims.food_reserve_days(e, f)) == 80.0, culture + ": autumn reserve stops at the next summer harvest window")
+		check(float(f["hv"]) == seasonal_cap and float(claims.owned(e, "f:1", "grain", true)) == seasonal_cap, culture + ": seasonal retention ceiling protects exactly the owned food needed")
+		check(float(claims.owned(e, "f:1", "grain")) == ceil(cap + 10.0) and int(e["barn"]["grain"]) == 30 + int(ceil(cap + 10.0)) and int(claims.available(e, "grain")) == int(e["barn"]["grain"]) - int(seasonal_cap), culture + ": reservation preserves physical stock and leaves all surplus available")
+		# v0.100: keep the original annual ceiling for 98a752c's no-producing-food-land fallback.
+		f["land"] = {}
+		claims.reserve_food(e, f)
+		check(float(claims.food_reserve_days(e, f)) == EconGen.YEAR_DAYS and float(f["hv"]) == cap, culture + ": annual fallback ceiling protects only actual owned physical harvest")
 	else:
 		f["hv"] = cap - 1.0
 		Families._harvest_share(e, f, 70.0, 7.0)
@@ -86,7 +96,8 @@ func claim_bounds(culture: String) -> void:
 
 func run(_tree: SceneTree) -> int:
 	if FileAccess.file_exists("res://campaign/harvest_claims.gd"): claims = load("res://campaign/harvest_claims.gd")
-	for culture in ["middle", "northern", "orc", "goblin", "moon_elf", "dwarf", "steppe"]:
+	# v0.100: 8b1b703 exposed the invalid steppe fixture key; eastern is the human culture.
+	for culture in ["middle", "northern", "orc", "goblin", "moon_elf", "dwarf", "eastern"]:
 		retained_food(culture, 0.0)
 		retained_food(culture, 100.0)
 		partial_claim(culture)

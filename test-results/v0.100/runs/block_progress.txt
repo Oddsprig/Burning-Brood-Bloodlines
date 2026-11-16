@@ -1,0 +1,120 @@
+00:08:04 QUEUED battle_a: job 87358898911b4d0a914df65e8a10dcec
+00:08:09 WAITING_LANE battle_a: job 87358898911b4d0a914df65e8a10dcec
+00:08:25 RUNNING battle_a: job 87358898911b4d0a914df65e8a10dcec
+00:09:10 FAILED battle_a: job 87358898911b4d0a914df65e8a10dcec
+00:09:10 FAILED battle_a: v100_battle_a_1794805684381378900|bb-v100-salvage|--block=battle_a|tb=failed|fails=7|script_err=0|log=v100_battle_a_1794805684381378900.log
+00:09:14 SUBMIT REFUSED battle_b: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 5 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 12:19:08 AM EST.\"}"}
+00:09:18 SUBMIT REFUSED battle_b2: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 9 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 12:19:08 AM EST.\"}"}
+00:09:21 SUBMIT REFUSED battle_c: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 12 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 12:19:08 AM EST.\"}"}
+00:09:25 SUBMIT REFUSED battle_c2: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 16 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 12:19:08 AM EST.\"}"}
+00:09:29 SUBMIT REFUSED v100_hiring: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 20 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 12:19:08 AM EST.\"}"}
+00:09:33 SUBMIT REFUSED v100_harvest: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 24 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 12:19:08 AM EST.\"}"}
+00:09:37 SUBMIT REFUSED v100_food: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 28 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 12:19:08 AM EST.\"}"}
+00:09:41 SUBMIT REFUSED v100_records: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 32 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 12:19:08 AM EST.\"}"}
+00:09:45 SUBMIT REFUSED v100_farms: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 36 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 12:19:08 AM EST.\"}"}
+00:09:49 SUBMIT REFUSED v100_anatomy: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 40 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 12:19:08 AM EST.\"}"}
+00:09:53 SUBMIT REFUSED v100_land: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 44 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 12:19:08 AM EST.\"}"}
+00:09:57 SUBMIT REFUSED v100_world: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 48 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 12:19:08 AM EST.\"}"}
+00:09:57 DONE blocks=13 failures=13
+00:16:20 SUBMIT REFUSED battle_a: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 431 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 12:19:08 AM EST.\"}"}
+00:16:20 DONE blocks=13 failures=1
+00:19:52 QUEUED battle_a: job 176dcba36d1a44b3adbe76e428f72b5a
+00:19:57 WAITING_LANE battle_a: job 176dcba36d1a44b3adbe76e428f72b5a
+00:20:12 RUNNING battle_a: job 176dcba36d1a44b3adbe76e428f72b5a
+00:20:37 FAILED battle_a: job 176dcba36d1a44b3adbe76e428f72b5a
+00:20:37 FAILED battle_a: v100_battle_a_1794806391850437300|bb-v100-salvage|--block=battle_a|tb=failed|fails=4|script_err=0|log=v100_battle_a_1794806391850437300.log
+00:20:37 DONE blocks=13 failures=1
+00:30:26 SUBMIT REFUSED battle_a: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 593 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 12:30:32 AM EST.\"}"}
+00:30:26 DONE blocks=13 failures=1
+00:30:57 QUEUED battle_a: job 3004dde60d3745d094cad4505f9a7b18
+00:31:02 WAITING_LANE battle_a: job 3004dde60d3745d094cad4505f9a7b18
+00:31:12 RUNNING battle_a: job 3004dde60d3745d094cad4505f9a7b18
+00:31:37 PASSED battle_a: job 3004dde60d3745d094cad4505f9a7b18
+00:31:37 PASS battle_a: v100_battle_a_1794807057169342900|bb-v100-salvage|--block=battle_a|tb=passed|fails=0|script_err=0|log=v100_battle_a_1794807057169342900.log
+00:31:40 QUEUED battle_b: job 408bd0e43a1e490ab0b9b1a220c75258
+00:32:00 WAITING_LANE battle_b: job 408bd0e43a1e490ab0b9b1a220c75258
+00:32:10 RUNNING battle_b: job 408bd0e43a1e490ab0b9b1a220c75258
+00:32:56 PASSED battle_b: job 408bd0e43a1e490ab0b9b1a220c75258
+00:32:56 PASS battle_b: v100_battle_b_1794807100280048300|bb-v100-salvage|--block=battle_b|tb=passed|fails=0|script_err=0|log=v100_battle_b_1794807100280048300.log
+00:32:59 QUEUED battle_b2: job 6aa32c37d31a43c39aba009a3b4283f2
+00:33:04 STARTING battle_b2: job 6aa32c37d31a43c39aba009a3b4283f2
+00:33:09 WAITING_LANE battle_b2: job 6aa32c37d31a43c39aba009a3b4283f2
+00:33:14 RUNNING battle_b2: job 6aa32c37d31a43c39aba009a3b4283f2
+00:33:19 FAILED battle_b2: job 6aa32c37d31a43c39aba009a3b4283f2
+00:33:19 FAILED battle_b2: v100_battle_b2_1794807179037577800|bb-v100-salvage|--block=battle_b2|tb=failed|fails=0|script_err=0|log=v100_battle_b2_1794807179037577800.log
+00:33:19 DONE blocks=13 failures=1
+00:43:50 SUBMIT REFUSED battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+00:43:50 DONE blocks=9 failures=1
+00:44:19 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+00:45:19 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+00:46:19 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+00:47:19 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+00:48:20 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+00:49:20 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+00:50:20 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+00:51:20 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+00:52:21 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+00:53:21 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+00:54:21 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+00:55:22 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+00:56:22 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+00:57:22 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+00:58:22 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+00:59:22 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+01:00:23 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+01:01:23 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+01:02:23 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+01:03:23 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+01:04:24 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+01:05:24 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+01:06:24 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+01:07:24 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+01:08:25 COOLDOWN battle_c: {"error": "{\"error\":\"Auto-kill: test refused, 3 failed tests in the last hour; this helper may not queue tests for 60 minutes after its last failure. Fix the cause before testing again. Blocked until Nov 16, 1:33:18 AM EST.\"}"}
+01:09:25 QUEUED battle_c: job 15d3b6c142744f159aea70ec28329cbc
+01:09:51 STARTING battle_c: job 15d3b6c142744f159aea70ec28329cbc
+01:09:56 WAITING_LANE battle_c: job 15d3b6c142744f159aea70ec28329cbc
+01:10:06 RUNNING battle_c: job 15d3b6c142744f159aea70ec28329cbc
+01:10:36 PASSED battle_c: job 15d3b6c142744f159aea70ec28329cbc
+01:10:36 PASS battle_c: v100_battle_c_1794807859124134200|bb-v100-salvage|--block=battle_c|tb=passed|fails=0|script_err=0|log=v100_battle_c_1794807859124134200.log
+01:10:40 QUEUED v100_hiring: job d92d80b3a9404ca4a0f9f226370c9c38
+01:11:20 WAITING_LANE v100_hiring: job d92d80b3a9404ca4a0f9f226370c9c38
+01:11:30 RUNNING v100_hiring: job d92d80b3a9404ca4a0f9f226370c9c38
+01:12:35 PASSED v100_hiring: job d92d80b3a9404ca4a0f9f226370c9c38
+01:12:35 PASS v100_hiring: v100_v100_hiring_1794809439751406900|bb-v100-salvage|--block=v100_hiring|tb=passed|fails=0|script_err=0|log=v100_v100_hiring_1794809439751406900.log
+01:12:39 QUEUED v100_harvest: job 57acf22ea5e04f638ac7fd654611521c
+01:13:34 WAITING_LANE v100_harvest: job 57acf22ea5e04f638ac7fd654611521c
+01:13:44 RUNNING v100_harvest: job 57acf22ea5e04f638ac7fd654611521c
+01:13:54 PASSED v100_harvest: job 57acf22ea5e04f638ac7fd654611521c
+01:13:54 PASS v100_harvest: v100_v100_harvest_1794809558836955500|bb-v100-salvage|--block=v100_harvest|tb=passed|fails=0|script_err=0|log=v100_v100_harvest_1794809558836955500.log
+01:13:57 QUEUED v100_food: job 97e4a390dd6c4e5c8ddedf435cf8fcbb
+01:14:02 WAITING_LANE v100_food: job 97e4a390dd6c4e5c8ddedf435cf8fcbb
+01:14:12 RUNNING v100_food: job 97e4a390dd6c4e5c8ddedf435cf8fcbb
+01:15:28 PASSED v100_food: job 97e4a390dd6c4e5c8ddedf435cf8fcbb
+01:15:28 PASS v100_food: v100_v100_food_1794809637422185300|bb-v100-salvage|--block=v100_food|tb=passed|fails=0|script_err=0|log=v100_v100_food_1794809637422185300.log
+01:15:30 QUEUED v100_records: job fd4d7f712e7542e2a4175cdd397a7eb8
+01:15:35 WAITING_LANE v100_records: job fd4d7f712e7542e2a4175cdd397a7eb8
+01:15:45 RUNNING v100_records: job fd4d7f712e7542e2a4175cdd397a7eb8
+01:16:06 PASSED v100_records: job fd4d7f712e7542e2a4175cdd397a7eb8
+01:16:06 PASS v100_records: v100_v100_records_1794809730567830600|bb-v100-salvage|--block=v100_records|tb=passed|fails=0|script_err=0|log=v100_v100_records_1794809730567830600.log
+01:16:08 QUEUED v100_farms: job 792f6b736f8b47bc8ae21ca3f800f7d7
+01:16:14 WAITING_LANE v100_farms: job 792f6b736f8b47bc8ae21ca3f800f7d7
+01:16:24 RUNNING v100_farms: job 792f6b736f8b47bc8ae21ca3f800f7d7
+01:16:49 PASSED v100_farms: job 792f6b736f8b47bc8ae21ca3f800f7d7
+01:16:49 PASS v100_farms: v100_v100_farms_1794809768717577400|bb-v100-salvage|--block=v100_farms|tb=passed|fails=0|script_err=0|log=v100_v100_farms_1794809768717577400.log
+01:16:52 QUEUED v100_anatomy: job 6c16be963b5a46c988c1f9f474b6e1b0
+01:16:57 WAITING_LANE v100_anatomy: job 6c16be963b5a46c988c1f9f474b6e1b0
+01:17:07 RUNNING v100_anatomy: job 6c16be963b5a46c988c1f9f474b6e1b0
+01:17:12 PASSED v100_anatomy: job 6c16be963b5a46c988c1f9f474b6e1b0
+01:17:12 PASS v100_anatomy: v100_v100_anatomy_1794809811864420700|bb-v100-salvage|--block=v100_anatomy|tb=passed|fails=0|script_err=0|log=v100_v100_anatomy_1794809811864420700.log
+01:17:14 QUEUED v100_land: job 85a15bbc6205471e8dd7321207686015
+01:17:19 WAITING_LANE v100_land: job 85a15bbc6205471e8dd7321207686015
+01:17:30 RUNNING v100_land: job 85a15bbc6205471e8dd7321207686015
+01:17:50 PASSED v100_land: job 85a15bbc6205471e8dd7321207686015
+01:17:50 PASS v100_land: v100_v100_land_1794809834696047800|bb-v100-salvage|--block=v100_land|tb=passed|fails=0|script_err=0|log=v100_v100_land_1794809834696047800.log
+01:17:52 QUEUED v100_world: job d4474fa28f2544b986bbf3aaa08b352a
+01:18:02 STARTING v100_world: job d4474fa28f2544b986bbf3aaa08b352a
+01:18:07 WAITING_LANE v100_world: job d4474fa28f2544b986bbf3aaa08b352a
+01:18:12 RUNNING v100_world: job d4474fa28f2544b986bbf3aaa08b352a
+01:18:23 PASSED v100_world: job d4474fa28f2544b986bbf3aaa08b352a
+01:18:23 PASS v100_world: v100_v100_world_1794809872513261400|bb-v100-salvage|--block=v100_world|tb=passed|fails=0|script_err=0|log=v100_v100_world_1794809872513261400.log
+01:18:23 DONE blocks=9 failures=0

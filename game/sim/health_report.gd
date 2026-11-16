@@ -215,6 +215,10 @@ static func _layer_severity(l: Dictionary, kind: String, dmg: float) -> int:
 		return 3
 	if tissue == "vessel":
 		return 2
+	# v0.100: since v0.013 the throat artery rides on the throat part's own layer (skin by tissue,
+	# v0.100: artery + major in the plan), so the rule above never fires for it; name it here.
+	if l.get("name", "") == "throat" and rank >= 2:
+		return 3
 	# a cut tendon or nerve disables the limb's grip/stance/motion until mended
 	if (tissue == "tendon" or tissue == "nerve") and rank >= 2:
 		return 2
@@ -230,6 +234,12 @@ static func _phrase(pid: String, l: Dictionary, kind: String, single: bool) -> S
 	var lname: String = l.get("name", tissue)
 	var noun := lname
 	var verb := kind
+	# v0.100: the throat layer carries both the major artery and the airway (the v0.013 plan), so it
+	# v0.100: keeps the old artery/windpipe wording instead of the skin tissue's plain verb.
+	if lname == "throat":
+		return {"cut": "throat artery opened", "torn": "throat artery torn open", "mangled": "throat artery torn apart",
+			"destroyed": "throat artery severed", "pierced": "windpipe punctured", "fractured": "windpipe crushed",
+			"broken": "windpipe crushed", "bruised": "throat bruised"}.get(kind, "throat " + kind)
 	match tissue:
 		"skin":
 			noun = "scalp" if pid == "head" else "skin"

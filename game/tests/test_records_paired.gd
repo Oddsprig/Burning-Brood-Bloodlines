@@ -1,9 +1,10 @@
 extends RefCounted
-## Same-process alternating comparison of the frozen v0.033 World Towns builder and candidate builder.
-## Both use current shared helpers: this isolates the deferred/shared Towns reads, not an entire old release.
-## Diagnostic times never replace the unchanged records gate or the full baseline/candidate snapshot.
+## v0.100: alternate the delivered v0.043 Towns presentation and candidate; retain every v0.033 native row.
+## v0.100: shared live helpers isolate Towns reads; diagnostic times never replace exact snapshots or the records gate.
 
 const V033_WORLD := preload("res://tests/fixtures/records_v033_world.gd")
+## v0.100: commit 33265175d0274084aff69a47020059e9310ac63f deliberately has metrics, lanes and account disclosures.
+const V043_WORLD := preload("res://tests/fixtures/records_v044_baseline.gd")
 
 var checks := 0
 var fails := 0
@@ -35,24 +36,35 @@ func run(tree: SceneTree) -> int:
 	var tids: Array = screen.tids()
 	var holder := VBoxContainer.new()
 	viewport.add_child(holder)
-	var times := {"v033": [], "candidate": []}
+	# v0.100: keep the original independent data oracle as well as the updated full presentation oracle.
+	var legacy: Control = V033_WORLD.build(screen, tids, "", "Towns")
+	var original_rows := _table_rows(_snapshot(legacy))
+	check(original_rows.size() == 1 and not original_rows[0].is_empty(), "frozen v033 Towns oracle contains its full native table")
+	legacy.free()
+	var times := {"v043": [], "candidate": []}
 	for lap in 5:
-		var order := ["v033", "candidate"] if lap % 2 == 0 else ["candidate", "v033"]
-		var hashes := {}
+		var order := ["v043", "candidate"] if lap % 2 == 0 else ["candidate", "v043"]
+		var snapshots := {}
+		var expanded := {}
 		var pair := {}
 		for version in order:
 			var start := Time.get_ticks_usec()
-			var page: Control = V033_WORLD.build(screen, tids, "", "Towns") if version == "v033" else RecWorld.build(screen, tids, "", "Towns")
+			var page: Control = V043_WORLD.build(screen, tids, "", "Towns") if version == "v043" else RecWorld.build(screen, tids, "", "Towns")
 			holder.add_child(page)
 			pair[version] = (Time.get_ticks_usec() - start) / 1000.0
-			hashes[version] = _digest(page)
+			snapshots[version] = _snapshot(page)
+			_compare(original_rows, _table_rows(snapshots[version]), "paired " + version + " retains every original v033 resolved Towns row and description", "native rows lap=%d version=%s" % [lap, version])
+			# v0.100: the deliberate disclosures retain the old account labels and scope totals; check them opened too.
+			_open_disclosures(page)
+			expanded[version] = _snapshot(page)
 			page.free()
 			await tree.process_frame
-		check(hashes["v033"] == hashes["candidate"], "paired world Towns retains every resolved full row, label and native row description")
+		_compare(snapshots["v043"], snapshots["candidate"], "paired world Towns retains every resolved full row, label and native row description", "closed Towns lap=%d" % lap)
+		_compare(expanded["v043"], expanded["candidate"], "paired expanded Towns retains every account row, label and native row description", "expanded Towns lap=%d" % lap)
 		if lap > 0:
-			times["v033"].append(pair["v033"])
+			times["v043"].append(pair["v043"])
 			times["candidate"].append(pair["candidate"])
-		print("RECORDS PAIRED Towns lap=", lap, " order=", order, " v033_ms=", pair["v033"], " candidate_ms=", pair["candidate"])
+		print("RECORDS PAIRED Towns lap=", lap, " order=", order, " v043_ms=", pair["v043"], " candidate_ms=", pair["candidate"])
 	for version in times:
 		var mean := 0.0
 		for ms in times[version]: mean += float(ms)
@@ -99,16 +111,56 @@ func _supply_reads(tids: Array) -> void:
 		fixture["econ"]["granary"] = food_days * denominator
 		check(TownEcon.supply_level(fixture, TownEcon.days_food(fixture)) == TownEcon.supply_level(fixture), "zero and exact supply boundaries retain the authoritative comparison")
 
-func _digest(page: Node) -> String:
+func _snapshot(page: Node) -> Array:
 	var values := []
 	_walk(page, values)
-	return JSON.stringify(values).sha256_text()
+	return values
+
+# v0.100: retain hash equality, but report the first differing label, table row/key or native description.
+func _compare(expected: Array, actual: Array, why: String, context: String) -> void:
+	var same := JSON.stringify(expected).sha256_text() == JSON.stringify(actual).sha256_text()
+	if not same:
+		printerr("RECORDS PAIRED FIRST DIFFERENCE ", context, ": ", _first_difference(expected, actual, "$"))
+	check(same, why)
+
+func _first_difference(expected: Variant, actual: Variant, path: String) -> String:
+	if typeof(expected) != typeof(actual):
+		return "%s type %d -> %d; expected=%s actual=%s" % [path, typeof(expected), typeof(actual), str(expected).left(500), str(actual).left(500)]
+	if expected is Dictionary:
+		if expected.has("name"): path += " (row %s)" % String(expected["name"])
+		for key in expected:
+			if not actual.has(key): return "%s[%s] missing; expected=%s" % [path, str(key), str(expected[key]).left(500)]
+			var difference := _first_difference(expected[key], actual[key], "%s[%s]" % [path, str(key)])
+			if difference != "": return difference
+		for key in actual:
+			if not expected.has(key): return "%s[%s] unexpected; actual=%s" % [path, str(key), str(actual[key]).left(500)]
+	elif expected is Array:
+		var common := mini(expected.size(), actual.size())
+		for i in common:
+			var difference := _first_difference(expected[i], actual[i], "%s[%d]" % [path, i])
+			if difference != "": return difference
+		if expected.size() != actual.size(): return "%s length expected=%d actual=%d; first unmatched expected=%s actual=%s" % [path, expected.size(), actual.size(), str(expected.slice(common, common + 1)).left(500), str(actual.slice(common, common + 1)).left(500)]
+	elif expected != actual:
+		return "%s expected=%s actual=%s" % [path, str(expected).left(500), str(actual).left(500)]
+	return ""
+
+func _table_rows(snapshot: Array) -> Array:
+	var tables := []
+	for entry in snapshot:
+		if entry[0] == "all rows": tables.append(entry[1])
+	return tables
+
+func _open_disclosures(node: Node) -> void:
+	if node.has_meta("rec_disclosure") and not (node.get_child(1) as Control).visible:
+		(node.get_child(0) as Button).pressed.emit()
+	for child in node.get_children(): _open_disclosures(child)
 
 func _walk(node: Node, values: Array) -> void:
 	if node is Label: values.append(["label", node.text])
 	if node is Button:
-		values.append(["row", node.get_meta("rec_row"), node.tooltip_text, node.accessibility_name, node.accessibility_description] if node.has_meta("rec_row") else ["button", node.text])
-	if node is RecTable:
+		# v0.100: aligned cells store visible text in metadata; keep headings and all native row descriptions too.
+		values.append(["button", node.text, node.get_meta("rec_values", []), node.get_meta("rec_row", []), node.tooltip_text, node.accessibility_name, node.accessibility_description])
+	if node is RecTable or node is V043_WORLD.FrozenTable:
 		var rows := []
 		for row in node.rows:
 			var resolved := {}

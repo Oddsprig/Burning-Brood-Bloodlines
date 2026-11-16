@@ -587,6 +587,11 @@ static func _reassign_with(e: Dictionary, f: Dictionary, work_in: Dictionary, he
 				ww = wv; worst = k
 		var cur_w := int(f["jobs"][worst])
 		var drop := mini(cur_w, total - spare)
+		# v0.100: a418609 batched these departures, but each field hand's
+		# v0.100: set_job settles wages and updates worked/wacres/wherd. Keep
+		# v0.100: those ordered effects (including the set_worked threshold).
+		if String(biz[int(worst)]["type"]) in ["farm", "estate"]:
+			drop = 1
 		set_job(e, f, int(worst), cur_w - drop)
 		total -= drop
 	# _keep already assigns the profit-taking keeper. Additional paid relatives
@@ -705,8 +710,6 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 	var max_mult: float = 1.0 if needy else 1.0 + FIT_BONUS
 	var known: Dictionary = {}
 	var known_ready: bool = needy
-	var cand: Array = []
-	var cand_total: int = 0
 	var held_total: int = 0
 	var min_held_wage: float = INF
 	for k in f["jobs"]:
@@ -714,88 +717,133 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 		if n > 0:
 			held_total += n
 			min_held_wage = minf(min_held_wage, float(biz[int(k)]["wage"]))
-	var held_ready: bool = held_total == 0
+	var min_held_score: float = INF
+	var held_scored: bool = held_total == 0
 	var changed: bool = held_total > slots
-	if held_total > slots:
-		if not known_ready:
-			known = _known_trades(e, f)
-			known_ready = true
-			max_mult = 1.0 if known.is_empty() else 1.0 + FIT_BONUS
-		for k in f["jobs"]:
-			cand_total = _add_cand(cand, cand_total, slots, _pay_score(e, biz[int(k)], known), int(k), 1, int(f["jobs"][k]))
-		held_ready = true
 	var open_ids: Array = e.get("open", [])
-	var open_max: PackedFloat64Array = Businesses.open_suffix_max(e)
-	var has_suf: bool = open_max.size() == open_ids.size()
-	for i in open_ids.size():
-		var bid: int = int(open_ids[i])
-		var b: Dictionary = biz[bid]
-		if b.get("closed", false):
-			continue
-		if (cand_total if held_ready else held_total) >= slots:
-			if not held_ready:
-				if float(b["wage"]) * max_mult <= min_held_wage:
-					if has_suf and open_max[i] * max_mult <= min_held_wage:
+	if not changed:
+		var open_max: PackedFloat64Array = Businesses.open_suffix_max(e)
+		var has_suf: bool = open_max.size() == open_ids.size()
+		for i in open_ids.size():
+			var bid: int = int(open_ids[i])
+			var b: Dictionary = biz[bid]
+			if b.get("closed", false):
+				continue
+			if held_total >= slots:
+				var thresh: float = min_held_score if held_scored else min_held_wage
+				if float(b["wage"]) * max_mult <= thresh:
+					if has_suf and open_max[i] * max_mult <= thresh:
 						break
 					continue
 				if not known_ready:
 					known = _known_trades(e, f)
 					known_ready = true
 					max_mult = 1.0 if known.is_empty() else 1.0 + FIT_BONUS
-					if float(b["wage"]) * max_mult <= min_held_wage:
-						if has_suf and open_max[i] * max_mult <= min_held_wage:
+					if float(b["wage"]) * max_mult <= thresh:
+						if has_suf and open_max[i] * max_mult <= thresh:
 							break
 						continue
-				var sc0: float = _pay_score(e, b, known)
-				if sc0 <= min_held_wage:
+				if not held_scored:
+					for k in f["jobs"]:
+						if int(f["jobs"][k]) > 0:
+							min_held_score = minf(min_held_score, _pay_score(e, biz[int(k)], known))
+					held_scored = true
+					if float(b["wage"]) * max_mult <= min_held_score:
+						if has_suf and open_max[i] * max_mult <= min_held_score:
+							break
+						continue
+				if _pay_score(e, b, known) <= min_held_score:
 					continue
-				var open0: int = Businesses.takeable(b, e)
-				if String(b["type"]) == "academy": open0 = mini(open0, Academy.hiring_places(e, f, b))
-				if open0 <= 0:
-					continue
-				for k in f["jobs"]:
-					cand_total = _add_cand(cand, cand_total, slots, _pay_score(e, biz[int(k)], known), int(k), 1, int(f["jobs"][k]))
-				held_ready = true
-				if sc0 > float(cand[-1][0]):
-					cand_total = _add_cand(cand, cand_total, slots, sc0, bid, 0, open0)
-					changed = true
-				continue
-			var min_sc: float = float(cand[-1][0])
-			if has_suf and open_max[i] * max_mult <= min_sc:
-				break
-			if float(b["wage"]) * max_mult <= min_sc:
-				continue
-			var sc: float = _pay_score(e, b, known)
-			if sc <= min_sc:
-				continue
 			var open: int = Businesses.takeable(b, e)
 			if String(b["type"]) == "academy": open = mini(open, Academy.hiring_places(e, f, b))
 			if open > 0:
-				cand_total = _add_cand(cand, cand_total, slots, sc, bid, 0, open)
 				changed = true
-		else:
-			var open: int = Businesses.takeable(b, e)
-			if String(b["type"]) == "academy": open = mini(open, Academy.hiring_places(e, f, b))
-			if open <= 0:
-				continue   # nobody signs on where the till is empty
-			if not known_ready:
-				known = _known_trades(e, f)
-				known_ready = true
-				max_mult = 1.0 if known.is_empty() else 1.0 + FIT_BONUS
-			if not held_ready:
-				for k in f["jobs"]:
-					cand_total = _add_cand(cand, cand_total, slots, _pay_score(e, biz[int(k)], known), int(k), 1, int(f["jobs"][k]))
-				held_ready = true
-			cand_total = _add_cand(cand, cand_total, slots, _pay_score(e, b, known), bid, 0, open)
-			changed = true
+				break
 	var casual_ids: Array = []
 	var cjcap: Dictionary = e.get("cjcap", {})
-	if not f.has("hl") and not cjcap.is_empty():
+	var has_casual: bool = not f.has("hl") and not cjcap.is_empty()
+	if has_casual:
 		var cj_defs: Dictionary = TownEcon.data()["casual_jobs"]
 		if _casual_ids.size() != cj_defs.size():
 			_casual_ids = cj_defs.keys()
 			_casual_ids.sort()
 		casual_ids = _casual_ids
+		if not changed:
+			var cjused: Dictionary = e.get("cjused", {})
+			var day_w: float = Barge.day_wage(e)
+			var base_w: float = float(Barge.B()["labour"]["base"])
+			var cust_funds: float = -1.0
+			var cust_exact: bool = false
+			for ci in casual_ids.size():
+				var j: String = String(casual_ids[ci])
+				var used: float = float(cjused.get(j, 0))
+				var places: int = int(floor(float(cjcap.get(j, 0)) - used + 0.00001))
+				if places <= 0:
+					continue
+				var cj: Dictionary = cj_defs[j]
+				var cw: float = day_w if cj.has("day") else clampf(day_w * (float(cj["wage"]) / base_w), day_w * 0.75, day_w * 1.8)
+				if held_total >= slots:
+					if cw <= (min_held_score if held_scored else min_held_wage):
+						continue
+					if not held_scored:
+						if not known_ready:
+							known = _known_trades(e, f)
+							known_ready = true
+						for k in f["jobs"]:
+							if int(f["jobs"][k]) > 0:
+								min_held_score = minf(min_held_score, _pay_score(e, biz[int(k)], known))
+						held_scored = true
+						if cw <= min_held_score:
+							continue
+				var payer: String = String(cj["payer"])
+				var week_w: float = maxf(0.01, cw * 7.0)
+				var funds: float = 0.0
+				if payer == "treasury":
+					funds = float(e.get("treasury", 0))
+				elif payer == "customers":
+					var need_funds: float = (float(places) + used) * week_w
+					if cust_funds < need_funds and not cust_exact:
+						cust_funds = _customer_funds_up_to(e, need_funds)
+						if cust_funds < need_funds:
+							cust_exact = true
+					funds = cust_funds
+				else:
+					funds = float((biz[int(e["mkt"])] as Dictionary)["till"])
+				var available: int = mini(places, maxi(0, int(floor(funds / week_w - used + 0.00001))))
+				if available > 0:
+					changed = true
+					break
+	if not changed:
+		# v0.100: a dropped or trimmed prefix job can shift retained Academy
+		# places into anonymous cohort slots even when no new offer is taken.
+		if Population.is_cohort(f) and not Academy.biz_of(e).is_empty() and f["jobs"].has(str(int(e["academy"]))):
+			var academy_bid := int(e["academy"])
+			var research_key := str(academy_bid)
+			if Academy._named_places(Persons.work(e, f), academy_bid) != int(f["jobs"][research_key]):
+				set_job(e, f, academy_bid, 0)
+				return job_total(f)
+		return held_total
+	if not known_ready:
+		known = _known_trades(e, f)
+	var cand: Array = []
+	for k in f["jobs"]:
+		var b: Dictionary = biz[int(k)]
+		var held_score: float = _pay_score(e, b, known)
+		for _i in int(f["jobs"][k]):
+			cand.append([held_score, int(k), 1])
+	for bid in open_ids:
+		var b: Dictionary = biz[int(bid)]
+		if b.get("closed", false):
+			continue
+		var open: int = Businesses.takeable(b, e)
+		if String(b["type"]) == "academy": open = mini(open, Academy.hiring_places(e, f, b))
+		if open <= 0:
+			continue   # nobody signs on where the till is empty
+		var sc: float = _pay_score(e, b, known)
+		for _i in mini(open, slots):
+			cand.append([sc, int(bid), 0])
+	if has_casual:
+		var cj_defs: Dictionary = TownEcon.data()["casual_jobs"]
 		var cjused: Dictionary = e.get("cjused", {})
 		var day_w: float = Barge.day_wage(e)
 		var base_w: float = float(Barge.B()["labour"]["base"])
@@ -809,9 +857,6 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 				continue
 			var cj: Dictionary = cj_defs[j]
 			var cw: float = day_w if cj.has("day") else clampf(day_w * (float(cj["wage"]) / base_w), day_w * 0.75, day_w * 1.8)
-			if (cand_total if held_ready else held_total) >= slots:
-				if cw <= (float(cand[-1][0]) if held_ready else min_held_wage):
-					continue
 			var payer: String = String(cj["payer"])
 			var week_w: float = maxf(0.01, cw * 7.0)
 			var funds: float = 0.0
@@ -827,32 +872,18 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 			else:
 				funds = float((biz[int(e["mkt"])] as Dictionary)["till"])
 			var available: int = mini(places, maxi(0, int(floor(funds / week_w - used + 0.00001))))
-			if available <= 0:
-				continue
-			if not held_ready:
-				if not known_ready:
-					known = _known_trades(e, f)
-					known_ready = true
-					max_mult = 1.0 if known.is_empty() else 1.0 + FIT_BONUS
-				for k in f["jobs"]:
-					cand_total = _add_cand(cand, cand_total, slots, _pay_score(e, biz[int(k)], known), int(k), 1, int(f["jobs"][k]))
-				held_ready = true
-				if cand_total >= slots and cw <= float(cand[-1][0]):
-					continue
-			cand_total = _add_cand(cand, cand_total, slots, cw, -ci - 1, 0, available)
-			changed = true
-	if not held_ready or not changed:
-		return held_total
+			for _i in mini(available, slots):
+				cand.append([cw, -ci - 1, 0])
+	cand.sort_custom(func(a, b2): return float(a[0]) > float(b2[0]) if float(a[0]) != float(b2[0]) else int(a[2]) > int(b2[2]))
 	var want := {}
 	var casual := {}
 	var casual_total := 0
-	for entry in cand:
-		var bid := int(entry[1])
-		var n := int(entry[3])
+	for i in mini(slots, cand.size()):
+		var bid := int(cand[i][1])
 		if bid < 0:
-			var job := String(casual_ids[-bid - 1]); casual[job] = int(casual.get(job, 0)) + n; casual_total += n
+			var job := String(casual_ids[-bid - 1]); casual[job] = int(casual.get(job, 0)) + 1; casual_total += 1
 		else:
-			var key := str(bid); want[key] = int(want.get(key, 0)) + n
+			var key := str(bid); want[key] = int(want.get(key, 0)) + 1
 	# A later competing offer can replace jobs before the cohort's named
 	# positions. Validate the exact final insertion order before paying any
 	# Academy place; never fund an anonymous prefix to reach a real person.
@@ -876,44 +907,6 @@ static func _best_places(e: Dictionary, f: Dictionary, spare: int) -> int:
 		f["cj"] = casual
 		for j in casual: e["cjused"][j] = float(e["cjused"].get(j, 0)) + int(casual[j])
 	return job_total(f) + casual_total
-
-## Inserts up to `count` places into `cand` as grouped `[sc, bid, held, n]` runs, keeping only the best `slots`
-## (higher score, then held before new, then earlier). Returns the updated total places in `cand`.
-static func _add_cand(cand: Array, cand_total: int, slots: int, sc: float, bid: int, held: int, count: int) -> int:
-	if count <= 0 or slots <= 0:
-		return cand_total
-	if cand_total >= slots:
-		var last: Array = cand[-1]
-		if sc < float(last[0]) or (sc == float(last[0]) and held <= int(last[2])):
-			return cand_total
-	var m: int = cand.size()
-	var idx: int = m
-	var before: int = 0
-	for j in m:
-		var cur: Array = cand[j]
-		var csc: float = float(cur[0])
-		if sc > csc or (sc == csc and held > int(cur[2])):
-			idx = j
-			break
-		before += int(cur[3])
-	var take: int = mini(count, slots - before)
-	if take <= 0:
-		return cand_total
-	cand.insert(idx, [sc, bid, held, take])
-	cand_total += take
-	if cand_total > slots:
-		var excess: int = cand_total - slots
-		while excess > 0:
-			var tail: Array = cand[-1]
-			var tc: int = int(tail[3])
-			if tc <= excess:
-				cand.pop_back()
-				excess -= tc
-			else:
-				tail[3] = tc - excess
-				excess = 0
-		cand_total = slots
-	return cand_total
 
 static func _customer_funds_up_to(e: Dictionary, cap_funds: float) -> float:
 	var funds: float = 0.0
