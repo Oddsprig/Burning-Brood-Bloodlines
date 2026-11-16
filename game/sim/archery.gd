@@ -48,8 +48,9 @@ static func solution(sim, f: Fighter, kind: String, fresh: bool = false) -> Dict
 		return f.bsol
 	var u := f.unit
 	var b := u.body
-	var pull := Formulas.pull_force(float(u.attr("STR")), u.mass(), float(u.attr("END")),
-		b.exertion / maxf(100.0, float(u.attr("END"))), b.pain, b.blood / maxf(1.0, b.blood_max))
+	var endu := float(u.attr("END"))   # perf: one attr lookup (same values)
+	var pull := Formulas.pull_force(float(u.attr("STR")), u.mass(), endu,
+		b.exertion / maxf(100.0, endu), b.pain, b.blood / maxf(1.0, b.blood_max))
 	var reach := Formulas.draw_length(float(f.rdef.get("height", 1.0)) * float(u.size_h) / 100.0, float(u.arm_len))
 	var bt: Dictionary = sim._tmpl(f.bow)
 	var ad: Dictionary = DB.arrows.get(kind, {})
@@ -73,17 +74,26 @@ static func solution(sim, f: Fighter, kind: String, fresh: bool = false) -> Dict
 static func nearest_enemy(sim, f: Fighter) -> Array:
 	var best: Fighter = null
 	var bd := 1 << 30
-	for e in sim._targets[1 - f.side]:
+	var fc := f.cell
+	# perf (same distances): the packed target cells BattleSim keeps current for _pick_target
+	if not sim._tcells_ok:
+		sim._build_tcells()
+	var xs: PackedInt32Array = sim._tx1 if f.side == 0 else sim._tx0
+	var ys: PackedInt32Array = sim._ty1 if f.side == 0 else sim._ty0
+	var cands: Array = sim._targets[1 - f.side]
+	for i in cands.size():
+		var d: int = maxi(absi(xs[i] - fc.x), absi(ys[i] - fc.y))
+		if d >= bd:
+			continue
+		var e: Fighter = cands[i]
 		if not e.standing() or e.routed:
 			continue
-		var d: int = maxi(absi(e.cell.x - f.cell.x), absi(e.cell.y - f.cell.y))
-		if d < bd:
-			bd = d
-			best = e
+		bd = d
+		best = e
 	return [best, bd]
 
 ## The archer's turn. Returns true when it set an action (shoot, kite, switch weapons, fetch the bow).
-static func decide(sim, f: Fighter) -> bool:
+static func decide(sim: BattleSim, f: Fighter) -> bool:
 	if f.bow == null or f.bow_state == "broken":
 		return false
 	var u := f.unit
@@ -168,7 +178,10 @@ static func kite(sim, f: Fighter, threat: Fighter) -> bool:
 		if p.x < 0 or p.y < 0 or p.x >= sim.grid_w or p.y >= sim.grid_h:
 			continue
 		var ci: int = p.y * sim.grid_w + p.x
-		if sim.tiles[ci] == BattleSim.T_BLOCKED or sim.occ[ci] != -1 or not sim._diag_ok(fc, p):
+		if sim.tiles[ci] == BattleSim.T_BLOCKED or sim.occ[ci] != -1:
+			continue
+		# perf: _diag_ok inlined (unit step; both corner cells are in bounds when fc and p are)
+		if n.x != 0 and n.y != 0 and (sim.tiles[fc.y * sim.grid_w + p.x] == BattleSim.T_BLOCKED or sim.tiles[p.y * sim.grid_w + fc.x] == BattleSim.T_BLOCKED):
 			continue
 		var gx := absi(p.x - threat.cell.x)
 		var gy := absi(p.y - threat.cell.y)
@@ -315,11 +328,12 @@ static func loose(sim, f: Fighter, pa: Dictionary) -> void:
 		"m": float(sol["m"]), "hit": [], "last": f.cell.y * sim.grid_w + f.cell.x, "att": att}
 	sim._proj_next += 1
 	sim.projectiles.append(proj)
+	var left := u.arrows()   # perf: counted once (the event below does not change the quiver)
 	sim._ev_simple("shoot", f.idx, t.idx, "shoot", {"w": DB.arrow_name(kind), "roll": ar, "sol": [sol["pull"], sol["reach"],
 		sol["draw_n"], sol["draw_m"], sol["e_bow"], sol["e_arch"], sol["e_drawn"], sol["eff"], sol["E"], sol["m"], sol["v0"],
 		sol["strain"], sol["lvl"], sol["flat"], sol["range"]], "dist": dist, "land": land, "flat": flat,
-		"left": u.arrows(), "tm": tmov, "sm": smov, "sat": recent})
-	if u.arrows() == 0:
+		"left": left, "tm": tmov, "sm": smov, "sat": recent})
+	if left == 0:
 		sim._ev_simple("drop", f.idx, -1, "out_of_arrows", {"w": sim._item_name(f.bow)})
 
 # =====================================================================================================
@@ -342,7 +356,7 @@ static func _field(sim, kind: String, where: String) -> void:
 	sim.arrow_field[kind] = f
 
 ## Moves one arrow through this tick. Returns true while it is still in the air.
-static func fly(sim, p: Dictionary, down: Dictionary) -> bool:
+static func fly(sim: BattleSim, p: Dictionary, down: Dictionary) -> bool:
 	var v: float = p["v"]
 	var s0: float = p["s"]
 	var L: float = p["L"]
@@ -355,6 +369,12 @@ static func fly(sim, p: Dictionary, down: Dictionary) -> bool:
 	var flat: bool = p["flat"]
 	var side: int = p["side"]
 	var gw: int = sim.grid_w
+	var gh: int = sim.grid_h
+	var tiles_l: PackedByteArray = sim.tiles   # perf: probe-loop locals (tiles never change during a battle)
+	var occ_l: PackedInt32Array = sim.occ
+	var fighters_l: Array = sim.fighters
+	var hits: Array = p["hit"]   # perf: locals for the probe loop (the same array and dict entries)
+	var last_ci: int = int(p["last"])
 	var s := s0
 	while s < s1:
 		s = minf(s + PROBE, s1)
@@ -362,36 +382,37 @@ static func fly(sim, p: Dictionary, down: Dictionary) -> bool:
 		var y := oy + dy * s
 		var cx := int(round(x))
 		var cy := int(round(y))
-		if cx < 0 or cy < 0 or cx >= gw or cy >= sim.grid_h:
+		if cx < 0 or cy < 0 or cx >= gw or cy >= gh:
 			_field(sim, p["kind"], "lost")   # off the field
 			return false
 		var ci := cy * gw + cx
-		if ci == int(p["last"]):
+		if ci == last_ci:
 			continue
+		last_ci = ci
 		p["last"] = ci
 		var low := flat or s >= L - Formulas.ARC_FALL_TILES
-		if low and sim.tiles[ci] == BattleSim.T_BLOCKED:
+		if low and tiles_l[ci] == BattleSim.T_BLOCKED:
 			_field(sim, p["kind"], "ground")   # into a wall
 			return false
 		if not low:
 			continue
-		var oi: int = sim.occ[ci]
+		var oi: int = occ_l[ci]
 		var vic: Fighter = null
 		var hw := 0.0
 		if oi >= 0:
-			var o: Fighter = sim.fighters[oi]
-			if o.side != side and o.standing() and not (p["hit"] as Array).has(oi):
+			var o: Fighter = fighters_l[oi]
+			if o.side != side and o.standing() and not hits.has(oi):
 				vic = o
 		elif s >= L - 1.0:   # the last tile of the fall reaches men lying on the ground
 			if down.is_empty():
 				down["_"] = true
-				for g in sim.fighters:
+				for g in fighters_l:
 					if g.alive() and g.helpless() and not g.waiting and g.state != "fled":
 						down[g.cell.y * gw + g.cell.x] = g.idx
 			var di: int = down.get(ci, -1)
 			if di >= 0:
-				var o2: Fighter = sim.fighters[di]
-				if o2.side != side and o2.alive() and not (p["hit"] as Array).has(di):
+				var o2: Fighter = fighters_l[di]
+				if o2.side != side and o2.alive() and not hits.has(di):
 					vic = o2
 		if vic == null:
 			continue
@@ -409,6 +430,7 @@ static func fly(sim, p: Dictionary, down: Dictionary) -> bool:
 		p["y"] = y
 		if not impact(sim, p, vic, perp, hw):
 			return false
+		occ_l = sim.occ   # the strike may have cleared occupancy (a kill, a fall): re-read it
 		v = p["v"]
 	p["s"] = s1
 	p["x"] = ox + dx * s1
@@ -427,7 +449,7 @@ static func rel_of(p: Dictionary, o: Fighter) -> String:
 	return "front" if signf(-dx) == float(o.facing) else "rear"
 
 ## The arrow reaches a man: defences and the layer tests (BattleSim._strike with the shot). True = it flies on.
-static func impact(sim, p: Dictionary, o: Fighter, perp: float, hw: float) -> bool:
+static func impact(sim: BattleSim, p: Dictionary, o: Fighter, perp: float, hw: float) -> bool:
 	var a: Fighter = sim.fighters[int(p["a"])]
 	var kind: String = p["kind"]
 	var ad: Dictionary = DB.arrows[kind]
@@ -445,7 +467,7 @@ static func impact(sim, p: Dictionary, o: Fighter, perp: float, hw: float) -> bo
 		"pen": float(shape.get("pen", 20000))}
 	sim._shot_out = {}
 	var atk := {"verb": "shoot", "type": "edge", "contact": float(shape.get("contact", 5)), "penetration": float(shape.get("pen", 20000))}
-	sim._strike(a, o, atk, {}, {})
+	BattleDamage._strike(sim, a, o, atk, {}, {})   # perf: direct (was via BattleSim._strike)
 	var out: Dictionary = sim._shot_out
 	sim._shot = {}
 	sim._shot_out = {}
@@ -464,7 +486,7 @@ static func impact(sim, p: Dictionary, o: Fighter, perp: float, hw: float) -> bo
 # =====================================================================================================
 # defences (from BattleSim._strike): dodge, then shield (x2 vs projectiles), then armour; no parrying arrows
 # =====================================================================================================
-static func defend(sim, a: Fighter, d: Fighter, D: Dictionary, steps: Array, att: float, rel: String) -> bool:
+static func defend(sim: BattleSim, a: Fighter, d: Fighter, D: Dictionary, steps: Array, att: float, rel: String) -> bool:
 	var V: bool = sim.verbose
 	var du := d.unit
 	var rng: RandomNumberGenerator = sim.rng

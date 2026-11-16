@@ -1,6 +1,39 @@
 # Burning Brood: Bloodlines — current developer map
 
-Updated 7 November 2026 for v0.099 (release candidate: dragons in big battles, store builds, marriage ages), normally merged as `1fcb3fe758ad3a566cbb6b4466b25706fc3cd1d0` from branch `v0.099-release-candidate` based on `main` `7ad5a8b`. v0.098 (battle screen, Records tables and phone layout) was normally merged as `c6d525aa01d67bafacbf96f02206749b98d19bd3` from branch `v0.098-screens-and-phone` based on `main` `c1b751a`. v0.097 (six bug fixes toward an Oddsprig sale) was normally merged as `7b0429ab4aa596498624f862398c4bcd30e6b737` from branch `v0.097-sale-readiness` based on `main` `623d009`. v0.096 (readable text, fonts and layout on every page) was normally merged as `6ed741a3134e8029496e83da18979052b015efb9` from branch `v0.096-ui-readability` based on `main` `951cf2d`. v0.095 was normally merged as `5e17abb014a1f01f0426406bd455e249f06a8e20`. Source versions v0.086–v0.094 are accepted normal merges; v0.099 is the first package since v0.085 (Windows .exe and signed Android .apk, built in the cloud container, not yet on sale). The older source-only audit below is pinned to v0.094.
+Testing: follow HOW TO TEST at the top of AGENTS.md and CLAUDE.md. Run tests in blocks through runner.gd and blocks.json, one Godot launch per block, and only the blocks that cover a version's changes. The full suite runs only before a store launch.
+
+Updated 15 November 2026 for v0.100 SALVAGE, source candidate on main 0f36e00; no new runtime or package acceptance.
+
+Previous release record: Updated 7 November 2026 for v0.099 (release candidate: dragons in big battles, store builds, marriage ages), normally merged as `1fcb3fe758ad3a566cbb6b4466b25706fc3cd1d0` from branch `v0.099-release-candidate` based on `main` `7ad5a8b`. v0.098 (battle screen, Records tables and phone layout) was normally merged as `c6d525aa01d67bafacbf96f02206749b98d19bd3` from branch `v0.098-screens-and-phone` based on `main` `c1b751a`. v0.097 (six bug fixes toward an Oddsprig sale) was normally merged as `7b0429ab4aa596498624f862398c4bcd30e6b737` from branch `v0.097-sale-readiness` based on `main` `623d009`. v0.096 (readable text, fonts and layout on every page) was normally merged as `6ed741a3134e8029496e83da18979052b015efb9` from branch `v0.096-ui-readability` based on `main` `951cf2d`. v0.095 was normally merged as `5e17abb014a1f01f0426406bd455e249f06a8e20`. Source versions v0.086–v0.094 are accepted normal merges; v0.099 is the first package since v0.085 (Windows .exe and signed Android .apk, built in the cloud container, not yet on sale). The older source-only audit below is pinned to v0.094.
+
+## v0.100 SALVAGE — source candidate on v0.099 main 0f36e00
+
+| Change | Owner and boundary |
+|---|---|
+| Daily plots | `campaign/plots.gd` `_use_plot_ids()` searches the live use column in ascending order for wood, clearing, homes, yards and grazing; `herds_views.gd` shares it for pasture/pens. No persistent index, save field or RNG change. |
+| Battle work | `sim/{battle_sim,battle_damage,battle_morale,archery,formulas,combat_journal,natural_attacks,learning}.gd`: reviewed r1/r2/r3/r5 only, adapted to main's interfaces. Pure anatomy/weighted tables, setup lookups, journal copies and repeated dispatch/scans are reduced with the same arithmetic, order and draws. No r4/r6 or carrier-list API. |
+| Paired hiring | `campaign/families.gd`: validate retained named Academy jobs, preserve per-worker farm departures and reference ranking; `campaign/businesses.gd`: refresh names on same-day head/name changes. Required CLEAN dependencies of the repaired paired test. |
+| Injury report | `sim/health_report.gd`: restore combined throat-layer artery/airway wording and critical severity; damage calculation is unchanged. |
+| Tests | Thirteen older tests and three GDScript oracles repaired to current rules, plus their real v0.030 harvest checkpoint. `test_release_v099.gd` follows 0.100 metadata. `tests/blocks.json`: 11 added blocks / 28 distinct test files. [Targeted manifest](test-results/v0.100/targeted_tests_v100.md) lists every file, port and lead check. |
+| Metadata | Project 0.100; Android 0.100/code 100 and v0100 export filename; Windows 0.100.0.0. No new package or delivery. |
+
+The onboarding guard is inapplicable: main has no `day_job_pending()`,
+`CampaignDayJob` or turn/rest/sickness continuation preparers. They stay absent;
+the unchanged onboarding regression is scheduled. The v0.101 spouse-race fix
+adds per-person race state across several systems and exceeds the small-fix
+limit, so it stays in v0.101.
+
+Dropped: day/rest/turn/herd-week/sickness job splitting, perf probes, frame gates,
+raid_save, stack diffs, weekly-hiring r1–r4, startup chains, sim r4/r6 and the
+bulk one-launch-per-test feeder. Optional AI-marriage, unhorsed-rider and
+fallen-foe archer fixes are excluded: no imported fixed test needs them.
+HOW TO TEST and two self-contained Test Bridge tools are included; both select
+`--worktree` (default `bb-v100-salvage`).
+
+Static validation only: no Godot, game/engine/GPU test, engine parser or build.
+The lead still owns runtime/determinism and timing acceptance. Preserve the
+requested battle lists; split b/c if fresh timing exceeds the 60 s target
+(their inherited times are 96/86 s; absolute cap 180 s).
 
 ## v0.099 — release candidate: dragons in big battles, store builds, marriage ages
 

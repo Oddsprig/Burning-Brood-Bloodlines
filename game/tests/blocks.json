@@ -53,5 +53,57 @@
 		"res://tests/claude_creatures_ui_v035.gd",
 		"res://tests/claude_diplomacy_v030.gd",
 		"res://tests/claude_marriage.gd"
+	],
+	"battle_a": [
+		"res://tests/test_battle_screen.gd",
+		"res://tests/test_battle_result_summary_v014.gd",
+		"res://tests/test_gore_render_v016.gd",
+		"res://tests/test_gore_text.gd",
+		"res://tests/test_sim_armor.gd"
+	],
+	"battle_b": [
+		"res://tests/test_sim_batch.gd",
+		"res://tests/test_sim_determinism.gd",
+		"res://tests/test_sim_duel.gd",
+		"res://tests/test_horse_regressions_v056.gd"
+	],
+	"battle_c": [
+		"res://tests/test_bows_econ.gd",
+		"res://tests/test_mounted_rider_art.gd"
+	],
+	"v100_hiring": [
+		"res://tests/test_hiring_paired.gd",
+		"res://tests/test_hiring_timing_v046.gd"
+	],
+	"v100_harvest": [
+		"res://tests/test_harvest_ownership.gd",
+		"res://tests/test_harvest_lookup.gd"
+	],
+	"v100_food": [
+		"res://tests/test_household_food_v046.gd"
+	],
+	"v100_harvest_life": [
+		"res://tests/test_harvest_lifecycle.gd"
+	],
+	"v100_records": [
+		"res://tests/test_records_performance.gd",
+		"res://tests/test_records_paired.gd"
+	],
+	"v100_farms": [
+		"res://tests/test_farm_retention.gd",
+		"res://tests/test_rotation_sizing.gd"
+	],
+	"v100_anatomy": [
+		"res://tests/test_health_tissues.gd",
+		"res://tests/test_sim_creatures.gd",
+		"res://tests/test_combat_journal_v016.gd"
+	],
+	"v100_land": [
+		"res://tests/test_land_plots.gd",
+		"res://tests/test_herd_totals_v043.gd"
+	],
+	"v100_world": [
+		"res://tests/test_house_onboarding_v019.gd",
+		"res://tests/test_release_v099.gd"
 	]
 }

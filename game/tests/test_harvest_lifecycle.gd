@@ -21,10 +21,12 @@ func towns() -> Array:
 		if TownEcon.has_econ(t): out.append(t)
 	return out
 
-func household(e: Dictionary) -> Dictionary:
+func household(e: Dictionary, deferred: bool = false) -> Dictionary:
 	for f in e["fams"]:
-		if not f.get("gone", false) and not f.get("estate", false) and Families.serving(f) == 0 and Families.acres(f) > 0:
-			return f
+		if not f.get("gone", false) and not f.get("estate", false) and Families.serving(f) == 0:
+			if deferred:
+				if Businesses.farm_of(e, f).is_empty(): return f
+			elif Families.acres(f) > 0: return f
 	return {}
 
 func empty_barn(e: Dictionary) -> void:
@@ -57,13 +59,23 @@ func land_and_crop() -> void:
 	check(Families.acres(f) == 0, "seller is now landless")
 	var cash := Barge.holdings(Game)
 	var receipt: Dictionary = api.take(e, "grain", 5, false, old_id)
-	fund_credit(e, receipt["shares"], 15.0)
+	# v0.100: 98a752c pays the retained farm's payroll before its owner's profit, at credit time.
+	var farm := Businesses.farm_of(e, f)
+	check(not farm.is_empty(), "landless producer retains its existing farm payroll account")
 	var before := float(f["purse"])
-	Families.settle(e, f)
+	var before_payroll := float(farm.get("till", 0.0))
+	var before_gross := float(f.get("harvest_gross", 0.0))
 	var tribute := float(e.get("ruler", {}).get("tribute", 0)) if String(e.get("ruler", {}).get("kind", "")) == "coin" else 0.0
-	check(near(float(f["purse"]) - before, 15.0 * (1.0 - tribute)), "landless actual producer receives its cash, with existing tribute")
+	var net := 15.0 * (1.0 - tribute)
+	var payroll_need := maxf(0.0, float(farm.get("owed", 0.0))) + float(maxi(int(farm.get("workers", 0)), int(farm.get("cap", 0)))) * float(farm.get("wage", 0.0)) * 8.0
+	var retained := minf(net, maxf(0.0, payroll_need - before_payroll))
+	fund_credit(e, receipt["shares"], 15.0)
+	check(near(float(farm.get("till", 0.0)) - before_payroll, retained), "landless producer's receipt funds exactly its real payroll gap")
+	check(near(float(f["purse"]) - before, net - retained), "landless actual producer receives the exact profit after tribute and payroll")
+	check(near(float(f.get("harvest_gross", 0.0)) - before_gross, 15.0), "actual farm records its gross harvest receipt immediately")
+	check(near(Families.settle(e, f), 0.0), "immediately paid farm receipt leaves no deferred settlement")
 	Families.settle(e, f)
-	check(near(float(f["purse"]) - before, 15.0 * (1.0 - tribute)), "landless producer settlement is once-only")
+	check(near(float(f["purse"]) - before, net - retained) and near(float(farm.get("till", 0.0)) - before_payroll, retained), "landless producer settlement cannot pay purse or payroll twice")
 	check(near(Barge.holdings(Game), cash), "sale and landless settlement conserve all campaign coins")
 	api.reserve_food(e, f)
 	var rate := float(Families.daily_rates(e, f)["food"])
@@ -149,13 +161,15 @@ func migration() -> void:
 func queue_save() -> void:
 	Game.new_game(91031)
 	var t: Dictionary = towns()[0]; var e: Dictionary = t["econ"]
-	var f := household(e); check(not f.is_empty(), "queued-save owner exists")
+	# v0.100: 98a752c pays active farms immediately; a real owner without a farm still defers cash.
+	var f := household(e, true); check(not f.is_empty(), "queued-save deferred owner without a farm exists")
 	if f.is_empty(): return
 	var tid := String(t["id"]); var fid := int(f["id"])
 	empty_barn(e)
 	api.add(e, "grain", 40, {owner(f): 40.0}, int(e["day"]), "harvest")
 	var receipt: Dictionary = api.take(e, "grain", 3, false, owner(f))
 	fund_credit(e, receipt["shares"], 9)
+	check(near(float(e["harvest_book"]["cash"].get(owner(f), 0.0)), 9.0), "queued save starts with a real nine-coin pending harvest receipt")
 	var d := int(e["day"]) + 1
 	Game.world["work"] = [["econ", tid, d], ["fam", tid, d], ["fam2", tid, d]]
 	var jobs: Array = Game.world["work"].duplicate(true)
@@ -167,9 +181,11 @@ func queue_save() -> void:
 	check(near(api.owned(e, owner(f), "grain"), 37), "save/load preserves unsold attributed physical grain")
 	check(near(Barge.holdings(Game), cash), "save/load preserves cash backing pending claims")
 	check(int(e["barn"]["grain"]) == before_goods, "save/load does not replay past physical harvest")
+	check(near(float(e["harvest_book"]["cash"].get(owner(f), 0.0)), 9.0), "save/load retains the exact pending nine-coin receipt")
 	var before := float(f["purse"])
+	var tribute := float(e.get("ruler", {}).get("tribute", 0)) if String(e.get("ruler", {}).get("kind", "")) == "coin" else 0.0
 	Families.settle(e, f)
-	check(float(f["purse"]) > before, "restored pending harvest receipt remains payable")
+	check(near(float(f["purse"]) - before, 9.0 * (1.0 - tribute)), "restored pending harvest receipt pays exactly once after tribute")
 	var paid := float(f["purse"])
 	Game.save_game(); check(Game.load_game(), "settled harvest save loads again")
 	e = Game.world["towns"][tid]["econ"]; f = e["fams"][fid]
@@ -193,7 +209,8 @@ func invariant(e: Dictionary, label: String) -> void:
 
 func legacy_checkpoint() -> void:
 	var path := OS.get_environment("HARVEST_LEGACY_SAVE")
-	if path == "": path = ProjectSettings.globalize_path("res://../../evidence/v0.030-final-labour/checkpoint-save.json")
+	# v0.100: real v0.030 save generated by v0.030 (Copper Oath 1f72742) Game.save_game(); see bb-v030-save/game/tools/make_v030_checkpoint.gd
+	if path == "": path = ProjectSettings.globalize_path("res://tests/fixtures/harvest_legacy_v030_save.json")
 	check(FileAccess.file_exists(path), "real isolated v0.030 campaign checkpoint exists")
 	if not FileAccess.file_exists(path): return
 	var d: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(path))

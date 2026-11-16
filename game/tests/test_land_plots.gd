@@ -17,6 +17,273 @@ func _towns() -> Array:
 	ids.sort()
 	return ids.map(func(i): return Game.world["towns"][i])
 
+# Test-owned layout contract: five-acre plots; 1,500 is an optional-terrain target.
+# Capacity is built BEFORE layout from books, raw terrain and real road links.
+# No generated dimensions, positions, radii, counts or Plots layout helpers enter it.
+func _plot_demand(t: Dictionary) -> Dictionary:
+	var e: Dictionary = t["econ"]
+	var n := PackedInt32Array()
+	n.resize(16)
+	n.fill(0)
+	n[Plots.STATE] = 7 + int(bool(t.get("capital", false)) or String(t.get("specialty", "")) == "mining") + int(e.has("academy"))
+	n[Plots.SQUARE] = 1
+	n[Plots.LOT] = maxi(2, int(ceil(float(e["homes"]) / 30.0)))
+	n[Plots.HOME] = int(e.get("stock", {}).get("home", 0))
+	var acres := 0
+	for f in e["fams"]:
+		if f.get("gone", false): continue
+		if not f.has("lodging"): n[Plots.HOME] += int(f["homes"])
+		for crop in f["land"]:
+			acres += int(f["land"][crop])
+			n[Plots.FIELD] += int(ceil(float(f["land"][crop]) / 5.0))
+	n[Plots.COMMON] = int(ceil(float(maxi(0, int(e["territory"]) - acres)) / 5.0))
+	for b in e["biz"]:
+		if String(b["type"]) in ["collector", "estate", "works", "academy"]: continue
+		n[Plots.MINE if String(b["type"]) in ["mine", "quarry"] else Plots.YARD] += 1
+	var required := 0
+	for v in n: required += int(v)
+	# Read species feed directly, rather than using Herds.graze_acres or its views.
+	var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/economy.json"))
+	var graze := 0.0
+	for h in e.get("hd", {}).get("h", {}).values():
+		if String(h["k"]) in ["cattle", "sheep", "goats", "pigs", "horses", "donkeys"] and not h.has("work_band"):
+			graze += float(int(h["y"]) + int(h["g"]) + int(h["o"])) * float(data["animals"]["kinds"][String(h["k"])]["feed"])
+	n[Plots.PASTURE] = clampi(int(ceil(graze / 5.0)), int(graze > 0.0), 260)
+	return {"counts": n, "required": required, "initial_biz": e["biz"].size()}
+
+func _physical_capacity(w: Dictionary, t: Dictionary) -> Dictionary:
+	var demand := _plot_demand(t)
+	var n: PackedInt32Array = demand["counts"]
+	var width := int(w["w"])
+	var height := int(w["h"])
+	var terrain := String(w["terrain"])
+	if terrain.length() != width * height: return {"error": "incomplete world terrain"}
+	var pos: Vector2 = t["pos"]
+	var origin := Vector2i(int(pos.x / float(w["cell"])), int(pos.y / float(w["cell"])))
+	# Economy terrain is counted in base-map cells, including the town cell.
+	# Recount the raw grid; do not trust econ.terrain or EconGen._terrain_near.
+	var scale := float(width) / 100.0
+	var radius := roundi(4.0 * scale)
+	var forest := 0
+	var hills := 0
+	for y in range(maxi(0, origin.y - radius), mini(height, origin.y + radius + 1)):
+		for x in range(maxi(0, origin.x - radius), mini(width, origin.x + radius + 1)):
+			var ch := terrain[y * width + x]
+			if ch in ["f", "s"]: forest += 1
+			if ch in ["h", "m"]: hills += 1
+	n[Plots.WOOD] = clampi(6 + 3 * roundi(float(forest) / (scale * scale)) + (30 if String(t.get("specialty", "")) == "timber" else 0), 6, 200)
+	n[Plots.WASTE] = clampi(roundi(float(hills) / (scale * scale)), 0, 60)
+	# Optional terrain yields to real holdings, in this pinned priority order.
+	var excess := maxi(0, int(demand["required"]) + n[Plots.PASTURE] + n[Plots.WOOD] + n[Plots.WASTE] - 1380)
+	for row in [[Plots.WOOD, 6], [Plots.PASTURE, mini(1, n[Plots.PASTURE])], [Plots.WASTE, 0]]:
+		var cut := mini(excess, n[int(row[0])] - int(row[1]))
+		n[int(row[0])] -= cut
+		excess -= cut
+	var items := 0
+	for v in n: items += int(v)
+	var core_end := n[Plots.STATE] + n[Plots.SQUARE] + n[Plots.LOT] + n[Plots.HOME] + n[Plots.YARD]
+	# Water direction uses the unscaled local 9 x 9 neighbourhood, excluding self.
+	var water := 0
+	var water_dir := Vector2.ZERO
+	for dy in range(-4, 5):
+		for dx in range(-4, 5):
+			var x := origin.x + dx
+			var y := origin.y + dy
+			if x >= 0 and y >= 0 and x < width and y < height and (dx != 0 or dy != 0) and terrain[y * width + x] == "w":
+				water += 1
+				water_dir += Vector2(dx, dy).normalized()
+	water_dir = water_dir.normalized()
+	var angles := []
+	for link in t.get("road_links", []):
+		var other: Dictionary = w["towns"].get(String(link.get("id", "")), {})
+		if other.is_empty(): continue
+		var delta: Vector2 = other["pos"] - pos
+		if delta.length() <= 0.1: continue
+		var angle := snappedf(delta.angle(), PI / 4.0)
+		if not angles.has(angle): angles.append(angle)
+	if angles.is_empty(): angles = [0.0, PI]
+	# Reconstruct the seeded lattice, not a radius measured from generated plots.
+	# Packed float distances preserve the contract's tie/rounding behaviour.
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash([int(w["seed"]), String(t["id"]), "plots"])
+	var side := int(ceil(sqrt(float(items) * 1.5))) + 3
+	var river_start := (sqrt(float(items) / PI) + 1.0) * 0.72
+	for attempt in 6:
+		var center := Vector2.ONE * (float(side - 1) * 0.5)
+		var distance := PackedFloat32Array()
+		for cell in side * side:
+			distance.append(Vector2(cell % side, cell / side).distance_to(center) + rng.randf_range(0.0, 0.35))
+		var special := {}
+		for angle in angles:
+			var direction := Vector2.from_angle(float(angle))
+			for step in 2 * side:
+				var reach := 1.6 + float(step) * 0.5
+				if reach >= float(side): break
+				var xy := (center + direction * reach).round()
+				if xy.x >= 0 and xy.y >= 0 and xy.x < side and xy.y < side:
+					special[int(xy.y) * side + int(xy.x)] = Plots.ROAD
+		if water >= 3 and water_dir != Vector2.ZERO:
+			for cell in side * side:
+				var projection := (Vector2(cell % side, cell / side) - center).dot(water_dir)
+				if projection >= river_start and projection < river_start + 1.7 and not special.has(cell):
+					special[cell] = Plots.WATER
+		var free := []
+		for cell in side * side:
+			if not special.has(cell): free.append(cell)
+		free.sort_custom(func(a, b): return distance[a] < distance[b] if distance[a] != distance[b] else a < b)
+		if free.size() < items + 8 * int(sqrt(float(items) / PI) + 1.0):
+			side += 3
+			continue
+		var wall_end := core_end
+		if int(t.get("size", 0)) >= 1:
+			var wall_edge := maxf(1.5, distance[free[core_end - 1]]) + 1.05
+			while wall_end < free.size() and distance[free[wall_end]] <= wall_edge:
+				wall_end += 1
+		n[Plots.WALL] = wall_end - core_end
+		var occupied := items + n[Plots.WALL]
+		if occupied > free.size(): return {"error": "holdings do not fit the independent lattice"}
+		var farm_end := wall_end + n[Plots.FIELD] + n[Plots.COMMON]
+		var pasture_end := farm_end + n[Plots.PASTURE]
+		var masks := {}
+		for rank in occupied:
+			var mask := 0
+			if rank < n[Plots.STATE] + 1: mask = (1 << Plots.STATE) | (1 << Plots.SQUARE)
+			elif rank < core_end: mask = (1 << Plots.HOME) | (1 << Plots.LOT) | (1 << Plots.YARD)
+			elif rank < wall_end: mask = 1 << Plots.WALL
+			elif rank < farm_end: mask = (1 << Plots.FIELD) | (1 << Plots.ORCHARD) | (1 << Plots.VINEYARD) | (1 << Plots.COMMON)
+			elif rank < pasture_end: mask = 1 << Plots.PASTURE
+			else: mask = (1 << Plots.WOOD) | (1 << Plots.MINE) | (1 << Plots.WASTE)
+			masks[int(free[rank])] = mask
+		var outer_edge := float(distance[free[occupied - 1]]) + 0.3
+		for cell in special:
+			if distance[cell] <= outer_edge:
+				var use := int(special[cell])
+				masks[cell] = 1 << use
+				n[use] += 1
+		# Reserve lots in plot-id order for legitimate farms opened by initial jobs.
+		var core: Array = free.slice(n[Plots.STATE] + 1, core_end)
+		core.sort_custom(func(a, b):
+			var aa := (Vector2(a % side, a / side) - center).angle()
+			var bb := (Vector2(b % side, b / side) - center).angle()
+			return aa < bb if aa != bb else a < b)
+		demand["lots"] = core.slice(0, n[Plots.LOT])
+		demand["side"] = side
+		demand["cells"] = masks
+		demand["counts"] = n
+		return demand
+	return {"error": "no physical lattice fits within six input-bounded attempts"}
+
+func _initial_job_yards(t: Dictionary, capacity: Dictionary) -> void:
+	if capacity.has("error"): return
+	var n: PackedInt32Array = capacity["counts"]
+	var cells: Dictionary = capacity["cells"]
+	var lots: Array = capacity["lots"]
+	var side := int(capacity["side"])
+	# Reconciliation may consume a reserved lot; it does not enlarge the wall,
+	# roads or river. Only actual newly opened businesses earn an extra yard.
+	for b in (t["econ"]["biz"] as Array).slice(int(capacity["initial_biz"])):
+		if String(b["type"]) in ["collector", "estate", "works", "academy"] or b.get("closed", false): continue
+		if String(b["type"]) != "farm":
+			capacity["error"] = "unexpected new initial business: %s" % b["type"]
+			return
+		n[Plots.YARD] += 1
+		if not lots.is_empty():
+			var cell := int(lots.pop_front())
+			cells[cell] = 1 << Plots.YARD
+			n[Plots.LOT] -= 1
+		else:
+			var best := -1
+			var nearest := INF
+			for cell in side * side:
+				if cells.has(cell): continue
+				var d := Vector2(cell % side - side / 2, cell / side - side / 2).length_squared()
+				if d < nearest:
+					nearest = d
+					best = cell
+			if best < 0:
+				capacity["error"] = "new farm has no free physical cell"
+				return
+			cells[best] = 1 << Plots.YARD
+	capacity["counts"] = n
+
+func _physical_budget_error(P: Dictionary, capacity: Dictionary) -> String:
+	if capacity.has("error"): return String(capacity["error"])
+	var side := int(capacity["side"])
+	var cells: Dictionary = capacity["cells"]
+	var expected: PackedInt32Array = capacity["counts"]
+	if int(P["gw"]) != side or int(P["gh"]) != side:
+		return "grid %dx%d exceeds input-derived grid %dx%d" % [int(P["gw"]), int(P["gh"]), side, side]
+	var count := (P["x"] as PackedInt32Array).size()
+	if count != cells.size():
+		return "%d plots; independently enumerated capacity %d (walls %d, roads %d, water %d)" % [count, cells.size(), expected[Plots.WALL], expected[Plots.ROAD], expected[Plots.WATER]]
+	# Retain the original small-town ceiling as an additional check.
+	if int(capacity["required"]) <= 1500 and count > 1700:
+		return "small town exceeds the original 1700-plot ceiling"
+	var actual := PackedInt32Array()
+	actual.resize(16)
+	actual.fill(0)
+	var seen := {}
+	for i in count:
+		var x := int(P["x"][i])
+		var y := int(P["y"][i])
+		var use := int(P["use"][i])
+		var cell := y * side + x
+		if x < 0 or y < 0 or x >= side or y >= side or seen.has(cell):
+			return "plot %d overlaps or leaves the physical grid" % i
+		seen[cell] = true
+		if use < 0 or use >= 16 or (int(cells.get(cell, 0)) & (1 << use)) == 0:
+			return "plot %d use %d is not permitted at physical cell %d,%d" % [i, use, x, y]
+		actual[Plots.FIELD if use in [Plots.FIELD, Plots.ORCHARD, Plots.VINEYARD] else use] += 1
+		if use in [Plots.WALL, Plots.ROAD, Plots.WATER]:
+			if int(P["own"][i]) != 0 or int(P["ten"][i]) != -1 or int(P["ac"][i]) != (5 if use == Plots.WATER else 1):
+				return "infrastructure plot %d has incorrect ownership or acreage" % i
+	if actual != expected: return "per-use counts %s; independently required %s" % [str(actual), str(expected)]
+	return ""
+
+func _capacity_control_grid(P: Dictionary) -> void:
+	var grid := PackedInt32Array()
+	grid.resize(int(P["gw"]) * int(P["gh"]))
+	grid.fill(-1)
+	for i in (P["x"] as PackedInt32Array).size():
+		grid[int(P["y"][i]) * int(P["gw"]) + int(P["x"][i])] = i
+	P["g"] = grid
+
+func _capacity_controls() -> void:
+	# Hand-enumerated lattice, independent of both the oracle and the generator.
+	var n := PackedInt32Array()
+	n.resize(16)
+	n.fill(0)
+	n[Plots.STATE] = 1
+	n[Plots.FIELD] = 1
+	n[Plots.ROAD] = 2
+	var capacity := {"side": 9, "required": 2, "counts": n, "cells": {
+		40: 1 << Plots.STATE, 49: 1 << Plots.FIELD, 41: 1 << Plots.ROAD, 42: 1 << Plots.ROAD}}
+	var P := {"gw": 9, "gh": 9, "x": PackedInt32Array([4, 4, 5, 6]), "y": PackedInt32Array([4, 5, 4, 4]),
+		"use": PackedInt32Array([Plots.STATE, Plots.FIELD, Plots.ROAD, Plots.ROAD]),
+		"ac": PackedInt32Array([1, 5, 1, 1]), "own": PackedInt32Array([0, 0, 0, 0]), "ten": PackedInt32Array([-1, -1, -1, -1])}
+	_capacity_control_grid(P)
+	check(_grid_ok(P) == "" and _physical_budget_error(P, capacity) == "", "physical capacity accepts its hand-counted control")
+	var extra: Dictionary = P.duplicate(true)
+	for k in ["x", "y", "use", "ac", "own", "ten"]:
+		extra[k].append({"x": 7, "y": 4, "use": Plots.ROAD, "ac": 1, "own": 0, "ten": -1}[k])
+	_capacity_control_grid(extra)
+	check(_grid_ok(extra) == "" and _physical_budget_error(extra, capacity) != "", "reject one extra infrastructure cell on a valid ray")
+	var outward: Dictionary = extra.duplicate(true)
+	outward["gw"] = 13
+	outward["gh"] = 13
+	for i in (outward["x"] as PackedInt32Array).size():
+		outward["x"][i] += 2
+		outward["y"][i] += 2
+	outward["x"][1] = 11
+	outward["y"][1] = 6
+	_capacity_control_grid(outward)
+	check(_grid_ok(outward) == "" and _physical_budget_error(outward, capacity) != "", "reject outward field and extended road on an enlarged grid")
+	var wrong_direction: Dictionary = P.duplicate(true)
+	wrong_direction["x"][3] = 4
+	wrong_direction["y"][3] = 6
+	_capacity_control_grid(wrong_direction)
+	check(_grid_ok(wrong_direction) == "" and _physical_budget_error(wrong_direction, capacity) != "", "reject a road in an invalid direction at unchanged count")
+
 ## Plot acres by owner and crop against the families' and estate's land, and against TownEcon.land_summary.
 func _books_match(t: Dictionary) -> String:
 	var e: Dictionary = t["econ"]
@@ -69,7 +336,24 @@ func _grid_ok(P: Dictionary) -> String:
 	return ""
 
 func run(_tree: SceneTree) -> int:
-	Game.new_game(4711)
+	_capacity_controls()
+	# Same zero-budget slices as Game.new_game, observing inputs before layout.
+	var generation := Game.new_game_begin(4711)
+	var capacities := {}
+	while true:
+		var tid := ""
+		var capacity := {}
+		if int(generation.get("phase", -1)) == CampaignWorld.GENERATION_STAGES.find("Town plots and initial jobs"):
+			var ids: Array = Game.world["towns"].keys()
+			ids.sort()
+			tid = String(ids[int(generation["i"])])
+			capacity = _physical_capacity(Game.world, Game.world["towns"][tid])
+		var complete := Game.new_game_slice(generation, 0)
+		if tid != "":
+			_initial_job_yards(Game.world["towns"][tid], capacity)
+			capacities[tid] = capacity
+		if complete: break
+	Game.new_game_finalize()
 	var towns := _towns()
 	# ---------------------------------------------------------------- world gen
 	for t in towns:
@@ -79,7 +363,11 @@ func run(_tree: SceneTree) -> int:
 		check(m == "", "world gen books: " + m)
 		var g := _grid_ok(P)
 		check(g == "", "%s grid: %s" % [t["name"], g])
-		check(Plots.count(P) <= Plots.PLOT_CAP + 200, "%s plot count %d near the cap" % [t["name"], Plots.count(P)])
+		var capacity: Dictionary = capacities.get(String(t["id"]), {"error": "missing pre-layout inputs"})
+		var budget_error := _physical_budget_error(P, capacity)
+		check(budget_error == "", "%s physical plot budget: %s" % [t["name"], budget_error])
+		if not capacity.has("error"):
+			print("%s physical capacity: %d plots, grid %d, per-use %s" % [t["name"], (capacity["cells"] as Dictionary).size(), int(capacity["side"]), str(capacity["counts"])])
 		# the town's own buildings
 		var kinds := {}
 		for b in P["bld"]:

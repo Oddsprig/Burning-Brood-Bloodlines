@@ -75,12 +75,20 @@ static func add_skill_xp_mult(u: Unit, skill: String, xp: float, mult: float) ->
 	return rose
 
 ## Records attribute use for this battle (use: Dictionary attr -> float, owned by the Fighter).
+static var _link_pairs: Dictionary = {}   # link -> [[attr, weight], ...] in ATTR_LINKS order (built once, perf)
 static func note_use(use: Dictionary, link: String, mult: float = 1.0) -> void:
-	if not ATTR_LINKS.has(link):   # (no empty default dictionary built per call)
+	if _link_pairs.is_empty():
+		for k in ATTR_LINKS:
+			var pairs := []
+			var w0: Dictionary = ATTR_LINKS[k]
+			for a in w0:
+				pairs.append([a, float(w0[a])])
+			_link_pairs[k] = pairs
+	var pairs = _link_pairs.get(link)
+	if pairs == null:
 		return
-	var w: Dictionary = ATTR_LINKS[link]
-	for a in w:
-		use[a] = float(use.get(a, 0.0)) + float(w[a]) * mult
+	for pr in pairs:
+		use[pr[0]] = float(use.get(pr[0], 0.0)) + float(pr[1]) * mult
 
 static func attr_ceiling(u: Unit, a: String) -> int:
 	var cap := DB.ATTR_HARD_CAP
@@ -94,7 +102,7 @@ static func attr_ceiling(u: Unit, a: String) -> int:
 ## End-of-battle attribute growth. Returns {attr: points gained}.
 static func apply_growth(u: Unit, use: Dictionary, rd: Dictionary = {}) -> Dictionary:
 	var gained := {}
-	if u.dead:
+	if u.dead or use.is_empty():   # (perf: nothing recorded = nothing to grow)
 		return gained
 	var race_mult := ATTR_COST_REF / maxf(100.0, float((rd if not rd.is_empty() else u.race_def()).get("attr_cost", ATTR_COST_REF)))   # rd: the race def when the caller has it
 	# perf (same results): the unit's dictionaries hoisted; attr_ceiling's stored-cap path inlined

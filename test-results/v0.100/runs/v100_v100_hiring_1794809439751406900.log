@@ -1,0 +1,28 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+HIRING PAIRED saved=false towns=27 cultures=["middle", "northern", "goblin", "orc", "moon_elf", "dwarf", "high_elf", "dark_elf"]
+HIRING PAIRED refresh lap=0 original_us=24845 candidate_us=8953
+HIRING PAIRED refresh lap=1 original_us=26453 candidate_us=9860
+HIRING PAIRED refresh lap=2 original_us=24447 candidate_us=19204
+HIRING PAIRED refresh lap=3 original_us=25399 candidate_us=25975
+HIRING PAIRED refresh lap=4 original_us=26542 candidate_us=25605
+HIRING PAIRED refresh lap=5 original_us=24603 candidate_us=25703
+HIRING PAIRED refresh lap=6 original_us=28821 candidate_us=26764
+HIRING PAIRED refresh lap=7 original_us=25949 candidate_us=29348
+HIRING PAIRED refresh median_original_us=25949.0 median_candidate_us=25703.0
+HIRING PAIRED reassign lap=0 original_us=279502 candidate_us=101928
+HIRING PAIRED reassign lap=1 original_us=281765 candidate_us=100148
+HIRING PAIRED reassign lap=2 original_us=270301 candidate_us=92699
+HIRING PAIRED reassign lap=3 original_us=261843 candidate_us=93736
+HIRING PAIRED reassign lap=4 original_us=259547 candidate_us=91269
+HIRING PAIRED reassign lap=5 original_us=267252 candidate_us=94830
+HIRING PAIRED reassign lap=6 original_us=279998 candidate_us=99514
+HIRING PAIRED reassign lap=7 original_us=281064 candidate_us=104654
+HIRING PAIRED reassign median_original_us=270301.0 median_candidate_us=94830.0
+HIRING PAIRED checks=1035 failures=0
+== res://tests/test_hiring_paired.gd: PASS ==
+HIRING TIMING checks=54 failures=0
+== res://tests/test_hiring_timing_v046.gd: PASS ==
+== block v100_hiring: 2 tests, 0 failing ==
+  test_hiring_paired.gd PASS (38 s)
+  test_hiring_timing_v046.gd PASS (19 s)

@@ -30,11 +30,14 @@ func run(_tree: SceneTree) -> int:
 		check(Creatures.RARITIES.has(String(d.get("rarity", ""))), "%s has no rarity" % cid)
 		var u := Creatures.make(rng, cid)
 		var plan := u.body.plan()
-		check(u.body.parts.has("leg_front_upper_l") and u.body.parts.has("tail"), "%s is not a quadruped" % cid)
-		var outer: String = u.body.parts["torso_upper"]["layers"][0]["tissue"]
+		# v0.100: v0.013 stores only wounds; has_part checks healthy anatomy in the plan.
+		check(u.body.has_part("leg_front_upper_l") and u.body.has_part("tail"), "%s is not a quadruped" % cid)
+		var torso := u.body.wound_part("torso_upper")
+		var outer: String = torso["layers"][0]["tissue"]
 		check(outer == "fur", "%s coat: outer layer %s" % [cid, outer])
+		# v0.100: thickness belongs to the plan, while wound_part holds writable tissue state.
 		print("%s: %s, %.0f kg, rarity %s, %d parts, torso layers %s" % [cid, u.title, u.mass(), Creatures.rarity(cid), plan["parts"].size(),
-			str(u.body.parts["torso_upper"]["layers"].map(func(l): return "%s %.0fmm" % [l["tissue"], l["t"]]))])
+			str(u.body.part_def("torso_upper")["layers"].map(func(l): return "%s %.0fmm" % [l["tissue"], float(l["t"]) * u.body.scale]))])
 	for cid in Creatures.ids(true):
 		check(Creatures.RARITIES.has(Creatures.rarity(cid)), "rarity field on every creature type (%s)" % cid)
 	# ---------------------------------------------------------------- wolf latch pulls a man down (grab code)

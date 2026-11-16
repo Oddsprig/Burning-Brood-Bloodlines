@@ -1,0 +1,47 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Throat: throat artery opened
+ok: throat artery wording
+ok: opened throat artery is critical
+Throat: windpipe punctured
+ok: airway wording
+ok: punctured windpipe is critical
+ok: bruised throat wording
+ok: bruised throat is a scratch
+ok: neck skin wording stays generic
+ok: neck skin cut stays minor
+ok: a tendon part exists
+Left lower arm: tendon severed
+ok: cut tendon is serious
+Left lower arm: motor nerve severed - limp, sensory nerve severed - numb, tendon severed
+ok: tendon wording
+ok: nerve wording
+ok: sensory nerve wording
+ok: severed nerve is permanent
+== res://tests/test_health_tissues.gd: PASS ==
+wolf: black wolf, 52 kg, rarity common, 110 parts, torso layers ["fur 5mm", "skin 2mm", "fat 5mm", "muscle 18mm"]
+bear: brown bear, 146 kg, rarity uncommon, 114 parts, torso layers ["fur 15mm", "thick_hide 6mm", "skin 3mm", "fat 8mm", "muscle 26mm"]
+boar: red wild boar, 52 kg, rarity common, 92 parts, torso layers ["fur 2mm", "thick_hide 7mm", "skin 2mm", "fat 5mm", "muscle 18mm"]
+latch after 1 bites, man down after 1 drags (drag chance 0.64); log: ["The rangy wolf\'s jaws lock onto Human 5!", "The rangy wolf hauls Human 5 off his feet!", "Human 5 goes down under the weight of the beast!"]
+wolf latch: 6/6 latched, 6/6 dragged the man down
+drag chance: one wolf 0.53, two wolves 0.75
+bear bites on the copper-mailed chest: mail covered 144, bitten through 110 (76%)
+wolf bites on the copper-mailed chest: mail covered 144, bitten through 0 (0%)
+boar charge: 54 kg -> p 36.6, 94 kg -> p 64.6 (mass ratio 1.77, p ratio 1.77)
+  wolf pack vs 3 men: winner 1 after 410 ticks; The wolf pack leader tears into Aldric Oakes's left upper leg with its jaws, tearing the muscle! | The old wolf rakes Aldric Ashford's left lower arm with its claws, tearing the muscle! Aldric Ashford bellows in pain. | The grey wolf bites Aldric Oakes's right lower leg, but the tin splint greaves holds. The blow leaves a deep dent in Aldric Oakes's tin splint greaves. | The old wolf bites Aldric Ashford in the left upper leg, ripping the muscle! Aldric Ashford screams.
+  boar pack vs 3 men: winner 1 after 440 ticks; The black wild boar barrels into Jory Kettle's upper body at full tilt, battering the muscle. | The black wild boar falls, its leg dead beneath its weight. | The red wild boar barrels into Jory Kettle's head at full tilt, splintering the skull and bruising the muscle! | The black wild boar gores Jory Kettle in the head, cutting through the skull and skewering the muscle!
+  bear pack vs 3 men: winner 0 after 133 ticks; The grizzled bear swipes at Rowan Coldwater and catches the right lower leg, tearing the muscle! | The grizzled bear falls, its leg dead beneath its weight. | The grizzled bear rakes Rowan Coldwater's left upper leg with its claws, battering the muscle!
+  wolf pack vs 3 men: winner 1 after 171 ticks; The black wolf tears into Brannoc Blackmere's right upper leg with its jaws, ripping the muscle! | The lean wolf tears into Brannoc Blackmere's upper body with its jaws, tearing the muscle! | The lean wolf latches on and does not let go! | The black wolf bites Brannoc Blackmere in the left upper leg, tearing the muscle! Dark blood runs from an opened artery!
+packs vs men: men won 2, beasts won 6; latch/drag events { "latch_ok": 26, "drag_fail": 6, "drag_ok": 8 } (TRACKED)
+== res://tests/test_sim_creatures.gd: PASS ==
+Combat journal checkpoint: immutable native records complete
+Combat journal checkpoint:10000 outcomes/indexed pages complete
+Combat journal checkpoint: explicit write failure/recent tail complete
+Combat journal checkpoint: read/capture failure/ownership complete
+Combat journal checkpoint: exact native copy/buffered indexes complete
+Combat journal v016: 90 assertions; failures=0
+== res://tests/test_combat_journal_v016.gd: PASS ==
+== block v100_anatomy: 3 tests, 0 failing ==
+  test_health_tissues.gd PASS (0 s)
+  test_sim_creatures.gd PASS (3 s)
+  test_combat_journal_v016.gd PASS (0 s)

@@ -1,0 +1,12 @@
+battle_a	--block=battle_a
+battle_b	--block=battle_b
+battle_c	--block=battle_c
+v100_hiring	--block=v100_hiring
+v100_harvest	--block=v100_harvest
+v100_food	--block=v100_food
+v100_harvest_life	--block=v100_harvest_life
+v100_records	--block=v100_records
+v100_farms	--block=v100_farms
+v100_anatomy	--block=v100_anatomy
+v100_land	--block=v100_land
+v100_world	--block=v100_world

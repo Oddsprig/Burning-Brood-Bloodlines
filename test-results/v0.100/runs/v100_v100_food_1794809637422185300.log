@@ -1,0 +1,10 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+HOUSEHOLD FOOD v046 checks=1055 failures=0
+== res://tests/test_household_food_v046.gd: PASS ==
+load: 182 surplus reservists returned to their households
+HARVEST LIFECYCLE checks=7659 failures=0
+== res://tests/test_harvest_lifecycle.gd: PASS ==
+== block v100_food: 2 tests, 0 failing ==
+  test_household_food_v046.gd PASS (0 s)
+  test_harvest_lifecycle.gd PASS (68 s)

@@ -1,5 +1,6 @@
 BURNING BROOD: BLOODLINES - ACTIVE CHANGE NOTES
-Updated: 2026-11-07 for v0.099 merged as 1fcb3fe758ad3a566cbb6b4466b25706fc3cd1d0.
+Updated: 2026-11-16 for v0.100 SALVAGE (base main 0f36e00); targeted blocks pass.
+v0.099 merged as 1fcb3fe758ad3a566cbb6b4466b25706fc3cd1d0.
 v0.098 merged as c6d525aa01d67bafacbf96f02206749b98d19bd3.
 v0.097 merged as 7b0429ab4aa596498624f862398c4bcd30e6b737.
 v0.096 merged as 6ed741a3134e8029496e83da18979052b015efb9.
@@ -9,6 +10,36 @@ container; not yet uploaded or on sale). v0.096-v0.098 are source merges.
 This changelog starts with the accepted v0.086-v0.094 source catch-up. Earlier
 history remains in the developer notes and immutable archives. Historical worker
 UNRUN reports are superseded by the accepted source receipts where stated.
+
+v0.100 - SALVAGE (base main 0f36e00 / v0.099)
+Ships reviewed daily plot-use searches and battle speed-ups r1/r2/r3/r5;
+required paired-hiring fixes (named Academy jobs, ordered farm departures,
+reference ranking, same-day business-name cache); throat report wording and
+severity; older tests/oracles and their real harvest-save fixture; targeted
+Test Bridge blocks/tools and HOW TO TEST. Metadata: 0.100, Android code 100,
+Windows 0.100.0.0. No new package has been built.
+
+The onboarding guard is inapplicable: main has none of its split-job entry
+points. They remain absent; the unchanged onboarding test is scheduled.
+The v0.101 spouse-race fix exceeds the small-fix limit and is deferred.
+Optional AI-marriage, rider-knockdown and fallen-foe archer fixes are excluded.
+
+Dropped from old v0.100: day/rest/turn/herd-week/sickness job splitting, perf
+probes, frame gates, raid_save, stack diffs, weekly-hiring r1-r4, startup chains,
+sim r4/r6 and the bulk one-launch-per-test feeder. Combat results/RNG, main's
+sync interfaces and scheduling remain the performance contract; throat report
+and hiring repairs are the explicitly selected rule corrections.
+
+Acceptance (2026-11-16, PC, Test Bridge, one headless Godot launch per block):
+11 blocks / 28 tests PASS: battle_a 5, battle_b 4, battle_c 2, v100_hiring 2,
+v100_harvest 2, v100_food 2, v100_records 2, v100_farms 2, v100_anatomy 3,
+v100_land 2, v100_world 2. Longest block v100_food ~70 s (harvest_lifecycle 68 s
+alone), so it is now split into v100_food + v100_harvest_life. Lead fixes during
+acceptance: battle_sim.gd declares capture_history (default on; sim r3 reads it;
+results unchanged); test_gore_render_v016 headless oracle and test_gore_text
+shield-arrow claim taken from the v0.100 branch; test_gore_text also accepts the
+shield-boss line ("it shatters" = the missile). Receipt:
+test-results/v0.100_salvage_receipt.txt.
 
 v0.099 - Release candidate: dragons in big battles, store builds, marriage ages
 Normal merge: 1fcb3fe758ad3a566cbb6b4466b25706fc3cd1d0 (branch v0.099-release-candidate).
