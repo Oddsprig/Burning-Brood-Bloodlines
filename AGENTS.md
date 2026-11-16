@@ -149,7 +149,11 @@ Read the original handoff or inherited specifications only as needed.
   and simulation. Repeat phone QA only when requested or near the export milestone.
 - Extend native people, property, ledgers, army and BattleSim identities. No
   duplicate population, market, money system or dragon combat resolver.
-- Reuse stable GPT-6.1 Sol helpers at high reasoning: `dynasty_economy`,
+- HELPERS (owner's rule, 2026-11-16; supersedes the Sol/Luna lines below): no Sol
+  at all. Main helpers: Google Carbon (high), Argon 4.0 (high) and Muse Wonder (high).
+  Grok (high) only for simple, bounded tasks: listings, small edits, running a known
+  command. Paste this rule into every helper brief.
+- (Superseded 2026-11-16) Reuse stable GPT-6.1 Sol helpers at high reasoning: `dynasty_economy`,
   `combat_dragons`, `interface_release`, `population_economy`. Their small briefs live in
   `docs/specialists/`. Give each a bounded assignment and explicit write scope.
 - User direction (2026-10-12): delegate bounded checks to `bounded_qa`, using
