@@ -30,6 +30,11 @@ static func _ln(e: Dictionary, f: Dictionary) -> Dictionary:
 		f["ln"] = {"rate": rate(e), "pay": 0.0, "miss": 0, "lent": 0.0, "int": 0.0, "sold": []}
 	return f["ln"]
 
+## v0.102: whether family `f` is the selected player household.
+static func _is_player_house(f: Dictionary) -> bool:
+	var uid := str(f.get("household_uid", ""))
+	return uid != "" and Game.get("world") is Dictionary and uid == str(Game.world.get("player_house", {}).get("household_uid", ""))
+
 ## What the head will still lend this family: a share of what it owns plus a few weeks of its labour.
 static func credit_left(e: Dictionary, f: Dictionary) -> float:
 	var C := L()
@@ -37,6 +42,10 @@ static func credit_left(e: Dictionary, f: Dictionary) -> float:
 	var worth := float(Families.acres(f)) * float(land["acre_price"]) + float(Families.heads(f)) * float(land["head_price"])
 	worth += float(f["homes"]) * float(TownEcon.data()["shelter"]["estate_home"])
 	var cap := float(C["per_adult"]) * float(Families.adults(f)) + worth * float(C["of_worth"])
+	# v0.102: a recognized noble household that is the selected player house has a minimum
+	# household charter credit line (60 old gold = 1,200 coins, within the county loan scale)
+	# so a fresh small house with away adults or low property can borrow enough to raise one man.
+	if _is_player_house(f): cap = maxf(cap, 60.0 * TownEcon.COIN)
 	return maxf(0.0, cap - float(f["debt"]))
 
 static func _reserve(e: Dictionary) -> float:
@@ -44,20 +53,23 @@ static func _reserve(e: Dictionary) -> float:
 
 ## Pure quote under the existing credit, arrears and treasury-reserve rules.
 ## Purchases can choose a feasible quantity before creating any real debt.
-static func quote(e: Dictionary, f: Dictionary, amount: float) -> float:
+## v0.102: `allow_reserve` is true only for explicit player `borrow_quote`/`borrow` orders, so AI weekly `maybe_borrow` never drains below `_reserve(e)`.
+static func quote(e: Dictionary, f: Dictionary, amount: float, allow_reserve: bool = false) -> float:
 	if f.get("gone", false) or f.has("estate") or f.get("destitute", false) or int(f.get("ln", {}).get("miss", 0)) > 0:
 		return 0.0
-	var a := floorf(minf(amount, minf(credit_left(e, f), float(e["treasury"]) - _reserve(e))))
+	var use_reserve := allow_reserve and _is_player_house(f)
+	var avail_treasury := float(e["treasury"]) if use_reserve else float(e["treasury"]) - _reserve(e)
+	var a := floorf(minf(amount, minf(credit_left(e, f), avail_treasury)))
 	return a if a >= 1.0 else 0.0
 
 ## Lend up to `amount` of real coin (treasury -> purse). Returns what was lent.
-static func lend(e: Dictionary, f: Dictionary, amount: float, why: String, day: float) -> float:
+static func lend(e: Dictionary, f: Dictionary, amount: float, why: String, day: float, allow_reserve: bool = false) -> float:
 	if f.get("gone", false) or f.has("estate") or f.get("destitute", false):
 		return 0.0
 	var ln := _ln(e, f)
 	if int(ln["miss"]) > 0:
 		return 0.0   # no new money while behind
-	var a := quote(e, f, amount)
+	var a := quote(e, f, amount, allow_reserve)
 	if a < 1.0:
 		return 0.0
 	e["treasury"] = float(e["treasury"]) - a
@@ -70,6 +82,77 @@ static func lend(e: Dictionary, f: Dictionary, amount: float, why: String, day: 
 	if f["named"]:
 		Families.add_hist(f, "Borrowed %d coins from the %s for %s." % [int(a), head_title, why], day)
 	return a
+
+## v0.102: why a loan quote refused, with a clear next step for the player.
+static func refusal(e: Dictionary, f: Dictionary, amount: float, allow_reserve: bool = true) -> String:
+	if f.is_empty() or f.get("gone", false):
+		return "This household has left the settlement. Choose another household instead."
+	if f.has("estate"):
+		return "The ruling estate owns the settlement treasury; fund the army from the house purse instead."
+	if f.get("destitute", false):
+		return "This household is destitute and has no credit left. Earn coin from a contract or trade first."
+	if int(f.get("ln", {}).get("miss", 0)) > 0:
+		return "Your household is behind on its loan payments. Wait for weekly wages to clear arrears or earn coin first."
+	if amount < 1.0 or not is_finite(amount):
+		return "Choose a positive whole amount of coin to borrow."
+	if credit_left(e, f) < 1.0:
+		return "Your household has reached its credit limit (%d coins owed). Wait for weekly repayments or earn coin first." % int(round(float(f.get("debt", 0.0))))
+	var use_reserve := allow_reserve and _is_player_house(f)
+	var avail_treasury := float(e.get("treasury", 0.0)) if use_reserve else float(e.get("treasury", 0.0)) - _reserve(e)
+	if avail_treasury < 1.0:
+		return "The settlement treasury has no lendable coin right now. Wait for town taxes and trade to replenish it, or earn coin instead."
+	return ""
+
+## v0.102: preview a player household loan at the player's home town using Loans.quote.
+static func borrow_quote(game, amount: float = 0.0) -> Dictionary:
+	if game.get("_save_capture") != null:
+		return {"ok": false, "reason": "Wait for the consistent save snapshot to finish.", "amount": 0.0, "credit_left": 0.0, "debt": 0.0}
+	var selected: Dictionary = Dynasty.selected(game)
+	if selected.is_empty():
+		return {"ok": false, "reason": "Choose an existing house first.", "amount": 0.0, "credit_left": 0.0, "debt": 0.0}
+	var tid := str(selected.get("town_id", ""))
+	if not Feudal.can_act_household(game, tid):
+		return {"ok": false, "reason": "This settlement is outside your authority. Travel to your home town instead.", "amount": 0.0, "credit_left": 0.0, "debt": 0.0}
+	if not Mobilization._here(game, tid):
+		return {"ok": false, "reason": "Travel to your home settlement before borrowing coin from its treasury.", "amount": 0.0, "credit_left": 0.0, "debt": 0.0}
+	var home: Dictionary = Dynasty._household(game, str(selected.get("household_uid", "")))
+	if home.is_empty():
+		return {"ok": false, "reason": "The ruling house has no living private account. Choose a house with a living household instead.", "amount": 0.0, "credit_left": 0.0, "debt": 0.0}
+	var town: Dictionary = home["town"]
+	var e: Dictionary = town["econ"]
+	var f: Dictionary = home["family"]
+	var cred := credit_left(e, f)
+	var avail_treasury := float(e.get("treasury", 0.0)) if _is_player_house(f) else float(e.get("treasury", 0.0)) - _reserve(e)
+	var max_borrow := floorf(maxf(0.0, minf(cred, avail_treasury)))
+	var req := floorf(amount) if amount >= 1.0 and is_finite(amount) else max_borrow
+	var q := quote(e, f, req, true)
+	var head_title: String = e.get("head", {}).get("title", "head")
+	if q < 1.0:
+		var why := refusal(e, f, req if req >= 1.0 else 1.0, true)
+		return {"ok": false, "reason": why if why != "" else "No loan is available right now; wait for town income or earn coin instead.",
+			"amount": 0.0, "credit_left": cred, "max_borrow": max_borrow, "debt": float(f.get("debt", 0.0)), "rate": rate(e), "head_title": head_title, "town_id": tid, "town_name": str(town.get("name", tid))}
+	return {"ok": true, "reason": "Borrow %d coins from the %s into your house purse (%.0f%% weekly interest; %d credit left)." % [int(q), head_title, rate(e) * 100.0, int(floor(cred))],
+		"amount": q, "credit_left": cred, "max_borrow": max_borrow, "debt": float(f.get("debt", 0.0)), "rate": rate(e), "head_title": head_title, "town_id": tid, "town_name": str(town.get("name", tid))}
+
+## v0.102: player order to borrow real coin from the home town treasury into the house purse via Loans.lend.
+static func borrow(game, amount: float = 0.0, why: String = "the household army") -> Dictionary:
+	var q := borrow_quote(game, amount)
+	if not bool(q.get("ok", false)):
+		return q
+	var selected: Dictionary = Dynasty.selected(game)
+	var home: Dictionary = Dynasty._household(game, str(selected.get("household_uid", "")))
+	var town: Dictionary = home["town"]
+	var e: Dictionary = town["econ"]
+	var f: Dictionary = home["family"]
+	var lent := lend(e, f, float(q["amount"]), why, float(game.day), true)
+	if lent < 1.0:
+		var reason := refusal(e, f, float(q["amount"]), true)
+		return {"ok": false, "reason": reason if reason != "" else "The loan could not be completed. Review your household credit and try again.", "amount": 0.0}
+	var head_title: String = e.get("head", {}).get("title", "head")
+	CampaignWorld.log_event(game, "%s borrowed %d coins from the %s of %s." % [str(f.get("name", "Your house")), int(lent), head_title, str(town.get("name", ""))])
+	game.changed.emit()
+	return {"ok": true, "reason": "Borrowed %d coins from the %s into your house purse." % [int(lent), head_title],
+		"amount": lent, "purse": float(f.get("purse", 0.0)), "debt": float(f.get("debt", 0.0)), "credit_left": credit_left(e, f)}
 
 ## Owed without coin moving (an unpaid tax). Same loan, same schedule.
 static func owe(e: Dictionary, f: Dictionary, amount: float, day: float) -> void:

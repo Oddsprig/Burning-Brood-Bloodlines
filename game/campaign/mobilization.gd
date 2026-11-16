@@ -48,14 +48,16 @@ static func _here(game, tid: String) -> bool:
 	return not town.is_empty() and pos.distance_to(town.get("pos", Vector2.ZERO)) <= 48.0   # the party camps on the nearest passable ground (up to ~1.5 cells away)
 
 static func _gate(game, tid: String, market: bool = true) -> String:
-	if game.get("_save_capture") != null: return "Wait for the consistent save snapshot to finish."
-	if Dynasty.selected(game).is_empty(): return "Choose an existing house first."
-	if not Feudal.can_act(game, tid): return "This settlement is outside your authority."
-	if not _here(game, tid): return "Travel to this settlement before raising or standing down."
-	if not game.world.get("work", []).is_empty(): return "Let the pending settlement work finish first."
+	# v0.102: explain each blocking state as well as the next command.
+	if game.get("_save_capture") != null: return "A save is being prepared. Wait for it to finish, then review the army again."
+	if Dynasty.selected(game).is_empty(): return "No campaign house is chosen. Choose a settlement and house first."
+	# v0.102: a player household may muster and enlist its own household army at its home town without holding the town office.
+	if not Feudal.can_act_household(game, tid): return "This settlement is outside your authority. Travel to your home town instead."
+	if not _here(game, tid): return "Your army is away from this settlement. Travel here before raising or standing down."
+	if not game.world.get("work", []).is_empty(): return "Settlement work is still updating. Wait for it to finish, then review the army again."
 	var e: Dictionary = game.world.get("towns", {}).get(tid, {}).get("econ", {})
 	var index := int(e.get("mkt", -1))
-	if market and (index < 0 or index >= e.get("biz", []).size() or not e.has("price") or not e.has("stock")): return "The settlement has no functioning market."
+	if market and (index < 0 or index >= e.get("biz", []).size() or not e.has("price") or not e.has("stock")): return "This settlement has no working market for raising troops. Hire men at another settlement instead."
 	return ""
 
 static func status(game) -> Dictionary:
@@ -229,11 +231,11 @@ static func quote(game, town_id: String, count: int = 100) -> Dictionary:
 	for row in food: stock += int(row["quantity"])
 	out["kit_available"] = kit.size(); out["food_available"] = stock
 	out["body_available"] = body_kit.size(); out["helm_available"] = helm_kit.size()
-	var plan: Array = []; var kit_used := 0; var body_used := 0; var helm_used := 0; var fees := 0; var daily := 0; var total := 0; var review_rows: Array = []; var family_used := {}
+	var plan: Array = []; var kit_taken := {}; var body_used := 0; var helm_used := 0; var fees := 0; var daily := 0; var total := 0; var review_rows: Array = []; var family_used := {}
 	var desired := mini(int(out["requested"]), maxi(0, LIMIT - game.company.size()))
 	for candidate in candidates:
 		if plan.size() >= desired: break
-		var borrowed: Dictionary = {}
+		var borrowed: Dictionary = {}; var kit_idx := -1
 		var u: Unit = candidate.get("unit", null)
 		var fid := int(candidate["fid"])
 		if int(family_used.get(fid, 0)) >= Population.spare(People.fam_of(town, fid)): continue
@@ -241,8 +243,10 @@ static func quote(game, town_id: String, count: int = 100) -> Dictionary:
 		# replacing it must not silently destroy its existing equipment.
 		if u != null and u.weapon() != null and not _weapon(u.weapon()): continue
 		if u == null or u.weapon() == null or not _weapon(u.weapon()):
-			if kit_used >= kit.size(): continue
-			borrowed = kit[kit_used]
+			for i in kit.size():
+				if not kit_taken.has(i): kit_idx = i; break
+			if kit_idx < 0: continue
+			borrowed = kit[kit_idx]
 		# v0.029: one body piece and one helmet for a man who lacks them, from the same
 		# armory (borrowed) / shop (bought) pools as the weapon; a padded fallback piece
 		# made new for PADDED_FEE once the town's body armour is used up.
@@ -257,10 +261,30 @@ static func quote(game, town_id: String, count: int = 100) -> Dictionary:
 		if int(order["quantity"]) < (plan.size() + 1) * MEALS: break
 		var next_total := next_fees + int(order["cost"])
 		var reserve_pay: int = (int(game.daily_wages()) + daily + int(candidate["wage"])) * 3
+		# v0.102: if paid shop armour or weapons push a man over the army purse, drop the paid helmet,
+		# fall back from expensive shop torso armour to the padded levy coat, and fall back to the
+		# cheapest unused weapon before refusing; if still short, record the smallest shortfall and continue.
+		if next_total + reserve_pay > int(game.gold) and int(helm_piece.get("cost", 0)) > 0:
+			next_fees -= int(helm_piece["cost"]); next_total -= int(helm_piece["cost"]); helm_piece = {}
+		if next_total + reserve_pay > int(game.gold) and int(body_piece.get("cost", 0)) > PADDED_FEE and padded_tid != "" and (u == null or not u.equip.has(padded_slot)):
+			var diff := int(body_piece["cost"]) - PADDED_FEE
+			next_fees -= diff; next_total -= diff
+			body_piece = {"source": "padded", "tid": padded_tid, "cost": PADDED_FEE}
+		if next_total + reserve_pay > int(game.gold) and kit_idx >= 0 and int(borrowed.get("cost", 0)) > 0:
+			var cheap_idx := kit_idx
+			for i in kit.size():
+				if not kit_taken.has(i) and int(kit[i].get("cost", 0)) < int(kit[cheap_idx].get("cost", 0)):
+					cheap_idx = i
+			if cheap_idx != kit_idx:
+				var wdiff := int(borrowed["cost"]) - int(kit[cheap_idx]["cost"])
+				next_fees -= wdiff; next_total -= wdiff
+				kit_idx = cheap_idx; borrowed = kit[kit_idx]
 		if next_total + reserve_pay > int(game.gold):
-			out["required_funding"] = maxi(int(out["required_funding"]), next_total + reserve_pay - int(game.gold)); break
+			var short := next_total + reserve_pay - int(game.gold)
+			out["required_funding"] = short if int(out["required_funding"]) <= 0 else mini(int(out["required_funding"]), short)
+			continue
 		var row: Dictionary = candidate.duplicate(); row["kit"] = borrowed; row["body_kit"] = body_piece; row["helm_kit"] = helm_piece; plan.append(row)
-		if not borrowed.is_empty(): kit_used += 1
+		if kit_idx >= 0: kit_taken[kit_idx] = true
 		if body_piece.has("item"): body_used += 1
 		if not helm_piece.is_empty(): helm_used += 1
 		fees = next_fees; total = next_total; daily += int(candidate["wage"])
@@ -270,10 +294,27 @@ static func quote(game, town_id: String, count: int = 100) -> Dictionary:
 			(body_piece["item"] as Item).uid if body_piece.has("item") else -1, int(body_piece.get("cost", 0)),
 			(helm_piece["item"] as Item).uid if helm_piece.has("item") else -1, int(helm_piece.get("cost", 0)),
 			str(body_piece.get("tid", "")) if str(body_piece.get("source", "")) == "padded" else ""])
+	# v0.102: required_funding is the shortfall to raise at least one person; clear it when any can be raised.
+	if not plan.is_empty():
+		out["required_funding"] = 0
 	out["available"] = plan.size(); out["planned"] = plan.size(); out["food_units"] = plan.size() * MEALS
 	out["food_per_day"] = plan.size() * 2; out["raise_cost"] = total; out["daily_pay"] = daily
 	out["ok"] = not plan.is_empty()
-	out["reason"] = "Raise %d of %d requested; actual manpower, weapons, meals and army funds limit the muster." % [plan.size(), out["requested"]] if out["ok"] else "No funded, equipped and supplied people can depart."
+	if out["ok"]:
+		out["reason"] = "Raise %d of %d requested; actual manpower, weapons, meals and army funds limit the muster." % [plan.size(), out["requested"]]
+	elif int(out["eligible"]) <= 0:
+		# v0.102: realm soldiers may never be discharged; hiring elsewhere remains possible.
+		out["reason"] = "No free, fit people can be raised here. Hire men at another settlement or wait for new local recruits."
+	elif int(out["kit_available"]) <= 0:
+		# v0.102: buying a stall weapon into baggage does not equip a future levy in this quote.
+		out["reason"] = "No serviceable weapons are in the armory or market. Wait for smiths to stock arms here, or hire men in Town Recruits."
+	elif int(out["food_available"]) < MEALS:
+		# v0.102: muster buys market food; buying it into the player's baggage cannot fill this shortfall.
+		out["reason"] = "The market lacks food for deployment rations. Wait for food deliveries here, or hire men elsewhere."
+	elif int(out["required_funding"]) > 0:
+		out["reason"] = "No funded, equipped and supplied people can depart. Fund the army purse from your house purse or borrow coin first."
+	else:
+		out["reason"] = "No funded, equipped and supplied people can depart. Fund the army purse or review local weapons and food first."
 	var families: Array = []
 	for fid in family_used:
 		var family: Dictionary = People.fam_of(town, int(fid))
@@ -286,9 +327,17 @@ static func quote(game, town_id: String, count: int = 100) -> Dictionary:
 	return out
 
 static func fund(game, amount: float) -> Dictionary:
-	if game.get("_save_capture") != null: return {"ok": false, "reason": "Wait for the consistent save snapshot to finish."}
-	if not is_finite(amount) or amount <= 0.0 or amount != floor(amount): return {"ok": false, "reason": "Choose a positive whole amount of house coin."}
+	# v0.102: funding keeps its existing gates with explicit reasons and recovery steps.
+	if game.get("_save_capture") != null: return {"ok": false, "reason": "A save is being prepared. Wait for it to finish, then review the transfer again."}
+	if not is_finite(amount) or amount <= 0.0 or amount != floor(amount): return {"ok": false, "reason": "The transfer needs whole coins. Enter an amount of at least one coin."}
 	return Feudal.fund_army(game, amount)
+
+## v0.102: preview or execute a household loan from the home town treasury into the house purse.
+static func borrow_quote(game, amount: float = 0.0) -> Dictionary:
+	return Loans.borrow_quote(game, amount)
+
+static func borrow(game, amount: float = 0.0) -> Dictionary:
+	return Loans.borrow(game, amount, "the household army")
 
 static func _category(p: Array) -> String:
 	return "old" if int(p[6]) == 1 else ("kids" if int(p[6]) == 2 else ("m" if int(p[2]) == 0 else "f"))
@@ -362,8 +411,8 @@ static func is_medic(game, u: Unit) -> bool:
 	return u != null and not game.world.is_empty() and _state(game).get("medics", {}).has(str(u.uid))
 
 static func set_medic(game, u: Unit, on: bool) -> Dictionary:
-	if u == null or u.dead or not game.company.has(u): return {"ok": false, "reason": "Only living members of the army can be medics."}
-	if on and (is_house_rider(game, u) or Army.house_born(u)): return {"ok": false, "reason": "House members lead; medics are drawn from the common ranks."}
+	if u == null or u.dead or not game.company.has(u): return {"ok": false, "reason": "Only living members of the army can be medics. Choose a living soldier from your roster instead."}
+	if on and (is_house_rider(game, u) or Army.house_born(u)): return {"ok": false, "reason": "House members lead; medics are drawn from the common ranks. Choose a common soldier instead."}
 	var st := _state(game)
 	if not st.has("medics"): st["medics"] = {}
 	if on: st["medics"][str(u.uid)] = true
@@ -396,24 +445,33 @@ static func is_house_rider(game, u: Unit) -> bool:
 ## so wounds, capture, death and experience in battle are theirs (campaign/battle_rounds.gd).
 static func enlist_household(game, person_uid: String) -> Dictionary:
 	var row: Dictionary = Dynasty.person(game, person_uid)
-	if row.is_empty() or not bool(row.get("alive", false)): return {"ok": false, "reason": "This person is not a living member of your house."}
+	if row.is_empty() or not bool(row.get("alive", false)): return {"ok": false, "reason": "This person is not a living member of your house. Choose a living adult from your house instead."}
 	var tid := str(row.get("town_id", ""))
 	var reason := _gate(game, tid, false)
 	if reason != "": return {"ok": false, "reason": reason}
-	if game.company.size() >= LIMIT: return {"ok": false, "reason": "The army is at its full size."}
+	if game.company.size() >= LIMIT: return {"ok": false, "reason": "The army is at its full size. Stand down a soldier at home before enlisting another."}
 	var town: Dictionary = game.world["towns"][tid]
 	var fid := int(row.get("family_id", -1))
 	var f: Dictionary = People.fam_of(town, fid)
-	if f.is_empty(): return {"ok": false, "reason": "This person's family record is missing."}
+	if f.is_empty(): return {"ok": false, "reason": "This person's family record is missing. Choose another household member instead."}
 	var p: Array = Persons.by_pid(f, int(row.get("pid", -1)))
-	if p.is_empty() or int(p[5]) >= 0 or str(p[4]) in ["company", "reserve", "captive"]: return {"ok": false, "reason": "%s is already serving." % str(row.get("name", ""))}
-	if int(row.get("age", 0)) < int(People.ages(str(row.get("race", "human")))["adult"]): return {"ok": false, "reason": "%s is too young to ride with the army." % str(row.get("name", ""))}
+	# v0.102: do not tell the player to wait for an indefinite realm enlistment.
+	if p.is_empty(): return {"ok": false, "reason": "This person's record is missing. Choose another living adult or raise settlement troops instead."}
+	if int(p[5]) >= 0 or str(p[4]) in ["company", "reserve", "captive"]:
+		var duty := str(p[4])
+		if duty == "army": return {"ok": false, "reason": "%s serves in the realm's field army with no set return date. Raise settlement troops instead; a family rider is optional." % str(row.get("name", ""))}
+		if duty == "militia": return {"ok": false, "reason": "%s serves in the town guard. Choose another adult or raise settlement troops instead." % str(row.get("name", ""))}
+		if duty == "caravan": return {"ok": false, "reason": "%s is away with a caravan. Wait for the caravan to return or raise settlement troops instead." % str(row.get("name", ""))}
+		if duty == "captive": return {"ok": false, "reason": "%s is held captive. Open Court to seek their release, or raise settlement troops instead." % str(row.get("name", ""))}
+		if duty == "reserve": return {"ok": false, "reason": "%s is already in the home reserves. Use Review raising to call them back to the army." % str(row.get("name", ""))}
+		return {"ok": false, "reason": "%s is already serving. Review the army roster or choose another adult." % str(row.get("name", ""))}
+	if int(row.get("age", 0)) < int(People.ages(str(row.get("race", "human")))["adult"]): return {"ok": false, "reason": "%s is too young to ride with the army. Wait for them to come of age or choose an adult instead." % str(row.get("name", ""))}
 	var u := _new_unit(game, town)
 	People.last_person = p
 	p[4] = "company"
 	People.bind(town, fid, u, "company")   # the unit takes the person's own name, age and sex
 	var a: Dictionary = _address(game, u)
-	if a.is_empty(): return {"ok": false, "reason": "This person could not be enlisted."}
+	if a.is_empty(): return {"ok": false, "reason": "This person could not be enlisted. Review your household roster and try again."}
 	_entry(game, u, a)
 	_away(game, u, a)
 	game.company.append(u)
@@ -513,7 +571,8 @@ static func muster(game, town_id: String, count: int = 100, review: Dictionary =
 		WorldAudit.ration("meal", "+bought in a town for the company", n)
 	command_plan(game); Food.sync(game); Diplomacy.roster_changed(game); game.invalidate_deploy()
 	_history(game, "Raised %d people at %s for %d coins." % [raised, town["name"], cost]); game.changed.emit()
-	return {"ok": raised > 0, "reason": "Raised %d of %d requested." % [raised, q["requested"]], "requested": q["requested"],
+	# v0.102: a stale roster can produce no departures; never present that refusal as success.
+	return {"ok": raised > 0, "reason": ("Raised %d of %d requested." % [raised, q["requested"]]) if raised > 0 else "No reviewed troops were still available to depart. Review the people, supplies and army funds again.", "requested": q["requested"],
 		"raised": raised, "partial": raised < int(q["requested"]), "cost": cost, "food_units": int(order["quantity"])}
 
 ## v0.029 "Refit army": at the home town, plan one body piece ("body") and one helmet ("helm")
@@ -546,7 +605,7 @@ static func refit_quote(game, town_id) -> Dictionary:
 			total += int(pick["cost"]); fitted[u.uid] = true
 	out["fitted"] = fitted.size(); out["pieces"] = rows.size(); out["cost"] = total
 	out["ok"] = not rows.is_empty()
-	out["reason"] = "Fit %d people with %d armour pieces for %d coins." % [fitted.size(), rows.size(), total] if out["ok"] else "No living soldier here lacks body armour or a helmet that this town can supply and the army purse can pay for."
+	out["reason"] = "Fit %d people with %d armour pieces for %d coins." % [fitted.size(), rows.size(), total] if out["ok"] else "No living soldier here lacks body armour or a helmet that this town can supply and the army purse can pay for. Fund the army purse or visit the market when smiths restock."
 	out["review"] = {"town_id": tid, "day": game.day, "gold": game.gold,
 		"company": game.company.map(func(x): return x.uid), "rows": rows, "cost": total,
 		"ruler_uid": str(game.world.get("player_house", {}).get("ruler_uid", ""))}
@@ -581,7 +640,8 @@ static func refit(game, town_id, review) -> Dictionary:
 		fitted[u.uid] = true; pieces += 1
 	game.invalidate_deploy()
 	_history(game, "Refitted %d people with %d armour pieces at %s for %d coins." % [fitted.size(), pieces, town["name"], cost]); game.changed.emit()
-	return {"ok": pieces > 0, "reason": "Fitted %d people with %d armour pieces for %d coins." % [fitted.size(), pieces, cost],
+	# v0.102: an empty refit needs a new review of the actual soldiers and stock.
+	return {"ok": pieces > 0, "reason": ("Fitted %d people with %d armour pieces for %d coins." % [fitted.size(), pieces, cost]) if pieces > 0 else "No reviewed armour could still be fitted. Review the soldiers and market stock again.",
 		"fitted": fitted.size(), "pieces": pieces, "cost": cost, "review": q["review"]}
 
 static func command_plan(game) -> void:
@@ -616,7 +676,7 @@ static func stand_down_quote(game, town_id: String = "") -> Dictionary:
 		var a: Dictionary = _address(game, u)
 		if not a.is_empty() and str(a["person"][4]) == "company": rows.append([u.uid, str(a["person"][Persons.PERSON_UID]), str(a["family"]["household_uid"])])
 	var reason := _gate(game, town_id, false)
-	if reason == "" and rows.is_empty(): reason = "No living enlisted people can return to this home."
+	if reason == "" and rows.is_empty(): reason = "No living enlisted people can return to this home. Raise men here first or travel to a soldier's home settlement instead."
 	return {"ok": reason == "", "reason": reason if reason != "" else "Return %d living people to their actual home households; retained wounds remain." % rows.size(),
 		"town_id": town_id, "town_name": str(town.get("name", town_id)), "eligible": rows.size(), "company": game.company.size(),
 		"away": away, "dead": dead, "daily_pay": game.daily_wages(), "army_gold": game.gold,
@@ -673,14 +733,15 @@ static func stand_down(game, town_id: String = "", review: Dictionary = {}) -> D
 		if u.home_town == q["town_id"] and _return(game, u): count += 1
 	command_plan(game); game.invalidate_deploy(); Diplomacy.roster_changed(game)
 	_history(game, "%d living people stood down at %s." % [count, q["town_name"]]); game.changed.emit()
-	return {"ok": count > 0, "reason": "%d people returned home; no field wages are owed while in reserve." % count,
+	# v0.102: unsuccessful returns name a recovery step rather than reporting zero successes.
+	return {"ok": count > 0, "reason": ("%d people returned home; no field wages are owed while in reserve." % count) if count > 0 else "No reviewed soldiers could return here. Review the roster at their home settlement again.",
 		"returned": count, "raised": 0, "requested": q["eligible"], "partial": count < game.company.size() + count, "cost": 0, "food_units": 0}
 
 static func dismiss(game, u: Unit) -> Dictionary:
-	if u == null or u.dead or not manages(game, u): return {"ok": false, "reason": "No living registered enlistment can return."}
+	if u == null or u.dead or not manages(game, u): return {"ok": false, "reason": "No living registered enlistment can return. Choose a living enlisted soldier instead."}
 	var reason := _gate(game, u.home_town, false)
 	if reason != "": return {"ok": false, "reason": reason}
-	if not _return(game, u): return {"ok": false, "reason": "This person has already returned home."}
+	if not _return(game, u): return {"ok": false, "reason": "This person has already returned home. Review your roster instead."}
 	command_plan(game); game.invalidate_deploy(); Diplomacy.roster_changed(game); game.changed.emit()
 	return {"ok": true, "reason": ""}
 

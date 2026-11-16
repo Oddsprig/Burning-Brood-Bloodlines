@@ -4,6 +4,9 @@
 		"res://tests/test_sapphire_spirewing_v061.gd",
 		"res://tests/test_dragon_concepts.gd"
 	],
+	"small_house_v102": [
+		"res://tests/test_small_house_path_v102.gd"
+	],
 	"balance_v070": [
 		"res://tests/test_balance_v070.gd"
 	],
@@ -105,5 +108,16 @@
 	"v100_world": [
 		"res://tests/test_house_onboarding_v019.gd",
 		"res://tests/test_release_v099.gd"
+	],
+	"v102_army": [
+		"res://tests/test_mobilization_v017.gd",
+		"res://tests/test_muster_ui_v017.gd",
+		"res://tests/test_feudal_governance.gd"
+	],
+	"v102_town": [
+		"res://tests/test_campaign_contracts.gd",
+		"res://tests/test_recruit_brief.gd",
+		"res://tests/test_recruit_item_custody_v094.gd",
+		"res://tests/test_house_onboarding_v019.gd"
 	]
 }

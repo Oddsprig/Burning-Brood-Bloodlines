@@ -172,11 +172,17 @@ func _update_next() -> void:
 		tip = "A wounded unit's tile says so. Select it and open the Health tab for wounds and recovery time; badly wounded units may stay in camp."
 		bad = true
 	elif _unassigned > 0:
-		text = "%d unit%s unassigned - move %s to a squad" % [_unassigned, "" if _unassigned == 1 else "s", "it" if _unassigned == 1 else "them"]
-		tip = "Select an unassigned unit below and use Move to squad. Unassigned troops have no officer and no squad uniform."
+		# v0.102: away family officers do not block common soldiers from marching.
+		if Roster.leaders(Game).is_empty():
+			text = "No officer leads these troops. Return to the map to march; a family rider is optional."
+			tip = "Troops can march and fight unled. Open Army to see which adult house members can ride or where they are serving."
+		else:
+			text = "%d unit%s unassigned - move %s to a squad" % [_unassigned, "" if _unassigned == 1 else "s", "it" if _unassigned == 1 else "them"]
+			tip = "Select an unassigned unit below and use Move to squad. Unassigned troops have no officer and no squad uniform."
 	elif unpaid > 0:
 		text = "%d men unpaid - the purse cannot cover wages" % unpaid
-		tip = "Coins on hand and daily wages are in the purse line below. Unpaid men lose heart and may desert."
+		# v0.102: tell the player how to refill the wallet that actually pays these soldiers.
+		tip = "The army purse cannot cover wages. Return home and use Army to transfer house coin or borrow. Contract pay also enters the army purse."
 		bad = true
 	elif Mobilization.medics(Game).is_empty():
 		text = "No battle medics: pick a few commoners to tend the wounded"

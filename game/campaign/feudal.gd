@@ -104,6 +104,16 @@ static func can_act(game, town_id: String) -> bool:
 		current = str(game.world.get("feudal", {}).get("towns", {}).get(current, {}).get("liege_town_id", ""))
 	return false
 
+## v0.102: a non-ruling player house may fund its own army purse and muster at its own home
+## town without holding the town office; town treasury, taxes, garrison and vassal levies
+## stay behind can_act().
+static func can_act_household(game, town_id: String) -> bool:
+	if can_act(game, town_id): return true
+	if town_id == "" or not game.world.get("towns", {}).has(town_id): return false
+	var selected := Dynasty.selected(game)
+	if selected.is_empty() or not Dynasty.ruler(game).get("alive", false) or _payer(game).is_empty(): return false
+	return town_id == str(selected.get("town_id", "")) or town_id == str(selected.get("house_town_id", ""))
+
 static func summary(game, town_id: String) -> Dictionary:
 	var town: Dictionary = game.world.get("towns", {}).get(town_id, {})
 	var row: Dictionary = game.world.get("feudal", {}).get("towns", {}).get(town_id, {})
@@ -285,12 +295,16 @@ static func _defect_check(game, tid: String, target: String) -> Dictionary:
 	return _result(true, "Ownership, local soldiers and future taxes will follow the new liege; residents and their property remain.")
 
 static func action_preview(game, town_id: String, action: String, target_fid: String = "", amount: float = 0.0) -> Dictionary:
-	var out := _result(false, "This settlement is outside your authority.")
+	var out := _result(false, "This settlement is outside your authority. Travel to your home town instead.")
 	out["action"] = action; out["target_fid"] = target_fid
-	if not can_act(game, town_id): return out
-	var row: Dictionary = game.world["feudal"]["towns"][town_id]
+	# v0.102: a household may fund its own army purse at its own home town without holding the town office.
+	var ok_here := can_act_household(game, town_id) if action == "fund_army" else can_act(game, town_id)
+	if not ok_here: return out
+	if action == "fund_army" and not Mobilization._here(game, town_id):
+		out["reason"] = "Travel to your home settlement before funding the army from your house purse."; return out
+	var row: Dictionary = game.world.get("feudal", {}).get("towns", {}).get(town_id, {})
 	var payer := _payer(game)
-	if payer.is_empty(): out["reason"] = "The ruling house has no living private account."; return out
+	if payer.is_empty(): out["reason"] = "The ruling house has no living private account. Choose a house with a living household instead."; return out
 	if action != "fund_army" and int(game.day) - int(row.get("last_action", -ACTION_DAYS)) < ACTION_DAYS:
 		out["reason"] = "This settlement can receive one political action per week."; return out
 	match action:
@@ -313,11 +327,11 @@ static func action_preview(game, town_id: String, action: String, target_fid: St
 		"fund_army":
 			out["cost"] = amount
 			if amount <= 0.0 or not is_finite(amount): out["reason"] = "Choose a positive amount of house coin."; return out
-			if amount != floor(amount): out["reason"] = "The company wallet accepts whole coins."; return out
+			if amount != floor(amount): out["reason"] = "The company wallet accepts whole coins. Choose a whole coin amount."; return out
 			out["reason"] = "Transfer real house coin into the company wallet for native recruiting, food and wages."
 		_:
 			out["reason"] = "Unknown political action."; return out
-	if float(payer.get("purse", 0.0)) < float(out["cost"]): out["reason"] = "The house purse cannot afford this action."; return out
+	if float(payer.get("purse", 0.0)) < float(out["cost"]): out["reason"] = "The house purse cannot afford this action. Borrow coin from the settlement or earn coin first."; return out
 	out["ok"] = true
 	return out
 
@@ -325,7 +339,7 @@ static func intrigue(game, town_id: String, action: String, target_fid: String =
 	var out := action_preview(game, town_id, action, target_fid, amount)
 	if not out["ok"]: return out
 	if action == "swear": return defect(game, town_id, target_fid, "the player's oath")
-	var payer := _payer(game); var row: Dictionary = game.world["feudal"]["towns"][town_id]
+	var payer := _payer(game); var row: Dictionary = game.world.get("feudal", {}).get("towns", {}).get(town_id, {})
 	var cost := float(out["cost"]); payer["purse"] = float(payer["purse"]) - cost
 	if action == "fund_army":
 		game.gold = int(game.gold) + int(cost)
@@ -339,7 +353,10 @@ static func intrigue(game, town_id: String, action: String, target_fid: String =
 	game.changed.emit(); return out
 
 static func fund_army(game, amount: float) -> Dictionary:
-	return intrigue(game, str(Dynasty.selected(game).get("town_id", "")), "fund_army", "", amount)
+	var tid := str(Dynasty.selected(game).get("town_id", ""))
+	if not Mobilization._here(game, tid):
+		return _result(false, "Travel to your home settlement before funding the army from your house purse.")
+	return intrigue(game, tid, "fund_army", "", amount)
 
 ## Private estate tribute is booked once per payer/day. Public military levies
 ## and the existing public treasury tribute retain their distinct native books.

@@ -149,9 +149,10 @@ static func _offers(scr: Control, t: Dictionary, body: VBoxContainer, state: Dic
 	count.name = "ContractCount"
 	body.add_child(count)
 	if rows.is_empty():
-		var message := "No matching jobs."
+		# v0.102: an empty board or filter result must still offer a way forward.
+		var message := "No jobs match these filters. Clear the search or choose another category."
 		if available.is_empty():
-			message = "No one here has work for sellswords." if Diplomacy.contracts_allowed(Game, t.get("faction", "")) else "Nobody here will hire a company with your name (standing %d)." % Diplomacy.standing(Game, t.get("faction", ""))
+			message = "No jobs are offered here. Wait for new offers or visit another settlement." if Diplomacy.contracts_allowed(Game, t.get("faction", "")) else "Your standing here is too low (%d). Visit a neutral settlement for work." % Diplomacy.standing(Game, t.get("faction", ""))
 		body.add_child(UiKit.label(message, "Muted", true))
 		return
 	var heading := UiKit.panel()
@@ -179,9 +180,13 @@ static func _offers(scr: Control, t: Dictionary, body: VBoxContainer, state: Dic
 		accept.name = "AcceptContract"
 		var refusal := Contracts.refusal(Game, contract)
 		accept.disabled = scr._has_active_contract() or refusal != ""
-		accept.tooltip_text = "Finish the active contract before taking another." if scr._has_active_contract() else refusal
+		# v0.102: the active contract and its Abandon card appear above the offers.
+		accept.tooltip_text = "You already have an active contract. Finish or abandon it above before taking another." if scr._has_active_contract() else refusal
 		accept.set_meta("contract_id", String(contract.get("id", "")))
 		actions.add_child(accept)
+		# v0.102: disabled Accept reasons must be visible without hovering.
+		if accept.disabled:
+			content.add_child(UiKit.label("Finish or abandon the active contract above before accepting." if scr._has_active_contract() else refusal, "Muted", true))
 		var details := UiKit.vbox(4)
 		details.name = "ContractDetailsBody"
 		details.visible = false
@@ -214,7 +219,8 @@ static func _active(scr: Control, body: VBoxContainer) -> void:
 				scr.refresh()), "Danger", 120)
 		abandon.name = "AbandonContract"
 		actions.add_child(abandon)
-		card.add_child(UiKit.label("Finish this contract before taking another.", "Muted", true))
+		# v0.102: the active job blocks new work until it is finished or abandoned.
+		card.add_child(UiKit.label("This job is still active. Finish it or use Abandon before taking another.", "Muted", true))
 	RecKit.disclosure(card, "Contract details", func(box):
 		box.add_child(UiKit.label(String(contract.get("desc", "")), "Small", true))
 		var parties := _parties(contract)

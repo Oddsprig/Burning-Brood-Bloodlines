@@ -1,0 +1,164 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Invalid access to property or key 'crafters' on a base object of type 'Dictionary'.
+   at: roll_shop_n (res://campaign/economy.gd:212)
+   GDScript backtrace (most recent call first):
+       [0] roll_shop_n (res://campaign/economy.gd:212)
+       [1] _opening_stocks (res://campaign/econ_gen.gd:482)
+       [2] generate (res://campaign/econ_gen.gd:168)
+       [3] _fixture (res://tests/test_small_house_path_v102.gd:114)
+       [4] run (res://tests/test_small_house_path_v102.gd:642)
+       [5] _run_one (res://tests/runner.gd:111)
+       [6] _ready (res://tests/runner.gd:80)
+SCRIPT ERROR: Invalid access to property or key 'crafters' on a base object of type 'Dictionary'.
+   at: roll_shop_n (res://campaign/economy.gd:212)
+   GDScript backtrace (most recent call first):
+       [0] roll_shop_n (res://campaign/economy.gd:212)
+       [1] _opening_stocks (res://campaign/econ_gen.gd:482)
+       [2] generate (res://campaign/econ_gen.gd:168)
+       [3] _fixture (res://tests/test_small_house_path_v102.gd:114)
+       [4] run (res://tests/test_small_house_path_v102.gd:642)
+       [5] _run_one (res://tests/runner.gd:111)
+       [6] _ready (res://tests/runner.gd:80)
+ERROR: Parent node is busy setting up children, `add_child()` failed. Consider using `add_child.call_deferred(child)` instead.
+   at: add_child (scene/main/node.cpp:1721)
+   GDScript backtrace (most recent call first):
+       [0] _army_ui (res://tests/test_small_house_path_v102.gd:468)
+       [1] _path (res://tests/test_small_house_path_v102.gd:529)
+       [2] run (res://tests/test_small_house_path_v102.gd:654)
+       [3] _run_one (res://tests/runner.gd:111)
+       [4] _ready (res://tests/runner.gd:80)
+SCRIPT ERROR: Invalid access to property or key 'disabled' on a base object of type 'Nil'.
+   at: _army_ui (res://tests/test_small_house_path_v102.gd:473)
+   GDScript backtrace (most recent call first):
+       [0] _army_ui (res://tests/test_small_house_path_v102.gd:473)
+       [1] _path (res://tests/test_small_house_path_v102.gd:529)
+       [2] run (res://tests/test_small_house_path_v102.gd:654)
+       [3] _run_one (res://tests/runner.gd:111)
+       [4] _ready (res://tests/runner.gd:80)
+ERROR: Parent node is busy setting up children, `add_child()` failed. Consider using `add_child.call_deferred(child)` instead.
+   at: add_child (scene/main/node.cpp:1721)
+   GDScript backtrace (most recent call first):
+       [0] _army_ui (res://tests/test_small_house_path_v102.gd:468)
+       [1] _path (res://tests/test_small_house_path_v102.gd:545)
+       [2] run (res://tests/test_small_house_path_v102.gd:654)
+       [3] _run_one (res://tests/runner.gd:111)
+       [4] _ready (res://tests/runner.gd:80)
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Nil'.
+   at: _army_ui (res://tests/test_small_house_path_v102.gd:470)
+   GDScript backtrace (most recent call first):
+       [0] _army_ui (res://tests/test_small_house_path_v102.gd:470)
+       [1] _path (res://tests/test_small_house_path_v102.gd:545)
+       [2] run (res://tests/test_small_house_path_v102.gd:654)
+       [3] _run_one (res://tests/runner.gd:111)
+       [4] _ready (res://tests/runner.gd:80)
+seed 101: House 0 -> borrow 1200 -> Army transfer -> hire 1 -> muster 1 -> unled march; day unchanged
+SCRIPT ERROR: Invalid access to property or key 'crafters' on a base object of type 'Dictionary'.
+   at: roll_shop_n (res://campaign/economy.gd:212)
+   GDScript backtrace (most recent call first):
+       [0] roll_shop_n (res://campaign/economy.gd:212)
+       [1] _opening_stocks (res://campaign/econ_gen.gd:482)
+       [2] generate (res://campaign/econ_gen.gd:168)
+       [3] _fixture (res://tests/test_small_house_path_v102.gd:114)
+       [4] run (res://tests/test_small_house_path_v102.gd:642)
+       [5] _run_one (res://tests/runner.gd:111)
+       [6] _ready (res://tests/runner.gd:80)
+SCRIPT ERROR: Invalid access to property or key 'crafters' on a base object of type 'Dictionary'.
+   at: roll_shop_n (res://campaign/economy.gd:212)
+   GDScript backtrace (most recent call first):
+       [0] roll_shop_n (res://campaign/economy.gd:212)
+       [1] _opening_stocks (res://campaign/econ_gen.gd:482)
+       [2] generate (res://campaign/econ_gen.gd:168)
+       [3] _fixture (res://tests/test_small_house_path_v102.gd:114)
+       [4] run (res://tests/test_small_house_path_v102.gd:642)
+       [5] _run_one (res://tests/runner.gd:111)
+       [6] _ready (res://tests/runner.gd:80)
+ERROR: Parent node is busy setting up children, `add_child()` failed. Consider using `add_child.call_deferred(child)` instead.
+   at: add_child (scene/main/node.cpp:1721)
+   GDScript backtrace (most recent call first):
+       [0] _army_ui (res://tests/test_small_house_path_v102.gd:468)
+       [1] _path (res://tests/test_small_house_path_v102.gd:529)
+       [2] run (res://tests/test_small_house_path_v102.gd:654)
+       [3] _run_one (res://tests/runner.gd:111)
+       [4] _ready (res://tests/runner.gd:80)
+SCRIPT ERROR: Invalid access to property or key 'disabled' on a base object of type 'Nil'.
+   at: _army_ui (res://tests/test_small_house_path_v102.gd:473)
+   GDScript backtrace (most recent call first):
+       [0] _army_ui (res://tests/test_small_house_path_v102.gd:473)
+       [1] _path (res://tests/test_small_house_path_v102.gd:529)
+       [2] run (res://tests/test_small_house_path_v102.gd:654)
+       [3] _run_one (res://tests/runner.gd:111)
+       [4] _ready (res://tests/runner.gd:80)
+ERROR: Parent node is busy setting up children, `add_child()` failed. Consider using `add_child.call_deferred(child)` instead.
+   at: add_child (scene/main/node.cpp:1721)
+   GDScript backtrace (most recent call first):
+       [0] _army_ui (res://tests/test_small_house_path_v102.gd:468)
+       [1] _path (res://tests/test_small_house_path_v102.gd:545)
+       [2] run (res://tests/test_small_house_path_v102.gd:654)
+       [3] _run_one (res://tests/runner.gd:111)
+       [4] _ready (res://tests/runner.gd:80)
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Nil'.
+   at: _army_ui (res://tests/test_small_house_path_v102.gd:470)
+   GDScript backtrace (most recent call first):
+       [0] _army_ui (res://tests/test_small_house_path_v102.gd:470)
+       [1] _path (res://tests/test_small_house_path_v102.gd:545)
+       [2] run (res://tests/test_small_house_path_v102.gd:654)
+       [3] _run_one (res://tests/runner.gd:111)
+       [4] _ready (res://tests/runner.gd:80)
+seed 202: House 0 -> borrow 1200 -> Army transfer -> hire 1 -> muster 1 -> unled march; day unchanged
+SCRIPT ERROR: Invalid access to property or key 'crafters' on a base object of type 'Dictionary'.
+   at: roll_shop_n (res://campaign/economy.gd:212)
+   GDScript backtrace (most recent call first):
+       [0] roll_shop_n (res://campaign/economy.gd:212)
+       [1] _opening_stocks (res://campaign/econ_gen.gd:482)
+       [2] generate (res://campaign/econ_gen.gd:168)
+       [3] _fixture (res://tests/test_small_house_path_v102.gd:114)
+       [4] run (res://tests/test_small_house_path_v102.gd:642)
+       [5] _run_one (res://tests/runner.gd:111)
+       [6] _ready (res://tests/runner.gd:80)
+SCRIPT ERROR: Invalid access to property or key 'crafters' on a base object of type 'Dictionary'.
+   at: roll_shop_n (res://campaign/economy.gd:212)
+   GDScript backtrace (most recent call first):
+       [0] roll_shop_n (res://campaign/economy.gd:212)
+       [1] _opening_stocks (res://campaign/econ_gen.gd:482)
+       [2] generate (res://campaign/econ_gen.gd:168)
+       [3] _fixture (res://tests/test_small_house_path_v102.gd:114)
+       [4] run (res://tests/test_small_house_path_v102.gd:642)
+       [5] _run_one (res://tests/runner.gd:111)
+       [6] _ready (res://tests/runner.gd:80)
+ERROR: Parent node is busy setting up children, `add_child()` failed. Consider using `add_child.call_deferred(child)` instead.
+   at: add_child (scene/main/node.cpp:1721)
+   GDScript backtrace (most recent call first):
+       [0] _army_ui (res://tests/test_small_house_path_v102.gd:468)
+       [1] _path (res://tests/test_small_house_path_v102.gd:529)
+       [2] run (res://tests/test_small_house_path_v102.gd:654)
+       [3] _run_one (res://tests/runner.gd:111)
+       [4] _ready (res://tests/runner.gd:80)
+SCRIPT ERROR: Invalid access to property or key 'disabled' on a base object of type 'Nil'.
+   at: _army_ui (res://tests/test_small_house_path_v102.gd:473)
+   GDScript backtrace (most recent call first):
+       [0] _army_ui (res://tests/test_small_house_path_v102.gd:473)
+       [1] _path (res://tests/test_small_house_path_v102.gd:529)
+       [2] run (res://tests/test_small_house_path_v102.gd:654)
+       [3] _run_one (res://tests/runner.gd:111)
+       [4] _ready (res://tests/runner.gd:80)
+ERROR: Parent node is busy setting up children, `add_child()` failed. Consider using `add_child.call_deferred(child)` instead.
+   at: add_child (scene/main/node.cpp:1721)
+   GDScript backtrace (most recent call first):
+       [0] _army_ui (res://tests/test_small_house_path_v102.gd:468)
+       [1] _path (res://tests/test_small_house_path_v102.gd:545)
+       [2] run (res://tests/test_small_house_path_v102.gd:654)
+       [3] _run_one (res://tests/runner.gd:111)
+       [4] _ready (res://tests/runner.gd:80)
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Nil'.
+   at: _army_ui (res://tests/test_small_house_path_v102.gd:470)
+   GDScript backtrace (most recent call first):
+       [0] _army_ui (res://tests/test_small_house_path_v102.gd:470)
+       [1] _path (res://tests/test_small_house_path_v102.gd:545)
+       [2] run (res://tests/test_small_house_path_v102.gd:654)
+       [3] _run_one (res://tests/runner.gd:111)
+       [4] _ready (res://tests/runner.gd:80)
+seed 303: House 0 -> borrow 1200 -> Army transfer -> hire 1 -> muster 1 -> unled march; day unchanged
+v102 small house: 3 completed seeds, 1103 checks, 140 refusal cases, 0 failures, 251 ms
+runner: 12 runtime script error(s) during res://tests/test_small_house_path_v102.gd (see SCRIPT ERROR above); each counts as a failure
+== res://tests/test_small_house_path_v102.gd: FAIL (12) ==

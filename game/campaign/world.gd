@@ -389,10 +389,10 @@ static func engage(game, wid: String) -> void:
 	if Monsters.suspended_band(wb): return
 	if Diplomacy.peace_bound(w, Diplomacy.player_realm(w), str(wb.get("faction", ""))):
 		if w.get("encounter", "") == wid: w["encounter"] = ""
-		log_event(game, "Your alliance, pact or truce forbids this attack.")
+		log_event(game, "Your alliance, pact or truce forbids this attack. Choose a hostile target or wait for the treaty to end instead.")
 		return
 	if game.deployed_units().is_empty():
-		log_event(game, "No one is fit to fight.")
+		log_event(game, "No one is fit to fight. Travel to a settlement to rest or raise men first.")
 		return
 	if wb["kind"] == "caravan" and not Caravans.can_raid(game, wid):
 		return   # you cannot raid the caravan you escort (Caravans.can_raid)

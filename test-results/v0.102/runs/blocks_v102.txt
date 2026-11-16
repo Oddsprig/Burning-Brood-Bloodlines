@@ -1,0 +1,3 @@
+small_house_v102	--block=small_house_v102
+v102_army	--block=v102_army
+v102_town	--block=v102_town

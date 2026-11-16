@@ -1,0 +1,24 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+offer: A band of under a dozen goblins from the Warrens of Skrag has been preying on the roads around Stonestead. Find them and destroy them within 12 days.
+status: Hunt down goblins (Stonestead) - 21060 coins, 12.0 days left | last seen near Thornford, within the hour
+after win: gold 27461, rep middle_kingdom 6, goblin_warren strength 0.80, desired bands 2
+defend: Scouts say Goblins of the Warrens of Skrag are massing to strike Millcross within 7 days. Stop them before they reach the walls. assault wb74 march day 0.7 deadline 7.0
+defend ended day 0.0: log: ["Day 1: Contract taken in Millcross: Defend Millcross.", "Day 1: Millcross was sacked by the Warrens of Skrag.", "Day 1: Contract failed: Defend Millcross. Millcross was sacked before you arrived."]
+hunt ended: ["Day 13: Contract failed: Hunt down orcs. The band slipped away."]
+== res://tests/test_campaign_contracts.gd: PASS ==
+== res://tests/test_recruit_brief.gd: PASS ==
+RECRUIT_UID_V094 {"audit":{"appeared":{},"booked":0,"booked_but_held":0,"booked_by":{},"by_holder":{"company kit":4},"dupes":0,"gone_unbooked":{},"held":4,"made":5,"made_gone_at":{},"ok":true,"samples":[]},"new_unmade":1,"race":"human","role":{"key":"hunter","kind":"job","title":"hunter"}}
+RECRUIT_UID_V094 {"audit":{"appeared":{},"booked":0,"booked_but_held":0,"booked_by":{},"by_holder":{"company kit":4},"dupes":0,"gone_unbooked":{},"held":4,"made":5,"made_gone_at":{},"ok":true,"samples":[]},"new_unmade":1,"race":"giant","role":{"key":"weaponsmith","kind":"job","title":"smith"}}
+RECRUIT_UID_V094 {"audit":{"appeared":{},"booked":0,"booked_but_held":0,"booked_by":{},"by_holder":{"company kit":4},"dupes":0,"gone_unbooked":{},"held":4,"made":5,"made_gone_at":{},"ok":true,"samples":[]},"new_unmade":1,"race":"giant","role":{"key":"market","kind":"job","title":"carter"}}
+RECRUIT_UID_V094 {"audit":{"appeared":{},"booked":0,"booked_but_held":0,"booked_by":{},"by_holder":{"company kit":4},"dupes":0,"gone_unbooked":{},"held":4,"made":4,"made_gone_at":{},"ok":true,"samples":[]},"new_unmade":0,"race":"human","role":{"key":"weaponsmith","kind":"job","title":"smith"}}
+RECRUIT_UID_V094 {"audit":{"appeared":{},"booked":0,"booked_but_held":0,"booked_by":{},"by_holder":{"company kit":4},"dupes":0,"gone_unbooked":{},"held":4,"made":4,"made_gone_at":{},"ok":true,"samples":[]},"new_unmade":0,"race":"dwarf","role":{"key":"weaponsmith","kind":"job","title":"smith"}}
+Recruit item custody v094: 65/65 checks passed
+== res://tests/test_recruit_item_custody_v094.gd: PASS ==
+House onboarding v019: 58 checks, 0 failures
+== res://tests/test_house_onboarding_v019.gd: PASS ==
+== block v102_town: 4 tests, 0 failing ==
+  test_campaign_contracts.gd PASS (27 s)
+  test_recruit_brief.gd PASS (0 s)
+  test_recruit_item_custody_v094.gd PASS (0 s)
+  test_house_onboarding_v019.gd PASS (0 s)

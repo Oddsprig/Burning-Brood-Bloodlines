@@ -85,7 +85,8 @@ func _refresh() -> void:
 	if not commands_settlement:
 		content.add_child(UiKit.label("Local household · Settlement taxes and public forces belong to the ruling house.", "Muted", true))
 	if not bool(ruler.get("alive", false)):
-		content.add_child(UiKit.label("Your last ruler has died. The family remains; the current office and succession are shown in Laws.", "Bad", true))
+		# v0.102: tell the player where to review the dead leader's succession.
+		content.add_child(UiKit.label("Your last ruler has died. Open Laws to review the current office and succession.", "Bad", true))
 	if bool(office.get("regency", false)):
 		var regent: Dictionary = Dynasty.person(Game, String(office.get("regent_uid", "")))
 		content.add_child(UiKit.label("Minor ruler · Regent: " + String(regent.get("name", "No regent appointed")), "", true))
@@ -130,10 +131,35 @@ func _refresh() -> void:
 	var town_stats: Dictionary = Game.world.get("towns", {}).get(tid, {}).get("econ", {}).get("stats", {})
 	var feudal: Dictionary = Feudal.summary(Game, tid)
 	accounts_grid.tooltip_text = "Each purse has its own owner; viewing never moves coin. %s%s" % [PoliticsView.levy_text(town_stats), (" Last tribute to your liege: %s coins." % UiKit.coins(float(feudal["tribute"]))) if feudal.has("tribute") else ""]
+	var fund_row := UiKit.flow(8)
+	body.add_child(fund_row)
+	var can_fund_house := Feudal.can_act_household(Game, tid) and Mobilization._here(Game, tid) and float(accounts.get("house_purse", 0.0)) >= 1.0
 	var fund_button := UiKit.button("Fund army from house", _fund_army, "Row")
-	fund_button.disabled = not commands_settlement
-	if fund_button.disabled: fund_button.tooltip_text = "Your household does not hold settlement command."
-	body.add_child(fund_button)
+	fund_button.disabled = not can_fund_house
+	if not Feudal.can_act_household(Game, tid):
+		# v0.102: town office is not required to fund a small household's own army.
+		fund_button.tooltip_text = "Your house cannot fund the army here. Return home; if your leader died, review succession in Laws."
+	elif not Mobilization._here(Game, tid):
+		fund_button.tooltip_text = "Travel to your home settlement before funding the army from your house purse."
+	elif float(accounts.get("house_purse", 0.0)) < 1.0:
+		fund_button.tooltip_text = "Your house purse has no coin to transfer. Borrow coin from the settlement or earn coin first."
+	else:
+		fund_button.tooltip_text = "Transfer coin from your house purse into the army wallet."
+	fund_row.add_child(fund_button)
+	# v0.102: allow a player household to borrow coin from the settlement treasury where the house purse is shown.
+	var borrow_q: Dictionary = Loans.borrow_quote(Game)
+	var borrow_button := UiKit.button("Borrow coin", _borrow_coin, "Row")
+	borrow_button.name = "HouseBorrowButton"
+	borrow_button.disabled = not bool(borrow_q.get("ok", false))
+	borrow_button.tooltip_text = String(borrow_q.get("reason", ""))
+	fund_row.add_child(borrow_button)
+	# v0.102: show the small-house path and both disabled controls' reasons without hovering.
+	if not commands_settlement:
+		body.add_child(UiKit.label("Borrow coin into your House purse, then transfer it to the Army wallet. Contract pay goes straight to the Army wallet. Open Army to raise men; a family rider is optional.", "Muted", true))
+	if fund_button.disabled:
+		body.add_child(UiKit.label(fund_button.tooltip_text, "Muted", true))
+	if borrow_button.disabled:
+		body.add_child(UiKit.label(borrow_button.tooltip_text, "Muted", true))
 	budget = Feudal.budget(Game, tid)
 	if not budget.is_empty():
 		var finances := UiKit.panel("Card")
@@ -148,7 +174,12 @@ func _refresh() -> void:
 		if warning != "": words.add_child(UiKit.label(warning, "Bad", true))
 		var manage_button := UiKit.button("Manage taxes & defence", func(): PoliticsView.open_view("politics", tid, "house"), "Row")
 		manage_button.disabled = not commands_settlement
+		# v0.102: settlement government is separate from raising a household army.
+		manage_button.tooltip_text = "This house does not rule the settlement. Use Army to raise your own troops, or open Politics to view the ruling house." if manage_button.disabled else "Review this settlement's taxes and public defence."
 		words.add_child(manage_button)
+		# v0.102: explain the office gate below Manage for touch users.
+		if manage_button.disabled:
+			words.add_child(UiKit.label("Your house does not rule this settlement. Use Army for your own troops.", "Muted", true))
 	# Family at a glance: portraits only; the full tree and match-making live in Court.
 	var members: Array = Dynasty.living_members(Game)
 	var fam_head := UiKit.flow(10); body.add_child(fam_head)
@@ -193,6 +224,37 @@ func _fund_army() -> void:
 func _apply_funding(amount: float) -> Dictionary:
 	var result: Dictionary = Feudal.fund_army(Game, amount)
 	notice = String(result.get("reason", ""))
+	if bool(result.get("ok", false)): Game.request_autosave()
+	_refresh()
+	return result
+
+func _borrow_coin() -> void:
+	var q: Dictionary = Loans.borrow_quote(Game)
+	if not bool(q.get("ok", false)):
+		notice = String(q.get("reason", "")); _refresh(); return
+	var modal := UiKit.modal(self, "Borrow coin for your house", 440)
+	modal.add_child(UiKit.label("Borrow real coin from the %s of %s into your house purse.\nCredit left: %s coins · Current debt: %s coins · Weekly interest: %.0f%%" % [
+		String(q.get("head_title", "head")), String(q.get("town_name", "this settlement")),
+		UiKit.coins(float(q.get("credit_left", 0.0))), UiKit.coins(float(q.get("debt", 0.0))), float(q.get("rate", 0.0)) * 100.0], "", true))
+	var amount := SpinBox.new()
+	amount.min_value = 1
+	amount.max_value = maxf(1, floor(float(q.get("max_borrow", 1.0))))
+	amount.step = 1
+	amount.value = minf(200, amount.max_value)
+	amount.custom_minimum_size = Vector2(0, UiKit.touch_min(48))
+	modal.add_child(amount)
+	var controls := UiKit.flow()
+	modal.add_child(controls)
+	controls.add_child(UiKit.button("Cancel", func(): UiKit.close_modal(modal), "Row"))
+	controls.add_child(UiKit.button("Borrow", func():
+		var coins := floorf(amount.value)
+		UiKit.close_modal(modal)
+		_apply_borrow(coins), "Row"))
+
+func _apply_borrow(amount: float) -> Dictionary:
+	var result: Dictionary = Loans.borrow(Game, amount)
+	notice = String(result.get("reason", ""))
+	if bool(result.get("ok", false)): Game.request_autosave()
 	_refresh()
 	return result
 

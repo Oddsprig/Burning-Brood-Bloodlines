@@ -763,26 +763,28 @@ static func law_status(game, town_id: String = "") -> Dictionary:
 	var current_law: String = leadership_law(game) if (check_tid == home_tid and not holds_office(game)) else law(game, check_tid)
 	var can_change: bool = is_player_house and not is_orc and not locked
 	var reason: String = ""
+	# v0.102: House Laws refusals give a next step as well as the restriction.
 	if state.is_empty() or house_uid == "":
-		reason = "Choose a house before changing succession law."
+		reason = "No campaign house is chosen. Choose a settlement and house first."
 	elif not is_player_house:
-		reason = "Only your own house's succession law can be changed."
+		reason = "You can change only your own house's law. Open Laws from House."
 	elif is_orc:
-		reason = "Orc realms follow strength contests and cannot change succession law."
+		reason = "Orc succession follows strength contests. Review the current heir in House Laws instead."
 	elif locked:
-		reason = lock_text
+		reason = "Succession law is locked. Wait until year %d to change it again." % next_year
 	return {"ok": can_change, "can_change": can_change, "is_player_house": is_player_house, "is_orc": is_orc,
 		"locked": locked, "changed_day": changed_day, "unlock_day": unlock_day, "next_year": next_year,
 		"lock_text": lock_text, "house_uid": house_uid, "town_id": check_tid, "law": current_law, "reason": reason}
 
 static func change_law_preview(game, new_law: String, town_id: String = "") -> Dictionary:
+	# v0.102: invalid or unchanged law choices tell the player what to select next.
 	var st: Dictionary = law_status(game, town_id)
 	if not new_law in SUCCESSION_LAWS:
-		return {"ok": false, "reason": "Choose a valid succession law.", "law": new_law}
+		return {"ok": false, "reason": "This succession law is unavailable. Choose a law shown in House Laws.", "law": new_law}
 	if not bool(st["can_change"]):
 		return {"ok": false, "reason": str(st["reason"]), "law": new_law, "locked": bool(st["locked"]), "next_year": int(st["next_year"])}
 	if str(st["law"]) == new_law:
-		return {"ok": false, "reason": "This succession law is already in force.", "law": new_law}
+		return {"ok": false, "reason": "This law is already in force. Keep it or choose another law.", "law": new_law}
 	var tid: String = str(st["town_id"])
 	var next_heir: Dictionary = heir_for_law(game, tid, new_law)
 	var unlock_year: int = Calendar.year(float(int(floor(float(game.day))) + law_lock_days()))

@@ -351,7 +351,7 @@ func _tap(p: Vector2) -> void:
 			follow = true
 			_select({"kind": "town", "id": tbest})
 		else:
-			toast("No road leads there.")
+			toast("No road leads there. Choose a connected settlement or march across passable ground instead.")
 		return
 	if tracks_layer.tap(p, maxf(12.0, 16.0 / z)):   # tracks: read a noticed track (age, numbers, kind, heading)
 		pursue_wid = ""
@@ -362,7 +362,7 @@ func _tap(p: Vector2) -> void:
 	if CampaignWorld.set_travel(Game, p):
 		follow = true
 	else:
-		toast("The company can't get there.")
+		toast("The company can't get there. Choose passable ground or a road-linked town instead.")
 
 ## Long-press (~0.5s) or right-click inspects without issuing a travel order or entering a town.
 func _inspect(p: Vector2) -> void:
@@ -898,7 +898,7 @@ func _fill_info() -> void:
 				_close_info()
 				pursue_wid = ""
 				if CampaignWorld.set_travel(Game, pos): follow = true
-				else: toast("The company can't get there.")))
+				else: toast("The company can't get there. Choose passable ground or a road-linked town instead.")))
 			info_buttons.add_child(_button("Close", _close_info))
 
 func _assault(tid: String, kind: String) -> void:

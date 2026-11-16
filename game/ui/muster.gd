@@ -13,6 +13,8 @@ var body: VBoxContainer
 var count_input: SpinBox
 var fund_input: SpinBox
 var fund_button: Button
+var borrow_button: Button
+var funding_label: Label # v0.102: keep the next funding step visible beside disabled controls.
 var state_label: Label
 var wallet_label: Label
 var town_label: Label
@@ -25,6 +27,9 @@ var notice_label: Label
 var raise_button: Button
 var down_button: Button
 var refit_button: Button
+# v0.102: action refusals also have wrapping text for touch users.
+var down_reason_label: Label
+var refit_reason_label: Label
 var house_flow: HFlowContainer
 var mounts_flow: VBoxContainer
 var _house_key: String = "?"
@@ -58,6 +63,11 @@ func _ready() -> void:
 	funding.add_child(fund_input)
 	fund_button = UiKit.button("Review transfer",request_funding,"Row",160); fund_button.name = "MusterFund"
 	funding.add_child(fund_button)
+	# v0.102: allow a small house to borrow coin from the settlement treasury where the house purse is shown.
+	borrow_button = UiKit.button("Borrow coin", request_borrow, "Row", 140); borrow_button.name = "MusterBorrow"
+	funding.add_child(borrow_button)
+	# v0.102: funding refusals must be readable without hovering a disabled button.
+	funding_label = _line(status, "MusterFundingReason", "Muted")
 	var house := _card("MusterHouseCard")
 	var house_heading := UiKit.label("Your house", "H2"); house_heading.name = "MusterHouseHeading"
 	house_heading.tooltip_text = "Family members who ride with the army fight in the rounds: they gain experience, can be wounded, captured or killed, and the commander's fall shakes the whole army."
@@ -87,8 +97,16 @@ func _ready() -> void:
 	refit_button = UiKit.button("Refit army", request_refit, "Row", 160); refit_button.name = "MusterRefit"
 	actions.add_child(refit_button)
 	refit_button.tooltip_text = "Refit at home: body armour and helmets from this town's armory or stalls for soldiers who lack them."
+	# v0.102: keep reasons below the action row, using the card's full width.
+	down_reason_label = _line(settlement, "MusterStandDownReason", "Muted")
+	refit_reason_label = _line(settlement, "MusterRefitReason", "Muted")
 	mounts_flow = _card("MusterMounts")
 	notice_label = _line(body, "MusterNotice")
+	# v0.102: default the funding spinbox to an affordable positive amount when the house already has coin.
+	var init_purse := floorf(float(Mobilization.status(Game).get("payer_purse", 0.0)))
+	if init_purse >= 1.0:
+		var init_need := float(Mobilization.quote(Game, town_id, int(count_input.value)).get("required_funding", 0.0))
+		fund_input.value = minf(init_purse, ceilf(init_need) if init_need >= 1.0 else 100.0)
 	Game.changed.connect(_queue_refresh)
 	_refresh()
 
@@ -123,24 +141,48 @@ func _refresh() -> void:
 	current_quote = Mobilization.quote(Game, town_id, int(count_input.value))
 	down_quote = Mobilization.stand_down_quote(Game, town_id)
 	refit_current = Mobilization.refit_quote(Game, town_id)
+	var borrow_q: Dictionary = Mobilization.borrow_quote(Game)
 	var C := func(v): return UiKit.compact_coins(float(v))
 	state_label.text = "Your army is not raised yet" if raised == 0 else "%d soldiers in the field (of %d)" % [int(current_status.get("alive",0)), Mobilization.LIMIT]
 	var days: String = Food.days_text(float(current_status.get("food_days",0))) if int(current_status.get("alive",0)) > 0 else "no troops eating"
 	wallet_label.text = "Army purse %s · pay %s a day · food %s     House purse %s" % [C.call(current_status.get("army_gold",0)), C.call(current_status.get("daily_pay",0)), days, C.call(current_status.get("payer_purse",0))]
 	town_label.text = "Raise troops at " + String(current_quote.get("town_name", "your home"))
-	people_label.text = "You can raise %d of the %d you ask for" % [int(current_quote.get("planned",current_quote.get("available",0))), int(current_quote.get("requested",0))]
-	people_label.tooltip_text = "Manpower %d (available %d) · home reserves %d · new recruits %d · kits %d · food %d meals" % [int(current_quote.get("eligible",0)),int(current_quote.get("available",0)),int(current_quote.get("reserve_available",0)),int(current_quote.get("new_available",0)),int(current_quote.get("kit_available",0)),int(current_quote.get("food_available",0))]
-	limits_label.text = "Limited by: people %d · kits %d · food %d meals" % [int(current_quote.get("available",0)), int(current_quote.get("kit_available",0)), int(current_quote.get("food_available",0))]
-	cost_label.text = "Raising costs %s now, then %s a day in pay and %.0f meals a day" % [C.call(current_quote.get("raise_cost",0)), C.call(current_quote.get("daily_pay",0)), float(current_quote.get("food_per_day",0))]
-	payer_label.text = ("Short by %s: fund the army purse first." % C.call(current_quote.get("required_funding",0))) if float(current_quote.get("required_funding",0)) > 0.0 else ""
+	# v0.102: never show zeros from a quote that exited at _gate before counting people, kits or food.
+	if not bool(current_quote.get("can_act", false)):
+		people_label.text = "Raising is unavailable here: " + String(current_quote.get("reason", ""))
+		people_label.tooltip_text = String(current_quote.get("reason", ""))
+		limits_label.text = String(current_quote.get("reason", ""))
+		cost_label.text = ""
+		cost_label.visible = false
+	else:
+		people_label.text = "You can raise %d of the %d you ask for" % [int(current_quote.get("planned",current_quote.get("available",0))), int(current_quote.get("requested",0))]
+		people_label.tooltip_text = "Manpower %d (available %d) · home reserves %d · new recruits %d · kits %d · food %d meals" % [int(current_quote.get("eligible",0)),int(current_quote.get("available",0)),int(current_quote.get("reserve_available",0)),int(current_quote.get("new_available",0)),int(current_quote.get("kit_available",0)),int(current_quote.get("food_available",0))]
+		limits_label.text = "Limited by: people %d (ready %d) · kits %d · food %d meals" % [int(current_quote.get("eligible",0)), int(current_quote.get("available",0)), int(current_quote.get("kit_available",0)), int(current_quote.get("food_available",0))]
+		cost_label.text = "Raising costs %s now, then %s a day in pay and %.0f meals a day" % [C.call(current_quote.get("raise_cost",0)), C.call(current_quote.get("daily_pay",0)), float(current_quote.get("food_per_day",0))]
+		cost_label.visible = true
+	payer_label.text = ("Short by %s: fund the army purse or borrow coin first." % C.call(current_quote.get("required_funding",0))) if float(current_quote.get("required_funding",0)) > 0.0 else ""
 	payer_label.visible = payer_label.text != ""
 	reason_label.text = String(current_quote.get("reason",""))
 	raise_button.disabled = not bool(current_quote.get("ok",false))
+	raise_button.tooltip_text = String(current_quote.get("reason", ""))
 	down_button.disabled = not bool(down_quote.get("ok",false))
 	down_button.tooltip_text = "Stand down at home: the same people return to work. " + String(down_quote.get("reason",""))
 	refit_button.disabled = not bool(refit_current.get("ok",false))
 	refit_button.tooltip_text = "Refit at home: body armour and helmets for soldiers who lack them. " + String(refit_current.get("reason",""))
+	# v0.102: show only the native refusal, without the tooltip's extra description.
+	down_reason_label.text = "Stand-down: " + String(down_quote.get("reason", "")) if down_button.disabled else ""
+	down_reason_label.visible = down_reason_label.text != ""
+	refit_reason_label.text = "Refit: " + String(refit_current.get("reason", "")) if refit_button.disabled else ""
+	refit_reason_label.visible = refit_reason_label.text != ""
 	fund_button.disabled = fund_input.value <= 0 or not bool(current_status.get("can_act",false)) or fund_input.value > float(current_status.get("payer_purse",0))
+	fund_button.tooltip_text = fund_refusal(current_status, floorf(fund_input.value)) if fund_button.disabled else "Transfer house coin into the army purse for raising, pay and supplies."
+	if borrow_button != null:
+		borrow_button.disabled = not bool(borrow_q.get("ok", false))
+		borrow_button.tooltip_text = String(borrow_q.get("reason", ""))
+	# v0.102: show the blocked transfer/loan and the route from coin to raised troops.
+	funding_label.text = fund_button.tooltip_text if fund_button.disabled else "Transfer coin, then use Review raising below. You can march without a family rider or horses."
+	if not bool(borrow_q.get("ok", false)):
+		funding_label.text += " " + String(borrow_q.get("reason", ""))
 	_refresh_house()
 	_refresh_mounts()
 	notice_label.text = notice
@@ -155,11 +197,13 @@ func _refresh_house() -> void:
 	var key := ""
 	for u in riding: key += "r:%d:%s;" % [int(u.uid), String(u.name)]
 	for row in candidates: key += "c:%s:%s:%d;" % [str(row.get("person_uid", "")), String(row.get("name", "")), int(row.get("age", 0))]
+	# v0.102: refresh absent members' duties/dates even while there are still no candidates.
+	if candidates.is_empty() and riding.is_empty(): key = no_riders_text(Dynasty.living_members(Game))
 	if key == _house_key: return
 	_house_key = key
 	UiKit.clear(house_flow)
 	if candidates.is_empty() and riding.is_empty():
-		house_flow.add_child(UiKit.label(no_riders_text(Dynasty.living_members(Game)), "Muted", true))
+		house_flow.add_child(UiKit.label(key, "Muted", true))
 		return
 	for u in riding:
 		var card := UiKit.panel("Card"); card.name = "MusterHouseRiding"
@@ -186,20 +230,41 @@ func _refresh_house() -> void:
 		col.add_child(ride)
 		house_flow.add_child(card)
 
-## v0.099: say why nobody can ride, when family members serve elsewhere (often the realm's field army).
+## v0.099 / v0.102: say why nobody can ride, naming who is away, when they return if known, and what to do instead.
 static func no_riders_text(members: Array) -> String:
-	var away := {}
+	var who: Array = []
+	var field_service := false # v0.102: field service has no scheduled homecoming.
 	for row in members:
 		var st := str(row.get("state", ""))
 		if st in ["army", "militia", "caravan"] and int(row.get("age", 0)) >= int(People.ages(str(row.get("race", "human")))["adult"]):
-			away[st] = int(away.get(st, 0)) + 1
+			var duty := "with the realm's field army" if st == "army" else ("in the town guard" if st == "militia" else "with a caravan")
+			if st == "army": field_service = true
+			var when := _return_day_text(row)
+			var nm := str(row.get("name", "A family member")).strip_edges()
+			who.append("%s (%s%s)" % [nm, duty, (", back around day %d" % when) if when > 0 else ""])
 	var text := "No adult family members are free to ride with the army."
-	var parts: Array = []
-	if away.has("army"): parts.append("%d with the realm's field army" % int(away["army"]))
-	if away.has("militia"): parts.append("%d in the town guard" % int(away["militia"]))
-	if away.has("caravan"): parts.append("%d with a caravan" % int(away["caravan"]))
-	if not parts.is_empty(): text += " Away serving: " + ", ".join(parts) + "."
+	if not who.is_empty():
+		text += " Away serving: " + ", ".join(who) + "."
+	# v0.102: do not promise a return from indefinite realm service or imply an officer is required.
+	if field_service: text += " Field-army service has no set return date."
+	text += " Raise settlement troops below, or hire men in Town Recruits. A family rider is optional."
 	return text
+
+static func _return_day_text(row: Dictionary) -> int:
+	if not (Game.get("world") is Dictionary): return -1
+	var w: Dictionary = Game.world
+	var u_uid := int(row.get("unit_uid", -1))
+	if u_uid < 0: return -1
+	for wid in w.get("warbands", {}):
+		var wb: Dictionary = w["warbands"][wid]
+		for u in wb.get("units", []):
+			if u is Unit and u.uid == u_uid:
+				# v0.102: an outbound caravan's next arrival is not its crew's return home.
+				if str(wb.get("kind", "")) == "caravan" and str(wb.get("leg", "out")) == "home" and wb.get("path", []) is Array and not (wb["path"] as Array).is_empty():
+					var steps: int = (wb["path"] as Array).size()
+					return int(Game.day) + maxi(1, int(ceil(float(steps) * 16.0 / maxf(1.0, CampaignWorld.WARBAND_SPEED * Caravans.SPEED))))
+				return -1
+	return -1
 
 func apply_enlist_household(person_uid: String) -> Dictionary:
 	var r: Dictionary = Mobilization.enlist_household(Game, person_uid)
@@ -222,7 +287,8 @@ func _review(title: String, text: String, action: Callable) -> void:
 func request_raise() -> void:
 	var quote: Dictionary = Mobilization.quote(Game,town_id,int(count_input.value))
 	if not bool(quote.get("ok",false)):
-		notice = String(quote.get("reason","Raising unavailable.")); _refresh(); return
+		# v0.102: even fallback refusals name a recovery step.
+		notice = String(quote.get("reason","Raising is unavailable. Return home and review people, supplies and army funds.")); _refresh(); return
 	var reviewed: Dictionary = quote.get("review",{})
 	_review("Raise an army",raise_text(quote),apply_raise.bind(town_id,int(count_input.value),reviewed))
 
@@ -238,7 +304,8 @@ func apply_raise(tid: String, amount: int, review: Dictionary) -> Dictionary:
 func request_stand_down() -> void:
 	var quote: Dictionary = Mobilization.stand_down_quote(Game,town_id)
 	if not bool(quote.get("ok",false)):
-		notice = String(quote.get("reason","Stand-down unavailable.")); _refresh(); return
+		# v0.102: stand-down requires the soldiers' actual home settlement.
+		notice = String(quote.get("reason","Stand-down is unavailable here. Travel to your soldiers' home and review again.")); _refresh(); return
 	_review("Stand down the field army","Return %d eligible living troops to their home households or reserves in %s?\n%d remain away from their home; %d are dead and cannot return. Injuries and owned equipment remain; returned troops' field payroll stops." % [int(quote.get("eligible",0)),String(quote.get("town_name","this settlement")),int(quote.get("away",0)),int(quote.get("dead",0))],apply_stand_down.bind(town_id,quote.get("review",{})))
 
 func apply_stand_down(tid: String, review: Dictionary) -> Dictionary:
@@ -253,7 +320,8 @@ func apply_stand_down(tid: String, review: Dictionary) -> Dictionary:
 func request_refit() -> void:
 	var quote: Dictionary = Mobilization.refit_quote(Game,town_id)
 	if not bool(quote.get("ok",false)):
-		notice = String(quote.get("reason","Refit unavailable.")); _refresh(); return
+		# v0.102: a failed refit still points to stock and funding.
+		notice = String(quote.get("reason","Refitting is unavailable. Return home and review armour stock and army funds.")); _refresh(); return
 	_review("Refit army","Fit %d living troops with %d armour pieces (body armour and helmets) from %s?\nPay %s coins from the army purse (%s coins). Armory pieces are borrowed and returned on stand-down; stall pieces are bought. Three days of pay remain reserved." % [int(quote.get("fitted",0)),int(quote.get("pieces",0)),String(quote.get("town_name","this settlement")),coins(quote.get("cost",0)),coins(quote.get("army_gold",0))],apply_refit.bind(town_id,quote.get("review",{})))
 
 func apply_refit(tid: String, review: Dictionary) -> Dictionary:
@@ -265,22 +333,69 @@ func apply_refit(tid: String, review: Dictionary) -> Dictionary:
 	_refresh()
 	return outcome
 
+## v0.102: explain why the army funding transfer is refused and name a next step.
+static func fund_refusal(source: Dictionary, amount: float) -> String:
+	if not bool(source.get("can_act", false)):
+		var r := String(source.get("reason", ""))
+		return r if r != "" else "House funding is unavailable here. Travel to your home settlement first."
+	var purse := float(source.get("payer_purse", 0.0))
+	if purse < 1.0:
+		return "Your house purse has no coin to transfer. Borrow coin from the settlement or earn coin first."
+	if amount <= 0.0:
+		return "No transfer amount is set. Enter at least one coin to move into the army purse."
+	if amount > purse:
+		return "Your house purse has only %s coins. Choose a smaller amount or borrow coin first." % coins(purse)
+	return ""
+
 func request_funding() -> void:
 	var source: Dictionary = Mobilization.status(Game)
 	var amount: float = floorf(fund_input.value)
-	if amount <= 0 or not bool(source.get("can_act",false)) or amount > float(source.get("payer_purse",0)):
-		notice = "The current ruling household cannot fund this amount."; _refresh(); return
+	var why := fund_refusal(source, amount)
+	if why != "":
+		notice = why; _refresh(); return
 	var review: Dictionary = {"payer_household_uid":source.get("payer_household_uid",""),"authority_person_uid":Dynasty.ruler(Game).get("person_uid","")}
-	_review("Fund the army","Transfer %s coins from %s's house purse to the army purse? These funds pay raising, wages and supplies." % [coins(amount),String(source.get("payer_name","the ruling house"))],apply_funding.bind(amount,review))
+	_review("Fund the army","Transfer %s coins from %s's house purse to the army purse? These funds pay raising, wages and supplies." % [coins(amount),String(source.get("payer_name","your house"))],apply_funding.bind(amount,review))
 
 func apply_funding(amount: float, review: Dictionary) -> Dictionary:
 	var source: Dictionary = Mobilization.status(Game)
 	if source.get("payer_household_uid","") != review.get("payer_household_uid","") or Dynasty.ruler(Game).get("person_uid","") != review.get("authority_person_uid",""):
-		notice = "The ruling household changed. Review the transfer again."; _refresh()
+		notice = "The household changed. Review the transfer again."; _refresh()
 		return {"ok":false,"reason":notice}
 	var outcome: Dictionary = Mobilization.fund(Game,amount)
 	notice = String(outcome.get("reason",outcome.get("message","")))
 	if bool(outcome.get("ok",false)): Game.request_autosave()
+	_refresh()
+	return outcome
+
+func request_borrow() -> void:
+	var q: Dictionary = Mobilization.borrow_quote(Game)
+	if not bool(q.get("ok", false)):
+		notice = String(q.get("reason", "Borrowing unavailable. Wait for town income or earn coin instead.")); _refresh(); return
+	var need := float(current_quote.get("required_funding", 0.0)) - float(current_status.get("payer_purse", 0.0))
+	var default_amt := clampf(ceilf(need) if need >= 1.0 else float(q.get("max_borrow", 100.0)), 1.0, float(q.get("max_borrow", 1.0)))
+	var modal := UiKit.modal(self, "Borrow coin for your house", 480)
+	modal.add_child(UiKit.label("Borrow real coin from the %s of %s into your house purse.\nCredit left: %s coins · Current debt: %s coins · Weekly interest: %.0f%%" % [
+		String(q.get("head_title", "head")), String(q.get("town_name", "this settlement")),
+		coins(q.get("credit_left", 0.0)), coins(q.get("debt", 0.0)), float(q.get("rate", 0.0)) * 100.0], "", true))
+	var amount := SpinBox.new(); amount.name = "MusterBorrowAmount"
+	amount.min_value = 1; amount.max_value = maxf(1.0, floorf(float(q.get("max_borrow", 1.0)))); amount.step = 1
+	amount.value = default_amt
+	amount.custom_minimum_size = Vector2(170, UiKit.touch_min(48))
+	modal.add_child(amount)
+	var actions := UiKit.flow(8); modal.add_child(actions)
+	actions.add_child(UiKit.button("Cancel", func(): UiKit.close_modal(modal), "Row", 120))
+	actions.add_child(UiKit.button("Borrow", func():
+		var req := floorf(amount.value)
+		UiKit.close_modal(modal)
+		apply_borrow(req), "Row", 120))
+
+func apply_borrow(amount: float) -> Dictionary:
+	var outcome: Dictionary = Mobilization.borrow(Game, amount)
+	notice = String(outcome.get("reason", ""))
+	if bool(outcome.get("ok", false)):
+		if fund_input != null and fund_input.value <= 0:
+			fund_input.value = float(outcome.get("amount", 0.0))
+		Game.request_autosave()
 	_refresh()
 	return outcome
 
@@ -307,9 +422,13 @@ func _refresh_mounts() -> void:
 		notice = str(r.get("reason", ""))
 		_queue_refresh(), "Row", 250)
 	pack.disabled = n == 0
+	# v0.102: explain optional horse supplies even when their control is disabled.
+	pack.tooltip_text = "Your army has no living horses. Buy a mount first, or march on foot without horse grain." if pack.disabled else "Buy grain from this market using the army purse; one day's soldier meals stay reserved."
 	mounts_flow.add_child(pack)
 	var riders: Array = Game.company.filter(func(u: Unit): return not u.dead)
-	if riders.is_empty(): return
+	if riders.is_empty():
+		mounts_flow.add_child(UiKit.label("No living soldiers can ride. Raise troops above or hire men in Town Recruits first.", "Muted", true))
+		return
 	var row := UiKit.flow(6)
 	mounts_flow.add_child(row)
 	var picker := OptionButton.new()
@@ -333,5 +452,7 @@ func _refresh_mounts() -> void:
 		buy.disabled = not bool(q["ok"])
 		buy.tooltip_text = str(q["reason"])
 		sell.disabled = riders[i].horse == null
+		# v0.102: name the missing mount behind a disabled sale button.
+		sell.tooltip_text = "This soldier has no mount to sell. Choose a mounted soldier instead." if sell.disabled else "Sell this soldier's living mount to the town treasury."
 	picker.item_selected.connect(select_rider)
 	select_rider.call(0)

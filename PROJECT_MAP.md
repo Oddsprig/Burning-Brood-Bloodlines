@@ -2,9 +2,21 @@
 
 Testing: follow HOW TO TEST at the top of AGENTS.md and CLAUDE.md. Run tests in blocks through runner.gd and blocks.json, one Godot launch per block, and only the blocks that cover a version's changes. The full suite runs only before a store launch.
 
-Updated 15 November 2026 for v0.100 SALVAGE, source candidate on main 0f36e00; no new runtime or package acceptance.
+Updated 16 November 2026 for v0.102 small house on main f897872 (v0.100 SALVAGE merged 0d86f7b).
 
 Previous release record: Updated 7 November 2026 for v0.099 (release candidate: dragons in big battles, store builds, marriage ages), normally merged as `1fcb3fe758ad3a566cbb6b4466b25706fc3cd1d0` from branch `v0.099-release-candidate` based on `main` `7ad5a8b`. v0.098 (battle screen, Records tables and phone layout) was normally merged as `c6d525aa01d67bafacbf96f02206749b98d19bd3` from branch `v0.098-screens-and-phone` based on `main` `c1b751a`. v0.097 (six bug fixes toward an Oddsprig sale) was normally merged as `7b0429ab4aa596498624f862398c4bcd30e6b737` from branch `v0.097-sale-readiness` based on `main` `623d009`. v0.096 (readable text, fonts and layout on every page) was normally merged as `6ed741a3134e8029496e83da18979052b015efb9` from branch `v0.096-ui-readability` based on `main` `951cf2d`. v0.095 was normally merged as `5e17abb014a1f01f0426406bd455e249f06a8e20`. Source versions v0.086–v0.094 are accepted normal merges; v0.099 is the first package since v0.085 (Windows .exe and signed Android .apk, built in the cloud container, not yet on sale). The older source-only audit below is pinned to v0.094.
+
+## v0.102 — private-house borrowing, army funding and actionable refusals
+
+Base main f897872. Private-house authority is distinct from settlement office. No new feature switch or required save key; native loans, purses and manpower records remain the owners.
+
+| Change | Owner and boundary |
+|---|---|
+| Private household authority | `game/campaign/feudal.gd` `can_act_household()`, `action_preview()`, `fund_army()`; `mobilization.gd` gate uses home-house authority and physical presence. Public orders retain office checks. |
+| Explicit loans | `game/campaign/loans.gd` player-house credit floor, `borrow_quote()`, `borrow()`, `refusal()`; `mobilization.gd` wrappers. Treasury -> house purse -> separate army transfer; AI borrowing keeps the treasury reserve. |
+| Affordable muster and away adults | `game/campaign/mobilization.gd` unused-kit tracking, affordable fallback, partial quotes; `game/ui/muster.gd` fund/borrow review and `no_riders_text()` (named away members, next step). |
+| Refusal guidance | `game/campaign/{house_onboarding,dynasty,recruits,contracts,horses,supplies,world,world_map}.gd`, `game/core/food.gd`, `game/ui/{company,house,roster,town,town_contracts_tab,town_provisions_tab}.gd`. |
+| Tests | `game/tests/test_small_house_path_v102.gd` (seeds 101/202/303, native fixtures). Blocks `small_house_v102`, `v102_army`, `v102_town` in `tests/blocks.json`; `test_release_v099.gd` reads the version from project.godot. 4 blocks / 10 tests pass (2026-11-16). |
 
 ## v0.100 SALVAGE — source candidate on v0.099 main 0f36e00
 

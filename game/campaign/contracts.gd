@@ -146,11 +146,11 @@ static func offers_for(game, town: Dictionary) -> Array:
 static func refusal(game, c: Dictionary) -> String:
 	var fid: String = c.get("employer", "")
 	if DB.factions.has(fid) and not Diplomacy.contracts_allowed(game, fid):
-		return "%s will not hire you" % Diplomacy.cap(CampaignWorld.faction_the(fid))
+		return "%s will not hire you; raise your standing or visit a neutral town instead" % Diplomacy.cap(CampaignWorld.faction_the(fid))
 	if int(c.get("tier", 0)) > 0 and not Diplomacy.better_tier(game, fid):
-		return "they offer this only to companies they trust"
+		return "they offer this only to companies they trust; choose a plain contract to earn standing first"
 	if c.get("kind", "") == "war" and not Diplomacy.at_war(game.world, fid, c.get("target_faction", "")):
-		return "that war is over"
+		return "that war is over; choose another contract instead"
 	return ""
 
 ## Escort: guard a merchant caravan to a road-linked town (same faction or not at war). Pay grows with
@@ -191,7 +191,8 @@ static func _no_force(game, town: Dictionary, c: Dictionary) -> bool:
 	c.erase("deadline_day")
 	c.erase("target_id")
 	town["contracts"].erase(c)
-	CampaignWorld.log_event(game, "The force in %s's contract never gathered: the offer is withdrawn." % town["name"])
+	# v0.102: the withdrawn offer's log also names the next way to find work.
+	CampaignWorld.log_event(game, "The force in %s's contract never gathered; the offer is withdrawn. Choose another job or visit another settlement." % town["name"])
 	return false
 
 static func accept(game, c: Dictionary) -> bool:
@@ -199,6 +200,7 @@ static func accept(game, c: Dictionary) -> bool:
 		return MonsterContracts.accept(game, c)
 	if ArmsTrade.special_job(c): return false   # retired offers cannot resurrect special arms jobs
 	if not game.contract.is_empty() and game.contract.get("state", "") == "active":
+		CampaignWorld.log_event(game, "You already have an active contract (%s). Finish or abandon it before taking another instead." % str(game.contract.get("title", "current contract")))
 		return false
 	if refusal(game, c) != "":   # diplomacy: standing too low, veteran's terms, or the war is over
 		return false
