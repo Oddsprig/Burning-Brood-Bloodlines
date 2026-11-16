@@ -1,0 +1,5 @@
+v0.103 test receipt (2026-11-16)
+2 blocks / 3 tests pass (tutorial_v103, v100_world).
+Block runs (results.txt):
+v100_tutorial_v103_1794811735041847800|bb-v103-main|--block=tutorial_v103|tb=failed|fails=1|script_err=3|log=v100_tutorial_v103_1794811735041847800.log
+v100_tutorial_v103_1794811821119941400|bb-v103-main|--block=tutorial_v103|tb=passed|fails=0|script_err=0|log=v100_tutorial_v103_1794811821119941400.log

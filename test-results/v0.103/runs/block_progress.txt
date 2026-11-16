@@ -1,0 +1,23 @@
+01:48:55 QUEUED tutorial_v103: job 70e23b7aba674a61af2dd8451cb63730
+01:49:10 WAITING_LANE tutorial_v103: job 70e23b7aba674a61af2dd8451cb63730
+01:49:20 RUNNING tutorial_v103: job 70e23b7aba674a61af2dd8451cb63730
+01:49:30 FAILED tutorial_v103: job 70e23b7aba674a61af2dd8451cb63730
+01:49:30 FAILED tutorial_v103: v100_tutorial_v103_1794811735041847800|bb-v103-main|--block=tutorial_v103|tb=failed|fails=1|script_err=3|log=v100_tutorial_v103_1794811735041847800.log
+01:49:30 DONE blocks=2 failures=1
+01:49:58 HOLD tutorial_v103: ram_free=50% cpu=19% engines=['"godot.windows.editor.x86_64.mono.exe"']
+01:50:21 COOLDOWN tutorial_v103: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 53 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:59:27 AM EST.\"}"}
+01:51:21 COOLDOWN tutorial_v103: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 113 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:59:27 AM EST.\"}"}
+01:52:21 COOLDOWN tutorial_v103: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 173 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:59:27 AM EST.\"}"}
+01:53:22 COOLDOWN tutorial_v103: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 234 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:59:27 AM EST.\"}"}
+01:54:22 COOLDOWN tutorial_v103: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 294 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:59:27 AM EST.\"}"}
+01:55:22 COOLDOWN tutorial_v103: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 354 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:59:27 AM EST.\"}"}
+01:56:22 COOLDOWN tutorial_v103: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 414 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:59:27 AM EST.\"}"}
+01:57:23 COOLDOWN tutorial_v103: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 475 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:59:27 AM EST.\"}"}
+01:58:23 COOLDOWN tutorial_v103: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 535 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:59:27 AM EST.\"}"}
+01:59:23 COOLDOWN tutorial_v103: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 595 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 1:59:27 AM EST.\"}"}
+02:00:24 QUEUED tutorial_v103: job 633f555178b44e4cac6dfaaf166dc9b6
+02:01:29 WAITING_LANE tutorial_v103: job 633f555178b44e4cac6dfaaf166dc9b6
+02:01:39 RUNNING tutorial_v103: job 633f555178b44e4cac6dfaaf166dc9b6
+02:02:14 PASSED tutorial_v103: job 633f555178b44e4cac6dfaaf166dc9b6
+02:02:14 PASS tutorial_v103: v100_tutorial_v103_1794811821119941400|bb-v103-main|--block=tutorial_v103|tb=passed|fails=0|script_err=0|log=v100_tutorial_v103_1794811821119941400.log
+02:02:14 DONE blocks=1 failures=0

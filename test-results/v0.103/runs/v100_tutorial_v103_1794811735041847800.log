@@ -1,0 +1,20 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Parse Error: Cannot get return value of call to "save_game()" because it returns "void".
+   at: GDScript::reload (res://tests/test_tutorial_v103.gd:109)
+   GDScript backtrace (most recent call first):
+       [0] _run_one (res://tests/runner.gd:103)
+       [1] _ready (res://tests/runner.gd:80)
+SCRIPT ERROR: Parse Error: Cannot assign a value of type null to variable "written" with specified type bool.
+   at: GDScript::reload (res://tests/test_tutorial_v103.gd:109)
+   GDScript backtrace (most recent call first):
+       [0] _run_one (res://tests/runner.gd:103)
+       [1] _ready (res://tests/runner.gd:80)
+ERROR: Failed to load script "res://tests/test_tutorial_v103.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+   GDScript backtrace (most recent call first):
+       [0] _run_one (res://tests/runner.gd:103)
+       [1] _ready (res://tests/runner.gd:80)
+runner: cannot load or compile res://tests/test_tutorial_v103.gd
+runner: 2 runtime script error(s) during res://tests/test_tutorial_v103.gd (see SCRIPT ERROR above); each counts as a failure
+== res://tests/test_tutorial_v103.gd: FAIL (3) ==

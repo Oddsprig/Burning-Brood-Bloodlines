@@ -1,6 +1,25 @@
 BURNING BROOD: BLOODLINES - CURRENT DEVELOPER NOTES
-Updated: 2026-11-16 | v0.102 small house merged ead6ecf | v0.100 SALVAGE merged 0d86f7b, 11 blocks / 28 tests pass | last package v0.099 (Windows/Android, not on sale)
+Updated: 2026-11-16 | v0.103 on f76ed6d | v0.102 small house merged ead6ecf | v0.100 SALVAGE merged 0d86f7b, 11 blocks / 28 tests pass | last package v0.099 (Windows/Android, not on sale)
 Testing: follow HOW TO TEST at the top of AGENTS.md and CLAUDE.md. Run tests in blocks through runner.gd and blocks.json, one Godot launch per block, and only the blocks that cover a version's changes. The full suite runs only before a store launch.
+
+v0.103 GUIDED TUTORIAL FRAMEWORK
+Base main f76ed6d; source v0.103-tutorial 4c9cb37 (range 73f7ab3..4c9cb37 only).
+- campaign/tutorial.gd: engine; steps from data/tutorial.json; next/button/
+  screen/state completion; Back, Replay, Skip; action steps cannot be skipped
+  with Next.
+- ui/tutorial_overlay.gd: four dim blockers around a live control, arrow, text,
+  navigation; clipped/scrolled anchors; reparent on Game.goto. Merge fix r3:
+  per-finger owner (_touch_owners) and permission (_touches) kept until release;
+  both cleared when the tutorial completes or hides.
+- core/game.gd: tutorial_step/tutorial_done reset, saved in both writers, read
+  with safe defaults (additive save data). ui/settings.gd: Replay and resume.
+- tests/test_tutorial_v103.gd: save checkpoints use main's receipt
+  (save_game() returns nothing; completed count and last_ok are the proof).
+- Dropped: the save-failure-notice touch test (that notice is not on main).
+Tests (2026-11-16, PC, Test Bridge, one headless launch per block): 2 blocks /
+3 tests PASS: tutorial_v103 (test_tutorial_v103) and v100_world
+(house_onboarding_v019, release_v099; run before the 0.103 metadata bump; the
+release check reads the version from project.godot).
 
 v0.102 SMALL-HOUSE ARMY PATH
 Base main f897872. Goal (RELEASE_PLAN_v0100_v0109.md): a penniless non-ruling

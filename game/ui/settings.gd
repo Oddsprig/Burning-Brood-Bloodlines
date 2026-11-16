@@ -6,6 +6,7 @@ extends Control
 
 var overlay := false
 var list: VBoxContainer
+var _tutorial_overlay: Control   # v0.103: also remember an overlay whose deferred attachment is pending.
 
 func _ready() -> void:
 	theme = UiTheme.get_theme()
@@ -47,12 +48,18 @@ func _ready() -> void:
 	list = UiKit.vbox(8)
 	v.add_child(list)
 	_build()
+	if not overlay and Game.tutorial_step > 0 and not Game.tutorial_done: # v0.103: never hijack the in-battle settings overlay
+		_open_tutorial(false)   # v0.103: resume an unfinished sample when Settings is reopened.
 
 func _build() -> void:
 	UiKit.clear(list)
 	list.add_child(UiKit.label("Gameplay", "H2"))
 	list.add_child(_toggle_row("battle_event_slowmo", String(Game.SETTING_LABELS["battle_event_slowmo"])))
 	list.add_child(UiKit.label("Slow down briefly for severe battle injuries. OFF keeps your chosen playback speed.", "Muted", true))
+	# v0.103: the guided tutorial (campaign/tutorial.gd + ui/tutorial_overlay.gd) replays over this screen
+	list.add_child(UiKit.label("Tutorial", "H2"))
+	list.add_child(_replay_row())
+	list.add_child(UiKit.label("Walk through the highlights again, one control at a time.", "Muted", true))
 	# v0.014: settings with named choices (Gore: Full / Reduced); the button shows the current one and cycles
 	var choices: Dictionary = Game.SETTING_CHOICES if "SETTING_CHOICES" in Game else {}
 	for key in choices:
@@ -94,6 +101,44 @@ func _build() -> void:
 	for key in labels:
 		if key == "battle_event_slowmo": continue
 		list.add_child(_toggle_row(String(key), String(labels[key])))
+
+## "Replay tutorial" (v0.103): data/tutorial.json over this screen, from step one.
+func _replay_row() -> PanelContainer:
+	var row: PanelContainer = UiKit.panel("Card")
+	var h: HBoxContainer = UiKit.hbox(12)
+	row.add_child(h)
+	var label: Label = UiKit.wrap(UiKit.label("Guided tutorial", "H2", true), 80)
+	label.add_theme_font_size_override("font_size", UiTheme.MOBILE_FONT_SIZE if UiTheme.is_mobile() else 22)
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	h.add_child(label)
+	var button: Button = UiKit.button("Replay tutorial", _replay_tutorial, "", 160)
+	button.name = "ReplayTutorial"
+	h.add_child(button)
+	return row
+
+func _replay_tutorial() -> void:
+	_open_tutorial(true)   # v0.103: explicit Replay always starts from the first step.
+
+func _open_tutorial(replay: bool) -> void:
+	if get_node_or_null("TutorialOverlay") != null:
+		return   # one tutorial at a time
+	if is_instance_valid(_tutorial_overlay) and not _tutorial_overlay.is_queued_for_deletion():
+		return   # v0.103: repeated Replay presses must not queue duplicate overlays before attachment.
+	var tut_script: Script = load("res://campaign/tutorial.gd") as Script
+	var overlay_script: Script = load("res://ui/tutorial_overlay.gd") as Script
+	if tut_script == null or overlay_script == null:
+		return
+	var tut = tut_script.new()
+	tut.setup(tut_script.load_steps())
+	if tut.step_count() == 0:
+		return
+	tut.bind_game(Game)
+	if replay:
+		tut.replay()
+	else:
+		tut.start_saved()
+	_tutorial_overlay = overlay_script.open(self, tut)
 
 func _slider_row(key: String, text: String) -> PanelContainer:
 	var cur := clampf(float(Game.setting(key)), 0.0, 1.0)

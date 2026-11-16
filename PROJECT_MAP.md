@@ -2,9 +2,21 @@
 
 Testing: follow HOW TO TEST at the top of AGENTS.md and CLAUDE.md. Run tests in blocks through runner.gd and blocks.json, one Godot launch per block, and only the blocks that cover a version's changes. The full suite runs only before a store launch.
 
-Updated 16 November 2026 for v0.102 small house on main f897872 (v0.100 SALVAGE merged 0d86f7b).
+Updated 16 November 2026 for v0.103 on main f76ed6d.
 
 Previous release record: Updated 7 November 2026 for v0.099 (release candidate: dragons in big battles, store builds, marriage ages), normally merged as `1fcb3fe758ad3a566cbb6b4466b25706fc3cd1d0` from branch `v0.099-release-candidate` based on `main` `7ad5a8b`. v0.098 (battle screen, Records tables and phone layout) was normally merged as `c6d525aa01d67bafacbf96f02206749b98d19bd3` from branch `v0.098-screens-and-phone` based on `main` `c1b751a`. v0.097 (six bug fixes toward an Oddsprig sale) was normally merged as `7b0429ab4aa596498624f862398c4bcd30e6b737` from branch `v0.097-sale-readiness` based on `main` `623d009`. v0.096 (readable text, fonts and layout on every page) was normally merged as `6ed741a3134e8029496e83da18979052b015efb9` from branch `v0.096-ui-readability` based on `main` `951cf2d`. v0.095 was normally merged as `5e17abb014a1f01f0426406bd455e249f06a8e20`. Source versions v0.086–v0.094 are accepted normal merges; v0.099 is the first package since v0.085 (Windows .exe and signed Android .apk, built in the cloud container, not yet on sale). The older source-only audit below is pinned to v0.094.
+
+## v0.103 — data-driven tutorial engine and overlay
+
+Base main f76ed6d. Adds optional campaign save data `tutorial: {step, done}`; old saves default to step 0/not done.
+
+| Change | Owner |
+|---|---|
+| Tutorial engine | `game/campaign/tutorial.gd` |
+| Overlay | `game/ui/tutorial_overlay.gd` (per-finger touch owners) |
+| Data | `game/data/tutorial.json` (three Settings sample steps) |
+| Save and UI | `game/core/game.gd` (tutorial fields), `game/ui/settings.gd` (Replay, resume) |
+| Tests | `game/tests/test_tutorial_v103.gd`, block `tutorial_v103` |
 
 ## v0.102 — private-house borrowing, army funding and actionable refusals
 

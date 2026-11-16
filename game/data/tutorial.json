@@ -1,0 +1,24 @@
+{
+	"version": 1,
+	"_note": "Guided tutorial steps (campaign/tutorial.gd reads this; ui/tutorial_overlay.gd draws it). Each step: id, anchor (a Control name, a tutorial_anchor meta value, or a node path from the overlay's host), one short line of text, and done: what counts as done. done kinds: next (press Next), button (press the anchored button; done.anchor defaults to the step anchor), screen (a screen opens: done.screen is a Game screen name), state (a host state key reaches done.equals). v0.103 ships this short Settings-anchored sample so Replay tutorial works today; v0.104 replaces it with chapter one and adds anchors on the campaign screens.",
+	"steps": [
+		{
+			"id": "welcome",
+			"anchor": "ReplayTutorial",
+			"text": "Welcome. This tutorial highlights one control at a time and waits until you use it. Press Next to continue.",
+			"done": {"kind": "next"}
+		},
+		{
+			"id": "settings_toggle",
+			"anchor": "Toggle_battle_event_slowmo",
+			"text": "Settings take effect at once and are saved straight away. This switch turns automatic battle slow motion on or off.",
+			"done": {"kind": "next"}
+		},
+		{
+			"id": "replay_any_time",
+			"anchor": "ReplayTutorial",
+			"text": "That is the whole sample. You can replay the tutorial any time from Settings, and Skip tutorial ends it early.",
+			"done": {"kind": "next"}
+		}
+	]
+}

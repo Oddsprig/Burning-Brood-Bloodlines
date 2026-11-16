@@ -1,5 +1,6 @@
 BURNING BROOD: BLOODLINES - ACTIVE CHANGE NOTES
-Updated: 2026-11-16 for v0.102 small house merged as ead6ecf (base f897872); 4 blocks / 10 tests pass.
+Updated: 2026-11-16 for v0.103 (base main f76ed6d).
+v0.102 small house merged as ead6ecf (base f897872); 4 blocks / 10 tests pass.
 v0.100 SALVAGE merged as 0d86f7b (base 0f36e00); 11 blocks / 28 tests pass.
 v0.099 merged as 1fcb3fe758ad3a566cbb6b4466b25706fc3cd1d0.
 v0.098 merged as c6d525aa01d67bafacbf96f02206749b98d19bd3.
@@ -11,6 +12,26 @@ container; not yet uploaded or on sale). v0.096-v0.098 are source merges.
 This changelog starts with the accepted v0.086-v0.094 source catch-up. Earlier
 history remains in the developer notes and immutable archives. Historical worker
 UNRUN reports are superseded by the accepted source receipts where stated.
+
+v0.103 - Guided tutorial framework and Replay tutorial
+Base main f76ed6d (v0.102). Source: v0.103-tutorial 4c9cb37 plus reviewed merge fixes.
+A guided overlay highlights a control with a clear opening in the dimmed screen,
+an arrow and a short explanation. Tutorials can wait for a button, a screen or
+a completed action, with Back, Next and Skip tutorial.
+Settings adds Replay tutorial (a short three-page Settings sample; the campaign
+chapter is v0.104). Tutorial progress is saved with the campaign; unfinished
+later steps resume when Settings is reopened. The highlight follows clipped and
+scrolled controls and sizes to the window.
+Merge fixes: each finger keeps its press owner (tutorial or a higher modal) until
+release, so a blocked touch stays blocked and a modal's touch is never eaten;
+the test's save checkpoints require a fresh successful save receipt.
+Not carried: test_tutorial_notice_input_v103.gd needs the save-failure notice
+from the dropped old v0.100 work, which is not on main.
+Version metadata: 0.103.
+Tests (2026-11-16, PC, Test Bridge, one headless launch per block): 2 blocks /
+3 tests PASS: tutorial_v103 (test_tutorial_v103) and v100_world
+(house_onboarding_v019, release_v099; run before the 0.103 metadata bump; the
+release check reads the version from project.godot).
 
 v0.102 - A small house can fund and raise its own army
 Base main f897872 (v0.100 salvage). v0.101 was dropped as a separate version.
