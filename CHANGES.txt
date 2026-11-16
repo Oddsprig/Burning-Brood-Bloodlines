@@ -1,5 +1,6 @@
 BURNING BROOD: BLOODLINES - ACTIVE CHANGE NOTES
-Updated: 2026-11-16 for v0.105 merged as 95117fd (base ab317f2).
+Updated: 2026-11-16 for v0.106 (base main 9f73a93).
+v0.105 merged as 95117fd (base ab317f2).
 v0.104 merged as b6f1244 (base 4231e57).
 v0.103 merged as b81e96e (base f76ed6d).
 v0.102 small house merged as ead6ecf (base f897872); 4 blocks / 10 tests pass.
@@ -14,6 +15,22 @@ container; not yet uploaded or on sale). v0.096-v0.098 are source merges.
 This changelog starts with the accepted v0.086-v0.094 source catch-up. Earlier
 history remains in the developer notes and immutable archives. Historical worker
 UNRUN reports are superseded by the accepted source receipts where stated.
+
+v0.106 - Rider sits at the base of the dragon's neck
+Base main 9f73a93 (v0.105). Source: bb-v106 saddle fix only.
+The rider's saddle point now uses each dragon form's neck-base seat (seat_px,
+falling back to the neck root) instead of a point behind the wing roots, so the
+rider sits where the neck meets the back on every breed and pose.
+New guard test test_saddle_neck_base.gd joins the rider_fit_v072 block and the
+official suite (block saddle_neck_base).
+Not in this version (waiting for the owner's OK): the code-drawn bone-rig dragon
+prototype (art/dragon_bone_rig.gd, dragon_bone_part.gd, the default-off branch
+in battle/dragon_view.gd, its test and capture). It stays in bb-v106.
+Version metadata: 0.106.
+Tests (2026-11-16, PC, Test Bridge, one headless launch per block): 3 blocks /
+7 tests PASS: rider_fit_v072 (rider_fit_v072, saddle_neck_base), v106_mounts
+(dragon_mount_preview, sapphire_spirewing_v061, mounted_rider_art), battle_c
+(bows_econ, mounted_rider_art).
 
 v0.105 - Clearer battle markers
 Base main ab317f2 (v0.104). Source: bb-v105 working changes plus the reviewed

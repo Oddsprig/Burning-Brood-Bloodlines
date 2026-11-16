@@ -29,21 +29,16 @@ func opaque(image: Image) -> int:
 	return pixels
 
 func anchor_matches(entry: Dictionary, morph: String, label: String) -> void:
-	var shift: Vector2 = RiderFit.FORM_ANCHOR[morph]
-	var size: Array = entry.get("image_size", [128, 96])
-	var canvas := float(size[0]) / 128.0
-	var dorsal := RiderFit.dorsal_wing(entry)
-	var neck := vec2_of(entry.get("neck_root_px", [0, 0]))
-	var head := 1.0 if neck.x >= dorsal.x else -1.0
-	var expected := Vector2(dorsal.x - head * shift.x * canvas, dorsal.y + shift.y * canvas)
-	var anchor := RiderFit.anchor_px(entry, morph)
-	check(anchor.is_equal_approx(expected), label + " anchor is the per-form step off the higher wing root")
-	check(anchor.y > dorsal.y, label + " anchor sits below the higher wing root")
-	if head > 0.0:
-		check(anchor.x < dorsal.x, label + " anchor is tailward of the higher wing root")
+	# v0.106: anchor_px uses the neck-base seat point (seat_px), between wing root and neck root.
+	var dorsal: Vector2 = RiderFit.dorsal_wing(entry)
+	var neck: Vector2 = vec2_of(entry.get("neck_root_px", [0, 0]))
+	var expected: Vector2 = vec2_of(entry.get("seat_px", [0, 0]))
+	var anchor: Vector2 = RiderFit.anchor_px(entry, morph)
+	check(anchor.is_equal_approx(expected), label + " anchor is the neck-base seat point")
+	if neck.x >= dorsal.x:
+		check(anchor.x > dorsal.x and anchor.x < neck.x, label + " anchor lies between the wing root and the neck root")
 	else:
-		check(anchor.x > dorsal.x, label + " anchor is tailward of the higher wing root")
-	check(anchor.distance_to(vec2_of(entry.get("seat_px", [0, 0]))) > 1.0, label + " anchor is not the neck seat")
+		check(anchor.x < dorsal.x and anchor.x > neck.x, label + " anchor lies between the wing root and the neck root")
 
 func saddle_under(layers: Dictionary) -> bool:
 	var saddle: Image = layers["saddle"]

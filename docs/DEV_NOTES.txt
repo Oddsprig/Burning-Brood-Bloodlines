@@ -1,6 +1,21 @@
 BURNING BROOD: BLOODLINES - CURRENT DEVELOPER NOTES
-Updated: 2026-11-16 | v0.105 merged 95117fd (base ab317f2) | v0.104 merged b6f1244 (base 4231e57) | v0.103 merged b81e96e (base f76ed6d) | v0.102 small house merged ead6ecf | v0.100 SALVAGE merged 0d86f7b, 11 blocks / 28 tests pass | last package v0.099 (Windows/Android, not on sale)
+Updated: 2026-11-16 | v0.106 on 9f73a93 | v0.105 merged 95117fd (base ab317f2) | v0.104 merged b6f1244 (base 4231e57) | v0.103 merged b81e96e (base f76ed6d) | v0.102 small house merged ead6ecf | v0.100 SALVAGE merged 0d86f7b, 11 blocks / 28 tests pass | last package v0.099 (Windows/Android, not on sale)
 Testing: follow HOW TO TEST at the top of AGENTS.md and CLAUDE.md. Run tests in blocks through runner.gd and blocks.json, one Godot launch per block, and only the blocks that cover a version's changes. The full suite runs only before a store launch.
+
+v0.106 SADDLE AT NECK BASE
+Base main 9f73a93.
+- art/rider_fit.gd: anchor_px() returns seat_px (else neck_root_px); the old
+  wing-root offset (FORM_ANCHOR shift) is no longer used for the anchor.
+  decorate() keeps the model's seat when no source entry exists.
+- tests/test_rider_fit_v072.gd updated; new tests/test_saddle_neck_base.gd
+  (blocks rider_fit_v072 and saddle_neck_base; suite runs saddle_neck_base).
+- New block v106_mounts (dragon_mount_preview, sapphire_spirewing_v061,
+  mounted_rider_art).
+- Held for the owner: bone-rig dragon art prototype (not merged).
+Tests (2026-11-16, PC, Test Bridge, one headless launch per block): 3 blocks /
+7 tests PASS: rider_fit_v072 (rider_fit_v072, saddle_neck_base), v106_mounts
+(dragon_mount_preview, sapphire_spirewing_v061, mounted_rider_art), battle_c
+(bows_econ, mounted_rider_art).
 
 v0.105 CLEAR BATTLES
 Base main ab317f2.

@@ -1,0 +1,18 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+-- 27 towns with bowyers and fletchers; Wexbury (middle): staves 16 seasoned + 18 seasoning, bows on the stalls 5, armory { "arrow_copper_bodkin": 300 }, workers bowyer 7 fletcher 3
+-- wood: bowyer split 3 green staves (6 loads each); town used 875 loads of wood in 12 days; wood 255 at 22.73 with bowyers vs 274 at 21.60 without
+   wood used in 12 days: 875 with bowyers, 856 without; market need 555.6 vs 530.9
+-- staves: of 240 green staves, 53 seasoned in 30 days (120 days each on average)
+-- arrow targets (arrow_wood, base 3.00): short armory and stalls -> 18.00; full -> 1.05; reason ''
+   fletcher: 2 workers, full 
+-- bowyer (orc): stalls emptied of bows (target 2) -> 2 bows made in 15 days; bow price 978.0 short -> 399.0 after
+-- force from Wexbury: 4 archers, 100 arrows on the stalls -> quivers hold 100; treasury paid 2153.5; order for the shortfall 100
+-- caravan Wexbury -> Thornfield carries 52 copper broadhead arrows
+-- conservation over 30 days, made: { "staves_green": 206, "staves": 87, "horn": 0, "sinew": 6, "glue": 138, "feathers": 40, "heads_copper": 8240, "heads_tin": 8160, "wood": 1650, "arrow_wood": 960, "arrow_copper_broad": 1200, "arrow_copper_bodkin": 840, "arrow_tin_broad": 900, "arrow_tin_bodkin": 1380, "arrow_copper_war": 800 }
+== res://tests/test_bows_econ.gd: PASS ==
+mounted rider art: 310 checks, 0 failures
+== res://tests/test_mounted_rider_art.gd: PASS ==
+== block battle_c: 2 tests, 0 failing ==
+  test_bows_econ.gd PASS (24 s)
+  test_mounted_rider_art.gd PASS (2 s)

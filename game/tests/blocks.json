@@ -23,7 +23,8 @@
 		"res://tests/test_ransom_upkeep_v077.gd"
 	],
 	"rider_fit_v072": [
-		"res://tests/test_rider_fit_v072.gd"
+		"res://tests/test_rider_fit_v072.gd",
+		"res://tests/test_saddle_neck_base.gd"
 	],
 	"mobile_v072": [
 		"res://tests/test_touch_ui_v072.gd",
@@ -132,5 +133,13 @@
 	"v105_battle": [
 		"res://tests/test_battle_presentation_state.gd",
 		"res://tests/test_battle_readability_v055.gd"
+	],
+	"saddle_neck_base": [
+		"res://tests/test_saddle_neck_base.gd"
+	],
+	"v106_mounts": [
+		"res://tests/test_dragon_mount_preview.gd",
+		"res://tests/test_sapphire_spirewing_v061.gd",
+		"res://tests/test_mounted_rider_art.gd"
 	]
 }
