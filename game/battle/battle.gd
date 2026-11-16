@@ -239,7 +239,7 @@ func _build_world(map_seed: int) -> void:
 	add_child(arrows_layer)
 	readability = ReadabilityFx.new()
 	readability.z_index = 8
-	readability.setup(sim, TILE, readability_enabled, Game.pending_battle.get("rounds", {}).get("tactics", []))
+	readability.setup(sim, TILE, readability_enabled, Game.pending_battle.get("rounds", {}).get("tactics", []), Game.battle_markers_mode())
 	add_child(readability)
 	fx = FxLayer.new()
 	fx.z_index = 10
@@ -511,6 +511,8 @@ func close_combat_log() -> void:
 func _on_setting_changed(key: String, value: Variant) -> void:
 	if key == "battle_event_slowmo" and not bool(value):
 		_cancel_event_slowmo()
+	elif key == "battle_markers" and readability != null:
+		readability.set_mode(value)
 
 func _cancel_event_slowmo() -> void:
 	_slowmo = 0.0
