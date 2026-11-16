@@ -1,5 +1,5 @@
 BURNING BROOD: BLOODLINES - ACTIVE CHANGE NOTES
-Updated: 2026-11-16 for v0.102 small house (base main f897872 / v0.100).
+Updated: 2026-11-16 for v0.102 small house merged as ead6ecf (base f897872); 4 blocks / 10 tests pass.
 v0.100 SALVAGE merged as 0d86f7b (base 0f36e00); 11 blocks / 28 tests pass.
 v0.099 merged as 1fcb3fe758ad3a566cbb6b4466b25706fc3cd1d0.
 v0.098 merged as c6d525aa01d67bafacbf96f02206749b98d19bd3.
