@@ -1,5 +1,5 @@
 BURNING BROOD: BLOODLINES - ACTIVE CHANGE NOTES
-Updated: 2026-11-16 for v0.105 (base main ab317f2).
+Updated: 2026-11-16 for v0.105 merged as 95117fd (base ab317f2).
 v0.104 merged as b6f1244 (base 4231e57).
 v0.103 merged as b81e96e (base f76ed6d).
 v0.102 small house merged as ead6ecf (base f897872); 4 blocks / 10 tests pass.
