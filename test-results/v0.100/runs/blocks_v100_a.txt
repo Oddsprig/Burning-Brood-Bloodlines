@@ -1,0 +1,3 @@
+battle_a	--tests=res://tests/test_battle_screen.gd,res://tests/test_battle_result_summary_v014.gd,res://tests/test_gore_render_v016.gd,res://tests/test_gore_text.gd,res://tests/test_sim_armor.gd
+battle_b	--tests=res://tests/test_sim_batch.gd,res://tests/test_sim_determinism.gd,res://tests/test_sim_duel.gd,res://tests/test_horse_regressions_v056.gd
+battle_c	--tests=res://tests/test_bows_econ.gd,res://tests/test_mounted_rider_art.gd

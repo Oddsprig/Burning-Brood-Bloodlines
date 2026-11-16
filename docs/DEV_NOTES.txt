@@ -1,5 +1,6 @@
 BURNING BROOD: BLOODLINES - CURRENT DEVELOPER NOTES
 Updated: 2026-11-07 | v0.099 merged 1fcb3fe758ad3a566cbb6b4466b25706fc3cd1d0 | v0.098 merged c6d525aa01d67bafacbf96f02206749b98d19bd3 | v0.097 merged 7b0429ab4aa596498624f862398c4bcd30e6b737 | v0.096 merged 6ed741a3134e8029496e83da18979052b015efb9 | packaged Windows/Android v0.099 (cloud build, not yet on sale)
+Testing: follow HOW TO TEST at the top of AGENTS.md and CLAUDE.md. Run tests in blocks through runner.gd and blocks.json, one Godot launch per block, and only the blocks that cover a version's changes. The full suite runs only before a store launch.
 
 CURRENT SOURCE AND DOCUMENTATION
 v0.086-v0.094 are accepted normal source merges. The last packaged release before
