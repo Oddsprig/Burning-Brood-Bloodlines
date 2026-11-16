@@ -1,0 +1,9 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+rider fit v073: 108 checks, 0 failures
+== res://tests/test_rider_fit_v072.gd: PASS ==
+saddle neck base v0.106: 1876 checks, 0 failures, 7635 ms
+== res://tests/test_saddle_neck_base.gd: PASS ==
+== block rider_fit_v072: 2 tests, 0 failing ==
+  test_rider_fit_v072.gd PASS (0 s)
+  test_saddle_neck_base.gd PASS (8 s)

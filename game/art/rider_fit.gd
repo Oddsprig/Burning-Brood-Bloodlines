@@ -51,29 +51,13 @@ static func _xy(value: Variant) -> Vector2:
 		return Vector2(float(value[0]), float(value[1]))
 	return Vector2.ZERO
 
-## Source-pixel saddle point for one dragon form. Just tailward of the higher
-## wing root, and a little below it, so the hip meets the back.
-static func anchor_px(entry: Dictionary, morph_id: String = "") -> Vector2:
+## v0.106: Source-pixel saddle point for one dragon form uses the v0.066 neck-base seat_px.
+static func anchor_px(entry: Dictionary, _morph_id: String = "") -> Vector2:
 	if entry.is_empty():
 		return Vector2.ZERO
-	var morph := morph_id if morph_id != "" else str(entry.get("morph_id", ""))
-	var shift: Vector2 = FORM_ANCHOR.get(morph, Vector2(6, 5))
-	var wings: Dictionary = entry.get("wing_roots_px", {})
-	if wings.is_empty():
-		return _xy(entry.get("seat_px", [0, 0]))
-	var left := _xy(wings.get("left", [0, 0]))
-	var right := _xy(wings.get("right", [0, 0]))
-	var neck := _xy(entry.get("neck_root_px", [0, 0]))
-	var dorsal := left if left.y <= right.y else right
-	var head := 1.0 if neck.x >= dorsal.x else -1.0
-	var size: Variant = entry.get("image_size", [128, 96])
-	var width := 128.0
-	if size is Array and (size as Array).size() >= 1:
-		width = float(size[0])
-	elif size is Vector2i:
-		width = float((size as Vector2i).x)
-	var canvas := width / 128.0
-	return Vector2(dorsal.x - head * shift.x * canvas, dorsal.y + shift.y * canvas)
+	if entry.has("seat_px"):
+		return _xy(entry["seat_px"])
+	return _xy(entry.get("neck_root_px", [0, 0]))
 
 static func dorsal_wing(entry: Dictionary) -> Vector2:
 	var wings: Dictionary = entry.get("wing_roots_px", {})
@@ -81,8 +65,7 @@ static func dorsal_wing(entry: Dictionary) -> Vector2:
 	var right := _xy(wings.get("right", [0, 0]))
 	return left if left.y <= right.y else right
 
-## Writes back_anchor and withers_height on a logical dragon model. Does not
-## move seat, which remains the neck source-origin.
+## v0.106: Writes back_anchor and withers_height on a logical dragon model at the neck-base seat.
 static func decorate(model: Dictionary, row: Dictionary) -> Dictionary:
 	if not bool(model.get("valid", false)) or not model.has("whole_xf"):
 		return model
@@ -90,7 +73,10 @@ static func decorate(model: Dictionary, row: Dictionary) -> Dictionary:
 	var progress := float(model.get("progress", 0.0))
 	var entry := DragonSpriteCatalog.source_entry(row, pose, progress)
 	var morph := str(row.get("morph_id", entry.get("morph_id", "")))
-	var anchor: Vector2 = (model["whole_xf"] as Transform2D) * anchor_px(entry, morph)
+	var whole_xf: Transform2D = model["whole_xf"]
+	var anchor: Vector2 = whole_xf * anchor_px(entry, morph)
+	if entry.is_empty() and model.get("seat") is Vector2:
+		anchor = model["seat"]
 	var withers := float(model.get("ground_y", anchor.y)) - anchor.y
 	model["back_anchor"] = anchor
 	model["withers_height"] = maxf(withers, 0.001)
