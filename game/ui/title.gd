@@ -29,10 +29,10 @@ func _ready() -> void:
 	_column = UiKit.vbox(10)
 	_column.alignment = BoxContainer.ALIGNMENT_CENTER
 	center.add_child(_column)
-	_title = UiKit.label("BURNING BROOD", "Title")
+	_title = UiKit.label("NEPO DRAGONS", "Title")
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_column.add_child(_title)
-	_subtitle = UiKit.label("B L O O D L I N E S", "Header")
+	_subtitle = UiKit.label("H O U S E S   ·   D R A G O N S", "Header")
 	_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_subtitle.add_theme_color_override("font_color", UiTheme.PURPLE_TEXT)
 	_column.add_child(_subtitle)

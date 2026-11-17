@@ -141,5 +141,9 @@
 		"res://tests/test_dragon_mount_preview.gd",
 		"res://tests/test_sapphire_spirewing_v061.gd",
 		"res://tests/test_mounted_rider_art.gd"
+	],
+	"v107_title": [
+		"res://tests/test_ui_screens.gd",
+		"res://tests/test_ui_fit.gd"
 	]
 }
