@@ -11,3 +11,7 @@ Read AGENTS.md and docs/BUILD_RULES.md first: they hold every project rule. The 
 - The full suite runs only once, right before a store launch.
 - A block aims for under 60 s and has a 180 s hard cap; split any block that runs longer. A failed test is logged and fixed, then its block is rerun.
 - Testing rules, verbatim: run only one Godot game test at a time on the user's PC (several at once crashed it), headless. Before starting any game test, check for other running Godot or Unity processes (from any project or helper); if any are running, queue the test and wait until they have finished before starting it. Every test must finish in under 3 minutes. These rules must be pasted word for word into every helper task and test brief.
+
+## MERGE MEANS BUILD (owner's rule, 2026-11-16)
+
+Every merge to main ends with a fresh Windows .exe and signed Android .apk exported headless from the merged commit, put in builds/<version>/ with SHA256SUMS. A merge isn't done until the build is there. See AGENTS.md.

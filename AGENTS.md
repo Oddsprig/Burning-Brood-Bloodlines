@@ -149,6 +149,9 @@ Read the original handoff or inherited specifications only as needed.
   and simulation. Repeat phone QA only when requested or near the export milestone.
 - Extend native people, property, ledgers, army and BattleSim identities. No
   duplicate population, market, money system or dragon combat resolver.
+- MERGE MEANS BUILD (owner's rule, 2026-11-16): every merge to main ends with a fresh
+  Windows .exe and signed Android .apk exported headless from the merged commit, put in
+  builds/<version>/ with SHA256SUMS. A merge isn't done until the build is there.
 - WINDOWS AND SCREENSHOTS (owner's rule, 2026-11-16): game windows open only with the
   owner's OK for that run. Whenever a game window is open for any OKed reason, also save
   screenshots of what is on screen to test-results/<version>/shots/. Store screenshots are
