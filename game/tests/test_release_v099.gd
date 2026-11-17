@@ -90,7 +90,7 @@ func inspector_words() -> void:
 func store_build() -> void:
 	# v0.100: retained release checks follow the current version metadata.
 	var name_ := str(ProjectSettings.get_setting("application/config/name", ""))
-	check(name_ == "Burning Brood: Bloodlines", "store: shown name is Burning Brood: Bloodlines (got %s)" % name_)
+	check(name_ == "Nepo Dragons", "store: shown name is Nepo Dragons (v0.107 rename; got %s)" % name_)
 	check(str(ProjectSettings.get_setting("application/config/custom_user_dir_name", "")) == "Burning Brood Bloodlines Claude Edition", "store: the save folder name is unchanged, so old saves still load")
 	# The version is 0.XXX; store builds must agree with it (Android code = XXX, Windows 0.XXX.0.0).
 	var ver := str(ProjectSettings.get_setting("application/config/version", ""))

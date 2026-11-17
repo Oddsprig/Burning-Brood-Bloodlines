@@ -19,6 +19,24 @@ func run(tree: SceneTree) -> int:
 	if Game.location == "":
 		Game.location = "dev_town"
 		DevTown.ensure(Game, "dev_town")
+	# v0.017+ a new game has no field army; muster two real residents at a chosen house (v0.107 test fix).
+	if Game.company.size() < 2:
+		var screen_town: String = Game.location
+		var home: String = DevTools.choose_house(Game, func(_choice: Dictionary) -> bool: return true)
+		DevTools.raise_army(Game, home, 6)
+		Game.location = screen_town
+	# The company/squad screen needs two leaders, the second with at least one troop (real promote/move).
+	while Roster.leaders(Game).size() < 2:
+		var spare: Array = Game.company.filter(func(u: Unit) -> bool: return not u.is_officer())
+		if spare.is_empty() or Roster.promote(Game, spare[0]) != "":
+			break
+	if Roster.leaders(Game).size() >= 2 and Roster.troops_of(Game, Roster.leaders(Game)[1].uid).is_empty():
+		for u: Unit in Game.company:
+			if not u.is_officer() and Roster.move_troop(Game, u, Roster.leaders(Game)[1].uid) == "":
+				break
+	if Game.company.size() < 2 or Roster.leaders(Game).size() < 2 or Roster.troops_of(Game, Roster.leaders(Game)[1].uid).is_empty():
+		printerr("FAIL ui screens: could not muster residents with two leaders and a squad for the screen fixture")
+		return 1
 	var town: Dictionary = Game.world["towns"][Game.location]
 	print("town: ", town["name"])
 	# a wounded officer so the Health tab and the healer have something to show

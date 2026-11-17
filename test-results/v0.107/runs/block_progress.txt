@@ -1,0 +1,53 @@
+21:55:54 RUNNING v100_world: job 257745a51858409db2534beda47f300e
+21:56:06 HOLD v100_world: ram_free=51% cpu=23% engines=['"godot_v4.7.2-stable_win64_console.exe"', '"godot_v4.7.2-stable_win64.exe"']
+21:56:14 PASSED v100_world: job 257745a51858409db2534beda47f300e
+21:56:14 PASS v100_world: v100_v100_world_1794884139166911900|bb-v107-main|--block=v100_world|tb=passed|fails=0|script_err=0|log=v100_v100_world_1794884139166911900.log
+21:56:16 QUEUED v107_title: job dbac4018275e4ff48cb2bc5cec58d032
+21:56:21 WAITING_LANE v107_title: job dbac4018275e4ff48cb2bc5cec58d032
+21:56:28 HOLD v100_world: ram_free=52% cpu=18% engines=['"godot_v4.7.2-stable_win64_console.exe"', '"godot_v4.7.2-stable_win64.exe"']
+21:56:32 RUNNING v107_title: job dbac4018275e4ff48cb2bc5cec58d032
+21:56:50 HOLD v100_world: ram_free=50% cpu=62% engines=['"godot_v4.7.2-stable_win64_console.exe"', '"godot_v4.7.2-stable_win64.exe"']
+21:57:02 FAILED v107_title: job dbac4018275e4ff48cb2bc5cec58d032
+21:57:02 FAILED v107_title: v100_v107_title_1794884176675167700|bb-v107-main|--block=v107_title|tb=failed|fails=2|script_err=2|log=v100_v107_title_1794884176675167700.log
+21:57:02 DONE blocks=2 failures=1
+21:57:12 COOLDOWN v100_world: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 14 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 10:06:58 PM EST.\"}"}
+21:58:13 COOLDOWN v100_world: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 74 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 10:06:58 PM EST.\"}"}
+21:59:13 COOLDOWN v100_world: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 134 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 10:06:58 PM EST.\"}"}
+22:00:13 COOLDOWN v100_world: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 195 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 10:06:58 PM EST.\"}"}
+22:01:13 COOLDOWN v100_world: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 255 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 10:06:58 PM EST.\"}"}
+22:02:13 COOLDOWN v100_world: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 315 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 10:06:58 PM EST.\"}"}
+22:03:13 COOLDOWN v100_world: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 375 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 10:06:58 PM EST.\"}"}
+22:04:14 COOLDOWN v100_world: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 435 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 10:06:58 PM EST.\"}"}
+22:05:14 COOLDOWN v100_world: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 495 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 10:06:58 PM EST.\"}"}
+22:06:14 COOLDOWN v100_world: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 555 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 10:06:58 PM EST.\"}"}
+22:07:14 QUEUED v100_world: job 6d5db7f53ef54cde9fcd3b785f1f6b6a
+22:07:19 WAITING_LANE v100_world: job 6d5db7f53ef54cde9fcd3b785f1f6b6a
+22:07:29 RUNNING v100_world: job 6d5db7f53ef54cde9fcd3b785f1f6b6a
+22:07:34 PASSED v100_world: job 6d5db7f53ef54cde9fcd3b785f1f6b6a
+22:07:34 PASS v100_world: v100_v100_world_1794884232687381500|bb-v107-main|--block=v100_world|tb=passed|fails=0|script_err=0|log=v100_v100_world_1794884232687381500.log
+22:07:36 QUEUED v107_title: job 46c6cb1852a94dda9fa28d0abe3c881c
+22:07:41 WAITING_LANE v107_title: job 46c6cb1852a94dda9fa28d0abe3c881c
+22:07:51 RUNNING v107_title: job 46c6cb1852a94dda9fa28d0abe3c881c
+22:08:16 FAILED v107_title: job 46c6cb1852a94dda9fa28d0abe3c881c
+22:08:16 FAILED v107_title: v100_v107_title_1794884856540676400|bb-v107-main|--block=v107_title|tb=failed|fails=2|script_err=2|log=v100_v107_title_1794884856540676400.log
+22:08:16 DONE blocks=2 failures=1
+22:09:00 HOLD v107_title: ram_free=53% cpu=9% engines=['"godot_v4.7.2-stable_win64_console.exe"', '"godot_v4.7.2-stable_win64.exe"']
+22:09:22 HOLD v107_title: ram_free=53% cpu=20% engines=['"godot_v4.7.2-stable_win64_console.exe"', '"godot_v4.7.2-stable_win64.exe"']
+22:09:44 HOLD v107_title: ram_free=53% cpu=4% engines=['"godot_v4.7.2-stable_win64_console.exe"', '"godot_v4.7.2-stable_win64.exe"']
+22:10:06 HOLD v107_title: ram_free=50% cpu=17% engines=['"godot_v4.7.2-stable_win64_console.exe"', '"godot_v4.7.2-stable_win64.exe"']
+22:10:28 HOLD v107_title: ram_free=51% cpu=30% engines=['"godot_v4.7.2-stable_win64_console.exe"', '"godot_v4.7.2-stable_win64.exe"']
+22:10:50 HOLD v107_title: ram_free=52% cpu=28% engines=['"godot_v4.7.2-stable_win64_console.exe"', '"godot_v4.7.2-stable_win64.exe"']
+22:11:12 COOLDOWN v107_title: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 176 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 10:18:16 PM EST.\"}"}
+22:12:12 COOLDOWN v107_title: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 236 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 10:18:16 PM EST.\"}"}
+22:13:12 COOLDOWN v107_title: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 296 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 10:18:16 PM EST.\"}"}
+22:14:13 COOLDOWN v107_title: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 356 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 10:18:16 PM EST.\"}"}
+22:15:13 COOLDOWN v107_title: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 416 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 10:18:16 PM EST.\"}"}
+22:16:13 COOLDOWN v107_title: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 477 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 10:18:16 PM EST.\"}"}
+22:17:13 COOLDOWN v107_title: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 537 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 10:18:16 PM EST.\"}"}
+22:18:13 COOLDOWN v107_title: {"error": "{\"error\":\"Auto-kill: test refused, its last test failed 597 s ago; wait 10 minutes and fix the cause before queuing again. Blocked until Nov 16, 10:18:16 PM EST.\"}"}
+22:19:13 QUEUED v107_title: job 6967abe2f54b42a5a762377e7b18c402
+22:19:18 WAITING_LANE v107_title: job 6967abe2f54b42a5a762377e7b18c402
+22:19:29 RUNNING v107_title: job 6967abe2f54b42a5a762377e7b18c402
+22:20:04 PASSED v107_title: job 6967abe2f54b42a5a762377e7b18c402
+22:20:04 PASS v107_title: v100_v107_title_1794885072365085000|bb-v107-main|--block=v107_title|tb=passed|fails=0|script_err=0|log=v100_v107_title_1794885072365085000.log
+22:20:04 DONE blocks=1 failures=0

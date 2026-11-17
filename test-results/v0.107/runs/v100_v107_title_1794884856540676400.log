@@ -1,0 +1,22 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+town: Kingsfield
+instanced res://ui/title.tscn
+instanced res://ui/settings.tscn
+SCRIPT ERROR: Out of bounds get index '1' (on base: 'Array')
+   at: run (res://tests/test_ui_screens.gd:45)
+   GDScript backtrace (most recent call first):
+       [0] run (res://tests/test_ui_screens.gd:45)
+runner: 1 runtime script error(s) during res://tests/test_ui_screens.gd (see SCRIPT ERROR above); each counts as a failure
+== res://tests/test_ui_screens.gd: FAIL (1) ==
+Canvas fit regression: camera-centered and off-screen world banners checked
+dev: loaded the start world in 1857 ms
+-- viewport (1600.0, 900.0)
+-- viewport (1600.0, 1000.0)
+-- viewport (2020.0, 900.0) (phone theme)
+-- viewport (2000.0, 900.0) (phone theme)
+Menu UI fit: 4 content sizes, 192 fit cases, 0 failures
+== res://tests/test_ui_fit.gd: PASS ==
+== block v107_title: 2 tests, 1 failing ==
+  test_ui_screens.gd FAIL (1) (6 s)
+  test_ui_fit.gd PASS (15 s)

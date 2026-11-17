@@ -1,0 +1,20 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+town: Kingsfield
+instanced res://ui/title.tscn
+instanced res://ui/settings.tscn
+instanced res://ui/company.tscn
+contract: Defend Kingsfield (Kingsfield) - 30795 coins, 4.0 days left
+instanced res://ui/town.tscn
+== res://tests/test_ui_screens.gd: PASS ==
+Canvas fit regression: camera-centered and off-screen world banners checked
+dev: loaded the start world in 1911 ms
+-- viewport (1600.0, 900.0)
+-- viewport (1600.0, 1000.0)
+-- viewport (2020.0, 900.0) (phone theme)
+-- viewport (2000.0, 900.0) (phone theme)
+Menu UI fit: 4 content sizes, 192 fit cases, 0 failures
+== res://tests/test_ui_fit.gd: PASS ==
+== block v107_title: 2 tests, 0 failing ==
+  test_ui_screens.gd PASS (13 s)
+  test_ui_fit.gd PASS (17 s)
