@@ -1,0 +1,20 @@
+/* Oddsprig appearance controls. This layer does not modify generated images or scenes. */
+html[data-oddsprig-theme="light"]{color-scheme:light!important;--oddsprig-ui-bg:#eeece4;--oddsprig-ui-panel:#f4f0e6;--oddsprig-ui-text:#20383e;--oddsprig-ui-line:#a1b3af;--oddsprig-ui-focus:#426a33}
+html[data-oddsprig-theme="dark"]{color-scheme:dark!important;--oddsprig-ui-bg:#152227;--oddsprig-ui-panel:#213238;--oddsprig-ui-text:#edf2e9;--oddsprig-ui-line:#667e7b;--oddsprig-ui-focus:#c8e6a0}
+button.oddsprig-theme-toggle{all:unset!important;box-sizing:border-box!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;min-height:42px!important;min-width:82px!important;padding:0 11px!important;border:1px solid var(--oddsprig-ui-line)!important;border-radius:7px!important;background:var(--oddsprig-ui-panel)!important;color:var(--oddsprig-ui-text)!important;font:600 14px/1.2 system-ui,-apple-system,'Segoe UI',sans-serif!important;white-space:nowrap!important;cursor:pointer!important;flex:0 0 auto!important;vertical-align:middle!important;touch-action:manipulation!important}
+button.oddsprig-theme-toggle:hover{border-color:var(--oddsprig-ui-focus)!important}
+button.oddsprig-theme-toggle:focus-visible{outline:3px solid var(--oddsprig-ui-focus)!important;outline-offset:3px!important}
+button.oddsprig-theme-toggle svg{width:18px!important;height:18px!important;flex:none!important;fill:none!important;stroke:currentColor!important;stroke-width:1.8!important}
+.oddsprig-theme-actions{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:8px!important;margin-left:auto!important;flex:0 0 auto!important}
+.oddsprig-theme-dock{position:fixed!important;right:max(12px,env(safe-area-inset-right))!important;top:max(10px,env(safe-area-inset-top))!important;z-index:10000!important;isolation:isolate!important}
+.oddsprig-theme-status{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
+@media(max-width:600px){button.oddsprig-theme-toggle{min-width:76px!important;min-height:44px!important;font-size:13px!important;padding-inline:9px!important}.oddsprig-theme-actions{gap:5px!important}}
+@media print{.oddsprig-theme-actions,.oddsprig-theme-dock,.oddsprig-theme-status{display:none!important}}
+
+html[data-oddsprig-theme]:not([data-oddsprig-theme-ready]) body{background-color:var(--oddsprig-ui-bg)!important;color:var(--oddsprig-ui-text)!important}
+@media screen{html[data-oddsprig-theme="light"],html[data-oddsprig-theme="light"] body{background-color:var(--oddsprig-ui-bg)!important}}
+@media screen{html[data-oddsprig-theme="light"] input[type="range"]:not([data-oddsprig-preserve]){background-color:#e5edf0}}
+[data-oddsprig-preserve]{color:var(--oddsprig-original-ink,inherit)!important;background-color:var(--oddsprig-original-surface,transparent)!important}
+@media print{html[data-oddsprig-theme]{color-scheme:light!important}img.oddsprig-logo{content:url("/assets/oddsprig-logo.svg")}body{color:#111!important;background:#fff!important}}
+
+@media screen{html[data-oddsprig-theme="dark"][data-oddsprig-family="electricity"] .replace{background:#fff0db;color:#243e47}html[data-oddsprig-theme="dark"][data-oddsprig-family="electricity"] #sprint{background:#ffebbc;color:#243e47}html[data-oddsprig-theme="dark"][data-oddsprig-family="electricity"] #sprint.on{background:#ebae44;color:#172d36}}
