@@ -1,4 +1,4 @@
-NEPO DRAGONS (formerly Burning Brood: Bloodlines; renamed in v0.107)
+WYRMBLOOD CROWNS (formerly Nepo Dragons / Burning Brood: Bloodlines; renamed in v0.108)
 BURNING BROOD: BLOODLINES - CLAUDE EDITION
 A dynasty, war and dragon game: lead a real house in a living feudal world.
 

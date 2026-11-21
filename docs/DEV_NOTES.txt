@@ -1,10 +1,26 @@
 BURNING BROOD: BLOODLINES - CURRENT DEVELOPER NOTES
-Updated: 2026-11-16 | v0.107 merged 2987439 (base afdce2f) | v0.106 merged 006a79b (base 9f73a93) | v0.105 merged 95117fd (base ab317f2) | v0.104 merged b6f1244 (base 4231e57) | v0.103 merged b81e96e (base f76ed6d) | v0.102 small house merged ead6ecf | v0.100 SALVAGE merged 0d86f7b, 11 blocks / 28 tests pass | last package v0.099 (Windows/Android, not on sale)
+Updated: 2026-11-21 | v0.108 on 74a300f | v0.107 merged 2987439 (base afdce2f) | v0.106 merged 006a79b (base 9f73a93) | v0.105 merged 95117fd (base ab317f2) | v0.104 merged b6f1244 (base 4231e57) | v0.103 merged b81e96e (base f76ed6d) | v0.102 small house merged ead6ecf | v0.100 SALVAGE merged 0d86f7b, 11 blocks / 28 tests pass | last package v0.099 (Windows/Android, not on sale)
 Version map (2026-11-16): v0.101 was folded into the v0.100 salvage (no separate
 v0.101 release). v0.107 (bone-rig dragon rollout) is DROPPED: the owner chose to
 keep the current sprite dragons. The prototype stays on branch v0.106-dragon-rig
 (0e6378c) as a record only; do not merge it. Next version: v0.108 (store prep).
 Testing: follow HOW TO TEST at the top of AGENTS.md and CLAUDE.md. Run tests in blocks through runner.gd and blocks.json, one Godot launch per block, and only the blocks that cover a version's changes. The full suite runs only before a store launch.
+
+v0.108 RENAME TO WYRMBLOOD CROWNS
+Base main 74a300f. Renamed from Nepo Dragons on 2026-11-21.
+- game/project.godot config/name="Wyrmblood Crowns", config/version="0.108";
+  game/main.gd window title; game/ui/title.gd title ("WYRMBLOOD CROWNS") and
+  subtitle ("D R A G O N S   ·   D Y N A S T I E S") with per-label font-size
+  fitting across desktop, landscape phone and narrow compact viewports;
+  game/export_presets.cfg Android package/name, version/code=108,
+  version/name="0.108", export_path ...BurningBrood_Bloodlines_v0108.apk, and
+  Windows product_name/file_description="Wyrmblood Crowns",
+  file_version/product_version="0.108.0.0".
+- Kept: config/custom_user_dir_name (save folder), package/unique_name
+  com.burningbrood.bloodlines, "bloodlines-dragons" seed string, export file
+  names, repo/folder names.
+- tests/test_release_v099.gd checks the new shown name "Wyrmblood Crowns".
+Tests (2026-11-21, PC, Test Bridge, one headless launch per block): 2 blocks / 4 tests PASS: v100_world (house_onboarding_v019, release_v099), v107_title (ui_screens, ui_fit).
 
 v0.107 RENAME TO NEPO DRAGONS
 Base main afdce2f. Owner picked the name on 2026-11-16.

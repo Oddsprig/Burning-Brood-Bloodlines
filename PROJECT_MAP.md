@@ -1,10 +1,19 @@
-# Nepo Dragons (formerly Burning Brood: Bloodlines) — current developer map
+# Wyrmblood Crowns (formerly Nepo Dragons / Burning Brood: Bloodlines) — current developer map
 
 Testing: follow HOW TO TEST at the top of AGENTS.md and CLAUDE.md. Run tests in blocks through runner.gd and blocks.json, one Godot launch per block, and only the blocks that cover a version's changes. The full suite runs only before a store launch.
 
-Updated 16 November 2026 for v0.107 on main afdce2f.
+Updated 21 November 2026 for v0.108 on main 74a300f.
 
 Previous release record: Updated 7 November 2026 for v0.099 (release candidate: dragons in big battles, store builds, marriage ages), normally merged as `1fcb3fe758ad3a566cbb6b4466b25706fc3cd1d0` from branch `v0.099-release-candidate` based on `main` `7ad5a8b`. v0.098 (battle screen, Records tables and phone layout) was normally merged as `c6d525aa01d67bafacbf96f02206749b98d19bd3` from branch `v0.098-screens-and-phone` based on `main` `c1b751a`. v0.097 (six bug fixes toward an Oddsprig sale) was normally merged as `7b0429ab4aa596498624f862398c4bcd30e6b737` from branch `v0.097-sale-readiness` based on `main` `623d009`. v0.096 (readable text, fonts and layout on every page) was normally merged as `6ed741a3134e8029496e83da18979052b015efb9` from branch `v0.096-ui-readability` based on `main` `951cf2d`. v0.095 was normally merged as `5e17abb014a1f01f0426406bd455e249f06a8e20`. Source versions v0.086–v0.094 are accepted normal merges; v0.099 is the first package since v0.085 (Windows .exe and signed Android .apk, built in the cloud container, not yet on sale). The older source-only audit below is pinned to v0.094.
+
+## v0.108 — rename to Wyrmblood Crowns
+
+Base main 74a300f. Shown name only; save folder, Android package id, seed string and build file names unchanged.
+
+| Change | Owner |
+|---|---|
+| Name and version 0.108 | `game/project.godot`, `game/main.gd`, `game/ui/title.gd` (`WYRMBLOOD CROWNS`, `D R A G O N S   ·   D Y N A S T I E S`, width-fitted font sizing), `game/export_presets.cfg` |
+| Tests | `game/tests/test_release_v099.gd`; blocks `v100_world`, `v107_title` (2 blocks / 4 tests pass, 2026-11-21) |
 
 ## v0.107 — rename to Nepo Dragons
 
