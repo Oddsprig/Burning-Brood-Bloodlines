@@ -1,0 +1,5 @@
+v0.108 test receipt (2026-11-16)
+2 blocks / 4 tests pass: v100_world, v107_title.
+Block runs (results.txt):
+v100_v100_world_1795273314606012300|bb-v108-main|--block=v100_world|tb=passed|fails=0|script_err=0|log=v100_v100_world_1795273314606012300.log
+v100_v107_title_1795273367424036000|bb-v108-main|--block=v107_title|tb=passed|fails=0|script_err=0|log=v100_v107_title_1795273367424036000.log

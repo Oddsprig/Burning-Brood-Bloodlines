@@ -1,0 +1,46 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+House onboarding v019: 58 checks, 0 failures
+== res://tests/test_house_onboarding_v019.gd: PASS ==
+dev: made the start world user://fixtures/world_0.108_v1.json in 22454 ms
+dev: loaded the start world in 2816 ms
+ok   a house is chosen
+ok   rounds: two whole adult dragons
+ok   rounds: both dragons fight round 1 though more men wait than a round holds (4 picked)
+ok   rounds: the round is still 4 a side
+ok   rounds: fit dragons fight the next round too (they do not sit out as tired)
+ok   rounds: the men still rotate: round 1's men rest while the others fight
+ok   rounds: a dragon too hurt to fight still sits out (v0.097 rule kept)
+ok   inspector: action progress in percent (12 of 15 ticks = 80%)
+ok   inspector: odd tick counts stay within 0..100
+ok   inspector: pace words from tempo
+ok   inspector: no raw ticks or DF speed number left in the state line
+ok   muster: says who is away serving (No adult family members are free to ride with the army. Away serving: A family member (with the realm's field army), A family member (with the realm's field army), A family member (in the town guard). Field-army service has no set return date. Raise settlement troops below, or hire men in Town Recruits. A family rider is optional.)
+ok   muster: plain line with a next step when nobody is away (No adult family members are free to ride with the army. Raise settlement troops below, or hire men in Town Recruits. A family rider is optional.)
+ok   marriage: men, orcs and goblins keep the old 16-year limit
+ok   marriage: elves weigh a gap in their own long lives (x6.67)
+ok   marriage: dwarves between men and elves
+ok   store: shown name is Wyrmblood Crowns (v0.108 rename; got Wyrmblood Crowns)
+ok   store: the save folder name is unchanged, so old saves still load
+ok   store: version is 0.XXX (got 0.108)
+ok   store: title screen and window title drop Claude Edition
+ok   store: the boot splash image exists (res://icon_mobile/splash.png)
+ok   store: export presets load
+ok   store: Windows Desktop and Android presets
+ok   store: Windows is one 64-bit .exe with the game inside
+ok   store: the Windows icon file exists
+ok   store: Android version matches 0.108
+ok   store: Windows version matches 0.108
+ok   store: Android file name carries the version
+ok   store: no release key or password in the committed presets
+ok   store: Android main_192x192 exists
+ok   store: Android adaptive_foreground_432x432 exists
+ok   store: Android adaptive_background_432x432 exists
+ok   store: Android adaptive_monochrome_432x432 exists
+ok   store: Windows Desktop leaves the tests out
+ok   store: Android leaves the tests out
+v099 checks 35, failures 0, 25876 ms
+== res://tests/test_release_v099.gd: PASS ==
+== block v100_world: 2 tests, 0 failing ==
+  test_house_onboarding_v019.gd PASS (1 s)
+  test_release_v099.gd PASS (26 s)

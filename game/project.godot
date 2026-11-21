@@ -6,8 +6,8 @@ config_version=5
 config/use_custom_user_dir=true
 config/custom_user_dir_name="Burning Brood Bloodlines Claude Edition"
 
-config/name="Nepo Dragons"
-config/version="0.107"
+config/name="Wyrmblood Crowns"
+config/version="0.108"
 config/quit_on_go_back=false
 config/icon="res://icon_claude.png"
 config/windows_native_icon="res://icon_windows.ico"

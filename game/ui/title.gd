@@ -29,10 +29,10 @@ func _ready() -> void:
 	_column = UiKit.vbox(10)
 	_column.alignment = BoxContainer.ALIGNMENT_CENTER
 	center.add_child(_column)
-	_title = UiKit.label("NEPO DRAGONS", "Title")
+	_title = UiKit.label("WYRMBLOOD CROWNS", "Title")
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_column.add_child(_title)
-	_subtitle = UiKit.label("H O U S E S   ·   D R A G O N S", "Header")
+	_subtitle = UiKit.label("D R A G O N S   ·   D Y N A S T I E S", "Header")
 	_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_subtitle.add_theme_color_override("font_color", UiTheme.PURPLE_TEXT)
 	_column.add_child(_subtitle)
@@ -65,11 +65,19 @@ func _layout() -> void:
 	if _title == null: return
 	UiKit.apply_safe_area(_margin, 16, 16, 16, 16)
 	var compact := size.y < 500 or size.x < 500
-	_title.add_theme_font_size_override("font_size", UiTheme.px(36 if compact else 54))
-	_subtitle.add_theme_font_size_override("font_size", UiTheme.px(22 if compact else 28))
+	var avail_w := maxf((size.x if size.x > 0.0 else 1600.0) - float(_margin.get_theme_constant("margin_left") + _margin.get_theme_constant("margin_right")) - 16.0, 240.0)
+	_fit_label(_title, UiTheme.px(34 if compact else 48), avail_w)
+	_fit_label(_subtitle, UiTheme.px(18 if compact else 24), avail_w)
 	_column.add_theme_constant_override("separation", 6 if size.y < 500 else 10)
 	for b in _buttons:
 		b.custom_minimum_size.x = clampf(size.x - 48, 272, 360)
+
+func _fit_label(lbl: Label, target_px: int, avail_w: float) -> void:
+	var fs := target_px
+	var f: Font = lbl.get_theme_font("font")
+	while fs > 12 and f != null and f.get_string_size(lbl.text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > avail_w:
+		fs -= 1
+	lbl.add_theme_font_size_override("font_size", fs)
 
 func _continue() -> void:
 	if not Game.load_game(): return
